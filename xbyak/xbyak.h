@@ -4,9 +4,9 @@
 	@file xbyak.h
 	@brief Xbyak ; JIT assembler for x86(IA32)/x64 by C++
 	@author herumi
-	@version $Revision: 1.183 $
+	@version $Revision: 1.185 $
 	@url http://homepage1.nifty.com/herumi/soft/xbyak.html
-	@date $Date: 2010/04/15 11:05:43 $
+	@date $Date: 2010/04/16 06:00:21 $
 	@note modified new BSD license
 	http://www.opensource.org/licenses/bsd-license.php
 */
@@ -55,7 +55,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 2048,
-	VERSION = 0x2230, /* 0xABCD = A.BC(D) */
+	VERSION = 0x2240, /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -471,23 +471,14 @@ public:
 	/*
 		@param data [in] address of jmp data
 		@param disp [in] offset from the next of jmp
-		@param isShort [in] true if short jmp
+		@param size [in] write size(1, 2, 4, 8)
 	*/
-	void rewrite(uint8 *data, uint32 disp, bool isShort)
+	void rewrite(uint8 *data, uint64 disp, size_t size)
 	{
-		if (isShort) {
-			data[0] = static_cast<uint8>(disp);
-		} else {
-			data[0] = static_cast<uint8>(disp);
-			data[1] = static_cast<uint8>(disp >> 8);
-			data[2] = static_cast<uint8>(disp >> 16);
-			data[3] = static_cast<uint8>(disp >> 24);
+		if (size != 1 && size != 2 && size != 4 && size != 8) throw ERR_BAD_PARAMETER;
+		for (size_t i = 0; i < size; i++) {
+			data[i] = static_cast<uint8>(disp >> (i * 8));
 		}
-	}
-	void rewrite(uint8 *data, uint64 disp)
-	{
-		rewrite(data, static_cast<uint32>(disp), false);
-		rewrite(data + 8, static_cast<uint32>(disp >> 32), false);
 	}
 	void updateRegField(uint8 regIdx) const
 	{
@@ -698,8 +689,9 @@ public:
 			const JmpLabel *jmp = &itr->second;
 			uint32 disp = inner::GetPtrDist(address, jmp->endOfJmp);
 			if (jmp->isShort && !inner::IsInDisp8(disp)) throw ERR_LABEL_IS_TOO_FAR;
-			uint8 *data = jmp->endOfJmp - (jmp->isShort ? 1 : 4);
-			base_->rewrite(data, disp, jmp->isShort);
+			size_t jmpSize = jmp->isShort ? 1 : 4;
+			uint8 *data = jmp->endOfJmp - jmpSize;
+			base_->rewrite(data, disp, jmpSize);
 			undefinedList_.erase(itr);
 		}
 	}
@@ -874,13 +866,13 @@ private:
 		if (type != T_NEAR && inner::IsInDisp8(disp - shortJmpSize)) {
 			db(shortCode);
 			db(0);
-			rewrite(top + shortHeaderSize, disp - shortJmpSize, true);
+			rewrite(top + shortHeaderSize, disp - shortJmpSize, 1);
 		} else {
 			if (type == T_SHORT) throw ERR_LABEL_IS_TOO_FAR;
 			if (longPref) db(longPref);
 			db(longCode);
 			dd(0);
-			rewrite(top + longHeaderSize, disp - longJmpSize, false);
+			rewrite(top + longHeaderSize, disp - longJmpSize, 4);
 		}
 	}
 	/* preCode is for SSSE3/SSE4 */

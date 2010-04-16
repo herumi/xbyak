@@ -9,36 +9,29 @@
 class Sample : public Xbyak::CodeGenerator {
 	void operator=(const Sample&);
 public:
-	Sample(void *ptr = 0, size_t size = Xbyak::DEFAULT_MAX_CODE_SIZE) : Xbyak::CodeGenerator(size, ptr) {}
-	void gen()
+	Sample(void *userPtr = 0, size_t size = Xbyak::DEFAULT_MAX_CODE_SIZE) : Xbyak::CodeGenerator(size, userPtr)
 	{
+		inLocalLabel(); // use local label for multiple instance
 #ifdef XBYAK32
 		mov(ecx, ptr [esp + 4]); // n
 #elif defined(XBYAK64_GCC)
 		mov(ecx, edi); // n
+#else
+		// n = ecx
 #endif
 		xor(eax, eax); // sum
 		test(ecx, ecx);
 		jz(".exit");
 		xor(edx, edx); // i
-	L("@@");
+	L(".lp");
 		add(eax, edx);
 		inc(edx);
 
-		/*
-			sample of local label
-		*/
-		inLocalLabel(); // from here
-		jmp(".exit"); // jmp to not <B> but <A>
-		nop();
-		nop();
-	L(".exit"); // <A> this label is different from <B>
-		outLocalLabel(); // here
-
 		cmp(edx, ecx);
-		jbe("@b"); // jmp to previous @@
+		jbe(".lp"); // jmp to previous @@
 	L(".exit"); // <B>
 		ret();
+		outLocalLabel(); // end of local label
 	}
 };
 
@@ -65,18 +58,20 @@ class CallAtoi : public Xbyak::CodeGenerator {
 public:
 	CallAtoi()
 	{
-		// rdi is pointer to string
+#ifdef XBYAK64
 #ifdef XBYAK64_WIN
-#ifdef _DEBUG
 		sub(rsp, 32); // return-address is destroied if 64bit debug mode
 #endif
 		mov(rax, (size_t)atoi);
 		call(rax);
-#ifdef _DEBUG
+#ifdef XBYAK64_WIN
 		add(rsp, 32);
 #endif
 #else
+		mov(eax, ptr [esp + 4]);
+		push(eax);
 		call((void*)atoi);
+		add(esp, 4);
 #endif
 		ret();
 	}
@@ -89,7 +84,7 @@ public:
 	JmpAtoi()
 	{
 		/* already pushed "456" */
-#ifdef XBYAK64_WIN
+#ifdef XBYAK64
 		mov(rax, (size_t)atoi);
 		jmp(rax);
 #else
@@ -111,7 +106,6 @@ int main()
 #else
 		puts("32bit");
 #endif
-		s.gen();
 		int (*func)(int) = (int (*)(int))s.getCode();
 		for (int i = 0; i <= 10; i++) {
 			printf("0 + ... + %d = %d\n", i, func(i));
@@ -134,7 +128,6 @@ int main()
 			uint8 *p = CodeArray::getAlignedAddress(buf);
 			CodeArray::protect(p, codeSize, true);
 			Sample s(p, codeSize);
-			s.gen();
 			int (*func)(int) = (int (*)(int))s.getCode();
 			printf("0 + ... + %d = %d\n", 100, func(100));
 			CodeArray::protect(p, codeSize, false);

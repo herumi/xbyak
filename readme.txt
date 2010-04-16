@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 2.23
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 2.24
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -198,6 +198,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2010/04/16 ver 2.24 change the prototype of rewrite() method
 2010/04/15 ver 2.23 fix align() and xbyak_util.h for Mac
 2010/02/16 ver 2.22 fix inLocalLabel()/outLocalLabel()
 2009/12/09 ver 2.21 support cygwin(gcc 4.3.2)
@@ -236,5 +237,5 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 光成滋生(MITSUNARI Shigeo, herumi at nifty dot com)
 
 ---
-$Revision: 1.54 $
-$Date: 2010/04/15 06:44:46 $
+$Revision: 1.55 $
+$Date: 2010/04/16 03:48:59 $
