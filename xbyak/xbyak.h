@@ -4,9 +4,9 @@
 	@file xbyak.h
 	@brief Xbyak ; JIT assembler for x86(IA32)/x64 by C++
 	@author herumi
-	@version $Revision: 1.185 $
+	@version $Revision: 1.186 $
 	@url http://homepage1.nifty.com/herumi/soft/xbyak.html
-	@date $Date: 2010/04/16 06:00:21 $
+	@date $Date: 2010/04/26 06:40:29 $
 	@note modified new BSD license
 	http://www.opensource.org/licenses/bsd-license.php
 */
@@ -55,7 +55,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 2048,
-	VERSION = 0x2240, /* 0xABCD = A.BC(D) */
+	VERSION = 0x2250, /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED

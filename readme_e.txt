@@ -1,5 +1,5 @@
 
-    Xbyak 2.24 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+    Xbyak 2.25 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 -----------------------------------------------------------------------------
 <Abstract>
@@ -48,6 +48,7 @@ ret           --> ret();
 Addressing
 
 (ptr|dword|word|byte) [base + index * (1|2|4|8) + displacement]
+                      [rip + 32bit disp] ; x64 only
 
 NASM                   Xbyak
 mov eax, [ebx+ecx] --> mov (eax, ptr[ebx+ecx]);
@@ -147,6 +148,7 @@ http://www.opensource.org/licenses/bsd-license.php
 -----------------------------------------------------------------------------
 <History>
 
+2010/Apr/26 ver 2.25 add jc/jnc(I forgot to implement them...)
 2010/Apr/16 ver 2.24 change the prototype of rewrite() method
 2010/Apr/15 ver 2.23 fix align() and xbyak_util.h for Mac
 2010/Feb/16 ver 2.22 fix inLocalLabel()/outLocalLabel()
@@ -181,5 +183,5 @@ http://www.opensource.org/licenses/bsd-license.php
 MITSUNARI Shigeo(herumi at nifty dot com)
 
 ---
-$Revision: 1.43 $
-$Date: 2010/04/16 03:48:59 $
+$Revision: 1.45 $
+$Date: 2010/04/26 06:40:29 $

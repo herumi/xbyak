@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "2.24"; }
+const char *getVersionString() const { return "2.25"; }
 void packssdw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x6B); }
 void packsswb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x63); }
 void packuswb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x67); }
@@ -191,6 +191,9 @@ void setno(const Operand& op) { opR_ModM(op, 8, 3, 0, 0x0F, B10010000 | 1); }
 void cmovb(const Reg32e& reg, const Operand& op) { opModRM(reg, op, op.isREG(i32e), op.isMEM(), 0x0F, B01000000 | 2); }
 void jb(const char *label, LabelType type = T_AUTO) { opJmp(label, type, 0x72, 0x82, 0x0F); }
 void setb(const Operand& op) { opR_ModM(op, 8, 3, 0, 0x0F, B10010000 | 2); }
+void cmovc(const Reg32e& reg, const Operand& op) { opModRM(reg, op, op.isREG(i32e), op.isMEM(), 0x0F, B01000000 | 2); }
+void jc(const char *label, LabelType type = T_AUTO) { opJmp(label, type, 0x72, 0x82, 0x0F); }
+void setc(const Operand& op) { opR_ModM(op, 8, 3, 0, 0x0F, B10010000 | 2); }
 void cmovnae(const Reg32e& reg, const Operand& op) { opModRM(reg, op, op.isREG(i32e), op.isMEM(), 0x0F, B01000000 | 2); }
 void jnae(const char *label, LabelType type = T_AUTO) { opJmp(label, type, 0x72, 0x82, 0x0F); }
 void setnae(const Operand& op) { opR_ModM(op, 8, 3, 0, 0x0F, B10010000 | 2); }
@@ -200,6 +203,9 @@ void setnb(const Operand& op) { opR_ModM(op, 8, 3, 0, 0x0F, B10010000 | 3); }
 void cmovae(const Reg32e& reg, const Operand& op) { opModRM(reg, op, op.isREG(i32e), op.isMEM(), 0x0F, B01000000 | 3); }
 void jae(const char *label, LabelType type = T_AUTO) { opJmp(label, type, 0x73, 0x83, 0x0F); }
 void setae(const Operand& op) { opR_ModM(op, 8, 3, 0, 0x0F, B10010000 | 3); }
+void cmovnc(const Reg32e& reg, const Operand& op) { opModRM(reg, op, op.isREG(i32e), op.isMEM(), 0x0F, B01000000 | 3); }
+void jnc(const char *label, LabelType type = T_AUTO) { opJmp(label, type, 0x73, 0x83, 0x0F); }
+void setnc(const Operand& op) { opR_ModM(op, 8, 3, 0, 0x0F, B10010000 | 3); }
 void cmove(const Reg32e& reg, const Operand& op) { opModRM(reg, op, op.isREG(i32e), op.isMEM(), 0x0F, B01000000 | 4); }
 void je(const char *label, LabelType type = T_AUTO) { opJmp(label, type, 0x74, 0x84, 0x0F); }
 void sete(const Operand& op) { opR_ModM(op, 8, 3, 0, 0x0F, B10010000 | 4); }
