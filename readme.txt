@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 2.25
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 2.26
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -199,6 +199,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2010/05/24 ver 2.26 fix sub(rsp, 1000)
 2010/04/26 ver 2.25 add jc/jnc(I forgot to implement them...)
 2010/04/16 ver 2.24 change the prototype of rewrite() method
 2010/04/15 ver 2.23 fix align() and xbyak_util.h for Mac

@@ -4,9 +4,9 @@
 	@file xbyak.h
 	@brief Xbyak ; JIT assembler for x86(IA32)/x64 by C++
 	@author herumi
-	@version $Revision: 1.186 $
+	@version $Revision: 1.188 $
 	@url http://homepage1.nifty.com/herumi/soft/xbyak.html
-	@date $Date: 2010/04/26 06:40:29 $
+	@date $Date: 2010/05/24 06:13:44 $
 	@note modified new BSD license
 	http://www.opensource.org/licenses/bsd-license.php
 */
@@ -55,7 +55,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 2048,
-	VERSION = 0x2250, /* 0xABCD = A.BC(D) */
+	VERSION = 0x2260, /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -987,7 +987,7 @@ private:
 		uint32 immBit = inner::IsInDisp8(imm) ? 8 : isInDisp16(imm) ? 16 : 32;
 		if (op.getBit() < immBit) throw ERR_IMM_IS_TOO_BIG;
 		if (op.isREG()) {
-			if (immBit == 16 && op.isBit(32)) immBit = 32; /* don't use MEM16 if 32bit mode */
+			if (immBit == 16 && op.isBit(32|64)) immBit = 32; /* don't use MEM16 if 32/64bit mode */
 		}
 		if (op.isREG() && op.getIdx() == 0 && (op.getBit() == immBit || (op.isBit(64) && immBit == 32))) { // rax, eax, ax, al
 			rex(op);
@@ -1394,7 +1394,7 @@ public:
 	bool hasUndefinedLabel() const { return label_.hasUndefinedLabel(); }
 	const uint8 *getCode() const
 	{
-//		assert(!hasUndefinedLabel());
+		assert(!hasUndefinedLabel());
 //		if (hasUndefinedLabel()) throw ERR_LABEL_IS_NOT_FOUND;
 		return top_;
 	}

@@ -1,5 +1,5 @@
 
-    Xbyak 2.25 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+    Xbyak 2.26 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 -----------------------------------------------------------------------------
 <Abstract>
@@ -148,6 +148,7 @@ http://www.opensource.org/licenses/bsd-license.php
 -----------------------------------------------------------------------------
 <History>
 
+2010/May/24 ver 2.26 fix sub(rsp, 1000)
 2010/Apr/26 ver 2.25 add jc/jnc(I forgot to implement them...)
 2010/Apr/16 ver 2.24 change the prototype of rewrite() method
 2010/Apr/15 ver 2.23 fix align() and xbyak_util.h for Mac
@@ -183,5 +184,5 @@ http://www.opensource.org/licenses/bsd-license.php
 MITSUNARI Shigeo(herumi at nifty dot com)
 
 ---
-$Revision: 1.45 $
-$Date: 2010/04/26 06:40:29 $
+$Revision: 1.46 $
+$Date: 2010/05/24 06:13:44 $
