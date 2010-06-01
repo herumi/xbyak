@@ -20,12 +20,17 @@ normalize_prefix: normalize_prefix.cpp
 	g++ $(CFLAGS) normalize_prefix.cpp -o $@
 test_mmx: test_mmx.cpp
 	g++ $(CFLAGS) test_mmx.cpp -o $@ -lpthread
+jmp: jmp.cpp
+	g++ $(CFLAGS) jmp.cpp -o $@
 
-test: normalize_prefix
+test: normalize_prefix jmp
 	./test_nm.sh
 	./test_nm.sh Y
 	./test_nm.sh 64
 	./test_nm.sh Y64
+	./test_address.sh
+	./test_address.sh 64
+	./jmp
 
 clean:
 	rm -rf *.o $(TARGET)

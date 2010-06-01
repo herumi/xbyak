@@ -4,9 +4,9 @@
 	@file xbyak.h
 	@brief Xbyak ; JIT assembler for x86(IA32)/x64 by C++
 	@author herumi
-	@version $Revision: 1.188 $
+	@version $Revision: 1.191 $
 	@url http://homepage1.nifty.com/herumi/soft/xbyak.html
-	@date $Date: 2010/05/24 06:13:44 $
+	@date $Date: 2010/06/01 05:26:11 $
 	@note modified new BSD license
 	http://www.opensource.org/licenses/bsd-license.php
 */
@@ -55,7 +55,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 2048,
-	VERSION = 0x2260, /* 0xABCD = A.BC(D) */
+	VERSION = 0x2270, /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -144,7 +144,7 @@ namespace inner {
 
 enum { debug = 1 };
 
-static inline uint32 GetPtrDist(const void *p1, const void *p2 = 0)
+static inline uint32 GetPtrDist(const void *p1, const void *p2)
 {
 	uint64 diff = static_cast<const char *>(p1) - static_cast<const char *>(p2);
 #ifdef XBYAK64
@@ -154,6 +154,7 @@ static inline uint32 GetPtrDist(const void *p1, const void *p2 = 0)
 }
 
 static inline bool IsInDisp8(uint32 x) { return 0xFFFFFF80 <= x || x <= 0x7F; }
+static inline bool IsInInt32(uint64 x) { return 0xFFFFFFFF80000000ULL <= x || x <= 0x7FFFFFFFU; }
 
 }
 
@@ -555,7 +556,11 @@ public:
 	explicit AddressFrame(uint32 bit) : bit_(bit) { }
 	Address operator[](const void *disp) const
 	{
-		Reg32e r(Reg(), Reg(), 0, inner::GetPtrDist(disp));
+		size_t adr = reinterpret_cast<size_t>(disp);
+#ifdef XBYAK64
+		if (adr > 0xFFFFFFFFU) throw ERR_OFFSET_IS_TOO_BIG;
+#endif
+		Reg32e r(Reg(), Reg(), 0, adr);
 		return operator[](r);
 	}
 #ifdef XBYAK64
@@ -1216,13 +1221,32 @@ protected:
 			opRM_RM(reg1, reg2, B10001000);
 		}
 	}
-	void mov(const Operand& op, uint64 imm)
+	void mov(const Operand& op,
+#ifdef XBYAK64
+	uint64
+#else
+	uint32
+#endif
+	imm)
 	{
 		verifyMemHasSize(op);
 		if (op.isREG()) {
-			int w = op.isBit(8) ? 0 : 1;
-			rex(op); db(B10110000 | (w << 3) | (op.getIdx() & 7));
-			db(imm, op.getBit() / 8);
+			rex(op);
+			int code, size;
+#ifdef XBYAK64
+			if (op.isBit(64) && inner::IsInInt32(imm)) {
+				db(B11000111);
+				code = B11000000;
+				size = 4;
+			} else
+#endif
+			{
+				code = B10110000 | ((op.isBit(8) ? 0 : 1) << 3);
+				size = op.getBit() / 8;
+			}
+
+			db(code | (op.getIdx() & 7));
+			db(imm, size);
 		} else if (op.isMEM()) {
 			opModM(static_cast<const Address&>(op), Reg(0, Operand::REG, op.getBit()), B11000110);
 			int size = op.getBit() / 8; if (size > 4) size = 4;
@@ -1398,7 +1422,7 @@ public:
 //		if (hasUndefinedLabel()) throw ERR_LABEL_IS_NOT_FOUND;
 		return top_;
 	}
-#ifdef TEST_NM
+#ifdef XBYAK_TEST
 	void dump(bool doClear = true)
 	{
 		CodeArray::dump();

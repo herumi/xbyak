@@ -36,7 +36,7 @@ awk '{if (index($3, "-")) { conti=substr($3, 0, length($3) - 1) } else { conti =
 echo "xbyak"
 ./make_nm jit > nm.cpp
 echo "compile nm_frame.cpp"
-g++ $CFLAGS -DTEST_NM nm_frame.cpp -o nm_frame
+g++ $CFLAGS -DXBYAK_TEST nm_frame.cpp -o nm_frame
 ./nm_frame | $FILTER > x.lst
 diff ok.lst x.lst && echo "ok"
 exit 0

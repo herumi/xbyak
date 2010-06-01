@@ -6,20 +6,8 @@ using namespace Xbyak;
 class Sample : public CodeGenerator {
 	void operator=(const Sample&);
 public:
-	void gen()
-	{
-		try {
-
 #include "nm.cpp"
-
-		} catch (Xbyak::Error err) {
-			printf("ERR:%s(%d)\n", ConvertErrorToString(err), err);
-		} catch (...) {
-			printf("unkwon error\n");
-		}
-	}
 };
-
 
 #define _STR(x) #x
 #define TEST(syntax) err = true; try { syntax; err = false; } catch (Xbyak::Error) { } catch (...) { } if (!err) printf("should be err:%s;\n", _STR(syntax))
@@ -38,8 +26,14 @@ public:
 };
 int main()
 {
-	Sample s;
-	s.gen();
+	try {
+		Sample s;
+		s.gen();
+	} catch (Xbyak::Error err) {
+		printf("ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
+	} catch (...) {
+		printf("unknown error\n");
+	}
 	ErrorSample es;
 	es.gen();
 }

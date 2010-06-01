@@ -1,5 +1,5 @@
 pushd ..\gen
 call update
 popd
-cl -I../ -DTEST_NM jmp.cpp %OPT%
+cl -I../ -DXBYAK_TEST jmp.cpp %OPT%
 jmp

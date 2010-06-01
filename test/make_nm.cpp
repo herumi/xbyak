@@ -62,6 +62,7 @@ const uint64 NOPARA = 1ULL << (bitEnd - 1);
 
 class Test {
 	const bool isXbyak_;
+	int funcNum_;
 	// check all op1, op2, op3
 	void put(const char *nm, uint64 op1 = NOPARA, uint64 op2 = NOPARA, uint64 op3 = NOPARA) const
 	{
@@ -811,6 +812,31 @@ class Test {
 		put(p, REG8|REG8_3|MEM, REG8|REG8_3);
 		put(p, REG32e|REG16|REG8|REG8_3|EAX|AX|AL|MEM32|MEM16|MEM8, IMM);
 	}
+	void putMov64() const
+	{
+		const struct {
+			const char *a;
+			const char *b;
+		} tbl[] = {
+			{ "0", "dword 0" },
+			{ "0x123", "dword 0x123" },
+			{ "0x12345678", "dword 0x12345678" },
+			{ "0x7fffffff", "dword 0x7fffffff" },
+			{ "0xffffffff", "0xffffffff" },
+			{ "0x80000000", "0x80000000" },
+			{ "2147483648U", "2147483648" },
+			{ "0x80000001", "0x80000001" },
+			{ "0xffffffffffffffff", "dword 0xffffffffffffffff" },
+			{ "-1", "dword -1" },
+			{ "0xffffffff80000000", "dword 0xffffffff80000000" },
+			{ "0xffffffff80000001", "dword 0xffffffff80000001" },
+			{ "0xffffffff12345678", "0xffffffff12345678" },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			put("mov", REG64, tbl[i].a, tbl[i].b);
+		}
+		put("mov", REG32e|REG16|REG8|RAX|EAX|AX|AL, IMM);
+	}
 	void putEtc() const
 	{
 		const char *p = "ret";
@@ -821,7 +847,7 @@ class Test {
 		put(p, REG64|MEM|MEM_ONLY_DISP, REG64|RAX);
 		put(p, AX|REG16|MEM|MEM_ONLY_DISP, REG16|AX);
 		put(p, AL|REG8|REG8_3|MEM|MEM_ONLY_DISP, REG8|REG8_3|AL);
-		put(p, REG32e|REG16|REG8|RAX|EAX|AX|AL, MEM|IMM|MEM_ONLY_DISP);
+		put(p, REG32e|REG16|REG8|RAX|EAX|AX|AL, MEM|MEM_ONLY_DISP);
 		put(p, MEM32|MEM16|MEM8, IMM);
 		put(p, REG64, "0x1234567890abcdefLL", "0x1234567890abcdef");
 #ifdef XBYAK64
@@ -1117,32 +1143,72 @@ class Test {
 public:
 	Test(bool isXbyak)
 		: isXbyak_(isXbyak)
+		, funcNum_(1)
 	{
+		if (!isXbyak_) return;
+		printf("%s",
+			"    void gen0()\n"
+			"    {\n");
 	}
-	void put() const
+	/*
+		gcc and vc give up to compile this source,
+		so I split functions.
+	*/
+	void separateFunc()
+	{
+		if (!isXbyak_) return;
+		printf(
+			"    }\n"
+			"    void gen%d()\n"
+			"    {\n", funcNum_++);
+	}
+	~Test()
+	{
+		if (!isXbyak_) return;
+		printf("%s",
+			"    }\n"
+			"    void gen()\n"
+			"    {\n");
+		for (int i = 0; i < funcNum_; i++) {
+			printf(
+			"        gen%d();\n", i);
+		}
+		printf(
+			"    }\n");
+	}
+	void put()
 	{
 #ifndef USE_YASM
 		putSIMPLE();
 		putReg1();
 		putRorM();
+		separateFunc();
 		putPushPop();
 		putTest();
+		separateFunc();
 		putEtc();
 		putShift();
 		putShxd();
+
+		separateFunc();
+
 		putBs();
 		putMMX1();
 		putMMX2();
+		separateFunc();
 		putMMX3();
 		putMMX4();
 		putMMX5();
+		separateFunc();
 		putXMM1();
 		putXMM2();
 		putXMM3();
 		putXMM4();
+		separateFunc();
 		putCmov();
 		putFpuMem16_32();
 		putFpuMem32_64();
+		separateFunc();
 		putFpuMem16_32_64();
 		put("clflush", MEM); // current nasm is ok
 		putFpu();
@@ -1150,7 +1216,9 @@ public:
 		putFpuFpu();
 		putSSSE3();
 		putSSE4_1();
+		separateFunc();
 		putSSE4_2();
+		putMov64();
 #endif
 	}
 };
@@ -1160,4 +1228,3 @@ int main(int argc, char *[])
 	Test test(argc > 1);
 	test.put();
 }
-

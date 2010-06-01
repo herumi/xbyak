@@ -95,25 +95,25 @@ public:
 		if (data[2] == get32bitAsBE(amd)) {
 			type_ |= tAMD;
 			getCpuid(0x80000001, data);
-			if (data[3] & (1 << 31)) type_ |= t3DN;
-			if (data[3] & (1 << 15)) type_ |= tCMOV;
-			if (data[3] & (1 << 30)) type_ |= tE3DN;
-			if (data[3] & (1 << 22)) type_ |= tMMX2;
+			if (data[3] & (1U << 31)) type_ |= t3DN;
+			if (data[3] & (1U << 15)) type_ |= tCMOV;
+			if (data[3] & (1U << 30)) type_ |= tE3DN;
+			if (data[3] & (1U << 22)) type_ |= tMMX2;
 		}
 		if (data[2] == get32bitAsBE(intel)) {
 			type_ |= tINTEL;
 		}
 		getCpuid(1, data);
-		if (data[2] & (1 << 0)) type_ |= tSSE3;
-		if (data[2] & (1 << 9)) type_ |= tSSSE3;
-		if (data[2] & (1 << 19)) type_ |= tSSE41;
-		if (data[2] & (1 << 20)) type_ |= tSSE42;
-		if (data[2] & (1 << 23)) type_ |= tPOPCNT;
+		if (data[2] & (1U << 0)) type_ |= tSSE3;
+		if (data[2] & (1U << 9)) type_ |= tSSSE3;
+		if (data[2] & (1U << 19)) type_ |= tSSE41;
+		if (data[2] & (1U << 20)) type_ |= tSSE42;
+		if (data[2] & (1U << 23)) type_ |= tPOPCNT;
 
-		if (data[3] & (1 << 15)) type_ |= tCMOV;
-		if (data[3] & (1 << 23)) type_ |= tMMX;
-		if (data[3] & (1 << 25)) type_ |= tMMX2 | tSSE;
-		if (data[3] & (1 << 26)) type_ |= tSSE2;
+		if (data[3] & (1U << 15)) type_ |= tCMOV;
+		if (data[3] & (1U << 23)) type_ |= tMMX;
+		if (data[3] & (1U << 25)) type_ |= tMMX2 | tSSE;
+		if (data[3] & (1U << 26)) type_ |= tSSE2;
 	}
 	bool has(Type type) const
 	{

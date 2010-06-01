@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "xbyak/xbyak.h"
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
@@ -82,13 +83,13 @@ int main()
 		{ 127, false, true, "EB7F" },
 		{ 128, false, false, "E980000000" },
 	};
-	for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
 		TestJmp jmp(p->offset, p->isBack, p->isShort);
 		const uint8 *q = (const uint8*)jmp.getCode();
 		char buf[32];
 		if (p->isBack) q += p->offset; /* skip nop */
-		for (int j = 0; j < jmp.getSize() - p->offset; j++) {
+		for (size_t j = 0; j < jmp.getSize() - p->offset; j++) {
 			sprintf(&buf[j * 2], "%02X", q[j]);
 		}
 		if (strcmp(buf, p->result) != 0) {
