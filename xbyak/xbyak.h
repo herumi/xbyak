@@ -4,9 +4,9 @@
 	@file xbyak.h
 	@brief Xbyak ; JIT assembler for x86(IA32)/x64 by C++
 	@author herumi
-	@version $Revision: 1.191 $
+	@version $Revision: 1.192 $
 	@url http://homepage1.nifty.com/herumi/soft/xbyak.html
-	@date $Date: 2010/06/01 05:26:11 $
+	@date $Date: 2010/06/01 07:26:56 $
 	@note modified new BSD license
 	http://www.opensource.org/licenses/bsd-license.php
 */
@@ -560,7 +560,7 @@ public:
 #ifdef XBYAK64
 		if (adr > 0xFFFFFFFFU) throw ERR_OFFSET_IS_TOO_BIG;
 #endif
-		Reg32e r(Reg(), Reg(), 0, adr);
+		Reg32e r(Reg(), Reg(), 0, static_cast<uint32>(adr));
 		return operator[](r);
 	}
 #ifdef XBYAK64
