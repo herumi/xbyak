@@ -4,9 +4,9 @@
 	@file xbyak.h
 	@brief Xbyak ; JIT assembler for x86(IA32)/x64 by C++
 	@author herumi
-	@version $Revision: 1.192 $
+	@version $Revision: 1.196 $
 	@url http://homepage1.nifty.com/herumi/soft/xbyak.html
-	@date $Date: 2010/06/01 07:26:56 $
+	@date $Date: 2010/07/07 01:00:04 $
 	@note modified new BSD license
 	http://www.opensource.org/licenses/bsd-license.php
 */
@@ -54,8 +54,8 @@ namespace Xbyak {
 #include "xbyak_bin2hex.h"
 
 enum {
-	DEFAULT_MAX_CODE_SIZE = 2048,
-	VERSION = 0x2270, /* 0xABCD = A.BC(D) */
+	DEFAULT_MAX_CODE_SIZE = 4096,
+	VERSION = 0x2290, /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -382,7 +382,7 @@ struct RegRip {
 
 class CodeArray {
 	enum {
-		ALIGN_SIZE = 16,
+		ALIGN_PAGE_SIZE = 4096,
 		MAX_FIXED_BUF_SIZE = 8
 	};
 	enum Type {
@@ -401,9 +401,9 @@ protected:
 public:
 	CodeArray(size_t maxSize = MAX_FIXED_BUF_SIZE, void *userPtr = 0)
 		: type_(userPtr ? USER_BUF : maxSize <= MAX_FIXED_BUF_SIZE ? FIXED_BUF : ALLOC_BUF)
-		, allocPtr_(type_ == ALLOC_BUF ? new uint8[maxSize + ALIGN_SIZE] : 0)
+		, allocPtr_(type_ == ALLOC_BUF ? new uint8[maxSize + ALIGN_PAGE_SIZE] : 0)
 		, maxSize_(maxSize)
-		, top_(type_ == ALLOC_BUF ? getAlignedAddress(allocPtr_) : type_ == USER_BUF ? reinterpret_cast<uint8*>(userPtr) : buf_)
+		, top_(type_ == ALLOC_BUF ? getAlignedAddress(allocPtr_, ALIGN_PAGE_SIZE) : type_ == USER_BUF ? reinterpret_cast<uint8*>(userPtr) : buf_)
 		, size_(0)
 	{
 		if (type_ == ALLOC_BUF && !protect(top_, maxSize, true)) {
@@ -513,7 +513,7 @@ public:
 		@param alingedSize [in] power of two
 		@return aligned addr by alingedSize
 	*/
-	static inline uint8 *getAlignedAddress(uint8 *addr, size_t alignedSize = ALIGN_SIZE)
+	static inline uint8 *getAlignedAddress(uint8 *addr, size_t alignedSize = 16)
 	{
 		return reinterpret_cast<uint8*>((reinterpret_cast<size_t>(addr) + alignedSize - 1) & ~(alignedSize - static_cast<size_t>(1)));
 	}
@@ -742,7 +742,7 @@ public:
 };
 
 class CodeGenerator : public CodeArray {
-protected:
+public:
 	enum LabelType {
 		T_SHORT,
 		T_NEAR,
@@ -1072,7 +1072,7 @@ private:
 	{
 		db(code1); db(code2 | reg.getIdx());
 	}
-protected:
+public:
 	unsigned int getVersion() const { return VERSION; }
 	using CodeArray::db;
 	const Mmx mm0, mm1, mm2, mm3, mm4, mm5, mm6, mm7;
@@ -1282,7 +1282,7 @@ protected:
 	}
 	void call(const char *label)
 	{
-		opJmp(label, T_NEAR, 0, B10011010, 0);
+		opJmp(label, T_NEAR, 0, B11101000, 0);
 	}
 	void call(const void *addr)
 	{

@@ -179,53 +179,47 @@ XBYAK_LOCAL_DEFINE_SET_EIP_TO_REG(ebp)
 #undef XBYAK_LOCAL_DEFINE_SET_EIP_TO_REG
 } // end of local
 
-template<class Gen>
-struct EnableSetEip : public Gen {
-	EnableSetEip(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0)
-		: Gen(maxSize, userPtr)
-	{
-	}
-	/**
-		get eip to out register
-		@note out is not esp
-	*/
-	void setEipTo(const Xbyak::Reg32& out)
-	{
+/**
+	get eip to out register
+	@note out is not esp
+*/
+template<class T>
+void setEipTo(T *self, const Xbyak::Reg32& out)
+{
 #if 0
-		Gen::call(Gen::getCurr() + 5);
-		Gen::pop(out);
+	self->call("@f");
+self->L("@@");
+	self->pop(out);
 #else
-		int idx = out.getIdx();
-		switch (idx) {
-		case Xbyak::Operand::EAX:
-			Gen::call((void*)local::set_eip_to_eax);
-			break;
-		case Xbyak::Operand::ECX:
-			Gen::call((void*)local::set_eip_to_ecx);
-			break;
-		case Xbyak::Operand::EDX:
-			Gen::call((void*)local::set_eip_to_edx);
-			break;
-		case Xbyak::Operand::EBX:
-			Gen::call((void*)local::set_eip_to_ebx);
-			break;
-		case Xbyak::Operand::ESI:
-			Gen::call((void*)local::set_eip_to_esi);
-			break;
-		case Xbyak::Operand::EDI:
-			Gen::call((void*)local::set_eip_to_edi);
-			break;
-		case Xbyak::Operand::EBP:
-			Gen::call((void*)local::set_eip_to_ebp);
-			break;
-		default:
-			assert(0);
-		}
-#endif
+	int idx = out.getIdx();
+	switch (idx) {
+	case Xbyak::Operand::EAX:
+		self->call((void*)local::set_eip_to_eax);
+		break;
+	case Xbyak::Operand::ECX:
+		self->call((void*)local::set_eip_to_ecx);
+		break;
+	case Xbyak::Operand::EDX:
+		self->call((void*)local::set_eip_to_edx);
+		break;
+	case Xbyak::Operand::EBX:
+		self->call((void*)local::set_eip_to_ebx);
+		break;
+	case Xbyak::Operand::ESI:
+		self->call((void*)local::set_eip_to_esi);
+		break;
+	case Xbyak::Operand::EDI:
+		self->call((void*)local::set_eip_to_edi);
+		break;
+	case Xbyak::Operand::EBP:
+		self->call((void*)local::set_eip_to_ebp);
+		break;
+	default:
+		assert(0);
 	}
-};
+#endif
+}
 #endif
 
 } } // end of util
 #endif
-

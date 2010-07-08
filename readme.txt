@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 2.27
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 2.29
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -199,6 +199,8 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2010/07/07 ver 2.29 fix call(<label>)
+2010/06/17 ver 2.28 move some member functions to public
 2010/06/01 ver 2.27 support encoding of mov(reg64, imm) like yasm(not nasm)
 2010/05/24 ver 2.26 fix sub(rsp, 1000)
 2010/04/26 ver 2.25 add jc/jnc(I forgot to implement them...)

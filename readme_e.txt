@@ -1,5 +1,5 @@
 
-    Xbyak 2.27 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+    Xbyak 2.29 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 -----------------------------------------------------------------------------
 <Abstract>
@@ -148,6 +148,8 @@ http://www.opensource.org/licenses/bsd-license.php
 -----------------------------------------------------------------------------
 <History>
 
+2010/Jun/07 ver 2.29 fix call(<label>)
+2010/Jun/17 ver 2.28 move some member functions to public
 2010/Jun/01 ver 2.27 support encoding of mov(reg64, imm) like yasm(not nasm)
 2010/May/24 ver 2.26 fix sub(rsp, 1000)
 2010/Apr/26 ver 2.25 add jc/jnc(I forgot to implement them...)
@@ -185,5 +187,5 @@ http://www.opensource.org/licenses/bsd-license.php
 MITSUNARI Shigeo(herumi at nifty dot com)
 
 ---
-$Revision: 1.47 $
-$Date: 2010/06/01 01:21:39 $
+$Revision: 1.49 $
+$Date: 2010/07/07 01:00:04 $
