@@ -8,7 +8,7 @@ using namespace Xbyak;
 const int bitEnd = 64;
 
 const uint64 MMX = 1ULL << 0;
-const uint64 XMM = 1ULL << 1;
+const uint64 _XMM = 1ULL << 1;
 const uint64 _MEM = 1ULL << 2;
 const uint64 _REG32 = 1ULL << 3;
 const uint64 EAX = 1ULL << 4;
@@ -30,15 +30,18 @@ const uint64 ONE = 1ULL << 19;
 const uint64 CL = 1ULL << 20;
 const uint64 MEM_ONLY_DISP = 1ULL << 21;
 const uint64 NEG32 = 1ULL << 23;
+const uint64 _YMM = 1ULL << 24;
 #ifdef XBYAK64
-const uint64 _MEMe = 1ULL << 22;
-const uint64 REG32_2 = 1ULL << 24; // r8d, ...
-const uint64 REG16_2 = 1ULL << 25; // r8w, ...
-const uint64 REG8_2 = 1ULL << 26; // r8b, ...
-const uint64 REG8_3 = 1ULL << 27; // spl, ...
-const uint64 _REG64 = 1ULL << 28; // rax, ...
-const uint64 _REG64_2 = 1ULL << 29; // r8, ...
-const uint64 RAX = 1ULL << 30;
+const uint64 _MEMe = 1ULL << 25;
+const uint64 REG32_2 = 1ULL << 26; // r8d, ...
+const uint64 REG16_2 = 1ULL << 27; // r8w, ...
+const uint64 REG8_2 = 1ULL << 28; // r8b, ...
+const uint64 REG8_3 = 1ULL << 29; // spl, ...
+const uint64 _REG64 = 1ULL << 30; // rax, ...
+const uint64 _REG64_2 = 1ULL << 31; // r8, ...
+const uint64 RAX = 1ULL << 32;
+const uint64 _XMM2 = 1ULL << 33;
+const uint64 _YMM2 = 1ULL << 34;
 #else
 const uint64 _MEMe = 0;
 const uint64 REG32_2 = 0;
@@ -48,6 +51,8 @@ const uint64 REG8_3 = 0;
 const uint64 _REG64 = 0;
 const uint64 _REG64_2 = 0;
 const uint64 RAX = 0;
+const uint64 _XMM2 = 0;
+const uint64 _YMM2 = 0;
 #endif
 const uint64 REG64 = _REG64 | _REG64_2 | RAX;
 const uint64 REG32 = _REG32 | REG32_2 | EAX;
@@ -55,16 +60,18 @@ const uint64 REG16 = _REG16 | REG16_2 | AX;
 const uint64 REG32e = REG32 | REG64;
 const uint64 REG8 = _REG8 | REG8_2|AL;
 const uint64 MEM = _MEM | _MEMe;
-const uint64 MEM64 = 1ULL << 31;
-const uint64 ST0 = 1ULL << 32;
-const uint64 STi = 1ULL << 33;
+const uint64 MEM64 = 1ULL << 35;
+const uint64 ST0 = 1ULL << 36;
+const uint64 STi = 1ULL << 37;
+const uint64 XMM = _XMM | _XMM2;
+const uint64 YMM = _YMM | _YMM2;
 const uint64 NOPARA = 1ULL << (bitEnd - 1);
 
 class Test {
 	const bool isXbyak_;
 	int funcNum_;
 	// check all op1, op2, op3
-	void put(const char *nm, uint64 op1 = NOPARA, uint64 op2 = NOPARA, uint64 op3 = NOPARA) const
+	void put(const char *nm, uint64 op1 = NOPARA, uint64 op2 = NOPARA, uint64 op3 = NOPARA, uint64 op4 = NOPARA) const
 	{
 		for (int i = 0; i < bitEnd; i++) {
 			if ((op1 & (1ULL << i)) == 0) continue;
@@ -72,13 +79,17 @@ class Test {
 				if ((op2 & (1ULL << j)) == 0) continue;
 				for (int k = 0; k < bitEnd; k++) {
 					if ((op3 & (1ULL << k)) == 0) continue;
-					printf("%s ", nm);
-					if (isXbyak_) printf("(");
-					if (!(op1 & NOPARA)) printf("%s", get(1ULL << i));
-					if (!(op2 & NOPARA)) printf(", %s", get(1ULL << j));
-					if (!(op3 & NOPARA)) printf(", %s", get(1ULL << k));
-					if (isXbyak_) printf("); dump();");
-					printf("\n");
+					for (int s = 0; s < bitEnd; s++) {
+						if ((op4 & (1ULL << s)) == 0) continue;
+						printf("%s ", nm);
+						if (isXbyak_) printf("(");
+						if (!(op1 & NOPARA)) printf("%s", get(1ULL << i));
+						if (!(op2 & NOPARA)) printf(", %s", get(1ULL << j));
+						if (!(op3 & NOPARA)) printf(", %s", get(1ULL << k));
+						if (!(op4 & NOPARA)) printf(", %s", get(1ULL << s));
+						if (isXbyak_) printf("); dump();");
+						printf("\n");
+					}
 				}
 			}
 		}
@@ -125,23 +136,36 @@ class Test {
 				};
 				return MmxTbl[idx];
 			}
-		case XMM:
+		case _XMM:
 			{
-				static const char XmmTbl[][6] = {
+				static const char tbl[][6] = {
 					"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7",
+				};
+				return tbl[idx];
+			}
+		case _YMM:
+			{
+				static const char tbl[][6] = {
+					"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7"
+				};
+				return tbl[idx];
+			}
+#ifdef XBYAK64
+		case _XMM2:
+			{
+				static const char tbl[][6] = {
 					"xmm8", "xmm9", "xmm10", "xmm11", "xmm12", "xmm13", "xmm14", "xmm15"
 				};
-				static const char MyXmmTbl[][6] = {
-					"xm0", "xm1", "xm2", "xm3", "xm4", "xm5", "xm6", "xm7",
-					"xm8", "xm9", "xm10", "xm11", "xm12", "xm13", "xm14", "xm15"
-				};
-#ifdef XBYAK64
-				const int adj = 4;
-#else
-				const int adj = 0;
-#endif
-				return isXbyak_ ? MyXmmTbl[idx + adj] : XmmTbl[idx + adj];
+				return tbl[idx];
 			}
+		case _YMM2:
+			{
+				static const char tbl[][6] = {
+					"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7",
+				};
+				return tbl[idx];
+			}
+#endif
 		case _MEM:
 			return isXbyak_ ? "ptr[eax+ecx+3]" : "[eax+ecx+3]";
 		case _MEMe:
@@ -268,7 +292,7 @@ class Test {
 	}
 	void putSIMPLE() const
 	{
-		const char tbl[][10] = {
+		const char tbl[][20] = {
 #ifdef XBYAK64
 			"cdqe",
 #else
@@ -325,6 +349,10 @@ class Test {
 			"popf",
 			"pushf",
 
+			"xgetbv",
+			"vzeroall",
+			"vzeroupper",
+
 			"f2xm1",
 			"fabs",
 			"faddp",
@@ -373,6 +401,7 @@ class Test {
 
 		put("bswap", REG32e);
 		put("lea", REG32e, MEM);
+#if 0
 #ifdef XBYAK64
 		put("jmp", REG64);
 		put("call", REG64);
@@ -381,8 +410,40 @@ class Test {
 		put("call", REG32);
 #endif
 		put("jmp", MEM);
+		put("jmp", MEM);
+		put("jmp", MEM);
 		put("call", REG16|MEM|MEM_ONLY_DISP);
 		put("call", "getCode() + 5", "$ + 5");
+#endif
+	}
+	void putJmp() const
+	{
+#ifdef XBYAK64
+		put("jmp", REG64);
+		put("call", REG64);
+#else
+		put("jmp", REG32);
+		put("call", REG32);
+#endif
+		put("jmp", MEM);
+		put("jmp", MEM);
+		put("jmp", MEM);
+		put("call", REG16|MEM|MEM_ONLY_DISP);
+#ifndef USE_YASM
+		// call(ptr [getCode() + 5]); means to construct the opecode of "call"
+		// after calling getCode().
+		// Its behavior is same as NASM(MASM). YASM makes different opecode.
+		put("call", "getCode() + 5", "$ + 5");
+#endif
+
+#ifdef XBYAK64
+		put("jmp", "ptr[(void*)0x12345678]", "[0x12345678]");
+		put("call", "ptr[(void*)0x12345678]", "[0x12345678]");
+#ifdef USE_YASM
+		put("jmp", "ptr[rip + 0x12345678]", "[rip+0x12345678]");
+		put("call", "ptr[rip + 0x12345678]", "[rip+0x12345678]");
+#endif
+#endif
 	}
 	void putMMX1() const
 	{
@@ -642,8 +703,8 @@ class Test {
 	{
 		static const struct Tbl {
 			const char *name;
-			int op1;
-			int op2;
+			uint64 op1;
+			uint64 op2;
 		} tbl[] = {
 			{ "cvtpi2ps", XMM, MMX|MEM },
 			{ "cvtps2pi", MMX, XMM|MEM },
@@ -993,6 +1054,11 @@ class Test {
 			"pmulld",
 			"phminposuw",
 			"pcmpgtq",
+			"aesdec",
+			"aesdeclast",
+			"aesenc",
+			"aesenclast",
+			"aesimc",
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const char *p = tbl[i];
@@ -1016,6 +1082,8 @@ class Test {
 			"pcmpestri",
 			"pcmpistrm",
 			"pcmpistri",
+			"pclmulqdq",
+			"aeskeygenassist",
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const char *p = tbl[i];
@@ -1035,6 +1103,10 @@ class Test {
 		put("popcnt", REG64, REG64|MEM);
 		put("crc32", REG32, REG8|REG16|REG32|MEM8|MEM16|MEM32);
 		put("crc32", REG64, REG64|REG8|MEM8);
+#ifdef XBYAK64
+		put("pextrq", REG64|MEM, XMM, IMM);
+		put("pinsrq", XMM, REG64|MEM, IMM);
+#endif
 	}
 	void putFpuMem16_32() const
 	{
@@ -1140,6 +1212,545 @@ class Test {
 			put(tbl[i], STi);
 		}
 	}
+	void putAVX1()
+	{
+		const struct Tbl {
+			const char *name;
+			bool only_pd_ps;
+		} tbl[] = {
+			{ "add", false },
+			{ "sub", false },
+			{ "mul", false },
+			{ "div", false },
+			{ "max", false },
+			{ "min", false },
+			{ "and", true },
+			{ "andn", true },
+			{ "or", true },
+			{ "xor", true },
+
+			{ "addsub", true },
+			{ "hadd", true },
+			{ "hsub", true },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const struct Suf {
+				const char *suf;
+				bool supportYMM;
+			} suf[] = {
+				{ "pd", true },
+				{ "ps", true },
+				{ "sd", false },
+				{ "ss", false },
+			};
+			for (size_t j = 0; j < NUM_OF_ARRAY(suf); j++) {
+				if (tbl[i].only_pd_ps && j == 2) break;
+				std::string name = std::string("v") + tbl[i].name + suf[j].suf;
+				const char *p = name.c_str();
+				put(p, XMM, XMM | MEM);
+				put(p, XMM, XMM, XMM | MEM);
+				if (!suf[j].supportYMM) continue;
+				put(p, YMM, YMM | MEM);
+				put(p, YMM, YMM, YMM | MEM);
+			}
+		}
+	}
+	void putAVX_X_X_XM_omit()
+	{
+		const struct Tbl {
+			const char *name;
+			bool supportYMM;
+		} tbl[] = {
+			{ "vaesenc", false },
+			{ "vaesenclast", false },
+			{ "vaesdec", false },
+			{ "vaesdeclast", false },
+			{ "vcvtsd2ss", false },
+			{ "vcvtss2sd", false },
+			{ "vpacksswb", false },
+			{ "vpackssdw", false },
+			{ "vpackuswb", false },
+			{ "vpackusdw", false },
+
+			{ "vpaddb", false },
+			{ "vpaddw", false },
+			{ "vpaddd", false },
+			{ "vpaddq", false },
+
+			{ "vpaddsb", false },
+			{ "vpaddsw", false },
+
+			{ "vpaddusb", false },
+			{ "vpaddusw", false },
+
+			{ "vpand", false },
+			{ "vpandn", false },
+			{ "vpavgb", false },
+			{ "vpavgw", false },
+
+			{ "vpcmpeqb", false },
+			{ "vpcmpeqw", false },
+			{ "vpcmpeqd", false },
+//			{ "vpcmpeqq", false }, // QQQ : nasm(2.09.04) may be wrong
+
+			{ "vpcmpgtb", false },
+			{ "vpcmpgtw", false },
+			{ "vpcmpgtd", false },
+//			{ "vpcmpgtq", false }, // QQQ
+
+			{ "vphaddw", false },
+			{ "vphaddd", false },
+			{ "vphaddsw", false },
+
+			{ "vphsubw", false },
+			{ "vphsubd", false },
+			{ "vphsubsw", false },
+			{ "vpmaddwd", false },
+			{ "vpmaddubsw", false },
+
+			{ "vpmaxsb", false },
+			{ "vpmaxsw", false },
+			{ "vpmaxsd", false },
+
+			{ "vpmaxub", false },
+			{ "vpmaxuw", false },
+			{ "vpmaxud", false },
+
+			{ "vpminsb", false },
+			{ "vpminsw", false },
+			{ "vpminsd", false },
+
+			{ "vpminub", false },
+			{ "vpminuw", false },
+			{ "vpminud", false },
+
+			{ "vpmulhuw", false },
+			{ "vpmulhrsw", false },
+			{ "vpmulhw", false },
+			{ "vpmullw", false },
+			{ "vpmulld", false },
+
+			{ "vpmuludq", false },
+			{ "vpmuldq", false },
+
+			{ "vpor", false },
+			{ "vpsadbw", false },
+
+			{ "vpsignb", false },
+			{ "vpsignw", false },
+			{ "vpsignd", false },
+
+			{ "vpsllw", false },
+			{ "vpslld", false },
+			{ "vpsllq", false },
+
+			{ "vpsraw", false },
+			{ "vpsrad", false },
+			{ "vpsrlw", false },
+			{ "vpsrld", false },
+			{ "vpsrlq", false },
+
+			{ "vpsubb", false },
+			{ "vpsubw", false },
+			{ "vpsubd", false },
+			{ "vpsubq", false },
+
+			{ "vpsubsb", false },
+			{ "vpsubsw", false },
+
+			{ "vpsubusb", false },
+			{ "vpsubusw", false },
+
+			{ "vpunpckhbw", false },
+			{ "vpunpckhwd", false },
+			{ "vpunpckhdq", false },
+			{ "vpunpckhqdq", false },
+
+			{ "vpunpcklbw", false },
+			{ "vpunpcklwd", false },
+			{ "vpunpckldq", false },
+			{ "vpunpcklqdq", false },
+
+			{ "vpxor", false },
+			{ "vsqrtsd", false },
+			{ "vsqrtss", false },
+
+			{ "vunpckhpd", true },
+			{ "vunpckhps", true },
+			{ "vunpcklpd", true },
+			{ "vunpcklps", true },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			put(p->name, XMM, XMM | MEM);
+			put(p->name, XMM, XMM, XMM | MEM);
+			if (!p->supportYMM) continue;
+			put(p->name, YMM, YMM | MEM);
+			put(p->name, YMM, YMM, YMM | MEM);
+		}
+	}
+	void putAVX_X_X_XM_IMM()
+	{
+		const struct Tbl {
+			const char *name;
+			bool supportYMM;
+		} tbl[] = {
+			{ "vblendpd", true },
+			{ "vblendps", true },
+			{ "vdppd", false },
+			{ "vdpps", true },
+			{ "vmpsadbw", false },
+			{ "vpblendw", false },
+			{ "vroundsd", false },
+			{ "vroundss", false },
+			{ "vpclmulqdq", false },
+			{ "vcmppd", true },
+			{ "vcmpps", true },
+			{ "vcmpsd", false },
+			{ "vcmpss", false },
+			{ "vinsertps", false },
+			{ "vpalignr", false },
+			{ "vshufpd", true },
+			{ "vshufps", true },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			put(p->name, XMM, XMM, XMM | MEM, IMM);
+			put(p->name, XMM, XMM | MEM, IMM);
+			if (!p->supportYMM) continue;
+			put(p->name, YMM, YMM, YMM | MEM, IMM);
+			put(p->name, YMM, YMM | MEM, IMM);
+		}
+	}
+	void putAVX_X_XM_IMM()
+	{
+		const struct Tbl {
+			const char *name;
+			bool supportYMM;
+		} tbl[] = {
+			{ "vroundpd", true },
+			{ "vroundps", true },
+			{ "vpcmpestri", false },
+			{ "vpcmpestrm", false },
+			{ "vpcmpistri", false },
+			{ "vpcmpistrm", false },
+			{ "vpermilpd", true },
+			{ "vpermilps", true },
+			{ "vaeskeygenassist", false },
+			{ "vpshufd", false },
+			{ "vpshufhw", false },
+			{ "vpshuflw", false },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			put(p->name, XMM, XMM | MEM, IMM);
+			if (!p->supportYMM) continue;
+			put(p->name, YMM, YMM | MEM, IMM);
+		}
+	}
+	void putAVX_X_X_XM()
+	{
+		const struct Tbl {
+			const char *name;
+			bool supportYMM;
+		} tbl[] = {
+			{ "vpermilpd", true },
+			{ "vpermilps", true },
+			{ "vpshufb", false },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			put(p->name, XMM, XMM, XMM | MEM);
+			if (!p->supportYMM) continue;
+			put(p->name, YMM, YMM, YMM | MEM);
+		}
+	}
+	void putAVX_X_XM()
+	{
+		const struct Tbl {
+			const char *name;
+			bool supportYMM;
+		} tbl[] = {
+			{ "vaesimc", false },
+			{ "vtestps", true },
+			{ "vtestpd", true },
+			{ "vcomisd", false },
+			{ "vcomiss", false },
+			{ "vcvtdq2ps", true },
+			{ "vcvtps2dq", true },
+			{ "vcvttps2dq", true },
+			{ "vmovapd", true },
+			{ "vmovaps", true },
+			{ "vmovddup", true },
+			{ "vmovdqa", true },
+			{ "vmovdqu", true },
+			{ "vmovupd", true },
+			{ "vmovups", true },
+
+			{ "vpabsb", false },
+			{ "vpabsw", false },
+			{ "vpabsd", false },
+			{ "vphminposuw", false },
+
+			{ "vpmovsxbw", false },
+			{ "vpmovsxbd", false },
+			{ "vpmovsxbq", false },
+			{ "vpmovsxwd", false },
+			{ "vpmovsxwq", false },
+			{ "vpmovsxdq", false },
+
+			{ "vpmovzxbw", false },
+			{ "vpmovzxbd", false },
+			{ "vpmovzxbq", false },
+			{ "vpmovzxwd", false },
+			{ "vpmovzxwq", false },
+			{ "vpmovzxdq", false },
+
+			{ "vptest", false },
+			{ "vrcpps", true },
+			{ "vrcpss", false },
+
+			{ "vrsqrtps", true },
+			{ "vrsqrtss", false },
+
+			{ "vsqrtpd", true },
+			{ "vsqrtps", true },
+			{ "vucomisd", false },
+			{ "vucomiss", false },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			put(p->name, XMM, XMM | MEM);
+			if (!p->supportYMM) continue;
+			put(p->name, YMM, YMM | MEM);
+		}
+	}
+	void putAVX_M_X()
+	{
+		const struct Tbl {
+			const char *name;
+			bool supportYMM;
+		} tbl[] = {
+			{ "vmovapd", true },
+			{ "vmovaps", true },
+			{ "vmovdqa", true },
+			{ "vmovdqu", true },
+			{ "vmovupd", true },
+			{ "vmovups", true },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			put(p->name, MEM, XMM);
+			if (!p->supportYMM) continue;
+			put(p->name, MEM, YMM);
+		}
+	}
+	void putAVX_X_X_IMM_omit()
+	{
+		const struct Tbl {
+			const char *name;
+		} tbl[] = {
+			{ "vpslldq" },
+			{ "vpsrldq" },
+			{ "vpsllw" },
+			{ "vpslld" },
+			{ "vpsllq" },
+			{ "vpsraw" },
+			{ "vpsrad" },
+			{ "vpsrlw" },
+			{ "vpsrld" },
+			{ "vpsrlq" },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			put(p.name, XMM, XMM, IMM);
+			put(p.name, XMM, IMM);
+		}
+	}
+	void putFMA()
+	{
+		const struct Tbl {
+			const char *name;
+			bool supportYMM;
+		} tbl[] = {
+			{ "vfmadd", true },
+			{ "vfmadd", false },
+			{ "vfmaddsub", true },
+			{ "vfmsubadd", true },
+			{ "vfmsub", true },
+			{ "vfmsub", false },
+			{ "vfnmadd", true },
+			{ "vfnmadd", false },
+			{ "vfnmsub", true },
+			{ "vfnmsub", false },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			const struct Ord {
+				const char *name;
+			} ord[] = {
+				{ "132" },
+				{ "213" },
+				{ "231" },
+			};
+			for (size_t j = 0; j < NUM_OF_ARRAY(ord); j++) {
+				const char suf[][2][8] = {
+					{ "pd", "ps" },
+					{ "sd", "ss" },
+				};
+				for (size_t k = 0; k < 2; k++) {
+					std::string name = std::string(p.name) + ord[j].name + suf[p.supportYMM ? 0 : 1][k];
+					const char *q = name.c_str();
+					put(q, XMM, XMM, XMM | MEM);
+					if (!p.supportYMM) continue;
+					put(q, YMM, YMM, YMM | MEM);
+				}
+			}
+		}
+	}
+	void putAVX2()
+	{
+		put("vextractps", REG32 | MEM, XMM, IMM);
+		put("vldmxcsr", MEM);
+		put("vstmxcsr", MEM);
+		put("vmaskmovdqu", XMM, XMM);
+
+		put("vmovd", XMM, REG32 | MEM);
+		put("vmovd", REG32 | MEM, XMM);
+
+		put("vmovhlps", XMM, XMM);
+		put("vmovhlps", XMM, XMM, XMM);
+		put("vmovlhps", XMM, XMM);
+		put("vmovlhps", XMM, XMM, XMM);
+
+		{
+			const char tbl[][16] = {
+				"vmovhpd",
+				"vmovhps",
+				"vmovlpd",
+				"vmovlps",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				put(tbl[i], XMM, XMM, MEM);
+				put(tbl[i], XMM, MEM);
+				put(tbl[i], MEM, XMM);
+			}
+		}
+		put("vmovmskpd", REG32e, XMM | YMM);
+		put("vmovmskps", REG32e, XMM | YMM);
+
+		put("vmovntdq", MEM, XMM | YMM);
+		put("vmovntpd", MEM, XMM | YMM);
+		put("vmovntps", MEM, XMM | YMM);
+		put("vmovntdqa", XMM, MEM);
+
+		{
+			const char tbl[][8] = { "vmovsd", "vmovss" };
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				put(tbl[i], XMM, XMM, XMM);
+				put(tbl[i], XMM, XMM | MEM);
+				put(tbl[i], MEM, XMM);
+			}
+		}
+		put("vpextrb", REG32e|MEM, XMM, IMM);
+		put("vpextrw", REG32e, XMM, IMM);
+		put("vpextrd", REG32|MEM, XMM, IMM);
+
+		for (int i = 0; i < 3; i++) {
+			const char tbl[][8] = { "vpinsrb", "vpinsrw", "vpinsrd" };
+			put(tbl[i], XMM, XMM, REG32|MEM, IMM);
+			put(tbl[i], XMM, REG32|MEM, IMM);
+		}
+
+		put("vpmovmskb", REG32e, XMM);
+
+		{
+			const struct Tbl {
+				const char *name;
+				bool supportYMM;
+			} tbl[] = {
+				{ "vblendvpd", true },
+				{ "vblendvps", true },
+				{ "vpblendvb", false },
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				const Tbl& p = tbl[i];
+				put(p.name, XMM, XMM, XMM | MEM, XMM);
+				put(p.name, XMM, XMM | MEM, XMM);
+				if (!p.supportYMM) continue;
+				put(p.name, YMM, YMM, YMM | MEM, YMM);
+				put(p.name, YMM, YMM | MEM, YMM);
+			}
+		}
+		// cvt
+		{
+			put("vcvtss2si", REG32e, XMM | MEM);
+			put("vcvttss2si", REG32e, XMM | MEM);
+			put("vcvtsd2si", REG32e, XMM | MEM);
+			put("vcvttsd2si", REG32e, XMM | MEM);
+
+			put("vcvtsi2ss", XMM, XMM, REG32e | MEM);
+			put("vcvtsi2ss", XMM, REG32e | MEM);
+
+			put("vcvtsi2sd", XMM, XMM, REG32e | MEM);
+			put("vcvtsi2sd", XMM, REG32e | MEM);
+
+			put("vcvtps2pd", XMM | YMM, XMM | MEM);
+			put("vcvtdq2pd", XMM | YMM, XMM | MEM);
+
+			put("vcvtpd2ps", XMM, XMM | YMM | MEM);
+			put("vcvtpd2dq", XMM, XMM | YMM | MEM);
+			put("vcvttpd2dq", XMM, XMM | YMM | MEM);
+		}
+#ifdef XBYAK64
+		put("vmovq", XMM, XMM | REG64 | MEM);
+		put("vmovq", REG64 | MEM, XMM);
+
+		put("vpextrq", REG64|MEM, XMM, IMM);
+
+		put("vpinsrq", XMM, XMM, REG64|MEM, IMM);
+		put("vpinsrq", XMM, REG64|MEM, IMM);
+
+#endif
+	}
+	void putFMA2()
+	{
+#ifndef USE_YASM
+		put("vmaskmovps", XMM, XMM, MEM);
+		put("vmaskmovps", YMM, YMM, MEM);
+
+		put("vmaskmovpd", YMM, YMM, MEM);
+		put("vmaskmovpd", XMM, XMM, MEM);
+
+		put("vmaskmovps", MEM, XMM, XMM);
+		put("vmaskmovpd", MEM, XMM, XMM);
+
+		put("vbroadcastf128", YMM, MEM);
+		put("vbroadcastsd", YMM, MEM);
+		put("vbroadcastss", XMM | YMM, MEM);
+
+		put("vinsertf128", YMM, YMM, XMM | MEM, IMM8);
+		put("vperm2f128", YMM, YMM, YMM | MEM, IMM8);
+#else
+		put("vextractf128", XMM | MEM, YMM, IMM);
+		put("vmaskmovps", MEM, YMM, YMM);
+		put("vmaskmovpd", MEM, YMM, YMM);
+		put("vlddqu", XMM | YMM, MEM);
+
+		put("vmovshdup", XMM, XMM | MEM);
+		put("vmovshdup", YMM, YMM | MEM);
+		put("vmovsldup", XMM, XMM | MEM);
+		put("vmovsldup", YMM, YMM | MEM);
+
+		// QQQ:nasm is wrong
+		put("vpcmpeqq", XMM, XMM | MEM);
+		put("vpcmpeqq", XMM, XMM, XMM | MEM);
+		put("vpcmpgtq", XMM, XMM | MEM);
+		put("vpcmpgtq", XMM, XMM, XMM | MEM);
+
+		put("vpextrw", MEM, XMM, IMM); // nasm iw wrong?
+#endif
+	}
 public:
 	Test(bool isXbyak)
 		: isXbyak_(isXbyak)
@@ -1178,6 +1789,22 @@ public:
 	}
 	void put()
 	{
+#ifdef USE_AVX
+#ifndef USE_YASM
+		putAVX1();
+		putAVX2();
+		putAVX_X_X_XM_omit();
+		putAVX_X_X_XM_IMM();
+		putAVX_X_XM_IMM();
+		putAVX_X_X_XM();
+		putAVX_X_XM();
+		putAVX_M_X();
+		putAVX_X_X_IMM_omit();
+		putFMA();
+#endif
+		putFMA2();
+#else
+		putJmp();
 #ifndef USE_YASM
 		putSIMPLE();
 		putReg1();
@@ -1219,6 +1846,7 @@ public:
 		separateFunc();
 		putSSE4_2();
 		putMov64();
+#endif
 #endif
 	}
 };

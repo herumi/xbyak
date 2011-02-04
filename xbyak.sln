@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "toyvm", "sample\toyvm.vcpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_util", "sample\test_util.vcproj", "{CFC9B272-FDA1-4C87-B4EF-CDCA9B57F4DD}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "calc2", "sample\calc2.vcproj", "{8EC11C7F-1B5C-4787-8940-B9B3AAF1D204}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -69,6 +71,14 @@ Global
 		{CFC9B272-FDA1-4C87-B4EF-CDCA9B57F4DD}.Release|Win32.Build.0 = Release|Win32
 		{CFC9B272-FDA1-4C87-B4EF-CDCA9B57F4DD}.Release|x64.ActiveCfg = Release|x64
 		{CFC9B272-FDA1-4C87-B4EF-CDCA9B57F4DD}.Release|x64.Build.0 = Release|x64
+		{8EC11C7F-1B5C-4787-8940-B9B3AAF1D204}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8EC11C7F-1B5C-4787-8940-B9B3AAF1D204}.Debug|Win32.Build.0 = Debug|Win32
+		{8EC11C7F-1B5C-4787-8940-B9B3AAF1D204}.Debug|x64.ActiveCfg = Debug|x64
+		{8EC11C7F-1B5C-4787-8940-B9B3AAF1D204}.Debug|x64.Build.0 = Debug|x64
+		{8EC11C7F-1B5C-4787-8940-B9B3AAF1D204}.Release|Win32.ActiveCfg = Release|Win32
+		{8EC11C7F-1B5C-4787-8940-B9B3AAF1D204}.Release|Win32.Build.0 = Release|Win32
+		{8EC11C7F-1B5C-4787-8940-B9B3AAF1D204}.Release|x64.ActiveCfg = Release|x64
+		{8EC11C7F-1B5C-4787-8940-B9B3AAF1D204}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,6 +4,15 @@
 
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
+struct PopCountTest : public Xbyak::CodeGenerator {
+	PopCountTest(int n)
+	{
+		mov(eax, n);
+		popcnt(eax, eax);
+		ret();
+	}
+};
+
 void putCPUinfo()
 {
 	using namespace Xbyak::util;
@@ -27,18 +36,34 @@ void putCPUinfo()
 		{ Cpu::tE3DN, "e3dn" },
 		{ Cpu::tSSE4a, "sse4a" },
 		{ Cpu::tSSE5, "sse5" },
+		{ Cpu::tAESNI, "aesni" },
+		{ Cpu::tRDTSCP, "rdtscp" },
+		{ Cpu::tOSXSACE, "osxsace(xgetvb)" },
+		{ Cpu::tPCLMULQDQ, "pclmulqdq" },
+		{ Cpu::tAVX, "avx" },
+		{ Cpu::tFMA, "fma" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
 	}
 	printf("\n");
+	if (cpu.has(Cpu::tPOPCNT)) {
+		const int n = 0x12345678; // bitcount = 13
+		const int ok = 13;
+		int r = ((int (*)())(PopCountTest(n).getCode()))();
+		if (r == ok) {
+			puts("popcnt ok");
+		} else {
+			printf("popcnt ng %d %d\n", r, ok);
+		}
+	}
 }
 
 #ifdef XBYAK32
-struct EipTest : public Xbyak::util::EnableSetEip<Xbyak::CodeGenerator> {
+struct EipTest : public Xbyak::CodeGenerator {
 	EipTest()
 	{
-		setEipTo(eax);
+		Xbyak::util::setEipTo(this, eax);
 		ret();
 	}
 };

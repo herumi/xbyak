@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 2.29
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 2.99
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -14,12 +14,12 @@
     xbyak.hをインクルードするだけですぐ利用することができます．
     C++の枠組み内で閉じているため，外部アセンブラは不要です．
     32bit/64bit両対応です．
-    対応ニーモニック:特権命令除くx86, MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(一部)
+    対応ニーモニック:特権命令除くx86, MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(一部)/AVX
 
 ・Windows Xp(32bit, 64bit), Vista/Linux(32bit, 64bit)/Intel Mac対応
-    Windows Xp上ではVC2005 Express Ed., VC2008
+    Windows Xp上ではVC2005 Express Ed., VC2008, VC2010,
     Windows Vista
-    Linux (kernel 2.4.32)上ではgcc 4.3.0, CentOS 5.1上ではgcc 4.1.2
+    Linux (kernel 2.4.32)上ではgcc 4.5.0, CentOS 5.1上ではgcc 4.1.2
     Intel Mac
     などで動作確認をしています．
 
@@ -199,6 +199,9 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2011/02/04 ver 2.99 beta support AVX
+2010/12/08 ver 2.31 fix ptr [rip + 32bit offset], support rtdscp
+2010/10/19 ver 2.30 support pclmulqdq, aesdec, aesdeclast, aesenc, aesenclast, aesimc, aeskeygenassist
 2010/07/07 ver 2.29 fix call(<label>)
 2010/06/17 ver 2.28 move some member functions to public
 2010/06/01 ver 2.27 support encoding of mov(reg64, imm) like yasm(not nasm)

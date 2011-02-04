@@ -138,6 +138,5 @@ int main()
 	} catch (...) {
 		printf("unknown error\n");
 	}
-	return 0;
 }
 

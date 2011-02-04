@@ -32,6 +32,11 @@ test: normalize_prefix jmp
 	./test_address.sh 64
 	./jmp
 
+test_avx:
+	./test_avx.sh
+	./test_avx.sh Y
+	./test_avx.sh 64
+	./test_avx.sh Y64
 clean:
 	rm -rf *.o $(TARGET)
 

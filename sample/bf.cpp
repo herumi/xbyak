@@ -29,7 +29,7 @@ public:
 		is.unget();
 		return count;
 	}
-	Brainfuck(std::istream& is) : CodeGenerator(10000)
+	Brainfuck(std::istream& is) : CodeGenerator(100000)
 	{
 		// void (*)(void* putchar, void* getchar, int *stack)
 		using namespace Xbyak;
@@ -160,7 +160,7 @@ public:
 
 void dump(const Xbyak::uint8 *code, size_t size)
 {
-	puts("#include <stdio.h>\nstatic int stack[32768];\nstatic const unsigned char code[] = {");
+	puts("#include <stdio.h>\nstatic int stack[128 * 1024];\nstatic const unsigned char code[] = {");
 	for (size_t i = 0; i < size; i++) {
 		printf("0x%02x,", code[i]); if ((i % 16) == 15) putchar('\n');
 	}
@@ -183,9 +183,9 @@ void dump(const Xbyak::uint8 *code, size_t size)
 int main(int argc, char *argv[])
 {
 #ifdef XBYAK32
-	puts("32bit mode");
+	fprintf(stderr, "32bit mode\n");
 #else
-	puts("64bit mode");
+	fprintf(stderr, "64bit mode\n");
 #endif
 	if (argc == 1) {
 		fprintf(stderr, "bf filename.bf [0|1]\n");
@@ -193,13 +193,18 @@ int main(int argc, char *argv[])
 	}
 	std::ifstream ifs(argv[1]);
 	int mode = argc == 3 ? atoi(argv[2]) : 0;
-	Brainfuck bf(ifs);
-	if (mode == 0) {
-		static int stack[32768];
-		((void (*)(void*, void*, int *))bf.getCode())((void*)putchar, (void*)getchar, stack);
-	} else {
-		dump(bf.getCode(), bf.getSize());
+	try {
+		Brainfuck bf(ifs);
+		if (mode == 0) {
+			static int stack[128 * 1024];
+			((void (*)(void*, void*, int *))bf.getCode())((void*)putchar, (void*)getchar, stack);
+		} else {
+			dump(bf.getCode(), bf.getSize());
+		}
+	} catch (Xbyak::Error err) {
+		printf("ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
+	} catch (...) {
+		printf("unknown error\n");
 	}
-	return 0;
 }
 

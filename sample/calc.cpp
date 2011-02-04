@@ -1,12 +1,12 @@
 /*
 	@author herumi
-	@date $Date: 2010/04/15 06:52:07 $
+	@date $Date: 2010/11/17 02:58:03 $
 
-	tiny calculator 2
+	tiny calculator
 	This program generates a function to calc the value of
 	polynomial given by user in run-time.
-	use boost::sprit
-
+	use boost::spirit::classic
+	see calc2.cpp for new version of boost::spirit
 */
 #include <stdio.h>
 #include <sstream>
@@ -16,8 +16,6 @@
 	#pragma warning(disable : 4127) // for boost(constant condition)
 	#pragma warning(disable : 4512) // for boost
 #endif
-//#include <boost/spirit/iterator/file_iterator.hpp>
-//#include <boost/spirit/core.hpp>
 #include <boost/spirit/include/classic_file_iterator.hpp>
 #include <boost/spirit/include/classic_core.hpp>
 #include <boost/bind.hpp>

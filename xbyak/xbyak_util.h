@@ -76,11 +76,17 @@ public:
 		tSSE41 = 1 << 7,
 		tSSE42 = 1 << 8,
 		tPOPCNT = 1 << 9,
+		tAESNI = 1 << 10,
+		tSSE5 = 1 << 11,
+		tOSXSACE = 1 << 12,
+		tPCLMULQDQ = 1 << 13,
+		tAVX = 1 << 14,
+		tFMA = 1 << 15,
 
 		t3DN = 1 << 16,
 		tE3DN = 1 << 17,
 		tSSE4a = 1 << 18,
-		tSSE5 = 1 << 11,
+		tRDTSCP = 1 << 19,
 
 		tINTEL = 1 << 24,
 		tAMD = 1 << 25
@@ -99,9 +105,12 @@ public:
 			if (data[3] & (1U << 15)) type_ |= tCMOV;
 			if (data[3] & (1U << 30)) type_ |= tE3DN;
 			if (data[3] & (1U << 22)) type_ |= tMMX2;
+			if (data[3] & (1U << 27)) type_ |= tRDTSCP;
 		}
 		if (data[2] == get32bitAsBE(intel)) {
 			type_ |= tINTEL;
+			getCpuid(0x80000001, data);
+			if (data[3] & (1U << 27)) type_ |= tRDTSCP;
 		}
 		getCpuid(1, data);
 		if (data[2] & (1U << 0)) type_ |= tSSE3;
@@ -109,6 +118,13 @@ public:
 		if (data[2] & (1U << 19)) type_ |= tSSE41;
 		if (data[2] & (1U << 20)) type_ |= tSSE42;
 		if (data[2] & (1U << 23)) type_ |= tPOPCNT;
+		if (data[2] & (1U << 25)) type_ |= tAESNI;
+		if (data[2] & (1U << 1)) type_ |= tPCLMULQDQ;
+		if (data[2] & (1U << 27)) type_ |= tOSXSACE;
+		// QQQ
+		// should check XFEATURE_ENABLED_MASK[2:1] = '11b' by xgetvb
+		if (data[2] & (1U << 28)) type_ |= tAVX;
+		if (data[2] & (1U << 12)) type_ |= tFMA;
 
 		if (data[3] & (1U << 15)) type_ |= tCMOV;
 		if (data[3] & (1U << 23)) type_ |= tMMX;

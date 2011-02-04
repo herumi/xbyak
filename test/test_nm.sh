@@ -1,5 +1,7 @@
 #!/bin/tcsh
+
 set FILTER=cat
+
 if ($1 == "Y") then
 	echo "yasm(32bit)"
 	set EXE=yasm

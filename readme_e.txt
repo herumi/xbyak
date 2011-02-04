@@ -1,5 +1,5 @@
 
-    Xbyak 2.29 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+    Xbyak 2.99 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 -----------------------------------------------------------------------------
 <Abstract>
@@ -12,11 +12,11 @@ x64(AMD64, x86-64) mnemonic.
 header file only
     you can use Xbyak's functions at once if xbyak.h is included.
 
-MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(partial) are available.
+MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(partial)/AVX are available.
 
 Windows Xp(32bit, 64bit), Vista, Linux(32bit, 64bit), Intel Mac ready
-support Visual Studio C++ 2005 Express Ed., VC2008 Pro,
-mingw 3.4.2, icc 7.2, gcc 4.1.1, and so on.
+support Visual Studio C++ 2005 Express Ed., VC2008 Pro, VC2010,
+mingw 3.4.2, icc 7.2, gcc 4.5, and so on.
 
 Note: "-fno-operator-names" option is required on gcc to avoid analyzing
 "and", "or", etc. as operators.
@@ -148,6 +148,9 @@ http://www.opensource.org/licenses/bsd-license.php
 -----------------------------------------------------------------------------
 <History>
 
+2011/Feb/04 ver 2.99 beta support AVX
+2010/Dec/08 ver 2.31 fix ptr [rip + 32bit offset], support rdtscp
+2010/Oct/19 ver 2.30 support pclmulqdq, aesdec, aesdeclast, aesenc, aesenclast, aesimc, aeskeygenassist
 2010/Jun/07 ver 2.29 fix call(<label>)
 2010/Jun/17 ver 2.28 move some member functions to public
 2010/Jun/01 ver 2.27 support encoding of mov(reg64, imm) like yasm(not nasm)
@@ -187,5 +190,5 @@ http://www.opensource.org/licenses/bsd-license.php
 MITSUNARI Shigeo(herumi at nifty dot com)
 
 ---
-$Revision: 1.49 $
-$Date: 2010/07/07 01:00:04 $
+$Revision: 1.54 $
+$Date: 2011/02/04 03:27:59 $
