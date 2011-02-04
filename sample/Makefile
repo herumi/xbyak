@@ -1,7 +1,7 @@
 TARGET = test quantize bf toyvm test_util memfunc
 XBYAK_INC=../xbyak/xbyak.h
 
-BOOST_EXIT=$(shell echo "\#include <boost/spirit/core.hpp>" | (gcc -E - 2>/dev/null) | grep "boost/spirit/core.hpp" >/dev/null && echo "1")
+BOOST_EXIST=$(shell echo "\#include <boost/spirit/core.hpp>" | (gcc -E - 2>/dev/null) | grep "boost/spirit/core.hpp" >/dev/null && echo "1")
 
 BIT=32
 ifeq ($(shell uname -m),x86_64)
@@ -13,12 +13,12 @@ endif
 
 ifeq ($(BIT),64)
 TARGET += test64 bf64 memfunc64 test_util64
-ifeq ($(BOOST_EXIT),1)
-TARGET += calc64 calc2_64
+ifeq ($(BOOST_EXIST),1)
+#TARGET += calc64 calc2_64
 endif
 endif
 
-ifeq ($(BOOST_EXIT),1)
+ifeq ($(BOOST_EXIST),1)
 TARGET += calc calc2
 endif
 
@@ -38,10 +38,10 @@ calc:
 	g++ $(CFLAGS) calc.cpp -o $@ -m32
 calc64:
 	g++ $(CFLAGS) calc.cpp -o $@ -m64
-#calc2:
-#	g++ $(CFLAGS) calc2.cpp -o $@ -m32
-#calc2_64:
-#	g++ $(CFLAGS) calc2.cpp -o $@ -m64
+calc2:
+	g++ $(CFLAGS) calc2.cpp -o $@ -m32
+calc2_64:
+	g++ $(CFLAGS) calc2.cpp -o $@ -m64
 
 bf:
 	g++ $(CFLAGS) bf.cpp -o $@ -m32
