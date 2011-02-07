@@ -1315,7 +1315,8 @@ void put()
 		printf("void vmaskmovdqu(const Xmm& x1, const Xmm& x2) { opAVX_X_X_XM(x1, xm0, x2, MM_0F | PP_66, 0xF7, false, -1); }\n");
 
 		printf("void vpextrb(const Operand& op, const Xmm& x, uint8 imm) { if (!op.isREG(i32e) && !op.isMEM()) throw ERR_BAD_COMBINATION; opAVX_X_X_XM(x, xm0, cvtReg(op, !op.isMEM(), Operand::XMM), MM_0F3A | PP_66, 0x14, false); db(imm); }\n");
-		printf("void vpextrw(const Reg& r, const Xmm& x, uint8 imm) { opAVX_X_X_XM(x, xm0, Xmm(r.getIdx()), MM_0F | PP_66, 0xC5, false); db(imm); }\n");
+		// according to Intel' manual, VEX.W1 is ignored in 64-bit mode, then always VEX.W = 0, but I follow yasm encoding.
+		printf("void vpextrw(const Reg& r, const Xmm& x, uint8 imm) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, x, MM_0F | PP_66, 0xC5, false, r.isBit(64) ? 1 : 0); db(imm); }\n");
 		printf("void vpextrw(const Address& addr, const Xmm& x, uint8 imm) { opAVX_X_X_XM(x, xm0, addr, MM_0F3A | PP_66, 0x15, false); db(imm); }\n");
 		printf("void vpextrd(const Operand& op, const Xmm& x, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw ERR_BAD_COMBINATION; opAVX_X_X_XM(x, xm0, cvtReg(op, !op.isMEM(), Operand::XMM), MM_0F3A | PP_66, 0x16, false, 0); db(imm); }\n");
 

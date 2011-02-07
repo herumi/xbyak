@@ -1,5 +1,5 @@
 
-    Xbyak 2.99 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+    Xbyak 2.991 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 -----------------------------------------------------------------------------
 <Abstract>
@@ -56,6 +56,13 @@ test byte [esp], 4 --> test (byte [esp], 4);
 
 NB. dword, word and byte are class members, then don't use dword as
 unsigned int, for example.
+
+AVX
+
+You can omit a destination for almost 3-op mnemonics.
+
+vaddps(xmm1, xmm2, xmm3); // xmm1 <- xmm2 + xmm3
+vaddps(xmm2, xmm3); // xmm2 <- xmm2 + xmm3
 
 Label
 
@@ -148,6 +155,7 @@ http://www.opensource.org/licenses/bsd-license.php
 -----------------------------------------------------------------------------
 <History>
 
+2011/Feb/07 ver 2.991 beta fix pextrw reg, xmm, imm
 2011/Feb/04 ver 2.99 beta support AVX
 2010/Dec/08 ver 2.31 fix ptr [rip + 32bit offset], support rdtscp
 2010/Oct/19 ver 2.30 support pclmulqdq, aesdec, aesdeclast, aesenc, aesenclast, aesimc, aeskeygenassist
@@ -190,5 +198,5 @@ http://www.opensource.org/licenses/bsd-license.php
 MITSUNARI Shigeo(herumi at nifty dot com)
 
 ---
-$Revision: 1.54 $
-$Date: 2011/02/04 03:27:59 $
+$Revision: 1.56 $
+$Date: 2011/02/07 06:18:26 $

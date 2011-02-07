@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 2.99
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 2.991
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -60,6 +60,16 @@ test byte [esp], 4 --> test (byte [esp], 4);
 
 (注意) dword, word, byteはクラス変数です．従ってたとえばunsigned intの
 つもりでdwordをtypedefしないでください．
+
+・AVX
+
+大抵の3オペランド形式の命令はデスティネーションを省略した形で呼び出すことができます.
+FMAについては簡略表記を導入するか検討中です(アイデア募集中).
+
+vaddps(xmm1, xmm2, xmm3); // xmm1 <- xmm2 + xmm3
+vaddps(xmm2, xmm3); // xmm2 <- xmm2 + xmm3
+
+vfmadd231pd(xmm1, xmm2, xmm3); // xmm1 <- (xmm2 * xmm3) + xmm1
 
 ・ラベル
 
@@ -199,6 +209,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2011/02/07 ver 2.991 beta fix pextrw reg, xmm, imm
 2011/02/04 ver 2.99 beta support AVX
 2010/12/08 ver 2.31 fix ptr [rip + 32bit offset], support rtdscp
 2010/10/19 ver 2.30 support pclmulqdq, aesdec, aesdeclast, aesenc, aesenclast, aesimc, aeskeygenassist

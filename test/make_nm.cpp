@@ -1653,7 +1653,6 @@ class Test {
 			}
 		}
 		put("vpextrb", REG32e|MEM, XMM, IMM);
-		put("vpextrw", REG32e, XMM, IMM);
 		put("vpextrd", REG32|MEM, XMM, IMM);
 
 		for (int i = 0; i < 3; i++) {
@@ -1748,7 +1747,7 @@ class Test {
 		put("vpcmpgtq", XMM, XMM | MEM);
 		put("vpcmpgtq", XMM, XMM, XMM | MEM);
 
-		put("vpextrw", MEM, XMM, IMM); // nasm iw wrong?
+		put("vpextrw", REG32e | MEM, XMM, IMM); // nasm iw wrong?
 #endif
 	}
 public:
