@@ -1,12 +1,13 @@
+#pragma once
 #ifndef XBYAK_XBYAK_H_
 #define XBYAK_XBYAK_H_
 /*!
 	@file xbyak.h
 	@brief Xbyak ; JIT assembler for x86(IA32)/x64 by C++
 	@author herumi
-	@version $Revision: 1.239 $
+	@version $Revision: 1.240 $
 	@url http://homepage1.nifty.com/herumi/soft/xbyak.html
-	@date $Date: 2011/02/07 06:09:35 $
+	@date $Date: 2011/02/09 20:56:12 $
 	@note modified new BSD license
 	http://www.opensource.org/licenses/bsd-license.php
 */
@@ -42,12 +43,6 @@
 	#pragma warning(disable : 4786) /* identifier is too long */
 	#pragma warning(disable : 4503) /* name is too long */
 	#pragma warning(disable : 4127) /* constant expresison */
-	#if (_MSC_VER <= 1200)
-		#ifndef for
-			#define for if(0);else for
-			#pragma warning(disable : 4127) /* condition is constant(for "if" trick) */
-		#endif
-	#endif
 #endif
 
 namespace Xbyak {
@@ -56,7 +51,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x2991, /* 0xABCD = A.BC(D) */
+	VERSION = 0x2992, /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1052,7 +1047,6 @@ private:
 		addr.updateRegField(ext);
 		db(addr.getCode(), static_cast<int>(addr.getSize()));
 	}
-	// like yasm not nasm
 	// use code1 if reg1 == st0
 	// use code2 if reg1 != st0 && reg2 == st0
 	void opFpuFpu(const Fpu& reg1, const Fpu& reg2, uint32 code1, uint32 code2)

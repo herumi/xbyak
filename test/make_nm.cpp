@@ -1193,6 +1193,7 @@ class Test {
 			const Tbl *p = &tbl[i];
 			if (p->mode & 1) put(p->name, ST0, STi);
 			if (p->mode & 2) put(p->name, STi, ST0);
+			if (p->mode) put(p->name, STi);
 		}
 	}
 	void putFpu() const
@@ -1838,8 +1839,8 @@ public:
 		putFpuMem16_32_64();
 		put("clflush", MEM); // current nasm is ok
 		putFpu();
-#else
 		putFpuFpu();
+#else
 		putSSSE3();
 		putSSE4_1();
 		separateFunc();

@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 2.991
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 2.992
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -209,6 +209,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2011/02/10 ver 2.992 beta fadd, fsubr, etc support omitted st0 parameter
 2011/02/07 ver 2.991 beta fix pextrw reg, xmm, imm
 2011/02/04 ver 2.99 beta support AVX
 2010/12/08 ver 2.31 fix ptr [rip + 32bit offset], support rtdscp
@@ -235,7 +236,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 2008/05/26 ver 2.02 protect()(on Linux)で不正な設定になることがあるのを修正(thanks to sinichiro_hさん)
 2008/04/30 ver 2.01 cmpxchg16b, cdqe追加
 2008/04/29 ver 2.00 x86/x64-64版公開
-2008/04/25 ver 1.90 x86版β公開
+2008/04/25 ver 1.90 x64版β公開
 2008/04/18 ver 1.12 コード整理
 2008/04/14 ver 1.11 コード整理
 2008/03/12 ver 1.10 bsf/bsr追加(忘れていた)

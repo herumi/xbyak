@@ -1,5 +1,5 @@
 
-    Xbyak 2.991 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+    Xbyak 2.992 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 -----------------------------------------------------------------------------
 <Abstract>
@@ -155,6 +155,7 @@ http://www.opensource.org/licenses/bsd-license.php
 -----------------------------------------------------------------------------
 <History>
 
+2011/Feb/10 ver 2.992 beta fadd, fsubr, etc support st0 omitted parameter
 2011/Feb/07 ver 2.991 beta fix pextrw reg, xmm, imm
 2011/Feb/04 ver 2.99 beta support AVX
 2010/Dec/08 ver 2.31 fix ptr [rip + 32bit offset], support rdtscp
@@ -180,7 +181,7 @@ http://www.opensource.org/licenses/bsd-license.php
 2008/Jun/02 support memory interface allocated by user
 2008/May/26 fix protect() to avoid invalid setting(thanks to shinichiro_h san)
 2008/Apr/30 add cmpxchg16b, cdqe
-2008/Apr/29 support x86
+2008/Apr/29 support x64
 2008/Apr/14 code refactoring
 2008/Mar/12 add bsr/bsf
 2008/Feb/14 fix output of sub eax, 1234 (thanks to Robert)
@@ -198,5 +199,5 @@ http://www.opensource.org/licenses/bsd-license.php
 MITSUNARI Shigeo(herumi at nifty dot com)
 
 ---
-$Revision: 1.56 $
-$Date: 2011/02/07 06:18:26 $
+$Revision: 1.58 $
+$Date: 2011/02/09 20:56:12 $
