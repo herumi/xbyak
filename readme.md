@@ -66,6 +66,8 @@ pointer by calling cgetCode() and casting the return value.
     mov eax, [ebx+ecx] --> mov (eax, ptr[ebx+ecx]);
     test byte [esp], 4 --> test (byte [esp], 4);
 
+>selector is not supported.
+
 >you can use ptr for almost memory access unless you specify the size of memory.
 
 >dword, word and byte are class members, then don't use dword as unsigned int, for example.
@@ -135,7 +137,32 @@ The default max code size is 2048 bytes. Please set it in constructor of CodeGen
       ...
     };
 
-See *main.cpp*
+### use user allocated memory
+
+You can make jit code on prepaired memory.
+
+    class Sample : public Xbyak::CodeGenerator {
+    public:
+        Sample(void *userPtr, size_t size)
+            : Xbyak::CodeGenerator(size, userPtr)
+        {
+            ...
+        }
+    };
+
+    const size_t codeSize = 1024;
+    uint8 buf[codeSize + 16];
+
+    // get 16-byte aligned address
+    uint8 *p = Xbyak::CodeArray::getAlignedAddress(buf);
+
+    // append executable attribute to the memory
+    Xbyak::CodeArray::protect(p, codeSize, true);
+
+    // construct your jit code on the memory
+    Sample s(p, codeSize);
+
+>See *sample/test0.cpp*
 
 Macro
 -------------
@@ -210,5 +237,5 @@ Author
 MITSUNARI Shigeo(herumi at nifty dot com)
 
 ---
-$Revision: 1.3 $
-$Date: 2011/02/10 01:29:02 $
+$Revision: 1.4 $
+$Date: 2011/02/10 01:36:25 $
