@@ -168,8 +168,8 @@ http://www.opensource.org/licenses/bsd-license.php
 History
 -------------
 
-* 2011/Feb/10 ver 2.992 beta fadd, fsubr, etc support st0 omitted parameter
-* 2011/Feb/07 ver 2.991 beta fix pextrw reg, xmm, imm
+* 2011/Feb/10 ver 2.992 beta support one argument syntax for fadd like nasm
+* 2011/Feb/07 ver 2.991 beta fix pextrw reg, xmm, imm(Thanks to Gabest)
 * 2011/Feb/04 ver 2.99 beta support AVX
 * 2010/Dec/08 ver 2.31 fix ptr [rip + 32bit offset], support rdtscp
 * 2010/Oct/19 ver 2.30 support pclmulqdq, aesdec, aesdeclast, aesenc, aesenclast, aesimc, aeskeygenassist
@@ -210,5 +210,5 @@ Author
 MITSUNARI Shigeo(herumi at nifty dot com)
 
 ---
-$Revision: 1.1 $
-$Date: 2011/02/10 01:17:36 $
+$Revision: 1.2 $
+$Date: 2011/02/10 01:24:14 $

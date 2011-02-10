@@ -209,8 +209,8 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
-2011/02/10 ver 2.992 beta fadd, fsubr, etc support omitted st0 parameter
-2011/02/07 ver 2.991 beta fix pextrw reg, xmm, imm
+2011/02/10 ver 2.992 beta support one argument syntax for fadd like nasm
+2011/02/07 ver 2.991 beta fix pextrw reg, xmm, imm(Thanks to Gabest)
 2011/02/04 ver 2.99 beta support AVX
 2010/12/08 ver 2.31 fix ptr [rip + 32bit offset], support rtdscp
 2010/10/19 ver 2.30 support pclmulqdq, aesdec, aesdeclast, aesenc, aesenclast, aesimc, aeskeygenassist
