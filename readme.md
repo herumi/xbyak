@@ -1,5 +1,5 @@
 
-    Xbyak 2.992 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 2.992 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -210,5 +210,5 @@ Author
 MITSUNARI Shigeo(herumi at nifty dot com)
 
 ---
-$Revision: 1.2 $
-$Date: 2011/02/10 01:24:14 $
+$Revision: 1.3 $
+$Date: 2011/02/10 01:29:02 $
