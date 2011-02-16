@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 2.992
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 2.994
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -68,6 +68,7 @@ FMAについては簡略表記を導入するか検討中です(アイデア募�
 
 vaddps(xmm1, xmm2, xmm3); // xmm1 <- xmm2 + xmm3
 vaddps(xmm2, xmm3); // xmm2 <- xmm2 + xmm3
+vaddps(xmm2, xmm3, ptr [rax]); // メモリアクセスはptrで
 
 vfmadd231pd(xmm1, xmm2, xmm3); // xmm1 <- (xmm2 * xmm3) + xmm1
 
@@ -109,21 +110,25 @@ L("L3");
 2. ラベルの局所化
 
 ピリオドで始まるラベルをinLocalLabel(), outLocalLabel()で挟むことで局所化できます．
+inLocalLabel(), outLocalLabel()は入れ子にすることができます．
 
 void func1()
 {
     inLocalLabel();
-    L(".lp"); // <A>
+   L(".lp"); // <A> ; ローカルラベル
     ...
     jmp(".lp"); // jmpt to <A>
+   L("aaa"); // グローバルラベル
     outLocalLabel();
 }
 
 void func2()
 {
-    L(".lp"); // <B>
+    inLocalLabel();
+    L(".lp"); // <B> ; ローカルラベル
     func1();
     jmp(".lp"); // jmp to <B>
+    outLocalLabel();
 }
 
 上記サンプルではinLocalLabel(), outLocalLabel()が無いと，
@@ -209,6 +214,8 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2011/02/16 ver 2.994 beta add vmovq for 32-bit mode(I forgot it)
+2011/02/16 ver 2.993 beta remove cvtReg to avoid thread unsafe
 2011/02/10 ver 2.992 beta support one argument syntax for fadd like nasm
 2011/02/07 ver 2.991 beta fix pextrw reg, xmm, imm(Thanks to Gabest)
 2011/02/04 ver 2.99 beta support AVX

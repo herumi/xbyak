@@ -1619,6 +1619,9 @@ class Test {
 		put("vmovd", XMM, REG32 | MEM);
 		put("vmovd", REG32 | MEM, XMM);
 
+		put("vmovq", XMM, XMM | MEM);
+		put("vmovq", MEM, XMM);
+
 		put("vmovhlps", XMM, XMM);
 		put("vmovhlps", XMM, XMM, XMM);
 		put("vmovlhps", XMM, XMM);
@@ -1703,8 +1706,8 @@ class Test {
 			put("vcvttpd2dq", XMM, XMM | YMM | MEM);
 		}
 #ifdef XBYAK64
-		put("vmovq", XMM, XMM | REG64 | MEM);
-		put("vmovq", REG64 | MEM, XMM);
+		put("vmovq", XMM, REG64);
+		put("vmovq", REG64, XMM);
 
 		put("vpextrq", REG64|MEM, XMM, IMM);
 

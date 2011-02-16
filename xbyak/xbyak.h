@@ -5,9 +5,9 @@
 	@file xbyak.h
 	@brief Xbyak ; JIT assembler for x86(IA32)/x64 by C++
 	@author herumi
-	@version $Revision: 1.240 $
+	@version $Revision: 1.247 $
 	@url http://homepage1.nifty.com/herumi/soft/xbyak.html
-	@date $Date: 2011/02/09 20:56:12 $
+	@date $Date: 2011/02/16 08:06:12 $
 	@note modified new BSD license
 	http://www.opensource.org/licenses/bsd-license.php
 */
@@ -51,7 +51,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x2992, /* 0xABCD = A.BC(D) */
+	VERSION = 0x2994, /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1391,26 +1391,21 @@ public:
 		db(0xF2);
 		opModRM(reg, op, op.isREG(), op.isMEM(), 0x0F, 0x38, 0xF0 | (op.isBit(8) ? 0 : 1));
 	}
-	void vextractps(const Operand& op, const Xmm& xmm, uint8 imm)
-	{
-		if (!(op.isREG(32) || op.isMEM()) || xmm.isYMM()) throw ERR_BAD_COMBINATION;
-		opAVX_X_XM_IMM(xmm, cvtReg(op, op.isREG(), Operand::XMM), MM_0F3A | PP_66, 0x17, false, 0, imm);
-	}
 	// support (x, x, x/m), (y, y, y/m)
-	void opAVX_X_X_XM(const Xmm& xm1, const Operand& op1, const Operand& op2, int type, int code0, bool supportYMM, int w = -1)
+	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, bool supportYMM, int w = -1)
 	{
-		const Xmm *xm2;
+		const Xmm *x2;
 		const Operand *op;
 		if (op2.isNone()) {
-			xm2 = &xm1;
+			x2 = &x1;
 			op = &op1;
 		} else {
 			if (!(op1.isXMM() || (supportYMM && op1.isYMM()))) throw ERR_BAD_COMBINATION;
-			xm2 = static_cast<const Xmm*>(&op1);
+			x2 = static_cast<const Xmm*>(&op1);
 			op = &op2;
 		}
-		// (xm1, xm2, op)
-		if (!((xm1.isXMM() && xm2->isXMM()) || (supportYMM && xm1.isYMM() && xm2->isYMM()))) throw ERR_BAD_COMBINATION;
+		// (x1, x2, op)
+		if (!((x1.isXMM() && x2->isXMM()) || (supportYMM && x1.isYMM() && x2->isYMM()))) throw ERR_BAD_COMBINATION;
 		bool x, b;
 		if (op->isMEM()) {
 			const Address& addr = *static_cast<const Address*>(op);
@@ -1424,38 +1419,26 @@ public:
 			b = static_cast<const Reg*>(op)->isExtIdx();
 		}
 		if (w == -1) w = 0;
-		vex(xm1.isExtIdx(), xm2->getIdx(), xm1.isYMM(), type, x, b, w);
+		vex(x1.isExtIdx(), x2->getIdx(), x1.isYMM(), type, x, b, w);
 		db(code0);
 		if (op->isMEM()) {
 			const Address& addr = *static_cast<const Address*>(op);
-			addr.updateRegField(static_cast<uint8>(xm1.getIdx()));
+			addr.updateRegField(static_cast<uint8>(x1.getIdx()));
 			db(addr.getCode(), static_cast<int>(addr.getSize()));
 		} else {
-			db(getModRM(3, xm1.getIdx(), op->getIdx()));
+			db(getModRM(3, x1.getIdx(), op->getIdx()));
 		}
 	}
 	// if cvt then return pointer to Xmm(idx) (or Ymm(idx)), otherwise return op
-	const Operand& cvtReg(const Operand& op, bool cvt, Operand::Kind kind) const
+	void opAVX_X_X_XMcvt(const Xmm& x1, const Operand& op1, const Operand& op2, bool cvt, Operand::Kind kind, int type, int code0, bool supportYMM, int w = -1)
 	{
-		if (!cvt) return op;
-		static const Xmm* xmTbl[] = {
-			&xm0, &xm1, &xm2, &xm3, &xm4, &xm5, &xm6, &xm7,
-#ifdef XBYAK64
-			&xm8, &xm9, &xm10, &xm11, &xm12, &xm13, &xm14, &xm15
-#endif
-		};
-		static const Ymm* ymTbl[] = {
-			&ym0, &ym1, &ym2, &ym3, &ym4, &ym5, &ym6, &ym7,
-#ifdef XBYAK64
-			&ym8, &ym9, &ym10, &ym11, &ym12, &ym13, &ym14, &ym15
-#endif
-		};
-		return (kind == Operand::XMM) ? *xmTbl[op.getIdx()] : *ymTbl[op.getIdx()];
+		// use static_cast to avoid calling unintentional copy constructor on gcc
+		opAVX_X_X_XM(x1, op1, cvt ? kind == Operand::XMM ? static_cast<const Operand&>(Xmm(op2.getIdx())) : static_cast<const Operand&>(Ymm(op2.getIdx())) : op2, type, code0, supportYMM, w);
 	}
 	// support (x, x/m, imm), (y, y/m, imm)
-	void opAVX_X_XM_IMM(const Xmm& xmm, const Operand& op, int type, int code, bool supportYMM, int w = -1, int imm = NONE)
+	void opAVX_X_XM_IMM(const Xmm& x, const Operand& op, int type, int code, bool supportYMM, int w = -1, int imm = NONE)
 	{
-		opAVX_X_X_XM(xmm, xmm.isXMM() ? xm0 : ym0, op, type, code, supportYMM, w); if (imm != NONE) db((uint8)imm);
+		opAVX_X_X_XM(x, x.isXMM() ? xm0 : ym0, op, type, code, supportYMM, w); if (imm != NONE) db((uint8)imm);
 	}
 	enum { NONE = 256 };
 public:

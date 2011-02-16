@@ -1,5 +1,5 @@
 
-Xbyak 2.992 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 2.994 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -107,22 +107,29 @@ You can omit a destination for almost 3-op mnemonics.
     L("@@"); // <B>
       jmp("@b"); // jmp to <B>
 
-#### 2. localization of label by calling inLocalLabel(), outLocallabel()
+#### 2. localization of label by calling inLocalLabel(), outLocallabel().
+
+labels begining of period between inLocalLabel() and outLocalLabel()
+are dealed with local label.
+inLocalLabel() and outLocalLabel() can be nested.
 
     void func1()
     {
         inLocalLabel();
-      L(".lp"); // <A>
+      L(".lp"); // <A> ; local label
         ...
         jmp(".lp"); // jmpt to <A>
+      L("aaa"); // global label
         outLocalLabel();
     }
 
     void func2()
     {
-      L(".lp"); // <B>
+        inLocalLabel();
+      L(".lp"); // <B> ; local label
         func1();
         jmp(".lp"); // jmp to <B>
+        inLocalLabel();
     }
 
 ### Code size
@@ -195,6 +202,8 @@ http://www.opensource.org/licenses/bsd-license.php
 History
 -------------
 
+* 2011/Feb/16 ver 2.994 beta add vmovq for 32-bit mode(I forgot it)
+* 2011/Feb/16 ver 2.993 beta remove cvtReg to avoid thread unsafe
 * 2011/Feb/10 ver 2.992 beta support one argument syntax for fadd like nasm
 * 2011/Feb/07 ver 2.991 beta fix pextrw reg, xmm, imm(Thanks to Gabest)
 * 2011/Feb/04 ver 2.99 beta support AVX
@@ -237,5 +246,5 @@ Author
 MITSUNARI Shigeo(herumi at nifty dot com)
 
 ---
-$Revision: 1.4 $
-$Date: 2011/02/10 01:36:25 $
+$Revision: 1.7 $
+$Date: 2011/02/16 08:06:12 $
