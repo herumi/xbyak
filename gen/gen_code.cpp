@@ -1241,6 +1241,26 @@ void put()
 			printf("void vmaskmov%s(const Address& addr, const Xmm& xm1, const Xmm& xm2) { opAVX_X_X_XM(xm2, xm1, addr, MM_0F38 | PP_66, 0x%02X, true, 0); }\n", suf[i], 0x2E + i);
 		}
 	}
+	// vcmpeqps
+	{
+		const char pred[32][16] = {
+			"eq", "lt", "le", "unord", "neq", "nlt", "nle", "ord",
+			"eq_uq", "nge", "ngt", "false", "neq_oq", "ge", "gt",
+			"true", "eq_os", "lt_oq", "le_oq", "unord_s", "neq_us", "nlt_uq", "nle_uq", "ord_s",
+			"eq_us", "nge_uq", "ngt_uq", "false_os", "neq_os", "ge_oq", "gt_oq", "true_us"
+		};
+		const char suf[][4] = { "pd", "ps", "sd", "ss" };
+		for (int i = 0; i < 4; i++) {
+			const char *s = suf[i];
+			for (int j = 0; j < 32; j++) {
+				if (j < 8) {
+					printf("void cmp%s%s(const Xmm& x, const Operand& op) { cmp%s(x, op, %d); }\n", pred[j], s, s, j);
+				}
+				printf("void vcmp%s%s(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmp%s(x1, x2, op, %d); }\n", pred[j], s, s, j);
+				printf("void vcmp%s%s(const Xmm& x, const Operand& op) { vcmp%s(x, op, %d); }\n", pred[j], s, s, j);
+			}
+		}
+	}
 	// vmov(h|l)(pd|ps)
 	{
 		const struct Tbl {

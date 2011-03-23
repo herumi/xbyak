@@ -1754,6 +1754,30 @@ class Test {
 		put("vpextrw", REG32e | MEM, XMM, IMM); // nasm iw wrong?
 #endif
 	}
+	void putCmp()
+	{
+		const char pred[32][16] = {
+			"eq", "lt", "le", "unord", "neq", "nlt", "nle", "ord",
+			"eq_uq", "nge", "ngt", "false", "neq_oq", "ge", "gt",
+			"true", "eq_os", "lt_oq", "le_oq", "unord_s", "neq_us", "nlt_uq", "nle_uq", "ord_s",
+			"eq_us", "nge_uq", "ngt_uq", "false_os", "neq_os", "ge_oq", "gt_oq", "true_us"
+		};
+		const char suf[][4] = { "pd", "ps", "sd", "ss" };
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 32; j++) {
+				if (j < 8) {
+					put((std::string("cmp") + pred[j] + suf[i]).c_str(), XMM, XMM | MEM);
+				}
+				std::string str = std::string("vcmp") + pred[j] + suf[i];
+				const char *p = str.c_str();
+				put(p, XMM, XMM | MEM);
+				put(p, XMM, XMM, XMM | MEM);
+				if (i >= 2) continue;
+				put(p, YMM, YMM | MEM);
+				put(p, YMM, YMM, YMM | MEM);
+			}
+		}
+	}
 public:
 	Test(bool isXbyak)
 		: isXbyak_(isXbyak)
@@ -1843,6 +1867,7 @@ public:
 		put("clflush", MEM); // current nasm is ok
 		putFpu();
 		putFpuFpu();
+		putCmp();
 #else
 		putSSSE3();
 		putSSE4_1();
