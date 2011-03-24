@@ -38,7 +38,7 @@ void putCPUinfo()
 		{ Cpu::tSSE5, "sse5" },
 		{ Cpu::tAESNI, "aesni" },
 		{ Cpu::tRDTSCP, "rdtscp" },
-		{ Cpu::tOSXSACE, "osxsace(xgetvb)" },
+		{ Cpu::tOSXSAVE, "osxsave(xgetvb)" },
 		{ Cpu::tPCLMULQDQ, "pclmulqdq" },
 		{ Cpu::tAVX, "avx" },
 		{ Cpu::tFMA, "fma" },

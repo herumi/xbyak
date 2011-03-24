@@ -1,5 +1,5 @@
 
-Xbyak 3.00 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 3.01 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -202,6 +202,7 @@ http://www.opensource.org/licenses/bsd-license.php
 History
 -------------
 
+* 2011/May/24 ver 3.01 fix typo of OSXSAVE
 * 2011/May/23 ver 3.00 add vcmpeqps and so on
 * 2011/Feb/16 ver 2.994 beta add vmovq for 32-bit mode(I forgot it)
 * 2011/Feb/16 ver 2.993 beta remove cvtReg to avoid thread unsafe
@@ -247,5 +248,5 @@ Author
 MITSUNARI Shigeo(herumi at nifty dot com)
 
 ---
-$Revision: 1.9 $
-$Date: 2011/03/23 04:50:42 $
+$Revision: 1.10 $
+$Date: 2011/03/24 06:32:21 $

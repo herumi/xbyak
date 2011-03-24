@@ -1356,7 +1356,7 @@ void put()
 		printf("void vpinsrd(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw ERR_BAD_COMBINATION; opAVX_X_X_XMcvt(x1, x2, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x22, false, 0); db(imm); }\n");
 		printf("void vpinsrd(const Xmm& x, const Operand& op, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw ERR_BAD_COMBINATION; opAVX_X_X_XMcvt(x, x, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x22, false, 0); db(imm); }\n");
 
-		printf("void vpmovmskb(const Reg32e& r, const Xmm& x) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, x, MM_0F | PP_66, 0xD7, false); }\n");
+		printf("void vpmovmskb(const Reg32e& r, const Xmm& x) { if (x.isYMM()) throw ERR_BAD_COMBINATION; opAVX_X_X_XM(Xmm(r.getIdx()), xm0, x, MM_0F | PP_66, 0xD7, false); }\n");
 
 	}
 	// (x, x, imm), (x, imm)

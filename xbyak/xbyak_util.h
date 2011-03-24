@@ -92,7 +92,7 @@ public:
 		tPOPCNT = 1 << 9,
 		tAESNI = 1 << 10,
 		tSSE5 = 1 << 11,
-		tOSXSACE = 1 << 12,
+		tOSXSAVE = 1 << 12,
 		tPCLMULQDQ = 1 << 13,
 		tAVX = 1 << 14,
 		tFMA = 1 << 15,
@@ -134,9 +134,9 @@ public:
 		if (data[2] & (1U << 23)) type_ |= tPOPCNT;
 		if (data[2] & (1U << 25)) type_ |= tAESNI;
 		if (data[2] & (1U << 1)) type_ |= tPCLMULQDQ;
-		if (data[2] & (1U << 27)) type_ |= tOSXSACE;
+		if (data[2] & (1U << 27)) type_ |= tOSXSAVE;
 
-		if (type_ & tOSXSACE) {
+		if (type_ & tOSXSAVE) {
 			// check XFEATURE_ENABLED_MASK[2:1] = '11b'
 			uint64 bv = getXfeature();
 			if ((bv & 6) == 6) {

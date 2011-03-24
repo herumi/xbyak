@@ -14,7 +14,7 @@ else if ($1 == "64") then
 	set OPT3=win64
 	set FILTER=./normalize_prefix
 else if ($1 == "Y64") then
-	echo "nasm(64bit)"
+	echo "yasm(64bit)"
 	set EXE=yasm
 	set OPT2="-DUSE_YASM -DXBYAK64"
 	set OPT3=win64

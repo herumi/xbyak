@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.00
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.01
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -214,6 +214,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2011/03/24 ver 3.01 fix typo of OSXSAVE
 2011/03/23 ver 3.00  vcmpeqpsなどを追加
 2011/02/16 ver 2.994 beta add vmovq for 32-bit mode(I forgot it)
 2011/02/16 ver 2.993 beta remove cvtReg to avoid thread unsafe
