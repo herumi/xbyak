@@ -72,10 +72,12 @@ public:
 	{
 #ifdef _MSC_VER
 		return __xgetbv(0);
-#else
+#elif __GNUC_PREREQ(4, 3)
 		unsigned int eax, edx;
 		__asm__ volatile("xgetbv" : "=a"(eax), "=d"(edx) : "c"(0));
 		return ((uint64)edx << 32) | eax;
+#else
+		return 0;
 #endif
 	}
 	enum Type {
