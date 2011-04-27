@@ -34,15 +34,9 @@ public:
 		// void (*)(void* putchar, void* getchar, int *stack)
 		using namespace Xbyak;
 #ifdef XBYAK32
-#if defined(_MSC_VER) && (_MSC_VER <= 1200) // for VC6
-		const Reg32 pPutchar(esi);
-		const Reg32 pGetchar(edi);
-		const Reg32 stack(ebp);
-#else
 		const Reg32& pPutchar(esi);
 		const Reg32& pGetchar(edi);
 		const Reg32& stack(ebp);
-#endif
 		const Address cur = dword [stack];
 		push(ebp); // stack
 		push(esi);

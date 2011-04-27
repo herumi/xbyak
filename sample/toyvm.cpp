@@ -28,27 +28,10 @@
 #include <memory.h>
 #include <vector>
 #include "xbyak/xbyak.h"
-#ifdef _MSC_VER
-	#pragma warning(disable : 4996) // scanf
-#endif
+#include "xbyak/xbyak_util.h"
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
 using namespace Xbyak;
-
-uint64 getRdtsc()
-{
-#ifdef _WIN64
-	return __rdtsc();
-#elif defined(WIN32)
-	__asm {
-		rdtsc
-	}
-#else
-    uint64 x;
-    __asm__ volatile("rdtsc" : "=A" (x));
-    return x;
-#endif
-}
 
 class ToyVm : public Xbyak::CodeGenerator {
 	typedef std::vector<uint32> Buffer;
@@ -313,23 +296,33 @@ int main()
 {
 	try {
 		const int n = 10000;
-		uint64 p;
 		Fib fib(n);
 
 		fib.recompile();
 
-		p = getRdtsc();
-		fib.run();
-		printf("vm       %.2fKclk\n", (signed)(getRdtsc() - p) * 1e-3);
+		{
+			Xbyak::util::Clock clk;
+			clk.begin();
+			fib.run();
+			clk.end();
+			printf("vm       %.2fKclk\n", clk.getClock() * 1e-3);
+		}
 
-		p = getRdtsc();
-		fib.runByJIT();
-		printf("jit      %.2fKclk\n", (signed)(getRdtsc() - p) * 1e-3);
+		{
+			Xbyak::util::Clock clk;
+			clk.begin();
+			fib.runByJIT();
+			clk.end();
+			printf("jit      %.2fKclk\n", clk.getClock() * 1e-3);
+		}
 
-		p = getRdtsc();
-		fibC(n);
-		printf("native C %.2fKclk\n", (signed)(getRdtsc() - p) * 1e-3);
-
+		{
+			Xbyak::util::Clock clk;
+			clk.begin();
+			fibC(n);
+			clk.end();
+			printf("native C %.2fKclk\n", clk.getClock() * 1e-3);
+		}
 	} catch (Xbyak::Error err) {
 		printf("ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
 	} catch (...) {
