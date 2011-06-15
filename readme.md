@@ -229,7 +229,7 @@ History
 * 2009/Feb/13 movd(xmm7, dword[eax]) drops 0x66 prefix (thanks to Gabest)
 * 2008/Dec/30 fix call in short relative address(thanks to kato san)
 * 2008/Sep/18 support @@, @f, @b and localization of label(thanks to nobu-q san)
-* 2008/Sep/18 support ptr[rip + 32bit offset] (thanks to Dango-Chu san)
+* 2008/Sep/18 support (ptr[rip + 32bit offset]) (thanks to Dango-Chu san)
 * 2008/Jun/03 fix align(). mov(ptr[eax],1) throws ERR_MEM_SIZE_IS_NOT_SPECIFIED.
 * 2008/Jun/02 support memory interface allocated by user
 * 2008/May/26 fix protect() to avoid invalid setting(thanks to shinichiro_h san)
