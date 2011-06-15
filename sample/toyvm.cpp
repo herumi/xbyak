@@ -140,8 +140,8 @@ public:
 		const size_t memTblNum = NUM_OF_ARRAY(memTbl);
 		for (size_t i = 0; i < memTblNum; i++) xor(memTbl[i], memTbl[i]);
 
-		xor(reg[0], reg[0]);
-		xor(reg[1], reg[1]);
+		xor(esi, esi);
+		xor(edi, edi);
 		mov(mem, (size_t)mem_);
 		const size_t end = code_.size();
 		uint32 pc = 0;

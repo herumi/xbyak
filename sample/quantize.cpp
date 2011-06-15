@@ -1,6 +1,6 @@
 /*
 	@author herumi
-	@date $Date: 2009/12/09 05:40:52 $
+	@date $Date: 2011/06/02 02:43:26 $
 
 	JPEG quantize sample
 	This program generates a quantization routine by using fast division algorithm in run-time.
@@ -182,11 +182,10 @@ int main(int argc, char *argv[])
 
 	try {
 		uint32 src[N];
-		uint32 src2[N];
 		uint32 dest[N];
 		uint32 dest2[N];
 		for (int i = 0; i < N; i++) {
-			src2[i] = src[i] = rand() % 2048;
+			src[i] = rand() % 2048;
 		}
 
 		Quantize jit(qTbl);
@@ -220,5 +219,4 @@ int main(int argc, char *argv[])
 	} catch (...) {
 		printf("unknown error\n");
 	}
-	return 0;
 }

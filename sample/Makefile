@@ -19,7 +19,7 @@ endif
 endif
 
 ifeq ($(BOOST_EXIST),1)
-TARGET += calc calc2
+TARGET += calc #calc2
 endif
 
 all: $(TARGET)

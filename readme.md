@@ -202,6 +202,7 @@ http://www.opensource.org/licenses/bsd-license.php
 History
 -------------
 
+* 2011/Jun/16 ver 3.03 fix __GNUC_PREREQ macro for Mac gcc(thanks to t_teruya)
 * 2011/Apr/28 ver 3.02 do not use xgetbv on Mac gcc
 * 2011/May/24 ver 3.01 fix typo of OSXSAVE
 * 2011/May/23 ver 3.00 add vcmpeqps and so on
@@ -228,7 +229,7 @@ History
 * 2009/Feb/13 movd(xmm7, dword[eax]) drops 0x66 prefix (thanks to Gabest)
 * 2008/Dec/30 fix call in short relative address(thanks to kato san)
 * 2008/Sep/18 support @@, @f, @b and localization of label(thanks to nobu-q san)
-* 2008/Sep/18 support ptr [rip + 32bit offset] (thanks to Dango-Chu san)
+* 2008/Sep/18 support ptr[rip + 32bit offset] (thanks to Dango-Chu san)
 * 2008/Jun/03 fix align(). mov(ptr[eax],1) throws ERR_MEM_SIZE_IS_NOT_SPECIFIED.
 * 2008/Jun/02 support memory interface allocated by user
 * 2008/May/26 fix protect() to avoid invalid setting(thanks to shinichiro_h san)
@@ -249,5 +250,5 @@ Author
 MITSUNARI Shigeo(herumi at nifty dot com)
 
 ---
-$Revision: 1.11 $
-$Date: 2011/04/27 20:43:24 $
+$Revision: 1.12 $
+$Date: 2011/06/15 21:55:02 $
