@@ -5,9 +5,9 @@
 	@file xbyak.h
 	@brief Xbyak ; JIT assembler for x86(IA32)/x64 by C++
 	@author herumi
-	@version $Revision: 1.251 $
+	@version $Revision: 1.252 $
 	@url http://homepage1.nifty.com/herumi/soft/xbyak.html
-	@date $Date: 2011/06/15 21:55:02 $
+	@date $Date: 2011/08/15 00:59:49 $
 	@note modified new BSD license
 	http://www.opensource.org/licenses/bsd-license.php
 */
@@ -51,7 +51,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x3030, /* 0xABCD = A.BC(D) */
+	VERSION = 0x3040, /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -986,8 +986,9 @@ private:
 	{
 		verifyMemHasSize(op);
 		uint32 immBit = inner::IsInDisp8(imm) ? 8 : isInDisp16(imm) ? 16 : 32;
+		if (op.isBit(8)) immBit = 8;
 		if (op.getBit() < immBit) throw ERR_IMM_IS_TOO_BIG;
-		if (op.isREG(32|64) && immBit == 16) immBit = 32; /* don't use MEM16 if 32/64bit mode */
+		if (op.isBit(32|64) && immBit == 16) immBit = 32; /* don't use MEM16 if 32/64bit mode */
 		if (op.isREG() && op.getIdx() == 0 && (op.getBit() == immBit || (op.isBit(64) && immBit == 32))) { // rax, eax, ax, al
 			rex(op);
 			db(code | 4 | (immBit == 8 ? 0 : 1));

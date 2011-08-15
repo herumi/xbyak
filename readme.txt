@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.03
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.04
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -214,6 +214,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2011/08/15 ver 3.04 add(dword [ebp-8], 0xda);などにおけるimm8の扱いのバグ修正(thanks to lolcat)
 2011/06/16 ver 3.03 Macのgcc上での__GNUC_PREREQがミスってたのを修正(thanks to t_teruya)
 2011/04/28 ver 3.02 Macのgcc上ではxgetbvをdisable
 2011/03/24 ver 3.01 fix typo of OSXSAVE

@@ -21,7 +21,7 @@ const uint64 IMM16 = 1ULL << 10;
 const uint64 NEG16 = 1ULL << 11;
 const uint64 AX = 1ULL << 12;
 const uint64 AL = 1ULL << 13;
-const uint64 IMM = 1ULL << 14;
+const uint64 IMM_1 = 1ULL << 14;
 const uint64 MEM8 = 1ULL << 15;
 const uint64 MEM16 = 1ULL << 16;
 const uint64 MEM32 = 1ULL << 17;
@@ -63,6 +63,8 @@ const uint64 MEM = _MEM | _MEMe;
 const uint64 MEM64 = 1ULL << 35;
 const uint64 ST0 = 1ULL << 36;
 const uint64 STi = 1ULL << 37;
+const uint64 IMM_2 = 1ULL << 38;
+const uint64 IMM = IMM_1 | IMM_2;
 const uint64 XMM = _XMM | _XMM2;
 const uint64 YMM = _YMM | _YMM2;
 const uint64 NOPARA = 1ULL << (bitEnd - 1);
@@ -283,8 +285,10 @@ class Test {
 			return isXbyak_ ? "-1000" : "word -1000";
 		case NEG32:
 			return isXbyak_ ? "-100000" : "dword -100000";
-		case IMM:
+		case IMM_1:
 			return "4";
+		case IMM_2:
+			return isXbyak_ ? "0xda" : "0xda";
 		case NEG:
 			return "-5";
 		}
