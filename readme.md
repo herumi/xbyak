@@ -1,5 +1,5 @@
 
-Xbyak 3.04 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 3.05 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -202,6 +202,7 @@ http://www.opensource.org/licenses/bsd-license.php
 History
 -------------
 
+* 2011/Nov/09 ver 3.05 fix bit property of rip addresing / support movsxd
 * 2011/Aug/15 ver 3.04 fix dealing with imm8 such as add(dword [ebp-8], 0xda); (thanks to lolcat)
 * 2011/Jun/16 ver 3.03 fix __GNUC_PREREQ macro for Mac gcc(thanks to t_teruya)
 * 2011/Apr/28 ver 3.02 do not use xgetbv on Mac gcc
@@ -251,5 +252,5 @@ Author
 MITSUNARI Shigeo(herumi at nifty dot com)
 
 ---
-$Revision: 1.14 $
-$Date: 2011/08/15 01:29:40 $
+$Revision: 1.15 $
+$Date: 2011/11/09 02:50:21 $

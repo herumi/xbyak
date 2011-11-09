@@ -5,12 +5,15 @@
 	@file xbyak.h
 	@brief Xbyak ; JIT assembler for x86(IA32)/x64 by C++
 	@author herumi
-	@version $Revision: 1.252 $
+	@version $Revision: 1.256 $
 	@url http://homepage1.nifty.com/herumi/soft/xbyak.html
-	@date $Date: 2011/08/15 00:59:49 $
+	@date $Date: 2011/11/09 05:06:37 $
 	@note modified new BSD license
 	http://www.opensource.org/licenses/bsd-license.php
 */
+#if not +0
+	#error "use -fno-operator-names"
+#endif
 
 #include <stdio.h> // for debug print
 #include <assert.h>
@@ -51,7 +54,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x3040, /* 0xABCD = A.BC(D) */
+	VERSION = 0x3050, /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -572,7 +575,7 @@ public:
 	}
 	Address operator[](const RegRip& addr) const
 	{
-		Address frame(64, true, addr.disp_, false);
+		Address frame(bit_, true, addr.disp_, false);
 		frame.db(B00000101);
 		frame.dd(addr.disp_);
 		return frame;
@@ -1032,6 +1035,7 @@ private:
 	}
 	void opMovxx(const Reg& reg, const Operand& op, uint8 code)
 	{
+		if (op.isBit(32)) throw ERR_BAD_COMBINATION;
 		int w = op.isBit(16);
 		bool cond = reg.isREG() && (reg.getBit() > op.getBit());
 		opModRM(reg, op, cond && op.isREG(), cond && op.isMEM(), 0x0F, code | w);
@@ -1339,6 +1343,11 @@ public:
 	{
 		if (!op.isREG(64) && !op.isMEM()) throw ERR_BAD_COMBINATION;
 		opGen(Reg64(xmm.getIdx()), op, 0x22, 0x66, 0, imm, B00111010); // force to 64bit
+	}
+	void movsxd(const Reg64& reg, const Operand& op)
+	{
+		if (!op.isBit(32)) throw ERR_BAD_COMBINATION;
+		opModRM(reg, op, op.isREG(), op.isMEM(), 0x63);
 	}
 #endif
 	// MMX2 : pextrw : reg, mmx/xmm, imm

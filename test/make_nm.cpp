@@ -937,6 +937,9 @@ class Test {
 			put(p, REG32, REG16|REG8|MEM8|MEM16);
 			put(p, REG16, REG8|MEM8);
 		}
+#ifdef XBYAK64
+		put("movsxd", REG64, REG32|MEM32);
+#endif
 		put("cmpxchg8b", MEM);
 #ifdef XBYAK64
 		put("cmpxchg16b", MEM);
@@ -1782,6 +1785,22 @@ class Test {
 			}
 		}
 	}
+	void putRip()
+	{
+		const char tbl[][2][64] = {
+			{ "mov(byte [rip - 10], 3);dump();", "mov byte [rip - 10], 3" },
+			{ "mov(word [rip - 10], 3);dump();", "mov word [rip - 10], 3" },
+			{ "mov(dword[rip - 10], 3);dump();", "mov dword [rip - 10], 3" },
+			{ "mov(qword [rip - 10], 3);dump();", "mov qword [rip - 10], 3" },
+			{ "mov(ptr [rip - 10], al);dump();", "mov byte [rip - 10], al" },
+			{ "mov(ptr [rip - 10], ax);dump();", "mov word [rip - 10], ax" },
+			{ "mov(ptr [rip - 10], eax);dump();", "mov dword [rip - 10], eax" },
+			{ "mov(ptr [rip - 10], rax);dump();", "mov qword [rip - 10], rax" },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			puts(tbl[i][isXbyak_ ? 0 : 1]);
+		}
+	}
 public:
 	Test(bool isXbyak)
 		: isXbyak_(isXbyak)
@@ -1878,6 +1897,9 @@ public:
 		separateFunc();
 		putSSE4_2();
 		putMov64();
+#ifdef XBYAK64
+		putRip();
+#endif
 #endif
 #endif
 	}
