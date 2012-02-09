@@ -1096,6 +1096,18 @@ class Test {
 			const char *p = tbl[i];
 			put(p, XMM, XMM|MEM, IMM);
 		}
+		{
+			const char tbl[][16] = {
+				"pclmullqlqdq",
+				"pclmulhqlqdq",
+//				"pclmullqhdq", // QQQ : not supported by nasm/yasm
+//				"pclmulhqhdq",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				const char *p = tbl[i];
+				put(p, XMM, XMM|MEM);
+			}
+		}
 		put("extractps", REG32e|MEM, XMM, IMM);
 		put("pextrw", REG32e|MEM, XMM, IMM); // pextrw for REG32 is for MMX2
 		put("pextrb", REG32e|MEM, XMM, IMM);

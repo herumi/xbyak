@@ -197,7 +197,7 @@ License
 -------------
 
 modified new BSD License
-http://www.opensource.org/licenses/bsd-license.php
+http://opensource.org/licenses/BSD-3-Clause
 
 History
 -------------
@@ -252,5 +252,5 @@ Author
 MITSUNARI Shigeo(herumi at nifty dot com)
 
 ---
-$Revision: 1.15 $
-$Date: 2011/11/09 02:50:21 $
+$Revision: 1.16 $
+$Date: 2011/12/22 01:43:13 $

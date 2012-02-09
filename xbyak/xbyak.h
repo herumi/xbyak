@@ -5,14 +5,14 @@
 	@file xbyak.h
 	@brief Xbyak ; JIT assembler for x86(IA32)/x64 by C++
 	@author herumi
-	@version $Revision: 1.256 $
+	@version $Revision: 1.260 $
 	@url http://homepage1.nifty.com/herumi/soft/xbyak.html
-	@date $Date: 2011/11/09 05:06:37 $
+	@date $Date: 2012/01/05 00:34:07 $
 	@note modified new BSD license
-	http://www.opensource.org/licenses/bsd-license.php
+	http://opensource.org/licenses/BSD-3-Clause
 */
 #if not +0
-	#error "use -fno-operator-names"
+	#error "use -fno-operator-names to use 'not', 'xor, 'and' as function names"
 #endif
 
 #include <stdio.h> // for debug print
@@ -54,7 +54,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x3050, /* 0xABCD = A.BC(D) */
+	VERSION = 0x3060, /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1498,7 +1498,7 @@ public:
 #include "xbyak_mnemonic.h"
 	void align(int x = 16)
 	{
-		if (x != 4 && x != 8 && x != 16 && x != 32) throw ERR_BAD_ALIGN;
+		if (x < 2 || (x & (x - 1))) throw ERR_BAD_ALIGN;
 		while (size_t(getCurr()) % x) {
 			nop();
 		}

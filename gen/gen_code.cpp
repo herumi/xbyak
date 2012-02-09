@@ -769,6 +769,21 @@ void put()
 	}
 	{
 		const struct Tbl {
+			const char *name;
+			uint8 code;
+		} tbl[] = {
+			{ "pclmullqlqdq", 0 },
+			{ "pclmulhqlqdq", 1 },
+			{ "pclmullqhdq", 0x10 },
+			{ "pclmulhqhdq", 0x11 },
+		};
+		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			printf("void %s(const Xmm& xmm, const Operand& op) { pclmulqdq(xmm, op, 0x%02X); }\n", p->name, p->code);
+		}
+	}
+	{
+		const struct Tbl {
 			uint8 code;
 			uint8 ext;
 			const char *name;
