@@ -206,7 +206,7 @@ MMX/SSE命令はほぼ全て実装されていますが，3D Now!命令や，一
 ◎ライセンス
 
 修正された新しいBSDライセンスに従います．
-http://www.opensource.jp/licenses/bsd-license.html
+http://opensource.org/licenses/BSD-3-Clause
 
 sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 いただきました．
