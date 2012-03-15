@@ -161,7 +161,10 @@ int main(int argc, char *argv[])
 		q = atoi(argv[1]);
 	} else {
 		printf("input quantize=");
-		scanf("%d", &q);
+		if (scanf("%d", &q) != 1) {
+			fprintf(stderr, "bad number\n");
+			return 1;
+		}
 	}
 	printf("q=%d\n", q);
 	uint32 qTbl[] = {
