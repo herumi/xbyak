@@ -29,39 +29,39 @@ CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -W
 CFLAGS=-g -O2 -fomit-frame-pointer -Wall -fno-operator-names -I../ $(CFLAGS_WARN)
 
 test:
-	g++ $(CFLAGS) test0.cpp -o $@ -m32
+	$(CXX) $(CFLAGS) test0.cpp -o $@ -m32
 
 quantize:
-	g++ $(CFLAGS) quantize.cpp -o $@ -m32
+	$(CXX) $(CFLAGS) quantize.cpp -o $@ -m32
 
 calc:
-	g++ $(CFLAGS) calc.cpp -o $@ -m32
+	$(CXX) $(CFLAGS) calc.cpp -o $@ -m32
 calc64:
-	g++ $(CFLAGS) calc.cpp -o $@ -m64
+	$(CXX) $(CFLAGS) calc.cpp -o $@ -m64
 calc2:
-	g++ $(CFLAGS) calc2.cpp -o $@ -m32
+	$(CXX) $(CFLAGS) calc2.cpp -o $@ -m32
 calc2_64:
-	g++ $(CFLAGS) calc2.cpp -o $@ -m64
+	$(CXX) $(CFLAGS) calc2.cpp -o $@ -m64
 
 bf:
-	g++ $(CFLAGS) bf.cpp -o $@ -m32
+	$(CXX) $(CFLAGS) bf.cpp -o $@ -m32
 bf64:
-	g++ $(CFLAGS) bf.cpp -o $@ -m64
+	$(CXX) $(CFLAGS) bf.cpp -o $@ -m64
 
 memfunc:
-	g++ $(CFLAGS) memfunc.cpp -o $@ -m32
+	$(CXX) $(CFLAGS) memfunc.cpp -o $@ -m32
 memfunc64:
-	g++ $(CFLAGS) memfunc.cpp -o $@ -m64
+	$(CXX) $(CFLAGS) memfunc.cpp -o $@ -m64
 
 toyvm:
-	g++ $(CFLAGS) toyvm.cpp -o $@ -m32
+	$(CXX) $(CFLAGS) toyvm.cpp -o $@ -m32
 
 test64:
-	g++ $(CFLAGS) test0.cpp -o $@ -m64
+	$(CXX) $(CFLAGS) test0.cpp -o $@ -m64
 test_util:
-	g++ $(CFLAGS) test_util.cpp -o $@ -m32
+	$(CXX) $(CFLAGS) test_util.cpp -o $@ -m32
 test_util64:
-	g++ $(CFLAGS) test_util.cpp -o $@ -m64
+	$(CXX) $(CFLAGS) test_util.cpp -o $@ -m64
 
 clean:
 	rm -rf *.o $(TARGET)
