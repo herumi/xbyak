@@ -5,9 +5,9 @@
 	@file xbyak.h
 	@brief Xbyak ; JIT assembler for x86(IA32)/x64 by C++
 	@author herumi
-	@version $Revision: 1.267 $
+	@version $Revision: 1.268 $
 	@url http://homepage1.nifty.com/herumi/soft/xbyak.html
-	@date $Date: 2012/03/16 06:21:16 $
+	@date $Date: 2012/03/16 14:43:46 $
 	@note modified new BSD license
 	http://opensource.org/licenses/BSD-3-Clause
 */
