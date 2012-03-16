@@ -929,11 +929,11 @@ private:
 		addr.updateRegField(static_cast<uint8>(reg.getIdx()));
 		db(addr.getCode(), static_cast<int>(addr.getSize()));
 	}
-	void opJmp(const char *label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
+	void opJmpL(const char *label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
 	{
 		const uint8 *address = label_.getAddress(label);
 		if (address) { /* label exists */
-			opJmp(address, type, shortCode, longCode, longPref);
+			opJmp(address, type, shortCode, longCode, longPref, true);
 		} else {
 			const int shortHeaderSize = 1;
 			const int shortJmpSize = shortHeaderSize + 1; /* +1 means 8-bit displacement */
@@ -962,9 +962,10 @@ private:
 	};
 	typedef std::list<AddrInfo> AddrInfoList;
 	AddrInfoList addrInfoList_;
-	void opJmp(const void *addr, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
+	void opJmp(const void *addr, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref, bool isLabel = false)
 	{
-		if (isAutoGrow() && type != T_NEAR) throw ERR_ONLY_T_NEAR_IS_SUPPORTED_IN_AUTO_GROW;
+		bool isAuto = !isLabel && isAutoGrow();
+		if (isAuto && type != T_NEAR) throw ERR_ONLY_T_NEAR_IS_SUPPORTED_IN_AUTO_GROW;
 		const int shortHeaderSize = 1;
 		const int shortJmpSize = shortHeaderSize + 1; /* +1 means 8-bit displacement */
 		const int longHeaderSize = longPref ? 2 : 1;
@@ -978,7 +979,7 @@ private:
 			if (type == T_SHORT) throw ERR_LABEL_IS_TOO_FAR;
 			if (longPref) db(longPref);
 			db(longCode);
-			if (isAutoGrow()) {
+			if (isAuto) {
 				addrInfoList_.push_back(AddrInfo(size_, reinterpret_cast<const uint8*>(addr) - longJmpSize + 1));
 				dd(0);
 			} else {
@@ -1191,7 +1192,7 @@ public:
 	void outLocalLabel() { label_.leaveLocal(); }
 	void jmp(const char *label, LabelType type = T_AUTO)
 	{
-		opJmp(label, type, B11101011, B11101001, 0);
+		opJmpL(label, type, B11101011, B11101001, 0);
 	}
 	void jmp(const void *addr, LabelType type = T_AUTO)
 	{
@@ -1370,7 +1371,7 @@ public:
 	}
 	void call(const char *label)
 	{
-		opJmp(label, T_NEAR, 0, B11101000, 0);
+		opJmpL(label, T_NEAR, 0, B11101000, 0);
 	}
 	void call(const void *addr)
 	{

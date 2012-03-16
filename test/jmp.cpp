@@ -109,10 +109,10 @@ struct Grow : Xbyak::CodeGenerator {
 	{
 		mov(eax, 100);
 		push(eax);
-		call(add5);
+		call((void*)add5);
 		add(esp, 4);
 		push(eax);
-		call(add2);
+		call((void*)add2);
 		add(esp, 4);
 		ret();
 		for (int i = 0; i < dummySize; i++) {
