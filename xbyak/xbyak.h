@@ -5,9 +5,9 @@
 	@file xbyak.h
 	@brief Xbyak ; JIT assembler for x86(IA32)/x64 by C++
 	@author herumi
-	@version $Revision: 1.260 $
+	@version $Revision: 1.267 $
 	@url http://homepage1.nifty.com/herumi/soft/xbyak.html
-	@date $Date: 2012/01/05 00:34:07 $
+	@date $Date: 2012/03/16 06:21:16 $
 	@note modified new BSD license
 	http://opensource.org/licenses/BSD-3-Clause
 */
@@ -18,6 +18,7 @@
 #include <stdio.h> // for debug print
 #include <assert.h>
 #include <map>
+#include <list>
 #include <string>
 #include <algorithm>
 #ifdef _WIN32
@@ -105,6 +106,9 @@ enum Error {
 	ERR_BAD_ST_COMBINATION,
 	ERR_OVER_LOCAL_LABEL,
 	ERR_UNDER_LOCAL_LABEL,
+	ERR_CANT_ALLOC,
+	ERR_ONLY_T_NEAR_IS_SUPPORTED_IN_AUTO_GROW,
+	ERR_BAD_PROTECT_MODE,
 	ERR_INTERNAL
 };
 
@@ -133,11 +137,23 @@ static inline const char *ConvertErrorToString(Error err)
 		"bad st combination",
 		"over local label",
 		"under local label",
+		"can't alloc",
+		"T_SHORT is not supported in AutoGrow",
+		"bad protect mode",
 		"internal error",
 	};
 	if (err < 0 || err > ERR_INTERNAL) return 0;
 	return errTbl[err];
 }
+
+/*
+	custom allocator
+*/
+struct Allocator {
+	virtual uint8 *alloc(size_t size) { return new uint8[size]; }
+	virtual void free(uint8 *p) { delete[] p; }
+	virtual ~Allocator() {}
+};
 
 namespace inner {
 
@@ -390,45 +406,76 @@ struct RegRip {
 };
 #endif
 
+// 2nd parameter for constructor of CodeArray(maxSize, userPtr, alloc)
+void *const AutoGrow = (void*)1;
+
 class CodeArray {
 	enum {
 		ALIGN_PAGE_SIZE = 4096,
 		MAX_FIXED_BUF_SIZE = 8
 	};
+	void operator=(const CodeArray&);
+	void resize(size_t newSize)
+	{
+		uint8 *newAllocPtr = reinterpret_cast<uint8*>(alloc_->alloc(newSize + ALIGN_PAGE_SIZE));
+		if (newAllocPtr == 0) throw ERR_CANT_ALLOC;
+		uint8 *newTop = getAlignedAddress(newAllocPtr, ALIGN_PAGE_SIZE);
+		for (size_t i = 0; i < size_; i++) newTop[i] = top_[i];
+		alloc_->free(allocPtr_);
+		allocPtr_ = newAllocPtr;
+		top_ = newTop;
+		maxSize_ = newSize;
+	}
+protected:
 	enum Type {
 		FIXED_BUF, // use buf_(non alignment, non protect)
 		USER_BUF, // use userPtr(non alignment, non protect)
-		ALLOC_BUF // use new(alignment, protect)
+		ALLOC_BUF, // use new(alignment, protect)
+		AUTO_GROW // automatically move and grow memory if necessary
 	};
-	void operator=(const CodeArray&);
-	Type type_;
-	uint8 *const allocPtr_; // for ALLOC_BUF
+	bool isAutoGrow() const { return type_ == AUTO_GROW; }
+private:
+	bool isAllocType() const { return type_ == ALLOC_BUF || type_ == AUTO_GROW; }
+	Type getType(size_t maxSize, void *userPtr) const
+	{
+		if (userPtr == AutoGrow) return AUTO_GROW;
+		if (maxSize <= MAX_FIXED_BUF_SIZE) return FIXED_BUF;
+		return ALLOC_BUF;
+	}
+	const Type type_;
+	Allocator defaultAllocator_;
+	Allocator *alloc_;
+	uint8 *allocPtr_; // for ALLOC_BUF
 	uint8 buf_[MAX_FIXED_BUF_SIZE]; // for FIXED_BUF
 protected:
-	const size_t maxSize_;
-	uint8 *const top_;
+	size_t maxSize_;
+	uint8 *top_;
 	size_t size_;
 public:
-	CodeArray(size_t maxSize = MAX_FIXED_BUF_SIZE, void *userPtr = 0)
-		: type_(userPtr ? USER_BUF : maxSize <= MAX_FIXED_BUF_SIZE ? FIXED_BUF : ALLOC_BUF)
-		, allocPtr_(type_ == ALLOC_BUF ? new uint8[maxSize + ALIGN_PAGE_SIZE] : 0)
+	CodeArray(size_t maxSize = MAX_FIXED_BUF_SIZE, void *userPtr = 0, Allocator *allocator = 0)
+		: type_(getType(maxSize, userPtr))
+		, alloc_(allocator ? allocator : &defaultAllocator_)
+		, allocPtr_(isAllocType() ? reinterpret_cast<uint8*>(alloc_->alloc(maxSize + ALIGN_PAGE_SIZE)) : 0)
 		, maxSize_(maxSize)
-		, top_(type_ == ALLOC_BUF ? getAlignedAddress(allocPtr_, ALIGN_PAGE_SIZE) : type_ == USER_BUF ? reinterpret_cast<uint8*>(userPtr) : buf_)
+		, top_(isAllocType() ? getAlignedAddress(allocPtr_, ALIGN_PAGE_SIZE) : type_ == USER_BUF ? reinterpret_cast<uint8*>(userPtr) : buf_)
 		, size_(0)
 	{
-		if (type_ == ALLOC_BUF && !protect(top_, maxSize, true)) {
+		if (maxSize_ > 0 && top_ == 0) throw ERR_CANT_ALLOC;
+		if (type_ == ALLOC_BUF && !protect(top_, maxSize, ReadWriteExecMode)) {
+			alloc_->free(allocPtr_);
 			throw ERR_CANT_PROTECT;
 		}
 	}
 	virtual ~CodeArray()
 	{
-		if (type_ == ALLOC_BUF) {
-			protect(top_, maxSize_, false);
-			delete[] allocPtr_;
+		if (isAllocType()) {
+			protect(top_, maxSize_, ReadWriteMode);
+			alloc_->free(allocPtr_);
 		}
 	}
 	CodeArray(const CodeArray& rhs)
 		: type_(rhs.type_)
+		, defaultAllocator_(rhs.defaultAllocator_)
 		, allocPtr_(0)
 		, maxSize_(rhs.maxSize_)
 		, top_(buf_)
@@ -439,7 +486,13 @@ public:
 	}
 	void db(int code)
 	{
-		if (size_ >= maxSize_) throw ERR_CODE_IS_TOO_BIG;
+		if (size_ >= maxSize_) {
+			if (type_ == AUTO_GROW) {
+				resize(maxSize_ + ALIGN_PAGE_SIZE);
+			} else {
+				throw ERR_CODE_IS_TOO_BIG;
+			}
+		}
 		top_[size_++] = static_cast<uint8>(code);
 	}
 	void db(const uint8 *code, int codeSize)
@@ -498,19 +551,48 @@ public:
 		change exec permission of memory
 		@param addr [in] buffer address
 		@param size [in] buffer size
-		@param canExec [in] true(enable to exec), false(disable to exec)
+		@param protectMode [in] 0:(write) 1:(write+exec) 2:(exec)
 		@return true(success), false(failure)
 	*/
-	static inline bool protect(const void *addr, size_t size, bool canExec)
+	static const int ReadWriteMode = 0;
+	static const int ReadWriteExecMode = 1;
+	static const int ReadExecMode = 2;
+	static inline bool protect(const void *addr, size_t size, int protectMode)
 	{
 #if defined(_WIN32)
-		DWORD oldProtect;
-		return VirtualProtect(const_cast<void*>(addr), size, canExec ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE, &oldProtect) != 0;
+		DWORD oldProtect, mode;
+		switch (protectMode) {
+		case ReadWriteMode:
+			mode = PAGE_READWRITE;
+			break;
+		case ReadWriteExecMode:
+			mode = PAGE_EXECUTE_READWRITE;
+			break;
+		case ReadExecMode:
+			mode = PAGE_EXECUTE_READ;
+			break;
+		default:
+			throw ERR_BAD_PROTECT_MODE;
+		}
+		return VirtualProtect(const_cast<void*>(addr), size, mode, &oldProtect) != 0;
 #elif defined(__GNUC__)
 		size_t pageSize = sysconf(_SC_PAGESIZE);
 		size_t iaddr = reinterpret_cast<size_t>(addr);
 		size_t roundAddr = iaddr & ~(pageSize - static_cast<size_t>(1));
-		int mode = PROT_READ | PROT_WRITE | (canExec ? PROT_EXEC : 0);
+		int mode;
+		switch (protectMode) {
+		case ReadWriteMode:
+			mode = PROT_READ | PROT_WRITE;
+			break;
+		case ReadWriteExecMode:
+			mode = PROT_READ | PROT_WRITE | PROT_EXEC;
+			break;
+		case ReadExecMode:
+			mode = PROT_READ | PROT_EXEC;
+			break;
+		default:
+			throw ERR_BAD_PROTECT_MODE;
+		}
 		return mprotect(reinterpret_cast<void*>(roundAddr), size + (iaddr - roundAddr), mode) == 0;
 #else
 		return true;
@@ -873,25 +955,35 @@ private:
 			label_.addUndefinedLabel(label, jmp);
 		}
 	}
+	struct AddrInfo {
+		size_t offset_;
+		const uint8 *addr_;
+		AddrInfo(size_t offset, const uint8 *addr) : offset_(offset), addr_(addr) {}
+	};
+	typedef std::list<AddrInfo> AddrInfoList;
+	AddrInfoList addrInfoList_;
 	void opJmp(const void *addr, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
 	{
+		if (isAutoGrow() && type != T_NEAR) throw ERR_ONLY_T_NEAR_IS_SUPPORTED_IN_AUTO_GROW;
 		const int shortHeaderSize = 1;
 		const int shortJmpSize = shortHeaderSize + 1; /* +1 means 8-bit displacement */
 		const int longHeaderSize = longPref ? 2 : 1;
 		const int longJmpSize = longHeaderSize + 4; /* +4 means 32-bit displacement */
 
-		uint8 *top = const_cast<uint8*>(getCurr());
-		uint32 disp = inner::GetPtrDist(addr, top);
+		uint32 disp = inner::GetPtrDist(addr, getCurr());
 		if (type != T_NEAR && inner::IsInDisp8(disp - shortJmpSize)) {
 			db(shortCode);
-			db(0);
-			rewrite(top + shortHeaderSize, disp - shortJmpSize, 1);
+			db(disp - shortJmpSize);
 		} else {
 			if (type == T_SHORT) throw ERR_LABEL_IS_TOO_FAR;
 			if (longPref) db(longPref);
 			db(longCode);
-			dd(0);
-			rewrite(top + longHeaderSize, disp - longJmpSize, 4);
+			if (isAutoGrow()) {
+				addrInfoList_.push_back(AddrInfo(size_, reinterpret_cast<const uint8*>(addr) - longJmpSize + 1));
+				dd(0);
+			} else {
+				dd(disp - longJmpSize);
+			}
 		}
 	}
 	/* preCode is for SSSE3/SSE4 */
@@ -1483,8 +1575,18 @@ public:
 	const uint8 *getCode() const
 	{
 		assert(!hasUndefinedLabel());
-//		if (hasUndefinedLabel()) throw ERR_LABEL_IS_NOT_FOUND;
 		return top_;
+	}
+	/*
+		call ready() to complete generating code on AutoGrow
+	*/
+	void ready()
+	{
+		if (hasUndefinedLabel()) throw ERR_LABEL_IS_NOT_FOUND;
+		for (AddrInfoList::const_iterator i = addrInfoList_.begin(), ie = addrInfoList_.end(); i != ie; ++i) {
+			rewrite(top_ + i->offset_, (uint32)(i->addr_ - (top_ + i->offset_)), 4);
+		}
+		if (!protect(top_, size_, ReadWriteExecMode)) throw ERR_CANT_PROTECT;
 	}
 #ifdef XBYAK_TEST
 	void dump(bool doClear = true)
