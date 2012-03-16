@@ -15,13 +15,13 @@ CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -W
 
 CFLAGS=-O2 -fomit-frame-pointer -Wall -fno-operator-names -I../ $(XBYAK_OPT) $(XBYAK_COPT) $(CFLAGS_WARN)
 make_nm:
-	g++ $(CFLAGS) make_nm.cpp -o $@
+	$(CXX) $(CFLAGS) make_nm.cpp -o $@
 normalize_prefix: normalize_prefix.cpp
-	g++ $(CFLAGS) normalize_prefix.cpp -o $@
+	$(CXX) $(CFLAGS) normalize_prefix.cpp -o $@
 test_mmx: test_mmx.cpp
-	g++ $(CFLAGS) test_mmx.cpp -o $@ -lpthread
+	$(CXX) $(CFLAGS) test_mmx.cpp -o $@ -lpthread
 jmp: jmp.cpp
-	g++ $(CFLAGS) jmp.cpp -o $@
+	$(CXX) $(CFLAGS) jmp.cpp -o $@
 
 test: normalize_prefix jmp
 	./test_nm.sh
