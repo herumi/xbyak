@@ -66,7 +66,7 @@ struct TestJmp : public CodeGenerator {
 	}
 };
 
-int main()
+void test1()
 {
 	static const struct Tbl {
 		int offset;
@@ -97,5 +97,55 @@ int main()
 		} else {
 			printf("ok %d\n", i);
 		}
+	}
+}
+
+int add5(int x) { return x + 5; }
+int add2(int x) { return x + 2; }
+
+struct Grow : Xbyak::CodeGenerator {
+	Grow(int dummySize)
+		: Xbyak::CodeGenerator(128, Xbyak::AutoGrow)
+	{
+		mov(eax, 100);
+		push(eax);
+		call(add5);
+		add(esp, 4);
+		push(eax);
+		call(add2);
+		add(esp, 4);
+		ret();
+		for (int i = 0; i < dummySize; i++) {
+			db(0);
+		}
+	}
+};
+
+void test2()
+{
+	for (int dummySize = 0; dummySize < 40000; dummySize += 10000) {
+		printf("dummySize=%d\n", dummySize);
+		Grow g(dummySize);
+		g.ready();
+		int (*f)() = (int (*)())g.getCode();
+		int x = f();
+		const int ok = 107;
+		if (x != ok) {
+			printf("err %d assume %d\n", x, ok);
+		} else {
+			printf("ok\n");
+		}
+	}
+}
+
+int main()
+{
+	try {
+		test1();
+		test2();
+	} catch (Xbyak::Error err) {
+		printf("ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
+	} catch (...) {
+		printf("unknown error\n");
 	}
 }
