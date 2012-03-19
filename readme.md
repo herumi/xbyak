@@ -1,5 +1,5 @@
 
-Xbyak 3.05 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 3.50 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -45,6 +45,26 @@ Linux:
     make install
 
 These files are copied into /usr/local/include/xbyak
+
+New Feature
+-------------
+
+AutoGrow mode is a mode that Xbyak grows memory automatically if necessary.
+Call ready() before calling getCode() to calc address of jmp.
+
+ struct Code : Xbyak::CodeGenerator {
+   Code()
+     : Xbyak::CodeGenerator(<default memory size>, Xbyak::AutoGrow)
+   {
+      ...
+   }
+ };
+ Code c;
+ c.ready(); // Don't forget to call this function
+
+>Don't use the address returned by getCurr() before calling ready().
+>It may be invalid address.
+>RESTRICTION : rip addressing is not supported in AutoGrow
 
 Syntax
 -------------
@@ -202,6 +222,7 @@ http://opensource.org/licenses/BSD-3-Clause
 History
 -------------
 
+* 2012/Mar/19 ver 3.50 support AutoGrow mode
 * 2011/Nov/09 ver 3.05 fix bit property of rip addresing / support movsxd
 * 2011/Aug/15 ver 3.04 fix dealing with imm8 such as add(dword [ebp-8], 0xda); (thanks to lolcat)
 * 2011/Jun/16 ver 3.03 fix __GNUC_PREREQ macro for Mac gcc(thanks to t_teruya)
@@ -252,5 +273,5 @@ Author
 MITSUNARI Shigeo(herumi at nifty dot com)
 
 ---
-$Revision: 1.16 $
-$Date: 2011/12/22 01:43:13 $
+$Revision: 1.17 $
+$Date: 2012/03/19 14:28:46 $
