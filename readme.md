@@ -52,15 +52,15 @@ New Feature
 AutoGrow mode is a mode that Xbyak grows memory automatically if necessary.
 Call ready() before calling getCode() to calc address of jmp.
 
- struct Code : Xbyak::CodeGenerator {
-   Code()
-     : Xbyak::CodeGenerator(<default memory size>, Xbyak::AutoGrow)
-   {
-      ...
-   }
- };
- Code c;
- c.ready(); // Don't forget to call this function
+   struct Code : Xbyak::CodeGenerator {
+     Code()
+       : Xbyak::CodeGenerator(<default memory size>, Xbyak::AutoGrow)
+     {
+        ...
+     }
+   };
+   Code c;
+   c.ready(); // Don't forget to call this function
 
 >Don't use the address returned by getCurr() before calling ready().
 >It may be invalid address.
