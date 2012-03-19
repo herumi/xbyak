@@ -272,6 +272,3 @@ Author
 
 MITSUNARI Shigeo(herumi at nifty dot com)
 
----
-$Revision: 1.17 $
-$Date: 2012/03/19 14:28:46 $
