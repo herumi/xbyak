@@ -157,26 +157,6 @@ namespace inner {
 
 enum { debug = 1 };
 
-#if 0
-inline uint32 GetPtrDist(const void *p1, const void *p2)
-{
-	uint64 diff = static_cast<const char *>(p1) - static_cast<const char *>(p2);
-#ifdef XBYAK64
-	if (0x7FFFFFFFULL < diff && diff < 0xFFFFFFFF80000000ULL) throw ERR_OFFSET_IS_TOO_BIG;
-#endif
-	return static_cast<uint32>(diff);
-}
-
-inline uint32 GetOffsetDist(size_t p1, size_t p2)
-{
-	uint64 diff = p1 - p2;
-#ifdef XBYAK64
-	if (0x7FFFFFFFULL < diff && diff < 0xFFFFFFFF80000000ULL) throw ERR_OFFSET_IS_TOO_BIG;
-#endif
-	return static_cast<uint32>(diff);
-}
-#endif
-
 inline bool IsInDisp8(uint32 x) { return 0xFFFFFF80 <= x || x <= 0x7F; }
 inline bool IsInInt32(uint64 x) { return 0xFFFFFFFF80000000ULL <= x || x <= 0x7FFFFFFFU; }
 
@@ -188,7 +168,7 @@ inline uint32 VerifyInInt32(uint64 x)
 	return static_cast<uint32>(x);
 }
 
-}
+} // inner
 
 class Operand {
 private:
