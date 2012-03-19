@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.05
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.50
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -34,6 +34,34 @@ xbyak_mnemonic.h
 これらを同一のパスに入れてインクルードパスに追加してください．
 
 Linuxではmake installで/usr/local/include/xbyakにコピーされます．
+-----------------------------------------------------------------------------
+◎新機能
+
+AutoGrowモード追加
+これはメモリ伸長を動的に行うモードです．
+今まではXbyak::CodeGenerator()に渡したメモリサイズを超えると例外が発生して
+いましたが，このモードでは内部でメモリを再確保して伸長します．
+ただし，getCode()を呼び出す前にジャンプ命令のアドレス解決をするためにready()
+関数を呼ぶ必要があります．
+
+次のように使います．
+
+ struct Code : Xbyak::CodeGenerator {
+   Code()
+     : Xbyak::CodeGenerator(<default memory size>, Xbyak::AutoGrow)
+   {
+      ...
+   }
+ };
+ Code c;
+ c.ready(); // この呼び出しを忘れてはいけない
+
+注意1. ready()を呼んで確定するまではgetCurr()で得たポインタは無効化されている
+可能性があります．getSize()でoffsetを保持しておきready()のあとにgetCode()を
+呼び出してからgetCode() + offsetで新しいポインタを取得してください．
+
+注意2. AutoGrowモードでは64bitモードの相対アドレッシング[rip]は非サポートです．
+
 -----------------------------------------------------------------------------
 ◎文法
 
@@ -214,6 +242,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2012/03/19 ver 3.50 AutoGrowモードサポート
 2011/11/09 ver 3.05 rip相対の64bitサイズ以外の扱いのバグ修正 / movsxdサポート
 2011/08/15 ver 3.04 add(dword [ebp-8], 0xda);などにおけるimm8の扱いのバグ修正(thanks to lolcat)
 2011/06/16 ver 3.03 Macのgcc上での__GNUC_PREREQがミスってたのを修正(thanks to t_teruya)

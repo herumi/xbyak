@@ -2,9 +2,8 @@ TARGET = make_nm normalize_prefix
 XBYAK_INC=../xbyak/xbyak.h
 
 ifeq ($(MODE_BIT),64)
-	XBYAK_OPT=-m64 -DXBYAK64
+	TARGET += jmp64
 else
-	XBYAK_OPT=-m32 -DXBYAK32
 endif
 
 all: $(TARGET)
@@ -13,13 +12,17 @@ CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -W
 
 CFLAGS=-O2 -fomit-frame-pointer -Wall -fno-operator-names -I../ $(CFLAGS_WARN)
 make_nm:
-	$(CXX) $(CFLAGS) $(XBYAK_OPT) make_nm.cpp -o $@
-normalize_prefix: normalize_prefix.cpp
-	$(CXX) $(CFLAGS) $(XBYAK_OPT) normalize_prefix.cpp -o $@
-test_mmx: test_mmx.cpp
-	$(CXX) $(CFLAGS) $(XBYAK_OPT) test_mmx.cpp -o $@ -lpthread
-jmp: jmp.cpp
-	$(CXX) $(CFLAGS) -m32 -DXBYAK32 jmp.cpp -o $@
+	$(CXX) $(CFLAGS) make_nm.cpp -o $@
+normalize_prefix: normalize_prefix.cpp ../xbyak/xbyak.h
+	$(CXX) $(CFLAGS) normalize_prefix.cpp -o $@
+test_mmx: test_mmx.cpp ../xbyak/xbyak.h
+	$(CXX) $(CFLAGS) test_mmx.cpp -o $@ -lpthread
+jmp: jmp.cpp ../xbyak/xbyak.h
+	$(CXX) $(CFLAGS) jmp.cpp -o $@ -m32
+jmp64: jmp.cpp ../xbyak/xbyak.h
+	$(CXX) $(CFLAGS) jmp.cpp -o $@
+grow: grow.cpp ../xbyak/xbyak.h
+	$(CXX) $(CFLAGS) grow.cpp -o $@
 
 test: normalize_prefix jmp
 	./test_nm.sh
