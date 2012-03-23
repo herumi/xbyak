@@ -1,4 +1,4 @@
-TARGET = test quantize bf toyvm test_util memfunc
+TARGET = test quantize bf toyvm test_util memfunc static_buf
 XBYAK_INC=../xbyak/xbyak.h
 
 BOOST_EXIST=$(shell echo "\#include <boost/spirit/core.hpp>" | (gcc -E - 2>/dev/null) | grep "boost/spirit/core.hpp" >/dev/null && echo "1")
@@ -12,7 +12,7 @@ BIT=64
 endif
 
 ifeq ($(BIT),64)
-TARGET += test64 bf64 memfunc64 test_util64
+TARGET += test64 bf64 memfunc64 test_util64 static_buf64
 ifeq ($(BOOST_EXIST),1)
 #TARGET += calc64 calc2_64
 endif
@@ -62,6 +62,10 @@ test_util:
 	$(CXX) $(CFLAGS) test_util.cpp -o $@ -m32
 test_util64:
 	$(CXX) $(CFLAGS) test_util.cpp -o $@ -m64
+static_buf:
+	$(CXX) $(CFLAGS) static_buf.cpp -o $@ -m32
+static_buf64:
+	$(CXX) $(CFLAGS) static_buf.cpp -o $@ -m64
 
 clean:
 	rm -rf *.o $(TARGET)
