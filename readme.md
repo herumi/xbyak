@@ -1,5 +1,5 @@
 
-Xbyak 3.50 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 3.51 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -222,6 +222,7 @@ http://opensource.org/licenses/BSD-3-Clause
 History
 -------------
 
+* 2012/Mar/23 ver 3.51 fix userPtr mode
 * 2012/Mar/19 ver 3.50 support AutoGrow mode
 * 2011/Nov/09 ver 3.05 fix bit property of rip addresing / support movsxd
 * 2011/Aug/15 ver 3.04 fix dealing with imm8 such as add(dword [ebp-8], 0xda); (thanks to lolcat)

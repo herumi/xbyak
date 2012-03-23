@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.50
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.51
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -242,6 +242,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2012/03/23 ver 3.51 userPtrモードがバグったのを修正
 2012/03/19 ver 3.50 AutoGrowモードサポート
 2011/11/09 ver 3.05 rip相対の64bitサイズ以外の扱いのバグ修正 / movsxdサポート
 2011/08/15 ver 3.04 add(dword [ebp-8], 0xda);などにおけるimm8の扱いのバグ修正(thanks to lolcat)

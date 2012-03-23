@@ -53,7 +53,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x3500, /* 0xABCD = A.BC(D) */
+	VERSION = 0x3510, /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -422,6 +422,7 @@ class CodeArray {
 	Type getType(size_t maxSize, void *userPtr) const
 	{
 		if (userPtr == AutoGrow) return AUTO_GROW;
+		if (userPtr) return USER_BUF;
 		if (maxSize <= MAX_FIXED_BUF_SIZE) return FIXED_BUF;
 		return ALLOC_BUF;
 	}

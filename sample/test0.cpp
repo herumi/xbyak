@@ -129,6 +129,10 @@ int main()
 			CodeArray::protect(p, codeSize, true);
 			Sample s(p, codeSize);
 			int (*func)(int) = (int (*)(int))s.getCode();
+			if ((uint8*)func != p) {
+				fprintf(stderr, "internal error %p %p\n", p, func);
+				return 1;
+			}
 			printf("0 + ... + %d = %d\n", 100, func(100));
 			CodeArray::protect(p, codeSize, false);
 		}
