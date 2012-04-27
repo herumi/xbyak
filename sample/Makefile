@@ -68,7 +68,7 @@ static_buf64:
 	$(CXX) $(CFLAGS) static_buf.cpp -o $@ -m64
 
 clean:
-	rm -rf *.o $(TARGET)
+	rm -rf *.o $(TARGET) *.exe
 
 test : test0.cpp $(XBYAK_INC)
 test64: test0.cpp $(XBYAK_INC)
