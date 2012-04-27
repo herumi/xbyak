@@ -1581,7 +1581,8 @@ public:
 #include "xbyak_mnemonic.h"
 	void align(int x = 16)
 	{
-		if (x < 2 || (x & (x - 1))) throw ERR_BAD_ALIGN;
+		if (x == 1) return;
+		if (x < 1 || (x & (x - 1))) throw ERR_BAD_ALIGN;
 		while (size_t(getCurr()) % x) {
 			nop();
 		}
