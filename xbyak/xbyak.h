@@ -820,7 +820,7 @@ public:
 	static inline std::string toStr(int num)
 	{
 		char buf[16];
-#ifdef _WIN32
+#ifdef _MSC_VER
 		_snprintf_s
 #else
 		snprintf
