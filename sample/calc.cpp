@@ -1,6 +1,5 @@
 /*
 	@author herumi
-	@date $Date: 2010/11/17 02:58:03 $
 
 	tiny calculator
 	This program generates a function to calc the value of

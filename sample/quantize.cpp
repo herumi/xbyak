@@ -1,6 +1,5 @@
 /*
 	@author herumi
-	@date $Date: 2012/03/15 01:51:56 $
 
 	JPEG quantize sample
 	This program generates a quantization routine by using fast division algorithm in run-time.
