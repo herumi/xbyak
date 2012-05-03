@@ -1,8 +1,12 @@
-TARGET = make_nm normalize_prefix
+TARGET = make_nm normalize_prefix jmp address nm_frame
 XBYAK_INC=../xbyak/xbyak.h
+BIT=32
+ifeq ($(shell uname -m),x86_64)
+BIT=64
+endif
 
 ifeq ($(MODE_BIT),64)
-	TARGET += jmp64
+	TARGET += jmp64 address64
 else
 endif
 
@@ -21,8 +25,10 @@ jmp: jmp.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) jmp.cpp -o $@ -m32
 jmp64: jmp.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) jmp.cpp -o $@
-grow: grow.cpp ../xbyak/xbyak.h
-	$(CXX) $(CFLAGS) grow.cpp -o $@
+address: address.cpp ../xbyak/xbyak.h
+	$(CXX) $(CFLAGS) address.cpp -o $@ -m32
+address64: address.cpp ../xbyak/xbyak.h
+	$(CXX) $(CFLAGS) address.cpp -o $@
 
 test: normalize_prefix jmp
 	./test_nm.sh
@@ -33,7 +39,7 @@ test: normalize_prefix jmp
 	./test_address.sh 64
 	./jmp
 
-test_avx:
+test_avx: normalize_prefix
 	./test_avx.sh
 	./test_avx.sh Y
 	./test_avx.sh 64

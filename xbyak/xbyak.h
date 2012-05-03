@@ -21,9 +21,11 @@
 #include <algorithm>
 #ifdef _WIN32
 	#include <windows.h>
+	#include <malloc.h>
 #elif defined(__GNUC__)
 	#include <unistd.h>
 	#include <sys/mman.h>
+	#include <stdlib.h>
 #endif
 
 #ifdef __x86_64__
@@ -53,7 +55,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x3510, /* 0xABCD = A.BC(D) */
+	VERSION = 0x3600, /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -144,18 +146,29 @@ inline const char *ConvertErrorToString(Error err)
 	return errTbl[err];
 }
 
-/*
-	custom allocator
-*/
-struct Allocator {
-	virtual uint8 *alloc(size_t size) { return new uint8[size]; }
-	virtual void free(uint8 *p) { delete[] p; }
-	virtual ~Allocator() {}
-};
+inline void *AlignedMalloc(size_t size, size_t alignment)
+{
+#ifdef _MSC_VER
+	return _aligned_malloc(size, alignment);
+#else
+	void *p;
+	int ret = posix_memalign(&p, alignment, size);
+	return (ret == 0) ? p : 0;
+#endif
+}
 
+inline void AlignedFree(void *p)
+{
+#ifdef _MSC_VER
+	_aligned_free(p);
+#else
+	free(p);
+#endif
+}
 namespace inner {
 
 enum { debug = 1 };
+static const size_t ALIGN_PAGE_SIZE = 4096;
 
 inline bool IsInDisp8(uint32 x) { return 0xFFFFFF80 <= x || x <= 0x7F; }
 inline bool IsInInt32(uint64 x) { return 0xFFFFFFFF80000000ULL <= x || x <= 0x7FFFFFFFU; }
@@ -169,6 +182,16 @@ inline uint32 VerifyInInt32(uint64 x)
 }
 
 } // inner
+
+/*
+	custom allocator
+*/
+struct Allocator {
+	virtual uint8 *alloc(size_t size) { return reinterpret_cast<uint8*>(AlignedMalloc(size, inner::ALIGN_PAGE_SIZE)); }
+	virtual void free(uint8 *p) { AlignedFree(p); }
+	virtual ~Allocator() {}
+};
+
 
 class Operand {
 private:
@@ -408,7 +431,6 @@ void *const AutoGrow = (void*)1;
 
 class CodeArray {
 	enum {
-		ALIGN_PAGE_SIZE = 4096,
 		MAX_FIXED_BUF_SIZE = 8
 	};
 	enum Type {
@@ -439,7 +461,6 @@ class CodeArray {
 	const Type type_;
 	Allocator defaultAllocator_;
 	Allocator *alloc_;
-	uint8 *allocPtr_; // for ALLOC_BUF
 	uint8 buf_[MAX_FIXED_BUF_SIZE]; // for FIXED_BUF
 protected:
 	size_t maxSize_;
@@ -451,13 +472,11 @@ protected:
 	*/
 	void growMemory()
 	{
-		const size_t newSize = maxSize_ + ALIGN_PAGE_SIZE;
-		uint8 *newAllocPtr = reinterpret_cast<uint8*>(alloc_->alloc(newSize + ALIGN_PAGE_SIZE));
-		if (newAllocPtr == 0) throw ERR_CANT_ALLOC;
-		uint8 *newTop = getAlignedAddress(newAllocPtr, ALIGN_PAGE_SIZE);
+		const size_t newSize = maxSize_ + inner::ALIGN_PAGE_SIZE;
+		uint8 *newTop = alloc_->alloc(newSize);
+		if (newTop == 0) throw ERR_CANT_ALLOC;
 		for (size_t i = 0; i < size_; i++) newTop[i] = top_[i];
-		alloc_->free(allocPtr_);
-		allocPtr_ = newAllocPtr;
+		alloc_->free(top_);
 		top_ = newTop;
 		maxSize_ = newSize;
 	}
@@ -477,14 +496,13 @@ public:
 	CodeArray(size_t maxSize = MAX_FIXED_BUF_SIZE, void *userPtr = 0, Allocator *allocator = 0)
 		: type_(getType(maxSize, userPtr))
 		, alloc_(allocator ? allocator : &defaultAllocator_)
-		, allocPtr_(isAllocType() ? reinterpret_cast<uint8*>(alloc_->alloc(maxSize + ALIGN_PAGE_SIZE)) : 0)
 		, maxSize_(maxSize)
-		, top_(isAllocType() ? getAlignedAddress(allocPtr_, ALIGN_PAGE_SIZE) : type_ == USER_BUF ? reinterpret_cast<uint8*>(userPtr) : buf_)
+		, top_(isAllocType() ? alloc_->alloc(maxSize) : type_ == USER_BUF ? reinterpret_cast<uint8*>(userPtr) : buf_)
 		, size_(0)
 	{
 		if (maxSize_ > 0 && top_ == 0) throw ERR_CANT_ALLOC;
 		if (type_ == ALLOC_BUF && !protect(top_, maxSize, true)) {
-			alloc_->free(allocPtr_);
+			alloc_->free(top_);
 			throw ERR_CANT_PROTECT;
 		}
 	}
@@ -492,13 +510,12 @@ public:
 	{
 		if (isAllocType()) {
 			protect(top_, maxSize_, false);
-			alloc_->free(allocPtr_);
+			alloc_->free(top_);
 		}
 	}
 	CodeArray(const CodeArray& rhs)
 		: type_(rhs.type_)
 		, defaultAllocator_(rhs.defaultAllocator_)
-		, allocPtr_(0)
 		, maxSize_(rhs.maxSize_)
 		, top_(buf_)
 		, size_(rhs.size_)
@@ -1583,6 +1600,7 @@ public:
 	{
 		if (x == 1) return;
 		if (x < 1 || (x & (x - 1))) throw ERR_BAD_ALIGN;
+		if (isAutoGrow() && x > (int)inner::ALIGN_PAGE_SIZE) fprintf(stderr, "warning:autoGrow mode does not support %d align\n", x);
 		while (size_t(getCurr()) % x) {
 			nop();
 		}

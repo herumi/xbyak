@@ -50,7 +50,7 @@ void putCPUinfo()
 	if (cpu.has(Cpu::tPOPCNT)) {
 		const int n = 0x12345678; // bitcount = 13
 		const int ok = 13;
-		int r = ((int (*)())(PopCountTest(n).getCode()))();
+		int r = ((int (*)())((void*)PopCountTest(n).getCode()))();
 		if (r == ok) {
 			puts("popcnt ok");
 		} else {
@@ -71,7 +71,7 @@ struct EipTest : public Xbyak::CodeGenerator {
 void putEip()
 {
 	EipTest s;
-	int (*getEip)() = (int(*)())s.getCode();
+	int (*getEip)() = (int(*)())(void*)s.getCode();
 	printf("eip=%08x\n", getEip());
 }
 #endif

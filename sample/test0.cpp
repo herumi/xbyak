@@ -50,7 +50,7 @@ public:
 #endif
 		ret();
 	}
-	int (*get() const)(int) { return (int (*)(int))getCode(); }
+	int (*get() const)(int) { return (int (*)(int))(void*)getCode(); }
 };
 
 class CallAtoi : public Xbyak::CodeGenerator {
@@ -75,7 +75,7 @@ public:
 #endif
 		ret();
 	}
-	int (*get() const)(const char *) { return (int (*)(const char *))getCode(); }
+	int (*get() const)(const char *) { return (int (*)(const char *))(void*)getCode(); }
 };
 
 class JmpAtoi : public Xbyak::CodeGenerator {
@@ -91,7 +91,7 @@ public:
 		jmp((void*)atoi);
 #endif
 	}
-	int (*get() const)(const char *) { return (int (*)(const char *))getCode(); }
+	int (*get() const)(const char *) { return (int (*)(const char *))(void*)getCode(); }
 };
 
 int main()
@@ -106,7 +106,7 @@ int main()
 #else
 		puts("32bit");
 #endif
-		int (*func)(int) = (int (*)(int))s.getCode();
+		int (*func)(int) = (int (*)(int))(void*)s.getCode();
 		for (int i = 0; i <= 10; i++) {
 			printf("0 + ... + %d = %d\n", i, func(i));
 		}
@@ -128,7 +128,7 @@ int main()
 			uint8 *p = CodeArray::getAlignedAddress(buf);
 			CodeArray::protect(p, codeSize, true);
 			Sample s(p, codeSize);
-			int (*func)(int) = (int (*)(int))s.getCode();
+			int (*func)(int) = (int (*)(int))(void*)s.getCode();
 			if ((uint8*)func != p) {
 				fprintf(stderr, "internal error %p %p\n", p, func);
 				return 1;
