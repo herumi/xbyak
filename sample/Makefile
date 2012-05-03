@@ -14,7 +14,7 @@ endif
 ifeq ($(BIT),64)
 TARGET += test64 bf64 memfunc64 test_util64 static_buf64
 ifeq ($(BOOST_EXIST),1)
-#TARGET += calc64 calc2_64
+TARGET += calc64 #calc2_64
 endif
 endif
 

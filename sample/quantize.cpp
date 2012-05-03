@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
 
 		Quantize jit(qTbl);
 //printf("jit size=%d, ptr=%p\n", jit.getSize(), jit.getCode());
-		void (*quantize2)(uint32*, const uint32*, const uint32 *) = (void (*)(uint32*, const uint32*, const uint32 *))jit.getCode();
+		void (*quantize2)(uint32*, const uint32*, const uint32 *) = (void (*)(uint32*, const uint32*, const uint32 *))(void*)jit.getCode();
 
 		quantize(dest, src, qTbl);
 		quantize2(dest2, src, qTbl);
