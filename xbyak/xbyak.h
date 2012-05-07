@@ -148,7 +148,7 @@ inline const char *ConvertErrorToString(Error err)
 
 inline void *AlignedMalloc(size_t size, size_t alignment)
 {
-#ifdef _MSC_VER
+#ifdef _WIN32
 	return _aligned_malloc(size, alignment);
 #else
 	void *p;
