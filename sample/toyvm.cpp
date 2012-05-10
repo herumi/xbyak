@@ -274,7 +274,7 @@ public:
 	}
 	void runByJIT()
 	{
-		((void (*)())(void*)getCode())();
+		((void (*)())(const void*)getCode())();
 	}
 };
 
