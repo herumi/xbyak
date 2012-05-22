@@ -5,7 +5,7 @@
 #include <fstream>
 #ifdef _MSC_VER
 	#pragma warning(disable : 4996) // scanf
-	#define snprintf _snprintf
+	#define snprintf _snprintf_s
 #endif
 
 class Brainfuck : public Xbyak::CodeGenerator {
