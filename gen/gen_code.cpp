@@ -5,6 +5,10 @@
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
 using namespace Xbyak;
+#ifdef _MSC_VER
+	#pragma warning(disable : 4996) // scanf
+	#define snprintf _snprintf_s
+#endif
 
 enum {
 	PP_66 = 1 << 0,
@@ -42,9 +46,9 @@ void put()
 		char buf[16];
 		unsigned int v = VERSION;
 		if (v & 0xF) {
-			sprintf(buf, "%d.%02X%x", v >> 12, (v >> 4) & 0xFF, v & 0xF);
+			snprintf(buf, sizeof(buf), "%d.%02X%x", v >> 12, (v >> 4) & 0xFF, v & 0xF);
 		} else {
-			sprintf(buf, "%d.%02X", v >> 12, (v >> 4) & 0xFF);
+			snprintf(buf, sizeof(buf), "%d.%02X", v >> 12, (v >> 4) & 0xFF);
 		}
 		printf("const char *getVersionString() const { return \"%s\"; }\n", buf);
 	}
