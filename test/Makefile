@@ -29,6 +29,8 @@ address: address.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) address.cpp -o $@ -m32
 address64: address.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) address.cpp -o $@
+nm_frame: nm_frame.cpp ../xbyak/xbyak.h
+	$(CXX) $(CFLAGS) nm_frame.cpp -o $@ -m32
 
 test: normalize_prefix jmp
 	./test_nm.sh
