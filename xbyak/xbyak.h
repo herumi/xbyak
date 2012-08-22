@@ -472,7 +472,8 @@ protected:
 	*/
 	void growMemory()
 	{
-		const size_t newSize = maxSize_ + inner::ALIGN_PAGE_SIZE;
+//		const size_t newSize = maxSize_ + inner::ALIGN_PAGE_SIZE;
+		const size_t newSize = maxSize_ * 2;
 		uint8 *newTop = alloc_->alloc(newSize);
 		if (newTop == 0) throw ERR_CANT_ALLOC;
 		for (size_t i = 0; i < size_; i++) newTop[i] = top_[i];
