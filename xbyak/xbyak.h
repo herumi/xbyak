@@ -148,7 +148,9 @@ inline const char *ConvertErrorToString(Error err)
 
 inline void *AlignedMalloc(size_t size, size_t alignment)
 {
-#ifdef _WIN32
+#ifdef __MINGW32__
+	return __mingw_aligned_malloc(size, alignment);
+#elif defined(_WIN32)
 	return _aligned_malloc(size, alignment);
 #else
 	void *p;
@@ -159,7 +161,9 @@ inline void *AlignedMalloc(size_t size, size_t alignment)
 
 inline void AlignedFree(void *p)
 {
-#ifdef _MSC_VER
+#ifdef __MINGW32__
+	__mingw_aligned_free(p);
+#elif defined(_MSC_VER)
 	_aligned_free(p);
 #else
 	free(p);
