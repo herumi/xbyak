@@ -19,6 +19,8 @@ enum {
 	MM_0F3A = 1 << 7
 };
 
+const int NONE = 256; // same as Xbyak::CodeGenerator::NONE
+
 std::string type2String(int type)
 {
 	std::string str;
@@ -787,18 +789,20 @@ void put()
 	}
 	{
 		const struct Tbl {
-			uint8 code;
+			uint8 code1;
+			int code2;
 			uint8 ext;
 			const char *name;
 		} tbl[] = {
-			{ B10101110, 2, "ldmxcsr" },
-			{ B10101110, 3, "stmxcsr" },
-			{ B10101110, 7, "clflush" }, // 0x80 is bug of nasm ?
-//			{ B10000000, 7, "clflush" }, // 0x80 is bug of nasm ?
+			{ 0x0F, B10101110, 2, "ldmxcsr" },
+			{ 0x0F, B10101110, 3, "stmxcsr" },
+			{ 0x0F, B10101110, 7, "clflush" }, // 0x80 is bug of nasm ?
+			{ 0xD9, NONE, 5, "fldcw" },
+			{ 0x9B, 0xD9, 7, "fstcw" },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Address& addr) { opModM(addr, Reg32(%d), 0x0F, 0x%02X); }\n", p->name, p->ext, p->code);
+			printf("void %s(const Address& addr) { opModM(addr, Reg32(%d), 0x%02X, 0x%02X); }\n", p->name, p->ext, p->code1, p->code2);
 		}
 	}
 	{

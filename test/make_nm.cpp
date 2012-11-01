@@ -326,7 +326,7 @@ class Test {
 			"cwde",
 
 			"lahf",
-			"lock",
+//			"lock",
 			"nop",
 
 			"sahf",
@@ -405,20 +405,8 @@ class Test {
 
 		put("bswap", REG32e);
 		put("lea", REG32e, MEM);
-#if 0
-#ifdef XBYAK64
-		put("jmp", REG64);
-		put("call", REG64);
-#else
-		put("jmp", REG32);
-		put("call", REG32);
-#endif
-		put("jmp", MEM);
-		put("jmp", MEM);
-		put("jmp", MEM);
-		put("call", REG16|MEM|MEM_ONLY_DISP);
-		put("call", "getCode() + 5", "$ + 5");
-#endif
+		put("fldcw", MEM);
+		put("fstcw", MEM);
 	}
 	void putJmp() const
 	{
