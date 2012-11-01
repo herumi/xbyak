@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "3.601"; }
+const char *getVersionString() const { return "3.602"; }
 void packssdw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x6B); }
 void packsswb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x63); }
 void packuswb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x67); }
@@ -316,6 +316,7 @@ void rdpmc() { db(0x0F); db(0x33); }
 void rdtsc() { db(0x0F); db(0x31); }
 void rdtscp() { db(0x0F); db(0x01); db(0xF9); }
 void wait() { db(0x9B); }
+void fwait() { db(0x9B); }
 void wbinvd() { db(0x0F); db(0x09); }
 void wrmsr() { db(0x0F); db(0x30); }
 void xlatb() { db(0xD7); }
@@ -336,6 +337,8 @@ void fdecstp() { db(0xD9); db(0xF6); }
 void fdivp() { db(0xDE); db(0xF9); }
 void fdivrp() { db(0xDE); db(0xF1); }
 void fincstp() { db(0xD9); db(0xF7); }
+void finit() { db(0x9B); db(0xDB); db(0xE3); }
+void fninit() { db(0xDB); db(0xE3); }
 void fld1() { db(0xD9); db(0xE8); }
 void fldl2t() { db(0xD9); db(0xE9); }
 void fldl2e() { db(0xD9); db(0xEA); }

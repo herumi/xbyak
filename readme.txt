@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.61
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.62
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -242,6 +242,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2012/11/01 ver 3.62 add fwait/fnwait/finit/fninit
 2012/11/01 ver 3.61 add fldcw/fstcw
 2012/05/03 ver 3.60 Allocatorクラスのインタフェースを変更
 2012/03/23 ver 3.51 userPtrモードがバグったのを修正

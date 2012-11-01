@@ -1,5 +1,5 @@
 
-Xbyak 3.61 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 3.62 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -222,6 +222,7 @@ http://opensource.org/licenses/BSD-3-Clause
 History
 -------------
 
+* 2012/Nov/01 ver 3.62 add fwait/fnwait/finit/fninit
 * 2012/Nov/01 ver 3.61 add fldcw/fstcw
 * 2012/May/03 ver 3.60 change interface of Allocator
 * 2012/Mar/23 ver 3.51 fix userPtr mode
