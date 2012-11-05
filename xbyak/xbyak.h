@@ -28,7 +28,7 @@
 	#include <stdlib.h>
 #endif
 
-#ifdef __x86_64__
+#if defined(__x86_64__) && !defined(__MINGW64__)
 		#define XBYAK64_GCC
 #elif defined(_WIN64)
 		#define XBYAK64_WIN

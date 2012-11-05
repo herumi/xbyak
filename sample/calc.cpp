@@ -11,7 +11,7 @@
 #include <sstream>
 #include <map>
 #include "xbyak/xbyak.h"
-#ifdef _WIN32
+#ifdef _MSC_VER
 	#pragma warning(disable : 4127) // for boost(constant condition)
 	#pragma warning(disable : 4512) // for boost
 #endif

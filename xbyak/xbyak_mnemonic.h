@@ -489,7 +489,7 @@ void ldmxcsr(const Address& addr) { opModM(addr, Reg32(2), 0x0F, 0xAE); }
 void stmxcsr(const Address& addr) { opModM(addr, Reg32(3), 0x0F, 0xAE); }
 void clflush(const Address& addr) { opModM(addr, Reg32(7), 0x0F, 0xAE); }
 void fldcw(const Address& addr) { opModM(addr, Reg32(5), 0xD9, 0x100); }
-void fstcw(const Address& addr) { opModM(addr, Reg32(7), 0x9B, 0xD9); }
+void fstcw(const Address& addr) { db(0x9B); opModM(addr, Reg32(7), 0xD9, NONE); }
 void movntpd(const Address& addr, const Xmm& reg) { opModM(addr, Reg16(reg.getIdx()), 0x0F, 0x2B); }
 void movntdq(const Address& addr, const Xmm& reg) { opModM(addr, Reg16(reg.getIdx()), 0x0F, 0xE7); }
 void movsx(const Reg& reg, const Operand& op) { opMovxx(reg, op, 0xBE); }

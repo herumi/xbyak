@@ -801,12 +801,13 @@ void put()
 			{ 0x0F, B10101110, 3, "stmxcsr" },
 			{ 0x0F, B10101110, 7, "clflush" }, // 0x80 is bug of nasm ?
 			{ 0xD9, NONE, 5, "fldcw" },
-			{ 0x9B, 0xD9, 7, "fstcw" },
+//			{ 0x9B, 0xD9, 7, "fstcw" }, // not correct order for fstcw [eax] on 64bit OS
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Address& addr) { opModM(addr, Reg32(%d), 0x%02X, 0x%02X); }\n", p->name, p->ext, p->code1, p->code2);
 		}
+		printf("void fstcw(const Address& addr) { db(0x9B); opModM(addr, Reg32(7), 0xD9, NONE); }\n");
 	}
 	{
 		const struct Tbl {
