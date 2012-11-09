@@ -1,5 +1,5 @@
 
-Xbyak 3.62 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 3.70 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -30,6 +30,7 @@ MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(*partial*)/AVX
 * icc 7.2
 
 >Note: "-fno-operator-names" option is required on gcc to avoid analyzing "and", "or", etc. as operators.
+Or define XBYAK_NO_OP_NAMES to replace and() with and_() and so on.
 
 Install
 -------------
@@ -222,6 +223,7 @@ http://opensource.org/licenses/BSD-3-Clause
 History
 -------------
 
+* 2012/Nov/09 ver 3.70 XBYAK_NO_OP_NAMES macro is added to use and_() instead of and() (thanks to Mattias)
 * 2012/Nov/01 ver 3.62 add fwait/fnwait/finit/fninit
 * 2012/Nov/01 ver 3.61 add fldcw/fstcw
 * 2012/May/03 ver 3.60 change interface of Allocator

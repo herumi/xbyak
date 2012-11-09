@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.62
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.70
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -25,6 +25,7 @@
 
 ※ gccではand, or, xorなどを演算子として解釈してしまうため，
 -fno-operator-namesオプションを追加してコンパイルしてください．
+あるいはXBYAK_NO_OP_NAMESを定義するとand()の代わりにand_()を使うようになります．
 
 -----------------------------------------------------------------------------
 ◎準備
@@ -242,6 +243,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2012/11/09 ver 3.70 and()をand_()にするためのマクロXBYAK_NO_OP_NAMESを追加(thanks to Mattias)
 2012/11/01 ver 3.62 add fwait/fnwait/finit/fninit
 2012/11/01 ver 3.61 add fldcw/fstcw
 2012/05/03 ver 3.60 Allocatorクラスのインタフェースを変更

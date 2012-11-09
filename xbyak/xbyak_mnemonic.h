@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "3.602"; }
+const char *getVersionString() const { return "3.70"; }
 void packssdw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x6B); }
 void packsswb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x63); }
 void packuswb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x67); }
@@ -372,18 +372,33 @@ void adc(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x10); }
 void adc(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x10, 2); }
 void add(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x00); }
 void add(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x00, 0); }
+#ifdef XBYAK_NO_OP_NAMES
+void and_(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x20); }
+void and_(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x20, 4); }
+#else
 void and(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x20); }
 void and(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x20, 4); }
+#endif
 void cmp(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x38); }
 void cmp(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x38, 7); }
+#ifdef XBYAK_NO_OP_NAMES
+void or_(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x08); }
+void or_(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x08, 1); }
+#else
 void or(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x08); }
 void or(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x08, 1); }
+#endif
 void sbb(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x18); }
 void sbb(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x18, 3); }
 void sub(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x28); }
 void sub(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x28, 5); }
+#ifdef XBYAK_NO_OP_NAMES
+void xor_(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x30); }
+void xor_(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x30, 6); }
+#else
 void xor(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x30); }
 void xor(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x30, 6); }
+#endif
 void dec(const Operand& op) { opIncDec(op, 0x48, 1); }
 void inc(const Operand& op) { opIncDec(op, 0x40, 0); }
 void div(const Operand& op) { opR_ModM(op, 0, 6, 0xF6); }
@@ -391,7 +406,11 @@ void idiv(const Operand& op) { opR_ModM(op, 0, 7, 0xF6); }
 void imul(const Operand& op) { opR_ModM(op, 0, 5, 0xF6); }
 void mul(const Operand& op) { opR_ModM(op, 0, 4, 0xF6); }
 void neg(const Operand& op) { opR_ModM(op, 0, 3, 0xF6); }
+#ifdef XBYAK_NO_OP_NAMES
+void not_(const Operand& op) { opR_ModM(op, 0, 2, 0xF6); }
+#else
 void not(const Operand& op) { opR_ModM(op, 0, 2, 0xF6); }
+#endif
 void rcl(const Operand& op, int imm) { opShift(op, imm, 2); }
 void rcl(const Operand& op, const Reg8& cl) { opShift(op, cl, 2); }
 void rcr(const Operand& op, int imm) { opShift(op, imm, 3); }
