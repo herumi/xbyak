@@ -1741,7 +1741,7 @@ static const Ymm &ymm0(CodeGenerator::ymm0), &ymm1(CodeGenerator::ymm1), &ymm2(C
 static const Reg32 &eax(CodeGenerator::eax), &ecx(CodeGenerator::ecx), &edx(CodeGenerator::edx), &ebx(CodeGenerator::ebx), &esp(CodeGenerator::esp), &ebp(CodeGenerator::ebp), &esi(CodeGenerator::esi), &edi(CodeGenerator::edi);
 static const Reg16 &ax(CodeGenerator::ax), &cx(CodeGenerator::cx), &dx(CodeGenerator::dx), &bx(CodeGenerator::bx), &sp(CodeGenerator::sp), &bp(CodeGenerator::bp), &si(CodeGenerator::si), &di(CodeGenerator::di);
 static const Reg8 &al(CodeGenerator::al), &cl(CodeGenerator::cl), &dl(CodeGenerator::dl), &bl(CodeGenerator::bl), &ah(CodeGenerator::ah), &ch(CodeGenerator::ch), &dh(CodeGenerator::dh), &bh(CodeGenerator::bh);
-static const AddressFrame &ptr(CodeGenerator::ptr), &byte(CodeGenerator::ptr), &word(CodeGenerator::word), &dword(CodeGenerator::dword), &qword(CodeGenerator::qword);
+static const AddressFrame &ptr(CodeGenerator::ptr), &byte(CodeGenerator::byte), &word(CodeGenerator::word), &dword(CodeGenerator::dword), &qword(CodeGenerator::qword);
 static const Fpu &st0(CodeGenerator::st0), &st1(CodeGenerator::st1), &st2(CodeGenerator::st2), &st3(CodeGenerator::st3), &st4(CodeGenerator::st4), &st5(CodeGenerator::st5), &st6(CodeGenerator::st6), &st7(CodeGenerator::st7);
 #ifdef XBYAK64
 static const Reg64 &rax(CodeGenerator::rax), &rcx(CodeGenerator::rcx), &rdx(CodeGenerator::rdx), &rbx(CodeGenerator::rbx), &rsp(CodeGenerator::rsp), &rbp(CodeGenerator::rbp), &rsi(CodeGenerator::rsi), &rdi(CodeGenerator::rdi), &r8(CodeGenerator::r8) , &r9(CodeGenerator::r9), &r10(CodeGenerator::r10), &r11(CodeGenerator::r11), &r12(CodeGenerator::r12), &r13(CodeGenerator::r13), &r14(CodeGenerator::r14), &r15(CodeGenerator::r15);
