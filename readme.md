@@ -91,7 +91,7 @@ pointer by calling cgetCode() and casting the return value.
 
 >you can use ptr for almost memory access unless you specify the size of memory.
 
->dword, word and byte are class members, then don't use dword as unsigned int, for example.
+>dword, word and byte are static class members, then don't use dword as unsigned int, for example.
 
 ### AVX
 
@@ -222,7 +222,7 @@ http://opensource.org/licenses/BSD-3-Clause
 
 History
 -------------
-
+* 2012/Nov/17 change eax, ebx, ptr and so on in CodeGenerator as static member and alias of them are defined in Xbyak::util.
 * 2012/Nov/09 ver 3.70 XBYAK_NO_OP_NAMES macro is added to use and_() instead of and() (thanks to Mattias)
 * 2012/Nov/01 ver 3.62 add fwait/fnwait/finit/fninit
 * 2012/Nov/01 ver 3.61 add fldcw/fstcw

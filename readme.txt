@@ -87,7 +87,7 @@ ret           --> ret();
 mov eax, [ebx+ecx] --> mov (eax, ptr[ebx+ecx]);
 test byte [esp], 4 --> test (byte [esp], 4);
 
-(注意) dword, word, byteはクラス変数です．従ってたとえばunsigned intの
+(注意) dword, word, byteはstaticクラス変数です．従ってたとえばunsigned intの
 つもりでdwordをtypedefしないでください．
 
 ・AVX
@@ -243,6 +243,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2012/11/17 CodeGeneratorのeax, ecx, ptrなどのメンバ変数をstaticにし，const参照をXbyak::utilにも定義
 2012/11/09 ver 3.70 and()をand_()にするためのマクロXBYAK_NO_OP_NAMESを追加(thanks to Mattias)
 2012/11/01 ver 3.62 add fwait/fnwait/finit/fninit
 2012/11/01 ver 3.61 add fldcw/fstcw
