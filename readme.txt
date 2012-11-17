@@ -23,9 +23,10 @@
     Intel Mac
     などで動作確認をしています．
 
-※ gccではand, or, xorなどを演算子として解釈してしまうため，
--fno-operator-namesオプションを追加してコンパイルしてください．
-あるいはXBYAK_NO_OP_NAMESを定義するとand()の代わりにand_()を使うようになります．
+※ Xbyakはデフォルトでand(), or(), xor(), not()関数を使います．
+gccではそれらを演算子として解釈してしまうため，-fno-operator-namesオプションを追加してコンパイルしてください．
+あるいはXBYAK_NO_OP_NAMESを定義してand_(), or_(), xor_(), not_()を使ってください．
+and_(), or_(), xor_(), not_()はXBYAK_NO_OP_NAMESされていないときでも使えます．
 
 -----------------------------------------------------------------------------
 ◎準備
@@ -243,6 +244,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2012/11/17 and_(), or_(), xor_(), not_()をXBYAK_NO_OP_NAMESが定義されていないときでも使えるようにした
 2012/11/17 CodeGeneratorのeax, ecx, ptrなどのメンバ変数をstaticにし，const参照をXbyak::utilにも定義
 2012/11/09 ver 3.70 and()をand_()にするためのマクロXBYAK_NO_OP_NAMESを追加(thanks to Mattias)
 2012/11/01 ver 3.62 add fwait/fnwait/finit/fninit

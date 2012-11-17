@@ -29,8 +29,9 @@ MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(*partial*)/AVX
 * mingw 3.4.2
 * icc 7.2
 
->Note: "-fno-operator-names" option is required on gcc to avoid analyzing "and", "or", etc. as operators.
-Or define XBYAK_NO_OP_NAMES to replace and() with and_() and so on.
+>Note: Xbyak uses and(), or(), xor(), not() functions, so "-fno-operator-names" option is required on gcc.
+Or define XBYAK_NO_OP_NAMES and use and_(), or_(), xor_(), not_() instead of them.
+and_(), or_(), xor_(), not_() are available if XBYAK_NO_OP_NAMES is not defined.
 
 Install
 -------------
@@ -222,6 +223,7 @@ http://opensource.org/licenses/BSD-3-Clause
 
 History
 -------------
+* 2012/Nov/17 and_(), or_(), xor_(), not_() are available if XBYAK_NO_OP_NAMES is not defined.
 * 2012/Nov/17 change eax, ebx, ptr and so on in CodeGenerator as static member and alias of them are defined in Xbyak::util.
 * 2012/Nov/09 ver 3.70 XBYAK_NO_OP_NAMES macro is added to use and_() instead of and() (thanks to Mattias)
 * 2012/Nov/01 ver 3.62 add fwait/fnwait/finit/fninit

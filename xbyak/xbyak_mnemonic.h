@@ -372,19 +372,17 @@ void adc(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x10); }
 void adc(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x10, 2); }
 void add(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x00); }
 void add(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x00, 0); }
-#ifdef XBYAK_NO_OP_NAMES
 void and_(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x20); }
 void and_(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x20, 4); }
-#else
+#ifndef XBYAK_NO_OP_NAMES
 void and(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x20); }
 void and(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x20, 4); }
 #endif
 void cmp(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x38); }
 void cmp(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x38, 7); }
-#ifdef XBYAK_NO_OP_NAMES
 void or_(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x08); }
 void or_(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x08, 1); }
-#else
+#ifndef XBYAK_NO_OP_NAMES
 void or(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x08); }
 void or(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x08, 1); }
 #endif
@@ -392,10 +390,9 @@ void sbb(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x18); }
 void sbb(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x18, 3); }
 void sub(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x28); }
 void sub(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x28, 5); }
-#ifdef XBYAK_NO_OP_NAMES
 void xor_(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x30); }
 void xor_(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x30, 6); }
-#else
+#ifndef XBYAK_NO_OP_NAMES
 void xor(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x30); }
 void xor(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x30, 6); }
 #endif
@@ -406,9 +403,8 @@ void idiv(const Operand& op) { opR_ModM(op, 0, 7, 0xF6); }
 void imul(const Operand& op) { opR_ModM(op, 0, 5, 0xF6); }
 void mul(const Operand& op) { opR_ModM(op, 0, 4, 0xF6); }
 void neg(const Operand& op) { opR_ModM(op, 0, 3, 0xF6); }
-#ifdef XBYAK_NO_OP_NAMES
 void not_(const Operand& op) { opR_ModM(op, 0, 2, 0xF6); }
-#else
+#ifndef XBYAK_NO_OP_NAMES
 void not(const Operand& op) { opR_ModM(op, 0, 2, 0xF6); }
 #endif
 void rcl(const Operand& op, int imm) { opShift(op, imm, 2); }

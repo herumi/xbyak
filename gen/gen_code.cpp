@@ -587,10 +587,9 @@ void put()
 			const std::string name = p->name;
 			bool isOpName = name == "and" || name == "or" || name == "xor";
 			if (isOpName) {
-				printf("#ifdef XBYAK_NO_OP_NAMES\n");
 				printf("void %s_(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x%02X); }\n", p->name, p->code);
 				printf("void %s_(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x%02X, %d); }\n", p->name, p->code, p->ext);
-				printf("#else\n");
+				printf("#ifndef XBYAK_NO_OP_NAMES\n");
 			}
 			printf("void %s(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x%02X); }\n", p->name, p->code);
 			printf("void %s(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x%02X, %d); }\n", p->name, p->code, p->ext);
@@ -632,9 +631,8 @@ void put()
 			const std::string name = p->name;
 			bool isOpName = name == "not";
 			if (isOpName) {
-				printf("#ifdef XBYAK_NO_OP_NAMES\n");
 				printf("void %s_(const Operand& op) { opR_ModM(op, 0, %d, 0x%02X); }\n", p->name, p->ext, p->code);
-				printf("#else\n");
+				printf("#ifndef XBYAK_NO_OP_NAMES\n");
 			}
 			printf("void %s(const Operand& op) { opR_ModM(op, 0, %d, 0x%02X); }\n", p->name, p->ext, p->code);
 			if (isOpName) {

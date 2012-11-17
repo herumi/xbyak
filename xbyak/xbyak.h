@@ -5,13 +5,13 @@
 	@file xbyak.h
 	@brief Xbyak ; JIT assembler for x86(IA32)/x64 by C++
 	@author herumi
-	@url http://homepage1.nifty.com/herumi/soft/xbyak_e.html
+	@url https://github.com/herumi/xbyak, http://homepage1.nifty.com/herumi/soft/xbyak_e.html
 	@note modified new BSD license
 	http://opensource.org/licenses/BSD-3-Clause
 */
 #ifndef XBYAK_NO_OP_NAMES
 	#if not +0 // trick to detect whether 'not' is operator or not
-		#error "use -fno-operator-names to use 'not', 'xor', 'or', 'and' as function names or define XBYAK_NO_OP_NAMES to get 'not_', 'xor_', 'or_', 'and_' instead."
+		#error "use -fno-operator-names option if you want to use and(), or(), xor(), not() as function names, Or define XBYAK_NO_OP_NAMES and use and_(), or_(), xor_(), not_()."
 	#endif
 #endif
 
