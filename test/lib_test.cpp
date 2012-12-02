@@ -1,17 +1,23 @@
+#include "lib.h"
 #include <xbyak/xbyak.h>
 
 struct Code : public Xbyak::CodeGenerator {
 	Code()
 	{
-		mov(eax, 5);
+		printf("Code:%s\n", eax.toString());
 		ret();
 	}
 };
 
-int ret123()
+void init()
+	try
 {
+	static bool init = true;
+	printf("in lib_test %d\n", init);
+	if (!init) return;
+	init = false;
 	static Code code;
-	int (*f)() = (int (*)())code.getCode();
-	return f();
+} catch (const Xbyak::Error& e) {
+	printf("err=%s\n", Xbyak::ConvertErrorToString(e));
 }
 

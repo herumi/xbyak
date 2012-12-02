@@ -1,9 +1,6 @@
-#include <stdio.h>
-
-int ret123();
+#include "lib.h"
 
 int main()
 {
-	printf("ret=%d\n", ret123());
 }
 
