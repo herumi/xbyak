@@ -49,6 +49,12 @@ test_avx: normalize_prefix
 clean:
 	rm -rf *.o $(TARGET)
 
+lib_test.a: lib_test.cpp
+	$(CXX) -c $(CFLAGS) lib_test.cpp
+	ar r lib_test.a lib_test.o
+
+lib_run: lib_test.a lib_run.cpp
+	$(CXX) $(CFLAGS) lib_run.cpp lib_test.a -o lib_run
 make_nm: make_nm.cpp $(XBYAK_INC)
 
 
