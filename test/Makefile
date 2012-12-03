@@ -47,7 +47,7 @@ test_avx: normalize_prefix
 	./test_avx.sh 64
 	./test_avx.sh Y64
 clean:
-	rm -rf *.o $(TARGET)
+	rm -rf *.o $(TARGET) lib_run
 
 lib_run: lib_test.cpp lib_run.cpp
 	$(CXX) $(CFLAGS) lib_run.cpp lib_test.cpp -o lib_run
