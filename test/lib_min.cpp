@@ -1,9 +1,9 @@
 #include <stdio.h>
 
 struct A {
-	int a;
+	int aaa;
 	A()
-		: a(5)
+		: aaa(123)
 	{
 		puts("A cstr");
 	}
@@ -13,17 +13,17 @@ struct A {
 	}
 	void put() const
 	{
-		printf("a=%d\n", a);
+		printf("aaa=%d\n", aaa);
 	}
 };
 
 template<int dummy = 0>
 struct XT {
-	static A a;
+	static A sss;
 };
 
 template<int dummy>
-A XT<dummy>::a;
+A XT<dummy>::sss;
 
 typedef XT<0> X;
 
@@ -31,7 +31,7 @@ static struct Init {
 	Init()
 	{
 		puts("Init");
-		X::a.put();
+		X::sss.put();
 	}
 } s_init;
 
@@ -39,5 +39,5 @@ static struct Init {
 int main()
 {
 	puts("main");
-	X::a.put();
+	X::sss.put();
 }
