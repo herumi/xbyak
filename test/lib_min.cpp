@@ -1,5 +1,9 @@
 #include <stdio.h>
 
+static const struct XXX {
+	XXX() { puts("XXX"); }
+} s_sss;
+
 struct A {
 	int aaa;
 	A()
@@ -35,9 +39,13 @@ static struct Init {
 	}
 } s_init;
 
+int f() { puts("f"); return 4; }
+
+static const int r = f();
 
 int main()
 {
 	puts("main");
+	printf("r=%d\n", r);
 	X::sss.put();
 }

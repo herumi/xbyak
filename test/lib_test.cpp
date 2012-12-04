@@ -7,6 +7,7 @@ void init()
 	if (!init) return;
 	init = false;
 	X::a.put();
+	putReg();
 }
 
 
