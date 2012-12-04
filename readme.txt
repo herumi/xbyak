@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.71
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.72
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -244,6 +244,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2012/12/04 ver 3.72 eaxなどをCodeGeneratorのメンバ変数に戻す. Xbyak::util::eaxはstatic const変数
 2012/11/17 ver 3.71 and_(), or_(), xor_(), not_()をXBYAK_NO_OP_NAMESが定義されていないときでも使えるようにした
 2012/11/17 CodeGeneratorのeax, ecx, ptrなどのメンバ変数をstaticにし，const参照をXbyak::utilにも定義
 2012/11/09 ver 3.70 and()をand_()にするためのマクロXBYAK_NO_OP_NAMESを追加(thanks to Mattias)
