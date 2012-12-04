@@ -88,7 +88,7 @@ ret           --> ret();
 mov eax, [ebx+ecx] --> mov (eax, ptr[ebx+ecx]);
 test byte [esp], 4 --> test (byte [esp], 4);
 
-(注意) dword, word, byteはstaticクラス変数です．従ってたとえばunsigned intの
+(注意) dword, word, byteはメンバ変数です．従ってたとえばunsigned intの
 つもりでdwordをtypedefしないでください．
 
 ・AVX

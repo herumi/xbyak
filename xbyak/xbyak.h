@@ -854,10 +854,7 @@ public:
 	}
 };
 
-namespace inner {
-
-template<int dummy = 0>
-class CodeGeneratorT : public CodeArray {
+class CodeGenerator : public CodeArray {
 public:
 	enum LabelType {
 		T_SHORT,
@@ -865,7 +862,7 @@ public:
 		T_AUTO // T_SHORT if possible
 	};
 private:
-	CodeGeneratorT operator=(const CodeGeneratorT&); // don't call
+	CodeGenerator operator=(const CodeGenerator&); // don't call
 #ifdef XBYAK64
 	enum { i32e = 32 | 64, BIT = 64 };
 #else
@@ -1176,29 +1173,28 @@ private:
 public:
 	unsigned int getVersion() const { return VERSION; }
 	using CodeArray::db;
-	static const Mmx mm0, mm1, mm2, mm3, mm4, mm5, mm6, mm7;
-	static const Xmm xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7;
-	static const Ymm ymm0, ymm1, ymm2, ymm3, ymm4, ymm5, ymm6, ymm7;
-	const Xmm &xm0, &xm1, &xm2, &xm3, &xm4, &xm5, &xm6, &xm7; // for my convenience
-	const Ymm &ym0, &ym1, &ym2, &ym3, &ym4, &ym5, &ym6, &ym7; // for my convenience
-	static const Reg32 eax, ecx, edx, ebx, esp, ebp, esi, edi;
-	static const Reg16 ax, cx, dx, bx, sp, bp, si, di;
-	static const Reg8 al, cl, dl, bl, ah, ch, dh, bh;
-	static const AddressFrame ptr, byte, word, dword, qword;
-	static const Fpu st0, st1, st2, st3, st4, st5, st6, st7;
+	const Mmx mm0, mm1, mm2, mm3, mm4, mm5, mm6, mm7;
+	const Xmm xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7;
+	const Ymm ymm0, ymm1, ymm2, ymm3, ymm4, ymm5, ymm6, ymm7;
+	const Xmm &xm0, &xm1, &xm2, &xm3, &xm4, &xm5, &xm6, &xm7;
+	const Ymm &ym0, &ym1, &ym2, &ym3, &ym4, &ym5, &ym6, &ym7;
+	const Reg32 eax, ecx, edx, ebx, esp, ebp, esi, edi;
+	const Reg16 ax, cx, dx, bx, sp, bp, si, di;
+	const Reg8 al, cl, dl, bl, ah, ch, dh, bh;
+	const AddressFrame ptr, byte, word, dword, qword;
+	const Fpu st0, st1, st2, st3, st4, st5, st6, st7;
 #ifdef XBYAK64
-	static const Reg64 rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15;
-	static const Reg32 r8d, r9d, r10d, r11d, r12d, r13d, r14d, r15d;
-	static const Reg16 r8w, r9w, r10w, r11w, r12w, r13w, r14w, r15w;
-	static const Reg8 r8b, r9b, r10b, r11b, r12b, r13b, r14b, r15b;
-	static const Reg8 spl, bpl, sil, dil;
-	static const Xmm xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
-	static const Ymm ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14, ymm15;
+	const Reg64 rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15;
+	const Reg32 r8d, r9d, r10d, r11d, r12d, r13d, r14d, r15d;
+	const Reg16 r8w, r9w, r10w, r11w, r12w, r13w, r14w, r15w;
+	const Reg8 r8b, r9b, r10b, r11b, r12b, r13b, r14b, r15b;
+	const Reg8 spl, bpl, sil, dil;
+	const Xmm xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
+	const Ymm ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14, ymm15;
 	const Xmm &xm8, &xm9, &xm10, &xm11, &xm12, &xm13, &xm14, &xm15; // for my convenience
 	const Ymm &ym8, &ym9, &ym10, &ym11, &ym12, &ym13, &ym14, &ym15;
-	static const RegRip rip;
+	const RegRip rip;
 #endif
-
 	void L(const char *label)
 	{
 		label_.define(label, getSize());
@@ -1560,14 +1556,29 @@ public:
 	}
 	enum { NONE = 256 };
 public:
-	CodeGeneratorT(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0, Allocator *allocator = 0)
+	CodeGenerator(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0, Allocator *allocator = 0)
 		: CodeArray(maxSize, userPtr, allocator)
-		 // for my convenience
-		, xm0(xmm0), xm1(xmm1), xm2(xmm2), xm3(xmm3), xm4(xmm4), xm5(xmm5), xm6(xmm6), xm7(xmm7)
-		, ym0(ymm0), ym1(ymm1), ym2(ymm2), ym3(ymm3), ym4(ymm4), ym5(ymm5), ym6(ymm6), ym7(ymm7)
+		, mm0(0), mm1(1), mm2(2), mm3(3), mm4(4), mm5(5), mm6(6), mm7(7)
+		, xmm0(0), xmm1(1), xmm2(2), xmm3(3), xmm4(4), xmm5(5), xmm6(6), xmm7(7)
+		, ymm0(0), ymm1(1), ymm2(2), ymm3(3), ymm4(4), ymm5(5), ymm6(6), ymm7(7)
+		, xm0(xmm0), xm1(xmm1), xm2(xmm2), xm3(xmm3), xm4(xmm4), xm5(xmm5), xm6(xmm6), xm7(xmm7) // for my convenience
+		, ym0(ymm0), ym1(ymm1), ym2(ymm2), ym3(ymm3), ym4(ymm4), ym5(ymm5), ym6(ymm6), ym7(ymm7) // for my convenience
+		, eax(Operand::EAX), ecx(Operand::ECX), edx(Operand::EDX), ebx(Operand::EBX), esp(Operand::ESP), ebp(Operand::EBP), esi(Operand::ESI), edi(Operand::EDI)
+		, ax(Operand::AX), cx(Operand::CX), dx(Operand::DX), bx(Operand::BX), sp(Operand::SP), bp(Operand::BP), si(Operand::SI), di(Operand::DI)
+		, al(Operand::AL), cl(Operand::CL), dl(Operand::DL), bl(Operand::BL), ah(Operand::AH), ch(Operand::CH), dh(Operand::DH), bh(Operand::BH)
+		, ptr(0), byte(8), word(16), dword(32), qword(64)
+		, st0(0), st1(1), st2(2), st3(3), st4(4), st5(5), st6(6), st7(7)
 #ifdef XBYAK64
-		, xm8(xmm8), xm9(xmm9), xm10(xmm10), xm11(xmm11), xm12(xmm12), xm13(xmm13), xm14(xmm14), xm15(xmm15)
-		, ym8(ymm8), ym9(ymm9), ym10(ymm10), ym11(ymm11), ym12(ymm12), ym13(ymm13), ym14(ymm14), ym15(ymm15)
+		, rax(Operand::RAX), rcx(Operand::RCX), rdx(Operand::RDX), rbx(Operand::RBX), rsp(Operand::RSP), rbp(Operand::RBP), rsi(Operand::RSI), rdi(Operand::RDI), r8(Operand::R8), r9(Operand::R9), r10(Operand::R10), r11(Operand::R11), r12(Operand::R12), r13(Operand::R13), r14(Operand::R14), r15(Operand::R15)
+		, r8d(Operand::R8D), r9d(Operand::R9D), r10d(Operand::R10D), r11d(Operand::R11D), r12d(Operand::R12D), r13d(Operand::R13D), r14d(Operand::R14D), r15d(Operand::R15D)
+		, r8w(Operand::R8W), r9w(Operand::R9W), r10w(Operand::R10W), r11w(Operand::R11W), r12w(Operand::R12W), r13w(Operand::R13W), r14w(Operand::R14W), r15w(Operand::R15W)
+		, r8b(Operand::R8B), r9b(Operand::R9B), r10b(Operand::R10B), r11b(Operand::R11B), r12b(Operand::R12B), r13b(Operand::R13B), r14b(Operand::R14B), r15b(Operand::R15B)
+		, spl(Operand::SPL, 1), bpl(Operand::BPL, 1), sil(Operand::SIL, 1), dil(Operand::DIL, 1)
+		, xmm8(8), xmm9(9), xmm10(10), xmm11(11), xmm12(12), xmm13(13), xmm14(14), xmm15(15)
+		, ymm8(8), ymm9(9), ymm10(10), ymm11(11), ymm12(12), ymm13(13), ymm14(14), ymm15(15)
+		, xm8(xmm8), xm9(xmm9), xm10(xmm10), xm11(xmm11), xm12(xmm12), xm13(xmm13), xm14(xmm14), xm15(xmm15) // for my convenience
+		, ym8(ymm8), ym9(ymm9), ym10(ymm10), ym11(ymm11), ym12(ymm12), ym13(ymm13), ym14(ymm14), ym15(ymm15) // for my convenience
+		, rip()
 #endif
 	{
 		label_.set(this);
@@ -1603,157 +1614,24 @@ public:
 #endif
 };
 
-} // inner
-
-// static member instance to avoid *.cpp
-template<int d> const Mmx inner::CodeGeneratorT<d>::mm0(0);
-template<int d> const Mmx inner::CodeGeneratorT<d>::mm1(1);
-template<int d> const Mmx inner::CodeGeneratorT<d>::mm2(2);
-template<int d> const Mmx inner::CodeGeneratorT<d>::mm3(3);
-template<int d> const Mmx inner::CodeGeneratorT<d>::mm4(4);
-template<int d> const Mmx inner::CodeGeneratorT<d>::mm5(5);
-template<int d> const Mmx inner::CodeGeneratorT<d>::mm6(6);
-template<int d> const Mmx inner::CodeGeneratorT<d>::mm7(7);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm0(0);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm1(1);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm2(2);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm3(3);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm4(4);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm5(5);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm6(6);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm7(7);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm0(0);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm1(1);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm2(2);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm3(3);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm4(4);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm5(5);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm6(6);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm7(7);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::eax(Operand::EAX);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::ecx(Operand::ECX);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::edx(Operand::EDX);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::ebx(Operand::EBX);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::esp(Operand::ESP);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::ebp(Operand::EBP);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::esi(Operand::ESI);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::edi(Operand::EDI);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::ax(Operand::EAX);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::cx(Operand::ECX);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::dx(Operand::EDX);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::bx(Operand::EBX);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::sp(Operand::ESP);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::bp(Operand::EBP);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::si(Operand::ESI);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::di(Operand::EDI);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::al(Operand::AL);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::cl(Operand::CL);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::dl(Operand::DL);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::bl(Operand::BL);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::ah(Operand::AH);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::ch(Operand::CH);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::dh(Operand::DH);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::bh(Operand::BH);
-template<int d> const AddressFrame inner::CodeGeneratorT<d>::ptr(0);
-template<int d> const AddressFrame inner::CodeGeneratorT<d>::byte(8);
-template<int d> const AddressFrame inner::CodeGeneratorT<d>::word(16);
-template<int d> const AddressFrame inner::CodeGeneratorT<d>::dword(32);
-template<int d> const AddressFrame inner::CodeGeneratorT<d>::qword(64);
-template<int d> const Fpu inner::CodeGeneratorT<d>::st0(0);
-template<int d> const Fpu inner::CodeGeneratorT<d>::st1(1);
-template<int d> const Fpu inner::CodeGeneratorT<d>::st2(2);
-template<int d> const Fpu inner::CodeGeneratorT<d>::st3(3);
-template<int d> const Fpu inner::CodeGeneratorT<d>::st4(4);
-template<int d> const Fpu inner::CodeGeneratorT<d>::st5(5);
-template<int d> const Fpu inner::CodeGeneratorT<d>::st6(6);
-template<int d> const Fpu inner::CodeGeneratorT<d>::st7(7);
-#ifdef XBYAK64
-template<int d> const Reg64 inner::CodeGeneratorT<d>::rax(Operand::RAX);
-template<int d> const Reg64 inner::CodeGeneratorT<d>::rcx(Operand::RCX);
-template<int d> const Reg64 inner::CodeGeneratorT<d>::rdx(Operand::RDX);
-template<int d> const Reg64 inner::CodeGeneratorT<d>::rbx(Operand::RBX);
-template<int d> const Reg64 inner::CodeGeneratorT<d>::rsp(Operand::RSP);
-template<int d> const Reg64 inner::CodeGeneratorT<d>::rbp(Operand::RBP);
-template<int d> const Reg64 inner::CodeGeneratorT<d>::rsi(Operand::RSI);
-template<int d> const Reg64 inner::CodeGeneratorT<d>::rdi(Operand::RDI);
-template<int d> const Reg64 inner::CodeGeneratorT<d>::r8(Operand::R8);
-template<int d> const Reg64 inner::CodeGeneratorT<d>::r9(Operand::R9);
-template<int d> const Reg64 inner::CodeGeneratorT<d>::r10(Operand::R10);
-template<int d> const Reg64 inner::CodeGeneratorT<d>::r11(Operand::R11);
-template<int d> const Reg64 inner::CodeGeneratorT<d>::r12(Operand::R12);
-template<int d> const Reg64 inner::CodeGeneratorT<d>::r13(Operand::R13);
-template<int d> const Reg64 inner::CodeGeneratorT<d>::r14(Operand::R14);
-template<int d> const Reg64 inner::CodeGeneratorT<d>::r15(Operand::R15);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::r8d(Operand::R8D);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::r9d(Operand::R9D);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::r10d(Operand::R10D);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::r11d(Operand::R11D);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::r12d(Operand::R12D);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::r13d(Operand::R13D);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::r14d(Operand::R14D);
-template<int d> const Reg32 inner::CodeGeneratorT<d>::r15d(Operand::R15D);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::r8w(Operand::R8W);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::r9w(Operand::R9W);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::r10w(Operand::R10W);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::r11w(Operand::R11W);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::r12w(Operand::R12W);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::r13w(Operand::R13W);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::r14w(Operand::R14W);
-template<int d> const Reg16 inner::CodeGeneratorT<d>::r15w(Operand::R15W);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::r8b(Operand::R8B);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::r9b(Operand::R9B);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::r10b(Operand::R10B);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::r11b(Operand::R11B);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::r12b(Operand::R12B);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::r13b(Operand::R13B);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::r14b(Operand::R14B);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::r15b(Operand::R15B);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::spl(Operand::SPL, 1);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::bpl(Operand::BPL, 1);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::sil(Operand::SIL, 1);
-template<int d> const Reg8 inner::CodeGeneratorT<d>::dil(Operand::DIL, 1);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm8(8);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm9(9);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm10(10);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm11(11);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm12(12);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm13(13);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm14(14);
-template<int d> const Xmm inner::CodeGeneratorT<d>::xmm15(15);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm8(8);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm9(9);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm10(10);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm11(11);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm12(12);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm13(13);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm14(14);
-template<int d> const Ymm inner::CodeGeneratorT<d>::ymm15(15);
-template<int d> const RegRip inner::CodeGeneratorT<d>::rip;
-#endif
-
-typedef inner::CodeGeneratorT<0> CodeGenerator;
-
 namespace util {
-
-static const Mmx &mm0(CodeGenerator::mm0), &mm1(CodeGenerator::mm1), &mm2(CodeGenerator::mm2), &mm3(CodeGenerator::mm3), &mm4(CodeGenerator::mm4), &mm5(CodeGenerator::mm5), &mm6(CodeGenerator::mm6), &mm7(CodeGenerator::mm7);
-static const Xmm &xmm0(CodeGenerator::xmm0), &xmm1(CodeGenerator::xmm1), &xmm2(CodeGenerator::xmm2), &xmm3(CodeGenerator::xmm3), &xmm4(CodeGenerator::xmm4), &xmm5(CodeGenerator::xmm5), &xmm6(CodeGenerator::xmm6), &xmm7(CodeGenerator::xmm7);
-static const Ymm &ymm0(CodeGenerator::ymm0), &ymm1(CodeGenerator::ymm1), &ymm2(CodeGenerator::ymm2), &ymm3(CodeGenerator::ymm3), &ymm4(CodeGenerator::ymm4), &ymm5(CodeGenerator::ymm5), &ymm6(CodeGenerator::ymm6), &ymm7(CodeGenerator::ymm7);
-static const Reg32 &eax(CodeGenerator::eax), &ecx(CodeGenerator::ecx), &edx(CodeGenerator::edx), &ebx(CodeGenerator::ebx), &esp(CodeGenerator::esp), &ebp(CodeGenerator::ebp), &esi(CodeGenerator::esi), &edi(CodeGenerator::edi);
-static const Reg16 &ax(CodeGenerator::ax), &cx(CodeGenerator::cx), &dx(CodeGenerator::dx), &bx(CodeGenerator::bx), &sp(CodeGenerator::sp), &bp(CodeGenerator::bp), &si(CodeGenerator::si), &di(CodeGenerator::di);
-static const Reg8 &al(CodeGenerator::al), &cl(CodeGenerator::cl), &dl(CodeGenerator::dl), &bl(CodeGenerator::bl), &ah(CodeGenerator::ah), &ch(CodeGenerator::ch), &dh(CodeGenerator::dh), &bh(CodeGenerator::bh);
-static const AddressFrame &ptr(CodeGenerator::ptr), &byte(CodeGenerator::byte), &word(CodeGenerator::word), &dword(CodeGenerator::dword), &qword(CodeGenerator::qword);
-static const Fpu &st0(CodeGenerator::st0), &st1(CodeGenerator::st1), &st2(CodeGenerator::st2), &st3(CodeGenerator::st3), &st4(CodeGenerator::st4), &st5(CodeGenerator::st5), &st6(CodeGenerator::st6), &st7(CodeGenerator::st7);
+static const Mmx mm0(0), mm1(1), mm2(2), mm3(3), mm4(4), mm5(5), mm6(6), mm7(7);
+static const Xmm xmm0(0), xmm1(1), xmm2(2), xmm3(3), xmm4(4), xmm5(5), xmm6(6), xmm7(7);
+static const Ymm ymm0(0), ymm1(1), ymm2(2), ymm3(3), ymm4(4), ymm5(5), ymm6(6), ymm7(7);
+static const Reg32 eax(Operand::EAX), ecx(Operand::ECX), edx(Operand::EDX), ebx(Operand::EBX), esp(Operand::ESP), ebp(Operand::EBP), esi(Operand::ESI), edi(Operand::EDI);
+static const Reg16 ax(Operand::AX), cx(Operand::CX), dx(Operand::DX), bx(Operand::BX), sp(Operand::SP), bp(Operand::BP), si(Operand::SI), di(Operand::DI);
+static const Reg8 al(Operand::AL), cl(Operand::CL), dl(Operand::DL), bl(Operand::BL), ah(Operand::AH), ch(Operand::CH), dh(Operand::DH), bh(Operand::BH);
+static const AddressFrame ptr(0), byte(8), word(16), dword(32), qword(64);
+static const Fpu st0(0), st1(1), st2(2), st3(3), st4(4), st5(5), st6(6), st7(7);
 #ifdef XBYAK64
-static const Reg64 &rax(CodeGenerator::rax), &rcx(CodeGenerator::rcx), &rdx(CodeGenerator::rdx), &rbx(CodeGenerator::rbx), &rsp(CodeGenerator::rsp), &rbp(CodeGenerator::rbp), &rsi(CodeGenerator::rsi), &rdi(CodeGenerator::rdi), &r8(CodeGenerator::r8) , &r9(CodeGenerator::r9), &r10(CodeGenerator::r10), &r11(CodeGenerator::r11), &r12(CodeGenerator::r12), &r13(CodeGenerator::r13), &r14(CodeGenerator::r14), &r15(CodeGenerator::r15);
-static const Reg32 &r8d(CodeGenerator::r8d), &r9d(CodeGenerator::r9d), &r10d(CodeGenerator::r10d), &r11d(CodeGenerator::r11d), &r12d(CodeGenerator::r12d), &r13d(CodeGenerator::r13d), &r14d(CodeGenerator::r14d), &r15d(CodeGenerator::r15d);
-static const Reg16 &r8w(CodeGenerator::r8w), &r9w(CodeGenerator::r9w), &r10w(CodeGenerator::r10w), &r11w(CodeGenerator::r11w), &r12w(CodeGenerator::r12w), &r13w(CodeGenerator::r13w), &r14w(CodeGenerator::r14w), &r15w(CodeGenerator::r15w);
-static const Reg8 &r8b(CodeGenerator::r8b), &r9b(CodeGenerator::r9b), &r10b(CodeGenerator::r10b), &r11b(CodeGenerator::r11b), &r12b(CodeGenerator::r12b), &r13b(CodeGenerator::r13b), &r14b(CodeGenerator::r14b), &r15b(CodeGenerator::r15b);
-static const Reg8 &spl(CodeGenerator::spl), &bpl(CodeGenerator::bpl), &sil(CodeGenerator::sil), &dil(CodeGenerator::dil);
-static const Xmm &xmm8(CodeGenerator::xmm8), &xmm9(CodeGenerator::xmm9), &xmm10(CodeGenerator::xmm10), &xmm11(CodeGenerator::xmm11), &xmm12(CodeGenerator::xmm12), &xmm13(CodeGenerator::xmm13), &xmm14(CodeGenerator::xmm14), &xmm15(CodeGenerator::xmm15);
-static const Ymm &ymm8(CodeGenerator::ymm8), &ymm9(CodeGenerator::ymm9), &ymm10(CodeGenerator::ymm10), &ymm11(CodeGenerator::ymm11), &ymm12(CodeGenerator::ymm12), &ymm13(CodeGenerator::ymm13), &ymm14(CodeGenerator::ymm14), &ymm15(CodeGenerator::ymm15);
-static const RegRip& rip(CodeGenerator::rip);
+static const Reg64 rax(Operand::RAX), rcx(Operand::RCX), rdx(Operand::RDX), rbx(Operand::RBX), rsp(Operand::RSP), rbp(Operand::RBP), rsi(Operand::RSI), rdi(Operand::RDI), r8(Operand::R8), r9(Operand::R9), r10(Operand::R10), r11(Operand::R11), r12(Operand::R12), r13(Operand::R13), r14(Operand::R14), r15(Operand::R15);
+static const Reg32 r8d(Operand::R8D), r9d(Operand::R9D), r10d(Operand::R10D), r11d(Operand::R11D), r12d(Operand::R12D), r13d(Operand::R13D), r14d(Operand::R14D), r15d(Operand::R15D);
+static const Reg16 r8w(Operand::R8W), r9w(Operand::R9W), r10w(Operand::R10W), r11w(Operand::R11W), r12w(Operand::R12W), r13w(Operand::R13W), r14w(Operand::R14W), r15w(Operand::R15W);
+static const Reg8 r8b(Operand::R8B), r9b(Operand::R9B), r10b(Operand::R10B), r11b(Operand::R11B), r12b(Operand::R12B), r13b(Operand::R13B), r14b(Operand::R14B), r15b(Operand::R15B), spl(Operand::SPL, 1), bpl(Operand::BPL, 1), sil(Operand::SIL, 1), dil(Operand::DIL, 1);
+static const Xmm xmm8(8), xmm9(9), xmm10(10), xmm11(11), xmm12(12), xmm13(13), xmm14(14), xmm15(15);
+static const Ymm ymm8(8), ymm9(9), ymm10(10), ymm11(11), ymm12(12), ymm13(13), ymm14(14), ymm15(15);
+static const RegRip rip;
 #endif
-
 } // util
 
 #ifdef _MSC_VER

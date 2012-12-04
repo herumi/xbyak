@@ -92,7 +92,7 @@ pointer by calling cgetCode() and casting the return value.
 
 >you can use ptr for almost memory access unless you specify the size of memory.
 
->dword, word and byte are static class members, then don't use dword as unsigned int, for example.
+>dword, word and byte are member variables, then don't use dword as unsigned int, for example.
 
 ### AVX
 
