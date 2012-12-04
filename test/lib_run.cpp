@@ -3,6 +3,6 @@
 int main()
 {
 	puts("main");
-	X::a.put();
+	A().put();
 }
 

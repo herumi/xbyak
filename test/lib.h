@@ -1,32 +1,22 @@
 #pragma once
 #include <stdio.h>
+#include <xbyak/xbyak.h>
 
-struct A {
-	int a;
+struct A : public Xbyak::CodeGenerator {
 	A()
-		: a(5)
 	{
 		puts("A cstr");
 	}
-	~A()
-	{
-		puts("A dstr");
-	}
 	void put() const
 	{
-		printf("a=%d\n", a);
+		try {
+			printf("eax=%s\n", eax.toString());
+			printf("util::eax=%s\n", Xbyak::util::eax.toString());
+		} catch (Xbyak::Error e) {
+			printf("err=%s\n", Xbyak::ConvertErrorToString(e));
+		}
 	}
 };
-
-template<int dummy = 0>
-struct XT {
-	static A a;
-};
-
-template<int dummy>
-A XT<dummy>::a;
-
-typedef XT<0> X;
 
 void init();
 

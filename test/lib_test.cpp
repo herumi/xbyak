@@ -6,7 +6,8 @@ void init()
 	printf("in lib_test %d\n", init);
 	if (!init) return;
 	init = false;
-	X::a.put();
+	A a;
+	a.put();
 }
 
 
