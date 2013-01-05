@@ -14,10 +14,17 @@
 		#error "use -fno-operator-names option if you want to use and(), or(), xor(), not() as function names, Or define XBYAK_NO_OP_NAMES and use and_(), or_(), xor_(), not_()."
 	#endif
 #endif
+#if (__cplusplus >= 201103) || (_MSC_VER >= 1500) || defined(__GXX_EXPERIMENTAL_CXX0X__)
+	#define XBYAK_USE_UNORDERED_MAP
+#endif
 
 #include <stdio.h> // for debug print
 #include <assert.h>
+#ifdef XBYAK_USE_UNORDERED_MAP
+#include <unordered_map>
+#else
 #include <map>
+#endif
 #include <list>
 #include <string>
 #include <algorithm>
@@ -57,7 +64,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x3720 /* 0xABCD = A.BC(D) */
+	VERSION = 0x3730 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -743,8 +750,13 @@ class Label {
 	int stackPos_;
 	int usedCount_;
 	int localCount_; // for .***
-	typedef std::map<const std::string, size_t> DefinedList;
-	typedef std::multimap<const std::string, const JmpLabel> UndefinedList;
+#ifdef XBYAK_USE_UNORDERED_MAP
+	typedef std::unordered_map<std::string, size_t> DefinedList;
+	typedef std::unordered_multimap<std::string, const JmpLabel> UndefinedList;
+#else
+	typedef std::map<std::string, size_t> DefinedList;
+	typedef std::multimap<std::string, const JmpLabel> UndefinedList;
+#endif
 	DefinedList definedList_;
 	UndefinedList undefinedList_;
 

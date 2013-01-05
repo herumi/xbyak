@@ -14,7 +14,7 @@ all: $(TARGET)
 
 CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith
 
-CFLAGS=-O2 -fomit-frame-pointer -Wall -fno-operator-names -I../ $(CFLAGS_WARN)
+CFLAGS=-O2 -fomit-frame-pointer -Wall -fno-operator-names -I../ $(CFLAGS_WARN) #-std=c++0x
 make_nm:
 	$(CXX) $(CFLAGS) make_nm.cpp -o $@
 normalize_prefix: normalize_prefix.cpp ../xbyak/xbyak.h
