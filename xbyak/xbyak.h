@@ -14,20 +14,25 @@
 		#error "use -fno-operator-names option if you want to use and(), or(), xor(), not() as function names, Or define XBYAK_NO_OP_NAMES and use and_(), or_(), xor_(), not_()."
 	#endif
 #endif
-#if (__cplusplus >= 201103) || (_MSC_VER >= 1500) || defined(__GXX_EXPERIMENTAL_CXX0X__)
-	#define XBYAK_USE_UNORDERED_MAP
-#endif
 
 #include <stdio.h> // for debug print
 #include <assert.h>
-#ifdef XBYAK_USE_UNORDERED_MAP
-#include <unordered_map>
-#else
-#include <map>
-#endif
 #include <list>
 #include <string>
 #include <algorithm>
+#if (__cplusplus >= 201103) || (_MSC_VER >= 1500) || defined(__GXX_EXPERIMENTAL_CXX0X__)
+	#include <unordered_map>
+	#if defined(_MSC_VER) && (_MSC_VER < 1600)
+		#define XBYAK_USE_TR1_UNORDERED_MAP
+	#else
+		#define XBYAK_USE_UNORDERED_MAP
+	#endif
+#elif (__GNUC__ >= 4 && __GNUC_MINOR__ >= 5) || (__clang_major__ >= 3)
+	#include <tr1/unordered_map>
+	#define XBYAK_USE_TR1_UNORDERED_MAP
+#else
+	#include <map>
+#endif
 #ifdef _WIN32
 	#include <windows.h>
 	#include <malloc.h>
@@ -753,6 +758,9 @@ class Label {
 #ifdef XBYAK_USE_UNORDERED_MAP
 	typedef std::unordered_map<std::string, size_t> DefinedList;
 	typedef std::unordered_multimap<std::string, const JmpLabel> UndefinedList;
+#elif defined(XBYAK_USE_TR1_UNORDERED_MAP)
+	typedef std::tr1::unordered_map<std::string, size_t> DefinedList;
+	typedef std::tr1::unordered_multimap<std::string, const JmpLabel> UndefinedList;
 #else
 	typedef std::map<std::string, size_t> DefinedList;
 	typedef std::multimap<std::string, const JmpLabel> UndefinedList;
