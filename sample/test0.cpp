@@ -19,10 +19,10 @@ public:
 #else
 		// n = ecx
 #endif
-		xor(eax, eax); // sum
+		xor_(eax, eax); // sum
 		test(ecx, ecx);
 		jz(".exit");
-		xor(edx, edx); // i
+		xor_(edx, edx); // i
 	L(".lp");
 		add(eax, edx);
 		inc(edx);
