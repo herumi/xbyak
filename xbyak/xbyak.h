@@ -542,6 +542,11 @@ public:
 		if (type_ != FIXED_BUF) throw ERR_CODE_ISNOT_COPYABLE;
 		for (size_t i = 0; i < size_; i++) top_[i] = rhs.top_[i];
 	}
+	void resetSize()
+	{
+		size_ = 0;
+		addrInfoList_.clear();
+	}
 	void db(int code)
 	{
 		if (size_ >= maxSize_) {
@@ -794,6 +799,16 @@ public:
 		, usedCount_(0)
 		, localCount_(0)
 	{
+	}
+	void reset()
+	{
+		base_ = 0;
+		anonymousCount_ = 0;
+		stackPos_ = 1;
+		usedCount_ = 0;
+		localCount_ = 0;
+		definedList_.clear();
+		undefinedList_.clear();
 	}
 	void enterLocal()
 	{
@@ -1601,6 +1616,12 @@ public:
 		, rip()
 #endif
 	{
+		label_.set(this);
+	}
+	void reset()
+	{
+		resetSize();
+		label_.reset();
 		label_.set(this);
 	}
 	bool hasUndefinedLabel() const { return label_.hasUndefinedLabel(); }

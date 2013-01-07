@@ -94,6 +94,37 @@ public:
 	int (*get() const)(const char *) { return (int (*)(const char *))(const void*)getCode(); }
 };
 
+struct Reset : public Xbyak::CodeGenerator {
+	void init(int n)
+	{
+		xor(eax, eax);
+		mov(ecx, n);
+		test(ecx, ecx);
+		jnz("@f");
+		ret();
+	L("@@");
+		for (int i = 0; i < 10 - n; i++) {
+			add(eax, ecx);
+		}
+		sub(ecx, 1);
+		jnz("@b");
+		ret();
+	}
+};
+
+void testReset()
+{
+	puts("tsetReset");
+	Reset code;
+	int (*f)(int) = (int (*)(int))code.getCode();
+	for (int i = 0; i < 10; i++) {
+		code.init(i);
+		int v = f(i);
+		printf("%d %d\n", i, v);
+		code.reset();
+	}
+}
+
 int main()
 {
 	try {
@@ -137,6 +168,7 @@ int main()
 			CodeArray::protect(p, codeSize, false);
 		}
 		puts("OK");
+		testReset();
 	} catch (Xbyak::Error err) {
 		printf("ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
 	} catch (...) {
