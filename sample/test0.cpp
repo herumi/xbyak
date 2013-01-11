@@ -114,7 +114,7 @@ struct Reset : public Xbyak::CodeGenerator {
 
 void testReset()
 {
-	puts("tsetReset");
+	puts("testReset");
 	Reset code;
 	int (*f)(int) = (int (*)(int))code.getCode();
 	for (int i = 0; i < 10; i++) {
