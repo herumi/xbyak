@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.73
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.74
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -244,6 +244,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2013/01/12 ver 3.74 CodeGenerator::reset()とAllocator::useProtect()を追加
 2013/01/06 ver 3.73 可能ならunordered_mapを使う
 2012/12/04 ver 3.72 eaxなどをCodeGeneratorのメンバ変数に戻す. Xbyak::util::eaxはstatic const変数
 2012/11/17 ver 3.71 and_(), or_(), xor_(), not_()をXBYAK_NO_OP_NAMESが定義されていないときでも使えるようにした

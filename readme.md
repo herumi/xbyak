@@ -1,5 +1,5 @@
 
-Xbyak 3.73 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 3.74 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -223,6 +223,7 @@ http://opensource.org/licenses/BSD-3-Clause
 
 History
 -------------
+* 2013/Jan/12 ver 3.74 add CodeGenerator::reset() ; add Allocator::useProtect()
 * 2013/Jan/06 ver 3.73 use unordered_map if possible
 * 2012/Dec/04 ver 3.72 eax, ebx, ... are member variables of CodeGenerator(revert), Xbyak::util::eax, ... are static const.
 * 2012/Nov/17 ver 3.71 and_(), or_(), xor_(), not_() are available if XBYAK_NO_OP_NAMES is not defined.

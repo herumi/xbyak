@@ -69,7 +69,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x3730 /* 0xABCD = A.BC(D) */
+	VERSION = 0x3740 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -208,6 +208,8 @@ struct Allocator {
 	virtual uint8 *alloc(size_t size) { return reinterpret_cast<uint8*>(AlignedMalloc(size, inner::ALIGN_PAGE_SIZE)); }
 	virtual void free(uint8 *p) { AlignedFree(p); }
 	virtual ~Allocator() {}
+	/* override to return false if you call protect() manually */
+	virtual bool useProtect() const { return true; }
 };
 
 
@@ -509,7 +511,7 @@ protected:
 			uint32 disp = inner::VerifyInInt32(i->isRelative_ ? i->val_ : i->val_ - size_t(top_));
 			rewrite(i->offset_, disp, i->size_);
 		}
-		if (!protect(top_, size_, true)) throw ERR_CANT_PROTECT;
+		if (alloc_->useProtect() && !protect(top_, size_, true)) throw ERR_CANT_PROTECT;
 	}
 public:
 	CodeArray(size_t maxSize = MAX_FIXED_BUF_SIZE, void *userPtr = 0, Allocator *allocator = 0)
@@ -520,7 +522,7 @@ public:
 		, size_(0)
 	{
 		if (maxSize_ > 0 && top_ == 0) throw ERR_CANT_ALLOC;
-		if (type_ == ALLOC_BUF && !protect(top_, maxSize, true)) {
+		if ((type_ == ALLOC_BUF && alloc_->useProtect()) && !protect(top_, maxSize, true)) {
 			alloc_->free(top_);
 			throw ERR_CANT_PROTECT;
 		}
@@ -528,7 +530,7 @@ public:
 	virtual ~CodeArray()
 	{
 		if (isAllocType()) {
-			protect(top_, maxSize_, false);
+			if (alloc_->useProtect()) protect(top_, maxSize_, false);
 			alloc_->free(top_);
 		}
 	}
