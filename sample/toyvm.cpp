@@ -199,7 +199,7 @@ public:
 					push(reg[r]);
 					push('A' + r);
 					push((int)str);
-					call((void*)printf);
+					call(Xbyak::CastTo<void*>(printf));
 					add(esp, 4 * 4);
 					pop(ecx);
 					pop(edx);
@@ -274,7 +274,7 @@ public:
 	}
 	void runByJIT()
 	{
-		((void (*)())(const void*)getCode())();
+		getCode<void (*)()>();
 	}
 };
 

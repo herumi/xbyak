@@ -50,7 +50,7 @@ public:
 #endif
 		ret();
 	}
-	int (*get() const)(int) { return (int (*)(int))(const void*)getCode(); }
+	int (*get() const)(int) { return getCode<int(*)(int)>(); }
 };
 
 class CallAtoi : public Xbyak::CodeGenerator {
@@ -70,12 +70,12 @@ public:
 #else
 		mov(eax, ptr [esp + 4]);
 		push(eax);
-		call((void*)atoi);
+		call(Xbyak::CastTo<void*>(atoi));
 		add(esp, 4);
 #endif
 		ret();
 	}
-	int (*get() const)(const char *) { return (int (*)(const char *))(const void*)getCode(); }
+	int (*get() const)(const char *) { return getCode<int (*)(const char *)>(); }
 };
 
 class JmpAtoi : public Xbyak::CodeGenerator {
@@ -88,10 +88,10 @@ public:
 		mov(rax, (size_t)atoi);
 		jmp(rax);
 #else
-		jmp((void*)atoi);
+		jmp(Xbyak::CastTo<void*>(atoi));
 #endif
 	}
-	int (*get() const)(const char *) { return (int (*)(const char *))(const void*)getCode(); }
+	int (*get() const)(const char *) { return getCode<int (*)(const char *)>(); }
 };
 
 struct Reset : public Xbyak::CodeGenerator {
@@ -116,7 +116,7 @@ void testReset()
 {
 	puts("testReset");
 	Reset code;
-	int (*f)(int) = (int (*)(int))code.getCode();
+	int (*f)(int) = code.getCode<int(*)(int)>();
 	for (int i = 0; i < 10; i++) {
 		code.init(i);
 		int v = f(i);
@@ -137,7 +137,7 @@ int main()
 #else
 		puts("32bit");
 #endif
-		int (*func)(int) = (int (*)(int))(const void*)s.getCode();
+		int (*func)(int) = s.getCode<int (*)(int)>();
 		for (int i = 0; i <= 10; i++) {
 			printf("0 + ... + %d = %d\n", i, func(i));
 		}
@@ -159,9 +159,9 @@ int main()
 			uint8 *p = CodeArray::getAlignedAddress(buf);
 			CodeArray::protect(p, codeSize, true);
 			Sample s(p, codeSize);
-			int (*func)(int) = (int (*)(int))(const void*)s.getCode();
-			if ((uint8*)func != p) {
-				fprintf(stderr, "internal error %p %p\n", p, func);
+			int (*func)(int) = s.getCode<int (*)(int)>();
+			if (Xbyak::CastTo<uint8*>(func) != p) {
+				fprintf(stderr, "internal error %p %p\n", p, Xbyak::CastTo<uint8*>(func));
 				return 1;
 			}
 			printf("0 + ... + %d = %d\n", 100, func(100));

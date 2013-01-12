@@ -78,8 +78,9 @@ enum {
 	typedef unsigned __int64 uint64;
 	typedef __int64 sint64;
 #else
-	typedef unsigned long long uint64;
-	typedef long long sint64;
+#include <stdint.h>
+	typedef uint64_t uint64;
+	typedef int64_t sint64;
 #endif
 typedef unsigned int uint32;
 typedef unsigned short uint16;
@@ -183,13 +184,19 @@ inline void AlignedFree(void *p)
 	free(p);
 #endif
 }
+
+template<class To, class From>
+inline const To CastTo(From p) throw()
+{
+	return (const To)(size_t)(p);
+}
 namespace inner {
 
 enum { debug = 1 };
 static const size_t ALIGN_PAGE_SIZE = 4096;
 
 inline bool IsInDisp8(uint32 x) { return 0xFFFFFF80 <= x || x <= 0x7F; }
-inline bool IsInInt32(uint64 x) { return 0xFFFFFFFF80000000ULL <= x || x <= 0x7FFFFFFFU; }
+inline bool IsInInt32(uint64 x) { return ~uint64(0x7fffffffu) <= x || x <= 0x7FFFFFFFU; }
 
 inline uint32 VerifyInInt32(uint64 x)
 {
@@ -572,7 +579,11 @@ public:
 	void dw(uint32 code) { db(code, 2); }
 	void dd(uint32 code) { db(code, 4); }
 	const uint8 *getCode() const { return top_; }
+	template<class F>
+	const F getCode() const { return CastTo<F>(top_); }
 	const uint8 *getCurr() const { return &top_[size_]; }
+	template<class F>
+	const F getCurr() const { return CastTo<F>(&top_[size_]); }
 	size_t getSize() const { return size_; }
 	void dump() const
 	{

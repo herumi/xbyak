@@ -233,25 +233,25 @@ self->L("@@");
 	int idx = out.getIdx();
 	switch (idx) {
 	case Xbyak::Operand::EAX:
-		self->call((void*)local::set_eip_to_eax);
+		self->call(CastTo<void*>(local::set_eip_to_eax));
 		break;
 	case Xbyak::Operand::ECX:
-		self->call((void*)local::set_eip_to_ecx);
+		self->call(CastTo<void*>(local::set_eip_to_ecx));
 		break;
 	case Xbyak::Operand::EDX:
-		self->call((void*)local::set_eip_to_edx);
+		self->call(CastTo<void*>(local::set_eip_to_edx));
 		break;
 	case Xbyak::Operand::EBX:
-		self->call((void*)local::set_eip_to_ebx);
+		self->call(CastTo<void*>(local::set_eip_to_ebx));
 		break;
 	case Xbyak::Operand::ESI:
-		self->call((void*)local::set_eip_to_esi);
+		self->call(CastTo<void*>(local::set_eip_to_esi));
 		break;
 	case Xbyak::Operand::EDI:
-		self->call((void*)local::set_eip_to_edi);
+		self->call(CastTo<void*>(local::set_eip_to_edi));
 		break;
 	case Xbyak::Operand::EBP:
-		self->call((void*)local::set_eip_to_ebp);
+		self->call(CastTo<void*>(local::set_eip_to_ebp));
 		break;
 	default:
 		assert(0);

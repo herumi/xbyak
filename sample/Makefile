@@ -24,7 +24,7 @@ endif
 
 all: $(TARGET)
 
-CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith
+CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -pedantic
 
 CFLAGS=-g -O2 -fomit-frame-pointer -Wall -fno-operator-names -I../ $(CFLAGS_WARN)
 
@@ -82,6 +82,7 @@ bf64 : bf.cpp $(XBYAK_INC)
 memfunc : memfunc.cpp $(XBYAK_INC)
 memfunc64 : memfunc.cpp $(XBYAK_INC)
 toyvm : toyvm.cpp $(XBYAK_INC)
+static_buf: static_buf.cpp $(XBYAK_INC)
+static_buf64: static_buf.cpp $(XBYAK_INC)
 test_util : test_util.cpp $(XBYAK_INC) ../xbyak/xbyak_util.h
 test_util2 : test_util.cpp $(XBYAK_INC) ../xbyak/xbyak_util.h
-

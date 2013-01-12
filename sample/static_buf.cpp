@@ -27,7 +27,7 @@ struct Code : Xbyak::CodeGenerator {
 
 inline int add(int a, int b)
 {
-	return ((int (*)(int,int))(void*)buf)(a, b);
+	return Xbyak::CastTo<int (*)(int,int)>(buf)(a, b);
 }
 
 int main()
