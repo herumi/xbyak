@@ -41,6 +41,9 @@
 	#include <sys/mman.h>
 	#include <stdlib.h>
 #endif
+#if !defined(_MSC_VER) || (_MSC_VER >= 1600)
+	#include <stdint.h>
+#endif
 
 #if defined(__x86_64__) && !defined(__MINGW64__)
 		#define XBYAK64_GCC
@@ -78,7 +81,6 @@ enum {
 	typedef unsigned __int64 uint64;
 	typedef __int64 sint64;
 #else
-#include <stdint.h>
 	typedef uint64_t uint64;
 	typedef int64_t sint64;
 #endif
