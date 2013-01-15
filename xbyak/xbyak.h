@@ -72,7 +72,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x3740 /* 0xABCD = A.BC(D) */
+	VERSION = 0x3750 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -587,6 +587,11 @@ public:
 	template<class F>
 	const F getCurr() const { return CastTo<F>(&top_[size_]); }
 	size_t getSize() const { return size_; }
+	void setSize(size_t size)
+	{
+		if (size >= maxSize_) throw ERR_OFFSET_IS_TOO_BIG;
+		size_ = size;
+	}
 	void dump() const
 	{
 		const uint8 *p = getCode();
