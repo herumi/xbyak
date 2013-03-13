@@ -299,6 +299,7 @@ class Test {
 		const char tbl[][20] = {
 #ifdef XBYAK64
 			"cdqe",
+			"cqo",
 #else
 			"aaa",
 			"aad",
@@ -841,9 +842,9 @@ class Test {
 			QQQ:
 			push byte 2
 			push dword 2
-			はstackを4byte減らすが
+			reduce 4-byte stack
 			push word 2
-			はstackを2byte減らすのでサポートしない
+			reduce 2-byte stack, so I can't support it
 		*/
 		const char *p = "push";
 		put(p, REG16);
