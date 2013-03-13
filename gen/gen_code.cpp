@@ -441,6 +441,7 @@ void put()
 		} tbl[] = {
 			// only 64-bit mode(from)
 			{ "cdqe", B01001000, B10011000 },
+			{ "cqo", 0x48, 0x99 },
 			{ "@@@" }, /// here
 			// only 32-bit mode(from)
 			{ "aaa", B00110111 },

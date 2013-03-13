@@ -274,6 +274,7 @@ void jg(const char *label, LabelType type = T_AUTO) { opJmp(label, type, 0x7F, 0
 void setg(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, B10010000 | 15); }
 #ifdef XBYAK64
 void cdqe() { db(0x48); db(0x98); }
+void cqo() { db(0x48); db(0x99); }
 #else
 void aaa() { db(0x37); }
 void aad() { db(0xD5); db(0x0A); }
