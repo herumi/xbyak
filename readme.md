@@ -1,5 +1,5 @@
 
-Xbyak 3.75 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 3.76 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -223,6 +223,7 @@ http://opensource.org/licenses/BSD-3-Clause
 
 History
 -------------
+* 2013/Mar/13 ver 3.76 add cqo()
 * 2013/Jan/15 ver 3.75 add setSize() to modify generated code
 * 2013/Jan/12 ver 3.74 add CodeGenerator::reset() ; add Allocator::useProtect()
 * 2013/Jan/06 ver 3.73 use unordered_map if possible

@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.75
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.76
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -244,6 +244,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2013/03/13 ver 3.76 cqo追加
 2013/01/15 ver 3.75 生成されたコードを修正するためにsetSize()を追加
 2013/01/12 ver 3.74 CodeGenerator::reset()とAllocator::useProtect()を追加
 2013/01/06 ver 3.73 可能ならunordered_mapを使う
