@@ -23,29 +23,36 @@ test_mmx: test_mmx.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) test_mmx.cpp -o $@ -lpthread
 jmp: jmp.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) jmp.cpp -o $@ -m32
-jmp64: jmp.cpp ../xbyak/xbyak.h
+jmp64: jmp.cpp ../xbyak/xbyak.h -m64
 	$(CXX) $(CFLAGS) jmp.cpp -o $@
 address: address.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) address.cpp -o $@ -m32
 address64: address.cpp ../xbyak/xbyak.h
-	$(CXX) $(CFLAGS) address.cpp -o $@
+	$(CXX) $(CFLAGS) address.cpp -o $@ -m64
 nm_frame: nm_frame.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) nm_frame.cpp -o $@ -m32
 
 test: normalize_prefix jmp
 	./test_nm.sh
 	./test_nm.sh Y
+	./test_address.sh
+	./jmp
+ifeq ($(BIT),64)
+	./test_address.sh 64
 	./test_nm.sh 64
 	./test_nm.sh Y64
-	./test_address.sh
-	./test_address.sh 64
-	./jmp
+	./jmp64
+endif
 
 test_avx: normalize_prefix
 	./test_avx.sh
 	./test_avx.sh Y
+ifeq ($(BIT),64)
+	./test_address.sh 64
 	./test_avx.sh 64
 	./test_avx.sh Y64
+endif
+
 clean:
 	rm -rf *.o $(TARGET) lib_run
 

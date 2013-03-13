@@ -148,6 +148,58 @@ struct TestJmp2 : public CodeGenerator {
 	}
 };
 
+struct TestJmpCx : public CodeGenerator {
+	explicit TestJmpCx(void *p)
+		: Xbyak::CodeGenerator(16, p)
+	{
+		inLocalLabel();
+	L(".lp");
+#ifdef XBYAK64
+		puts("TestJmpCx 64bit");
+		/*
+			67 E3 FD ; jecxz lp
+			E3 FB    ; jrcxz lp
+		*/
+		jecxz(".lp");
+		jrcxz(".lp");
+#else
+		puts("TestJmpCx 32bit");
+		/*
+			E3FE   ; jecxz lp
+			67E3FB ; jcxz lp
+		*/
+		jecxz(".lp");
+		jcxz(".lp");
+#endif
+		outLocalLabel();
+	}
+};
+
+void testJmpCx()
+{
+	const struct {
+		const char *p;
+		size_t len;
+	} tbl = {
+#ifdef XBYAK64
+		"\x67\xe3\xfd\xe3\xfb", 5
+#else
+		"\xe3\xfe\x67\xe3\xfb", 5
+#endif
+	};
+	char buf[16] = {};
+	TestJmpCx code(buf);
+	if (memcmp(buf, tbl.p, tbl.len) == 0) {
+		puts("ok");
+	} else {
+		puts("ng");
+		for (int i = 0; i < 8; i++) {
+			printf("%02x ", (unsigned char)buf[i]);
+		}
+		printf("\n");
+	}
+}
+
 void test2()
 {
 	puts("test2");
@@ -380,6 +432,7 @@ int main()
 #endif
 		test4();
 		test5();
+		testJmpCx();
 	} catch (Xbyak::Error err) {
 		printf("ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
 	} catch (...) {

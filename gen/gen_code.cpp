@@ -41,6 +41,15 @@ std::string type2String(int type)
 	return str;
 }
 
+/*
+	reg = cx/ecx/rcx
+	insert 0x67 if prefix is true
+*/
+void put_jREGz(const char *reg, bool prefix)
+{
+	printf("void j%sz(const char *label) { %sopJmp(label, T_SHORT, 0xe3, 0, 0); }\n", reg, prefix ? "db(0x67); " : "");
+}
+
 void put()
 {
 	const int NO = CodeGenerator::NONE;
@@ -430,6 +439,13 @@ void put()
 			printf("void j%s(const char *label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }\n", p->name, p->ext | B01110000, p->ext | B10000000, 0x0F);
 			printf("void set%s(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, B10010000 | %d); }\n", p->name, p->ext);
 		}
+		puts("#ifdef XBYAK32");
+		put_jREGz("cx", true);
+		put_jREGz("ecx", false);
+		puts("#else");
+		put_jREGz("ecx", true);
+		put_jREGz("rcx", false);
+		puts("#endif");
 	}
 	////////////////////////////////////////////////////////////////
 	{

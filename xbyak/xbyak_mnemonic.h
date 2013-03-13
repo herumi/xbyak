@@ -272,6 +272,13 @@ void setnle(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, B10010000 | 15); }
 void cmovg(const Reg32e& reg, const Operand& op) { opModRM(reg, op, op.isREG(i32e), op.isMEM(), 0x0F, B01000000 | 15); }
 void jg(const char *label, LabelType type = T_AUTO) { opJmp(label, type, 0x7F, 0x8F, 0x0F); }
 void setg(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, B10010000 | 15); }
+#ifdef XBYAK32
+void jcxz(const char *label) { db(0x67); opJmp(label, T_SHORT, 0xe3, 0, 0); }
+void jecxz(const char *label) { opJmp(label, T_SHORT, 0xe3, 0, 0); }
+#else
+void jecxz(const char *label) { db(0x67); opJmp(label, T_SHORT, 0xe3, 0, 0); }
+void jrcxz(const char *label) { opJmp(label, T_SHORT, 0xe3, 0, 0); }
+#endif
 #ifdef XBYAK64
 void cdqe() { db(0x48); db(0x98); }
 void cqo() { db(0x48); db(0x99); }
