@@ -346,6 +346,8 @@ class Test {
 			"rdmsr",
 			"rdpmc",
 			"rdtsc",
+			"rdtscp",
+			"ud2",
 			"wait",
 			"fwait",
 			"wbinvd",

@@ -506,6 +506,7 @@ void put()
 			{ "rdpmc", 0x0F, B00110011 },
 			{ "rdtsc", 0x0F, B00110001 },
 			{ "rdtscp", 0x0F, 0x01, 0xF9 },
+			{ "ud2", 0x0F, 0x0B },
 			{ "wait", 0x9B },
 			{ "fwait", 0x9B },
 			{ "wbinvd", 0x0F, B00001001 },

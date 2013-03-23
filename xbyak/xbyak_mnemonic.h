@@ -323,6 +323,7 @@ void rdmsr() { db(0x0F); db(0x32); }
 void rdpmc() { db(0x0F); db(0x33); }
 void rdtsc() { db(0x0F); db(0x31); }
 void rdtscp() { db(0x0F); db(0x01); db(0xF9); }
+void ud2() { db(0x0F); db(0x0B); }
 void wait() { db(0x9B); }
 void fwait() { db(0x9B); }
 void wbinvd() { db(0x0F); db(0x09); }
