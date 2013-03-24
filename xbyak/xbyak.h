@@ -767,7 +767,7 @@ public:
 
 struct JmpLabel {
 	size_t endOfJmp; /* offset from top to the end address of jmp */
-	bool isShort;
+	int jmpSize;
 };
 
 class Label {
@@ -860,13 +860,12 @@ public:
 			if (itr == undefinedList_.end()) break;
 			const JmpLabel *jmp = &itr->second;
 			uint32 disp = inner::VerifyInInt32(addr - jmp->endOfJmp);
-			if (jmp->isShort && !inner::IsInDisp8(disp)) throw ERR_LABEL_IS_TOO_FAR;
-			int jmpSize = jmp->isShort ? 1 : 4;
-			size_t offset = jmp->endOfJmp - jmpSize;
+			if (jmp->jmpSize == 1 && !inner::IsInDisp8(disp)) throw ERR_LABEL_IS_TOO_FAR;
+			size_t offset = jmp->endOfJmp - jmp->jmpSize;
 			if (base_->isAutoGrow()) {
-				base_->save(offset, disp, jmpSize, true);
+				base_->save(offset, disp, jmp->jmpSize, true);
 			} else {
-				base_->rewrite(offset, disp, jmpSize);
+				base_->rewrite(offset, disp, jmp->jmpSize);
 			}
 			undefinedList_.erase(itr);
 		}
@@ -1030,12 +1029,13 @@ private:
 			makeJmp(inner::VerifyInInt32(offset - getSize()), type, shortCode, longCode, longPref);
 		} else {
 			JmpLabel jmp;
-			jmp.isShort = (type != T_NEAR);
-			if (jmp.isShort) {
-				db(shortCode); db(0);
-			} else {
+			if (type == T_NEAR) {
+				jmp.jmpSize = 4;
 				if (longPref) db(longPref);
 				db(longCode); dd(0);
+			} else {
+				jmp.jmpSize = 1;
+				db(shortCode); db(0);
 			}
 			jmp.endOfJmp = getSize();
 			label_.addUndefinedLabel(label, jmp);
