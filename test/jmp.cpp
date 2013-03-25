@@ -200,6 +200,9 @@ void testJmpCx()
 	}
 }
 
+#ifdef _MSC_VER
+	#pragma warning(disable : 4310)
+#endif
 void test2()
 {
 	puts("test2");
@@ -422,6 +425,114 @@ void test5()
 	diff(fm, gm);
 }
 
+struct MovLabelCode : Xbyak::CodeGenerator {
+	MovLabelCode(bool grow)
+		: Xbyak::CodeGenerator(grow ? 128 : 4096, grow ? Xbyak::AutoGrow : 0)
+	{
+#ifdef XBYAK64
+		const Reg64& a = rax;
+#else
+		const Reg32& a = eax;
+#endif
+		inLocalLabel();
+		nop(); // 0x90
+	L(".lp1");
+		nop();
+		mov(a, ".lp1"); // 0xb8 + <4byte> / 0x48bb + <8byte>
+		nop();
+		mov(a, ".lp2"); // 0xb8
+		// force realloc if AutoGrow
+		for (int i = 0; i < 256; i++) {
+			nop();
+		}
+		nop();
+	L(".lp2");
+		outLocalLabel();
+	}
+};
+
+size_t getValue(const uint8* p)
+{
+	size_t v = 0;
+	for (size_t i = 0; i < sizeof(size_t); i++) {
+		v |= p[i] << (i * 8);
+	}
+	return v;
+}
+
+bool checkAddr(const uint8 *p, size_t offset, size_t expect)
+{
+	size_t v = getValue(p + offset);
+	printf("v=%p\n", (void*)v);
+	v -= size_t(p);
+	if (v == expect) return true;
+	printf("err p=%p, offset=%lld, v=%d, expect=%d\n", p, (long long)offset, (int)v, (int)expect);
+	return false;
+}
+
+void testMovLabel(bool grow)
+{
+	bool isOK = true;
+	MovLabelCode code(grow);
+	code.ready();
+	const uint8* const p = code.getCode();
+printf("QQQ p=%p\n", p);
+	const struct {
+		int pos;
+		uint8 ok;
+	} tbl[] = {
+#ifdef XBYAK32
+		{ 0x00, 0x90 },
+		// lp1:0x001
+		{ 0x001, 0x90 },
+		{ 0x002, 0xb8 },
+		// 0x003
+		{ 0x007, 0x90 },
+		{ 0x008, 0xb8 },
+		// 0x009
+		{ 0x10d, 0x90 },
+		// lp2:0x10e
+#else
+		{ 0x000, 0x90 },
+		// lp1:0x001
+		{ 0x001, 0x90 },
+		{ 0x002, 0x48 },
+		{ 0x003, 0xb8 },
+		// 0x004
+		{ 0x00c, 0x90 },
+		{ 0x00d, 0x48 },
+		{ 0x00e, 0xb8 },
+		// 0x00f
+		{ 0x117, 0x90 },
+		// lp2:0x118
+#endif
+	};
+	puts("---");
+	for (int i = 0; i < 32; i++) {
+		printf("%02x ", p[i]);
+		if (i == 15) printf("\n");
+	}
+	puts("---");
+
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		int pos = tbl[i].pos;
+		uint8 x = p[pos];
+		uint8 ok = tbl[i].ok;
+		if (x != ok) {
+			printf("err pos=%d, x=%02x, ok=%02x\n", pos, x, ok);
+			isOK = false;
+		}
+	}
+#ifdef XBYAK32
+	isOK &= checkAddr(p, 0x03, 0x001);
+	isOK &= checkAddr(p, 0x09, 0x10e);
+#else
+	isOK &= checkAddr(p, 0x04, 0x001);
+	isOK &= checkAddr(p, 0x0f, 0x118);
+#endif
+	if (isOK) puts("ok");
+}
+
 int main()
 {
 	try {
@@ -433,6 +544,10 @@ int main()
 		test4();
 		test5();
 		testJmpCx();
+		puts("test MovLabelCode");
+		testMovLabel(false);
+		puts("test MovLabelCode:grow");
+		testMovLabel(true);
 	} catch (Xbyak::Error err) {
 		printf("ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
 	} catch (...) {

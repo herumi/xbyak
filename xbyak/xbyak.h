@@ -197,7 +197,7 @@ namespace inner {
 enum { debug = 1 };
 static const size_t ALIGN_PAGE_SIZE = 4096;
 
-inline bool IsInDisp8(uint32 x) { return 0xFFFFFF80 <= x || x <= 0x7F; }
+inline bool IsInDisp8(uint64 x) { return 0xFFFFFF80 <= x || x <= 0x7F; }
 inline bool IsInInt32(uint64 x) { return ~uint64(0x7fffffffu) <= x || x <= 0x7FFFFFFFU; }
 
 inline uint32 VerifyInInt32(uint64 x)
@@ -501,7 +501,6 @@ protected:
 	*/
 	void growMemory()
 	{
-//		const size_t newSize = maxSize_ + inner::ALIGN_PAGE_SIZE;
 		const size_t newSize = maxSize_ * 2;
 		uint8 *newTop = alloc_->alloc(newSize);
 		if (newTop == 0) throw ERR_CANT_ALLOC;
@@ -768,6 +767,13 @@ public:
 struct JmpLabel {
 	size_t endOfJmp; /* offset from top to the end address of jmp */
 	int jmpSize;
+	bool isAbs;
+	JmpLabel()
+		: endOfJmp(0)
+		, jmpSize(0)
+		, isAbs(false)
+	{
+	}
 };
 
 class Label {
@@ -841,7 +847,7 @@ public:
 		localCount_ = stack_[--stackPos_ - 1];
 	}
 	void set(CodeArray *base) { base_ = base; }
-	void define(const char *label, size_t addr)
+	void define(const char *label, size_t addrOffset, const uint8_t *addr)
 	{
 		std::string newLabel(label);
 		if (newLabel == "@@") {
@@ -851,7 +857,7 @@ public:
 		}
 		label = newLabel.c_str();
 		// add label
-		DefinedList::value_type item(label, addr);
+		DefinedList::value_type item(label, addrOffset);
 		std::pair<DefinedList::iterator, bool> ret = definedList_.insert(item);
 		if (!ret.second) throw ERR_LABEL_IS_REDEFINED;
 		// search undefined label
@@ -859,13 +865,14 @@ public:
 			UndefinedList::iterator itr = undefinedList_.find(label);
 			if (itr == undefinedList_.end()) break;
 			const JmpLabel *jmp = &itr->second;
-			uint32 disp = inner::VerifyInInt32(addr - jmp->endOfJmp);
+			size_t disp = addrOffset - jmp->endOfJmp;
+			if (jmp->jmpSize <= 4) disp = inner::VerifyInInt32(disp);
 			if (jmp->jmpSize == 1 && !inner::IsInDisp8(disp)) throw ERR_LABEL_IS_TOO_FAR;
 			size_t offset = jmp->endOfJmp - jmp->jmpSize;
 			if (base_->isAutoGrow()) {
 				base_->save(offset, disp, jmp->jmpSize, true);
 			} else {
-				base_->rewrite(offset, disp, jmp->jmpSize);
+				base_->rewrite(offset, jmp->isAbs ? size_t(addr) : disp, jmp->jmpSize);
 			}
 			undefinedList_.erase(itr);
 		}
@@ -1252,7 +1259,7 @@ public:
 #endif
 	void L(const char *label)
 	{
-		label_.define(label, getSize());
+		label_.define(label, getSize(), getCurr());
 	}
 	void inLocalLabel() { label_.enterLocal(); }
 	void outLocalLabel() { label_.leaveLocal(); }
@@ -1378,18 +1385,18 @@ public:
 	}
 	void mov(const Operand& op,
 #ifdef XBYAK64
-	uint64
+	uint64 imm, bool opti = true
 #else
-	uint32
+	uint32 imm, bool = true
 #endif
-	imm)
+	)
 	{
 		verifyMemHasSize(op);
 		if (op.isREG()) {
 			rex(op);
 			int code, size;
 #ifdef XBYAK64
-			if (op.isBit(64) && inner::IsInInt32(imm)) {
+			if (opti && op.isBit(64) && inner::IsInInt32(imm)) {
 				db(B11000111);
 				code = B11000000;
 				size = 4;
@@ -1409,6 +1416,36 @@ public:
 		} else {
 			throw ERR_BAD_COMBINATION;
 		}
+	}
+	void mov(
+#ifdef XBYAK64
+		const Reg64& reg,
+#else
+		const Reg32& reg,
+#endif
+		const char *label)
+	{
+		const int jmpSize = (int)sizeof(size_t);
+#ifdef XBYAK64
+		const size_t dummyAddr = size_t(0x1122334455667788ull);
+#else
+		const size_t dummyAddr = 0x12345678;
+#endif
+		if (isAutoGrow()) {
+			if (size_ + 16 >= maxSize_) growMemory();
+			return;
+		}
+		size_t offset = 0;
+		if (label_.getOffset(&offset, label)) {
+			mov(reg, size_t(top_) + offset, false);
+			return;
+		}
+		mov(reg, dummyAddr);
+		JmpLabel jmp;
+		jmp.jmpSize = jmpSize;
+		jmp.endOfJmp = getSize();
+		jmp.isAbs = true;
+		label_.addUndefinedLabel(label, jmp);
 	}
 	void cmpxchg8b(const Address& addr) { opModM(addr, Reg32(1), 0x0F, B11000111); }
 #ifdef XBYAK64

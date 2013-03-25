@@ -23,8 +23,8 @@ test_mmx: test_mmx.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) test_mmx.cpp -o $@ -lpthread
 jmp: jmp.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) jmp.cpp -o $@ -m32
-jmp64: jmp.cpp ../xbyak/xbyak.h -m64
-	$(CXX) $(CFLAGS) jmp.cpp -o $@
+jmp64: jmp.cpp ../xbyak/xbyak.h
+	$(CXX) $(CFLAGS) jmp.cpp -o $@ -m64
 address: address.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) address.cpp -o $@ -m32
 address64: address.cpp ../xbyak/xbyak.h
