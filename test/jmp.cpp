@@ -532,6 +532,43 @@ printf("QQQ p=%p\n", p);
 	if (isOK) puts("ok");
 }
 
+struct MovLabel2Code : Xbyak::CodeGenerator {
+	MovLabel2Code()
+	{
+#ifdef XBYAK64
+		const Reg64& a = rax;
+		const Reg64& c = rcx;
+#else
+		const Reg32& a = eax;
+		const Reg32& c = ecx;
+#endif
+		xor(a, a);
+		xor(c, c);
+		jmp("in");
+		ud2();
+	L("@@"); // L1
+		add(a, 2);
+		mov(c, "@f");
+		jmp(c); // goto L2
+		ud2();
+	L("in");
+		mov(c, "@b");
+		add(a, 1);
+		jmp(c); // goto L1
+		ud2();
+	L("@@"); // L2
+		add(a, 4);
+		ret();
+	}
+};
+
+void testMovLabel2()
+{
+	MovLabel2Code code;
+	int ret = code.getCode<int (*)()>()();
+	printf("MovLabel2Test ret=%d, %s\n", ret, ret == 7 ? "ok" : "ng");
+}
+
 int main()
 {
 	try {
@@ -547,6 +584,7 @@ int main()
 		testMovLabel(false);
 		puts("test MovLabelCode:grow");
 		testMovLabel(true);
+		testMovLabel2();
 	} catch (Xbyak::Error err) {
 		printf("ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
 	} catch (...) {
