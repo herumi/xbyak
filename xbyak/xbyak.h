@@ -197,7 +197,7 @@ namespace inner {
 enum { debug = 1 };
 static const size_t ALIGN_PAGE_SIZE = 4096;
 
-inline bool IsInDisp8(uint64 x) { return 0xFFFFFF80 <= x || x <= 0x7F; }
+inline bool IsInDisp8(uint32 x) { return 0xFFFFFF80 <= x || x <= 0x7F; }
 inline bool IsInInt32(uint64 x) { return ~uint64(0x7fffffffu) <= x || x <= 0x7FFFFFFFU; }
 
 inline uint32 VerifyInInt32(uint64 x)
@@ -207,6 +207,12 @@ inline uint32 VerifyInInt32(uint64 x)
 #endif
 	return static_cast<uint32>(x);
 }
+
+enum LabelMode {
+	Labs, // absolute
+	Lrelative, // relative(input addr is relative)
+	LaddTop // relative(addr + top)
+};
 
 } // inner
 
@@ -220,7 +226,6 @@ struct Allocator {
 	/* override to return false if you call protect() manually */
 	virtual bool useProtect() const { return true; }
 };
-
 
 class Operand {
 private:
@@ -480,10 +485,13 @@ class CodeArray {
 	struct AddrInfo {
 		size_t offset_;
 		size_t val_;
-		int size_;
-		bool isRelative_;
-		AddrInfo(size_t offset, size_t val, int size, bool isRelative)
-			: offset_(offset), val_(val), size_(size), isRelative_(isRelative) {}
+		int jmpSize;
+		inner::LabelMode mode;
+		AddrInfo(size_t offset, size_t val, int size, inner::LabelMode _mode)
+			: offset_(offset), val_(val), jmpSize(size), mode(_mode) {}
+		bool isAbs() const { return mode == inner::Labs; }
+		bool isRelative() const { return mode == inner::Lrelative; }
+		bool isAddTop() const { return mode == inner::LaddTop; }
 	};
 	typedef std::list<AddrInfo> AddrInfoList;
 	AddrInfoList addrInfoList_;
@@ -515,9 +523,9 @@ protected:
 	void calcJmpAddress()
 	{
 		for (AddrInfoList::const_iterator i = addrInfoList_.begin(), ie = addrInfoList_.end(); i != ie; ++i) {
-//			uint32 disp = inner::GetOffsetDist(i->val_, i->isRelative_ ? 0 : size_t(top_));
-			uint32 disp = inner::VerifyInInt32(i->isRelative_ ? i->val_ : i->val_ - size_t(top_));
-			rewrite(i->offset_, disp, i->size_);
+			uint64 disp = i->isAddTop() ? i->val_ + size_t(top_) : i->isRelative() ? i->val_ : i->val_ - size_t(top_);
+			if (i->jmpSize == 4) disp = inner::VerifyInInt32(disp);
+			rewrite(i->offset_, disp, i->jmpSize);
 		}
 		if (alloc_->useProtect() && !protect(top_, size_, true)) throw ERR_CANT_PROTECT;
 	}
@@ -627,9 +635,9 @@ public:
 			data[i] = static_cast<uint8>(disp >> (i * 8));
 		}
 	}
-	void save(size_t offset, size_t val, int size, bool isRelative)
+	void save(size_t offset, size_t val, int size, inner::LabelMode mode)
 	{
-		addrInfoList_.push_back(AddrInfo(offset, val, size, isRelative));
+		addrInfoList_.push_back(AddrInfo(offset, val, size, mode));
 	}
 	bool isAutoGrow() const { return type_ == AUTO_GROW; }
 	void updateRegField(uint8 regIdx) const
@@ -767,13 +775,16 @@ public:
 struct JmpLabel {
 	size_t endOfJmp; /* offset from top to the end address of jmp */
 	int jmpSize;
-	bool isAbs;
-	JmpLabel()
-		: endOfJmp(0)
-		, jmpSize(0)
-		, isAbs(false)
+	inner::LabelMode mode;
+	JmpLabel(size_t _endOfJmp = 0, int _jmpSize = 0, inner::LabelMode _mode = inner::Lrelative)
+		: endOfJmp(_endOfJmp)
+		, jmpSize(_jmpSize)
+		, mode(_mode)
 	{
 	}
+	bool isAbs() const { return mode == inner::Labs; }
+	bool isRelative() const { return mode == inner::Lrelative; }
+	bool isAddTop() const { return mode == inner::LaddTop; }
 };
 
 class Label {
@@ -786,14 +797,21 @@ class Label {
 	int stackPos_;
 	int usedCount_;
 	int localCount_; // for .***
+public:
+	struct Addr {
+		Addr(size_t _offset = 0, const uint8 *_addr = 0) : offset(_offset), addr(_addr) {}
+		size_t offset;
+		const uint8 *addr;
+	};
+private:
 #ifdef XBYAK_USE_UNORDERED_MAP
-	typedef std::unordered_map<std::string, size_t> DefinedList;
+	typedef std::unordered_map<std::string, Addr> DefinedList;
 	typedef std::unordered_multimap<std::string, const JmpLabel> UndefinedList;
 #elif defined(XBYAK_USE_TR1_UNORDERED_MAP)
-	typedef std::tr1::unordered_map<std::string, size_t> DefinedList;
+	typedef std::tr1::unordered_map<std::string, Addr> DefinedList;
 	typedef std::tr1::unordered_multimap<std::string, const JmpLabel> UndefinedList;
 #else
-	typedef std::map<std::string, size_t> DefinedList;
+	typedef std::map<std::string, Addr> DefinedList;
 	typedef std::multimap<std::string, const JmpLabel> UndefinedList;
 #endif
 	DefinedList definedList_;
@@ -857,7 +875,7 @@ public:
 		}
 		label = newLabel.c_str();
 		// add label
-		DefinedList::value_type item(label, addrOffset);
+		DefinedList::value_type item(label, Label::Addr(addrOffset, addr));
 		std::pair<DefinedList::iterator, bool> ret = definedList_.insert(item);
 		if (!ret.second) throw ERR_LABEL_IS_REDEFINED;
 		// search undefined label
@@ -867,12 +885,12 @@ public:
 			const JmpLabel *jmp = &itr->second;
 			size_t disp = addrOffset - jmp->endOfJmp;
 			if (jmp->jmpSize <= 4) disp = inner::VerifyInInt32(disp);
-			if (jmp->jmpSize == 1 && !inner::IsInDisp8(disp)) throw ERR_LABEL_IS_TOO_FAR;
+			if (jmp->jmpSize == 1 && !inner::IsInDisp8((uint32)disp)) throw ERR_LABEL_IS_TOO_FAR;
 			size_t offset = jmp->endOfJmp - jmp->jmpSize;
 			if (base_->isAutoGrow()) {
-				base_->save(offset, disp, jmp->jmpSize, true);
+				base_->save(offset, jmp->isAddTop() ? addrOffset : jmp->isAbs() ? size_t(addr) : disp, jmp->jmpSize, jmp->mode);
 			} else {
-				base_->rewrite(offset, jmp->isAbs ? size_t(addr) : disp, jmp->jmpSize);
+				base_->rewrite(offset, jmp->isAbs() ? size_t(addr) : disp, jmp->jmpSize);
 			}
 			undefinedList_.erase(itr);
 		}
@@ -882,11 +900,17 @@ public:
 		std::string newLabel = convertLabel(label);
 		DefinedList::const_iterator itr = definedList_.find(newLabel);
 		if (itr != definedList_.end()) {
-			*offset = itr->second;
+			*offset = itr->second.offset;
 			return true;
 		} else {
 			return false;
 		}
+	}
+	const Label::Addr *getAddr(const char *label) const
+	{
+		std::string newLabel = convertLabel(label);
+		DefinedList::const_iterator itr = definedList_.find(newLabel);
+		return  (itr == definedList_.end()) ? 0 : &(itr->second);
 	}
 	void addUndefinedLabel(const char *label, const JmpLabel& jmp)
 	{
@@ -1031,9 +1055,9 @@ private:
 	void opJmp(const char *label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
 	{
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory(); /* avoid splitting code of jmp */
-		size_t offset = 0;
-		if (label_.getOffset(&offset, label)) { /* label exists */
-			makeJmp(inner::VerifyInInt32(offset - getSize()), type, shortCode, longCode, longPref);
+		const Label::Addr *addr = label_.getAddr(label);
+		if (addr) { /* label exists */
+			makeJmp(inner::VerifyInInt32(addr->offset - getSize()), type, shortCode, longCode, longPref);
 		} else {
 			JmpLabel jmp;
 			if (type == T_NEAR) {
@@ -1054,8 +1078,8 @@ private:
 			if (type != T_NEAR) throw ERR_ONLY_T_NEAR_IS_SUPPORTED_IN_AUTO_GROW;
 			if (size_ + 16 >= maxSize_) growMemory();
 			db(longCode);
-			save(size_, size_t(addr) - (getSize() + 4), 4, false);
 			dd(0);
+			save(size_ - 4, size_t(addr) - size_, 4, inner::Labs);
 		} else {
 			makeJmp(inner::VerifyInInt32(reinterpret_cast<const uint8*>(addr) - getCurr()), type, shortCode, longCode, 0);
 		}
@@ -1425,26 +1449,29 @@ public:
 #endif
 		const char *label)
 	{
+		if (label == 0) {
+			mov(reg, 0, true);
+			return;
+		}
 		const int jmpSize = (int)sizeof(size_t);
 #ifdef XBYAK64
 		const size_t dummyAddr = size_t(0x1122334455667788ull);
 #else
 		const size_t dummyAddr = 0x12345678;
 #endif
-		if (isAutoGrow()) {
-			if (size_ + 16 >= maxSize_) growMemory();
-			return;
-		}
-		size_t offset = 0;
-		if (label_.getOffset(&offset, label)) {
-			mov(reg, size_t(top_) + offset, false);
+		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory();
+		const Label::Addr *addr = label_.getAddr(label);
+		if (addr) {
+			if (isAutoGrow()) {
+				mov(reg, dummyAddr);
+				save(size_ - jmpSize, addr->offset, jmpSize, inner::LaddTop);
+			} else {
+				mov(reg, size_t(top_) + addr->offset, false);
+			}
 			return;
 		}
 		mov(reg, dummyAddr);
-		JmpLabel jmp;
-		jmp.jmpSize = jmpSize;
-		jmp.endOfJmp = getSize();
-		jmp.isAbs = true;
+		JmpLabel jmp(getSize(), jmpSize, isAutoGrow() ? inner::LaddTop : inner::Labs);
 		label_.addUndefinedLabel(label, jmp);
 	}
 	void cmpxchg8b(const Address& addr) { opModM(addr, Reg32(1), 0x0F, B11000111); }

@@ -464,9 +464,8 @@ bool checkAddr(const uint8 *p, size_t offset, size_t expect)
 {
 	size_t v = getValue(p + offset);
 	printf("v=%p\n", (void*)v);
-	v -= size_t(p);
-	if (v == expect) return true;
-	printf("err p=%p, offset=%lld, v=%d, expect=%d\n", p, (long long)offset, (int)v, (int)expect);
+	if (v == size_t(p) + expect) return true;
+	printf("err p=%p, offset=%lld, v=%llx(%llx), expect=%d\n", p, (long long)offset, (long long)v, (long long)(expect + size_t(p)), (int)expect);
 	return false;
 }
 
