@@ -798,20 +798,15 @@ class Label {
 	int usedCount_;
 	int localCount_; // for .***
 public:
-	struct Addr {
-		Addr(size_t _offset = 0, const uint8 *_addr = 0) : offset(_offset), addr(_addr) {}
-		size_t offset;
-		const uint8 *addr;
-	};
 private:
 #ifdef XBYAK_USE_UNORDERED_MAP
-	typedef std::unordered_map<std::string, Addr> DefinedList;
+	typedef std::unordered_map<std::string, size_t> DefinedList;
 	typedef std::unordered_multimap<std::string, const JmpLabel> UndefinedList;
 #elif defined(XBYAK_USE_TR1_UNORDERED_MAP)
-	typedef std::tr1::unordered_map<std::string, Addr> DefinedList;
+	typedef std::tr1::unordered_map<std::string, size_t> DefinedList;
 	typedef std::tr1::unordered_multimap<std::string, const JmpLabel> UndefinedList;
 #else
-	typedef std::map<std::string, Addr> DefinedList;
+	typedef std::map<std::string, size_t> DefinedList;
 	typedef std::multimap<std::string, const JmpLabel> UndefinedList;
 #endif
 	DefinedList definedList_;
@@ -875,7 +870,7 @@ public:
 		}
 		label = newLabel.c_str();
 		// add label
-		DefinedList::value_type item(label, Label::Addr(addrOffset, addr));
+		DefinedList::value_type item(label, addrOffset);
 		std::pair<DefinedList::iterator, bool> ret = definedList_.insert(item);
 		if (!ret.second) throw ERR_LABEL_IS_REDEFINED;
 		// search undefined label
@@ -900,17 +895,11 @@ public:
 		std::string newLabel = convertLabel(label);
 		DefinedList::const_iterator itr = definedList_.find(newLabel);
 		if (itr != definedList_.end()) {
-			*offset = itr->second.offset;
+			*offset = itr->second;
 			return true;
 		} else {
 			return false;
 		}
-	}
-	const Label::Addr *getAddr(const char *label) const
-	{
-		std::string newLabel = convertLabel(label);
-		DefinedList::const_iterator itr = definedList_.find(newLabel);
-		return  (itr == definedList_.end()) ? 0 : &(itr->second);
 	}
 	void addUndefinedLabel(const char *label, const JmpLabel& jmp)
 	{
@@ -1055,9 +1044,9 @@ private:
 	void opJmp(const char *label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
 	{
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory(); /* avoid splitting code of jmp */
-		const Label::Addr *addr = label_.getAddr(label);
-		if (addr) { /* label exists */
-			makeJmp(inner::VerifyInInt32(addr->offset - getSize()), type, shortCode, longCode, longPref);
+		size_t offset = 0;
+		if (label_.getOffset(&offset, label)) { /* label exists */
+			makeJmp(inner::VerifyInInt32(offset - getSize()), type, shortCode, longCode, longPref);
 		} else {
 			JmpLabel jmp;
 			if (type == T_NEAR) {
@@ -1460,13 +1449,13 @@ public:
 		const size_t dummyAddr = 0x12345678;
 #endif
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory();
-		const Label::Addr *addr = label_.getAddr(label);
-		if (addr) {
+		size_t offset = 0;
+		if (label_.getOffset(&offset, label)) {
 			if (isAutoGrow()) {
 				mov(reg, dummyAddr);
-				save(size_ - jmpSize, addr->offset, jmpSize, inner::LaddTop);
+				save(size_ - jmpSize, offset, jmpSize, inner::LaddTop);
 			} else {
-				mov(reg, size_t(top_) + addr->offset, false);
+				mov(reg, size_t(top_) + offset, false);
 			}
 			return;
 		}
