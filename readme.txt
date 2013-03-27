@@ -1,19 +1,19 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak version 3.76
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 3.80
 
 -----------------------------------------------------------------------------
 ◎概要
 
-これはx86, x64(AMD64, x86-64)のマシン語命令を生成するC++のクラスライブラリです．
-プログラム実行時に動的にアセンブルすることが可能です．
+これはx86, x64(AMD64, x86-64)のマシン語命令を生成するC++のクラスライブラリです。
+プログラム実行時に動的にアセンブルすることが可能です。
 
 -----------------------------------------------------------------------------
 ◎特徴
 
 ・ヘッダファイルオンリー
-    xbyak.hをインクルードするだけですぐ利用することができます．
-    C++の枠組み内で閉じているため，外部アセンブラは不要です．
-    32bit/64bit両対応です．
+    xbyak.hをインクルードするだけですぐ利用することができます。
+    C++の枠組み内で閉じているため、外部アセンブラは不要です。
+    32bit/64bit両対応です。
     対応ニーモニック:特権命令除くx86, MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(一部)/AVX
 
 ・Windows Xp(32bit, 64bit), Vista/Linux(32bit, 64bit)/Intel Mac対応
@@ -21,32 +21,32 @@
     Windows Vista
     Linux (kernel 2.4.32)上ではgcc 4.5.0, CentOS 5.1上ではgcc 4.1.2
     Intel Mac
-    などで動作確認をしています．
+    などで動作確認をしています。
 
-※ Xbyakはデフォルトでand(), or(), xor(), not()関数を使います．
-gccではそれらを演算子として解釈してしまうため，-fno-operator-namesオプションを追加してコンパイルしてください．
-あるいはXBYAK_NO_OP_NAMESを定義してand_(), or_(), xor_(), not_()を使ってください．
-and_(), or_(), xor_(), not_()はXBYAK_NO_OP_NAMESされていないときでも使えます．
+※ Xbyakはデフォルトでand(), or(), xor(), not()関数を使います。
+gccではそれらを演算子として解釈してしまうため、-fno-operator-namesオプションを追加してコンパイルしてください。
+あるいはXBYAK_NO_OP_NAMESを定義してand_(), or_(), xor_(), not_()を使ってください。
+and_(), or_(), xor_(), not_()はXBYAK_NO_OP_NAMESされていないときでも使えます。
 
 -----------------------------------------------------------------------------
 ◎準備
 xbyak.h
 xbyak_bin2hex.h
 xbyak_mnemonic.h
-これらを同一のパスに入れてインクルードパスに追加してください．
+これらを同一のパスに入れてインクルードパスに追加してください。
 
-Linuxではmake installで/usr/local/include/xbyakにコピーされます．
+Linuxではmake installで/usr/local/include/xbyakにコピーされます。
 -----------------------------------------------------------------------------
 ◎新機能
 
 AutoGrowモード追加
-これはメモリ伸長を動的に行うモードです．
+これはメモリ伸長を動的に行うモードです。
 今まではXbyak::CodeGenerator()に渡したメモリサイズを超えると例外が発生して
-いましたが，このモードでは内部でメモリを再確保して伸長します．
-ただし，getCode()を呼び出す前にジャンプ命令のアドレス解決をするためにready()
-関数を呼ぶ必要があります．
+いましたが、このモードでは内部でメモリを再確保して伸長します。
+ただし、getCode()を呼び出す前にジャンプ命令のアドレス解決をするためにready()
+関数を呼ぶ必要があります。
 
-次のように使います．
+次のように使います。
 
  struct Code : Xbyak::CodeGenerator {
    Code()
@@ -59,20 +59,20 @@ AutoGrowモード追加
  c.ready(); // この呼び出しを忘れてはいけない
 
 注意1. ready()を呼んで確定するまではgetCurr()で得たポインタは無効化されている
-可能性があります．getSize()でoffsetを保持しておきready()のあとにgetCode()を
-呼び出してからgetCode() + offsetで新しいポインタを取得してください．
+可能性があります。getSize()でoffsetを保持しておきready()のあとにgetCode()を
+呼び出してからgetCode() + offsetで新しいポインタを取得してください。
 
-注意2. AutoGrowモードでは64bitモードの相対アドレッシング[rip]は非サポートです．
+注意2. AutoGrowモードでは64bitモードの相対アドレッシング[rip]は非サポートです。
 
 -----------------------------------------------------------------------------
 ◎文法
 
-Xbyak::CodeGenerator クラスを継承し，そのクラスメソッド内でx86, x64アセンブラを
-記述します．そのメソッドを呼び出した後，getCode()メソッドを呼び出し，その戻
-り値を自分が使いたい関数ポインタに変換して利用します．アセンブルエラーは例外
-により通知されます(cf. main.cpp)．
+Xbyak::CodeGeneratorクラスを継承し、そのクラスメソッド内でx86, x64アセンブラを
+記述します。そのメソッドを呼び出した後、getCode()メソッドを呼び出し、その戻
+り値を自分が使いたい関数ポインタに変換して利用します。アセンブルエラーは例外
+により通知されます(cf. main.cpp)。
 
-・基本的にnasmの命令で括弧をつければよいです．
+・基本的にnasmの命令で括弧をつければよいです。
 
 mov eax, ebx  --> mov(eax, ebx);
 inc ecx           inc(ecx);
@@ -82,19 +82,19 @@ ret           --> ret();
 
 (ptr|dword|word|byte) [base + index * (1|2|4|8) + displacement]
                       [rip + 32bit disp] ; x64 only
-という形で指定します．サイズを指定する必要がない限りptrを使えばよいです．
-セレクタはサポートしていません．
+という形で指定します。サイズを指定する必要がない限りptrを使えばよいです。
+セレクタはサポートしていません。
 
 mov eax, [ebx+ecx] --> mov (eax, ptr[ebx+ecx]);
 test byte [esp], 4 --> test (byte [esp], 4);
 
-(注意) dword, word, byteはメンバ変数です．従ってたとえばunsigned intの
-つもりでdwordをtypedefしないでください．
+(注意) dword, word, byteはメンバ変数です。従ってたとえばunsigned intの
+つもりでdwordをtypedefしないでください。
 
 ・AVX
 
-大抵の3オペランド形式の命令はデスティネーションを省略した形で呼び出すことができます.
-FMAについては簡略表記を導入するか検討中です(アイデア募集中).
+大抵の3オペランド形式の命令はデスティネーションを省略した形で呼び出すことができます。
+FMAについては簡略表記を導入するか検討中です(アイデア募集中)。
 
 vaddps(xmm1, xmm2, xmm3); // xmm1 <- xmm2 + xmm3
 vaddps(xmm2, xmm3); // xmm2 <- xmm2 + xmm3
@@ -105,19 +105,20 @@ vfmadd231pd(xmm1, xmm2, xmm3); // xmm1 <- (xmm2 * xmm3) + xmm1
 ・ラベル
 
 L(文字列);
-で定義します．ジャンプするときはその文字列を指定します．後方参照も可能ですが，
+で定義します。ジャンプするときはその文字列を指定します。後方参照も可能ですが、
 相対アドレスが8ビットに収まらない場合はT_NEARをつけないと実行時に例外が発生
-します．
+します。
+mov(eax, "L2");の様にラベルが表すアドレスをmovの即値として使えます。
 
-・hasUndefinedLabel()を呼び出して真ならジャンプ先が存在しないことを示します．
-コードを見直してください．
+・hasUndefinedLabel()を呼び出して真ならジャンプ先が存在しないことを示します。
+コードを見直してください。
 
 L("L1");
     jmp ("L1");
 
     jmp ("L2");
     ...
-    少しの命令の場合．
+    少しの命令の場合。
     ...
 L("L2");
 
@@ -136,11 +137,13 @@ L("L3");
   jmp("@f"); // jmp to <B>
   L("@@"); // <B>
   jmp("@b"); // jmp to <B>
+  mov(eax, "@b");
+  jmp(eax); // jmp to <B>
 
 2. ラベルの局所化
 
-ピリオドで始まるラベルをinLocalLabel(), outLocalLabel()で挟むことで局所化できます．
-inLocalLabel(), outLocalLabel()は入れ子にすることができます．
+ピリオドで始まるラベルをinLocalLabel(), outLocalLabel()で挟むことで局所化できます。
+inLocalLabel(), outLocalLabel()は入れ子にすることができます。
 
 void func1()
 {
@@ -161,8 +164,8 @@ void func2()
     outLocalLabel();
 }
 
-上記サンプルではinLocalLabel(), outLocalLabel()が無いと，
-".lp"ラベルの二重定義エラーになります．
+上記サンプルではinLocalLabel(), outLocalLabel()が無いと、
+".lp"ラベルの二重定義エラーになります。
 
 ・Xbyak::CodeGenerator()コンストラクタインタフェース
 
@@ -171,8 +174,8 @@ void func2()
 
 CodeGenerator(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0);
 
-デフォルトコードサイズは2048(=DEFAULT_MAX_CODE_SIZE)バイトです．
-それより大きなコードを生成する場合はCodeGenerator()のコンストラクタに指定してください．
+デフォルトコードサイズは4096(=DEFAULT_MAX_CODE_SIZE)バイトです。
+それより大きなコードを生成する場合はCodeGenerator()のコンストラクタに指定してください。
 
 class Quantize : public Xbyak::CodeGenerator {
 public:
@@ -183,15 +186,13 @@ public:
     ...
 };
 
-# 動的にしたほうがよいのだが実行属性の管理が面倒でやってません…．
+またユーザ指定メモリをコード生成最大サイズと共に指定すると、CodeGeneratorは
+指定されたメモリ上にバイト列を生成します。
 
-またユーザ指定メモリをコード生成最大サイズと共に指定すると，CodeGeneratorは
-指定されたメモリ上にバイト列を生成します．
-
-サポート関数として指定されたアドレスの実行属性を変更するCodeArray::protect()と
+補助関数として指定されたアドレスの実行属性を変更するCodeArray::protect()と
 与えられたポインタからアライメントされたポインタを取得するCodeArray::getAlignedAddress()
-も用意しました．詳細はsample/test0.cppのuse memory allocated by userを参考に
-してください．
+も用意しました。詳細はsample/test0.cppのuse memory allocated by userを参考に
+してください。
 
 /**
     change exec permission of memory
@@ -207,13 +208,13 @@ bool CodeArray::protect(const void *addr, size_t size, bool canExec);
 */
 uint8 *CodeArray::getAlignedAddress(uint8 *addr, size_t alignedSize = ALIGN_SIZE);
 
-その他詳細は各種サンプルを参照してください．
+その他詳細は各種サンプルを参照してください。
 -----------------------------------------------------------------------------
 ◎マクロ
 
-32bit環境上でコンパイルするとXBYAK32が，64bit環境上でコンパイルするとXBYAK64が
-定義されます．さらに64bit環境上ではWindowsならXBYAK64_WIN，gcc上ではXBYAK64_GCC
-も定義されます．
+32bit環境上でコンパイルするとXBYAK32が、64bit環境上でコンパイルするとXBYAK64が
+定義されます。さらに64bit環境上ではWindows(VC)ならXBYAK64_WIN、cygwin, gcc上では
+XBYAK64_GCCが定義されます。
 
 -----------------------------------------------------------------------------
 ◎使用例
@@ -227,30 +228,31 @@ bf.cpp ; JIT Brainfuck(x86, x64)
 -----------------------------------------------------------------------------
 ◎注意
 
-MMX/SSE命令はほぼ全て実装されていますが，3D Now!命令や，一部の特殊な
-命令は現時点では実装されていません．FPUの80bit浮動小数はサポートしていません．
+MMX/SSE命令はほぼ全て実装されていますが、3D Now!命令や、一部の特殊な
+命令は現時点では実装されていません。FPUの80bit浮動小数はサポートしていません。
 
-何かご要望があればご連絡ください．
+何かご要望があればご連絡ください。
 
 -----------------------------------------------------------------------------
 ◎ライセンス
 
-修正された新しいBSDライセンスに従います．
+修正された新しいBSDライセンスに従います。
 http://opensource.org/licenses/BSD-3-Clause
 
 sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
-いただきました．
+いただきました。
 
 -----------------------------------------------------------------------------
 ◎履歴
 
+2013/03/27 ver 3.80 mov(reg, "label");をサポート
 2013/03/13 ver 3.76 cqo, jcxz, jecxz, jrcxz追加
 2013/01/15 ver 3.75 生成されたコードを修正するためにsetSize()を追加
 2013/01/12 ver 3.74 CodeGenerator::reset()とAllocator::useProtect()を追加
 2013/01/06 ver 3.73 可能ならunordered_mapを使う
 2012/12/04 ver 3.72 eaxなどをCodeGeneratorのメンバ変数に戻す. Xbyak::util::eaxはstatic const変数
 2012/11/17 ver 3.71 and_(), or_(), xor_(), not_()をXBYAK_NO_OP_NAMESが定義されていないときでも使えるようにした
-2012/11/17 CodeGeneratorのeax, ecx, ptrなどのメンバ変数をstaticにし，const参照をXbyak::utilにも定義
+2012/11/17 CodeGeneratorのeax, ecx, ptrなどのメンバ変数をstaticにし、const参照をXbyak::utilにも定義
 2012/11/09 ver 3.70 and()をand_()にするためのマクロXBYAK_NO_OP_NAMESを追加(thanks to Mattias)
 2012/11/01 ver 3.62 add fwait/fnwait/finit/fninit
 2012/11/01 ver 3.61 add fldcw/fstcw
@@ -287,7 +289,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 2008/12/30 ver 2.07 call()の相対アドレスが8bit以下のときのバグ修正(thanks to katoさん)
 2008/09/18 ver 2.06 @@, @f, @bとラベルの局所化機能追加(thanks to nobu-qさん)
 2008/09/18 ver 2.05 ptr [rip + 32bit offset]サポート(thanks to 団子厨(Dango-Chu)さん)
-2008/06/03 ver 2.04 align()のポカミス修正．mov(ptr[eax],1);などをエラーに
+2008/06/03 ver 2.04 align()のポカミス修正。mov(ptr[eax],1);などをエラーに
 2008/06/02 ver 2.03 ユーザ定義メモリインタフェースサポート
 2008/05/26 ver 2.02 protect()(on Linux)で不正な設定になることがあるのを修正(thanks to sinichiro_hさん)
 2008/04/30 ver 2.01 cmpxchg16b, cdqe追加

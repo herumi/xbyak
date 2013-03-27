@@ -1,5 +1,5 @@
 
-Xbyak 3.76 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 3.80 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -120,6 +120,7 @@ You can omit a destination for almost 3-op mnemonics.
     L("L3");
 
 >Call hasUndefinedLabel() to verify your code has no undefined label.
+> you can use a label for immediate value of mov like as mov (eax, "L2");
 
 #### 1. support @@, @f, @b like MASM
 
@@ -128,6 +129,8 @@ You can omit a destination for almost 3-op mnemonics.
       jmp("@f"); // jmp to <B>
     L("@@"); // <B>
       jmp("@b"); // jmp to <B>
+      mov(eax, "@b");
+      jmp(eax); // jmp to <B>
 
 #### 2. localization of label by calling inLocalLabel(), outLocallabel().
 
@@ -198,8 +201,8 @@ Macro
 
 * **XBYAK32** is defined on 32bit.
 * **XBYAK64** is defined on 64bit.
-* **XBYAK64_WIN** is defined on 64bit Windows
-* **XBYAK64_GCC** is defined on 64bit gcc
+* **XBYAK64_WIN** is defined on 64bit Windows(VC)
+* **XBYAK64_GCC** is defined on 64bit gcc, cygwin
 
 Sample
 -------------
@@ -223,6 +226,7 @@ http://opensource.org/licenses/BSD-3-Clause
 
 History
 -------------
+* 2013/Mar/27 ver 3.80 support mov(reg, "label");
 * 2013/Mar/13 ver 3.76 add cqo(), jcxz(), jecxz(), jrcxz()
 * 2013/Jan/15 ver 3.75 add setSize() to modify generated code
 * 2013/Jan/12 ver 3.74 add CodeGenerator::reset() ; add Allocator::useProtect()
