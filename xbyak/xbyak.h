@@ -209,9 +209,9 @@ inline uint32 VerifyInInt32(uint64 x)
 }
 
 enum LabelMode {
-	Labs, // absolute
 	LasIs, // as is
-	LaddTop // relative(addr + top)
+	Labs, // absolute
+	LaddTop // (addr + top) for mov(reg, label) with AutoGrow
 };
 
 } // inner
@@ -489,12 +489,6 @@ class CodeArray {
 		inner::LabelMode mode;
 		AddrInfo(size_t _codeOffset, size_t _jmpAddr, int _jmpSize, inner::LabelMode _mode)
 			: codeOffset(_codeOffset), jmpAddr(_jmpAddr), jmpSize(_jmpSize), mode(_mode) {}
-		uint64 getVal(const uint8 *top) const
-		{
-			uint64 disp = (mode == inner::LaddTop) ? jmpAddr + size_t(top) : (mode == inner::LasIs) ? jmpAddr : jmpAddr - size_t(top);
-			if (jmpSize == 4) disp = inner::VerifyInInt32(disp);
-			return disp;
-		}
 	};
 	typedef std::list<AddrInfo> AddrInfoList;
 	AddrInfoList addrInfoList_;
@@ -526,7 +520,7 @@ protected:
 	void calcJmpAddress()
 	{
 		for (AddrInfoList::const_iterator i = addrInfoList_.begin(), ie = addrInfoList_.end(); i != ie; ++i) {
-			uint64 disp = i->getVal(top_);
+			uint64 disp = i->mode == inner::LasIs ? i->jmpAddr : i->jmpAddr + size_t(top_);
 			rewrite(i->codeOffset, disp, i->jmpSize);
 		}
 		if (alloc_->useProtect() && !protect(top_, size_, true)) throw ERR_CANT_PROTECT;
@@ -778,15 +772,6 @@ struct JmpLabel {
 	size_t endOfJmp; /* offset from top to the end address of jmp */
 	int jmpSize;
 	inner::LabelMode mode;
-	JmpLabel(size_t _endOfJmp = 0, int _jmpSize = 0, inner::LabelMode _mode = inner::LasIs)
-		: endOfJmp(_endOfJmp)
-		, jmpSize(_jmpSize)
-		, mode(_mode)
-	{
-	}
-	bool isAbs() const { return mode == inner::Labs; }
-	bool isAsIs() const { return mode == inner::LasIs; }
-	bool isAddTop() const { return mode == inner::LaddTop; }
 };
 
 class Label {
@@ -880,14 +865,21 @@ public:
 			UndefinedList::iterator itr = undefinedList_.find(label);
 			if (itr == undefinedList_.end()) break;
 			const JmpLabel *jmp = &itr->second;
-			size_t disp = addrOffset - jmp->endOfJmp;
-			if (jmp->jmpSize <= 4) disp = inner::VerifyInInt32(disp);
-			if (jmp->jmpSize == 1 && !inner::IsInDisp8((uint32)disp)) throw ERR_LABEL_IS_TOO_FAR;
-			size_t offset = jmp->endOfJmp - jmp->jmpSize;
-			if (base_->isAutoGrow()) {
-				base_->save(offset, jmp->isAddTop() ? addrOffset : jmp->isAbs() ? size_t(addr) : disp, jmp->jmpSize, jmp->mode);
+			size_t disp;
+			if (jmp->mode == inner::LaddTop) {
+				disp = addrOffset;
+			} else if (jmp->mode == inner::Labs) {
+				disp = size_t(addr);
 			} else {
-				base_->rewrite(offset, jmp->isAbs() ? size_t(addr) : disp, jmp->jmpSize);
+				disp = addrOffset - jmp->endOfJmp;
+				if (jmp->jmpSize <= 4) disp = inner::VerifyInInt32(disp);
+				if (jmp->jmpSize == 1 && !inner::IsInDisp8((uint32)disp)) throw ERR_LABEL_IS_TOO_FAR;
+			}
+			const size_t offset = jmp->endOfJmp - jmp->jmpSize;
+			if (base_->isAutoGrow()) {
+				base_->save(offset, disp, jmp->jmpSize, jmp->mode);
+			} else {
+				base_->rewrite(offset, disp, jmp->jmpSize);
 			}
 			undefinedList_.erase(itr);
 		}
@@ -1048,7 +1040,7 @@ private:
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory(); /* avoid splitting code of jmp */
 		size_t offset = 0;
 		if (label_.getOffset(&offset, label)) { /* label exists */
-			makeJmp(inner::VerifyInInt32(offset - getSize()), type, shortCode, longCode, longPref);
+			makeJmp(inner::VerifyInInt32(offset - size_), type, shortCode, longCode, longPref);
 		} else {
 			JmpLabel jmp;
 			if (type == T_NEAR) {
@@ -1059,7 +1051,8 @@ private:
 				jmp.jmpSize = 1;
 				db(shortCode); db(0);
 			}
-			jmp.endOfJmp = getSize();
+			jmp.mode = inner::LasIs;
+			jmp.endOfJmp = size_;
 			label_.addUndefinedLabel(label, jmp);
 		}
 	}
@@ -1462,7 +1455,11 @@ public:
 			return;
 		}
 		mov(reg, dummyAddr);
-		label_.addUndefinedLabel(label, JmpLabel(size_, jmpSize, isAutoGrow() ? inner::LaddTop : inner::Labs));
+		JmpLabel jmp;
+		jmp.endOfJmp = size_;
+		jmp.jmpSize = jmpSize;
+		jmp.mode = isAutoGrow() ? inner::LaddTop : inner::Labs;
+		label_.addUndefinedLabel(label, jmp);
 	}
 	void cmpxchg8b(const Address& addr) { opModM(addr, Reg32(1), 0x0F, B11000111); }
 #ifdef XBYAK64
