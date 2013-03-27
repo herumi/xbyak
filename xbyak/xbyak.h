@@ -210,7 +210,7 @@ inline uint32 VerifyInInt32(uint64 x)
 
 enum LabelMode {
 	Labs, // absolute
-	Lrelative, // relative(input addr is relative)
+	LasIs, // as is
 	LaddTop // relative(addr + top)
 };
 
@@ -483,15 +483,18 @@ class CodeArray {
 		return ALLOC_BUF;
 	}
 	struct AddrInfo {
-		size_t offset_;
-		size_t val_;
-		int jmpSize;
+		size_t codeOffset; // position to write
+		size_t jmpAddr; // value to write
+		int jmpSize; // size of jmpAddr
 		inner::LabelMode mode;
-		AddrInfo(size_t offset, size_t val, int size, inner::LabelMode _mode)
-			: offset_(offset), val_(val), jmpSize(size), mode(_mode) {}
-		bool isAbs() const { return mode == inner::Labs; }
-		bool isRelative() const { return mode == inner::Lrelative; }
-		bool isAddTop() const { return mode == inner::LaddTop; }
+		AddrInfo(size_t _codeOffset, size_t _jmpAddr, int _jmpSize, inner::LabelMode _mode)
+			: codeOffset(_codeOffset), jmpAddr(_jmpAddr), jmpSize(_jmpSize), mode(_mode) {}
+		uint64 getVal(const uint8 *top) const
+		{
+			uint64 disp = (mode == inner::LaddTop) ? jmpAddr + size_t(top) : (mode == inner::LasIs) ? jmpAddr : jmpAddr - size_t(top);
+			if (jmpSize == 4) disp = inner::VerifyInInt32(disp);
+			return disp;
+		}
 	};
 	typedef std::list<AddrInfo> AddrInfoList;
 	AddrInfoList addrInfoList_;
@@ -523,9 +526,8 @@ protected:
 	void calcJmpAddress()
 	{
 		for (AddrInfoList::const_iterator i = addrInfoList_.begin(), ie = addrInfoList_.end(); i != ie; ++i) {
-			uint64 disp = i->isAddTop() ? i->val_ + size_t(top_) : i->isRelative() ? i->val_ : i->val_ - size_t(top_);
-			if (i->jmpSize == 4) disp = inner::VerifyInInt32(disp);
-			rewrite(i->offset_, disp, i->jmpSize);
+			uint64 disp = i->getVal(top_);
+			rewrite(i->codeOffset, disp, i->jmpSize);
 		}
 		if (alloc_->useProtect() && !protect(top_, size_, true)) throw ERR_CANT_PROTECT;
 	}
@@ -776,14 +778,14 @@ struct JmpLabel {
 	size_t endOfJmp; /* offset from top to the end address of jmp */
 	int jmpSize;
 	inner::LabelMode mode;
-	JmpLabel(size_t _endOfJmp = 0, int _jmpSize = 0, inner::LabelMode _mode = inner::Lrelative)
+	JmpLabel(size_t _endOfJmp = 0, int _jmpSize = 0, inner::LabelMode _mode = inner::LasIs)
 		: endOfJmp(_endOfJmp)
 		, jmpSize(_jmpSize)
 		, mode(_mode)
 	{
 	}
 	bool isAbs() const { return mode == inner::Labs; }
-	bool isRelative() const { return mode == inner::Lrelative; }
+	bool isAsIs() const { return mode == inner::LasIs; }
 	bool isAddTop() const { return mode == inner::LaddTop; }
 };
 
@@ -1455,13 +1457,12 @@ public:
 				mov(reg, dummyAddr);
 				save(size_ - jmpSize, offset, jmpSize, inner::LaddTop);
 			} else {
-				mov(reg, size_t(top_) + offset, false);
+				mov(reg, size_t(top_) + offset, false); // not to optimize 32-bit imm
 			}
 			return;
 		}
 		mov(reg, dummyAddr);
-		JmpLabel jmp(getSize(), jmpSize, isAutoGrow() ? inner::LaddTop : inner::Labs);
-		label_.addUndefinedLabel(label, jmp);
+		label_.addUndefinedLabel(label, JmpLabel(size_, jmpSize, isAutoGrow() ? inner::LaddTop : inner::Labs));
 	}
 	void cmpxchg8b(const Address& addr) { opModM(addr, Reg32(1), 0x0F, B11000111); }
 #ifdef XBYAK64
