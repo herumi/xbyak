@@ -853,7 +853,7 @@ public:
 		localCount_ = stack_[--stackPos_ - 1];
 	}
 	void set(CodeArray *base) { base_ = base; }
-	void define(const char *label, size_t addrOffset, const uint8_t *addr)
+	void define(const char *label, size_t addrOffset, const uint8 *addr)
 	{
 		std::string newLabel(label);
 		if (newLabel == "@@") {
