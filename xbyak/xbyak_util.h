@@ -61,7 +61,39 @@ class Cpu {
 	{
 		return x[0] | (x[1] << 8) | (x[2] << 16) | (x[3] << 24);
 	}
+	unsigned int mask(int n) const
+	{
+		return (1U << n) - 1;
+	}
+	void setFamily()
+	{
+		unsigned int data[4];
+		getCpuid(1, data);
+		stepping = data[0] & mask(4);
+		model = (data[0] >> 4) & mask(4);
+		family = (data[0] >> 8) & mask(4);
+		// type = (data[0] >> 12) & mask(2);
+		extModel = (data[0] >> 16) & mask(4);
+		extFamily = (data[0] >> 20) & mask(8);
+		if (family == 0x0f) {
+			displayFamily = family + extFamily;
+		} else {
+			displayFamily = family;
+		}
+		if (family == 6 || family == 0x0f) {
+			displayModel = (extModel << 4) + model;
+		} else {
+			displayModel = model;
+		}
+	}
 public:
+	int model;
+	int family;
+	int stepping;
+	int extModel;
+	int extFamily;
+	int displayFamily; // family + extFamily
+	int displayModel; // model + extModel
 	static inline void getCpuid(unsigned int eaxIn, unsigned int data[4])
 	{
 #ifdef _WIN32
@@ -153,6 +185,13 @@ public:
 		if (data[3] & (1U << 23)) type_ |= tMMX;
 		if (data[3] & (1U << 25)) type_ |= tMMX2 | tSSE;
 		if (data[3] & (1U << 26)) type_ |= tSSE2;
+		setFamily();
+	}
+	void putFamily()
+	{
+		printf("family=%d, model=%X, stepping=%d, extFamily=%d, extModel=%X\n",
+			family, model, stepping, extFamily, extModel);
+		printf("display:family=%X, model=%X\n", displayFamily, displayModel);
 	}
 	bool has(Type type) const
 	{

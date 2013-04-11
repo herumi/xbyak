@@ -57,6 +57,17 @@ void putCPUinfo()
 			printf("popcnt ng %d %d\n", r, ok);
 		}
 	}
+	/*
+		                displayFamily displayModel
+		Opteron 2376        10            4
+		Core2 Duo T7100      6            F
+		Core i3-2120T        6           2A
+		Core i7-2600         6           2A
+		Xeon X5650           6           2C
+		Core i7-3517         6           3A
+		Core i7-3930K        6           2D
+	*/
+	cpu.putFamily();
 }
 
 #ifdef XBYAK32
