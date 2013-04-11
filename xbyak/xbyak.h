@@ -1445,7 +1445,7 @@ public:
 		}
 		const int jmpSize = (int)sizeof(size_t);
 #ifdef XBYAK64
-		const size_t dummyAddr = size_t(0x1122334455667788ull);
+		const size_t dummyAddr = (size_t(0x11223344) << 32) | 55667788;
 #else
 		const size_t dummyAddr = 0x12345678;
 #endif
