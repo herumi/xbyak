@@ -26,7 +26,7 @@ all: $(TARGET)
 
 CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -pedantic
 
-CFLAGS=-g -O2 -fomit-frame-pointer -Wall -fno-operator-names -I../ $(CFLAGS_WARN)
+CFLAGS=-g -O2 -fomit-frame-pointer -DXBYAK_NO_OP_NAMES -Wall -I../ $(CFLAGS_WARN)
 
 test:
 	$(CXX) $(CFLAGS) test0.cpp -o $@ -m32

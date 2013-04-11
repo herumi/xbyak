@@ -138,10 +138,10 @@ public:
 
 		const Reg32 memTbl[] = { eax, ecx, edx };
 		const size_t memTblNum = NUM_OF_ARRAY(memTbl);
-		for (size_t i = 0; i < memTblNum; i++) xor(memTbl[i], memTbl[i]);
+		for (size_t i = 0; i < memTblNum; i++) xor_(memTbl[i], memTbl[i]);
 
-		xor(esi, esi);
-		xor(edi, edi);
+		xor_(esi, esi);
+		xor_(edi, edi);
 		mov(mem, (size_t)mem_);
 		const size_t end = code_.size();
 		uint32 pc = 0;

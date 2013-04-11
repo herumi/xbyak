@@ -97,7 +97,7 @@ public:
 struct Reset : public Xbyak::CodeGenerator {
 	void init(int n)
 	{
-		xor(eax, eax);
+		xor_(eax, eax);
 		mov(ecx, n);
 		test(ecx, ecx);
 		jnz("@f");

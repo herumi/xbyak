@@ -90,7 +90,7 @@ int main()
 		u.code = code.getCode();
 		p = u.p;
 #else
-		*(void**)&p = (void*)code.getCode();
+		*(void**)&p = code.getCode<void*>();
 #endif
 		for (int i = 0; i < 10; i++) {
 			A a;

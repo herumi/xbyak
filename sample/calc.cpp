@@ -194,10 +194,10 @@ int main(int argc, char *argv[])
 		valTbl.resize(varTbl.size());
 #ifdef XBYAK32
 		puts("32bit mode");
-		void (*func)(double *ret, const double *valTbl) = (void (*)(double *, const double*))(const void*)funcGen.getCode();
+		void (*func)(double *ret, const double *valTbl) = funcGen.getCode<void (*)(double *, const double*)>();
 #else
 		puts("64bit mode");
-		double (*func)(const double *valTbl) = (double (*)(const double*))(const void*)funcGen.getCode();
+		double (*func)(const double *valTbl) = funcGen.getCode<double (*)(const double*)>();
 #endif
 		for (int i = 0; i < 10; i++) {
 			for (size_t j = 0, n = valTbl.size(); j < n; j++) {
