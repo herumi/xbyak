@@ -70,23 +70,6 @@ void putCPUinfo()
 	cpu.putFamily();
 }
 
-#ifdef XBYAK32
-struct EipTest : public Xbyak::CodeGenerator {
-	EipTest()
-	{
-		Xbyak::util::setEipTo(this, eax);
-		ret();
-	}
-};
-
-void putEip()
-{
-	EipTest s;
-	int (*getEip)() = s.getCode<int(*)()>();
-	printf("eip=%08x\n", getEip());
-}
-#endif
-
 int main()
 {
 #ifdef XBYAK32
@@ -95,7 +78,4 @@ int main()
 	puts("64bit");
 #endif
 	putCPUinfo();
-#ifdef XBYAK32
-	putEip();
-#endif
 }
