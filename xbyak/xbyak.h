@@ -312,6 +312,8 @@ public:
 		}
 		throw ERR_INTERNAL;
 	}
+	bool operator==(const Operand& rhs) const { return idx_ == rhs.idx_ && kind_ == rhs.kind_ && bit_ == rhs.bit_ && ext8bit_ == rhs.ext8bit_; }
+	bool operator!=(const Operand& rhs) const { return !operator==(rhs); }
 };
 
 class Reg : public Operand {
@@ -434,6 +436,11 @@ public:
 			return Reg32e(index, index, 1, disp_);
 		}
 		return *this;
+	}
+	bool operator==(const Reg32e& rhs) const
+	{
+		if (getIdx() == rhs.getIdx() && index_.getIdx() == rhs.getIdx() && scale_ == rhs.scale_ && disp_ == rhs.disp_) return true;
+		return false;
 	}
 };
 
