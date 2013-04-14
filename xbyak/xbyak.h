@@ -333,37 +333,37 @@ public:
 class Reg8 : public Reg {
 	void operator=(const Reg8&);
 public:
-	explicit Reg8(int idx, int ext8bit = 0) : Reg(idx, Operand::REG, 8, ext8bit) { }
+	explicit Reg8(int idx = 0, int ext8bit = 0) : Reg(idx, Operand::REG, 8, ext8bit) { }
 };
 
 class Reg16 : public Reg {
 	void operator=(const Reg16&);
 public:
-	explicit Reg16(int idx) : Reg(idx, Operand::REG, 16) { }
+	explicit Reg16(int idx = 0) : Reg(idx, Operand::REG, 16) { }
 };
 
 class Mmx : public Reg {
 	void operator=(const Mmx&);
 public:
-	explicit Mmx(int idx, Kind kind = Operand::MMX, int bit = 64) : Reg(idx, kind, bit) { }
+	explicit Mmx(int idx = 0, Kind kind = Operand::MMX, int bit = 64) : Reg(idx, kind, bit) { }
 };
 
 class Xmm : public Mmx {
 	void operator=(const Xmm&);
 public:
-	explicit Xmm(int idx, Kind kind = Operand::XMM, int bit = 128) : Mmx(idx, kind, bit) { }
+	explicit Xmm(int idx = 0, Kind kind = Operand::XMM, int bit = 128) : Mmx(idx, kind, bit) { }
 };
 
 class Ymm : public Xmm {
 	void operator=(const Ymm&);
 public:
-	explicit Ymm(int idx) : Xmm(idx, Operand::YMM, 256) { }
+	explicit Ymm(int idx = 0) : Xmm(idx, Operand::YMM, 256) { }
 };
 
 class Fpu : public Reg {
 	void operator=(const Fpu&);
 public:
-	explicit Fpu(int idx) : Reg(idx, Operand::FPU, 32) { }
+	explicit Fpu(int idx = 0) : Reg(idx, Operand::FPU, 32) { }
 };
 
 // register for addressing(32bit or 64bit)
@@ -445,13 +445,13 @@ public:
 };
 
 struct Reg32 : public Reg32e {
-	explicit Reg32(int idx) : Reg32e(idx, 32) {}
+	explicit Reg32(int idx = 0) : Reg32e(idx, 32) {}
 private:
 	void operator=(const Reg32&);
 };
 #ifdef XBYAK64
 struct Reg64 : public Reg32e {
-	explicit Reg64(int idx) : Reg32e(idx, 64) {}
+	explicit Reg64(int idx = 0) : Reg32e(idx, 64) {}
 private:
 	void operator=(const Reg64&);
 };
