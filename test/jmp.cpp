@@ -463,7 +463,6 @@ size_t getValue(const uint8* p)
 bool checkAddr(const uint8 *p, size_t offset, size_t expect)
 {
 	size_t v = getValue(p + offset);
-	printf("v=%p\n", (void*)v);
 	if (v == size_t(p) + expect) return true;
 	printf("err p=%p, offset=%lld, v=%llx(%llx), expect=%d\n", p, (long long)offset, (long long)v, (long long)(expect + size_t(p)), (int)expect);
 	return false;
@@ -475,7 +474,6 @@ void testMovLabel(bool grow)
 	MovLabelCode code(grow);
 	code.ready();
 	const uint8* const p = code.getCode();
-printf("QQQ p=%p\n", p);
 	const struct {
 		int pos;
 		uint8 ok;
@@ -506,13 +504,6 @@ printf("QQQ p=%p\n", p);
 		// lp2:0x118
 #endif
 	};
-	puts("---");
-	for (int i = 0; i < 32; i++) {
-		printf("%02x ", p[i]);
-		if (i == 15) printf("\n");
-	}
-	puts("---");
-
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		int pos = tbl[i].pos;
 		uint8 x = p[pos];
