@@ -126,6 +126,8 @@ enum Error {
 	ERR_CANT_ALLOC,
 	ERR_ONLY_T_NEAR_IS_SUPPORTED_IN_AUTO_GROW,
 	ERR_BAD_PROTECT_MODE,
+	ERR_BAD_GPNUM,
+	ERR_BAD_GTNUM,
 	ERR_INTERNAL
 };
 
@@ -157,6 +159,8 @@ inline const char *ConvertErrorToString(Error err)
 		"can't alloc",
 		"T_SHORT is not supported in AutoGrow",
 		"bad protect mode",
+		"bad gpNum",
+		"bad gtNum",
 		"internal error",
 	};
 	if (err < 0 || err > ERR_INTERNAL) return 0;
