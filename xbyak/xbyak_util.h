@@ -233,70 +233,142 @@ private:
 	int count_;
 };
 
-#ifdef XBYAK32
-
-namespace local {
-#ifdef _WIN32
-	#define XBYAK_LOCAL_DEFINE_SET_EIP_TO_REG(x) static inline __declspec(naked) void set_eip_to_ ## x() { \
-	__asm { mov x, dword ptr [esp] } __asm { ret } \
-	}
+#ifdef XBYAK64
+struct StackFrame {
+	enum { UseRCX = 1, UseRDX = 2 };
+#ifdef XBYAK64_WIN
+	static  const int noSaveNum = 6;
 #else
-	#define XBYAK_LOCAL_DEFINE_SET_EIP_TO_REG(x) static inline void set_eip_to_ ## x() { \
-	__asm__ volatile("movl (%esp), %" #x); \
-	}
+	static const int noSaveNum = 8;
 #endif
-
-XBYAK_LOCAL_DEFINE_SET_EIP_TO_REG(eax)
-XBYAK_LOCAL_DEFINE_SET_EIP_TO_REG(ecx)
-XBYAK_LOCAL_DEFINE_SET_EIP_TO_REG(edx)
-XBYAK_LOCAL_DEFINE_SET_EIP_TO_REG(ebx)
-XBYAK_LOCAL_DEFINE_SET_EIP_TO_REG(esi)
-XBYAK_LOCAL_DEFINE_SET_EIP_TO_REG(edi)
-XBYAK_LOCAL_DEFINE_SET_EIP_TO_REG(ebp)
-
-#undef XBYAK_LOCAL_DEFINE_SET_EIP_TO_REG
-} // end of local
-
-/**
-	get eip to out register
-	@note out is not esp
-*/
-template<class T>
-void setEipTo(T *self, const Xbyak::Reg32& out)
-{
-#if 0
-	self->call("@f");
-self->L("@@");
-	self->pop(out);
+	Xbyak::CodeGenerator *code_;
+	int pNum_;
+	int tNum_;
+	int useReg_;
+	int saveNum_;
+	int P_;
+	bool makeEpilog_;
+	Xbyak::Reg64 pTbl_[4];
+	Xbyak::Reg64 tTbl_[10];
+	const Xbyak::Reg64& p(int pos) const
+	{
+		if (pos < 0 || pos >= pNum_) throw ERR_BAD_PARAMETER;
+		return pTbl_[pos];
+	}
+	const Xbyak::Reg64& t(int pos) const
+	{
+		if (pos < 0 || pos >= tNum_) throw ERR_BAD_PARAMETER;
+		return tTbl_[pos];
+	}
+	/*
+		make stack frame
+		@param sf [in] this
+		@param pNum [in] num of global parameter
+		@param tNum [in] num of temporary register
+		@param numQword [in] local stack size
+		@param useReg [in] reserve rcx, rdx if necessary
+		you can use
+		rax
+		gp0, ..., gp(pNum - 1)
+		gt0, ..., gt(tNum-1)
+		rsp[0..8 * numQrod - 1]
+	*/
+	StackFrame(Xbyak::CodeGenerator *code, int pNum, int tNum = 0, int numQword = 0, int useReg = 0)
+		: code_(code)
+		, pNum_(pNum)
+		, tNum_(tNum)
+		, useReg_(useReg)
+		, saveNum_(0)
+		, P_(0)
+		, makeEpilog_(true)
+	{
+		using namespace Xbyak;
+		if (pNum > 4) throw ERR_BAD_PNUM;
+		const int allRegNum = pNum + tNum + (useReg & UseRCX) + (useReg & UseRDX);
+		if (allRegNum > 14) throw ERR_BAD_TNUM;
+		const Reg64& rsp = code->rsp;
+		const AddressFrame& ptr = code->ptr;
+		saveNum_ = std::max(0, allRegNum - noSaveNum);
+		const int *tbl = getOrderTbl() + noSaveNum;
+		P_ = 8 * (saveNum_ + numQword);
+		if (P_ > 0) code->sub(rsp, P_);
+#ifdef XBYAK64
+		for (int i = 0; i < std::min(saveNum_, 4); i++) {
+			code->mov(ptr [rsp + P_ + (i + 1) * 8], Reg64(tbl[i]));
+		}
+		for (int i = 4; i < saveNum_; i++) {
+			code->mov(ptr [rsp + P_ - 8 * (saveNum_ - i)], Reg64(tbl[i]));
+		}
 #else
-	int idx = out.getIdx();
-	switch (idx) {
-	case Xbyak::Operand::EAX:
-		self->call(CastTo<void*>(local::set_eip_to_eax));
-		break;
-	case Xbyak::Operand::ECX:
-		self->call(CastTo<void*>(local::set_eip_to_ecx));
-		break;
-	case Xbyak::Operand::EDX:
-		self->call(CastTo<void*>(local::set_eip_to_edx));
-		break;
-	case Xbyak::Operand::EBX:
-		self->call(CastTo<void*>(local::set_eip_to_ebx));
-		break;
-	case Xbyak::Operand::ESI:
-		self->call(CastTo<void*>(local::set_eip_to_esi));
-		break;
-	case Xbyak::Operand::EDI:
-		self->call(CastTo<void*>(local::set_eip_to_edi));
-		break;
-	case Xbyak::Operand::EBP:
-		self->call(CastTo<void*>(local::set_eip_to_ebp));
-		break;
-	default:
-		assert(0);
-	}
+		for (int i = 0; i < saveNum_; i++) {
+			code->mov(ptr [rsp + P_ - 8 * (saveNum_ - i)], Reg64(tbl[i]));
+		}
 #endif
-}
+		int pos = 0;
+		for (int i = 0; i < pNum; i++) {
+			pTbl_[i] = Xbyak::Reg64(getRegIdx(pos));
+		}
+		for (int i = 0; i < tNum; i++) {
+			tTbl_[i] = Xbyak::Reg64(getRegIdx(pos));
+		}
+	}
+	void disableEpilog() { makeEpilog_ = false; }
+	void close(bool callRet = true)
+	{
+		using namespace Xbyak;
+		const Reg64& rsp = code_->rsp;
+		const AddressFrame& ptr = code_->ptr;
+		const int *tbl = getOrderTbl() + noSaveNum;
+#ifdef XBYAK64_WIN
+		for (int i = 0; i < std::min(saveNum_, 4); i++) {
+			code_->mov(Reg64(tbl[i]), ptr [rsp + P_ + (i + 1) * 8]);
+		}
+		for (int i = 4; i < saveNum_; i++) {
+			code_->mov(Reg64(tbl[i]), ptr [rsp + P_ - 8 * (saveNum_ - i)]);
+		}
+#else
+		for (int i = 0; i <=saveNum_; i++) {
+			code_->mov(Reg64(tbl[i]), ptr [rsp + P_ - 8 * (saveNum_ - i)]);
+		}
+#endif
+		if (P_ > 0) code_->add(rsp, P_);
+
+		if (callRet) code_->ret();
+	}
+	const int *getOrderTbl() const
+	{
+		using namespace Xbyak;
+		static const int tbl[] = {
+#ifdef XBYAK64_WIN
+			Operand::RCX, Operand::RDX, Operand::R8, Operand::R9, Operand::R10, Operand::R11, Operand::RDI, Operand::RSI,
+#else
+			Operand::RDI, Operand::RSI, Operand::RDX, Operand::RCX, Operand::R8, Operand::R9, Operand::R10, Operand::R11,
+#endif
+			Operand::RBX, Operand::RBP, Operand::R12, Operand::R13, Operand::R14, Operand::R15
+		};
+		return &tbl[0];
+	}
+	int getRegIdx(int& pos) const
+	{
+		assert(pos < 14);
+		using namespace Xbyak;
+		const int *tbl = getOrderTbl();
+		int r = tbl[pos++];
+		if (useReg_ & UseRCX) {
+			if (r == Operand::RCX) { return Operand::R10; }
+			if (r == Operand::R10) { return tbl[pos++]; }
+		}
+		if (useReg_ & UseRDX) {
+			if (r == Operand::RDX) { return Operand::R11; }
+			if (r == Operand::R11) { return tbl[pos++]; }
+		}
+		return r;
+	}
+	~StackFrame()
+	{
+		if (makeEpilog_) close();
+	}
+};
 #endif
 
 } } // end of util
