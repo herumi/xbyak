@@ -321,7 +321,6 @@ public:
 };
 
 class Reg : public Operand {
-	void operator=(const Reg&);
 	bool hasRex() const { return isExt8bit() | isREG(64) | isExtIdx(); }
 public:
 	Reg() { }
@@ -334,39 +333,27 @@ public:
 	}
 };
 
-class Reg8 : public Reg {
-	void operator=(const Reg8&);
-public:
-	explicit Reg8(int idx = 0, int ext8bit = 0) : Reg(idx, Operand::REG, 8, ext8bit) { }
+struct Reg8 : public Reg {
+	explicit Reg8(int idx = 0, bool ext8bit = false) : Reg(idx, Operand::REG, 8, ext8bit) { }
 };
 
-class Reg16 : public Reg {
-	void operator=(const Reg16&);
-public:
+struct Reg16 : public Reg {
 	explicit Reg16(int idx = 0) : Reg(idx, Operand::REG, 16) { }
 };
 
-class Mmx : public Reg {
-	void operator=(const Mmx&);
-public:
+struct Mmx : public Reg {
 	explicit Mmx(int idx = 0, Kind kind = Operand::MMX, int bit = 64) : Reg(idx, kind, bit) { }
 };
 
-class Xmm : public Mmx {
-	void operator=(const Xmm&);
-public:
+struct Xmm : public Mmx {
 	explicit Xmm(int idx = 0, Kind kind = Operand::XMM, int bit = 128) : Mmx(idx, kind, bit) { }
 };
 
-class Ymm : public Xmm {
-	void operator=(const Ymm&);
-public:
+struct Ymm : public Xmm {
 	explicit Ymm(int idx = 0) : Xmm(idx, Operand::YMM, 256) { }
 };
 
-class Fpu : public Reg {
-	void operator=(const Fpu&);
-public:
+struct Fpu : public Reg {
 	explicit Fpu(int idx = 0) : Reg(idx, Operand::FPU, 32) { }
 };
 
@@ -374,9 +361,9 @@ public:
 class Reg32e : public Reg {
 public:
 	// [base_(this) + index_ * scale_ + disp_]
-	const Reg index_;
-	const int scale_; // 0(index is none), 1, 2, 4, 8
-	const uint32 disp_;
+	Reg index_;
+	int scale_; // 0(index is none), 1, 2, 4, 8
+	uint32 disp_;
 private:
 	friend class Address;
 	friend Reg32e operator+(const Reg32e& a, const Reg32e& b)
@@ -413,7 +400,6 @@ private:
 	{
 		return operator+(r, -static_cast<int>(disp));
 	}
-	void operator=(const Reg32e&);
 public:
 	explicit Reg32e(int idx, int bit)
 		: Reg(idx, REG, bit)
@@ -450,14 +436,10 @@ public:
 
 struct Reg32 : public Reg32e {
 	explicit Reg32(int idx = 0) : Reg32e(idx, 32) {}
-private:
-	void operator=(const Reg32&);
 };
 #ifdef XBYAK64
 struct Reg64 : public Reg32e {
 	explicit Reg64(int idx = 0) : Reg32e(idx, 64) {}
-private:
-	void operator=(const Reg64&);
 };
 struct RegRip {
 	uint32 disp_;
