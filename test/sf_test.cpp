@@ -16,8 +16,7 @@ struct Code : public Xbyak::CodeGenerator {
 	void gen2()
 	{
 		StackFrame sf(this, 2);
-		mov(rax, sf.p(0));
-		add(rax, sf.p(1));
+		lea(rax, ptr [sf.p(0) + sf.p(1)]);
 	}
 	void gen3()
 	{
