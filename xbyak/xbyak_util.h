@@ -234,8 +234,10 @@ private:
 };
 
 #ifdef XBYAK64
-struct StackFrame {
-	enum { UseRCX = 1, UseRDX = 2 };
+const int UseRCX = 1 << 6;
+const int UseRDX = 1 << 7;
+
+class StackFrame {
 #ifdef XBYAK64_WIN
 	static  const int noSaveNum = 6;
 #else
@@ -244,12 +246,14 @@ struct StackFrame {
 	Xbyak::CodeGenerator *code_;
 	int pNum_;
 	int tNum_;
-	int useReg_;
+	bool useRcx_;
+	bool useRdx_;
 	int saveNum_;
 	int P_;
 	bool makeEpilog_;
 	Xbyak::Reg64 pTbl_[4];
 	Xbyak::Reg64 tTbl_[10];
+public:
 	const Xbyak::Reg64& p(int pos) const
 	{
 		if (pos < 0 || pos >= pNum_) throw ERR_BAD_PARAMETER;
@@ -273,27 +277,30 @@ struct StackFrame {
 		gt0, ..., gt(tNum-1)
 		rsp[0..8 * numQrod - 1]
 	*/
-	StackFrame(Xbyak::CodeGenerator *code, int pNum, int tNum = 0, int numQword = 0, int useReg = 0)
+	StackFrame(Xbyak::CodeGenerator *code, int pNum, int tNum = 0, int numQword = 0)
 		: code_(code)
 		, pNum_(pNum)
-		, tNum_(tNum)
-		, useReg_(useReg)
+		, tNum_(tNum & ~(UseRCX | UseRDX))
+		, useRcx_((tNum & UseRCX) != 0)
+		, useRdx_((tNum & UseRDX) != 0)
 		, saveNum_(0)
 		, P_(0)
 		, makeEpilog_(true)
 	{
 		using namespace Xbyak;
-		if (pNum > 4) throw ERR_BAD_PNUM;
-		const int allRegNum = pNum + tNum + (useReg & UseRCX) + (useReg & UseRDX);
-		if (allRegNum > 14) throw ERR_BAD_TNUM;
+		if (pNum < 0 || pNum > 4) throw ERR_BAD_PNUM;
+		const int allRegNum = pNum + tNum_ + (useRcx_ ? 1 : 0) + (useRdx_ ? 1 : 0);
+		if (allRegNum < pNum || allRegNum > 14) throw ERR_BAD_TNUM;
 		const Reg64& rsp = code->rsp;
 		const AddressFrame& ptr = code->ptr;
-		saveNum_ = std::max(0, allRegNum - noSaveNum);
+		saveNum_ = (std::max)(0, allRegNum - noSaveNum);
 		const int *tbl = getOrderTbl() + noSaveNum;
-		P_ = 8 * (saveNum_ + numQword);
+		P_ = saveNum_ + numQword;
+		if (P_ > 0 && (P_ & 1) == 0) P_++; // ensure (rsp % 16) == 0
+		P_ *= 8;
 		if (P_ > 0) code->sub(rsp, P_);
-#ifdef XBYAK64
-		for (int i = 0; i < std::min(saveNum_, 4); i++) {
+#ifdef XBYAK64_WIN
+		for (int i = 0; i < (std::min)(saveNum_, 4); i++) {
 			code->mov(ptr [rsp + P_ + (i + 1) * 8], Reg64(tbl[i]));
 		}
 		for (int i = 4; i < saveNum_; i++) {
@@ -308,7 +315,7 @@ struct StackFrame {
 		for (int i = 0; i < pNum; i++) {
 			pTbl_[i] = Xbyak::Reg64(getRegIdx(pos));
 		}
-		for (int i = 0; i < tNum; i++) {
+		for (int i = 0; i < tNum_; i++) {
 			tTbl_[i] = Xbyak::Reg64(getRegIdx(pos));
 		}
 	}
@@ -320,14 +327,14 @@ struct StackFrame {
 		const AddressFrame& ptr = code_->ptr;
 		const int *tbl = getOrderTbl() + noSaveNum;
 #ifdef XBYAK64_WIN
-		for (int i = 0; i < std::min(saveNum_, 4); i++) {
+		for (int i = 0; i < (std::min)(saveNum_, 4); i++) {
 			code_->mov(Reg64(tbl[i]), ptr [rsp + P_ + (i + 1) * 8]);
 		}
 		for (int i = 4; i < saveNum_; i++) {
 			code_->mov(Reg64(tbl[i]), ptr [rsp + P_ - 8 * (saveNum_ - i)]);
 		}
 #else
-		for (int i = 0; i <=saveNum_; i++) {
+		for (int i = 0; i < saveNum_; i++) {
 			code_->mov(Reg64(tbl[i]), ptr [rsp + P_ - 8 * (saveNum_ - i)]);
 		}
 #endif
@@ -335,6 +342,11 @@ struct StackFrame {
 
 		if (callRet) code_->ret();
 	}
+	~StackFrame()
+	{
+		if (makeEpilog_) close();
+	}
+private:
 	const int *getOrderTbl() const
 	{
 		using namespace Xbyak;
@@ -354,19 +366,21 @@ struct StackFrame {
 		using namespace Xbyak;
 		const int *tbl = getOrderTbl();
 		int r = tbl[pos++];
-		if (useReg_ & UseRCX) {
-			if (r == Operand::RCX) { return Operand::R10; }
-			if (r == Operand::R10) { return tbl[pos++]; }
+		if (useRcx_) {
+			if (r == Operand::RCX) {
+				code_->mov(code_->r10, code_->rcx);
+				return Operand::R10;
+			}
+			if (r == Operand::R10) { r = tbl[pos++]; }
 		}
-		if (useReg_ & UseRDX) {
-			if (r == Operand::RDX) { return Operand::R11; }
+		if (useRdx_) {
+			if (r == Operand::RDX) {
+				code_->mov(code_->r11, code_->rdx);
+				return Operand::R11;
+			}
 			if (r == Operand::R11) { return tbl[pos++]; }
 		}
 		return r;
-	}
-	~StackFrame()
-	{
-		if (makeEpilog_) close();
 	}
 };
 #endif

@@ -8,19 +8,21 @@
 struct Code : public Xbyak::CodeGenerator {
 	Code()
 	{
-		Xbyak::util::StackFrame sf(this, 4);
+		Xbyak::util::StackFrame sf(this, 3);
 		mov(rax, sf.p(0));
 		add(rax, sf.p(1));
 		add(rax, sf.p(2));
-		add(rax, sf.p(3));
-		ret();
 	}
 };
 
 int main()
 {
 	Code c;
-	int (*f)(int, int, int, int) = c.getCode<int(*) (int, int, int, int)>();
-	printf("%d\n", f(3, 5, 2, 9));
-	puts("ok");
+	int (*f)(int, int, int) = c.getCode<int(*) (int, int, int)>();
+	int ret = f(3, 5, 2);
+	if (ret == 3 + 5 + 2) {
+		puts("ok");
+	} else {
+		puts("ng");
+	}
 }

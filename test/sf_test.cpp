@@ -37,7 +37,7 @@ struct Code : public Xbyak::CodeGenerator {
 
 	void gen5()
 	{
-		StackFrame sf(this, 4, 0, UseRCX);
+		StackFrame sf(this, 4, UseRCX);
 		xor_(rcx, rcx);
 		mov(rax, sf.p(0));
 		add(rax, sf.p(1));
@@ -47,7 +47,7 @@ struct Code : public Xbyak::CodeGenerator {
 
 	void gen6()
 	{
-		StackFrame sf(this, 4, 0, UseRCX | UseRDX);
+		StackFrame sf(this, 4, UseRCX | UseRDX);
 		xor_(rcx, rcx);
 		xor_(rdx, rdx);
 		mov(rax, sf.p(0));
@@ -58,7 +58,7 @@ struct Code : public Xbyak::CodeGenerator {
 
 	void gen7()
 	{
-		StackFrame sf(this, 3, 0, UseRCX | UseRDX);
+		StackFrame sf(this, 3, UseRCX | UseRDX);
 		xor_(rcx, rcx);
 		xor_(rdx, rdx);
 		mov(rax, sf.p(0));
@@ -68,7 +68,7 @@ struct Code : public Xbyak::CodeGenerator {
 
 	void gen8()
 	{
-		StackFrame sf(this, 4, 3, UseRCX | UseRDX);
+		StackFrame sf(this, 4, 3 | UseRCX | UseRDX);
 		xor_(rcx, rcx);
 		xor_(rdx, rdx);
 		mov(sf.t(0), 1);
@@ -81,7 +81,7 @@ struct Code : public Xbyak::CodeGenerator {
 
 	void gen9()
 	{
-		StackFrame sf(this, 4, 3, UseRCX | UseRDX, 4);
+		StackFrame sf(this, 4, 3 | UseRCX | UseRDX, 4);
 		xor_(rcx, rcx);
 		xor_(rdx, rdx);
 		mov(sf.t(0), 1);
@@ -98,7 +98,7 @@ struct Code : public Xbyak::CodeGenerator {
 
 	void gen10()
 	{
-		StackFrame sf(this, 4, 8, UseRCX | UseRDX, 4);
+		StackFrame sf(this, 4, 8 | UseRCX | UseRDX, 4);
 		xor_(rcx, rcx);
 		xor_(rdx, rdx);
 		for (int i = 0; i < 8; i++) {
