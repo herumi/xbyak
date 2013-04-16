@@ -81,7 +81,7 @@ struct Code : public Xbyak::CodeGenerator {
 
 	void gen9()
 	{
-		StackFrame sf(this, 4, 3 | UseRCX | UseRDX, 4);
+		StackFrame sf(this, 4, 3 | UseRCX | UseRDX, 32);
 		xor_(rcx, rcx);
 		xor_(rdx, rdx);
 		mov(sf.t(0), 1);
@@ -98,7 +98,7 @@ struct Code : public Xbyak::CodeGenerator {
 
 	void gen10()
 	{
-		StackFrame sf(this, 4, 8 | UseRCX | UseRDX, 4);
+		StackFrame sf(this, 4, 8 | UseRCX | UseRDX, 32);
 		xor_(rcx, rcx);
 		xor_(rdx, rdx);
 		for (int i = 0; i < 8; i++) {

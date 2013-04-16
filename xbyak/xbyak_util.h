@@ -267,17 +267,20 @@ public:
 	/*
 		make stack frame
 		@param sf [in] this
-		@param pNum [in] num of global parameter
-		@param tNum [in] num of temporary register
-		@param numQword [in] local stack size
-		@param useReg [in] reserve rcx, rdx if necessary
+		@param pNum [in] num of function parameter(0 <= pNum <= 4)
+		@param tNum [in] num of temporary register(0 <= tNum <= 10, with UseRCX, UseRDX)
+		@param stackSizeByte [in] local stack size
+		@param makeEpilog [in] automatically call close() if true
+
 		you can use
 		rax
 		gp0, ..., gp(pNum - 1)
 		gt0, ..., gt(tNum-1)
-		rsp[0..8 * numQrod - 1]
+		rcx if tNum & UseRCX
+		rdx if tNum & UseRDX
+		rsp[0..stackSizeByte - 1]
 	*/
-	StackFrame(Xbyak::CodeGenerator *code, int pNum, int tNum = 0, int numQword = 0, bool makeEpilog = true)
+	StackFrame(Xbyak::CodeGenerator *code, int pNum, int tNum = 0, int stackSizeByte = 0, bool makeEpilog = true)
 		: code_(code)
 		, pNum_(pNum)
 		, tNum_(tNum & ~(UseRCX | UseRDX))
@@ -295,8 +298,8 @@ public:
 		const AddressFrame& ptr = code->ptr;
 		saveNum_ = (std::max)(0, allRegNum - noSaveNum);
 		const int *tbl = getOrderTbl() + noSaveNum;
-		P_ = saveNum_ + numQword;
-		if (P_ > 0 && (P_ & 1) == 0) P_++; // ensure (rsp % 16) == 0
+		P_ = saveNum_ + (stackSizeByte + 7) / 8;
+		if (P_ > 0 && (P_ & 1) == 0) P_++; // here (rsp % 16) == 8, then increment P_ for 16 byte alignment
 		P_ *= 8;
 		if (P_ > 0) code->sub(rsp, P_);
 #ifdef XBYAK64_WIN
@@ -319,6 +322,10 @@ public:
 			tTbl_[i] = Xbyak::Reg64(getRegIdx(pos));
 		}
 	}
+	/*
+		make epilog manually
+		@param callRet [in] call ret() if true
+	*/
 	void close(bool callRet = true)
 	{
 		using namespace Xbyak;
