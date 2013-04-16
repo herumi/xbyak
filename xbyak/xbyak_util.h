@@ -277,7 +277,7 @@ public:
 		gt0, ..., gt(tNum-1)
 		rsp[0..8 * numQrod - 1]
 	*/
-	StackFrame(Xbyak::CodeGenerator *code, int pNum, int tNum = 0, int numQword = 0)
+	StackFrame(Xbyak::CodeGenerator *code, int pNum, int tNum = 0, int numQword = 0, bool makeEpilog = true)
 		: code_(code)
 		, pNum_(pNum)
 		, tNum_(tNum & ~(UseRCX | UseRDX))
@@ -285,7 +285,7 @@ public:
 		, useRdx_((tNum & UseRDX) != 0)
 		, saveNum_(0)
 		, P_(0)
-		, makeEpilog_(true)
+		, makeEpilog_(makeEpilog)
 	{
 		using namespace Xbyak;
 		if (pNum < 0 || pNum > 4) throw ERR_BAD_PNUM;
@@ -319,7 +319,6 @@ public:
 			tTbl_[i] = Xbyak::Reg64(getRegIdx(pos));
 		}
 	}
-	void disableEpilog() { makeEpilog_ = false; }
 	void close(bool callRet = true)
 	{
 		using namespace Xbyak;
