@@ -233,11 +233,9 @@ struct Allocator {
 
 class Operand {
 private:
-	const uint8 idx_;
-	const uint8 kind_;
-	const uint8 bit_;
-	const uint8 ext8bit_; // 1 if spl/bpl/sil/dil, otherwise 0
-	void operator=(Operand&);
+	uint8 idx_; // 0..15, MSB = 1 if spl/bpl/sil/dil
+	uint8 kind_;
+	uint16 bit_;
 public:
 	enum Kind {
 		NONE = 0,
@@ -261,17 +259,16 @@ public:
 		AX = 0, CX, DX, BX, SP, BP, SI, DI,
 		AL = 0, CL, DL, BL, AH, CH, DH, BH
 	};
-	Operand() : idx_(0), kind_(0), bit_(0), ext8bit_(0) { }
-	Operand(int idx, Kind kind, int bit, int ext8bit = 0)
-		: idx_(static_cast<uint8>(idx))
+	Operand() : idx_(0), kind_(0), bit_(0) { }
+	Operand(int idx, Kind kind, int bit, bool ext8bit = 0)
+		: idx_(static_cast<uint8>(idx | (ext8bit ? 0x80 : 0)))
 		, kind_(static_cast<uint8>(kind))
-		, bit_(static_cast<uint8>(bit))
-		, ext8bit_(static_cast<uint8>(ext8bit))
+		, bit_(static_cast<uint16>(bit))
 	{
 		assert((bit_ & (bit_ - 1)) == 0); // bit must be power of two
 	}
 	Kind getKind() const { return static_cast<Kind>(kind_); }
-	int getIdx() const { return idx_; }
+	int getIdx() const { return idx_ & 15; }
 	bool isNone() const { return kind_ == 0; }
 	bool isMMX() const { return is(MMX); }
 	bool isXMM() const { return is(XMM); }
@@ -279,7 +276,7 @@ public:
 	bool isREG(int bit = 0) const { return is(REG, bit); }
 	bool isMEM(int bit = 0) const { return is(MEM, bit); }
 	bool isFPU() const { return is(FPU); }
-	bool isExt8bit() const { return ext8bit_ != 0; }
+	bool isExt8bit() const { return (idx_ & 0x80) != 0; }
 	// any bit is accetable if bit == 0
 	bool is(int kind, uint32 bit = 0) const
 	{
@@ -289,10 +286,11 @@ public:
 	uint32 getBit() const { return bit_; }
 	const char *toString() const
 	{
+		const int idx = getIdx();
 		if (kind_ == REG) {
-			if (ext8bit_) {
+			if (isExt8bit()) {
 				static const char tbl[4][4] = { "spl", "bpl", "sil", "dil" };
-				return tbl[idx_ - 4];
+				return tbl[idx - 4];
 			}
 			static const char tbl[4][16][5] = {
 				{ "al", "cl", "dl", "bl", "ah", "ch", "dh", "bh", "r8b", "r9b", "r10b",  "r11b", "r12b", "r13b", "r14b", "r15b" },
@@ -300,23 +298,23 @@ public:
 				{ "eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi", "r8d", "r9d", "r10d",  "r11d", "r12d", "r13d", "r14d", "r15d" },
 				{ "rax", "rcx", "rdx", "rbx", "rsp", "rbp", "rsi", "rdi", "r8", "r9", "r10",  "r11", "r12", "r13", "r14", "r15" },
 			};
-			return tbl[bit_ == 8 ? 0 : bit_ == 16 ? 1 : bit_ == 32 ? 2 : 3][idx_];
+			return tbl[bit_ == 8 ? 0 : bit_ == 16 ? 1 : bit_ == 32 ? 2 : 3][idx];
 		} else if (isYMM()) {
 			static const char tbl[16][5] = { "ym0", "ym1", "ym2", "ym3", "ym4", "ym5", "ym6", "ym7", "ym8", "ym9", "ym10", "ym11", "ym12", "ym13", "ym14", "ym15" };
-			return tbl[idx_];
+			return tbl[idx];
 		} else if (isXMM()) {
 			static const char tbl[16][5] = { "xm0", "xm1", "xm2", "xm3", "xm4", "xm5", "xm6", "xm7", "xm8", "xm9", "xm10", "xm11", "xm12", "xm13", "xm14", "xm15" };
-			return tbl[idx_];
+			return tbl[idx];
 		} else if (isMMX()) {
 			static const char tbl[8][4] = { "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7" };
-			return tbl[idx_];
+			return tbl[idx];
 		} else if (isFPU()) {
 			static const char tbl[8][4] = { "st0", "st1", "st2", "st3", "st4", "st5", "st6", "st7" };
-			return tbl[idx_];
+			return tbl[idx];
 		}
 		throw ERR_INTERNAL;
 	}
-	bool operator==(const Operand& rhs) const { return idx_ == rhs.idx_ && kind_ == rhs.kind_ && bit_ == rhs.bit_ && ext8bit_ == rhs.ext8bit_; }
+	bool operator==(const Operand& rhs) const { return idx_ == rhs.idx_ && kind_ == rhs.kind_ && bit_ == rhs.bit_; }
 	bool operator!=(const Operand& rhs) const { return !operator==(rhs); }
 };
 
@@ -324,7 +322,7 @@ class Reg : public Operand {
 	bool hasRex() const { return isExt8bit() | isREG(64) | isExtIdx(); }
 public:
 	Reg() { }
-	Reg(int idx, Kind kind, int bit = 0, int ext8bit = 0) : Operand(idx, kind, bit, ext8bit) { }
+	Reg(int idx, Kind kind, int bit = 0, bool ext8bit = false) : Operand(idx, kind, bit, ext8bit) { }
 	Reg changeBit(int bit) const { return Reg(getIdx(), getKind(), bit, isExt8bit()); }
 	bool isExtIdx() const { return getIdx() > 7; }
 	uint8 getRex(const Reg& base = Reg()) const
@@ -1678,7 +1676,7 @@ public:
 		, r8d(Operand::R8D), r9d(Operand::R9D), r10d(Operand::R10D), r11d(Operand::R11D), r12d(Operand::R12D), r13d(Operand::R13D), r14d(Operand::R14D), r15d(Operand::R15D)
 		, r8w(Operand::R8W), r9w(Operand::R9W), r10w(Operand::R10W), r11w(Operand::R11W), r12w(Operand::R12W), r13w(Operand::R13W), r14w(Operand::R14W), r15w(Operand::R15W)
 		, r8b(Operand::R8B), r9b(Operand::R9B), r10b(Operand::R10B), r11b(Operand::R11B), r12b(Operand::R12B), r13b(Operand::R13B), r14b(Operand::R14B), r15b(Operand::R15B)
-		, spl(Operand::SPL, 1), bpl(Operand::BPL, 1), sil(Operand::SIL, 1), dil(Operand::DIL, 1)
+		, spl(Operand::SPL, true), bpl(Operand::BPL, true), sil(Operand::SIL, true), dil(Operand::DIL, true)
 		, xmm8(8), xmm9(9), xmm10(10), xmm11(11), xmm12(12), xmm13(13), xmm14(14), xmm15(15)
 		, ymm8(8), ymm9(9), ymm10(10), ymm11(11), ymm12(12), ymm13(13), ymm14(14), ymm15(15)
 		, xm8(xmm8), xm9(xmm9), xm10(xmm10), xm11(xmm11), xm12(xmm12), xm13(xmm13), xm14(xmm14), xm15(xmm15) // for my convenience
