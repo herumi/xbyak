@@ -356,7 +356,16 @@ public:
 	}
 	~StackFrame()
 	{
-		if (makeEpilog_) close();
+		if (!makeEpilog_) return;
+		try {
+			close();
+		} catch (Xbyak::Error e) {
+			printf("ERR:StackFrame %s\n", ConvertErrorToString(e));
+			exit(1);
+		} catch (...) {
+			printf("ERR:StackFrame otherwise\n");
+			exit(1);
+		}
 	}
 private:
 	const int *getOrderTbl() const
