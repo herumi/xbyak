@@ -527,7 +527,7 @@ public:
 		: type_(getType(maxSize, userPtr))
 		, alloc_(allocator ? allocator : &defaultAllocator_)
 		, maxSize_(maxSize)
-		, top_(isAllocType() ? alloc_->alloc(maxSize) : type_ == USER_BUF ? reinterpret_cast<uint8*>(userPtr) : buf_)
+		, top_(isAllocType() ? alloc_->alloc((std::max<size_t>)(maxSize, 1)) : type_ == USER_BUF ? reinterpret_cast<uint8*>(userPtr) : buf_)
 		, size_(0)
 	{
 		if (maxSize_ > 0 && top_ == 0) throw ERR_CANT_ALLOC;
