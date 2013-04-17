@@ -239,9 +239,13 @@ const int UseRDX = 1 << 7;
 
 class StackFrame {
 #ifdef XBYAK64_WIN
-	static  const int noSaveNum = 6;
+	static const int noSaveNum = 6;
+	static const int rcxPos = 0;
+	static const int rdxPos = 1;
 #else
 	static const int noSaveNum = 8;
+	static const int rcxPos = 3;
+	static const int rdxPos = 2;
 #endif
 	Xbyak::CodeGenerator *code_;
 	int pNum_;
@@ -321,6 +325,8 @@ public:
 		for (int i = 0; i < tNum_; i++) {
 			tTbl_[i] = Xbyak::Reg64(getRegIdx(pos));
 		}
+		if (useRcx_ && rcxPos < pNum) code_->mov(code_->r10, code_->rcx);
+		if (useRdx_ && rdxPos < pNum) code_->mov(code_->r11, code_->rdx);
 	}
 	/*
 		make epilog manually
@@ -373,17 +379,11 @@ private:
 		const int *tbl = getOrderTbl();
 		int r = tbl[pos++];
 		if (useRcx_) {
-			if (r == Operand::RCX) {
-				code_->mov(code_->r10, code_->rcx);
-				return Operand::R10;
-			}
+			if (r == Operand::RCX) { return Operand::R10; }
 			if (r == Operand::R10) { r = tbl[pos++]; }
 		}
 		if (useRdx_) {
-			if (r == Operand::RDX) {
-				code_->mov(code_->r11, code_->rdx);
-				return Operand::R11;
-			}
+			if (r == Operand::RDX) { return Operand::R11; }
 			if (r == Operand::R11) { return tbl[pos++]; }
 		}
 		return r;

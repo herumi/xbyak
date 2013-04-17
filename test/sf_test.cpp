@@ -112,6 +112,46 @@ struct Code : public Xbyak::CodeGenerator {
 		mov(ptr [rsp + 8 * 2], rax);
 		mov(ptr [rsp + 8 * 3], rax);
 	}
+
+	void gen11()
+	{
+		StackFrame sf(this, 0, UseRCX);
+		xor_(rcx, rcx);
+		mov(rax, 3);
+	}
+
+	void gen12()
+	{
+		StackFrame sf(this, 4, UseRDX);
+		xor_(rdx, rdx);
+		mov(rax, sf.p(0));
+		add(rax, sf.p(1));
+		add(rax, sf.p(2));
+		add(rax, sf.p(3));
+	}
+};
+
+struct Code2 : Xbyak::CodeGenerator {
+	Code2()
+		: Xbyak::CodeGenerator(4096 * 32)
+	{
+	}
+	void gen(int pNum, int tNum, int stackSizeByte)
+	{
+		StackFrame sf(this, pNum, tNum, stackSizeByte);
+		if (tNum & UseRCX) xor_(rcx, rcx);
+		if (tNum & UseRDX) xor_(rdx, rdx);
+		for (int i = 0, n = tNum & ~(UseRCX | UseRDX); i < n; i++) {
+			mov(sf.t(i), 5);
+		}
+		for (int i = 0; i < stackSizeByte; i++) {
+			mov(byte [rsp + i], 0);
+		}
+		mov(rax, 1);
+		for (int i = 0; i < pNum; i++) {
+			add(rax, sf.p(i));
+		}
+	}
 };
 
 static int errNum = 0;
@@ -123,7 +163,62 @@ void check(int x, int y)
 	}
 }
 
-int main()
+void verify(const Xbyak::uint8 *f, int pNum)
+{
+	switch (pNum) {
+	case 0:
+		check(1, Xbyak::CastTo<int (*)()>(f)());
+		return;
+	case 1:
+		check(11, Xbyak::CastTo<int (*)(int)>(f)(10));
+		return;
+	case 2:
+		check(111, Xbyak::CastTo<int (*)(int, int)>(f)(10, 100));
+		return;
+	case 3:
+		check(1111, Xbyak::CastTo<int (*)(int, int, int)>(f)(10, 100, 1000));
+		return;
+	case 4:
+		check(11111, Xbyak::CastTo<int (*)(int, int, int, int)>(f)(10, 100, 1000, 10000));
+		return;
+	default:
+		printf("ERR pNum=%d\n", pNum);
+		exit(1);
+	}
+}
+
+void testAll()
+{
+	Code2 code;
+	for (int stackSize = 0; stackSize < 32; stackSize += 7) {
+		for (int pNum = 0; pNum < 4; pNum++) {
+			for (int mode = 0; mode < 4; mode++) {
+				int maxNum = 0;
+				int opt = 0;
+				if (mode == 0) {
+					maxNum = 10;
+				} else if (mode == 1) {
+					maxNum = 9;
+					opt = UseRCX;
+				} else if (mode == 2) {
+					maxNum = 9;
+					opt = UseRDX;
+				} else {
+					maxNum = 8;
+					opt = UseRCX | UseRDX;
+				}
+				for (int tNum = 0; tNum < maxNum; tNum++) {
+					printf("pNum=%d, tNum=%d, stackSize=%d\n", pNum, tNum | opt, stackSize);
+					const Xbyak::uint8 *f = code.getCurr();
+					code.gen(pNum, tNum | opt, stackSize);
+					verify(f, pNum);
+				}
+			}
+		}
+	}
+}
+
+void testPartial()
 {
 	Code code;
 	int (*f1)(int) = code.getCurr<int (*)(int)>();
@@ -165,5 +260,28 @@ int main()
 	int (*f10)(int, int, int, int) = code.getCurr<int (*)(int, int, int, int)>();
 	code.gen10();
 	check(100, f10(10, 20, 30, 40));
-	printf("errNum=%d\n", errNum);
+
+	int (*f11)() = code.getCurr<int (*)()>();
+	code.gen11();
+	check(3, f11());
+
+	int (*f12)(int, int, int, int) = code.getCurr<int (*)(int, int, int, int)>();
+	code.gen12();
+	check(24, f12(3, 5, 7, 9));
 }
+
+int main()
+	try
+{
+	testAll();
+
+	testPartial();
+	printf("errNum=%d\n", errNum);
+} catch (const Xbyak::Error& e) {
+	printf("err %s\n", Xbyak::ConvertErrorToString(e));
+	return 1;
+} catch (...) {
+	puts("ERR");
+	return 1;
+}
+
