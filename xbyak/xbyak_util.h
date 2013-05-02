@@ -237,6 +237,77 @@ private:
 const int UseRCX = 1 << 6;
 const int UseRDX = 1 << 7;
 
+class Pack {
+	static const size_t maxTblNum = 10;
+	const Xbyak::Reg64 *tbl_[maxTblNum];
+	size_t n_;
+public:
+	Pack() : n_(0) {}
+	Pack(const Xbyak::Reg64 *tbl, size_t n) { init(tbl, n); }
+	Pack(const Pack& rhs)
+		: n_(rhs.n_)
+	{
+		for (size_t i = 0; i < n_; i++) tbl_[i] = rhs.tbl_[i];
+	}
+	Pack(const Xbyak::Reg64& t0)
+	{ n_ = 1; tbl_[0] = &t0; }
+	Pack(const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
+	{ n_ = 2; tbl_[0] = &t0; tbl_[1] = &t1; }
+	Pack(const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
+	{ n_ = 3; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; }
+	Pack(const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
+	{ n_ = 4; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; }
+	Pack(const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
+	{ n_ = 5; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; }
+	Pack(const Xbyak::Reg64& t5, const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
+	{ n_ = 6; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; }
+	Pack(const Xbyak::Reg64& t6, const Xbyak::Reg64& t5, const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
+	{ n_ = 7; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; tbl_[6] = &t6; }
+	Pack(const Xbyak::Reg64& t7, const Xbyak::Reg64& t6, const Xbyak::Reg64& t5, const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
+	{ n_ = 8; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; tbl_[6] = &t6; tbl_[7] = &t7; }
+	Pack(const Xbyak::Reg64& t8, const Xbyak::Reg64& t7, const Xbyak::Reg64& t6, const Xbyak::Reg64& t5, const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
+	{ n_ = 9; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; tbl_[6] = &t6; tbl_[7] = &t7; tbl_[8] = &t8; }
+	Pack(const Xbyak::Reg64& t9, const Xbyak::Reg64& t8, const Xbyak::Reg64& t7, const Xbyak::Reg64& t6, const Xbyak::Reg64& t5, const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
+	{ n_ = 10; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; tbl_[6] = &t6; tbl_[7] = &t7; tbl_[8] = &t8; tbl_[9] = &t9; }
+	void init(const Xbyak::Reg64 *tbl, size_t n)
+	{
+		if (n > maxTblNum) {
+			fprintf(stderr, "ERR Pack::init bad n=%d\n", (int)n);
+			throw ERR_BAD_PARAMETER;
+		}
+		n_ = n;
+		for (size_t i = 0; i < n; i++) {
+			tbl_[i] = &tbl[i];
+		}
+	}
+	const Xbyak::Reg64& operator[](size_t n) const
+	{
+		if (n >= n_) {
+			fprintf(stderr, "ERR Pack bad n=%d\n", (int)n);
+			throw ERR_BAD_PARAMETER;
+		}
+		return *tbl_[n];
+	}
+	size_t size() const { return n_; }
+	/*
+		get tbl[pos, pos + num)
+	*/
+	Pack sub(size_t pos, size_t num = size_t(-1)) const
+	{
+		if (num == size_t(-1)) num = n_ - pos;
+		if (pos + num > n_) {
+			fprintf(stderr, "ERR Pack::sub bad pos=%d, num=%d\n", (int)pos, (int)num);
+			throw ERR_BAD_PARAMETER;
+		}
+		Pack pack;
+		pack.n_ = num;
+		for (size_t i = 0; i < num; i++) {
+			pack.tbl_[i] = tbl_[pos + i];
+		}
+		return pack;
+	}
+};
+
 class StackFrame {
 #ifdef XBYAK64_WIN
 	static const int noSaveNum = 6;
@@ -257,17 +328,13 @@ class StackFrame {
 	bool makeEpilog_;
 	Xbyak::Reg64 pTbl_[4];
 	Xbyak::Reg64 tTbl_[10];
+	Pack p_;
+	Pack t_;
+	StackFrame(const StackFrame&);
+	void operator=(const StackFrame&);
 public:
-	const Xbyak::Reg64& p(int pos) const
-	{
-		if (pos < 0 || pos >= pNum_) throw ERR_BAD_PARAMETER;
-		return pTbl_[pos];
-	}
-	const Xbyak::Reg64& t(int pos) const
-	{
-		if (pos < 0 || pos >= tNum_) throw ERR_BAD_PARAMETER;
-		return tTbl_[pos];
-	}
+	const Pack& p;
+	const Pack& t;
 	/*
 		make stack frame
 		@param sf [in] this
@@ -293,6 +360,8 @@ public:
 		, saveNum_(0)
 		, P_(0)
 		, makeEpilog_(makeEpilog)
+		, p(p_)
+		, t(t_)
 	{
 		using namespace Xbyak;
 		if (pNum < 0 || pNum > 4) throw ERR_BAD_PNUM;
@@ -327,6 +396,8 @@ public:
 		}
 		if (useRcx_ && rcxPos < pNum) code_->mov(code_->r10, code_->rcx);
 		if (useRdx_ && rdxPos < pNum) code_->mov(code_->r11, code_->rdx);
+		p_.init(pTbl_, pNum);
+		t_.init(tTbl_, tNum_);
 	}
 	/*
 		make epilog manually

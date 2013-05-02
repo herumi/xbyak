@@ -11,37 +11,37 @@ struct Code : public Xbyak::CodeGenerator {
 	void gen1()
 	{
 		StackFrame sf(this, 1);
-		mov(rax, sf.p(0));
+		mov(rax, sf.p[0]);
 	}
 	void gen2()
 	{
 		StackFrame sf(this, 2);
-		lea(rax, ptr [sf.p(0) + sf.p(1)]);
+		lea(rax, ptr [sf.p[0] + sf.p[1]]);
 	}
 	void gen3()
 	{
 		StackFrame sf(this, 3);
-		mov(rax, sf.p(0));
-		add(rax, sf.p(1));
-		add(rax, sf.p(2));
+		mov(rax, sf.p[0]);
+		add(rax, sf.p[1]);
+		add(rax, sf.p[2]);
 	}
 	void gen4()
 	{
 		StackFrame sf(this, 4);
-		mov(rax, sf.p(0));
-		add(rax, sf.p(1));
-		add(rax, sf.p(2));
-		add(rax, sf.p(3));
+		mov(rax, sf.p[0]);
+		add(rax, sf.p[1]);
+		add(rax, sf.p[2]);
+		add(rax, sf.p[3]);
 	}
 
 	void gen5()
 	{
 		StackFrame sf(this, 4, UseRCX);
 		xor_(rcx, rcx);
-		mov(rax, sf.p(0));
-		add(rax, sf.p(1));
-		add(rax, sf.p(2));
-		add(rax, sf.p(3));
+		mov(rax, sf.p[0]);
+		add(rax, sf.p[1]);
+		add(rax, sf.p[2]);
+		add(rax, sf.p[3]);
 	}
 
 	void gen6()
@@ -49,10 +49,10 @@ struct Code : public Xbyak::CodeGenerator {
 		StackFrame sf(this, 4, UseRCX | UseRDX);
 		xor_(rcx, rcx);
 		xor_(rdx, rdx);
-		mov(rax, sf.p(0));
-		add(rax, sf.p(1));
-		add(rax, sf.p(2));
-		add(rax, sf.p(3));
+		mov(rax, sf.p[0]);
+		add(rax, sf.p[1]);
+		add(rax, sf.p[2]);
+		add(rax, sf.p[3]);
 	}
 
 	void gen7()
@@ -60,9 +60,9 @@ struct Code : public Xbyak::CodeGenerator {
 		StackFrame sf(this, 3, UseRCX | UseRDX);
 		xor_(rcx, rcx);
 		xor_(rdx, rdx);
-		mov(rax, sf.p(0));
-		add(rax, sf.p(1));
-		add(rax, sf.p(2));
+		mov(rax, sf.p[0]);
+		add(rax, sf.p[1]);
+		add(rax, sf.p[2]);
 	}
 
 	void gen8()
@@ -70,12 +70,12 @@ struct Code : public Xbyak::CodeGenerator {
 		StackFrame sf(this, 3, 3 | UseRCX | UseRDX);
 		xor_(rcx, rcx);
 		xor_(rdx, rdx);
-		mov(sf.t(0), 1);
-		mov(sf.t(1), 2);
-		mov(sf.t(2), 3);
-		mov(rax, sf.p(0));
-		add(rax, sf.p(1));
-		add(rax, sf.p(2));
+		mov(sf.t[0], 1);
+		mov(sf.t[1], 2);
+		mov(sf.t[2], 3);
+		mov(rax, sf.p[0]);
+		add(rax, sf.p[1]);
+		add(rax, sf.p[2]);
 	}
 
 	void gen9()
@@ -83,12 +83,12 @@ struct Code : public Xbyak::CodeGenerator {
 		StackFrame sf(this, 3, 3 | UseRCX | UseRDX, 32);
 		xor_(rcx, rcx);
 		xor_(rdx, rdx);
-		mov(sf.t(0), 1);
-		mov(sf.t(1), 2);
-		mov(sf.t(2), 3);
-		mov(rax, sf.p(0));
-		add(rax, sf.p(1));
-		add(rax, sf.p(2));
+		mov(sf.t[0], 1);
+		mov(sf.t[1], 2);
+		mov(sf.t[2], 3);
+		mov(rax, sf.p[0]);
+		add(rax, sf.p[1]);
+		add(rax, sf.p[2]);
 		mov(ptr [rsp + 8 * 0], rax);
 		mov(ptr [rsp + 8 * 1], rax);
 		mov(ptr [rsp + 8 * 2], rax);
@@ -101,12 +101,12 @@ struct Code : public Xbyak::CodeGenerator {
 		xor_(rcx, rcx);
 		xor_(rdx, rdx);
 		for (int i = 0; i < 8; i++) {
-			mov(sf.t(i), i);
+			mov(sf.t[i], i);
 		}
-		mov(rax, sf.p(0));
-		add(rax, sf.p(1));
-		add(rax, sf.p(2));
-		add(rax, sf.p(3));
+		mov(rax, sf.p[0]);
+		add(rax, sf.p[1]);
+		add(rax, sf.p[2]);
+		add(rax, sf.p[3]);
 		mov(ptr [rsp + 8 * 0], rax);
 		mov(ptr [rsp + 8 * 1], rax);
 		mov(ptr [rsp + 8 * 2], rax);
@@ -124,10 +124,10 @@ struct Code : public Xbyak::CodeGenerator {
 	{
 		StackFrame sf(this, 4, UseRDX);
 		xor_(rdx, rdx);
-		mov(rax, sf.p(0));
-		add(rax, sf.p(1));
-		add(rax, sf.p(2));
-		add(rax, sf.p(3));
+		mov(rax, sf.p[0]);
+		add(rax, sf.p[1]);
+		add(rax, sf.p[2]);
+		add(rax, sf.p[3]);
 	}
 };
 
@@ -142,14 +142,14 @@ struct Code2 : Xbyak::CodeGenerator {
 		if (tNum & UseRCX) xor_(rcx, rcx);
 		if (tNum & UseRDX) xor_(rdx, rdx);
 		for (int i = 0, n = tNum & ~(UseRCX | UseRDX); i < n; i++) {
-			mov(sf.t(i), 5);
+			mov(sf.t[i], 5);
 		}
 		for (int i = 0; i < stackSizeByte; i++) {
 			mov(byte [rsp + i], 0);
 		}
 		mov(rax, 1);
 		for (int i = 0; i < pNum; i++) {
-			add(rax, sf.p(i));
+			add(rax, sf.p[i]);
 		}
 	}
 };
@@ -208,7 +208,7 @@ void testAll()
 					opt = UseRCX | UseRDX;
 				}
 				for (int tNum = 0; tNum < maxNum; tNum++) {
-					printf("pNum=%d, tNum=%d, stackSize=%d\n", pNum, tNum | opt, stackSize);
+//					printf("pNum=%d, tNum=%d, stackSize=%d\n", pNum, tNum | opt, stackSize);
 					const Xbyak::uint8 *f = code.getCurr();
 					code.gen(pNum, tNum | opt, stackSize);
 					verify(f, pNum);
@@ -270,12 +270,63 @@ void testPartial()
 	check(24, f12(3, 5, 7, 9));
 }
 
+void put(const Xbyak::util::Pack& p)
+{
+	for (size_t i = 0, n = p.size(); i < n; i++) {
+		printf("%s ", p[i].toString());
+	}
+	printf("\n");
+}
+
+void verifyPack(const Xbyak::util::Pack& p, const int *tbl, size_t tblNum)
+{
+	for (size_t i = 0; i < tblNum; i++) {
+		check(p[i].getIdx(), tbl[i]);
+	}
+}
+
+void testPack()
+{
+	const int N = 10;
+	Xbyak::Reg64 regTbl[N];
+	for (int i = 0; i < N; i++) {
+		regTbl[i] = Xbyak::Reg64(i);
+	}
+	Xbyak::util::Pack p(regTbl, N);
+	const struct {
+		int pos;
+		int num;
+		int tbl[10];
+	} tbl[] = {
+		{ 0, 10, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } },
+		{ 1, 9, { 1, 2, 3, 4, 5, 6, 7, 8, 9 } },
+		{ 2, 8, { 2, 3, 4, 5, 6, 7, 8, 9 } },
+		{ 3, 7, { 3, 4, 5, 6, 7, 8, 9 } },
+		{ 4, 6, { 4, 5, 6, 7, 8, 9 } },
+		{ 5, 5, { 5, 6, 7, 8, 9 } },
+		{ 6, 4, { 6, 7, 8, 9 } },
+		{ 7, 3, { 7, 8, 9 } },
+		{ 8, 2, { 8, 9 } },
+		{ 9, 1, { 9 } },
+		{ 3, 5, { 3, 4, 5, 6, 7 } },
+	};
+	for (size_t i = 0; i < sizeof(tbl) / sizeof(*tbl); i++) {
+		const int pos = tbl[i].pos;
+		const int num = tbl[i].num;
+		verifyPack(p.sub(pos, num), tbl[i].tbl, num);
+		if (pos + num == N) {
+			verifyPack(p.sub(pos), tbl[i].tbl, num);
+		}
+	}
+}
+
 int main()
 	try
 {
 	testAll();
 
 	testPartial();
+	testPack();
 	printf("errNum=%d\n", errNum);
 } catch (const Xbyak::Error& e) {
 	printf("err %s\n", Xbyak::ConvertErrorToString(e));
