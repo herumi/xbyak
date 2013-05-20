@@ -11,9 +11,10 @@ using namespace Xbyak;
 #endif
 
 enum {
-	PP_66 = 1 << 0,
-	PP_F3 = 1 << 1,
-	PP_F2 = 1 << 2,
+	PP_NONE = 1 << 0,
+	PP_66 = 1 << 1,
+	PP_F3 = 1 << 2,
+	PP_F2 = 1 << 3,
 	MM_0F = 1 << 5,
 	MM_0F38 = 1 << 6,
 	MM_0F3A = 1 << 7
@@ -1522,6 +1523,23 @@ void put()
 		printf("void vcvtsd2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, MM_0F | PP_F2, 0x2D, false, 1); }\n");
 		printf("void vcvttsd2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, MM_0F | PP_F2, 0x2C, false, 1); }\n");
 		printf("#endif\n");
+	}
+	// haswell gpr(reg, reg, r/m)
+	{
+		const struct Tbl {
+			const char *name;
+			int type;
+			uint8 code;
+		} tbl[] = {
+			{ "andn", MM_0F38, 0xF2 },
+			{ "mulx", PP_F2 | MM_0F38, 0xF6 },
+			{ "pdep", PP_F2 | MM_0F38, 0xF5 },
+			{ "pext", PP_F3 | MM_0F38, 0xF5 },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			printf("void %s(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opGpr(r1, r2, op, %s, 0x%x); }\n", p.name, type2String(p.type).c_str(), p.code);
+		}
 	}
 }
 

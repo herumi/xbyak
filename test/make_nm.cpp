@@ -1843,10 +1843,29 @@ public:
 		printf(
 			"    }\n");
 	}
+	void putGpr()
+	{
+		const char *tbl1[] = {
+			"andn",
+			"mulx",
+			"pdep",
+			"pext",
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl1); i++) {
+			const char *name = tbl1[i];
+			put(name, REG32, REG32, REG32 | MEM);
+#ifdef XBYAK64
+			put(name, REG64, REG64, REG64 | MEM);
+#endif
+		}
+	}
 	void put()
 	{
 #ifdef USE_AVX
-#ifndef USE_YASM
+#ifdef USE_YASM
+		putFMA2();
+		putGpr();
+#else
 		putAVX1();
 		putAVX2();
 		putAVX_X_X_XM_omit();
@@ -1858,8 +1877,7 @@ public:
 		putAVX_X_X_IMM_omit();
 		putFMA();
 #endif
-		putFMA2();
-#else
+#else // USE_AVX
 		putJmp();
 #ifndef USE_YASM
 		putSIMPLE();
@@ -1897,7 +1915,7 @@ public:
 		putFpu();
 		putFpuFpu();
 		putCmp();
-#else
+#else // USE_YASM
 		putSSSE3();
 		putSSE4_1();
 		separateFunc();
@@ -1905,9 +1923,9 @@ public:
 		putMov64();
 #ifdef XBYAK64
 		putRip();
-#endif
-#endif
-#endif
+#endif // XBYAK64
+#endif // USE_YASM
+#endif // USE_AVX
 	}
 };
 
