@@ -1893,9 +1893,13 @@ public:
 #endif
 		}
 	}
-	void putRdrand()
+	void putGprOtherwise()
 	{
 		put("rdrand", REG16 | REG32e);
+		put("rorx", REG32, REG32 | MEM, IMM8);
+#ifdef XBYAK64
+		put("rorx", REG64, REG64 | MEM, IMM8);
+#endif
 	}
 	void put()
 	{
@@ -1905,7 +1909,7 @@ public:
 		putGprR_R_RM();
 		putGprR_RM_R();
 		putGprR_RM();
-		putRdrand();
+		putGprOtherwise();
 #else
 		putAVX1();
 		putAVX2();
