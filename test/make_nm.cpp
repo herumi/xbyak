@@ -987,6 +987,8 @@ class Test {
 		const char tbl[][8] = {
 			"bsr",
 			"bsf",
+			"lzcnt",
+			"tzcnt",
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const char *p = tbl[i];

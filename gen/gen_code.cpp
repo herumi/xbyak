@@ -697,14 +697,16 @@ void put()
 	{
 		const struct Tbl {
 			const char *name;
+			const char *extName; // haswell
 			uint8 code;
 		} tbl[] = {
-			{ "bsf", B10111100 },
-			{ "bsr", B10111101 },
+			{ "bsf", "tzcnt", 0xBC },
+			{ "bsr", "lzcnt", 0xBD },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Reg&reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, 0x%02X); }\n", p->name, p->code);
+			printf("void %s(const Reg&reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0xF3, 0x0F, 0x%02X); }\n", p->extName, p->code);
 		}
 	}
 	// SSSE3
