@@ -1237,14 +1237,19 @@ private:
 	{
 		db(code1); db(code2 | reg.getIdx());
 	}
-	void opGpr(const Reg32e& r1, const Reg32e& r2, const Operand& op, int type, uint8 code)
+	// (r, r, r/m) if isR_R_RM
+	// (r, r/m, r)
+	void opGpr(const Reg32e& r1, const Operand& op1, const Operand& op2, int type, uint8 code, bool isR_R_RM)
 	{
+		const Operand *p1 = &op1;
+		const Operand *p2 = &op2;
+		if (!isR_R_RM) std::swap(p1, p2);
 		const unsigned int bit = r1.getBit();
-		if (r2.getBit() != bit || (op.isREG() && op.getBit() != bit)) throw ERR_BAD_COMBINATION;
+		if (p1->getBit() != bit || (p2->isREG() && p2->getBit() != bit)) throw ERR_BAD_COMBINATION;
 		int w = bit == 64;
 		bool x, b;
-		if (op.isMEM()) {
-			const Address& addr = static_cast<const Address&>(op);
+		if (p2->isMEM()) {
+			const Address& addr = static_cast<const Address&>(*p2);
 			uint8 rex = addr.getRex();
 			x = (rex & 2) != 0;
 			b = (rex & 1) != 0;
@@ -1252,19 +1257,24 @@ private:
 			if (BIT == 64 && w == -1) w = (rex & 4) ? 1 : 0;
 		} else {
 			x = false;
-			b = static_cast<const Reg&>(op).isExtIdx();
+			b = static_cast<const Reg&>(*p2).isExtIdx();
 		}
 		if (w == -1) w = 0;
-		vex(r1.isExtIdx(), r2.getIdx(), false, type, x, b, w);
+		vex(r1.isExtIdx(), p1->getIdx(), false, type, x, b, w);
 		db(code);
-		if (op.isMEM()) {
-			const Address& addr = static_cast<const Address&>(op);
+		if (p2->isMEM()) {
+			const Address& addr = static_cast<const Address&>(*p2);
 			addr.updateRegField(static_cast<uint8>(r1.getIdx()));
 			db(addr.getCode(), static_cast<int>(addr.getSize()));
 		} else {
-			db(getModRM(3, r1.getIdx(), op.getIdx()));
+			db(getModRM(3, r1.getIdx(), p2->getIdx()));
 		}
 	}
+
+//	void opGpr2(const Reg32e& r1, const Operand& op, const Reg32e& r2, int type, uint8 code)
+//	{
+//		opGpr(r1, op, r2, type, code, false);
+//	}
 	// support (x, x, x/m), (y, y, y/m)
 	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, bool supportYMM, int w = -1)
 	{

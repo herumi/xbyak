@@ -1538,7 +1538,25 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			printf("void %s(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opGpr(r1, r2, op, %s, 0x%x); }\n", p.name, type2String(p.type).c_str(), p.code);
+			printf("void %s(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opGpr(r1, r2, op, %s, 0x%x, true); }\n", p.name, type2String(p.type).c_str(), p.code);
+		}
+	}
+	// gpr(reg, r/m, reg)
+	{
+		const struct Tbl {
+			const char *name;
+			int type;
+			uint8 code;
+		} tbl[] = {
+			{ "bextr", MM_0F38, 0xF7 },
+			{ "bzhi", MM_0F38, 0xF5 },
+			{ "sarx", MM_0F38 | PP_F3, 0xF7 },
+			{ "shlx", MM_0F38 | PP_66, 0xF7 },
+			{ "shrx", MM_0F38 | PP_F2, 0xF7 },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			printf("void %s(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opGpr(r1, op, r2, %s, 0x%x, false); }\n", p.name, type2String(p.type).c_str(), p.code);
 		}
 	}
 }

@@ -1843,19 +1843,36 @@ public:
 		printf(
 			"    }\n");
 	}
-	void putGpr()
+	void putGpr1()
 	{
-		const char *tbl1[] = {
+		const char *tbl[] = {
 			"andn",
 			"mulx",
 			"pdep",
 			"pext",
 		};
-		for (size_t i = 0; i < NUM_OF_ARRAY(tbl1); i++) {
-			const char *name = tbl1[i];
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const char *name = tbl[i];
 			put(name, REG32, REG32, REG32 | MEM);
 #ifdef XBYAK64
 			put(name, REG64, REG64, REG64 | MEM);
+#endif
+		}
+	}
+	void putGpr2()
+	{
+		const char *tbl[] = {
+			"bextr",
+			"bzhi",
+			"sarx",
+			"shlx",
+			"shrx",
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const char *name = tbl[i];
+			put(name, REG32, REG32 | MEM, REG32);
+#ifdef XBYAK64
+			put(name, REG64, REG64 | MEM, REG64);
 #endif
 		}
 	}
@@ -1864,7 +1881,8 @@ public:
 #ifdef USE_AVX
 #ifdef USE_YASM
 		putFMA2();
-		putGpr();
+		putGpr1();
+		putGpr2();
 #else
 		putAVX1();
 		putAVX2();
