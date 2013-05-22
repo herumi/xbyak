@@ -1583,5 +1583,4 @@ void put()
 int main()
 {
 	put();
-	return 0;
 }

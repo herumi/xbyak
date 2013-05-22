@@ -1893,6 +1893,10 @@ public:
 #endif
 		}
 	}
+	void putRdrand()
+	{
+		put("rdrand", REG16 | REG32e);
+	}
 	void put()
 	{
 #ifdef USE_AVX
@@ -1901,6 +1905,7 @@ public:
 		putGprR_R_RM();
 		putGprR_RM_R();
 		putGprR_RM();
+		putRdrand();
 #else
 		putAVX1();
 		putAVX2();

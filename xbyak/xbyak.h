@@ -1689,6 +1689,7 @@ public:
 		db(0xF2);
 		opModRM(reg, op, op.isREG(), op.isMEM(), 0x0F, 0x38, 0xF0 | (op.isBit(8) ? 0 : 1));
 	}
+	void rdrand(const Reg& r) { if (r.isBit(8)) throw ERR_BAD_SIZE_OF_REGISTER; opModR(Reg(6, Operand::REG, r.getBit()), r, 0x0f, 0xc7); }
 	enum { NONE = 256 };
 	CodeGenerator(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0, Allocator *allocator = 0)
 		: CodeArray(maxSize, userPtr, allocator)
