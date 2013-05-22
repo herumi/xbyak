@@ -1270,12 +1270,6 @@ private:
 			db(getModRM(3, r1.getIdx(), p2->getIdx()));
 		}
 	}
-
-//	void opGpr2(const Reg32e& r1, const Operand& op, const Reg32e& r2, int type, uint8 code)
-//	{
-//		opGpr(r1, op, r2, type, code, false);
-//	}
-	// support (x, x, x/m), (y, y, y/m)
 	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, bool supportYMM, int w = -1)
 	{
 		const Xmm *x2;

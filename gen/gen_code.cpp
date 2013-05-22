@@ -1559,6 +1559,23 @@ void put()
 			printf("void %s(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opGpr(r1, op, r2, %s, 0x%x, false); }\n", p.name, type2String(p.type).c_str(), p.code);
 		}
 	}
+	// gpr(reg, r/m)
+	{
+		const struct Tbl {
+			const char *name;
+			int type;
+			uint8 code;
+			uint8 idx;
+		} tbl[] = {
+			{ "blsi", MM_0F38, 0xF3, 3 },
+			{ "blsmsk", MM_0F38, 0xF3, 2 },
+			{ "blsr", MM_0F38, 0xF3, 1 },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			printf("void %s(const Reg32e& r, const Operand& op) { opGpr(Reg32e(%d, r.getBit()), op, r, %s, 0x%x, false); }\n", p.name, p.idx, type2String(p.type).c_str(), p.code);
+		}
+	}
 }
 
 int main()

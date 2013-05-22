@@ -1377,3 +1377,6 @@ void bzhi(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opGpr(r1, op,
 void sarx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opGpr(r1, op, r2, MM_0F38 | PP_F3, 0xf7, false); }
 void shlx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opGpr(r1, op, r2, MM_0F38 | PP_66, 0xf7, false); }
 void shrx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opGpr(r1, op, r2, MM_0F38 | PP_F2, 0xf7, false); }
+void blsi(const Reg32e& r, const Operand& op) { opGpr(Reg32e(3, r.getBit()), op, r, MM_0F38, 0xf3, false); }
+void blsmsk(const Reg32e& r, const Operand& op) { opGpr(Reg32e(2, r.getBit()), op, r, MM_0F38, 0xf3, false); }
+void blsr(const Reg32e& r, const Operand& op) { opGpr(Reg32e(1, r.getBit()), op, r, MM_0F38, 0xf3, false); }
