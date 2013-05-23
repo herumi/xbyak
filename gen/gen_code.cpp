@@ -1066,11 +1066,11 @@ void put()
 
 			{ 0x0F, "palignr", MM_0F3A | PP_66, false, -1, true, true },
 
-			{ 0xDB, "pand", MM_0F | PP_66, false, -1, false, true },
-			{ 0xDF, "pandn", MM_0F | PP_66, false, -1, false, true },
+			{ 0xDB, "pand", MM_0F | PP_66, true, -1, false, true },
+			{ 0xDF, "pandn", MM_0F | PP_66, true, -1, false, true },
 
-			{ 0xE0, "pavgb", MM_0F | PP_66, false, -1, false, true },
-			{ 0xE3, "pavgw", MM_0F | PP_66, false, -1, false, true },
+			{ 0xE0, "pavgb", MM_0F | PP_66, true, -1, false, true },
+			{ 0xE3, "pavgw", MM_0F | PP_66, true, -1, false, true },
 
 			{ 0x74, "pcmpeqb", MM_0F | PP_66, false, -1, false, true },
 			{ 0x75, "pcmpeqw", MM_0F | PP_66, false, -1, false, true },
