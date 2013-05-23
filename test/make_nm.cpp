@@ -1305,7 +1305,7 @@ class Test {
 			{ "vpcmpeqb", false },
 			{ "vpcmpeqw", false },
 			{ "vpcmpeqd", false },
-//			{ "vpcmpeqq", false }, // QQQ : nasm(2.09.04) may be wrong
+			{ "vpcmpeqq", false },
 
 			{ "vpcmpgtb", false },
 			{ "vpcmpgtw", false },
