@@ -641,10 +641,10 @@ void vdppd(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { opAVX
 void vdppd(const Xmm& xmm, const Operand& op, uint8 imm) { opAVX_X_X_XM(xmm, xmm, op, MM_0F3A | PP_66, 0x41, false, 0); db(imm); }
 void vdpps(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { opAVX_X_X_XM(xm1, xm2, op, MM_0F3A | PP_66, 0x40, true, 0); db(imm); }
 void vdpps(const Xmm& xmm, const Operand& op, uint8 imm) { opAVX_X_X_XM(xmm, xmm, op, MM_0F3A | PP_66, 0x40, true, 0); db(imm); }
-void vmpsadbw(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { opAVX_X_X_XM(xm1, xm2, op, MM_0F3A | PP_66, 0x42, false, 0); db(imm); }
-void vmpsadbw(const Xmm& xmm, const Operand& op, uint8 imm) { opAVX_X_X_XM(xmm, xmm, op, MM_0F3A | PP_66, 0x42, false, 0); db(imm); }
-void vpblendw(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { opAVX_X_X_XM(xm1, xm2, op, MM_0F3A | PP_66, 0x0E, false, 0); db(imm); }
-void vpblendw(const Xmm& xmm, const Operand& op, uint8 imm) { opAVX_X_X_XM(xmm, xmm, op, MM_0F3A | PP_66, 0x0E, false, 0); db(imm); }
+void vmpsadbw(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { opAVX_X_X_XM(xm1, xm2, op, MM_0F3A | PP_66, 0x42, true, 0); db(imm); }
+void vmpsadbw(const Xmm& xmm, const Operand& op, uint8 imm) { opAVX_X_X_XM(xmm, xmm, op, MM_0F3A | PP_66, 0x42, true, 0); db(imm); }
+void vpblendw(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { opAVX_X_X_XM(xm1, xm2, op, MM_0F3A | PP_66, 0x0E, true, 0); db(imm); }
+void vpblendw(const Xmm& xmm, const Operand& op, uint8 imm) { opAVX_X_X_XM(xmm, xmm, op, MM_0F3A | PP_66, 0x0E, true, 0); db(imm); }
 void vroundsd(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { opAVX_X_X_XM(xm1, xm2, op, MM_0F3A | PP_66, 0x0B, false, 0); db(imm); }
 void vroundsd(const Xmm& xmm, const Operand& op, uint8 imm) { opAVX_X_X_XM(xmm, xmm, op, MM_0F3A | PP_66, 0x0B, false, 0); db(imm); }
 void vroundss(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { opAVX_X_X_XM(xm1, xm2, op, MM_0F3A | PP_66, 0x0A, false, 0); db(imm); }
@@ -877,11 +877,11 @@ void vmovshdup(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F 
 void vmovsldup(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F | PP_F3, 0x12, true, -1); }
 void vmovupd(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F | PP_66, 0x10, true, -1); }
 void vmovups(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F, 0x10, true, -1); }
-void vpabsb(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F38 | PP_66, 0x1C, false, -1); }
-void vpabsw(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F38 | PP_66, 0x1D, false, -1); }
-void vpabsd(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F38 | PP_66, 0x1E, false, -1); }
+void vpabsb(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F38 | PP_66, 0x1C, true, -1); }
+void vpabsw(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F38 | PP_66, 0x1D, true, -1); }
+void vpabsd(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F38 | PP_66, 0x1E, true, -1); }
 void vphminposuw(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F38 | PP_66, 0x41, false, -1); }
-void vpmovsxbw(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F38 | PP_66, 0x20, false, -1); }
+void vpmovsxbw(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F38 | PP_66, 0x20, true, -1); }
 void vpmovsxbd(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F38 | PP_66, 0x21, false, -1); }
 void vpmovsxbq(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F38 | PP_66, 0x22, false, -1); }
 void vpmovsxwd(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, MM_0F38 | PP_66, 0x23, false, -1); }
@@ -1342,7 +1342,7 @@ void vmovmskps(const Reg& r, const Xmm& x) { if (!r.isBit(i32e)) throw ERR_BAD_C
 void vmovntdq(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, x.isXMM() ? xm0 : ym0, addr, MM_0F | PP_66, 0xE7, true); }
 void vmovntpd(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, x.isXMM() ? xm0 : ym0, addr, MM_0F | PP_66, 0x2B, true); }
 void vmovntps(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, x.isXMM() ? xm0 : ym0, addr, MM_0F, 0x2B, true); }
-void vmovntdqa(const Xmm& x, const Address& addr) { opAVX_X_X_XM(x, xm0, addr, MM_0F38 | PP_66, 0x2A, false); }
+void vmovntdqa(const Xmm& x, const Address& addr) { opAVX_X_X_XM(x, x.isXMM() ? xm0 : ymm0, addr, MM_0F38 | PP_66, 0x2A, true); }
 void vmovsd(const Xmm& x1, const Xmm& x2, const Operand& op = Operand()) { if (!op.isNone() && !op.isXMM()) throw ERR_BAD_COMBINATION; opAVX_X_X_XM(x1, x2, op, MM_0F | PP_F2, 0x10, false); }
 void vmovsd(const Xmm& x, const Address& addr) { opAVX_X_X_XM(x, xm0, addr, MM_0F | PP_F2, 0x10, false); }
 void vmovsd(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, xm0, addr, MM_0F | PP_F2, 0x11, false); }

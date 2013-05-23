@@ -1413,8 +1413,8 @@ class Test {
 			{ "vblendps", true },
 			{ "vdppd", false },
 			{ "vdpps", true },
-			{ "vmpsadbw", false },
-			{ "vpblendw", false },
+			{ "vmpsadbw", true },
+			{ "vpblendw", true },
 			{ "vroundsd", false },
 			{ "vroundss", false },
 			{ "vpclmulqdq", false },
@@ -1501,9 +1501,9 @@ class Test {
 			{ "vmovupd", true },
 			{ "vmovups", true },
 
-			{ "vpabsb", false },
-			{ "vpabsw", false },
-			{ "vpabsd", false },
+			{ "vpabsb", true },
+			{ "vpabsw", true },
+			{ "vpabsd", true },
 			{ "vphminposuw", false },
 
 			{ "vpmovsxbw", false },
@@ -1537,6 +1537,30 @@ class Test {
 			put(p->name, XMM, XMM | MEM);
 			if (!p->supportYMM) continue;
 			put(p->name, YMM, YMM | MEM);
+		}
+	}
+	void putAVX_Y_XM()
+	{
+		const char *tbl[] = {
+			"vpmovsxbw",
+#if 0
+			"vpmovsxbd",
+			"vpmovsxbq",
+			"vpmovsxwd",
+			"vpmovsxwq",
+			"vpmovsxdq",
+
+			"vpmovzxbw",
+			"vpmovzxbd",
+			"vpmovzxbq",
+			"vpmovzxwd",
+			"vpmovzxwq",
+			"vpmovzxdq",
+#endif
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const char *name = tbl[i];
+			put(name, YMM, XMM);
 		}
 	}
 	void putAVX_M_X()
@@ -1659,7 +1683,7 @@ class Test {
 		put("vmovntdq", MEM, XMM | YMM);
 		put("vmovntpd", MEM, XMM | YMM);
 		put("vmovntps", MEM, XMM | YMM);
-		put("vmovntdqa", XMM, MEM);
+		put("vmovntdqa", XMM | YMM, MEM);
 
 		{
 			const char tbl[][8] = { "vmovsd", "vmovss" };
@@ -1918,6 +1942,7 @@ public:
 		putAVX_X_XM();
 		putAVX_M_X();
 		putAVX_X_X_IMM_omit();
+		putAVX_Y_XM();
 		putFMA();
 #endif
 #else // USE_AVX

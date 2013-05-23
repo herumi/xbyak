@@ -1034,8 +1034,8 @@ void put()
 			{ 0x0C, "blendps", MM_0F3A | PP_66, true, 0, true, true },
 			{ 0x41, "dppd", MM_0F3A | PP_66, false, 0, true, true },
 			{ 0x40, "dpps", MM_0F3A | PP_66, true, 0, true, true },
-			{ 0x42, "mpsadbw", MM_0F3A | PP_66, false, 0, true, true },
-			{ 0x0E, "pblendw", MM_0F3A | PP_66, false, 0, true, true },
+			{ 0x42, "mpsadbw", MM_0F3A | PP_66, true, 0, true, true },
+			{ 0x0E, "pblendw", MM_0F3A | PP_66, true, 0, true, true },
 			{ 0x0B, "roundsd", MM_0F3A | PP_66, false, 0, true, true },
 			{ 0x0A, "roundss", MM_0F3A | PP_66, false, 0, true, true },
 			{ 0x44, "pclmulqdq", MM_0F3A | PP_66, false, 0, true, true },
@@ -1220,12 +1220,12 @@ void put()
 			{ 0x10, "movupd", MM_0F | PP_66, true, -1, false },
 			{ 0x10, "movups", MM_0F, true, -1, false },
 
-			{ 0x1C, "pabsb", MM_0F38 | PP_66, false, -1, false },
-			{ 0x1D, "pabsw", MM_0F38 | PP_66, false, -1, false },
-			{ 0x1E, "pabsd", MM_0F38 | PP_66, false, -1, false },
+			{ 0x1C, "pabsb", MM_0F38 | PP_66, true, -1, false },
+			{ 0x1D, "pabsw", MM_0F38 | PP_66, true, -1, false },
+			{ 0x1E, "pabsd", MM_0F38 | PP_66, true, -1, false },
 			{ 0x41, "phminposuw", MM_0F38 | PP_66, false, -1, false },
 
-			{ 0x20, "pmovsxbw", MM_0F38 | PP_66, false, -1, false },
+			{ 0x20, "pmovsxbw", MM_0F38 | PP_66, true, -1, false },
 			{ 0x21, "pmovsxbd", MM_0F38 | PP_66, false, -1, false },
 			{ 0x22, "pmovsxbq", MM_0F38 | PP_66, false, -1, false },
 			{ 0x23, "pmovsxwd", MM_0F38 | PP_66, false, -1, false },
@@ -1492,7 +1492,7 @@ void put()
 		printf("void vmovntdq(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, x.isXMM() ? xm0 : ym0, addr, MM_0F | PP_66, 0xE7, true); }\n");
 		printf("void vmovntpd(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, x.isXMM() ? xm0 : ym0, addr, MM_0F | PP_66, 0x2B, true); }\n");
 		printf("void vmovntps(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, x.isXMM() ? xm0 : ym0, addr, MM_0F, 0x2B, true); }\n");
-		printf("void vmovntdqa(const Xmm& x, const Address& addr) { opAVX_X_X_XM(x, xm0, addr, MM_0F38 | PP_66, 0x2A, false); }\n");
+		printf("void vmovntdqa(const Xmm& x, const Address& addr) { opAVX_X_X_XM(x, x.isXMM() ? xm0 : ymm0, addr, MM_0F38 | PP_66, 0x2A, true); }\n");
 
 		// vmovsd, vmovss
 		for (int i = 0; i < 2; i++) {
