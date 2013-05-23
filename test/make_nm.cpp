@@ -1286,10 +1286,10 @@ class Test {
 			{ "vpackuswb", false },
 			{ "vpackusdw", false },
 
-			{ "vpaddb", false },
-			{ "vpaddw", false },
-			{ "vpaddd", false },
-			{ "vpaddq", false },
+			{ "vpaddb", true },
+			{ "vpaddw", true },
+			{ "vpaddd", true },
+			{ "vpaddq", true },
 
 			{ "vpaddsb", false },
 			{ "vpaddsw", false },

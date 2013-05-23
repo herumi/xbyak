@@ -1053,10 +1053,10 @@ void put()
 			{ 0x67, "packuswb", MM_0F | PP_66, false, -1, false, true },
 			{ 0x2B, "packusdw", MM_0F38 | PP_66, false, -1, false, true },
 
-			{ 0xFC, "paddb", MM_0F | PP_66, false, -1, false, true },
-			{ 0xFD, "paddw", MM_0F | PP_66, false, -1, false, true },
-			{ 0xFE, "paddd", MM_0F | PP_66, false, -1, false, true },
-			{ 0xD4, "paddq", MM_0F | PP_66, false, -1, false, true },
+			{ 0xFC, "paddb", MM_0F | PP_66, true, -1, false, true },
+			{ 0xFD, "paddw", MM_0F | PP_66, true, -1, false, true },
+			{ 0xFE, "paddd", MM_0F | PP_66, true, -1, false, true },
+			{ 0xD4, "paddq", MM_0F | PP_66, true, -1, false, true },
 
 			{ 0xEC, "paddsb", MM_0F | PP_66, false, -1, false, true },
 			{ 0xED, "paddsw", MM_0F | PP_66, false, -1, false, true },
