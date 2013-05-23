@@ -1310,7 +1310,7 @@ class Test {
 			{ "vpcmpgtb", false },
 			{ "vpcmpgtw", false },
 			{ "vpcmpgtd", false },
-//			{ "vpcmpgtq", false }, // QQQ
+			{ "vpcmpgtq", false }, // QQQ
 
 			{ "vphaddw", false },
 			{ "vphaddd", false },
