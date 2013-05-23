@@ -1543,20 +1543,17 @@ class Test {
 	{
 		const char *tbl[] = {
 			"vpmovsxbw",
-#if 0
 			"vpmovsxbd",
 			"vpmovsxbq",
 			"vpmovsxwd",
 			"vpmovsxwq",
 			"vpmovsxdq",
-
 			"vpmovzxbw",
 			"vpmovzxbd",
 			"vpmovzxbq",
 			"vpmovzxwd",
 			"vpmovzxwq",
 			"vpmovzxdq",
-#endif
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const char *name = tbl[i];
