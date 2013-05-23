@@ -1307,10 +1307,10 @@ class Test {
 			{ "vpcmpeqd", true },
 			{ "vpcmpeqq", true },
 
-			{ "vpcmpgtb", false },
-			{ "vpcmpgtw", false },
-			{ "vpcmpgtd", false },
-			{ "vpcmpgtq", false },
+			{ "vpcmpgtb", true },
+			{ "vpcmpgtw", true },
+			{ "vpcmpgtd", true },
+			{ "vpcmpgtq", true },
 
 			{ "vphaddw", false },
 			{ "vphaddd", false },

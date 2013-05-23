@@ -1077,10 +1077,10 @@ void put()
 			{ 0x76, "pcmpeqd", MM_0F | PP_66, true, -1, false, true },
 			{ 0x29, "pcmpeqq", MM_0F38 | PP_66, true, -1, false, true },
 
-			{ 0x64, "pcmpgtb", MM_0F | PP_66, false, -1, false, true },
-			{ 0x65, "pcmpgtw", MM_0F | PP_66, false, -1, false, true },
-			{ 0x66, "pcmpgtd", MM_0F | PP_66, false, -1, false, true },
-			{ 0x37, "pcmpgtq", MM_0F38 | PP_66, false, -1, false, true },
+			{ 0x64, "pcmpgtb", MM_0F | PP_66, true, -1, false, true },
+			{ 0x65, "pcmpgtw", MM_0F | PP_66, true, -1, false, true },
+			{ 0x66, "pcmpgtd", MM_0F | PP_66, true, -1, false, true },
+			{ 0x37, "pcmpgtq", MM_0F38 | PP_66, true, -1, false, true },
 
 			{ 0x01, "phaddw", MM_0F38 | PP_66, false, -1, false, true },
 			{ 0x02, "phaddd", MM_0F38 | PP_66, false, -1, false, true },
