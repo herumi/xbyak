@@ -1237,16 +1237,8 @@ private:
 	{
 		db(code1); db(code2 | reg.getIdx());
 	}
-	// (r, r, r/m) if isR_R_RM
-	// (r, r/m, r)
-	void opGpr(const Reg32e& r1, const Operand& op1, const Operand& op2, int type, uint8 code, bool isR_R_RM)
+	void opVex(const Reg& r, const Operand *p1, const Operand *p2, int type, int code, int w)
 	{
-		const Operand *p1 = &op1;
-		const Operand *p2 = &op2;
-		if (!isR_R_RM) std::swap(p1, p2);
-		const unsigned int bit = r1.getBit();
-		if (p1->getBit() != bit || (p2->isREG() && p2->getBit() != bit)) throw ERR_BAD_COMBINATION;
-		int w = bit == 64;
 		bool x, b;
 		if (p2->isMEM()) {
 			const Address& addr = static_cast<const Address&>(*p2);
@@ -1260,15 +1252,27 @@ private:
 			b = static_cast<const Reg&>(*p2).isExtIdx();
 		}
 		if (w == -1) w = 0;
-		vex(r1.isExtIdx(), p1->getIdx(), false, type, x, b, w);
+		vex(r.isExtIdx(), p1->getIdx(), r.isYMM(), type, x, b, w);
 		db(code);
 		if (p2->isMEM()) {
 			const Address& addr = static_cast<const Address&>(*p2);
-			addr.updateRegField(static_cast<uint8>(r1.getIdx()));
+			addr.updateRegField(static_cast<uint8>(r.getIdx()));
 			db(addr.getCode(), static_cast<int>(addr.getSize()));
 		} else {
-			db(getModRM(3, r1.getIdx(), p2->getIdx()));
+			db(getModRM(3, r.getIdx(), p2->getIdx()));
 		}
+	}
+	// (r, r, r/m) if isR_R_RM
+	// (r, r/m, r)
+	void opGpr(const Reg32e& r, const Operand& op1, const Operand& op2, int type, uint8 code, bool isR_R_RM)
+	{
+		const Operand *p1 = &op1;
+		const Operand *p2 = &op2;
+		if (!isR_R_RM) std::swap(p1, p2);
+		const unsigned int bit = r.getBit();
+		if (p1->getBit() != bit || (p2->isREG() && p2->getBit() != bit)) throw ERR_BAD_COMBINATION;
+		int w = bit == 64;
+		opVex(r, p1, p2, type, code, w);
 	}
 	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, bool supportYMM, int w = -1)
 	{
@@ -1284,28 +1288,7 @@ private:
 		}
 		// (x1, x2, op)
 		if (!((x1.isXMM() && x2->isXMM()) || (supportYMM && x1.isYMM() && x2->isYMM()))) throw ERR_BAD_COMBINATION;
-		bool x, b;
-		if (op->isMEM()) {
-			const Address& addr = *static_cast<const Address*>(op);
-			uint8 rex = addr.getRex();
-			x = (rex & 2) != 0;
-			b = (rex & 1) != 0;
-			if (BIT == 64 && addr.is32bit_) db(0x67);
-			if (BIT == 64 && w == -1) w = (rex & 4) ? 1 : 0;
-		} else {
-			x = false;
-			b = static_cast<const Reg*>(op)->isExtIdx();
-		}
-		if (w == -1) w = 0;
-		vex(x1.isExtIdx(), x2->getIdx(), x1.isYMM(), type, x, b, w);
-		db(code0);
-		if (op->isMEM()) {
-			const Address& addr = *static_cast<const Address*>(op);
-			addr.updateRegField(static_cast<uint8>(x1.getIdx()));
-			db(addr.getCode(), static_cast<int>(addr.getSize()));
-		} else {
-			db(getModRM(3, x1.getIdx(), op->getIdx()));
-		}
+		opVex(x1, x2, op, type, code0, w);
 	}
 	// if cvt then return pointer to Xmm(idx) (or Ymm(idx)), otherwise return op
 	void opAVX_X_X_XMcvt(const Xmm& x1, const Operand& op1, const Operand& op2, bool cvt, Operand::Kind kind, int type, int code0, bool supportYMM, int w = -1)
