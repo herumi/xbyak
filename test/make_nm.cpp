@@ -1291,8 +1291,8 @@ class Test {
 			{ "vpaddd", true },
 			{ "vpaddq", true },
 
-			{ "vpaddsb", false },
-			{ "vpaddsw", false },
+			{ "vpaddsb", true },
+			{ "vpaddsw", true },
 
 			{ "vpaddusb", false },
 			{ "vpaddusw", false },

@@ -1058,8 +1058,8 @@ void put()
 			{ 0xFE, "paddd", MM_0F | PP_66, true, -1, false, true },
 			{ 0xD4, "paddq", MM_0F | PP_66, true, -1, false, true },
 
-			{ 0xEC, "paddsb", MM_0F | PP_66, false, -1, false, true },
-			{ 0xED, "paddsw", MM_0F | PP_66, false, -1, false, true },
+			{ 0xEC, "paddsb", MM_0F | PP_66, true, -1, false, true },
+			{ 0xED, "paddsw", MM_0F | PP_66, true, -1, false, true },
 
 			{ 0xDC, "paddusb", MM_0F | PP_66, false, -1, false, true },
 			{ 0xDD, "paddusw", MM_0F | PP_66, false, -1, false, true },
