@@ -1301,6 +1301,15 @@ private:
 	{
 		opAVX_X_X_XM(x, x.isXMM() ? xm0 : ym0, op, type, code, supportYMM, w); if (imm != NONE) db((uint8)imm);
 	}
+	// QQQ:need to refactor
+	void opSp1(const Reg& reg, const Operand& op, uint8 pref, uint8 code0, uint8 code1)
+	{
+		if (reg.isBit(8)) throw ERR_BAD_SIZE_OF_REGISTER;
+		bool is16bit = reg.isREG(16) && (op.isREG(16) || op.isMEM());
+		if (!is16bit && !(reg.isREG(i32e) && (op.isREG(reg.getBit()) || op.isMEM()))) throw ERR_BAD_COMBINATION;
+		if (is16bit) db(0x66);
+		db(pref); opModRM(reg.changeBit(i32e == 32 ? 32 : reg.getBit()), op, op.isREG(), true, code0, code1);
+	}
 public:
 	unsigned int getVersion() const { return VERSION; }
 	using CodeArray::db;
@@ -1658,13 +1667,6 @@ public:
 	{
 		if (!mmx.isMMX()) throw ERR_BAD_COMBINATION;
 		opModM(addr, mmx, 0x0F, B11100111);
-	}
-	void popcnt(const Reg& reg, const Operand& op)
-	{
-		bool is16bit = reg.isREG(16) && (op.isREG(16) || op.isMEM());
-		if (!is16bit && !(reg.isREG(i32e) && (op.isREG(i32e) || op.isMEM()))) throw ERR_BAD_COMBINATION;
-		if (is16bit) db(0x66);
-		db(0xF3); opModRM(reg.changeBit(i32e == 32 ? 32 : reg.getBit()), op, op.isREG(), true, 0x0F, 0xB8);
 	}
 	void crc32(const Reg32e& reg, const Operand& op)
 	{

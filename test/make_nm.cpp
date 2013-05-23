@@ -989,6 +989,7 @@ class Test {
 			"bsf",
 			"lzcnt",
 			"tzcnt",
+			"popcnt",
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const char *p = tbl[i];
@@ -1113,9 +1114,6 @@ class Test {
 		put("pinsrb", XMM, REG32|MEM, IMM);
 		put("pinsrd", XMM, REG32|MEM, IMM);
 		put("movntdqa", XMM, MEM);
-		put("popcnt", REG16, REG16|MEM);
-		put("popcnt", REG32, REG32|MEM);
-		put("popcnt", REG64, REG64|MEM);
 		put("crc32", REG32, REG8|REG16|REG32|MEM8|MEM16|MEM32);
 		put("crc32", REG64, REG64|REG8|MEM8);
 #ifdef XBYAK64
