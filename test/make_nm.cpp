@@ -1302,15 +1302,15 @@ class Test {
 			{ "vpavgb", true },
 			{ "vpavgw", true },
 
-			{ "vpcmpeqb", false },
-			{ "vpcmpeqw", false },
-			{ "vpcmpeqd", false },
-			{ "vpcmpeqq", false },
+			{ "vpcmpeqb", true },
+			{ "vpcmpeqw", true },
+			{ "vpcmpeqd", true },
+			{ "vpcmpeqq", true },
 
 			{ "vpcmpgtb", false },
 			{ "vpcmpgtw", false },
 			{ "vpcmpgtd", false },
-			{ "vpcmpgtq", false }, // QQQ
+			{ "vpcmpgtq", false },
 
 			{ "vphaddw", false },
 			{ "vphaddd", false },
