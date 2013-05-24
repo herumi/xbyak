@@ -1096,17 +1096,17 @@ void put()
 			{ 0xEE, "pmaxsw", MM_0F | PP_66, true, -1, false, true },
 			{ 0x3D, "pmaxsd", MM_0F38 | PP_66, true, -1, false, true },
 
-			{ 0xDE, "pmaxub", MM_0F | PP_66, false, -1, false, true },
-			{ 0x3E, "pmaxuw", MM_0F38 | PP_66, false, -1, false, true },
-			{ 0x3F, "pmaxud", MM_0F38 | PP_66, false, -1, false, true },
+			{ 0xDE, "pmaxub", MM_0F | PP_66, true, -1, false, true },
+			{ 0x3E, "pmaxuw", MM_0F38 | PP_66, true, -1, false, true },
+			{ 0x3F, "pmaxud", MM_0F38 | PP_66, true, -1, false, true },
 
-			{ 0x38, "pminsb", MM_0F38 | PP_66, false, -1, false, true },
-			{ 0xEA, "pminsw", MM_0F | PP_66, false, -1, false, true },
-			{ 0x39, "pminsd", MM_0F38 | PP_66, false, -1, false, true },
+			{ 0x38, "pminsb", MM_0F38 | PP_66, true, -1, false, true },
+			{ 0xEA, "pminsw", MM_0F | PP_66, true, -1, false, true },
+			{ 0x39, "pminsd", MM_0F38 | PP_66, true, -1, false, true },
 
-			{ 0xDA, "pminub", MM_0F | PP_66, false, -1, false, true },
-			{ 0x3A, "pminuw", MM_0F38 | PP_66, false, -1, false, true },
-			{ 0x3B, "pminud", MM_0F38 | PP_66, false, -1, false, true },
+			{ 0xDA, "pminub", MM_0F | PP_66, true, -1, false, true },
+			{ 0x3A, "pminuw", MM_0F38 | PP_66, true, -1, false, true },
+			{ 0x3B, "pminud", MM_0F38 | PP_66, true, -1, false, true },
 
 			{ 0xE4, "pmulhuw", MM_0F | PP_66, false, -1, false, true },
 			{ 0x0B, "pmulhrsw", MM_0F38 | PP_66, false, -1, false, true },

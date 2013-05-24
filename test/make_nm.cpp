@@ -1326,17 +1326,17 @@ class Test {
 			{ "vpmaxsw", true },
 			{ "vpmaxsd", true },
 
-			{ "vpmaxub", false },
-			{ "vpmaxuw", false },
-			{ "vpmaxud", false },
+			{ "vpmaxub", true },
+			{ "vpmaxuw", true },
+			{ "vpmaxud", true },
 
-			{ "vpminsb", false },
-			{ "vpminsw", false },
-			{ "vpminsd", false },
+			{ "vpminsb", true },
+			{ "vpminsw", true },
+			{ "vpminsd", true },
 
-			{ "vpminub", false },
-			{ "vpminuw", false },
-			{ "vpminud", false },
+			{ "vpminub", true },
+			{ "vpminuw", true },
+			{ "vpminud", true },
 
 			{ "vpmulhuw", false },
 			{ "vpmulhrsw", false },
