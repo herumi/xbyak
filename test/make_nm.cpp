@@ -1348,7 +1348,7 @@ class Test {
 			{ "vpmuldq", false },
 
 			{ "vpor", true },
-			{ "vpsadbw", false },
+			{ "vpsadbw", true },
 
 			{ "vpsignb", true },
 			{ "vpsignw", true },

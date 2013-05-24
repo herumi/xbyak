@@ -1118,7 +1118,7 @@ void put()
 			{ 0x28, "pmuldq", MM_0F38 | PP_66, false, -1, false, true },
 
 			{ 0xEB, "por", MM_0F | PP_66, true, -1, false, true },
-			{ 0xF6, "psadbw", MM_0F | PP_66, false, -1, false, true },
+			{ 0xF6, "psadbw", MM_0F | PP_66, true, -1, false, true },
 
 			{ 0x00, "pshufb", MM_0F38 | PP_66, false, -1, false, false },
 
