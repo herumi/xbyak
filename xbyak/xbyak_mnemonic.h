@@ -717,12 +717,12 @@ void vpcmpgtd(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(
 void vpcmpgtd(const Xmm& xmm, const Operand& op) { opAVX_X_X_XM(xmm, xmm, op, MM_0F | PP_66, 0x66, true, -1); }
 void vpcmpgtq(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x37, true, -1); }
 void vpcmpgtq(const Xmm& xmm, const Operand& op) { opAVX_X_X_XM(xmm, xmm, op, MM_0F38 | PP_66, 0x37, true, -1); }
-void vphaddw(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x01, false, -1); }
-void vphaddw(const Xmm& xmm, const Operand& op) { opAVX_X_X_XM(xmm, xmm, op, MM_0F38 | PP_66, 0x01, false, -1); }
-void vphaddd(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x02, false, -1); }
-void vphaddd(const Xmm& xmm, const Operand& op) { opAVX_X_X_XM(xmm, xmm, op, MM_0F38 | PP_66, 0x02, false, -1); }
-void vphaddsw(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x03, false, -1); }
-void vphaddsw(const Xmm& xmm, const Operand& op) { opAVX_X_X_XM(xmm, xmm, op, MM_0F38 | PP_66, 0x03, false, -1); }
+void vphaddw(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x01, true, -1); }
+void vphaddw(const Xmm& xmm, const Operand& op) { opAVX_X_X_XM(xmm, xmm, op, MM_0F38 | PP_66, 0x01, true, -1); }
+void vphaddd(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x02, true, -1); }
+void vphaddd(const Xmm& xmm, const Operand& op) { opAVX_X_X_XM(xmm, xmm, op, MM_0F38 | PP_66, 0x02, true, -1); }
+void vphaddsw(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x03, true, -1); }
+void vphaddsw(const Xmm& xmm, const Operand& op) { opAVX_X_X_XM(xmm, xmm, op, MM_0F38 | PP_66, 0x03, true, -1); }
 void vphsubw(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x05, false, -1); }
 void vphsubw(const Xmm& xmm, const Operand& op) { opAVX_X_X_XM(xmm, xmm, op, MM_0F38 | PP_66, 0x05, false, -1); }
 void vphsubd(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x06, false, -1); }

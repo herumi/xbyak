@@ -1312,9 +1312,9 @@ class Test {
 			{ "vpcmpgtd", true },
 			{ "vpcmpgtq", true },
 
-			{ "vphaddw", false },
-			{ "vphaddd", false },
-			{ "vphaddsw", false },
+			{ "vphaddw", true },
+			{ "vphaddd", true },
+			{ "vphaddsw", true },
 
 			{ "vphsubw", false },
 			{ "vphsubd", false },
