@@ -1322,9 +1322,9 @@ class Test {
 			{ "vpmaddwd", true },
 			{ "vpmaddubsw", true },
 
-			{ "vpmaxsb", false },
-			{ "vpmaxsw", false },
-			{ "vpmaxsd", false },
+			{ "vpmaxsb", true },
+			{ "vpmaxsw", true },
+			{ "vpmaxsd", true },
 
 			{ "vpmaxub", false },
 			{ "vpmaxuw", false },
