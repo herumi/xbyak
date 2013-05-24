@@ -1375,15 +1375,15 @@ class Test {
 			{ "vpsubusb", true },
 			{ "vpsubusw", true },
 
-			{ "vpunpckhbw", false },
-			{ "vpunpckhwd", false },
-			{ "vpunpckhdq", false },
-			{ "vpunpckhqdq", false },
+			{ "vpunpckhbw", true },
+			{ "vpunpckhwd", true },
+			{ "vpunpckhdq", true },
+			{ "vpunpckhqdq", true },
 
-			{ "vpunpcklbw", false },
-			{ "vpunpcklwd", false },
-			{ "vpunpckldq", false },
-			{ "vpunpcklqdq", false },
+			{ "vpunpcklbw", true },
+			{ "vpunpcklwd", true },
+			{ "vpunpckldq", true },
+			{ "vpunpcklqdq", true },
 
 			{ "vpxor", false },
 			{ "vsqrtsd", false },

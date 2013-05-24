@@ -1147,15 +1147,15 @@ void put()
 			{ 0xD8, "psubusb", MM_0F | PP_66, true, -1, false, true },
 			{ 0xD9, "psubusw", MM_0F | PP_66, true, -1, false, true },
 
-			{ 0x68, "punpckhbw", MM_0F | PP_66, false, -1, false, true },
-			{ 0x69, "punpckhwd", MM_0F | PP_66, false, -1, false, true },
-			{ 0x6A, "punpckhdq", MM_0F | PP_66, false, -1, false, true },
-			{ 0x6D, "punpckhqdq", MM_0F | PP_66, false, -1, false, true },
+			{ 0x68, "punpckhbw", MM_0F | PP_66, true, -1, false, true },
+			{ 0x69, "punpckhwd", MM_0F | PP_66, true, -1, false, true },
+			{ 0x6A, "punpckhdq", MM_0F | PP_66, true, -1, false, true },
+			{ 0x6D, "punpckhqdq", MM_0F | PP_66, true, -1, false, true },
 
-			{ 0x60, "punpcklbw", MM_0F | PP_66, false, -1, false, true },
-			{ 0x61, "punpcklwd", MM_0F | PP_66, false, -1, false, true },
-			{ 0x62, "punpckldq", MM_0F | PP_66, false, -1, false, true },
-			{ 0x6C, "punpcklqdq", MM_0F | PP_66, false, -1, false, true },
+			{ 0x60, "punpcklbw", MM_0F | PP_66, true, -1, false, true },
+			{ 0x61, "punpcklwd", MM_0F | PP_66, true, -1, false, true },
+			{ 0x62, "punpckldq", MM_0F | PP_66, true, -1, false, true },
+			{ 0x6C, "punpcklqdq", MM_0F | PP_66, true, -1, false, true },
 
 			{ 0xEF, "pxor", MM_0F | PP_66, false, -1, false, true },
 
