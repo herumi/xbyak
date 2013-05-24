@@ -1122,9 +1122,9 @@ void put()
 
 			{ 0x00, "pshufb", MM_0F38 | PP_66, false, -1, false, false },
 
-			{ 0x08, "psignb", MM_0F38 | PP_66, false, -1, false, true },
-			{ 0x09, "psignw", MM_0F38 | PP_66, false, -1, false, true },
-			{ 0x0A, "psignd", MM_0F38 | PP_66, false, -1, false, true },
+			{ 0x08, "psignb", MM_0F38 | PP_66, true, -1, false, true },
+			{ 0x09, "psignw", MM_0F38 | PP_66, true, -1, false, true },
+			{ 0x0A, "psignd", MM_0F38 | PP_66, true, -1, false, true },
 
 			{ 0xF1, "psllw", MM_0F | PP_66, false, -1, false, true },
 			{ 0xF2, "pslld", MM_0F | PP_66, false, -1, false, true },

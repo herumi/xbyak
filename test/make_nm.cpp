@@ -1350,9 +1350,9 @@ class Test {
 			{ "vpor", false },
 			{ "vpsadbw", false },
 
-			{ "vpsignb", false },
-			{ "vpsignw", false },
-			{ "vpsignd", false },
+			{ "vpsignb", true },
+			{ "vpsignw", true },
+			{ "vpsignd", true },
 
 			{ "vpsllw", false },
 			{ "vpslld", false },
