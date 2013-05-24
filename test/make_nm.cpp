@@ -1364,16 +1364,16 @@ class Test {
 			{ "vpsrld", false },
 			{ "vpsrlq", false },
 
-			{ "vpsubb", false },
-			{ "vpsubw", false },
-			{ "vpsubd", false },
-			{ "vpsubq", false },
+			{ "vpsubb", true },
+			{ "vpsubw", true },
+			{ "vpsubd", true },
+			{ "vpsubq", true },
 
-			{ "vpsubsb", false },
-			{ "vpsubsw", false },
+			{ "vpsubsb", true },
+			{ "vpsubsw", true },
 
-			{ "vpsubusb", false },
-			{ "vpsubusw", false },
+			{ "vpsubusb", true },
+			{ "vpsubusw", true },
 
 			{ "vpunpckhbw", false },
 			{ "vpunpckhwd", false },
