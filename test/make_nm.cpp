@@ -1316,11 +1316,11 @@ class Test {
 			{ "vphaddd", true },
 			{ "vphaddsw", true },
 
-			{ "vphsubw", false },
-			{ "vphsubd", false },
-			{ "vphsubsw", false },
-			{ "vpmaddwd", false },
-			{ "vpmaddubsw", false },
+			{ "vphsubw", true },
+			{ "vphsubd", true },
+			{ "vphsubsw", true },
+			{ "vpmaddwd", true },
+			{ "vpmaddubsw", true },
 
 			{ "vpmaxsb", false },
 			{ "vpmaxsw", false },

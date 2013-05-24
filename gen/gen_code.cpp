@@ -1086,11 +1086,11 @@ void put()
 			{ 0x02, "phaddd", MM_0F38 | PP_66, true, -1, false, true },
 			{ 0x03, "phaddsw", MM_0F38 | PP_66, true, -1, false, true },
 
-			{ 0x05, "phsubw", MM_0F38 | PP_66, false, -1, false, true },
-			{ 0x06, "phsubd", MM_0F38 | PP_66, false, -1, false, true },
-			{ 0x07, "phsubsw", MM_0F38 | PP_66, false, -1, false, true },
-			{ 0xF5, "pmaddwd", MM_0F | PP_66, false, -1, false, true },
-			{ 0x04, "pmaddubsw", MM_0F38 | PP_66, false, -1, false, true },
+			{ 0x05, "phsubw", MM_0F38 | PP_66, true, -1, false, true },
+			{ 0x06, "phsubd", MM_0F38 | PP_66, true, -1, false, true },
+			{ 0x07, "phsubsw", MM_0F38 | PP_66, true, -1, false, true },
+			{ 0xF5, "pmaddwd", MM_0F | PP_66, true, -1, false, true },
+			{ 0x04, "pmaddubsw", MM_0F38 | PP_66, true, -1, false, true },
 
 			{ 0x3C, "pmaxsb", MM_0F38 | PP_66, false, -1, false, true },
 			{ 0xEE, "pmaxsw", MM_0F | PP_66, false, -1, false, true },
