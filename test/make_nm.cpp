@@ -1451,9 +1451,9 @@ class Test {
 			{ "vpermilpd", true },
 			{ "vpermilps", true },
 			{ "vaeskeygenassist", false },
-			{ "vpshufd", false },
-			{ "vpshufhw", false },
-			{ "vpshuflw", false },
+			{ "vpshufd", true },
+			{ "vpshufhw", true },
+			{ "vpshuflw", true },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -1470,7 +1470,7 @@ class Test {
 		} tbl[] = {
 			{ "vpermilpd", true },
 			{ "vpermilps", true },
-			{ "vpshufb", false },
+			{ "vpshufb", true },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];

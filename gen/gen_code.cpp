@@ -1120,7 +1120,7 @@ void put()
 			{ 0xEB, "por", MM_0F | PP_66, true, -1, false, true },
 			{ 0xF6, "psadbw", MM_0F | PP_66, true, -1, false, true },
 
-			{ 0x00, "pshufb", MM_0F38 | PP_66, false, -1, false, false },
+			{ 0x00, "pshufb", MM_0F38 | PP_66, true, -1, false, false },
 
 			{ 0x08, "psignb", MM_0F38 | PP_66, true, -1, false, true },
 			{ 0x09, "psignw", MM_0F38 | PP_66, true, -1, false, true },
@@ -1239,9 +1239,9 @@ void put()
 			{ 0x34, "pmovzxwq", MM_0F38 | PP_66, true, -1, false },
 			{ 0x35, "pmovzxdq", MM_0F38 | PP_66, true, -1, false },
 
-			{ 0x70, "pshufd", MM_0F | PP_66, false, -1, true },
-			{ 0x70, "pshufhw", MM_0F | PP_F3, false, -1, true },
-			{ 0x70, "pshuflw", MM_0F | PP_F2, false, -1, true },
+			{ 0x70, "pshufd", MM_0F | PP_66, true, -1, true },
+			{ 0x70, "pshufhw", MM_0F | PP_F3, true, -1, true },
+			{ 0x70, "pshuflw", MM_0F | PP_F2, true, -1, true },
 
 			{ 0x17, "ptest", MM_0F38 | PP_66, false, -1, false },
 			{ 0x53, "rcpps", MM_0F, true, -1, false },
