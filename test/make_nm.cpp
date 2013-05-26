@@ -1794,6 +1794,15 @@ class Test {
 				put(name, YMM, YMM, YMM | MEM);
 			}
 		}
+		{
+			const char *tbl[] = {
+				"vpermq", "vpermpd",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				const char *name = tbl[i];
+				put(name, YMM, YMM | MEM, IMM8);
+			}
+		}
 #else
 		put("vextractf128", XMM | MEM, YMM, IMM);
 		put("vextracti128", XMM | MEM, YMM, IMM);

@@ -1340,6 +1340,19 @@ void put()
 			printf("void vperm%s(const Ymm& y1, const Ymm& y2, const Operand& op) { opAVX_X_X_XM(y1, y2, op, MM_0F38 | PP_66, 0x%02X, true, 0); }\n", tbl[i].suf, tbl[i].code);
 		}
 	}
+	// vpermq, vpermpd
+	{
+		const struct {
+			const char *suf;
+			uint8 code;
+		} tbl[] = {
+			{ "q", 0x00 },
+			{ "pd", 0x01 },
+		};
+		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			printf("void vperm%s(const Ymm& y, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(y, op, MM_0F3A | PP_66, 0x%02X, true, 1, imm); }\n", tbl[i].suf, tbl[i].code);
+		}
+	}
 	// vcmpeqps
 	{
 		const char pred[32][16] = {
