@@ -1772,6 +1772,7 @@ class Test {
 		put("vperm2f128", YMM, YMM, YMM | MEM, IMM8);
 #else
 		put("vextractf128", XMM | MEM, YMM, IMM);
+		put("vextracti128", XMM | MEM, YMM, IMM);
 		put("vmaskmovps", MEM, YMM, YMM);
 		put("vmaskmovpd", MEM, YMM, YMM);
 		put("vlddqu", XMM | YMM, MEM);
