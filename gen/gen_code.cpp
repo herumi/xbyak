@@ -1327,6 +1327,19 @@ void put()
 			printf("void vpmaskmov%s(const Address& addr, const Xmm& xm1, const Xmm& xm2) { opAVX_X_X_XM(xm2, xm1, addr, MM_0F38 | PP_66, 0x%02X, true, %d); }\n", suf[i], 0x8E, i);
 		}
 	}
+	// vpermd, vpermps
+	{
+		const struct {
+			const char *suf;
+			uint8 code;
+		} tbl[] = {
+			{ "d", 0x36 },
+			{ "ps", 0x16 },
+		};
+		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			printf("void vperm%s(const Ymm& y1, const Ymm& y2, const Operand& op) { opAVX_X_X_XM(y1, y2, op, MM_0F38 | PP_66, 0x%02X, true, 0); }\n", tbl[i].suf, tbl[i].code);
+		}
+	}
 	// vcmpeqps
 	{
 		const char pred[32][16] = {

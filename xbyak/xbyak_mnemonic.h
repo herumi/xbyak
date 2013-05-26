@@ -927,6 +927,8 @@ void vpmaskmovd(const Xmm& xm1, const Xmm& xm2, const Address& addr) { opAVX_X_X
 void vpmaskmovd(const Address& addr, const Xmm& xm1, const Xmm& xm2) { opAVX_X_X_XM(xm2, xm1, addr, MM_0F38 | PP_66, 0x8E, true, 0); }
 void vpmaskmovq(const Xmm& xm1, const Xmm& xm2, const Address& addr) { opAVX_X_X_XM(xm1, xm2, addr, MM_0F38 | PP_66, 0x8C, true, 1); }
 void vpmaskmovq(const Address& addr, const Xmm& xm1, const Xmm& xm2) { opAVX_X_X_XM(xm2, xm1, addr, MM_0F38 | PP_66, 0x8E, true, 1); }
+void vpermd(const Ymm& y1, const Ymm& y2, const Operand& op) { opAVX_X_X_XM(y1, y2, op, MM_0F38 | PP_66, 0x36, true, 0); }
+void vpermps(const Ymm& y1, const Ymm& y2, const Operand& op) { opAVX_X_X_XM(y1, y2, op, MM_0F38 | PP_66, 0x16, true, 0); }
 void cmpeqpd(const Xmm& x, const Operand& op) { cmppd(x, op, 0); }
 void vcmpeqpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 0); }
 void vcmpeqpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 0); }
