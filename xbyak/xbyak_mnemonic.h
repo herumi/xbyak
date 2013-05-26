@@ -1281,8 +1281,9 @@ void vfnmsub213ss(const Xmm& xmm, const Xmm& op1, const Operand& op2 = Operand()
 void vfnmsub231ss(const Xmm& xmm, const Xmm& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, MM_0F38 | PP_66, 0xBF, false, 0); }
 void vaesimc(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, MM_0F38 | PP_66, 0xDB, false, 0); }
 void vbroadcastf128(const Ymm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, MM_0F38 | PP_66, 0x1A, true, 0); }
-void vbroadcastsd(const Ymm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, MM_0F38 | PP_66, 0x19, true, 0); }
-void vbroadcastss(const Xmm& x, const Address& addr) { opAVX_X_XM_IMM(x, addr, MM_0F38 | PP_66, 0x18, true, 0); }
+void vbroadcasti128(const Ymm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, MM_0F38 | PP_66, 0x5A, true, 0); }
+void vbroadcastsd(const Ymm& y, const Operand& op) { if (!(op.isXMM() || op.isMEM())) throw ERR_BAD_COMBINATION; opAVX_X_XM_IMM(y, op, MM_0F38 | PP_66, 0x19, true, 0); }
+void vbroadcastss(const Xmm& x, const Operand& op) { if (!(op.isXMM() || op.isMEM())) throw ERR_BAD_COMBINATION; opAVX_X_XM_IMM(x, op, MM_0F38 | PP_66, 0x18, true, 0); }
 void vextractf128(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, y.isXMM() ? xm0 : ym0, op, op.isXMM(), Operand::YMM, MM_0F3A | PP_66, 0x19, true, 0); db(imm); }
 void vextractps(const Operand& op, const Xmm& x, uint8 imm) { if (!(op.isREG(32) || op.isMEM()) || x.isYMM()) throw ERR_BAD_COMBINATION; opAVX_X_X_XMcvt(x, x.isXMM() ? xm0 : ym0, op, op.isREG(), Operand::XMM, MM_0F3A | PP_66, 0x17, false, 0); db(imm); }
 void vinsertf128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(y1, y2, op, op.isXMM(), Operand::YMM, MM_0F3A | PP_66, 0x18, true, 0); db(imm); }

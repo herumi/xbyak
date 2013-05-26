@@ -1764,8 +1764,9 @@ class Test {
 		put("vmaskmovpd", MEM, XMM, XMM);
 
 		put("vbroadcastf128", YMM, MEM);
-		put("vbroadcastsd", YMM, MEM);
-		put("vbroadcastss", XMM | YMM, MEM);
+		put("vbroadcasti128", YMM, MEM);
+		put("vbroadcastsd", YMM, XMM|MEM);
+		put("vbroadcastss", XMM | YMM, XMM|MEM);
 
 		put("vinsertf128", YMM, YMM, XMM | MEM, IMM8);
 		put("vperm2f128", YMM, YMM, YMM | MEM, IMM8);
@@ -1924,8 +1925,8 @@ public:
 	void put()
 	{
 #ifdef USE_AVX
-#ifdef USE_YASM
 		putFMA2();
+#ifdef USE_YASM
 		putGprR_R_RM();
 		putGprR_RM_R();
 		putGprR_RM();
