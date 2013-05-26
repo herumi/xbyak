@@ -655,6 +655,11 @@ void vpclmulqdq(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { 
 void vpclmulqdq(const Xmm& xmm, const Operand& op, uint8 imm) { opAVX_X_X_XM(xmm, xmm, op, MM_0F3A | PP_66, 0x44, false, 0); db(imm); }
 void vpermilps(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x0C, true, 0); }
 void vpermilpd(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x0D, true, 0); }
+void vpsllvd(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x47, true, 0); }
+void vpsllvq(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x47, true, 1); }
+void vpsravd(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x46, true, 0); }
+void vpsrlvd(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x45, true, 0); }
+void vpsrlvq(const Xmm& xm1, const Xmm& xm2, const Operand& op) { opAVX_X_X_XM(xm1, xm2, op, MM_0F38 | PP_66, 0x45, true, 1); }
 void vcmppd(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { opAVX_X_X_XM(xm1, xm2, op, MM_0F | PP_66, 0xC2, true, -1); db(imm); }
 void vcmppd(const Xmm& xmm, const Operand& op, uint8 imm) { opAVX_X_X_XM(xmm, xmm, op, MM_0F | PP_66, 0xC2, true, -1); db(imm); }
 void vcmpps(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { opAVX_X_X_XM(xm1, xm2, op, MM_0F, 0xC2, true, -1); db(imm); }

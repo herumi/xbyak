@@ -1472,6 +1472,12 @@ class Test {
 			{ "vpermilpd", true },
 			{ "vpermilps", true },
 			{ "vpshufb", true },
+
+			{ "vpsllvd", true },
+			{ "vpsllvq", true },
+			{ "vpsravd", true },
+			{ "vpsrlvd", true },
+			{ "vpsrlvq", true },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];

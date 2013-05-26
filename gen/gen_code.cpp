@@ -1042,6 +1042,13 @@ void put()
 			{ 0x44, "pclmulqdq", MM_0F3A | PP_66, false, 0, true, true },
 			{ 0x0C, "permilps", MM_0F38 | PP_66, true, 0, false, false },
 			{ 0x0D, "permilpd", MM_0F38 | PP_66, true, 0, false, false },
+
+			{ 0x47, "psllvd", MM_0F38 | PP_66, true, 0, false, false },
+			{ 0x47, "psllvq", MM_0F38 | PP_66, true, 1, false, false },
+			{ 0x46, "psravd", MM_0F38 | PP_66, true, 0, false, false },
+			{ 0x45, "psrlvd", MM_0F38 | PP_66, true, 0, false, false },
+			{ 0x45, "psrlvq", MM_0F38 | PP_66, true, 1, false, false },
+
 			{ 0xC2, "cmppd", MM_0F | PP_66, true, -1, true, true },
 			{ 0xC2, "cmpps", MM_0F, true, -1, true, true },
 			{ 0xC2, "cmpsd", MM_0F | PP_F2, false, -1, true, true },
