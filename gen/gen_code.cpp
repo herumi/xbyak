@@ -1457,8 +1457,8 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			printf("void v%s(const Xmm& x1, const Xmm& x2, uint8 imm) { opAVX_X_X_XM(xm%d, x1, x2, MM_0F | PP_66, 0x%02X, false); db(imm); }\n", p.name, p.idx, p.code);
-			printf("void v%s(const Xmm& x, uint8 imm) { opAVX_X_X_XM(xm%d, x, x, MM_0F | PP_66, 0x%02X, false); db(imm); }\n", p.name, p.idx, p.code);
+			printf("void v%s(const Xmm& x1, const Xmm& x2, uint8 imm) { opAVX_X_X_XM(x1.isYMM() ? ym%d : xm%d, x1, x2, MM_0F | PP_66, 0x%02X, true); db(imm); }\n", p.name, p.idx, p.idx, p.code);
+			printf("void v%s(const Xmm& x, uint8 imm) { opAVX_X_X_XM(x.isYMM() ? ym%d : xm%d, x, x, MM_0F | PP_66, 0x%02X, true); db(imm); }\n", p.name, p.idx, p.idx, p.code);
 		}
 	}
 	// 4-op

@@ -1599,7 +1599,8 @@ class Test {
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
 			put(p.name, XMM, XMM, IMM);
-			put(p.name, XMM, IMM);
+			put(p.name, YMM, YMM, IMM);
+			put(p.name, YMM, IMM);
 		}
 	}
 	void putFMA()
