@@ -1769,6 +1769,7 @@ class Test {
 		put("vbroadcastss", XMM | YMM, XMM|MEM);
 
 		put("vinsertf128", YMM, YMM, XMM | MEM, IMM8);
+		put("vinserti128", YMM, YMM, XMM | MEM, IMM8);
 		put("vperm2f128", YMM, YMM, YMM | MEM, IMM8);
 #else
 		put("vextractf128", XMM | MEM, YMM, IMM);
