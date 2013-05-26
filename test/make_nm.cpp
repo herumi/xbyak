@@ -1699,7 +1699,7 @@ class Test {
 			put(tbl[i], XMM, REG32|MEM, IMM);
 		}
 
-		put("vpmovmskb", REG32e, XMM);
+		put("vpmovmskb", REG32e, XMM|YMM);
 
 		{
 			const struct Tbl {
