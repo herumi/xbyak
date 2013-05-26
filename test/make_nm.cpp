@@ -1415,6 +1415,7 @@ class Test {
 			{ "vdpps", true },
 			{ "vmpsadbw", true },
 			{ "vpblendw", true },
+			{ "vpblendd", true },
 			{ "vroundsd", false },
 			{ "vroundss", false },
 			{ "vpclmulqdq", false },

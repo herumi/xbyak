@@ -645,6 +645,8 @@ void vmpsadbw(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { op
 void vmpsadbw(const Xmm& xmm, const Operand& op, uint8 imm) { opAVX_X_X_XM(xmm, xmm, op, MM_0F3A | PP_66, 0x42, true, 0); db(imm); }
 void vpblendw(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { opAVX_X_X_XM(xm1, xm2, op, MM_0F3A | PP_66, 0x0E, true, 0); db(imm); }
 void vpblendw(const Xmm& xmm, const Operand& op, uint8 imm) { opAVX_X_X_XM(xmm, xmm, op, MM_0F3A | PP_66, 0x0E, true, 0); db(imm); }
+void vpblendd(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { opAVX_X_X_XM(xm1, xm2, op, MM_0F3A | PP_66, 0x02, true, 0); db(imm); }
+void vpblendd(const Xmm& xmm, const Operand& op, uint8 imm) { opAVX_X_X_XM(xmm, xmm, op, MM_0F3A | PP_66, 0x02, true, 0); db(imm); }
 void vroundsd(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { opAVX_X_X_XM(xm1, xm2, op, MM_0F3A | PP_66, 0x0B, false, 0); db(imm); }
 void vroundsd(const Xmm& xmm, const Operand& op, uint8 imm) { opAVX_X_X_XM(xmm, xmm, op, MM_0F3A | PP_66, 0x0B, false, 0); db(imm); }
 void vroundss(const Xmm& xm1, const Xmm& xm2, const Operand& op, uint8 imm) { opAVX_X_X_XM(xm1, xm2, op, MM_0F3A | PP_66, 0x0A, false, 0); db(imm); }

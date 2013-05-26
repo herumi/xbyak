@@ -1036,6 +1036,7 @@ void put()
 			{ 0x40, "dpps", MM_0F3A | PP_66, true, 0, true, true },
 			{ 0x42, "mpsadbw", MM_0F3A | PP_66, true, 0, true, true },
 			{ 0x0E, "pblendw", MM_0F3A | PP_66, true, 0, true, true },
+			{ 0x02, "pblendd", MM_0F3A | PP_66, true, 0, true, true },
 			{ 0x0B, "roundsd", MM_0F3A | PP_66, false, 0, true, true },
 			{ 0x0A, "roundss", MM_0F3A | PP_66, false, 0, true, true },
 			{ 0x44, "pclmulqdq", MM_0F3A | PP_66, false, 0, true, true },
