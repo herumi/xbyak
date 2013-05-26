@@ -1771,6 +1771,19 @@ class Test {
 		put("vinsertf128", YMM, YMM, XMM | MEM, IMM8);
 		put("vinserti128", YMM, YMM, XMM | MEM, IMM8);
 		put("vperm2f128", YMM, YMM, YMM | MEM, IMM8);
+
+		{
+			const char *tbl[] = {
+				"vpmaskmovd", "vpmaskmovq"
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				const char *name = tbl[i];
+				put(name, XMM, XMM, MEM);
+				put(name, YMM, YMM, MEM);
+				put(name, MEM, XMM, XMM);
+				put(name, MEM, YMM, YMM);
+			}
+		}
 #else
 		put("vextractf128", XMM | MEM, YMM, IMM);
 		put("vextracti128", XMM | MEM, YMM, IMM);

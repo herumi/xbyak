@@ -1319,6 +1319,14 @@ void put()
 			printf("void vmaskmov%s(const Address& addr, const Xmm& xm1, const Xmm& xm2) { opAVX_X_X_XM(xm2, xm1, addr, MM_0F38 | PP_66, 0x%02X, true, 0); }\n", suf[i], 0x2E + i);
 		}
 	}
+	// vpmaskmov
+	{
+		const char suf[][8] = { "d", "q" };
+		for (int i = 0; i < 2; i++) {
+			printf("void vpmaskmov%s(const Xmm& xm1, const Xmm& xm2, const Address& addr) { opAVX_X_X_XM(xm1, xm2, addr, MM_0F38 | PP_66, 0x%02X, true, %d); }\n", suf[i], 0x8C, i);
+			printf("void vpmaskmov%s(const Address& addr, const Xmm& xm1, const Xmm& xm2) { opAVX_X_X_XM(xm2, xm1, addr, MM_0F38 | PP_66, 0x%02X, true, %d); }\n", suf[i], 0x8E, i);
+		}
+	}
 	// vcmpeqps
 	{
 		const char pred[32][16] = {
