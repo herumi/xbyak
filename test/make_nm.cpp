@@ -1771,6 +1771,7 @@ class Test {
 		put("vinsertf128", YMM, YMM, XMM | MEM, IMM8);
 		put("vinserti128", YMM, YMM, XMM | MEM, IMM8);
 		put("vperm2f128", YMM, YMM, YMM | MEM, IMM8);
+		put("vperm2i128", YMM, YMM, YMM | MEM, IMM8);
 
 		{
 			const char *tbl[] = {
