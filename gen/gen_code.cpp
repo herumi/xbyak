@@ -1064,7 +1064,7 @@ void put()
 			{ 0xDC, "paddusb", MM_0F | PP_66, true, -1, false, true },
 			{ 0xDD, "paddusw", MM_0F | PP_66, true, -1, false, true },
 
-			{ 0x0F, "palignr", MM_0F3A | PP_66, false, -1, true, true },
+			{ 0x0F, "palignr", MM_0F3A | PP_66, true, -1, true, true },
 
 			{ 0xDB, "pand", MM_0F | PP_66, true, -1, false, true },
 			{ 0xDF, "pandn", MM_0F | PP_66, true, -1, false, true },

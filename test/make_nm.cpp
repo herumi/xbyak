@@ -1423,7 +1423,7 @@ class Test {
 			{ "vcmpsd", false },
 			{ "vcmpss", false },
 			{ "vinsertps", false },
-			{ "vpalignr", false },
+			{ "vpalignr", true },
 			{ "vshufpd", true },
 			{ "vshufps", true },
 		};
