@@ -1338,14 +1338,14 @@ class Test {
 			{ "vpminuw", true },
 			{ "vpminud", true },
 
-			{ "vpmulhuw", false },
-			{ "vpmulhrsw", false },
-			{ "vpmulhw", false },
-			{ "vpmullw", false },
-			{ "vpmulld", false },
+			{ "vpmulhuw", true },
+			{ "vpmulhrsw", true },
+			{ "vpmulhw", true },
+			{ "vpmullw", true },
+			{ "vpmulld", true },
 
 			{ "vpmuludq", false },
-			{ "vpmuldq", false },
+			{ "vpmuldq", true },
 
 			{ "vpor", true },
 			{ "vpsadbw", true },

@@ -1108,14 +1108,14 @@ void put()
 			{ 0x3A, "pminuw", MM_0F38 | PP_66, true, -1, false, true },
 			{ 0x3B, "pminud", MM_0F38 | PP_66, true, -1, false, true },
 
-			{ 0xE4, "pmulhuw", MM_0F | PP_66, false, -1, false, true },
-			{ 0x0B, "pmulhrsw", MM_0F38 | PP_66, false, -1, false, true },
-			{ 0xE5, "pmulhw", MM_0F | PP_66, false, -1, false, true },
-			{ 0xD5, "pmullw", MM_0F | PP_66, false, -1, false, true },
-			{ 0x40, "pmulld", MM_0F38 | PP_66, false, -1, false, true },
+			{ 0xE4, "pmulhuw", MM_0F | PP_66, true, -1, false, true },
+			{ 0x0B, "pmulhrsw", MM_0F38 | PP_66, true, -1, false, true },
+			{ 0xE5, "pmulhw", MM_0F | PP_66, true, -1, false, true },
+			{ 0xD5, "pmullw", MM_0F | PP_66, true, -1, false, true },
+			{ 0x40, "pmulld", MM_0F38 | PP_66, true, -1, false, true },
 
 			{ 0xF4, "pmuludq", MM_0F | PP_66, false, -1, false, true },
-			{ 0x28, "pmuldq", MM_0F38 | PP_66, false, -1, false, true },
+			{ 0x28, "pmuldq", MM_0F38 | PP_66, true, -1, false, true },
 
 			{ 0xEB, "por", MM_0F | PP_66, true, -1, false, true },
 			{ 0xF6, "psadbw", MM_0F | PP_66, true, -1, false, true },
