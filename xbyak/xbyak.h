@@ -394,6 +394,10 @@ private:
 	{
 		return Reg32e(r, r.index_, r.scale_, r.disp_ + disp);
 	}
+	friend Reg32e operator+(unsigned int disp, const Reg32e& r)
+	{
+		return operator+(r, disp);
+	}
 	friend Reg32e operator-(const Reg32e& r, unsigned int disp)
 	{
 		return operator+(r, -static_cast<int>(disp));
