@@ -1636,6 +1636,27 @@ void put()
 			printf("void %s(const Reg32e& r, const Operand& op) { opGpr(Reg32e(%d, r.getBit()), op, r, %s, 0x%x, false); }\n", p.name, p.idx, type2String(p.type).c_str(), p.code);
 		}
 	}
+	// gather
+	{
+		const struct Tbl {
+			const char *name;
+			uint8 code;
+			int w;
+		} tbl[] = {
+			{ "vgatherdpd", 0x92, 1 },
+			{ "vgatherqpd", 0x93, 1 },
+			{ "vgatherdps", 0x92, 0 },
+			{ "vgatherqps", 0x93, 0 },
+			{ "vpgatherdd",  0x90, 0 },
+			{ "vpgatherqd",  0x91, 0 },
+			{ "vpgatherdq",  0x90, 1 },
+			{ "vpgatherqq",  0x91, 1 },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			printf("void %s(const Xmm& x1, const Address& addr, const Xmm& x2) { opGather(x1, addr, x2, MM_0F38 | PP_66, 0x%x, %d); }\n", p.name, p.code, p.w);
+		}
+	}
 }
 
 int main()

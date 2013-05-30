@@ -128,6 +128,7 @@ enum Error {
 	ERR_BAD_PROTECT_MODE,
 	ERR_BAD_PNUM,
 	ERR_BAD_TNUM,
+	ERR_BAD_VSIB_ADDRESSING,
 	ERR_INTERNAL
 };
 
@@ -161,6 +162,7 @@ inline const char *ConvertErrorToString(Error err)
 		"bad protect mode",
 		"bad pNum",
 		"bad tNum",
+		"bad vsib addressing",
 		"internal error",
 	};
 	if (err < 0 || err > ERR_INTERNAL) return 0;
@@ -410,7 +412,7 @@ public:
 		, disp_(0)
 	{
 	}
-	Reg32e(const Reg& base, const Reg& index, int scale, unsigned int disp)
+	Reg32e(const Reg& base, const Reg& index, int scale, unsigned int disp, bool allowUseEspIndex = false)
 		: Reg(base)
 		, index_(index)
 		, scale_(scale)
@@ -418,7 +420,7 @@ public:
 	{
 		if (scale != 0 && scale != 1 && scale != 2 && scale != 4 && scale != 8) throw ERR_BAD_SCALE;
 		if (!base.isNone() && !index.isNone() && base.getBit() != index.getBit()) throw ERR_BAD_COMBINATION;
-		if (index.getIdx() == Operand::ESP) throw ERR_ESP_CANT_BE_INDEX;
+		if (!allowUseEspIndex && index.getIdx() == Operand::ESP) throw ERR_ESP_CANT_BE_INDEX;
 	}
 	Reg32e optimize() const // select smaller size
 	{
@@ -454,6 +456,70 @@ struct RegRip {
 	}
 };
 #endif
+
+// QQQ:need to refactor
+struct Vsib {
+	// [index_ * scale_ + base_ + disp_]
+	uint8 indexIdx_; // xmm reg idx
+	uint8 scale_; // 0(none), 1, 2, 4, 8
+	uint8 baseIdx_; // base reg idx
+	uint8 baseBit_; // 0(none), 32, 64
+	uint32 disp_;
+	bool isYMM_; // idx is YMM
+public:
+	static inline void verifyScale(int scale)
+	{
+		if (scale != 1 && scale != 2 && scale != 4 && scale != 8) throw ERR_BAD_SCALE;
+	}
+	int getIndexIdx() const { return indexIdx_; }
+	int getScale() const { return scale_; }
+	int getBaseIdx() const { return baseIdx_; }
+	int getBaseBit() const { return baseBit_; }
+	bool isYMM() const { return isYMM_; }
+	uint32 getDisp() const { return disp_; }
+	Vsib(int indexIdx, int scale, bool isYMM, int baseIdx = 0, int baseBit = 0, uint32 disp = 0)
+		: indexIdx_((uint8)indexIdx)
+		, scale_((uint8)scale)
+		, baseIdx_((uint8)baseIdx)
+		, baseBit_((uint8)baseBit)
+		, disp_(disp)
+		, isYMM_(isYMM)
+	{
+	}
+};
+inline Vsib operator*(const Xmm& x, int scale)
+{
+	Vsib::verifyScale(scale);
+	return Vsib(x.getIdx(), scale, x.isYMM());
+}
+inline Vsib operator+(const Xmm& x, uint32 disp)
+{
+	return Vsib(x.getIdx(), 1, x.isYMM(), disp);
+}
+inline Vsib operator+(const Xmm& x, const Reg32e& r)
+{
+	if (!r.index_.isNone()) throw ERR_BAD_COMBINATION;
+	return Vsib(x.getIdx(), 1, x.isYMM(), r.getIdx(), r.getBit(), r.disp_);
+}
+inline Vsib operator+(const Vsib& vs, uint32 disp)
+{
+	Vsib ret(vs);
+	ret.disp_ += disp;
+	return ret;
+}
+inline Vsib operator+(const Vsib& vs, const Reg32e& r)
+{
+	if (vs.getBaseBit() || !r.index_.isNone()) throw ERR_BAD_COMBINATION;
+	Vsib ret(vs);
+	ret.baseIdx_ = (uint8)r.getIdx();
+	ret.baseBit_ = (uint8)r.getBit();
+	ret.disp_ += r.disp_;
+	return ret;
+}
+inline Vsib operator+(uint32 disp, const Xmm& x) { return x + disp; }
+inline Vsib operator+(uint32 disp, const Vsib& vs) { return vs + disp; }
+inline Vsib operator+(const Reg32e& r, const Xmm& x) { return x + r; }
+inline Vsib operator+(const Reg32e& r, const Vsib& vs) { return vs + r; }
 
 // 2nd parameter for constructor of CodeArray(maxSize, userPtr, alloc)
 void *const AutoGrow = (void*)1;
@@ -678,60 +744,43 @@ public:
 class Address : public Operand, public CodeArray {
 	void operator=(const Address&);
 	uint64 disp_;
+	uint8 rex_;
 	bool isOnlyDisp_;
 	bool is64bitDisp_;
-	uint8 rex_;
-public:
+	mutable bool isVsib_;
+	bool isYMM_;
+	void verify() const { if (isVsib_) throw ERR_BAD_VSIB_ADDRESSING; }
 	const bool is32bit_;
-	Address(uint32 sizeBit, bool isOnlyDisp, uint64 disp, bool is32bit, bool is64bitDisp = false)
+public:
+	Address(uint32 sizeBit, bool isOnlyDisp, uint64 disp, bool is32bit, bool is64bitDisp = false, bool isVsib = false, bool isYMM = false)
 		: Operand(0, MEM, sizeBit)
 		, CodeArray(6) // 6 = 1(ModRM) + 1(SIB) + 4(disp)
 		, disp_(disp)
+		, rex_(0)
 		, isOnlyDisp_(isOnlyDisp)
 		, is64bitDisp_(is64bitDisp)
-		, rex_(0)
+		, isVsib_(isVsib)
+		, isYMM_(isYMM)
 		, is32bit_(is32bit)
 	{
 	}
-	bool isOnlyDisp() const { return isOnlyDisp_; } // for mov eax
-	uint64 getDisp() const { return disp_; }
-	uint8 getRex() const { return rex_; }
-	bool is64bitDisp() const { return is64bitDisp_; } // for moffset
+	void setVsib(bool isVsib) const { isVsib_ = isVsib; }
+	bool isVsib() const { return isVsib_; }
+	bool isYMM() const { return isYMM_; }
+	bool is32bit() const { verify(); return is32bit_; }
+	bool isOnlyDisp() const { verify(); return isOnlyDisp_; } // for mov eax
+	uint64 getDisp() const { verify(); return disp_; }
+	uint8 getRex() const { verify(); return rex_; }
+	bool is64bitDisp() const { verify(); return is64bitDisp_; } // for moffset
 	void setRex(uint8 rex) { rex_ = rex; }
 };
 
 class AddressFrame {
 private:
 	void operator=(const AddressFrame&);
-public:
-	const uint32 bit_;
-	explicit AddressFrame(uint32 bit) : bit_(bit) { }
-	Address operator[](const void *disp) const
+	Address makeAddress(const Reg32e& r, bool isVsib, bool isYMM) const
 	{
-		size_t adr = reinterpret_cast<size_t>(disp);
-#ifdef XBYAK64
-		if (adr > 0xFFFFFFFFU) throw ERR_OFFSET_IS_TOO_BIG;
-#endif
-		Reg32e r(Reg(), Reg(), 0, static_cast<uint32>(adr));
-		return operator[](r);
-	}
-#ifdef XBYAK64
-	Address operator[](uint64 disp) const
-	{
-		return Address(64, true, disp, false, true);
-	}
-	Address operator[](const RegRip& addr) const
-	{
-		Address frame(bit_, true, addr.disp_, false);
-		frame.db(B00000101);
-		frame.dd(addr.disp_);
-		return frame;
-	}
-#endif
-	Address operator[](const Reg32e& in) const
-	{
-		const Reg32e& r = in.optimize();
-		Address frame(bit_, (r.isNone() && r.index_.isNone()), r.disp_, r.isBit(32) || r.index_.isBit(32));
+		Address frame(bit_, (r.isNone() && r.index_.isNone()), r.disp_, r.isBit(32) || r.index_.isBit(32), false, isVsib, isYMM);
 		enum {
 			mod00 = 0, mod01 = 1, mod10 = 2
 		};
@@ -766,6 +815,54 @@ public:
 		uint8 rex = ((r.getIdx() | r.index_.getIdx()) < 8) ? 0 : uint8(0x40 | ((r.index_.getIdx() >> 3) << 1) | (r.getIdx() >> 3));
 		frame.setRex(rex);
 		return frame;
+	}
+public:
+	const uint32 bit_;
+	explicit AddressFrame(uint32 bit) : bit_(bit) { }
+	Address operator[](const void *disp) const
+	{
+		size_t adr = reinterpret_cast<size_t>(disp);
+#ifdef XBYAK64
+		if (adr > 0xFFFFFFFFU) throw ERR_OFFSET_IS_TOO_BIG;
+#endif
+		Reg32e r(Reg(), Reg(), 0, static_cast<uint32>(adr));
+		return operator[](r);
+	}
+#ifdef XBYAK64
+	Address operator[](uint64 disp) const
+	{
+		return Address(64, true, disp, false, true);
+	}
+	Address operator[](const RegRip& addr) const
+	{
+		Address frame(bit_, true, addr.disp_, false);
+		frame.db(B00000101);
+		frame.dd(addr.disp_);
+		return frame;
+	}
+#endif
+	Address operator[](const Reg32e& in) const
+	{
+		return makeAddress(in.optimize(), false, false);
+	}
+	Address operator[](const Vsib& vs) const
+	{
+		if (vs.getBaseBit() == 0) {
+#ifdef XBYAK64
+			const int bit = 64;
+#else
+			const int bit = 32;
+#endif
+			const Reg32e r(Reg(), Reg32e(vs.getIndexIdx(), bit), vs.getScale(), vs.getDisp(), true);
+			return makeAddress(r, true, vs.isYMM());
+		} else {
+			const Reg32e r(Reg32e(vs.getBaseIdx(), vs.getBaseBit()), Reg32e(vs.getIndexIdx(), vs.getBaseBit()), vs.getScale(), vs.getDisp(), true);
+			return makeAddress(r, true, vs.isYMM());
+		}
+	}
+	Address operator[](const Xmm& x) const
+	{
+		return operator[](x + 0);
 	}
 };
 
@@ -975,7 +1072,7 @@ private:
 		if (p1->isMEM()) throw ERR_BAD_COMBINATION;
 		if (p2->isMEM()) {
 			const Address& addr = static_cast<const Address&>(*p2);
-			if (BIT == 64 && addr.is32bit_) db(0x67);
+			if (BIT == 64 && addr.is32bit()) db(0x67);
 			rex = addr.getRex() | static_cast<const Reg&>(*p1).getRex();
 		} else {
 			// ModRM(reg, base);
@@ -1249,7 +1346,7 @@ private:
 			uint8 rex = addr.getRex();
 			x = (rex & 2) != 0;
 			b = (rex & 1) != 0;
-			if (BIT == 64 && addr.is32bit_) db(0x67);
+			if (BIT == 64 && addr.is32bit()) db(0x67);
 			if (BIT == 64 && w == -1) w = (rex & 4) ? 1 : 0;
 		} else {
 			x = false;
@@ -1313,6 +1410,14 @@ private:
 		if (!is16bit && !(reg.isREG(i32e) && (op.isREG(reg.getBit()) || op.isMEM()))) throw ERR_BAD_COMBINATION;
 		if (is16bit) db(0x66);
 		db(pref); opModRM(reg.changeBit(i32e == 32 ? 32 : reg.getBit()), op, op.isREG(), true, code0, code1);
+	}
+	void opGather(const Xmm& x1, const Address& addr, const Xmm& x2, int type, uint8 code, int w)
+	{
+		if (!addr.isVsib()) throw ERR_BAD_VSIB_ADDRESSING;
+		bool isYMM = addr.isYMM();
+		addr.setVsib(false);
+		opAVX_X_X_XM(isYMM ? Ymm(x1.getIdx()) : x1, isYMM ? Ymm(x2.getIdx()) : x2, addr, type, code, true, w);
+		addr.setVsib(true);
 	}
 public:
 	unsigned int getVersion() const { return VERSION; }

@@ -31,6 +31,10 @@ const uint64 CL = 1ULL << 20;
 const uint64 MEM_ONLY_DISP = 1ULL << 21;
 const uint64 NEG32 = 1ULL << 23;
 const uint64 _YMM = 1ULL << 24;
+const uint64 VM32X_32 = 1ULL << 39;
+const uint64 VM32X_64 = 1ULL << 40;
+const uint64 VM32Y_32 = 1ULL << 41;
+const uint64 VM32Y_64 = 1ULL << 42; // max value
 #ifdef XBYAK64
 const uint64 _MEMe = 1ULL << 25;
 const uint64 REG32_2 = 1ULL << 26; // r8d, ...
@@ -42,6 +46,8 @@ const uint64 _REG64_2 = 1ULL << 31; // r8, ...
 const uint64 RAX = 1ULL << 32;
 const uint64 _XMM2 = 1ULL << 33;
 const uint64 _YMM2 = 1ULL << 34;
+const uint64 VM32X = VM32X_32 | VM32X_64;
+const uint64 VM32Y = VM32Y_32 | VM32Y_64;
 #else
 const uint64 _MEMe = 0;
 const uint64 REG32_2 = 0;
@@ -53,6 +59,8 @@ const uint64 _REG64_2 = 0;
 const uint64 RAX = 0;
 const uint64 _XMM2 = 0;
 const uint64 _YMM2 = 0;
+const uint64 VM32X = VM32X_32;
+const uint64 VM32Y = VM32Y_32;
 #endif
 const uint64 REG64 = _REG64 | _REG64_2 | RAX;
 const uint64 REG32 = _REG32 | REG32_2 | EAX;
@@ -291,6 +299,14 @@ class Test {
 			return isXbyak_ ? "0xda" : "0xda";
 		case NEG:
 			return "-5";
+		case VM32X_32:
+			return isXbyak_ ? "ptr [ebp+4+xmm1*8]" : "[ebp+4+xmm1*8]";
+		case VM32X_64:
+			return isXbyak_ ? "ptr [12345+xmm13*2]" : "[12345+xmm13*2]";
+		case VM32Y_32:
+			return isXbyak_ ? "ptr [ymm4]" : "[ymm4]";
+		case VM32Y_64:
+			return isXbyak_ ? "ptr [12345+ymm13*2+r13]" : "[12345+ymm13*2+r13]";
 		}
 		return 0;
 	}
@@ -1963,6 +1979,47 @@ public:
 		put("rorx", REG64, REG64 | MEM, IMM8);
 #endif
 	}
+	void putGather()
+	{
+		const int y_vx_y = 0;
+		const int y_vy_y = 1;
+		const int x_vy_x = 2;
+		const struct Tbl {
+			const char *name;
+			int mode;
+		} tbl[] = {
+			{ "vgatherdpd", y_vx_y },
+			{ "vgatherqpd", y_vy_y },
+			{ "vgatherdps", y_vy_y },
+			{ "vgatherqps", x_vy_x },
+			{ "vpgatherdd", y_vy_y },
+			{ "vpgatherqd", x_vy_x },
+			{ "vpgatherdq", y_vx_y },
+			{ "vpgatherqq", y_vy_y },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			const char *name = p.name;
+			put(name, XMM, VM32X, XMM);
+			switch (p.mode) {
+			case y_vx_y:
+				put(name, YMM, VM32X, YMM);
+				break;
+			case y_vy_y:
+				put(name, YMM, VM32Y, YMM);
+				break;
+			case x_vy_x:
+				put(name, XMM, VM32Y, XMM);
+				break;
+			default:
+				printf("ERR mode=%d\n", p.mode);
+				exit(1);
+			}
+		}
+		// all pattern
+		const char *name = "vgatherdpd";
+		put(name, "xmm1, ptr [xmm2], xmm3", "xmm1, [xmm2], xmm3");
+	}
 	void put()
 	{
 #ifdef USE_AVX
@@ -1972,6 +2029,7 @@ public:
 		putGprR_RM_R();
 		putGprR_RM();
 		putGprOtherwise();
+		putGather();
 #else
 		putAVX1();
 		putAVX2();
