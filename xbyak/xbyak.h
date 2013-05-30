@@ -494,7 +494,7 @@ inline Vsib operator*(const Xmm& x, int scale)
 }
 inline Vsib operator+(const Xmm& x, uint32 disp)
 {
-	return Vsib(x.getIdx(), 1, x.isYMM(), disp);
+	return Vsib(x.getIdx(), 1, x.isYMM(), 0, 0, disp);
 }
 inline Vsib operator+(const Xmm& x, const Reg32e& r)
 {

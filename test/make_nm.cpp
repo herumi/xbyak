@@ -2016,9 +2016,45 @@ public:
 				exit(1);
 			}
 		}
-		// all pattern
-		const char *name = "vgatherdpd";
-		put(name, "xmm1, ptr [xmm2], xmm3", "xmm1, [xmm2], xmm3");
+	}
+	void putGath(const std::string& vsib)
+	{
+		std::string x = "xmm1, ";
+		std::string a = std::string("[") + vsib + "], xmm3";
+		put("vgatherdpd", (x + "ptr" + a).c_str(), (x + a).c_str());
+	}
+
+	void putGatherAll()
+	{
+		const char *xmmTbl[] = {
+			"xmm2",
+			"xmm4",
+			"xmm2*1",
+			"xmm2*4",
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(xmmTbl); i++) {
+			std::string s = xmmTbl[i];
+			putGath(s);
+			putGath(s + "+3");
+			putGath(s + "+eax");
+			putGath("3+" + s);
+			putGath("eax+" + s);
+		}
+		for (size_t i = 0; i < NUM_OF_ARRAY(xmmTbl); i++) {
+			int ord[] = { 0, 1, 2 };
+			do {
+				std::string s;
+				for (int j = 0; j < 3; j++) {
+					if (j > 0) s += '+';
+					switch (ord[j]) {
+					case 0: s += xmmTbl[i]; break;
+					case 1: s += "123"; break;
+					case 2: s += "ebp"; break;
+					}
+				}
+				putGath(s);
+			} while (std::next_permutation(ord, ord + 3));
+		}
 	}
 	void put()
 	{
@@ -2030,6 +2066,7 @@ public:
 		putGprR_RM();
 		putGprOtherwise();
 		putGather();
+		putGatherAll();
 #else
 		putAVX1();
 		putAVX2();
