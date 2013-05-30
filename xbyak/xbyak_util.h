@@ -148,6 +148,9 @@ public:
 		tSSE4a = 1 << 18,
 		tRDTSCP = 1 << 19,
 		tAVX2 = 1 << 20,
+		tGPR1 = 1 << 21, // andn, bextr, blsi, blsmk, blsr, tzcnt
+		tGPR2 = 1 << 22, // bzhi, mulx, pdep, pext, rorx, sarx, shlx, shrx
+		tLZCNT = 1 << 23,
 
 		tINTEL = 1 << 24,
 		tAMD = 1 << 25
@@ -172,6 +175,7 @@ public:
 			type_ |= tINTEL;
 			getCpuid(0x80000001, data);
 			if (data[3] & (1U << 27)) type_ |= tRDTSCP;
+			if (data[2] & (1U << 5)) type_ |= tLZCNT;
 		}
 		getCpuid(1, data);
 		if (data[2] & (1U << 0)) type_ |= tSSE3;
@@ -194,10 +198,12 @@ public:
 			if ((bv & 6) == 6) {
 				if (data[2] & (1U << 28)) type_ |= tAVX;
 				if (data[2] & (1U << 12)) type_ |= tFMA;
-				getCpuidEx(7, 0, data);
-				if (data[1] & 0x20) type_ |= tAVX2;
 			}
 		}
+		getCpuidEx(7, 0, data);
+		if (type_ & tAVX && data[1] & 0x20) type_ |= tAVX2;
+		if (data[1] & (1U << 3)) type_ |= tGPR1;
+		if (data[1] & (1U << 8)) type_ |= tGPR2;
 		setFamily();
 	}
 	void putFamily()

@@ -43,6 +43,9 @@ void putCPUinfo()
 		{ Cpu::tAVX, "avx" },
 		{ Cpu::tFMA, "fma" },
 		{ Cpu::tAVX2, "avx2" },
+		{ Cpu::tGPR1, "gpr-group1" },
+		{ Cpu::tGPR2, "gpr-group2" },
+		{ Cpu::tLZCNT, "lzcnt" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
