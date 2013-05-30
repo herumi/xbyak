@@ -40,8 +40,10 @@
 	#else
 		#if defined(__APPLE__) && defined(XBYAK32) // avoid err : can't find a register in class `BREG' while reloading `asm'
 			#define __cpuid(eaxIn, a, b, c, d) __asm__ __volatile__("pushl %%ebx\ncpuid\nmovl %%ebp, %%esi\npopl %%ebx" : "=a"(a), "=S"(b), "=c"(c), "=d"(d) : "0"(eaxIn))
+			#define __cpuid_count(eaxIn, ecxIn, a, b, c, d) __asm__ __volatile__("pushl %%ebx\ncpuid\nmovl %%ebp, %%esi\npopl %%ebx" : "=a"(a), "=S"(b), "=c"(c), "=d"(d) : "0"(eaxIn), "2"(ecxIn))
 		#else
 			#define __cpuid(eaxIn, a, b, c, d) __asm__ __volatile__("cpuid\n" : "=a"(a), "=b"(b), "=c"(c), "=d"(d) : "0"(eaxIn))
+			#define __cpuid_count(eaxIn, ecxIn, a, b, c, d) __asm__ __volatile__("cpuid\n" : "=a"(a), "=b"(b), "=c"(c), "=d"(d) : "0"(eaxIn), "2"(ecxIn))
 		#endif
 	#endif
 #endif
@@ -102,6 +104,14 @@ public:
 		__cpuid(eaxIn, data[0], data[1], data[2], data[3]);
 #endif
 	}
+	static inline void getCpuidEx(unsigned int eaxIn, unsigned int ecxIn, unsigned int data[4])
+	{
+#ifdef _WIN32
+		__cpuidex(reinterpret_cast<int*>(data), eaxIn, ecxIn);
+#else
+		__cpuid_count(eaxIn, ecxIn, data[0], data[1], data[2], data[3]);
+#endif
+	}
 	static inline uint64 getXfeature()
 	{
 #ifdef _MSC_VER
@@ -137,6 +147,7 @@ public:
 		tE3DN = 1 << 17,
 		tSSE4a = 1 << 18,
 		tRDTSCP = 1 << 19,
+		tAVX2 = 1 << 20,
 
 		tINTEL = 1 << 24,
 		tAMD = 1 << 25
@@ -172,19 +183,21 @@ public:
 		if (data[2] & (1U << 1)) type_ |= tPCLMULQDQ;
 		if (data[2] & (1U << 27)) type_ |= tOSXSAVE;
 
+		if (data[3] & (1U << 15)) type_ |= tCMOV;
+		if (data[3] & (1U << 23)) type_ |= tMMX;
+		if (data[3] & (1U << 25)) type_ |= tMMX2 | tSSE;
+		if (data[3] & (1U << 26)) type_ |= tSSE2;
+
 		if (type_ & tOSXSAVE) {
 			// check XFEATURE_ENABLED_MASK[2:1] = '11b'
 			uint64 bv = getXfeature();
 			if ((bv & 6) == 6) {
 				if (data[2] & (1U << 28)) type_ |= tAVX;
 				if (data[2] & (1U << 12)) type_ |= tFMA;
+				getCpuidEx(7, 0, data);
+				if (data[1] & 0x20) type_ |= tAVX2;
 			}
 		}
-
-		if (data[3] & (1U << 15)) type_ |= tCMOV;
-		if (data[3] & (1U << 23)) type_ |= tMMX;
-		if (data[3] & (1U << 25)) type_ |= tMMX2 | tSSE;
-		if (data[3] & (1U << 26)) type_ |= tSSE2;
 		setFamily();
 	}
 	void putFamily()

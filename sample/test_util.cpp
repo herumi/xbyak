@@ -42,6 +42,7 @@ void putCPUinfo()
 		{ Cpu::tPCLMULQDQ, "pclmulqdq" },
 		{ Cpu::tAVX, "avx" },
 		{ Cpu::tFMA, "fma" },
+		{ Cpu::tAVX2, "avx2" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
