@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 3.80
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 4.00
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -14,12 +14,11 @@
     xbyak.hをインクルードするだけですぐ利用することができます。
     C++の枠組み内で閉じているため、外部アセンブラは不要です。
     32bit/64bit両対応です。
-    対応ニーモニック:特権命令除くx86, MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(一部)/AVX
+    対応ニーモニック:特権命令除くx86, MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(一部)/AVX/AVX2/FMA/VEX-encoded GPR
 
-・Windows Xp(32bit, 64bit), Vista/Linux(32bit, 64bit)/Intel Mac対応
-    Windows Xp上ではVC2005 Express Ed., VC2008, VC2010,
-    Windows Vista
-    Linux (kernel 2.4.32)上ではgcc 4.5.0, CentOS 5.1上ではgcc 4.1.2
+・Windows Xp(32bit, 64bit), Windows 7/Linux(32bit, 64bit)/Intel Mac対応
+    Windows Xp, Windows 7上ではVC2008, VC2010, VC2012
+    Linux (kernel 3.8)上ではgcc 4.7.3
     Intel Mac
     などで動作確認をしています。
 
@@ -245,6 +244,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2013/05/30 ver 4.00 AVX2, VEX-encoded GPR-instructionをサポート
 2013/03/27 ver 3.80 mov(reg, "label");をサポート
 2013/03/13 ver 3.76 cqo, jcxz, jecxz, jrcxz追加
 2013/01/15 ver 3.75 生成されたコードを修正するためにsetSize()を追加

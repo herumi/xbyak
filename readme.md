@@ -1,5 +1,5 @@
 
-Xbyak 3.80 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 4.00 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -14,7 +14,7 @@ you can use Xbyak's functions at once if xbyak.h is included.
 
 ### Supported Instructions Sets
 
-MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(*partial*)/AVX
+MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(*partial*)/AVX/AVX2/FMA/VEX-encoded GPR
 
 ### Supported OS
 
@@ -24,9 +24,9 @@ MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(*partial*)/AVX
 
 ### Supported Compilers
 
-* Visual Studio C++ 2005 Express Ed., VC2008 Pro, VC2010
-* gcc 4.5
-* mingw 3.4.2
+* Visual Studio C++ VC2008 Pro, VC2010, VC2012
+* gcc 4.7
+* cygwin gcc 4.5.3
 * icc 7.2
 
 >Note: Xbyak uses and(), or(), xor(), not() functions, so "-fno-operator-names" option is required on gcc.
@@ -101,6 +101,7 @@ You can omit a destination for almost 3-op mnemonics.
     vaddps(xmm1, xmm2, xmm3); // xmm1 <- xmm2 + xmm3
     vaddps(xmm2, xmm3); // xmm2 <- xmm2 + xmm3
     vaddps(xmm2, xmm3, ptr [rax]); // use ptr to access memory
+    vgatherdpd(xmm1, ptr [ebp+123+xmm2*4], xmm3);
 
 ### Label
 
@@ -226,6 +227,7 @@ http://opensource.org/licenses/BSD-3-Clause
 
 History
 -------------
+* 2013/May/30 ver 4.00 support AVX2, VEX-encoded GPR-instructions
 * 2013/Mar/27 ver 3.80 support mov(reg, "label");
 * 2013/Mar/13 ver 3.76 add cqo(), jcxz(), jecxz(), jrcxz()
 * 2013/Jan/15 ver 3.75 add setSize() to modify generated code
