@@ -1411,12 +1411,26 @@ private:
 		if (is16bit) db(0x66);
 		db(pref); opModRM(reg.changeBit(i32e == 32 ? 32 : reg.getBit()), op, op.isREG(), true, code0, code1);
 	}
-	void opGather(const Xmm& x1, const Address& addr, const Xmm& x2, int type, uint8 code, int w)
+	void opGather(const Xmm& x1, const Address& addr, const Xmm& x2, int type, uint8 code, int w, int mode)
 	{
 		if (!addr.isVsib()) throw ERR_BAD_VSIB_ADDRESSING;
-		bool isYMM = addr.isYMM();
+		const int y_vx_y = 0;
+		const int y_vy_y = 1;
+//		const int x_vy_x = 2;
+		const bool isAddrYMM = addr.isYMM();
+		if (!x1.isXMM() || isAddrYMM || !x2.isXMM()) {
+			bool isOK = false;
+			if (mode == y_vx_y) {
+				isOK = x1.isYMM() && !isAddrYMM && x2.isYMM();
+			} else if (mode == y_vy_y) {
+				isOK = x1.isYMM() && isAddrYMM && x2.isYMM();
+			} else { // x_vy_x
+				isOK = !x1.isYMM() && isAddrYMM && !x2.isYMM();
+			}
+			if (!isOK) throw ERR_BAD_VSIB_ADDRESSING;
+		}
 		addr.setVsib(false);
-		opAVX_X_X_XM(isYMM ? Ymm(x1.getIdx()) : x1, isYMM ? Ymm(x2.getIdx()) : x2, addr, type, code, true, w);
+		opAVX_X_X_XM(isAddrYMM ? Ymm(x1.getIdx()) : x1, isAddrYMM ? Ymm(x2.getIdx()) : x2, addr, type, code, true, w);
 		addr.setVsib(true);
 	}
 public:

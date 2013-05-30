@@ -1638,23 +1638,27 @@ void put()
 	}
 	// gather
 	{
+		const int y_vx_y = 0;
+		const int y_vy_y = 1;
+		const int x_vy_x = 2;
 		const struct Tbl {
 			const char *name;
 			uint8 code;
 			int w;
+			int mode;
 		} tbl[] = {
-			{ "vgatherdpd", 0x92, 1 },
-			{ "vgatherqpd", 0x93, 1 },
-			{ "vgatherdps", 0x92, 0 },
-			{ "vgatherqps", 0x93, 0 },
-			{ "vpgatherdd",  0x90, 0 },
-			{ "vpgatherqd",  0x91, 0 },
-			{ "vpgatherdq",  0x90, 1 },
-			{ "vpgatherqq",  0x91, 1 },
+			{ "vgatherdpd", 0x92, 1, y_vx_y },
+			{ "vgatherqpd", 0x93, 1, y_vy_y },
+			{ "vgatherdps", 0x92, 0, y_vy_y },
+			{ "vgatherqps", 0x93, 0, x_vy_x },
+			{ "vpgatherdd",  0x90, 0, y_vy_y },
+			{ "vpgatherqd",  0x91, 0, x_vy_x },
+			{ "vpgatherdq",  0x90, 1, y_vx_y },
+			{ "vpgatherqq",  0x91, 1, y_vy_y },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			printf("void %s(const Xmm& x1, const Address& addr, const Xmm& x2) { opGather(x1, addr, x2, MM_0F38 | PP_66, 0x%x, %d); }\n", p.name, p.code, p.w);
+			printf("void %s(const Xmm& x1, const Address& addr, const Xmm& x2) { opGather(x1, addr, x2, MM_0F38 | PP_66, 0x%x, %d, %d); }\n", p.name, p.code, p.w, p.mode);
 		}
 	}
 }
