@@ -18,7 +18,7 @@
 
 ・Windows Xp(32bit, 64bit), Windows 7/Linux(32bit, 64bit)/Intel Mac対応
     Windows Xp, Windows 7上ではVC2008, VC2010, VC2012
-    Linux (kernel 3.8)上ではgcc 4.7.3
+    Linux (kernel 3.8)上ではgcc 4.7.3, clang 3.3
     Intel Mac
     などで動作確認をしています。
 
