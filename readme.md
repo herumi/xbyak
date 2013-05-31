@@ -26,6 +26,7 @@ MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(*partial*)/AVX/AVX2/FMA/VEX-encoded GPR
 
 * Visual Studio C++ VC2008 Pro, VC2010, VC2012
 * gcc 4.7
+* clang 3.3
 * cygwin gcc 4.5.3
 * icc 7.2
 
