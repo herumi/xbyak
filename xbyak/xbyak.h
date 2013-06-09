@@ -15,6 +15,19 @@
 	#endif
 #endif
 
+/*
+	The old Reg32e is split to Reg32, Reg64 and MemOperand
+	Use MemOperand to specify 'rax + rcx * 4 + 123' instead of Reg32e,
+	or define XBYAK_USE_OLD_REG32E for compatibility
+
+	XBYAK_USE_OLD_REG32E will be removed in the future version
+
+	old Reg32e = new Reg32e + MemOperand
+	new Reg32e = Reg32 or Reg64
+	MemOperand = Memory Operand such as 'rax + rcx * 4 + 123'
+*/
+#define XBYAK_USE_OLD_REG32E
+
 #include <stdio.h> // for debug print
 #include <assert.h>
 #include <list>
@@ -357,6 +370,8 @@ struct Fpu : public Reg {
 	explicit Fpu(int idx = 0) : Reg(idx, Operand::FPU, 32) { }
 };
 
+#ifdef XBYAK_USE_OLD_REG32E
+
 // register for addressing(32bit or 64bit)
 class Reg32e : public Reg {
 public:
@@ -455,6 +470,10 @@ struct RegRip {
 		return RegRip(r.disp_ - disp);
 	}
 };
+#endif
+
+typedef Reg32e MemOperand;
+#else
 #endif
 
 // QQQ:need to refactor
