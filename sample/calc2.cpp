@@ -1,6 +1,5 @@
 /*
 	@author herumi
-	@date $Date: 2010/11/17 11:58:06 $
 
 	tiny calculator 2
 	This program generates a function to calc the value of
@@ -106,9 +105,13 @@ private:
 	size_t constTblPos_;
 	int regIdx_;
 #ifdef XBYAK32
-	const Xbyak::Reg32e& varTbl_;
+	const Xbyak::MemOperand& varTbl_;
 #endif
-	const Xbyak::Reg32e& tbl_;
+#ifdef XBYAK32
+	const Xbyak::Reg32& tbl_;
+#else
+	const Xbyak::Reg64& tbl_;
+#endif
 public:
 	/*
 		double jit(double x);
@@ -116,7 +119,7 @@ public:
 		      64bit: x [rcx](win), xmm0(gcc), return xmm0
 	*/
 	Jit()
-		: negConst_(0x8000000000000000ULL)
+		: negConst_(Xbyak::uint64(1) << 63)
 		, constTblPos_(0)
 		, regIdx_(-1)
 #ifdef XBYAK32
@@ -290,7 +293,7 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 		parserJit.code_.complete();
-		double (*jit)(double) = (double (*)(double))parserJit.code_.getCode();
+		double (*jit)(double) = parserJit.code_.getCode<double (*)(double)>();
 
 		Test("VM ", vm);
 		Test("JIT", jit);

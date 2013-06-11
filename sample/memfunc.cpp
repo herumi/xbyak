@@ -9,6 +9,10 @@ struct A {
 	int func(int a, int b, int c, int d, int e) const { return x_ + y_ + a + b + c + d + e; }
 };
 
+#ifdef _MSC_VER
+	#pragma warning(disable : 4510 4512 4610)
+#endif
+
 struct Code : public Xbyak::CodeGenerator {
 	Code()
 	{
@@ -25,7 +29,11 @@ struct Code : public Xbyak::CodeGenerator {
 	#endif
 #endif
 		const struct {
-			const Reg32e& self;
+#ifdef XBYAK32
+			const Reg32& self;
+#else
+			const Reg64& self;
+#endif
 			const Operand& a;
 			const Operand& b;
 			const Operand& c;
