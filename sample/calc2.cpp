@@ -105,7 +105,7 @@ private:
 	size_t constTblPos_;
 	int regIdx_;
 #ifdef XBYAK32
-	const Xbyak::MemOperand& varTbl_;
+	const Xbyak::RegExp& varTbl_;
 #endif
 #ifdef XBYAK32
 	const Xbyak::Reg32& tbl_;

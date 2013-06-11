@@ -37,7 +37,7 @@ private:
 	size_t constTblPos_;
 	int regIdx_;
 	Map varMap_; // map var name to index
-	const Xbyak::MemOperand& valTbl_;
+	const Xbyak::RegExp& valTbl_;
 #ifdef XBYAK32
 	const Xbyak::Reg32& tbl_;
 #else

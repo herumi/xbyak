@@ -16,15 +16,15 @@
 #endif
 
 /*
-	The old Reg32e is split to Reg32, Reg64 and MemOperand
-	Use MemOperand to specify 'rax + rcx * 4 + 123' instead of Reg32e,
+	The old Reg32e is split to Reg32, Reg64 and RegExp
+	Use RegExp to specify 'rax + rcx * 4 + 123' instead of Reg32e,
 	or define XBYAK_USE_OLD_REG32E for compatibility
 
 	XBYAK_USE_OLD_REG32E will be removed in the future version
 
-	old Reg32e = new Reg32e + MemOperand
+	old Reg32e = new Reg32e + RegExp
 	new Reg32e = Reg32 or Reg64
-	MemOperand = Memory Operand such as 'rax + rcx * 4 + 123'
+	RegExp = Memory Operand such as 'rax + rcx * 4 + 123'
 */
 #define XBYAK_USE_OLD_REG32E
 
@@ -472,7 +472,7 @@ struct RegRip {
 };
 #endif
 
-typedef Reg32e MemOperand;
+typedef Reg32e RegExp;
 #else
 #endif
 

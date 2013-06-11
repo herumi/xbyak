@@ -49,6 +49,13 @@ Linux:
 
 These files are copied into /usr/local/include/xbyak
 
+Break backward compatibility
+-------------
+At the next version, (old) Reg32e class will split (new) Reg32e class and (new) RegExp.
+(new) Reg32e class is Reg32 or Reg64.
+(new) RegExp class is to deal with 'Reg32e + Reg32e * scale + disp'.
+Please rename Reg32e as RegExp if you use (old) Reg32e as RegExp.
+
 New Feature
 -------------
 
