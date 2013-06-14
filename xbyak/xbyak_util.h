@@ -9,7 +9,7 @@
 */
 #include "xbyak/xbyak.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 	#if (_MSC_VER < 1400) && defined(XBYAK32)
 		static inline __declspec(naked) void __cpuid(int[4], int)
 		{
@@ -98,7 +98,7 @@ public:
 	int displayModel; // model + extModel
 	static inline void getCpuid(unsigned int eaxIn, unsigned int data[4])
 	{
-#ifdef _WIN32
+#ifdef _MSC_VER
 		__cpuid(reinterpret_cast<int*>(data), eaxIn);
 #else
 		__cpuid(eaxIn, data[0], data[1], data[2], data[3]);
@@ -106,7 +106,7 @@ public:
 	}
 	static inline void getCpuidEx(unsigned int eaxIn, unsigned int ecxIn, unsigned int data[4])
 	{
-#ifdef _WIN32
+#ifdef _MSC_VER
 		__cpuidex(reinterpret_cast<int*>(data), eaxIn, ecxIn);
 #else
 		__cpuid_count(eaxIn, ecxIn, data[0], data[1], data[2], data[3]);
