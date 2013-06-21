@@ -1299,6 +1299,10 @@ void vbroadcastf128(const Ymm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr,
 void vbroadcasti128(const Ymm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, MM_0F38 | PP_66, 0x5A, true, 0); }
 void vbroadcastsd(const Ymm& y, const Operand& op) { if (!(op.isXMM() || op.isMEM())) throw ERR_BAD_COMBINATION; opAVX_X_XM_IMM(y, op, MM_0F38 | PP_66, 0x19, true, 0); }
 void vbroadcastss(const Xmm& x, const Operand& op) { if (!(op.isXMM() || op.isMEM())) throw ERR_BAD_COMBINATION; opAVX_X_XM_IMM(x, op, MM_0F38 | PP_66, 0x18, true, 0); }
+void vpbroadcastb(const Xmm& x, const Operand& op) { if (!(op.isXMM() || op.isMEM())) throw ERR_BAD_COMBINATION; opAVX_X_XM_IMM(x, op, MM_0F38 | PP_66, 0x78, true, 0); }
+void vpbroadcastw(const Xmm& x, const Operand& op) { if (!(op.isXMM() || op.isMEM())) throw ERR_BAD_COMBINATION; opAVX_X_XM_IMM(x, op, MM_0F38 | PP_66, 0x79, true, 0); }
+void vpbroadcastd(const Xmm& x, const Operand& op) { if (!(op.isXMM() || op.isMEM())) throw ERR_BAD_COMBINATION; opAVX_X_XM_IMM(x, op, MM_0F38 | PP_66, 0x58, true, 0); }
+void vpbroadcastq(const Xmm& x, const Operand& op) { if (!(op.isXMM() || op.isMEM())) throw ERR_BAD_COMBINATION; opAVX_X_XM_IMM(x, op, MM_0F38 | PP_66, 0x59, true, 0); }
 void vextractf128(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, y.isXMM() ? xm0 : ym0, op, op.isXMM(), Operand::YMM, MM_0F3A | PP_66, 0x19, true, 0); db(imm); }
 void vextracti128(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, y.isXMM() ? xm0 : ym0, op, op.isXMM(), Operand::YMM, MM_0F3A | PP_66, 0x39, true, 0); db(imm); }
 void vextractps(const Operand& op, const Xmm& x, uint8 imm) { if (!(op.isREG(32) || op.isMEM()) || x.isYMM()) throw ERR_BAD_COMBINATION; opAVX_X_X_XMcvt(x, x.isXMM() ? xm0 : ym0, op, op.isREG(), Operand::XMM, MM_0F3A | PP_66, 0x17, false, 0); db(imm); }

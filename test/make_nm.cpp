@@ -1793,7 +1793,18 @@ class Test {
 		put("vbroadcastf128", YMM, MEM);
 		put("vbroadcasti128", YMM, MEM);
 		put("vbroadcastsd", YMM, XMM|MEM);
-		put("vbroadcastss", XMM | YMM, XMM|MEM);
+		{
+			const char *tbl[] = {
+				"vbroadcastss",
+				"vpbroadcastb",
+				"vpbroadcastw",
+				"vpbroadcastd",
+				"vpbroadcastq",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				put(tbl[i], XMM | YMM, XMM|MEM);
+			}
+		}
 
 		put("vinsertf128", YMM, YMM, XMM | MEM, IMM8);
 		put("vinserti128", YMM, YMM, XMM | MEM, IMM8);

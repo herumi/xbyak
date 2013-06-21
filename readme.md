@@ -235,7 +235,8 @@ http://opensource.org/licenses/BSD-3-Clause
 
 History
 -------------
-* 2013/Jun/21 vpsllw, vpslld, vpsllq, vpsraw, vpsrad, vpsrlw, vpsrld, vpsrlq support (ymm, ymm, xmm)
+* 2013/Jun/21 ver 4.01 vpsllw, vpslld, vpsllq, vpsraw, vpsrad, vpsrlw, vpsrld, vpsrlq support (ymm, ymm, xmm).
+                       support vpbroadcastb, vpbroadcastw, vpbroadcastd, vpbroadcastq(thanks to Gabest).
 * 2013/May/30 ver 4.00 support AVX2, VEX-encoded GPR-instructions
 * 2013/Mar/27 ver 3.80 support mov(reg, "label");
 * 2013/Mar/13 ver 3.76 add cqo(), jcxz(), jecxz(), jrcxz()
