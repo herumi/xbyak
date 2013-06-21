@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 4.00
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 4.01
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -244,6 +244,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2013/06/21 ver 4.01 vpsllw, vpslld, vpsllq, vpsraw, vpsrad, vpsrlw, vpsrld, vpsrlq support (ymm, ymm, xmm)
 2013/05/30 ver 4.00 AVX2, VEX-encoded GPR-instructionをサポート
 2013/03/27 ver 3.80 mov(reg, "label");をサポート
 2013/03/13 ver 3.76 cqo, jcxz, jecxz, jrcxz追加

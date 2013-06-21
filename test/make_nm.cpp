@@ -1607,23 +1607,27 @@ class Test {
 	{
 		const struct Tbl {
 			const char *name;
+			bool support_Y_Y_X;
 		} tbl[] = {
-			{ "vpslldq" },
-			{ "vpsrldq" },
-			{ "vpsllw" },
-			{ "vpslld" },
-			{ "vpsllq" },
-			{ "vpsraw" },
-			{ "vpsrad" },
-			{ "vpsrlw" },
-			{ "vpsrld" },
-			{ "vpsrlq" },
+			{ "vpslldq", false },
+			{ "vpsrldq", false },
+			{ "vpsllw", true },
+			{ "vpslld", true },
+			{ "vpsllq", true },
+			{ "vpsraw", true },
+			{ "vpsrad", true },
+			{ "vpsrlw", true },
+			{ "vpsrld", true },
+			{ "vpsrlq", true },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
 			put(p.name, XMM, XMM, IMM);
 			put(p.name, YMM, YMM, IMM);
 			put(p.name, YMM, IMM);
+			if (p.support_Y_Y_X) {
+				put(p.name, YMM, YMM, XMM);
+			}
 		}
 	}
 	void putFMA()
