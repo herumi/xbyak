@@ -62,10 +62,8 @@ struct Code : Xbyak::CodeGenerator {
 			jmp(".end");
 		L(".end");
 			ret();
+			ud2();
 
-			/*
-				this table should be in code segment
-			*/
 			align(8);
 		L(".jmp_table");
 		putL(".label1");
@@ -78,10 +76,8 @@ struct Code : Xbyak::CodeGenerator {
 				the label for putL is not defined when called
 			*/
 			jmp(".in");
+			ud2();
 			align(8);
-			/*
-				this table should be in code segment
-			*/
 		L(".jmp_table");
 		putL(".label1");
 		putL(".label2");
