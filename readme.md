@@ -1,5 +1,5 @@
 
-Xbyak 4.00 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 4.02 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -235,6 +235,7 @@ http://opensource.org/licenses/BSD-3-Clause
 
 History
 -------------
+* 2013/Jun/21 ver 4.02 add putL(LABEL) function to put the address of the label
 * 2013/Jun/21 ver 4.01 vpsllw, vpslld, vpsllq, vpsraw, vpsrad, vpsrlw, vpsrld, vpsrlq support (ymm, ymm, xmm).
                        support vpbroadcastb, vpbroadcastw, vpbroadcastd, vpbroadcastq(thanks to Gabest).
 * 2013/May/30 ver 4.00 support AVX2, VEX-encoded GPR-instructions

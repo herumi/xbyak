@@ -1,4 +1,4 @@
-TARGET = test quantize bf toyvm test_util memfunc static_buf
+TARGET = test quantize bf toyvm test_util memfunc static_buf jmp_table
 XBYAK_INC=../xbyak/xbyak.h
 
 BOOST_EXIST=$(shell echo "\#include <boost/spirit/core.hpp>" | (gcc -E - 2>/dev/null) | grep "boost/spirit/core.hpp" >/dev/null && echo "1")
@@ -12,7 +12,7 @@ BIT=64
 endif
 
 ifeq ($(BIT),64)
-TARGET += test64 bf64 memfunc64 test_util64 static_buf64
+TARGET += test64 bf64 memfunc64 test_util64 static_buf64 jmp_table64
 ifeq ($(BOOST_EXIST),1)
 TARGET += calc64 #calc2_64
 endif
@@ -26,7 +26,7 @@ all: $(TARGET)
 
 CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -pedantic
 
-CFLAGS=-g -O2 -fomit-frame-pointer -DXBYAK_NO_OP_NAMES -Wall -I../ $(CFLAGS_WARN)
+CFLAGS=-g -O2 -fomit-frame-pointer -Wall -I../ $(CFLAGS_WARN)
 
 test:
 	$(CXX) $(CFLAGS) test0.cpp -o $@ -m32
@@ -66,6 +66,10 @@ static_buf:
 	$(CXX) $(CFLAGS) static_buf.cpp -o $@ -m32
 static_buf64:
 	$(CXX) $(CFLAGS) static_buf.cpp -o $@ -m64
+jmp_table:
+	$(CXX) $(CFLAGS) jmp_table.cpp -o $@ -m32
+jmp_table64:
+	$(CXX) $(CFLAGS) jmp_table.cpp -o $@ -m64
 
 clean:
 	rm -rf *.o $(TARGET) *.exe
@@ -86,3 +90,5 @@ static_buf: static_buf.cpp $(XBYAK_INC)
 static_buf64: static_buf.cpp $(XBYAK_INC)
 test_util : test_util.cpp $(XBYAK_INC) ../xbyak/xbyak_util.h
 test_util2 : test_util.cpp $(XBYAK_INC) ../xbyak/xbyak_util.h
+jmp_table: jmp_table.cpp $(XBYAK_INC)
+jmp_table64: jmp_table.cpp $(XBYAK_INC)

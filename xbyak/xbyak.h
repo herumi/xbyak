@@ -85,7 +85,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4001 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4002 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1637,6 +1637,7 @@ public:
 			throw ERR_BAD_COMBINATION;
 		}
 	}
+	// QQQ : rewrite this function with putL
 	void mov(
 #ifdef XBYAK64
 		const Reg64& reg,
@@ -1667,6 +1668,31 @@ public:
 			return;
 		}
 		mov(reg, dummyAddr);
+		JmpLabel jmp;
+		jmp.endOfJmp = size_;
+		jmp.jmpSize = jmpSize;
+		jmp.mode = isAutoGrow() ? inner::LaddTop : inner::Labs;
+		label_.addUndefinedLabel(label, jmp);
+	}
+	/*
+		put address of label to buffer
+		@note the put size is 4(32-bit), 8(64-bit)
+	*/
+	void putL(const char *label)
+	{
+		const int jmpSize = (int)sizeof(size_t);
+		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory();
+		size_t offset = 0;
+		if (label_.getOffset(&offset, label)) {
+			if (isAutoGrow()) {
+				db(uint64(0), jmpSize);
+				save(size_ - jmpSize, offset, jmpSize, inner::LaddTop);
+			} else {
+				db(size_t(top_) + offset, jmpSize);
+			}
+			return;
+		}
+		db(uint64(0), jmpSize);
 		JmpLabel jmp;
 		jmp.endOfJmp = size_;
 		jmp.jmpSize = jmpSize;

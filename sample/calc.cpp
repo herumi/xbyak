@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <sstream>
 #include <map>
+#define XBYAK_NO_OP_NAMES
 #include "xbyak/xbyak.h"
 #ifdef _MSC_VER
 	#pragma warning(disable : 4127) // for boost(constant condition)
