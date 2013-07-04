@@ -1,5 +1,5 @@
 
-Xbyak 4.02 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 4.10 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -51,7 +51,9 @@ These files are copied into /usr/local/include/xbyak
 
 Break backward compatibility
 -------------
-At the next version, (old) Reg32e class will split (new) Reg32e class and (new) RegExp.
+* change the type of Xbyak::Error from enum to a class.
+** get the enum value by cast to int.
+* An (old) Reg32e class will split (new) Reg32e class and (new) RegExp.
 (new) Reg32e class is Reg32 or Reg64.
 (new) RegExp class is to deal with 'Reg32e + Reg32e * scale + disp'.
 Please rename Reg32e as RegExp if you use (old) Reg32e as RegExp.
@@ -235,6 +237,7 @@ http://opensource.org/licenses/BSD-3-Clause
 
 History
 -------------
+* 2013/Jul/04 ver 4.10 [break backward compatibility] change the type of Xbyak::Error from enum to a class
 * 2013/Jun/21 ver 4.02 add putL(LABEL) function to put the address of the label
 * 2013/Jun/21 ver 4.01 vpsllw, vpslld, vpsllq, vpsraw, vpsrad, vpsrlw, vpsrld, vpsrlq support (ymm, ymm, xmm).
                        support vpbroadcastb, vpbroadcastw, vpbroadcastd, vpbroadcastq(thanks to Gabest).

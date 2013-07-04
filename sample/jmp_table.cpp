@@ -109,7 +109,7 @@ int main()
 		printf("mode=%d\n", mode);
 		for (int grow = 0; grow < 2; grow++) {
 			printf("auto grow=%s\n", grow ? "on" : "off");
-			Code c(mode, grow ? 10 : 4096, grow ? Xbyak::AutoGrow : 0);
+			Code c(mode, grow ? 30 : 4096, grow ? Xbyak::AutoGrow : 0);
 			int (*f)(int) = c.getCode<int (*)(int)>();
 			c.ready();
 			for (int i = 0; i < 3; i++) {
@@ -123,6 +123,6 @@ int main()
 		}
 	}
 	puts("ok");
-} catch (Xbyak::Error e) {
-	printf("ERR %s\n", Xbyak::ConvertErrorToString(e));
+} catch (std::exception& e) {
+	printf("ERR %s\n", e.what());
 }

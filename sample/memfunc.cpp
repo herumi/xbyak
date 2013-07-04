@@ -111,8 +111,8 @@ int main()
 			y = (a.*p)(t1, t2, t3, t4, t5);
 			printf("%c %d, %d\n", x == y ? 'o' : 'x', x, y);
 		}
-	} catch (Xbyak::Error& e) {
-		printf("err=%s\n", Xbyak::ConvertErrorToString(e));
+	} catch (std::exception& e) {
+		printf("err=%s\n", e.what());
 		return 1;
 	}
 }

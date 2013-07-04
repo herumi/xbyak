@@ -150,12 +150,15 @@ void quantize(uint32 dest[64], const uint32 src[64], const uint32 qTbl[64])
 	}
 }
 
-int main(int argc, char *argv[])
-{
 #ifdef XBYAK64
+int main()
+{
 	puts("not implemented for 64bit");
 	return 1;
-#endif
+}
+#else
+int main(int argc, char *argv[])
+{
 	int q;
 	if (argc > 1) {
 		q = atoi(argv[1]);
@@ -217,9 +220,10 @@ int main(int argc, char *argv[])
 			quantize2(dest, src, qTbl);
 		}
 		printf("time=%.1fsec\n", (clock() - begin) / double(CLOCKS_PER_SEC));
-	} catch (Xbyak::Error err) {
-		printf("ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
+	} catch (std::exception& e) {
+		printf("ERR:%s\n", e.what());
 	} catch (...) {
 		printf("unknown error\n");
 	}
 }
+#endif

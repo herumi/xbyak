@@ -10,9 +10,9 @@ struct Code : public Xbyak::CodeGenerator {
 	{
 		// see xbyak/sample/sf_test.cpp for how to use other parameter
 		Xbyak::util::StackFrame sf(this, 3);
-		mov(rax, sf.p(0));
-		add(rax, sf.p(1));
-		add(rax, sf.p(2));
+		mov(rax, sf.p[0]);
+		add(rax, sf.p[1]);
+		add(rax, sf.p[2]);
 	}
 };
 

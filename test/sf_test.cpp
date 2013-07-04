@@ -328,8 +328,8 @@ int main()
 	testPartial();
 	testPack();
 	printf("errNum=%d\n", errNum);
-} catch (const Xbyak::Error& e) {
-	printf("err %s\n", Xbyak::ConvertErrorToString(e));
+} catch (std::exception& e) {
+	printf("err %s\n", e.what());
 	return 1;
 } catch (...) {
 	puts("ERR");

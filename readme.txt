@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 4.02
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 4.10
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -35,6 +35,14 @@ xbyak_mnemonic.h
 これらを同一のパスに入れてインクルードパスに追加してください。
 
 Linuxではmake installで/usr/local/include/xbyakにコピーされます。
+-----------------------------------------------------------------------------
+◎下位互換性の破れ
+* Xbyak::Errorの型をenumからclassに変更
+** 従来のenumの値をとるにはintにキャストしてください。
+* (古い)Reg32eクラスを(新しい)Reg32eとRegExpに分ける。
+** (新しい)Reg32eはReg32かReg64
+** (新しい)RegExpは'Reg32e + Reg32e * scale + disp'の型
+
 -----------------------------------------------------------------------------
 ◎新機能
 
@@ -244,6 +252,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2013/07/04 ver 4.10 [break backward compatibility] Xbyak::Errorの型をenumからclassに変更
 2013/06/21 ver 4.02 LABELの指すアドレスを書き込むputL(LABEL)関数の追加。
 2013/06/21 ver 4.01 vpsllw, vpslld, vpsllq, vpsraw, vpsrad, vpsrlw, vpsrld, vpsrlq support (ymm, ymm, xmm)
                     support vpbroadcastb, vpbroadcastw, vpbroadcastd, vpbroadcastq(thanks to Gabest)

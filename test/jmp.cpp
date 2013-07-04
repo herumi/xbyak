@@ -576,8 +576,8 @@ int main()
 		puts("test MovLabelCode:grow");
 		testMovLabel(true);
 		testMovLabel2();
-	} catch (Xbyak::Error err) {
-		printf("ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
+	} catch (std::exception& e) {
+		printf("ERR:%s\n", e.what());
 	} catch (...) {
 		printf("unknown error\n");
 	}

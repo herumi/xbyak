@@ -216,8 +216,8 @@ int main(int argc, char *argv[])
 #endif
 			printf("f("); put(valTbl); printf(")=%f\n", y);
 		}
-	} catch (Xbyak::Error err) {
-		printf("ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
+	} catch (std::exception& e) {
+		printf("ERR:%s\n", e.what());
 	} catch (Error err) {
 		printf("ERR:%d\n", err);
 	} catch (...) {

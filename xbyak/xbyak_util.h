@@ -292,7 +292,7 @@ public:
 	{
 		if (n_ == 10) {
 			fprintf(stderr, "ERR Pack::can't append\n");
-			throw ERR_BAD_PARAMETER;
+			throw Error(ERR_BAD_PARAMETER);
 		}
 		tbl_[n_++] = &t;
 		return *this;
@@ -301,7 +301,7 @@ public:
 	{
 		if (n > maxTblNum) {
 			fprintf(stderr, "ERR Pack::init bad n=%d\n", (int)n);
-			throw ERR_BAD_PARAMETER;
+			throw Error(ERR_BAD_PARAMETER);
 		}
 		n_ = n;
 		for (size_t i = 0; i < n; i++) {
@@ -312,7 +312,7 @@ public:
 	{
 		if (n >= n_) {
 			fprintf(stderr, "ERR Pack bad n=%d\n", (int)n);
-			throw ERR_BAD_PARAMETER;
+			throw Error(ERR_BAD_PARAMETER);
 		}
 		return *tbl_[n];
 	}
@@ -325,7 +325,7 @@ public:
 		if (num == size_t(-1)) num = n_ - pos;
 		if (pos + num > n_) {
 			fprintf(stderr, "ERR Pack::sub bad pos=%d, num=%d\n", (int)pos, (int)num);
-			throw ERR_BAD_PARAMETER;
+			throw Error(ERR_BAD_PARAMETER);
 		}
 		Pack pack;
 		pack.n_ = num;
@@ -392,9 +392,9 @@ public:
 		, t(t_)
 	{
 		using namespace Xbyak;
-		if (pNum < 0 || pNum > 4) throw ERR_BAD_PNUM;
+		if (pNum < 0 || pNum > 4) throw Error(ERR_BAD_PNUM);
 		const int allRegNum = pNum + tNum_ + (useRcx_ ? 1 : 0) + (useRdx_ ? 1 : 0);
-		if (allRegNum < pNum || allRegNum > 14) throw ERR_BAD_TNUM;
+		if (allRegNum < pNum || allRegNum > 14) throw Error(ERR_BAD_TNUM);
 		const Reg64& rsp = code->rsp;
 		const AddressFrame& ptr = code->ptr;
 		saveNum_ = (std::max)(0, allRegNum - noSaveNum);
@@ -458,8 +458,8 @@ public:
 		if (!makeEpilog_) return;
 		try {
 			close();
-		} catch (Xbyak::Error e) {
-			printf("ERR:StackFrame %s\n", ConvertErrorToString(e));
+		} catch (std::exception& e) {
+			printf("ERR:StackFrame %s\n", e.what());
 			exit(1);
 		} catch (...) {
 			printf("ERR:StackFrame otherwise\n");
