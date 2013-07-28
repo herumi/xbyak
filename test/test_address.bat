@@ -25,7 +25,7 @@ cl address.cpp %OPT% %OPT2%
 address %1% > a.asm
 echo nasm -f %OPT3% -l a.lst a.asm
 nasm -f %OPT3% -l a.lst a.asm
-awk "!/warning:/ {print $3}" < a.lst > ok.lst
+awk "{if (index($3, ""-"")) { conti=substr($3, 0, length($3) - 1) } else { conti = conti $3; print conti; conti = """" }} " < a.lst |%FILTER% > ok.lst
 echo address %1% jit > nm.cpp
 address %1% jit > nm.cpp
 echo cl -I../ -DXBYAK_TEST nm_frame.cpp %OPT% %OPT2%
