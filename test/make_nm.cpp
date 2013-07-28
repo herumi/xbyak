@@ -437,12 +437,12 @@ class Test {
 		put("call", REG64);
 #else
 		put("jmp", REG32);
-		put("call", REG32);
+		put("call", REG16|REG32);
 #endif
 		put("jmp", MEM);
 		put("jmp", MEM);
 		put("jmp", MEM);
-		put("call", REG16|MEM|MEM_ONLY_DISP);
+		put("call", MEM|MEM_ONLY_DISP);
 #ifndef USE_YASM
 		// call(ptr [getCode() + 5]); means to construct the opecode of "call"
 		// after calling getCode().
