@@ -506,7 +506,7 @@ inline RegExp operator+(const RegExp& a, const RegExp& b)
 			if (ret.index_.idx == Operand::ESP) std::swap(ret.base_, ret.index_);
 		}
 	} else {
-		a.base_ = b.base_;
+		ret.base_ = b.base_;
 	}
 	ret.disp_ += b.disp_;
 	ret.verifyBaseIndex();
