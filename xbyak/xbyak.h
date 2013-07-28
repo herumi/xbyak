@@ -403,6 +403,7 @@ public:
 		int idx;
 		int scale;
 		SReg(int bit = 0, int idx = 0, int scale = 0) : bit(bit), idx(idx), scale(scale) {}
+		void set(int bit, int idx, int scale = 0) { this->bit = bit; this->idx = idx; this->scale = scale; }
 		bool exists() const { return bit != 0; }
 		void clear() { idx = bit = scale = 0; }
 		bool operator==(const SReg& rhs) const { return bit == rhs.bit && idx == rhs.idx && scale == rhs.scale; }
@@ -438,7 +439,7 @@ private:
 		if (index_.bit >= 128) {
 			if (base_.bit <= 64) return;
 		} else {
-			if (base_.bit == 0 || base_.bit == index_.bit) return;
+			if (base_.bit == 0 || index_.bit == 0 || base_.bit == index_.bit) return;
 		}
 		throw Error(ERR_BAD_SIZE_OF_REGISTER);
 	}
@@ -450,10 +451,12 @@ public:
 	}
 	RegExp(const Reg& r)
 	{
-		verifyReg(r);
 		clear();
-		base_.idx = r.getIdx();
-		base_.bit = r.getBit();
+		if (r.getBit() >= 128) {
+			index_.set(r.getBit(), r.getIdx(), 1);
+		} else {
+			base_.set(r.getBit(), r.getIdx());
+		}
 	}
 	RegExp(int baseBit, int baseIdx, int indexBit, int indexIdx, int scale, uint32 disp, bool isVsib = false)
 		: base_(baseBit, baseIdx)
@@ -491,39 +494,31 @@ public:
 inline RegExp operator+(const RegExp& a, const RegExp& b)
 {
 	if (a.index_.exists() && b.index_.exists()) throw Error(ERR_BAD_ADDRESSING);
-	const RegExp *pa = &a;
-	const RegExp *pb = &b;
-	if (!pa->index_.exists()) {
-		std::swap(pa, pb);
-	}
-	assert(!pb->index_.exists());
-	RegExp ret = *pa;
-	if (pb->base_.exists()) {
-		if (pa->base_.exists()) {
-			if (pa->index_.exists()) throw Error(ERR_BAD_ADDRESSING);
-			// (b, -) + (b, -) -> base + index * 1
-			ret.index_ = pb->base_;
-			if (ret.base_.bit >= 128) {
-				std::swap(ret.base_, ret.index_);
-			}
-			assert(ret.base_.bit <= 64);
-			// (base <= 64) + index
-			if (ret.index_.bit <= 64 && ret.index_.idx == Operand::ESP) std::swap(ret.base_, ret.index_);
+	RegExp ret = a;
+	if (!ret.index_.exists()) ret.index_ = b.index_;
+	if (ret.base_.exists()) {
+		if (b.base_.exists()) {
+			if (ret.index_.exists() || ret.base_.bit != b.base_.bit) throw Error(ERR_BAD_ADDRESSING);
+			// base + base => base + index * 1
+			ret.index_ = b.base_;
 			ret.index_.scale = 1;
-		} else {
-			// (-, i/-) + (b, -) -> (b, i/-)
-			ret.base_ = pb->base_;
+			// [reg + esp] => [esp + reg]
+			if (ret.index_.idx == Operand::ESP) std::swap(ret.base_, ret.index_);
 		}
+	} else {
+		a.base_ = b.base_;
 	}
-	ret.disp_ += pb->disp_;
+	ret.disp_ += b.disp_;
 	ret.verifyBaseIndex();
 	return ret;
 }
 inline RegExp operator*(const Reg& r, int scale)
 {
-//	verifyReg(r);
-	if (scale != 1 && scale != 2 && scale != 4 && scale != 8) throw Error(ERR_BAD_SCALE);
-	return RegExp(0, 0, r.getBit(), r.getIdx(), scale, 0, r.getBit() >= 128);
+	if (scale == 1) {
+		return RegExp(r);
+	} else {
+		return RegExp(0, 0, r.getBit(), r.getIdx(), scale, 0, r.getBit() >= 128);
+	}
 }
 inline RegExp operator-(const RegExp& e, uint32_t disp)
 {
