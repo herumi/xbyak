@@ -410,39 +410,8 @@ public:
 	};
 	const SReg& getBase() const { return base_; }
 	const SReg& getIndex() const { return index_; }
-	bool hasIndex() const { return index_.exists(); }
-	bool isIndex32Bit() const { return index_.bit == 32; }
-	int getIndexIdx() const { return index_.idx; }
 	int getScale() const { return index_.scale; }
 	uint32 getDisp() const { return disp_; }
-private:
-	/*
-		[base_ + index_ * scale_ + disp_]
-		base : Reg32e, index : Reg32e(w/o esp), Xmm, Ymm
-	*/
-	mutable SReg base_;
-	mutable SReg index_;
-	uint32 disp_;
-	friend class Address;
-	void clear()
-	{
-		base_.clear();
-		index_.clear();
-		disp_ = 0;
-	}
-	static inline void verifyReg(const Reg& r)
-	{
-		if (!(r.is(Reg::REG|Reg::XMM|Reg::YMM, 32|64|128|256))) throw Error(ERR_BAD_SIZE_OF_REGISTER);
-	}
-	void verifyBaseIndex()
-	{
-		if (index_.bit >= 128) {
-			if (base_.bit <= 64) return;
-		} else {
-			if (base_.bit == 0 || index_.bit == 0 || base_.bit == index_.bit) return;
-		}
-		throw Error(ERR_BAD_SIZE_OF_REGISTER);
-	}
 public:
 	RegExp(uint32_t disp)
 	{
@@ -489,6 +458,34 @@ public:
 	friend RegExp operator+(const RegExp& a, const RegExp& b);
 	friend RegExp operator*(const Reg& r, int scale);
 	friend RegExp operator-(const RegExp& e, uint32_t disp);
+
+	/*
+		[base_ + index_ * scale_ + disp_]
+		base : Reg32e, index : Reg32e(w/o esp), Xmm, Ymm
+	*/
+	mutable SReg base_;
+	mutable SReg index_;
+	uint32 disp_;
+	friend class Address;
+	void clear()
+	{
+		base_.clear();
+		index_.clear();
+		disp_ = 0;
+	}
+	static inline void verifyReg(const Reg& r)
+	{
+		if (!(r.is(Reg::REG|Reg::XMM|Reg::YMM, 32|64|128|256))) throw Error(ERR_BAD_SIZE_OF_REGISTER);
+	}
+	void verifyBaseIndex()
+	{
+		if (index_.bit >= 128) {
+			if (base_.bit <= 64) return;
+		} else {
+			if (base_.bit == 0 || index_.bit == 0 || base_.bit == index_.bit) return;
+		}
+		throw Error(ERR_BAD_SIZE_OF_REGISTER);
+	}
 };
 
 inline RegExp operator+(const RegExp& a, const RegExp& b)
@@ -526,74 +523,6 @@ inline RegExp operator-(const RegExp& e, uint32_t disp)
 	ret.disp_ -= disp;
 	return ret;
 }
-
-#if 0
-// QQQ:need to refactor
-struct Vsib {
-	// [index_ * scale_ + base_ + disp_]
-	uint8 indexIdx_; // xmm reg idx
-	uint8 scale_; // 0(none), 1, 2, 4, 8
-	uint8 baseIdx_; // base reg idx
-	uint8 baseBit_; // 0(none), 32, 64
-	uint32 disp_;
-	bool isYMM_; // idx is YMM
-public:
-	static inline void verifyScale(int scale)
-	{
-		if (scale != 1 && scale != 2 && scale != 4 && scale != 8) throw Error(ERR_BAD_SCALE);
-	}
-	int getIndexIdx() const { return indexIdx_; }
-	int getScale() const { return scale_; }
-	int getBaseIdx() const { return baseIdx_; }
-	int getBaseBit() const { return baseBit_; }
-	bool isYMM() const { return isYMM_; }
-	uint32 getDisp() const { return disp_; }
-	Vsib(int indexIdx, int scale, bool isYMM, int baseIdx = 0, int baseBit = 0, uint32 disp = 0)
-		: indexIdx_((uint8)indexIdx)
-		, scale_((uint8)scale)
-		, baseIdx_((uint8)baseIdx)
-		, baseBit_((uint8)baseBit)
-		, disp_(disp)
-		, isYMM_(isYMM)
-	{
-	}
-	friend inline Vsib operator*(const Xmm& x, int scale)
-	{
-		Vsib::verifyScale(scale);
-		return Vsib(x.getIdx(), scale, x.isYMM());
-	}
-	friend inline Vsib operator+(const Xmm& x, uint32 disp)
-	{
-		return Vsib(x.getIdx(), 1, x.isYMM(), 0, 0, disp);
-	}
-	friend inline Vsib operator+(const Xmm& x, const Reg32e& r)
-	{
-	//	if (r.hasIndex()) throw Error(ERR_BAD_COMBINATION);
-		return Vsib(x.getIdx(), 1, x.isYMM(), r.getIdx(), r.getBit(), 0);
-	}
-	friend inline Vsib operator+(const Vsib& vs, uint32 disp)
-	{
-		Vsib ret(vs);
-		ret.disp_ += disp;
-		return ret;
-	}
-	friend inline Vsib operator+(const Vsib& vs, const Reg32e& r)
-	{
-		printf("not implemented\n");
-		exit(1);
-		if (vs.getBaseBit()) throw Error(ERR_BAD_COMBINATION);
-		Vsib ret(vs);
-		ret.baseIdx_ = (uint8)r.getIdx();
-		ret.baseBit_ = (uint8)r.getBit();
-	//	ret.disp_ += r.getDisp();
-		return ret;
-	}
-	friend inline Vsib operator+(uint32 disp, const Xmm& x) { return x + disp; }
-	friend inline Vsib operator+(uint32 disp, const Vsib& vs) { return vs + disp; }
-	friend inline Vsib operator+(const Reg32e& r, const Xmm& x) { return x + r; }
-	friend inline Vsib operator+(const Reg32e& r, const Vsib& vs) { return vs + r; }
-};
-#endif
 
 // 2nd parameter for constructor of CodeArray(maxSize, userPtr, alloc)
 void *const AutoGrow = (void*)1;
