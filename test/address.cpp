@@ -3,6 +3,55 @@
 
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
+void genVsib(bool isJIT)
+{
+	if (isJIT) puts("void genVsib() {");
+	const char *nameTbl[] = {
+		"vgatherdpd", // vm32x
+		"vgatherqpd", // vm32y
+	};
+	const int N = 8;
+	const char tbl[2][N][32] = {
+		{
+			"xmm0",
+			"xmm0 + 4",
+			"xmm0 + eax",
+			"xmm0 * 4 + ecx",
+			"xmm3 * 8 + edi + 123",
+			"xmm2 * 2 + 5",
+			"eax + xmm0",
+			"esp + xmm4",
+		},
+		{
+			"ymm0",
+			"ymm0 + 4",
+			"ymm0 + eax",
+			"ymm0 * 4 + ecx",
+			"ymm3 * 8 + edi + 123",
+			"ymm2 * 2 + 5",
+			"eax + ymm0",
+			"esp + ymm4",
+		},
+	};
+	for (int j = 0; j < 2; j++) {
+		const char *name = nameTbl[j];
+		for (int i = 0; i < N; i++) {
+			if (isJIT) {
+				printf("%s (ymm7, ptr[", name);
+			} else {
+				printf("%s ymm7, [", name);
+			}
+			printf("%s", tbl[j][i]);
+			if (isJIT) {
+				printf("], ymm4); dump();\n");
+			} else {
+				printf("], ymm4\n");
+			}
+		}
+	}
+	if (isJIT) puts("}");
+}
+
 void genAddress(bool isJIT, const char regTbl[][5], size_t regTblNum)
 {
 	int count = 0;
@@ -62,11 +111,14 @@ void genAddress(bool isJIT, const char regTbl[][5], size_t regTblNum)
 			}
 		}
 	}
+	if (isJIT) puts("}");
+	genVsib(isJIT);
 	if (isJIT) {
-		printf("}\nvoid gen(){\n");
+		printf("void gen(){\n");
 		for (int i = 0; i < funcNum; i++) {
 			printf("   gen%d();\n", i);
 		}
+		puts("genVsib();");
 		printf("}\n");
 	}
 }
