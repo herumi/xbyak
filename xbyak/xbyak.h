@@ -399,40 +399,25 @@ struct RegRip {
 class RegExp {
 public:
 	struct SReg {
-		uint16 bit; // 32/64/128/256 none if 0
-		uint8 idx;
-		uint8 scale;
-		SReg(int bit = 0, int idx = 0, int scale = 0) : bit(uint16(bit)), idx(uint8(idx)), scale(uint8(scale)) {}
-		void set(int bit, int idx, int scale = 0) { this->bit = uint16(bit); this->idx = uint8(idx); this->scale = uint8(scale); }
+		uint16 bit:9; // 32/64/128/256 none if 0
+		uint16 idx:7;
+		SReg(int bit = 0, int idx = 0) { set(bit, idx); }
+		void set(int bit, int idx) { this->bit = uint16(bit); this->idx = uint16(idx); }
 		bool exists() const { return bit != 0; }
-		void clear() { idx = bit = scale = 0; }
-		bool operator==(const SReg& rhs) const { return bit == rhs.bit && idx == rhs.idx && scale == rhs.scale; }
+		void clear() { idx = bit = 0; }
+		bool operator==(const SReg& rhs) const { return bit == rhs.bit && idx == rhs.idx; }
 	};
-	RegExp(uint32_t disp)
+	RegExp(uint32_t disp = 0) : scale_(0), disp_(disp) { }
+	RegExp(const Reg& r, int scale = 1)
+		: scale_(scale)
+		, disp_(0)
 	{
-		clear();
-		disp_ = disp;
-	}
-	RegExp(const Reg& r)
-	{
-		clear();
-		if (r.getBit() >= 128) {
-			index_.set(r.getBit(), r.getIdx(), 1);
+		if (!r.is(Reg::REG, 32|64) && !r.is(Reg::XMM|Reg::YMM)) throw Error(ERR_BAD_SIZE_OF_REGISTER);
+		if (scale != 1 && scale != 2 && scale != 4 && scale != 8) throw Error(ERR_BAD_SCALE);
+		if (r.getBit() >= 128 || scale != 1) { // xmm/ymm is always index
+			index_.set(r.getBit(), r.getIdx());
 		} else {
 			base_.set(r.getBit(), r.getIdx());
-		}
-	}
-	RegExp(int baseBit, int baseIdx, int indexBit, int indexIdx, int scale, uint32 disp, bool isVsib = false)
-		: base_(baseBit, baseIdx)
-		, index_(indexBit, indexIdx, scale)
-		, disp_(disp)
-	{
-		// QQQ :check param
-		if (isVsib) {
-			if (!(index_.exists() && index_.bit >= 128)) throw Error(ERR_BAD_COMBINATION);
-		} else {
-			if (base_.exists() && index_.exists() && base_.bit != index_.bit) throw Error(ERR_BAD_COMBINATION);
-			if (index_.idx == Operand::ESP) throw Error(ERR_ESP_CANT_BE_INDEX);
 		}
 	}
 	bool isVsib() const { return index_.bit >= 128; }
@@ -440,11 +425,10 @@ public:
 	RegExp optimize() const // select smaller size
 	{
 		// [reg * 2] => [reg + reg]
-		if (!isVsib() && !base_.exists() && index_.exists() && index_.scale == 2) {
+		if (!isVsib() && !base_.exists() && index_.exists() && scale_ == 2) {
 			RegExp ret = *this;
-			ret.base_.idx = index_.idx;
-			ret.base_.bit = index_.bit;
-			ret.index_.scale = 1;
+			ret.base_ = index_;
+			ret.scale_ = 1;
 			return ret;
 		}
 		return *this;
@@ -455,12 +439,18 @@ public:
 	}
 	const SReg& getBase() const { return base_; }
 	const SReg& getIndex() const { return index_; }
-	int getScale() const { return index_.scale; }
+	int getScale() const { return scale_; }
 	uint32 getDisp() const { return disp_; }
+	void verify() const
+	{
+		if (base_.bit >= 128) throw Error(ERR_BAD_SIZE_OF_REGISTER);
+		if (index_.bit && index_.bit <= 64) {
+			if (index_.idx == Operand::ESP) throw Error(ERR_ESP_CANT_BE_INDEX);
+			if (base_.bit && base_.bit != index_.bit) throw Error(ERR_BAD_SIZE_OF_REGISTER);
+		}
+	}
 private:
-	friend class Address;
 	friend RegExp operator+(const RegExp& a, const RegExp& b);
-	friend RegExp operator*(const Reg& r, int scale);
 	friend RegExp operator-(const RegExp& e, uint32_t disp);
 	/*
 		[base_ + index_ * scale_ + disp_]
@@ -468,25 +458,14 @@ private:
 	*/
 	SReg base_;
 	SReg index_;
+	int scale_;
 	uint32 disp_;
 	void clear()
 	{
 		base_.clear();
 		index_.clear();
+		scale_ = 0;
 		disp_ = 0;
-	}
-	static inline void verifyReg(const Reg& r)
-	{
-		if (!(r.is(Reg::REG|Reg::XMM|Reg::YMM, 32|64|128|256))) throw Error(ERR_BAD_SIZE_OF_REGISTER);
-	}
-	void verifyBaseIndex()
-	{
-		if (index_.bit >= 128) {
-			if (base_.bit <= 64) return;
-		} else {
-			if (base_.bit == 0 || index_.bit == 0 || base_.bit == index_.bit) return;
-		}
-		throw Error(ERR_BAD_SIZE_OF_REGISTER);
 	}
 };
 
@@ -494,30 +473,25 @@ inline RegExp operator+(const RegExp& a, const RegExp& b)
 {
 	if (a.index_.exists() && b.index_.exists()) throw Error(ERR_BAD_ADDRESSING);
 	RegExp ret = a;
-	if (!ret.index_.exists()) ret.index_ = b.index_;
+	if (!ret.index_.exists()) { ret.index_ = b.index_; ret.scale_ = b.scale_; }
 	if (ret.base_.exists()) {
 		if (b.base_.exists()) {
-			if (ret.index_.exists() || ret.base_.bit != b.base_.bit) throw Error(ERR_BAD_ADDRESSING);
+			if (ret.index_.exists()) throw Error(ERR_BAD_ADDRESSING);
 			// base + base => base + index * 1
 			ret.index_ = b.base_;
-			ret.index_.scale = 1;
 			// [reg + esp] => [esp + reg]
 			if (ret.index_.idx == Operand::ESP) std::swap(ret.base_, ret.index_);
+			ret.scale_ = 1;
 		}
 	} else {
 		ret.base_ = b.base_;
 	}
 	ret.disp_ += b.disp_;
-	ret.verifyBaseIndex();
 	return ret;
 }
 inline RegExp operator*(const Reg& r, int scale)
 {
-	if (scale == 1) {
-		return RegExp(r);
-	} else {
-		return RegExp(0, 0, r.getBit(), r.getIdx(), scale, 0, r.getBit() >= 128);
-	}
+	return RegExp(r, scale);
 }
 inline RegExp operator-(const RegExp& e, uint32_t disp)
 {
@@ -783,20 +757,22 @@ public:
 class AddressFrame {
 private:
 	void operator=(const AddressFrame&);
-	Address makeAddress(const RegExp& r) const
+	Address makeAddress(const RegExp& e) const
 	{
-		const bool isVsib = r.isVsib();
-		const bool isYMM = r.isYMM();
-		const RegExp::SReg& base = r.getBase();
-		const RegExp::SReg& index = r.getIndex();
-		Address frame(bit_, (!base.exists() && !index.exists()), r.getDisp(), base.bit == 32 || index.bit == 32, false, isVsib, isYMM);
+		e.verify();
+		const bool isVsib = e.isVsib();
+		const bool isYMM = e.isYMM();
+		const RegExp::SReg& base = e.getBase();
+		const RegExp::SReg& index = e.getIndex();
+		const uint32 disp = e.getDisp();
+		Address frame(bit_, (!base.exists() && !index.exists()), disp, base.bit == 32 || index.bit == 32, false, isVsib, isYMM);
 		enum {
 			mod00 = 0, mod01 = 1, mod10 = 2
 		};
 		int mod;
-		if (!base.exists() || ((base.idx & 7) != Operand::EBP && r.getDisp() == 0)) {
+		if (!base.exists() || ((base.idx & 7) != Operand::EBP && disp == 0)) {
 			mod = mod00;
-		} else if (inner::IsInDisp8(r.getDisp())) {
+		} else if (inner::IsInDisp8(disp)) {
 			mod = mod01;
 		} else {
 			mod = mod10;
@@ -807,23 +783,24 @@ private:
 #ifdef XBYAK64
 		if (!base.exists() && !index.exists()) hasSIB = true;
 #endif
-		if (!hasSIB) {
-			frame.db((mod << 6) | baseIdx);
-		} else {
+		if (hasSIB) {
 			frame.db((mod << 6) | Operand::ESP);
 			/* SIB = [2:3:3] = [SS:index:base(=rm)] */
 			const int indexIdx = index.exists() ? (index.idx & 7) : Operand::ESP;
-			const int scale = r.getScale();
-			int ss = (scale == 8) ? 3 : (scale == 4) ? 2 : (scale == 2) ? 1 : 0;
+			const int scale = e.getScale();
+			const int ss = (scale == 8) ? 3 : (scale == 4) ? 2 : (scale == 2) ? 1 : 0;
 			frame.db((ss << 6) | (indexIdx << 3) | baseIdx);
+		} else {
+			frame.db((mod << 6) | baseIdx);
 		}
 		if (mod == mod01) {
-			frame.db(r.getDisp());
+			frame.db(disp);
 		} else if (mod == mod10 || (mod == mod00 && !base.exists())) {
-			frame.dd(r.getDisp());
+			frame.dd(disp);
 		}
-		uint8 rex = ((base.idx | index.idx) < 8) ? 0 : uint8(0x40 | ((index.idx >> 3) << 1) | (base.idx >> 3));
-		frame.setRex(rex);
+		int rex = ((index.idx >> 3) << 1) | (base.idx >> 3);
+		if (rex) rex |= 0x40;
+		frame.setRex(uint8(rex));
 		return frame;
 	}
 public:
@@ -835,8 +812,8 @@ public:
 #ifdef XBYAK64
 		if (adr > 0xFFFFFFFFU) throw Error(ERR_OFFSET_IS_TOO_BIG);
 #endif
-		RegExp r(static_cast<uint32>(adr));
-		return operator[](r);
+		RegExp e(static_cast<uint32>(adr));
+		return operator[](e);
 	}
 #ifdef XBYAK64
 	Address operator[](uint64 disp) const
@@ -851,9 +828,9 @@ public:
 		return frame;
 	}
 #endif
-	Address operator[](const RegExp& r) const
+	Address operator[](const RegExp& e) const
 	{
-		return makeAddress(r.optimize());
+		return makeAddress(e.optimize());
 	}
 };
 
