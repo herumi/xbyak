@@ -3,52 +3,57 @@
 
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
+void genVsibSub(bool isJIT, const char *name, const char *tbl[], size_t tblSize)
+{
+	for (size_t i = 0; i < tblSize; i++) {
+		if (isJIT) {
+			printf("%s (ymm7, ptr[", name);
+		} else {
+			printf("%s ymm7, [", name);
+		}
+		printf("%s", tbl[i]);
+		if (isJIT) {
+			printf("], ymm4); dump();\n");
+		} else {
+			printf("], ymm4\n");
+		}
+	}
+}
 void genVsib(bool isJIT)
 {
 	if (isJIT) puts("void genVsib() {");
-	const char *nameTbl[] = {
-		"vgatherdpd", // vm32x
-		"vgatherqpd", // vm32y
+	const char *vm32xTbl[] = {
+		"xmm0",
+		"xmm0 * 1",
+		"xmm0 + 4",
+		"xmm0 + eax",
+		"xmm0 * 4 + ecx",
+		"xmm3 * 8 + edi + 123",
+		"xmm2 * 2 + 5",
+		"eax + xmm0",
+		"esp + xmm4",
 	};
-	const int N = 8;
-	const char tbl[2][N][32] = {
-		{
-			"xmm0",
-			"xmm0 + 4",
-			"xmm0 + eax",
-			"xmm0 * 4 + ecx",
-			"xmm3 * 8 + edi + 123",
-			"xmm2 * 2 + 5",
-			"eax + xmm0",
-			"esp + xmm4",
-		},
-		{
-			"ymm0",
-			"ymm0 + 4",
-			"ymm0 + eax",
-			"ymm0 * 4 + ecx",
-			"ymm3 * 8 + edi + 123",
-			"ymm2 * 2 + 5",
-			"eax + ymm0",
-			"esp + ymm4",
-		},
+	const char *vm32yTbl[] = {
+		"ymm0",
+		"ymm0 * 1",
+		"ymm0 + 4",
+		"ymm0 + eax",
+		"ymm0 * 4 + ecx",
+		"ymm3 * 8 + edi + 123",
+		"ymm2 * 2 + 5",
+		"eax + ymm0",
+		"esp + ymm4",
 	};
-	for (int j = 0; j < 2; j++) {
-		const char *name = nameTbl[j];
-		for (int i = 0; i < N; i++) {
-			if (isJIT) {
-				printf("%s (ymm7, ptr[", name);
-			} else {
-				printf("%s ymm7, [", name);
-			}
-			printf("%s", tbl[j][i]);
-			if (isJIT) {
-				printf("], ymm4); dump();\n");
-			} else {
-				printf("], ymm4\n");
-			}
-		}
-	}
+	genVsibSub(isJIT, "vgatherdpd", vm32xTbl, NUM_OF_ARRAY(vm32xTbl));
+	genVsibSub(isJIT, "vgatherqpd", vm32yTbl, NUM_OF_ARRAY(vm32yTbl));
+#ifdef XBYAK64
+	const char *vm32x64Tbl[] = {
+		"xmm0 + r11",
+		"r13 + xmm15",
+		"123 + rsi + xmm2 * 4",
+	};
+	genVsibSub(isJIT, "vgatherdpd", vm32x64Tbl, NUM_OF_ARRAY(vm32x64Tbl));
+#endif
 	if (isJIT) puts("}");
 }
 
