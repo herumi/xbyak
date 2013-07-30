@@ -1,13 +1,12 @@
-TARGET = make_nm normalize_prefix jmp address nm_frame
+TARGET = make_nm normalize_prefix jmp address nm_frame bad_address
 XBYAK_INC=../xbyak/xbyak.h
 BIT=32
 ifeq ($(shell uname -m),x86_64)
 BIT=64
 endif
 
-ifeq ($(MODE_BIT),64)
+ifneq ($(MODE_BIT),64)
 	TARGET += jmp64 address64
-else
 endif
 
 all: $(TARGET)
@@ -31,12 +30,15 @@ address64: address.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) address.cpp -o $@ -m64
 nm_frame: nm_frame.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) nm_frame.cpp -o $@ -m32
+bad_address: bad_address.cpp ../xbyak/xbyak.h
+	$(CXX) $(CFLAGS) bad_address.cpp -o $@
 
-test: normalize_prefix jmp
+test: normalize_prefix jmp bad_address
 	./test_nm.sh
 	./test_nm.sh Y
 	./test_address.sh
 	./jmp
+	./bad_address
 ifeq ($(BIT),64)
 	./test_address.sh 64
 	./test_nm.sh 64
