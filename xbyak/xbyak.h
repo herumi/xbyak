@@ -399,11 +399,11 @@ struct RegRip {
 class RegExp {
 public:
 	struct SReg {
-		int bit; // 32/64/128/256 none if 0
-		int idx;
-		int scale;
-		SReg(int bit = 0, int idx = 0, int scale = 0) : bit(bit), idx(idx), scale(scale) {}
-		void set(int bit, int idx, int scale = 0) { this->bit = bit; this->idx = idx; this->scale = scale; }
+		uint16 bit; // 32/64/128/256 none if 0
+		uint8 idx;
+		uint8 scale;
+		SReg(int bit = 0, int idx = 0, int scale = 0) : bit(uint16(bit)), idx(uint8(idx)), scale(uint8(scale)) {}
+		void set(int bit, int idx, int scale = 0) { this->bit = uint16(bit); this->idx = uint8(idx); this->scale = uint8(scale); }
 		bool exists() const { return bit != 0; }
 		void clear() { idx = bit = scale = 0; }
 		bool operator==(const SReg& rhs) const { return bit == rhs.bit && idx == rhs.idx && scale == rhs.scale; }
