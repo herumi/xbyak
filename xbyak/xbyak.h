@@ -408,11 +408,6 @@ public:
 		void clear() { idx = bit = scale = 0; }
 		bool operator==(const SReg& rhs) const { return bit == rhs.bit && idx == rhs.idx && scale == rhs.scale; }
 	};
-	const SReg& getBase() const { return base_; }
-	const SReg& getIndex() const { return index_; }
-	int getScale() const { return index_.scale; }
-	uint32 getDisp() const { return disp_; }
-public:
 	RegExp(uint32_t disp)
 	{
 		clear();
@@ -441,13 +436,15 @@ public:
 	}
 	bool isVsib() const { return index_.bit >= 128; }
 	bool isYMM() const { return index_.bit >= 256; }
-	const RegExp& optimize() const // select smaller size
+	RegExp optimize() const // select smaller size
 	{
 		// [reg * 2] => [reg + reg]
 		if (!base_.exists() && index_.exists() && index_.scale == 2) {
-			base_.idx = index_.idx;
-			base_.bit = index_.bit;
-			index_.scale = 1;
+			RegExp ret = *this;
+			ret.base_.idx = index_.idx;
+			ret.base_.bit = index_.bit;
+			ret.index_.scale = 1;
+			return ret;
 		}
 		return *this;
 	}
@@ -455,18 +452,22 @@ public:
 	{
 		return base_ == rhs.base_ && index_ == rhs.index_ && disp_ == rhs.disp_;
 	}
+	const SReg& getBase() const { return base_; }
+	const SReg& getIndex() const { return index_; }
+	int getScale() const { return index_.scale; }
+	uint32 getDisp() const { return disp_; }
+private:
+	friend class Address;
 	friend RegExp operator+(const RegExp& a, const RegExp& b);
 	friend RegExp operator*(const Reg& r, int scale);
 	friend RegExp operator-(const RegExp& e, uint32_t disp);
-
 	/*
 		[base_ + index_ * scale_ + disp_]
 		base : Reg32e, index : Reg32e(w/o esp), Xmm, Ymm
 	*/
-	mutable SReg base_;
-	mutable SReg index_;
+	SReg base_;
+	SReg index_;
 	uint32 disp_;
-	friend class Address;
 	void clear()
 	{
 		base_.clear();
