@@ -427,6 +427,7 @@ public:
 		, index_(indexBit, indexIdx, scale)
 		, disp_(disp)
 	{
+		// QQQ :check param
 		if (isVsib) {
 			if (!(index_.exists() && index_.bit >= 128)) throw Error(ERR_BAD_COMBINATION);
 		} else {
@@ -439,7 +440,7 @@ public:
 	RegExp optimize() const // select smaller size
 	{
 		// [reg * 2] => [reg + reg]
-		if (!base_.exists() && index_.exists() && index_.scale == 2) {
+		if (!isVsib() && !base_.exists() && index_.exists() && index_.scale == 2) {
 			RegExp ret = *this;
 			ret.base_.idx = index_.idx;
 			ret.base_.bit = index_.bit;
@@ -782,8 +783,10 @@ public:
 class AddressFrame {
 private:
 	void operator=(const AddressFrame&);
-	Address makeAddress(const RegExp& r, bool isVsib, bool isYMM) const
+	Address makeAddress(const RegExp& r) const
 	{
+		const bool isVsib = r.isVsib();
+		const bool isYMM = r.isYMM();
 		const RegExp::SReg& base = r.getBase();
 		const RegExp::SReg& index = r.getIndex();
 		Address frame(bit_, (!base.exists() && !index.exists()), r.getDisp(), base.bit == 32 || index.bit == 32, false, isVsib, isYMM);
@@ -848,14 +851,9 @@ public:
 		return frame;
 	}
 #endif
-	Address operator[](const RegExp& in) const
+	Address operator[](const RegExp& r) const
 	{
-		if (in.getIndex().bit <= 64) {
-			return makeAddress(in.optimize(), false, false);
-		}
-		// Vsib
-		const RegExp r(in.getBase().bit, in.getBase().idx, in.getIndex().bit, in.getIndex().idx, in.getScale(), in.getDisp(), true);
-		return makeAddress(r, true, in.isYMM());
+		return makeAddress(r.optimize());
 	}
 };
 
