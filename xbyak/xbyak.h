@@ -401,10 +401,8 @@ public:
 	struct SReg {
 		uint16 bit:9; // 32/64/128/256 none if 0
 		uint16 idx:7;
-		SReg(int bit = 0, int idx = 0) { set(bit, idx); }
-		void set(int bit, int idx) { this->bit = uint16(bit); this->idx = uint16(idx); }
-		bool exists() const { return bit != 0; }
-		void clear() { idx = bit = 0; }
+		SReg() : bit(0), idx(0) { }
+		void set(const Reg& r) { this->bit = uint16(r.getBit()); this->idx = uint16(r.getIdx()); }
 		bool operator==(const SReg& rhs) const { return bit == rhs.bit && idx == rhs.idx; }
 	};
 	RegExp(uint32_t disp = 0) : scale_(0), disp_(disp) { }
@@ -415,9 +413,9 @@ public:
 		if (!r.is(Reg::REG, 32|64) && !r.is(Reg::XMM|Reg::YMM)) throw Error(ERR_BAD_SIZE_OF_REGISTER);
 		if (scale != 1 && scale != 2 && scale != 4 && scale != 8) throw Error(ERR_BAD_SCALE);
 		if (r.getBit() >= 128 || scale != 1) { // xmm/ymm is always index
-			index_.set(r.getBit(), r.getIdx());
+			index_.set(r);
 		} else {
-			base_.set(r.getBit(), r.getIdx());
+			base_.set(r);
 		}
 	}
 	bool isVsib() const { return index_.bit >= 128; }
@@ -425,7 +423,7 @@ public:
 	RegExp optimize() const // select smaller size
 	{
 		// [reg * 2] => [reg + reg]
-		if (!isVsib() && !base_.exists() && index_.exists() && scale_ == 2) {
+		if (!isVsib() && !base_.bit && index_.bit && scale_ == 2) {
 			RegExp ret = *this;
 			ret.base_ = index_;
 			ret.scale_ = 1;
@@ -460,31 +458,24 @@ private:
 	SReg index_;
 	int scale_;
 	uint32 disp_;
-	void clear()
-	{
-		base_.clear();
-		index_.clear();
-		scale_ = 0;
-		disp_ = 0;
-	}
 };
 
 inline RegExp operator+(const RegExp& a, const RegExp& b)
 {
-	if (a.index_.exists() && b.index_.exists()) throw Error(ERR_BAD_ADDRESSING);
+	if (a.index_.bit && b.index_.bit) throw Error(ERR_BAD_ADDRESSING);
 	RegExp ret = a;
-	if (!ret.index_.exists()) { ret.index_ = b.index_; ret.scale_ = b.scale_; }
-	if (ret.base_.exists()) {
-		if (b.base_.exists()) {
-			if (ret.index_.exists()) throw Error(ERR_BAD_ADDRESSING);
+	if (!ret.index_.bit) { ret.index_ = b.index_; ret.scale_ = b.scale_; }
+	if (b.base_.bit) {
+		if (ret.base_.bit) {
+			if (ret.index_.bit) throw Error(ERR_BAD_ADDRESSING);
 			// base + base => base + index * 1
 			ret.index_ = b.base_;
 			// [reg + esp] => [esp + reg]
 			if (ret.index_.idx == Operand::ESP) std::swap(ret.base_, ret.index_);
 			ret.scale_ = 1;
+		} else {
+			ret.base_ = b.base_;
 		}
-	} else {
-		ret.base_ = b.base_;
 	}
 	ret.disp_ += b.disp_;
 	return ret;
@@ -765,28 +756,28 @@ private:
 		const RegExp::SReg& base = e.getBase();
 		const RegExp::SReg& index = e.getIndex();
 		const uint32 disp = e.getDisp();
-		Address frame(bit_, (!base.exists() && !index.exists()), disp, base.bit == 32 || index.bit == 32, false, isVsib, isYMM);
+		Address frame(bit_, (!base.bit && !index.bit), disp, base.bit == 32 || index.bit == 32, false, isVsib, isYMM);
 		enum {
 			mod00 = 0, mod01 = 1, mod10 = 2
 		};
 		int mod;
-		if (!base.exists() || ((base.idx & 7) != Operand::EBP && disp == 0)) {
+		if (!base.bit || ((base.idx & 7) != Operand::EBP && disp == 0)) {
 			mod = mod00;
 		} else if (inner::IsInDisp8(disp)) {
 			mod = mod01;
 		} else {
 			mod = mod10;
 		}
-		const int baseIdx = base.exists() ? (base.idx & 7) : Operand::EBP;
+		const int baseIdx = base.bit ? (base.idx & 7) : Operand::EBP;
 		/* ModR/M = [2:3:3] = [Mod:reg/code:R/M] */
-		bool hasSIB = index.exists() || (base.idx & 7) == Operand::ESP;
+		bool hasSIB = index.bit || (base.idx & 7) == Operand::ESP;
 #ifdef XBYAK64
-		if (!base.exists() && !index.exists()) hasSIB = true;
+		if (!base.bit && !index.bit) hasSIB = true;
 #endif
 		if (hasSIB) {
 			frame.db((mod << 6) | Operand::ESP);
 			/* SIB = [2:3:3] = [SS:index:base(=rm)] */
-			const int indexIdx = index.exists() ? (index.idx & 7) : Operand::ESP;
+			const int indexIdx = index.bit ? (index.idx & 7) : Operand::ESP;
 			const int scale = e.getScale();
 			const int ss = (scale == 8) ? 3 : (scale == 4) ? 2 : (scale == 2) ? 1 : 0;
 			frame.db((ss << 6) | (indexIdx << 3) | baseIdx);
@@ -795,7 +786,7 @@ private:
 		}
 		if (mod == mod01) {
 			frame.db(disp);
-		} else if (mod == mod10 || (mod == mod00 && !base.exists())) {
+		} else if (mod == mod10 || (mod == mod00 && !base.bit)) {
 			frame.dd(disp);
 		}
 		int rex = ((index.idx >> 3) << 1) | (base.idx >> 3);
