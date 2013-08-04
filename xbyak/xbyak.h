@@ -673,10 +673,6 @@ public:
 		addrInfoList_.push_back(AddrInfo(offset, val, size, mode));
 	}
 	bool isAutoGrow() const { return type_ == AUTO_GROW; }
-	void updateRegField(uint8 regIdx) const
-	{
-		*top_ = (*top_ & B11000111) | ((regIdx << 3) & B00111000);
-	}
 	/**
 		change exec permission of memory
 		@param addr [in] buffer address
@@ -711,28 +707,41 @@ public:
 	}
 };
 
-class Address : public Operand, public CodeArray {
-	void operator=(const Address&);
-	uint64 disp_;
+class Address : public Operand {
+	mutable uint8 top_[6]; // 6 = 1(ModRM) + 1(SIB) + 4(disp)
+	uint8 size_;
 	uint8 rex_;
+	uint64 disp_;
 	bool isOnlyDisp_;
 	bool is64bitDisp_;
+	bool is32bit_;
 	mutable bool isVsib_;
 	bool isYMM_;
 	void verify() const { if (isVsib_) throw Error(ERR_BAD_VSIB_ADDRESSING); }
-	const bool is32bit_;
 public:
 	Address(uint32 sizeBit, bool isOnlyDisp, uint64 disp, bool is32bit, bool is64bitDisp = false, bool isVsib = false, bool isYMM = false)
 		: Operand(0, MEM, sizeBit)
-		, CodeArray(6) // 6 = 1(ModRM) + 1(SIB) + 4(disp)
-		, disp_(disp)
+		, size_(0)
 		, rex_(0)
+		, disp_(disp)
 		, isOnlyDisp_(isOnlyDisp)
 		, is64bitDisp_(is64bitDisp)
+		, is32bit_(is32bit)
 		, isVsib_(isVsib)
 		, isYMM_(isYMM)
-		, is32bit_(is32bit)
 	{
+	}
+	void db(int code)
+	{
+		if (size_ >= sizeof(top_)) throw Error(ERR_CODE_IS_TOO_BIG);
+		top_[size_++] = static_cast<uint8>(code);
+	}
+	void dd(uint32 code) { for (int i = 0; i < 4; i++) db(code >> (i * 8)); }
+	const uint8 *getCode() const { return top_; }
+	size_t getSize() const { return size_; }
+	void updateRegField(uint8 regIdx) const
+	{
+		*top_ = (*top_ & B11000111) | ((regIdx << 3) & B00111000);
 	}
 	void setVsib(bool isVsib) const { isVsib_ = isVsib; }
 	bool isVsib() const { return isVsib_; }
