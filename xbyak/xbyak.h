@@ -499,18 +499,17 @@ class CodeArray {
 		MAX_FIXED_BUF_SIZE = 8
 	};
 	enum Type {
-		FIXED_BUF, // use buf_(non alignment, non protect)
-		USER_BUF, // use userPtr(non alignment, non protect)
+		USER_BUF = 1, // use userPtr(non alignment, non protect)
 		ALLOC_BUF, // use new(alignment, protect)
 		AUTO_GROW // automatically move and grow memory if necessary
 	};
+	CodeArray(const CodeArray& rhs);
 	void operator=(const CodeArray&);
 	bool isAllocType() const { return type_ == ALLOC_BUF || type_ == AUTO_GROW; }
 	Type getType(size_t maxSize, void *userPtr) const
 	{
 		if (userPtr == AutoGrow) return AUTO_GROW;
 		if (userPtr) return USER_BUF;
-		if (maxSize <= MAX_FIXED_BUF_SIZE) return FIXED_BUF;
 		return ALLOC_BUF;
 	}
 	struct AddrInfo {
@@ -532,7 +531,6 @@ class CodeArray {
 	const Type type_;
 	Allocator defaultAllocator_;
 	Allocator *alloc_;
-	uint8 buf_[MAX_FIXED_BUF_SIZE]; // for FIXED_BUF
 protected:
 	size_t maxSize_;
 	uint8 *top_;
@@ -567,7 +565,7 @@ public:
 		: type_(getType(maxSize, userPtr))
 		, alloc_(allocator ? allocator : &defaultAllocator_)
 		, maxSize_(maxSize)
-		, top_(isAllocType() ? alloc_->alloc((std::max<size_t>)(maxSize, 1)) : type_ == USER_BUF ? reinterpret_cast<uint8*>(userPtr) : buf_)
+		, top_(type_ == USER_BUF ? reinterpret_cast<uint8*>(userPtr) : alloc_->alloc((std::max<size_t>)(maxSize, 1)))
 		, size_(0)
 	{
 		if (maxSize_ > 0 && top_ == 0) throw Error(ERR_CANT_ALLOC);
@@ -582,16 +580,6 @@ public:
 			if (alloc_->useProtect()) protect(top_, maxSize_, false);
 			alloc_->free(top_);
 		}
-	}
-	CodeArray(const CodeArray& rhs)
-		: type_(rhs.type_)
-		, defaultAllocator_(rhs.defaultAllocator_)
-		, maxSize_(rhs.maxSize_)
-		, top_(buf_)
-		, size_(rhs.size_)
-	{
-		if (type_ != FIXED_BUF) throw Error(ERR_CODE_ISNOT_COPYABLE);
-		for (size_t i = 0; i < size_; i++) top_[i] = rhs.top_[i];
 	}
 	void resetSize()
 	{
