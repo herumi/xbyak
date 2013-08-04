@@ -495,9 +495,6 @@ inline RegExp operator-(const RegExp& e, uint32_t disp)
 void *const AutoGrow = (void*)1;
 
 class CodeArray {
-	enum {
-		MAX_FIXED_BUF_SIZE = 8
-	};
 	enum Type {
 		USER_BUF = 1, // use userPtr(non alignment, non protect)
 		ALLOC_BUF, // use new(alignment, protect)
@@ -506,12 +503,6 @@ class CodeArray {
 	CodeArray(const CodeArray& rhs);
 	void operator=(const CodeArray&);
 	bool isAllocType() const { return type_ == ALLOC_BUF || type_ == AUTO_GROW; }
-	Type getType(size_t maxSize, void *userPtr) const
-	{
-		if (userPtr == AutoGrow) return AUTO_GROW;
-		if (userPtr) return USER_BUF;
-		return ALLOC_BUF;
-	}
 	struct AddrInfo {
 		size_t codeOffset; // position to write
 		size_t jmpAddr; // value to write
@@ -561,8 +552,8 @@ protected:
 		if (alloc_->useProtect() && !protect(top_, size_, true)) throw Error(ERR_CANT_PROTECT);
 	}
 public:
-	CodeArray(size_t maxSize = MAX_FIXED_BUF_SIZE, void *userPtr = 0, Allocator *allocator = 0)
-		: type_(getType(maxSize, userPtr))
+	explicit CodeArray(size_t maxSize, void *userPtr = 0, Allocator *allocator = 0)
+		: type_(userPtr == AutoGrow ? AUTO_GROW : userPtr ? USER_BUF : ALLOC_BUF)
 		, alloc_(allocator ? allocator : &defaultAllocator_)
 		, maxSize_(maxSize)
 		, top_(type_ == USER_BUF ? reinterpret_cast<uint8*>(userPtr) : alloc_->alloc((std::max<size_t>)(maxSize, 1)))
