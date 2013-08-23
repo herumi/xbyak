@@ -148,8 +148,10 @@ public:
 		tSSE4a = 1 << 18,
 		tRDTSCP = 1 << 19,
 		tAVX2 = 1 << 20,
-		tGPR1 = 1 << 21, // andn, bextr, blsi, blsmsk, blsr, tzcnt
-		tGPR2 = 1 << 22, // bzhi, mulx, pdep, pext, rorx, sarx, shlx, shrx
+		tBMI1 = 1 << 21, // andn, bextr, blsi, blsmsk, blsr, tzcnt
+		tBMI2 = 1 << 22, // bzhi, mulx, pdep, pext, rorx, sarx, shlx, shrx
+		tGPR1 = tBMI1, // backward compatibility
+		tGPR2 = tBMI2, // backward compatibility
 		tLZCNT = 1 << 23,
 
 		tINTEL = 1 << 24,
