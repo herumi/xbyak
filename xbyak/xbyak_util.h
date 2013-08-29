@@ -336,6 +336,13 @@ public:
 		}
 		return pack;
 	}
+	void put() const
+	{
+		for (size_t i = 0; i < n_; i++) {
+			printf("%s ", tbl_[i]->toString());
+		}
+		printf("\n");
+	}
 };
 
 class StackFrame {
