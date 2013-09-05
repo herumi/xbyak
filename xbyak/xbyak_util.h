@@ -153,6 +153,7 @@ public:
 		tGPR1 = tBMI1, // backward compatibility
 		tGPR2 = tBMI2, // backward compatibility
 		tLZCNT = 1 << 23,
+		tENHANCED_REP = 1 << 26, // enhanced rep movsb/stosb
 
 		tINTEL = 1 << 24,
 		tAMD = 1 << 25
@@ -204,8 +205,9 @@ public:
 		}
 		getCpuidEx(7, 0, data);
 		if (type_ & tAVX && data[1] & 0x20) type_ |= tAVX2;
-		if (data[1] & (1U << 3)) type_ |= tGPR1;
-		if (data[1] & (1U << 8)) type_ |= tGPR2;
+		if (data[1] & (1U << 3)) type_ |= tBMI1;
+		if (data[1] & (1U << 8)) type_ |= tBMI2;
+		if (data[1] & (1U << 9)) type_ |= tENHANCED_REP;
 		setFamily();
 	}
 	void putFamily()
