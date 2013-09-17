@@ -32,6 +32,10 @@
 #include "xbyak/xbyak_util.h"
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
+#ifdef XBYAK64
+	#error "only 32bit"
+#endif
+
 using namespace Xbyak;
 
 class ToyVm : public Xbyak::CodeGenerator {
@@ -151,7 +155,7 @@ public:
 			uint32 x = code_[pc];
 			uint32 code, r, imm;
 			decode(code, r, imm, x);
-		L(Label::toStr(labelNum++).c_str());
+		L(Label::toStr(labelNum++));
 			switch (code) {
 			case LDI:
 				mov(reg[r], imm);
@@ -209,7 +213,7 @@ public:
 				break;
 			case JNZ:
 				test(reg[r], reg[r]);
-				jnz(Label::toStr(labelNum + static_cast<signed short>(imm)).c_str());
+				jnz(Label::toStr(labelNum + static_cast<signed short>(imm)));
 				break;
 			default:
 				assert(0);

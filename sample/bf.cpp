@@ -12,11 +12,9 @@
 class Brainfuck : public Xbyak::CodeGenerator {
 private:
 	enum Direction { B, F };
-	const char *toStr(int labelNo, Direction dir)
+	std::string toStr(int labelNo, Direction dir)
 	{
-		static char num[64];
-		snprintf(num, sizeof(num), "%c%d", dir == B ? 'B' : 'F', labelNo);
-		return num;
+		return Xbyak::Label::toStr(labelNo) + (dir == B ? 'B' : 'F');
 	}
 public:
 	int getContinuousChar(std::istream& is, char c)

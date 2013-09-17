@@ -850,14 +850,14 @@ private:
 		@f --> @@.<num + 1>
 		.*** -> .***.<num>
 	*/
-	std::string convertLabel(const char *label) const
+	std::string convertLabel(const std::string& label) const
 	{
 		std::string newLabel(label);
 		if (newLabel == "@f" || newLabel == "@F") {
 			newLabel = std::string("@@") + toStr(anonymousCount_ + 1);
 		} else if (newLabel == "@b" || newLabel == "@B") {
 			newLabel = std::string("@@") + toStr(anonymousCount_);
-		} else if (*label == '.') {
+		} else if (*label.c_str() == '.') {
 			newLabel += toStr(localCount_);
 		}
 		return newLabel;
@@ -892,15 +892,14 @@ public:
 		localCount_ = stack_[--stackPos_ - 1];
 	}
 	void set(CodeArray *base) { base_ = base; }
-	void define(const char *label, size_t addrOffset, const uint8 *addr)
+	void define(const std::string& _label, size_t addrOffset, const uint8 *addr)
 	{
-		std::string newLabel(label);
-		if (newLabel == "@@") {
-			newLabel += toStr(++anonymousCount_);
-		} else if (*label == '.') {
-			newLabel += toStr(localCount_);
+		std::string label(_label);
+		if (label == "@@") {
+			label += toStr(++anonymousCount_);
+		} else if (*label.c_str() == '.') {
+			label += toStr(localCount_);
 		}
-		label = newLabel.c_str();
 		// add label
 		DefinedList::value_type item(label, addrOffset);
 		std::pair<DefinedList::iterator, bool> ret = definedList_.insert(item);
@@ -929,7 +928,7 @@ public:
 			undefinedList_.erase(itr);
 		}
 	}
-	bool getOffset(size_t *offset, const char *label) const
+	bool getOffset(size_t *offset, const std::string& label) const
 	{
 		std::string newLabel = convertLabel(label);
 		DefinedList::const_iterator itr = definedList_.find(newLabel);
@@ -940,7 +939,7 @@ public:
 			return false;
 		}
 	}
-	void addUndefinedLabel(const char *label, const JmpLabel& jmp)
+	void addUndefinedLabel(const std::string& label, const JmpLabel& jmp)
 	{
 		std::string newLabel = convertLabel(label);
 		undefinedList_.insert(UndefinedList::value_type(newLabel, jmp));
@@ -1080,7 +1079,7 @@ private:
 			db(longCode); dd(disp - longJmpSize);
 		}
 	}
-	void opJmp(const char *label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
+	void opJmp(const std::string& label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
 	{
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory(); /* avoid splitting code of jmp */
 		size_t offset = 0;
@@ -1405,16 +1404,17 @@ public:
 	const Ymm &ym8, &ym9, &ym10, &ym11, &ym12, &ym13, &ym14, &ym15;
 	const RegRip rip;
 #endif
-	void L(const char *label)
+	void L(const std::string& label)
 	{
 		label_.define(label, getSize(), getCurr());
 	}
 	void inLocalLabel() { label_.enterLocal(); }
 	void outLocalLabel() { label_.leaveLocal(); }
-	void jmp(const char *label, LabelType type = T_AUTO)
+	void jmp(const std::string& label, LabelType type = T_AUTO)
 	{
 		opJmp(label, type, B11101011, B11101001, 0);
 	}
+	void jmp(const char *label, LabelType type = T_AUTO) { jmp(std::string(label), type); }
 	void jmp(const void *addr, LabelType type = T_AUTO)
 	{
 		opJmpAbs(addr, type, B11101011, B11101001);
@@ -1606,7 +1606,7 @@ public:
 		put address of label to buffer
 		@note the put size is 4(32-bit), 8(64-bit)
 	*/
-	void putL(const char *label)
+	void putL(const std::string& label)
 	{
 		const int jmpSize = (int)sizeof(size_t);
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory();
@@ -1652,10 +1652,11 @@ public:
 		}
 		opModRM(*p1, *p2, (p1->isREG() && p2->isREG() && (p1->getBit() == p2->getBit())), p2->isMEM(), B10000110 | (p1->isBit(8) ? 0 : 1));
 	}
-	void call(const char *label)
+	void call(const std::string& label)
 	{
 		opJmp(label, T_NEAR, 0, B11101000, 0);
 	}
+	void call(const char *label) { call(std::string(label)); }
 	void call(const void *addr)
 	{
 		opJmpAbs(addr, T_NEAR, 0, B11101000);

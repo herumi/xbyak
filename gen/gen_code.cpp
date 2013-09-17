@@ -48,7 +48,7 @@ std::string type2String(int type)
 */
 void put_jREGz(const char *reg, bool prefix)
 {
-	printf("void j%sz(const char *label) { %sopJmp(label, T_SHORT, 0xe3, 0, 0); }\n", reg, prefix ? "db(0x67); " : "");
+	printf("void j%sz(const std::string& label) { %sopJmp(label, T_SHORT, 0xe3, 0, 0); }\n", reg, prefix ? "db(0x67); " : "");
 }
 
 void put()
@@ -437,7 +437,7 @@ void put()
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void cmov%s(const Reg32e& reg, const Operand& op) { opModRM(reg, op, op.isREG(i32e), op.isMEM(), 0x0F, B01000000 | %d); }\n", p->name, p->ext);
-			printf("void j%s(const char *label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }\n", p->name, p->ext | B01110000, p->ext | B10000000, 0x0F);
+			printf("void j%s(const std::string& label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }\n", p->name, p->ext | B01110000, p->ext | B10000000, 0x0F);
 			printf("void set%s(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, B10010000 | %d); }\n", p->name, p->ext);
 		}
 		puts("#ifdef XBYAK32");

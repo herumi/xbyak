@@ -104,15 +104,13 @@ private:
 	MIE_ALIGN(16) double constTbl_[MAX_CONST_NUM];
 	Xbyak::uint64 negConst_;
 	size_t constTblPos_;
-	int regIdx_;
 #ifdef XBYAK32
-	const Xbyak::RegExp& varTbl_;
-#endif
-#ifdef XBYAK32
+	const Xbyak::Reg32& varTbl_;
 	const Xbyak::Reg32& tbl_;
 #else
 	const Xbyak::Reg64& tbl_;
 #endif
+	int regIdx_;
 public:
 	/*
 		double jit(double x);
@@ -122,7 +120,6 @@ public:
 	Jit()
 		: negConst_(Xbyak::uint64(1) << 63)
 		, constTblPos_(0)
-		, regIdx_(-1)
 #ifdef XBYAK32
 		, varTbl_(eax)
 		, tbl_(edx)
@@ -131,9 +128,10 @@ public:
 #else
 		, tbl_(rdi)
 #endif
+		, regIdx_(-1)
 	{
 #ifdef XBYAK32
-		lea(varTbl_, ptr[esp+4]);
+		lea(varTbl_, ptr [esp+4]);
 #else
 #ifdef XBYAK64_WIN
 		movaps(ptr [rsp + 8], xm6); // save xm6, xm7

@@ -38,10 +38,11 @@ private:
 	size_t constTblPos_;
 	int regIdx_;
 	Map varMap_; // map var name to index
-	const Xbyak::RegExp& valTbl_;
 #ifdef XBYAK32
+	const Xbyak::Reg32& valTbl_;
 	const Xbyak::Reg32& tbl_;
 #else
+	const Xbyak::Reg64& valTbl_;
 	const Xbyak::Reg64& tbl_;
 #endif
 public:
@@ -85,7 +86,7 @@ public:
 		if (constTblPos_ >= MAX_CONST_NUM) throw;
 		constTbl_[constTblPos_] = n;
 		if (regIdx_ == 7) throw;
-		movsd(Xbyak::Xmm(++regIdx_), ptr[tbl_ + constTblPos_ * (int)sizeof(double)]);
+		movsd(Xbyak::Xmm(++regIdx_), ptr[tbl_ + (int)(constTblPos_ * sizeof(double))]);
 		constTblPos_++;
 	}
 	// use eax

@@ -376,7 +376,7 @@ struct Test5 : Xbyak::CodeGenerator {
 		xor(eax, eax);
 	L(".lp");
 		for (int i = 0; i < count; i++) {
-			L(Label::toStr(i).c_str());
+			L(Label::toStr(i));
 			add(eax, 1);
 			int to = 0;
 			if (i < count / 2) {
@@ -387,7 +387,7 @@ struct Test5 : Xbyak::CodeGenerator {
 			if (i == count / 2) {
 				jmp(".exit", T_NEAR);
 			} else {
-				jmp(Label::toStr(to).c_str(), T_NEAR);
+				jmp(Label::toStr(to), T_NEAR);
 			}
 		}
 	L(".exit");
