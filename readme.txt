@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 4.20
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 4.21
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -252,6 +252,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2013/10/16 ver 4.21 ラベルでstd::stringを受け付ける。
 2013/07/30 ver 4.20 [break backward compatibility] 従来のReg32eクラスをアドレッシング用のRegExpとReg32, Reg64を表すReg32eに分離
 2013/07/04 ver 4.10 [break backward compatibility] Xbyak::Errorの型をenumからclassに変更
 2013/06/21 ver 4.02 LABELの指すアドレスを書き込むputL(LABEL)関数の追加。

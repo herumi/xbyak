@@ -72,7 +72,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4200 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4210 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -405,10 +405,10 @@ public:
 		void set(const Reg& r) { this->bit = uint16(r.getBit()); this->idx = uint16(r.getIdx()); }
 		bool operator==(const SReg& rhs) const { return bit == rhs.bit && idx == rhs.idx; }
 	};
-	RegExp(uint32_t disp = 0) : scale_(0), disp_(disp) { }
+	RegExp(size_t disp = 0) : disp_(disp), scale_(0) { }
 	RegExp(const Reg& r, int scale = 1)
-		: scale_(scale)
-		, disp_(0)
+		: disp_(0)
+		, scale_(scale)
 	{
 		if (!r.is(Reg::REG, 32|64) && !r.is(Reg::XMM|Reg::YMM)) throw Error(ERR_BAD_SIZE_OF_REGISTER);
 		if (scale != 1 && scale != 2 && scale != 4 && scale != 8) throw Error(ERR_BAD_SCALE);
@@ -438,7 +438,7 @@ public:
 	const SReg& getBase() const { return base_; }
 	const SReg& getIndex() const { return index_; }
 	int getScale() const { return scale_; }
-	uint32 getDisp() const { return disp_; }
+	uint32 getDisp() const { return uint32(disp_); }
 	void verify() const
 	{
 		if (base_.bit >= 128) throw Error(ERR_BAD_SIZE_OF_REGISTER);
@@ -449,15 +449,15 @@ public:
 	}
 private:
 	friend RegExp operator+(const RegExp& a, const RegExp& b);
-	friend RegExp operator-(const RegExp& e, uint32_t disp);
+	friend RegExp operator-(const RegExp& e, size_t disp);
 	/*
 		[base_ + index_ * scale_ + disp_]
 		base : Reg32e, index : Reg32e(w/o esp), Xmm, Ymm
 	*/
+	size_t disp_;
+	int scale_;
 	SReg base_;
 	SReg index_;
-	int scale_;
-	uint32 disp_;
 };
 
 inline RegExp operator+(const RegExp& a, const RegExp& b)
@@ -484,7 +484,7 @@ inline RegExp operator*(const Reg& r, int scale)
 {
 	return RegExp(r, scale);
 }
-inline RegExp operator-(const RegExp& e, uint32_t disp)
+inline RegExp operator-(const RegExp& e, size_t disp)
 {
 	RegExp ret = e;
 	ret.disp_ -= disp;
