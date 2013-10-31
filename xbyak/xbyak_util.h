@@ -270,7 +270,7 @@ public:
 	Pack(const Pack& rhs)
 		: n_(rhs.n_)
 	{
-		if (n_ >= maxTblNum) throw Error(ERR_INTERNAL);
+		if (n_ > maxTblNum) throw Error(ERR_INTERNAL);
 		for (size_t i = 0; i < n_; i++) tbl_[i] = rhs.tbl_[i];
 	}
 	Pack(const Xbyak::Reg64& t0)
