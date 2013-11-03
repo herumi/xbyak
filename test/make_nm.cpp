@@ -893,23 +893,30 @@ class Test {
 			const char *a;
 			const char *b;
 		} tbl[] = {
-			{ "0", "dword 0" },
-			{ "0x123", "dword 0x123" },
-			{ "0x12345678", "dword 0x12345678" },
-			{ "0x7fffffff", "dword 0x7fffffff" },
+			{ "0", "0" },
+			{ "0x123", "0x123" },
+			{ "0x12345678", "0x12345678" },
+			{ "0x7fffffff", "0x7fffffff" },
 			{ "0xffffffff", "0xffffffff" },
 			{ "0x80000000", "0x80000000" },
 			{ "2147483648U", "2147483648" },
 			{ "0x80000001", "0x80000001" },
-			{ "0xffffffffffffffff", "dword 0xffffffffffffffff" },
-			{ "-1", "dword -1" },
-			{ "0xffffffff80000000", "dword 0xffffffff80000000" },
-			{ "0xffffffff80000001", "dword 0xffffffff80000001" },
+			{ "0xffffffffffffffff", "0xffffffffffffffff" },
+			{ "-1", "-1" },
+			{ "0xffffffff80000000", "0xffffffff80000000" },
+			{ "0xffffffff80000001", "0xffffffff80000001" },
 			{ "0xffffffff12345678", "0xffffffff12345678" },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			put("mov", REG64, tbl[i].a, tbl[i].b);
 		}
+	}
+	// only nasm
+	void putMovImm64() const
+	{
+		put("mov", REG64, "0x1234567890abcdefLL", "0x1234567890abcdef");
+		put("mov", REG64, "0x12345678", "0x12345678");
+		put("mov", REG64, "0xffffffff12345678LL", "0xffffffff12345678");
 		put("mov", REG32e|REG16|REG8|RAX|EAX|AX|AL, IMM);
 	}
 	void putEtc() const
@@ -2074,7 +2081,9 @@ public:
 	void put()
 	{
 #ifdef USE_AVX
+
 		putFMA2();
+
 #ifdef USE_YASM
 		putGprR_R_RM();
 		putGprR_RM_R();
@@ -2095,9 +2104,18 @@ public:
 		putAVX_Y_XM();
 		putFMA();
 #endif
+
 #else // USE_AVX
+
 		putJmp();
-#ifndef USE_YASM
+
+#ifdef USE_YASM
+
+		putSSSE3();
+		putSSE4_1();
+		separateFunc();
+		putSSE4_2();
+#else
 		putSIMPLE();
 		putReg1();
 		putRorM();
@@ -2133,16 +2151,19 @@ public:
 		putFpu();
 		putFpuFpu();
 		putCmp();
-#else // USE_YASM
-		putSSSE3();
-		putSSE4_1();
-		separateFunc();
-		putSSE4_2();
-		putMov64();
+#endif
+
 #ifdef XBYAK64
+
+#ifdef USE_YASM
 		putRip();
+#else
+		putMov64();
+		putMovImm64();
+#endif
+
 #endif // XBYAK64
-#endif // USE_YASM
+
 #endif // USE_AVX
 	}
 };

@@ -1541,22 +1541,27 @@ public:
 	{
 		verifyMemHasSize(op);
 		if (op.isREG()) {
-			rex(op);
-			int code, size;
-#ifdef XBYAK64
-			if (opti && op.isBit(64) && inner::IsInInt32(imm)) {
-				db(B11000111);
-				code = B11000000;
-				size = 4;
-			} else
-#endif
-			{
-				code = B10110000 | ((op.isBit(8) ? 0 : 1) << 3);
-				size = op.getBit() / 8;
-			}
+			int bit = op.getBit();
+			int idx = op.getIdx();
+			int code = B10110000 | ((bit == 8 ? 0 : 1) << 3);
 
-			db(code | (op.getIdx() & 7));
-			db(imm, size);
+#ifdef XBYAK64
+			if (opti && bit == 64 && (imm >> 32) == 0) {
+				rex(Reg32(idx));
+				bit = 32;
+			} else {
+				rex(op);
+				if (opti && bit == 64 && inner::IsInInt32(imm)) {
+					db(B11000111);
+					code = B11000000;
+					bit = 32;
+				}
+			}
+#else
+			rex(op);
+#endif
+			db(code | (idx & 7));
+			db(imm, bit / 8);
 		} else if (op.isMEM()) {
 			opModM(static_cast<const Address&>(op), Reg(0, Operand::REG, op.getBit()), B11000110);
 			int size = op.getBit() / 8; if (size > 4) size = 4;
