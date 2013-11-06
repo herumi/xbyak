@@ -20,7 +20,7 @@
 #include <list>
 #include <string>
 #include <algorithm>
-#if (__cplusplus >= 201103) || (_MSC_VER >= 1500) || defined(__GXX_EXPERIMENTAL_CXX0X__)
+#if (__cplusplus >= 201103) || (_MSC_VER >= 1500) || defined(__GXX_EXPERIMENTAL_CXX0X__) || (defined(__clang__) && __has_include(<unordered_map>))
 	#include <unordered_map>
 	#if defined(_MSC_VER) && (_MSC_VER < 1600)
 		#define XBYAK_USE_TR1_UNORDERED_MAP
