@@ -1,5 +1,5 @@
 
-Xbyak 4.21 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 4.30 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -237,6 +237,7 @@ http://opensource.org/licenses/BSD-3-Clause
 
 History
 -------------
+* 2013/Dec/03 ver 4.30 support Reg::cvt8(), cvt16(), cvt32(), cvt64()
 * 2013/Oct/16 ver 4.21 label support std::string
 * 2013/Jul/30 ver 4.20 [break backward compatibility] split Reg32e class into RegExp(base+index*scale+disp) and Reg32e(means Reg32 or Reg64)
 * 2013/Jul/04 ver 4.10 [break backward compatibility] change the type of Xbyak::Error from enum to a class

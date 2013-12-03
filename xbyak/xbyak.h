@@ -72,7 +72,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4210 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4300 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -129,6 +129,7 @@ enum {
 	ERR_BAD_PNUM,
 	ERR_BAD_TNUM,
 	ERR_BAD_VSIB_ADDRESSING,
+	ERR_CANT_CONVERT,
 	ERR_INTERNAL
 };
 
@@ -174,6 +175,7 @@ public:
 			"bad pNum",
 			"bad tNum",
 			"bad vsib addressing",
+			"can't convert",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -337,6 +339,12 @@ public:
 	bool operator!=(const Operand& rhs) const { return !operator==(rhs); }
 };
 
+struct Reg8;
+struct Reg16;
+struct Reg32;
+#ifdef XBYAK64
+struct Reg64;
+#endif
 class Reg : public Operand {
 	bool hasRex() const { return isExt8bit() | isREG(64) | isExtIdx(); }
 public:
@@ -348,6 +356,12 @@ public:
 	{
 		return (hasRex() || base.hasRex()) ? uint8(0x40 | ((isREG(64) | base.isREG(64)) ? 8 : 0) | (isExtIdx() ? 4 : 0)| (base.isExtIdx() ? 1 : 0)) : 0;
 	}
+	Reg8 cvt8() const;
+	Reg16 cvt16() const;
+	Reg32 cvt32() const;
+#ifdef XBYAK64
+	Reg64 cvt64() const;
+#endif
 };
 
 struct Reg8 : public Reg {
@@ -394,6 +408,39 @@ struct RegRip {
 		return RegRip(r.disp_ - disp);
 	}
 };
+#endif
+
+inline Reg8 Reg::cvt8() const
+{
+	const int idx = getIdx();
+	if (isBit(8)) return Reg8(idx, isExt8bit());
+#ifdef XBYAK32
+	if (idx >= 4) throw Error(ERR_CANT_CONVERT);
+#endif
+	return Reg8(idx, 4 <= idx && idx < 8);
+}
+
+inline Reg16 Reg::cvt16() const
+{
+	const int idx = getIdx();
+	if (isBit(8) && (4 <= idx && idx < 8) && !isExt8bit()) throw Error(ERR_CANT_CONVERT);
+	return Reg16(idx);
+}
+
+inline Reg32 Reg::cvt32() const
+{
+	const int idx = getIdx();
+	if (isBit(8) && (4 <= idx && idx < 8) && !isExt8bit()) throw Error(ERR_CANT_CONVERT);
+	return Reg32(idx);
+}
+
+#ifdef XBYAK64
+inline Reg64 Reg::cvt64() const
+{
+	const int idx = getIdx();
+	if (isBit(8) && (4 <= idx && idx < 8) && !isExt8bit()) throw Error(ERR_CANT_CONVERT);
+	return Reg64(idx);
+}
 #endif
 
 class RegExp {
