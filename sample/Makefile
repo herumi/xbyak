@@ -3,12 +3,23 @@ XBYAK_INC=../xbyak/xbyak.h
 
 BOOST_EXIST=$(shell echo "\#include <boost/spirit/core.hpp>" | (gcc -E - 2>/dev/null) | grep "boost/spirit/core.hpp" >/dev/null && echo "1")
 
-BIT=32
-ifeq ($(shell uname -m),x86_64)
-BIT=64
-endif
 ifeq ($(shell uname -s),Darwin)
-BIT=64
+	ifeq ($(shell uname -m),x86_64)
+		BIT=64
+	endif
+	ifeq ($(shell uname -m),i386)
+		BIT=32
+	endif
+	ifeq ($(shell sw_vers -productVersion | cut -c1-4 | sed 's/\.//'),105)
+		ifeq ($(shell sysctl -n hw.cpu64bit_capable),1)
+			BIT=64
+		endif
+	endif
+else
+	BIT=32
+	ifeq ($(shell uname -m),x86_64)
+		BIT=64
+	endif
 endif
 
 ifeq ($(BIT),64)
