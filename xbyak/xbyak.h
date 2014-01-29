@@ -157,7 +157,7 @@ public:
 	operator int() const { return err_; }
 	const char *what() const throw()
 	{
-		static const char errTbl[][40] = {
+		static const char *errTbl[] = {
 			"none",
 			"bad addressing",
 			"code is too big",
@@ -321,10 +321,10 @@ public:
 		const int idx = getIdx();
 		if (kind_ == REG) {
 			if (isExt8bit()) {
-				static const char tbl[4][4] = { "spl", "bpl", "sil", "dil" };
+				static const char *tbl[4] = { "spl", "bpl", "sil", "dil" };
 				return tbl[idx - 4];
 			}
-			static const char tbl[4][16][5] = {
+			static const char *tbl[4][16] = {
 				{ "al", "cl", "dl", "bl", "ah", "ch", "dh", "bh", "r8b", "r9b", "r10b",  "r11b", "r12b", "r13b", "r14b", "r15b" },
 				{ "ax", "cx", "dx", "bx", "sp", "bp", "si", "di", "r8w", "r9w", "r10w",  "r11w", "r12w", "r13w", "r14w", "r15w" },
 				{ "eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi", "r8d", "r9d", "r10d",  "r11d", "r12d", "r13d", "r14d", "r15d" },
@@ -332,10 +332,10 @@ public:
 			};
 			return tbl[bit_ == 8 ? 0 : bit_ == 16 ? 1 : bit_ == 32 ? 2 : 3][idx];
 		} else if (isYMM()) {
-			static const char tbl[16][5] = { "ym0", "ym1", "ym2", "ym3", "ym4", "ym5", "ym6", "ym7", "ym8", "ym9", "ym10", "ym11", "ym12", "ym13", "ym14", "ym15" };
+			static const char *tbl[16] = { "ym0", "ym1", "ym2", "ym3", "ym4", "ym5", "ym6", "ym7", "ym8", "ym9", "ym10", "ym11", "ym12", "ym13", "ym14", "ym15" };
 			return tbl[idx];
 		} else if (isXMM()) {
-			static const char tbl[16][5] = { "xm0", "xm1", "xm2", "xm3", "xm4", "xm5", "xm6", "xm7", "xm8", "xm9", "xm10", "xm11", "xm12", "xm13", "xm14", "xm15" };
+			static const char *tbl[16] = { "xm0", "xm1", "xm2", "xm3", "xm4", "xm5", "xm6", "xm7", "xm8", "xm9", "xm10", "xm11", "xm12", "xm13", "xm14", "xm15" };
 			return tbl[idx];
 		} else if (isMMX()) {
 			static const char tbl[8][4] = { "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7" };
