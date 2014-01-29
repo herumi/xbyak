@@ -20,16 +20,27 @@
 #include <list>
 #include <string>
 #include <algorithm>
-#if (__cplusplus >= 201103) || (_MSC_VER >= 1500) || defined(__GXX_EXPERIMENTAL_CXX0X__) || (defined(__clang__) && __has_include(<unordered_map>))
+
+// This covers -std=(gnu|c)++(0x|11|1y), -stdlib=libc++, and modern Microsoft.
+#if ((defined(_MSC_VER) && (_MSC_VER >= 1600)) || defined(_LIBCPP_VERSION) ||\
+	 			 ((__cplusplus >= 201103) || defined(__GXX_EXPERIMENTAL_CXX0X__)))
 	#include <unordered_map>
-	#if defined(_MSC_VER) && (_MSC_VER < 1600)
-		#define XBYAK_USE_TR1_UNORDERED_MAP
-	#else
-		#define XBYAK_USE_UNORDERED_MAP
-	#endif
-#elif (__GNUC__ >= 4 && __GNUC_MINOR__ >= 5) || (__clang_major__ >= 3)
+	#define XBYAK_USE_UNORDERED_MAP
+
+// Clang/llvm-gcc and ICC-EDG in 'GCC-mode' always claim to be GCC 4.2, using
+// libstdcxx 20070719 (from GCC 4.2.1, the last GPL 2 version).
+// These headers have been expanded/fixed in various forks.
+// In F.S.F. 'real' GCC, issues with the tr headers were resolved in GCC 4.5.
+#elif defined(__GNUC__) && (__GNUC__ >= 4) && ((__GNUC_MINOR__ >= 5) || \
+								 ((__GLIBCXX__ >= 20070719) && (__GNUC_MINOR__ >= 2) && \
+									(defined(__INTEL_COMPILER) || defined(__llvm__))))
 	#include <tr1/unordered_map>
 	#define XBYAK_USE_TR1_UNORDERED_MAP
+
+#elif defined(_MSC_VER) && (_MSC_VER >= 1500) && (_MSC_VER < 1600)
+	#include <unordered_map>
+	#define XBYAK_USE_TR1_UNORDERED_MAP
+
 #else
 	#include <map>
 #endif
