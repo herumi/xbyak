@@ -560,6 +560,62 @@ void testMovLabel2()
 	printf("MovLabel2Test ret=%d, %s\n", ret, ret == 7 ? "ok" : "ng");
 }
 
+struct TestLocal : public Xbyak::CodeGenerator {
+	TestLocal()
+	{
+		xor_(eax, eax);
+		inLocalLabel();
+		jmp("start0");
+		L(".back");
+		inc(eax); // 8
+		jmp(".next");
+		L("start2");
+		inc(eax); // 7
+		jmp(".back");
+			inLocalLabel();
+			L(".back");
+			inc(eax); // 5
+			jmp(".next");
+			L("start1");
+			inc(eax); // 4
+			jmp(".back");
+				inLocalLabel();
+				L(".back");
+				inc(eax); // 2
+				jmp(".next");
+				L("start0");
+				inc(eax); // 1
+				jmp(".back");
+				L(".next");
+				inc(eax); // 3
+				jmp("start1");
+				outLocalLabel();
+			L(".next");
+			inc(eax); // 6
+			jmp("start2");
+			outLocalLabel();
+		L(".next");
+		inc(eax); // 9
+		jmp("exit");
+		outLocalLabel();
+		L("exit");
+		ret();
+	}
+};
+
+void test6()
+{
+	puts("test6");
+	TestLocal code;
+	int (*f)() = code.getCode<int (*)()>();
+	int a = f();
+	if (a != 9) {
+		printf("ERR a=%d\n", a);
+	} else {
+		puts("ok");
+	}
+}
+
 int main()
 {
 	try {
@@ -570,6 +626,7 @@ int main()
 #endif
 		test4();
 		test5();
+		test6();
 		testJmpCx();
 		puts("test MovLabelCode");
 		testMovLabel(false);
