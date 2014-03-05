@@ -163,6 +163,7 @@ public:
 	{
 		unsigned int data[4];
 		getCpuid(0, data);
+		const unsigned int maxNum = data[0];
 		static const char intel[] = "ntel";
 		static const char amd[] = "cAMD";
 		if (data[2] == get32bitAsBE(amd)) {
@@ -203,11 +204,13 @@ public:
 				if (data[2] & (1U << 12)) type_ |= tFMA;
 			}
 		}
-		getCpuidEx(7, 0, data);
-		if (type_ & tAVX && data[1] & 0x20) type_ |= tAVX2;
-		if (data[1] & (1U << 3)) type_ |= tBMI1;
-		if (data[1] & (1U << 8)) type_ |= tBMI2;
-		if (data[1] & (1U << 9)) type_ |= tENHANCED_REP;
+		if (maxNum >= 7) {
+			getCpuidEx(7, 0, data);
+			if (type_ & tAVX && data[1] & 0x20) type_ |= tAVX2;
+			if (data[1] & (1U << 3)) type_ |= tBMI1;
+			if (data[1] & (1U << 8)) type_ |= tBMI2;
+			if (data[1] & (1U << 9)) type_ |= tENHANCED_REP;
+		}
 		setFamily();
 	}
 	void putFamily()
