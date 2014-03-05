@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 4.30
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 4.40
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -252,6 +252,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2014/03/05 ver 4.40 VirtualBox上でBMI/enhanced repのサポート判定を間違うことがあるのを修正
 2013/12/03 ver 4.30 Reg::cvt8(), cvt16(), cvt32()のサポート
 2013/10/16 ver 4.21 ラベルでstd::stringを受け付ける。
 2013/07/30 ver 4.20 [break backward compatibility] 従来のReg32eクラスをアドレッシング用のRegExpとReg32, Reg64を表すReg32eに分離
