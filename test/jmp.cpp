@@ -596,9 +596,29 @@ struct TestLocal : public Xbyak::CodeGenerator {
 			outLocalLabel();
 		L(".next");
 		inc(eax); // 9
-		jmp("exit");
+		jmp("start3");
+			inLocalLabel();
+			L(".back");
+			inc(eax); // 14
+			jmp("exit");
+		L("start4");
+			inc(eax); // 13
+			jmp(".back");
+			outLocalLabel();
+		L("start3");
+			inc(eax); // 10
+			inLocalLabel();
+			jmp(".next");
+			L(".back");
+			inc(eax); // 12
+			jmp("start4");
+			L(".next");
+			inc(eax); // 11
+			jmp(".back");
+			outLocalLabel();
 		outLocalLabel();
 		L("exit");
+		inc(eax); // 15
 		ret();
 	}
 };
@@ -609,7 +629,7 @@ void test6()
 	TestLocal code;
 	int (*f)() = code.getCode<int (*)()>();
 	int a = f();
-	if (a != 9) {
+	if (a != 15) {
 		printf("ERR a=%d\n", a);
 	} else {
 		puts("ok");
