@@ -896,7 +896,7 @@ class LabelManager {
 	CodeArray *base_;
 	int anonymousCount_; // for @@, @f, @b
 	enum {
-		maxStack = 10
+		maxStack = 16
 	};
 	int stack_[maxStack];
 	int stackPos_;
