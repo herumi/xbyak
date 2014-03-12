@@ -965,7 +965,7 @@ public:
 		localCount_ = stack_[--stackPos_ - 1];
 	}
 	void set(CodeArray *base) { base_ = base; }
-	void define(const std::string& _label, size_t addrOffset, const uint8 *addr)
+	void define(const std::string& _label, size_t addrOffset)
 	{
 		std::string label(_label);
 		if (label == "@@") {
@@ -987,7 +987,7 @@ public:
 			if (jmp->mode == inner::LaddTop) {
 				disp = addrOffset;
 			} else if (jmp->mode == inner::Labs) {
-				disp = size_t(addr);
+				disp = size_t(base_->getCode() + addrOffset);
 			} else {
 				disp = addrOffset - jmp->endOfJmp;
 				if (jmp->jmpSize <= 4) disp = inner::VerifyInInt32(disp);
@@ -1468,7 +1468,7 @@ public:
 #endif
 	void L(const std::string& label)
 	{
-		labelMgr_.define(label, getSize(), getCurr());
+		labelMgr_.define(label, getSize());
 	}
 	void inLocalLabel() { labelMgr_.enterLocal(); }
 	void outLocalLabel() { labelMgr_.leaveLocal(); }
