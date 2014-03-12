@@ -965,9 +965,10 @@ public:
 		localCount_ = stack_[--stackPos_ - 1];
 	}
 	void set(CodeArray *base) { base_ = base; }
-	void define(const std::string& _label, size_t addrOffset)
+	// copy label because it is modified
+	void define(std::string label)
 	{
-		std::string label(_label);
+		const size_t addrOffset = base_->getSize();
 		if (label == "@@") {
 			label += Label::toStr(++anonymousCount_);
 		} else if (*label.c_str() == '.') {
@@ -987,7 +988,7 @@ public:
 			if (jmp->mode == inner::LaddTop) {
 				disp = addrOffset;
 			} else if (jmp->mode == inner::Labs) {
-				disp = size_t(base_->getCode() + addrOffset);
+				disp = size_t(base_->getCurr());
 			} else {
 				disp = addrOffset - jmp->endOfJmp;
 				if (jmp->jmpSize <= 4) disp = inner::VerifyInInt32(disp);
@@ -1468,7 +1469,7 @@ public:
 #endif
 	void L(const std::string& label)
 	{
-		labelMgr_.define(label, getSize());
+		labelMgr_.define(label);
 	}
 	void inLocalLabel() { labelMgr_.enterLocal(); }
 	void outLocalLabel() { labelMgr_.leaveLocal(); }
