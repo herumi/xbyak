@@ -1594,37 +1594,53 @@ public:
 			opRM_RM(reg1, reg2, B10001000);
 		}
 	}
+private:
+	/*
+		mov(r, imm) = mov_imm(r, imm) + db(imm)
+		return value is size to write
+	*/
+	int mov_imm(const Reg& reg,
+#ifdef XBYAK64
+	uint64 imm, bool opti = true
+#else
+	uint32, bool = true
+#endif
+	)
+	{
+		int bit = reg.getBit();
+		const int idx = reg.getIdx();
+		int code = B10110000 | ((bit == 8 ? 0 : 1) << 3);
+#ifdef XBYAK64
+		if (opti && bit == 64 && (imm >> 32) == 0) {
+			rex(Reg32(idx));
+			bit = 32;
+		} else {
+			rex(reg);
+			if (opti && bit == 64 && inner::IsInInt32(imm)) {
+				db(B11000111);
+				code = B11000000;
+				bit = 32;
+			}
+		}
+#else
+		rex(reg);
+#endif
+		db(code | (idx & 7));
+		return bit / 8;
+	}
+public:
 	void mov(const Operand& op,
 #ifdef XBYAK64
 	uint64 imm, bool opti = true
 #else
-	uint32 imm, bool = true
+	uint32 imm, bool opti = true
 #endif
 	)
 	{
 		verifyMemHasSize(op);
 		if (op.isREG()) {
-			int bit = op.getBit();
-			int idx = op.getIdx();
-			int code = B10110000 | ((bit == 8 ? 0 : 1) << 3);
-
-#ifdef XBYAK64
-			if (opti && bit == 64 && (imm >> 32) == 0) {
-				rex(Reg32(idx));
-				bit = 32;
-			} else {
-				rex(op);
-				if (opti && bit == 64 && inner::IsInInt32(imm)) {
-					db(B11000111);
-					code = B11000000;
-					bit = 32;
-				}
-			}
-#else
-			rex(op);
-#endif
-			db(code | (idx & 7));
-			db(imm, bit / 8);
+			const int size = mov_imm(static_cast<const Reg&>(op), imm, opti);
+			db(imm, size);
 		} else if (op.isMEM()) {
 			opModM(static_cast<const Address&>(op), Reg(0, Operand::REG, op.getBit()), B11000110);
 			int size = op.getBit() / 8; if (size > 4) size = 4;
@@ -1633,7 +1649,6 @@ public:
 			throw Error(ERR_BAD_COMBINATION);
 		}
 	}
-	// QQQ : rewrite this function with putL
 	void mov(
 #ifdef XBYAK64
 		const Reg64& reg,
@@ -1646,29 +1661,13 @@ public:
 			mov(reg, 0, true);
 			return;
 		}
-		const int jmpSize = (int)sizeof(size_t);
 #ifdef XBYAK64
 		const size_t dummyAddr = (size_t(0x11223344) << 32) | 55667788;
 #else
 		const size_t dummyAddr = 0x12345678;
 #endif
-		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory();
-		size_t offset = 0;
-		if (labelMgr_.getOffset(&offset, label)) {
-			if (isAutoGrow()) {
-				mov(reg, dummyAddr);
-				save(size_ - jmpSize, offset, jmpSize, inner::LaddTop);
-			} else {
-				mov(reg, size_t(top_) + offset, false); // not to optimize 32-bit imm
-			}
-			return;
-		}
-		mov(reg, dummyAddr);
-		JmpLabel jmp;
-		jmp.endOfJmp = size_;
-		jmp.jmpSize = jmpSize;
-		jmp.mode = isAutoGrow() ? inner::LaddTop : inner::Labs;
-		labelMgr_.addUndefinedLabel(label, jmp);
+		mov_imm(reg, dummyAddr);
+		putL(label);
 	}
 	/*
 		put address of label to buffer
