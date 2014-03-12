@@ -1596,50 +1596,39 @@ public:
 	}
 private:
 	/*
-		mov(r, imm) = mov_imm(r, imm) + db(imm)
-		return value is size to write
+		mov(r, imm) = db(imm, mov_imm(r, imm))
 	*/
-	int mov_imm(const Reg& reg,
-#ifdef XBYAK64
-	uint64 imm, bool opti = true
-#else
-	uint32, bool = true
-#endif
-	)
+	int mov_imm(const Reg& reg, uint64 imm)
 	{
 		int bit = reg.getBit();
 		const int idx = reg.getIdx();
 		int code = B10110000 | ((bit == 8 ? 0 : 1) << 3);
-#ifdef XBYAK64
-		if (opti && bit == 64 && (imm >> 32) == 0) {
+		if (bit == 64 && (imm >> 32) == 0) {
 			rex(Reg32(idx));
 			bit = 32;
 		} else {
 			rex(reg);
-			if (opti && bit == 64 && inner::IsInInt32(imm)) {
+			if (bit == 64 && inner::IsInInt32(imm)) {
 				db(B11000111);
 				code = B11000000;
 				bit = 32;
 			}
 		}
-#else
-		rex(reg);
-#endif
 		db(code | (idx & 7));
 		return bit / 8;
 	}
 public:
 	void mov(const Operand& op,
 #ifdef XBYAK64
-	uint64 imm, bool opti = true
+	uint64 imm
 #else
-	uint32 imm, bool opti = true
+	uint32 imm
 #endif
 	)
 	{
 		verifyMemHasSize(op);
 		if (op.isREG()) {
-			const int size = mov_imm(static_cast<const Reg&>(op), imm, opti);
+			const int size = mov_imm(static_cast<const Reg&>(op), imm);
 			db(imm, size);
 		} else if (op.isMEM()) {
 			opModM(static_cast<const Address&>(op), Reg(0, Operand::REG, op.getBit()), B11000110);
@@ -1655,10 +1644,10 @@ public:
 #else
 		const Reg32& reg,
 #endif
-		const char *label)
+		const char *label) // can't use std::string
 	{
 		if (label == 0) {
-			mov(reg, 0, true);
+			mov(static_cast<const Operand&>(reg), 0); // call imm
 			return;
 		}
 #ifdef XBYAK64
