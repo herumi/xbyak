@@ -878,6 +878,21 @@ struct JmpLabel {
 };
 
 class Label {
+public:
+	static std::string toStr(int num)
+	{
+		char buf[16];
+#ifdef _MSC_VER
+		_snprintf_s
+#else
+		snprintf
+#endif
+		(buf, sizeof(buf), ".%08x", num);
+		return buf;
+	}
+};
+
+class LabelManager {
 	CodeArray *base_;
 	int anonymousCount_; // for @@, @f, @b
 	enum {
@@ -912,16 +927,16 @@ private:
 	{
 		std::string newLabel(label);
 		if (newLabel == "@f" || newLabel == "@F") {
-			newLabel = std::string("@@") + toStr(anonymousCount_ + 1);
+			newLabel = std::string("@@") + Label::toStr(anonymousCount_ + 1);
 		} else if (newLabel == "@b" || newLabel == "@B") {
-			newLabel = std::string("@@") + toStr(anonymousCount_);
+			newLabel = std::string("@@") + Label::toStr(anonymousCount_);
 		} else if (*label.c_str() == '.') {
-			newLabel += toStr(localCount_);
+			newLabel += Label::toStr(localCount_);
 		}
 		return newLabel;
 	}
 public:
-	Label()
+	LabelManager()
 		: base_(0)
 		, anonymousCount_(0)
 		, stackPos_(1)
@@ -954,9 +969,9 @@ public:
 	{
 		std::string label(_label);
 		if (label == "@@") {
-			label += toStr(++anonymousCount_);
+			label += Label::toStr(++anonymousCount_);
 		} else if (*label.c_str() == '.') {
-			label += toStr(localCount_);
+			label += Label::toStr(localCount_);
 		}
 		// add label
 		DefinedList::value_type item(label, addrOffset);
@@ -1010,17 +1025,6 @@ public:
 			}
 		}
 		return !undefinedList_.empty();
-	}
-	static inline std::string toStr(int num)
-	{
-		char buf[16];
-#ifdef _MSC_VER
-		_snprintf_s
-#else
-		snprintf
-#endif
-		(buf, sizeof(buf), ".%08x", num);
-		return buf;
 	}
 };
 
@@ -1107,7 +1111,7 @@ private:
 			db(0xC4); db((r ? 0 : 0x80) | (x ? 0 : 0x40) | (b ? 0 : 0x20) | mmmm); db((w << 7) | vvvv);
 		}
 	}
-	Label label_;
+	LabelManager labelMgr_;
 	bool isInDisp16(uint32 x) const { return 0xFFFF8000 <= x || x <= 0x7FFF; }
 	uint8 getModRM(int mod, int r1, int r2) const { return static_cast<uint8>((mod << 6) | ((r1 & 7) << 3) | (r2 & 7)); }
 	void opModR(const Reg& reg1, const Reg& reg2, int code0, int code1 = NONE, int code2 = NONE)
@@ -1141,7 +1145,7 @@ private:
 	{
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory(); /* avoid splitting code of jmp */
 		size_t offset = 0;
-		if (label_.getOffset(&offset, label)) { /* label exists */
+		if (labelMgr_.getOffset(&offset, label)) { /* label exists */
 			makeJmp(inner::VerifyInInt32(offset - size_), type, shortCode, longCode, longPref);
 		} else {
 			JmpLabel jmp;
@@ -1155,7 +1159,7 @@ private:
 			}
 			jmp.mode = inner::LasIs;
 			jmp.endOfJmp = size_;
-			label_.addUndefinedLabel(label, jmp);
+			labelMgr_.addUndefinedLabel(label, jmp);
 		}
 	}
 	void opJmpAbs(const void *addr, LabelType type, uint8 shortCode, uint8 longCode)
@@ -1464,10 +1468,10 @@ public:
 #endif
 	void L(const std::string& label)
 	{
-		label_.define(label, getSize(), getCurr());
+		labelMgr_.define(label, getSize(), getCurr());
 	}
-	void inLocalLabel() { label_.enterLocal(); }
-	void outLocalLabel() { label_.leaveLocal(); }
+	void inLocalLabel() { labelMgr_.enterLocal(); }
+	void outLocalLabel() { labelMgr_.leaveLocal(); }
 	void jmp(const std::string& label, LabelType type = T_AUTO)
 	{
 		opJmp(label, type, B11101011, B11101001, 0);
@@ -1649,7 +1653,7 @@ public:
 #endif
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory();
 		size_t offset = 0;
-		if (label_.getOffset(&offset, label)) {
+		if (labelMgr_.getOffset(&offset, label)) {
 			if (isAutoGrow()) {
 				mov(reg, dummyAddr);
 				save(size_ - jmpSize, offset, jmpSize, inner::LaddTop);
@@ -1663,7 +1667,7 @@ public:
 		jmp.endOfJmp = size_;
 		jmp.jmpSize = jmpSize;
 		jmp.mode = isAutoGrow() ? inner::LaddTop : inner::Labs;
-		label_.addUndefinedLabel(label, jmp);
+		labelMgr_.addUndefinedLabel(label, jmp);
 	}
 	/*
 		put address of label to buffer
@@ -1674,7 +1678,7 @@ public:
 		const int jmpSize = (int)sizeof(size_t);
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory();
 		size_t offset = 0;
-		if (label_.getOffset(&offset, label)) {
+		if (labelMgr_.getOffset(&offset, label)) {
 			if (isAutoGrow()) {
 				db(uint64(0), jmpSize);
 				save(size_ - jmpSize, offset, jmpSize, inner::LaddTop);
@@ -1688,7 +1692,7 @@ public:
 		jmp.endOfJmp = size_;
 		jmp.jmpSize = jmpSize;
 		jmp.mode = isAutoGrow() ? inner::LaddTop : inner::Labs;
-		label_.addUndefinedLabel(label, jmp);
+		labelMgr_.addUndefinedLabel(label, jmp);
 	}
 	void cmpxchg8b(const Address& addr) { opModM(addr, Reg32(1), 0x0F, B11000111); }
 #ifdef XBYAK64
@@ -1862,15 +1866,15 @@ public:
 		, rip()
 #endif
 	{
-		label_.set(this);
+		labelMgr_.set(this);
 	}
 	void reset()
 	{
 		resetSize();
-		label_.reset();
-		label_.set(this);
+		labelMgr_.reset();
+		labelMgr_.set(this);
 	}
-	bool hasUndefinedLabel() const { return label_.hasUndefinedLabel(); }
+	bool hasUndefinedLabel() const { return labelMgr_.hasUndefinedLabel(); }
 	/*
 		call ready() to complete generating code on AutoGrow
 	*/
