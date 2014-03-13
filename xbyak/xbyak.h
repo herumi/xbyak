@@ -141,6 +141,7 @@ enum {
 	ERR_BAD_TNUM,
 	ERR_BAD_VSIB_ADDRESSING,
 	ERR_CANT_CONVERT,
+	ERR_LABEL_IS_ALREADY_SET,
 	ERR_INTERNAL
 };
 
@@ -187,6 +188,7 @@ public:
 			"bad tNum",
 			"bad vsib addressing",
 			"can't convert",
+			"label is already set",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -877,8 +879,13 @@ struct JmpLabel {
 	inner::LabelMode mode;
 };
 
+// QQQ
 class Label {
+	int id; // 0 : not set, > 0 : id
+	friend class LabelManager;
 public:
+	Label() : id(0) {}
+	bool isSet() const { return id > 0; }
 	static std::string toStr(int num)
 	{
 		char buf[16];
@@ -902,20 +909,29 @@ class LabelManager {
 	int stackPos_;
 	int usedCount_;
 	int localCount_; // for .***
+	int labelId_;
 public:
 private:
 #ifdef XBYAK_USE_UNORDERED_MAP
 	typedef std::unordered_map<std::string, size_t> DefinedList;
 	typedef std::unordered_multimap<std::string, const JmpLabel> UndefinedList;
+	typedef std::unordered_map<int, size_t> DefinedList2;
+	typedef std::unordered_multimap<int, const JmpLabel> UndefinedList2;
 #elif defined(XBYAK_USE_TR1_UNORDERED_MAP)
 	typedef std::tr1::unordered_map<std::string, size_t> DefinedList;
 	typedef std::tr1::unordered_multimap<std::string, const JmpLabel> UndefinedList;
+	typedef std::tr1::unordered_map<int, size_t> DefinedList2;
+	typedef std::tr1::unordered_multimap<int, const JmpLabel> UndefinedList2;
 #else
 	typedef std::map<std::string, size_t> DefinedList;
 	typedef std::multimap<std::string, const JmpLabel> UndefinedList;
+	typedef std::map<int, size_t> DefinedList2;
+	typedef std::multimap<int, const JmpLabel> UndefinedList2;
 #endif
 	DefinedList definedList_;
 	UndefinedList undefinedList_;
+	DefinedList2 definedList2_;
+	UndefinedList2 undefinedList2_;
 
 	/*
 		@@ --> @@.<num>
@@ -942,6 +958,7 @@ public:
 		, stackPos_(1)
 		, usedCount_(0)
 		, localCount_(0)
+		, labelId_(1)
 	{
 	}
 	void reset()
@@ -951,6 +968,7 @@ public:
 		stackPos_ = 1;
 		usedCount_ = 0;
 		localCount_ = 0;
+		labelId_ = 1;
 		definedList_.clear();
 		undefinedList_.clear();
 	}
@@ -968,13 +986,13 @@ public:
 	// copy label because it is modified
 	void define(std::string label)
 	{
-		const size_t addrOffset = base_->getSize();
 		if (label == "@@") {
 			label += Label::toStr(++anonymousCount_);
 		} else if (*label.c_str() == '.') {
 			label += Label::toStr(localCount_);
 		}
 		// add label
+		const size_t addrOffset = base_->getSize();
 		DefinedList::value_type item(label, addrOffset);
 		std::pair<DefinedList::iterator, bool> ret = definedList_.insert(item);
 		if (!ret.second) throw Error(ERR_LABEL_IS_REDEFINED);
@@ -1026,6 +1044,67 @@ public:
 			}
 		}
 		return !undefinedList_.empty();
+	}
+	void define2(Label& label)
+	{
+		if (label.isSet()) throw Error(ERR_LABEL_IS_ALREADY_SET);
+		label.id = labelId_++;
+		// add label
+		const size_t addrOffset = base_->getSize();
+		DefinedList2::value_type item(label.id, addrOffset);
+		std::pair<DefinedList2::iterator, bool> ret = definedList2_.insert(item);
+		if (!ret.second) throw Error(ERR_LABEL_IS_REDEFINED);
+		// search undefined label
+		for (;;) {
+			UndefinedList2::iterator itr = undefinedList2_.find(label.id);
+			if (itr == undefinedList2_.end()) break;
+			const JmpLabel *jmp = &itr->second;
+			const size_t offset = jmp->endOfJmp - jmp->jmpSize;
+			size_t disp;
+			if (jmp->mode == inner::LaddTop) {
+				disp = addrOffset;
+			} else if (jmp->mode == inner::Labs) {
+				disp = size_t(base_->getCurr());
+			} else {
+				disp = addrOffset - jmp->endOfJmp;
+				if (jmp->jmpSize <= 4) disp = inner::VerifyInInt32(disp);
+				if (jmp->jmpSize == 1 && !inner::IsInDisp8((uint32)disp)) throw Error(ERR_LABEL_IS_TOO_FAR);
+			}
+			if (base_->isAutoGrow()) {
+				base_->save(offset, disp, jmp->jmpSize, jmp->mode);
+			} else {
+				base_->rewrite(offset, disp, jmp->jmpSize);
+			}
+			undefinedList2_.erase(itr);
+		}
+	}
+	bool getOffset2(size_t *offset, Label& label)
+	{
+		if (label.id == 0) {
+			label.id = labelId_++;
+			return false;
+		}
+		DefinedList2::const_iterator itr = definedList2_.find(label.id);
+		if (itr != definedList2_.end()) {
+			*offset = itr->second;
+			return true;
+		} else {
+			printf("FATAL ERRin getOffset2\n");exit(1);
+			return false;
+		}
+	}
+	void addUndefinedLabel2(const Label& label, const JmpLabel& jmp)
+	{
+		undefinedList2_.insert(UndefinedList2::value_type(label.id, jmp));
+	}
+	bool hasUndefinedLabel2() const
+	{
+		if (inner::debug) {
+			for (UndefinedList2::const_iterator i = undefinedList2_.begin(); i != undefinedList2_.end(); ++i) {
+				fprintf(stderr, "undefined label2:%d\n", i->first);
+			}
+		}
+		return !undefinedList2_.empty();
 	}
 };
 
@@ -1161,6 +1240,27 @@ private:
 			jmp.mode = inner::LasIs;
 			jmp.endOfJmp = size_;
 			labelMgr_.addUndefinedLabel(label, jmp);
+		}
+	}
+	void opJmp2(Label& label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
+	{
+		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory(); /* avoid splitting code of jmp */
+		size_t offset = 0;
+		if (labelMgr_.getOffset2(&offset, label)) { /* label exists */
+			makeJmp(inner::VerifyInInt32(offset - size_), type, shortCode, longCode, longPref);
+		} else {
+			JmpLabel jmp;
+			if (type == T_NEAR) {
+				jmp.jmpSize = 4;
+				if (longPref) db(longPref);
+				db(longCode); dd(0);
+			} else {
+				jmp.jmpSize = 1;
+				db(shortCode); db(0);
+			}
+			jmp.mode = inner::LasIs;
+			jmp.endOfJmp = size_;
+			labelMgr_.addUndefinedLabel2(label, jmp);
 		}
 	}
 	void opJmpAbs(const void *addr, LabelType type, uint8 shortCode, uint8 longCode)
@@ -1471,11 +1571,19 @@ public:
 	{
 		labelMgr_.define(label);
 	}
+	void L(Label& label)
+	{
+		labelMgr_.define2(label);
+	}
 	void inLocalLabel() { labelMgr_.enterLocal(); }
 	void outLocalLabel() { labelMgr_.leaveLocal(); }
 	void jmp(const std::string& label, LabelType type = T_AUTO)
 	{
 		opJmp(label, type, B11101011, B11101001, 0);
+	}
+	void jmp(Label& label, LabelType type = T_AUTO)
+	{
+		opJmp2(label, type, B11101011, B11101001, 0);
 	}
 	void jmp(const char *label, LabelType type = T_AUTO) { jmp(std::string(label), type); }
 	void jmp(const void *addr, LabelType type = T_AUTO)
@@ -1863,7 +1971,7 @@ public:
 		labelMgr_.reset();
 		labelMgr_.set(this);
 	}
-	bool hasUndefinedLabel() const { return labelMgr_.hasUndefinedLabel(); }
+	bool hasUndefinedLabel() const { return labelMgr_.hasUndefinedLabel() || labelMgr_.hasUndefinedLabel2(); }
 	/*
 		call ready() to complete generating code on AutoGrow
 	*/
