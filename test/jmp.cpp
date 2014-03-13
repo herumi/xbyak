@@ -10,13 +10,13 @@
 
 using namespace Xbyak;
 
-struct TestJmp : public Xbyak::CodeGenerator {
-	void putNop(int n)
-	{
-		for (int i = 0; i < n; i++) {
-			nop();
-		}
+void putNop(Xbyak::CodeGenerator *gen, int n)
+{
+	for (int i = 0; i < n; i++) {
+		gen->nop();
 	}
+}
+struct TestJmp : public Xbyak::CodeGenerator {
 /*
      4                                  X0:
      5 00000004 EBFE                    jmp short X0
@@ -52,7 +52,7 @@ struct TestJmp : public Xbyak::CodeGenerator {
 	{
 		if (isBack) {
 			L("@@");
-			putNop(offset);
+			putNop(this, offset);
 			jmp("@b");
 		} else {
 			if (isShort) {
@@ -60,7 +60,7 @@ struct TestJmp : public Xbyak::CodeGenerator {
 			} else {
 				jmp("@f", T_NEAR);
 			}
-			putNop(offset);
+			putNop(this, offset);
 			L("@@");
 		}
 	}
@@ -68,6 +68,7 @@ struct TestJmp : public Xbyak::CodeGenerator {
 
 void test1()
 {
+	puts("test1");
 	static const struct Tbl {
 		int offset;
 		bool isBack;
@@ -95,16 +96,9 @@ void test1()
 			}
 		}
 	}
-	puts("ok");
 }
 
 struct TestJmp2 : public CodeGenerator {
-	void putNop(int n)
-	{
-		for (int i = 0; i < n; i++) {
-			nop();
-		}
-	}
 /*
   1 00000000 90                      nop
   2 00000001 90                      nop
@@ -132,17 +126,17 @@ struct TestJmp2 : public CodeGenerator {
 		nop();
 		nop();
 	L(".f1");
-		putNop(126);
+		putNop(this, 126);
 		jmp(".f1");
 	L(".f2");
-		putNop(127);
+		putNop(this, 127);
 		jmp(".f2", T_NEAR);
 
 		jmp(".f3");
-		putNop(127);
+		putNop(this, 127);
 	L(".f3");
 		jmp(".f4", T_NEAR);
-		putNop(128);
+		putNop(this, 128);
 	L(".f4");
 		outLocalLabel();
 	}
@@ -177,6 +171,7 @@ struct TestJmpCx : public CodeGenerator {
 
 void testJmpCx()
 {
+	puts("testJmpCx");
 	const struct {
 		const char *p;
 		size_t len;
@@ -190,7 +185,6 @@ void testJmpCx()
 	char buf[16] = {};
 	TestJmpCx code(buf);
 	if (memcmp(buf, tbl.p, tbl.len) == 0) {
-		puts("ok");
 	} else {
 		puts("ng");
 		for (int i = 0; i < 8; i++) {
@@ -238,8 +232,6 @@ void test2()
 						printf("diff 0x%03x %02x %02x\n", (int)i, (unsigned char)m[i], (unsigned char)ok[i]);
 					}
 				}
-			} else {
-				puts("ok");
 			}
 		}
 	}
@@ -269,6 +261,7 @@ struct Grow : Xbyak::CodeGenerator {
 
 void test3()
 {
+	puts("test3");
 	for (int dummySize = 0; dummySize < 40000; dummySize += 10000) {
 		printf("dummySize=%d\n", dummySize);
 		Grow g(dummySize);
@@ -278,8 +271,6 @@ void test3()
 		const int ok = 107;
 		if (x != ok) {
 			printf("err %d assume %d\n", x, ok);
-		} else {
-			printf("ok\n");
 		}
 	}
 }
@@ -292,11 +283,11 @@ struct MyAllocator : Xbyak::Allocator {
 	Xbyak::uint8 *alloc(size_t size)
 	{
 		if (size < sizeof(bufS)) {
-			printf("use bufS(%d)\n", (int)size);
+			printf("test use bufS(%d)\n", (int)size);
 			return bufS;
 		}
 		if (size < sizeof(bufL)) {
-			printf("use bufL(%d)\n", (int)size);
+			printf("test use bufL(%d)\n", (int)size);
 			return bufL;
 		}
 		fprintf(stderr, "no memory %d\n", (int)size);
@@ -328,14 +319,12 @@ void dump(const std::string& m)
 
 void diff(const std::string& a, const std::string& b)
 {
-	puts("diff");
 	if (a.size() != b.size()) printf("size diff %d %d\n", (int)a.size(), (int)b.size());
 	for (size_t i = 0; i < a.size(); i++) {
 		if (a[i] != b[i]) {
 			printf("diff %d(%04x) %02x %02x\n", (int)i, (int)i, (unsigned char)a[i], (unsigned char)b[i]);
 		}
 	}
-	puts("end");
 }
 
 struct Test4 : Xbyak::CodeGenerator {
@@ -355,6 +344,7 @@ struct Test4 : Xbyak::CodeGenerator {
 };
 void test4()
 {
+	puts("test4");
 	std::string fm, gm;
 	Test4 fc(1024, 0);
 	Test4 gc(5, Xbyak::AutoGrow);
@@ -400,6 +390,7 @@ struct Test5 : Xbyak::CodeGenerator {
 
 void test5()
 {
+	puts("test5");
 	std::string fm, gm;
 	const int count = 50;
 	int ret;
@@ -407,8 +398,6 @@ void test5()
 	ret = ((int (*)())fc.getCode())();
 	if (ret != count * count) {
 		printf("err ret=%d, %d\n", ret, count * count);
-	} else {
-		puts("ok");
 	}
 	fm.assign((const char*)fc.getCode(), fc.getSize());
 	Test5 gc(10, count, Xbyak::AutoGrow);
@@ -460,17 +449,16 @@ size_t getValue(const uint8* p)
 	return v;
 }
 
-bool checkAddr(const uint8 *p, size_t offset, size_t expect)
+void checkAddr(const uint8 *p, size_t offset, size_t expect)
 {
 	size_t v = getValue(p + offset);
-	if (v == size_t(p) + expect) return true;
+	if (v == size_t(p) + expect) return;
 	printf("err p=%p, offset=%lld, v=%llx(%llx), expect=%d\n", p, (long long)offset, (long long)v, (long long)(expect + size_t(p)), (int)expect);
-	return false;
 }
 
 void testMovLabel(bool grow)
 {
-	bool isOK = true;
+	printf("testMovLabel grow=%d\n", grow);
 	MovLabelCode code(grow);
 	code.ready();
 	const uint8* const p = code.getCode();
@@ -510,17 +498,15 @@ void testMovLabel(bool grow)
 		uint8 ok = tbl[i].ok;
 		if (x != ok) {
 			printf("err pos=%d, x=%02x, ok=%02x\n", pos, x, ok);
-			isOK = false;
 		}
 	}
 #ifdef XBYAK32
-	isOK &= checkAddr(p, 0x03, 0x001);
-	isOK &= checkAddr(p, 0x09, 0x10e);
+	checkAddr(p, 0x03, 0x001);
+	checkAddr(p, 0x09, 0x10e);
 #else
-	isOK &= checkAddr(p, 0x04, 0x001);
-	isOK &= checkAddr(p, 0x0f, 0x118);
+	checkAddr(p, 0x04, 0x001);
+	checkAddr(p, 0x0f, 0x118);
 #endif
-	if (isOK) puts("ok");
 }
 
 struct MovLabel2Code : Xbyak::CodeGenerator {
@@ -555,9 +541,10 @@ struct MovLabel2Code : Xbyak::CodeGenerator {
 
 void testMovLabel2()
 {
+	puts("tsetMovLabel2");
 	MovLabel2Code code;
 	int ret = code.getCode<int (*)()>()();
-	printf("MovLabel2Test ret=%d, %s\n", ret, ret == 7 ? "ok" : "ng");
+	if (ret != 7) printf("ERR=%d\n", ret);
 }
 
 struct TestLocal : public Xbyak::CodeGenerator {
@@ -631,8 +618,6 @@ void test6()
 	int a = f();
 	if (a != 15) {
 		printf("ERR a=%d\n", a);
-	} else {
-		puts("ok");
 	}
 }
 
@@ -648,9 +633,7 @@ int main()
 		test5();
 		test6();
 		testJmpCx();
-		puts("test MovLabelCode");
 		testMovLabel(false);
-		puts("test MovLabelCode:grow");
 		testMovLabel(true);
 		testMovLabel2();
 	} catch (std::exception& e) {
