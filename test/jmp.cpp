@@ -548,60 +548,62 @@ void testMovLabel2()
 }
 
 struct TestLocal : public Xbyak::CodeGenerator {
-	TestLocal()
+	TestLocal(bool grow)
+		: Xbyak::CodeGenerator(grow ? 128 : 4096, grow ? Xbyak::AutoGrow : 0)
 	{
 		xor_(eax, eax);
 		inLocalLabel();
-		jmp("start0");
+		jmp("start0", T_NEAR);
 		L(".back");
 		inc(eax); // 8
-		jmp(".next");
+		jmp(".next", T_NEAR);
 		L("start2");
 		inc(eax); // 7
-		jmp(".back");
+		jmp(".back", T_NEAR);
 			inLocalLabel();
 			L(".back");
 			inc(eax); // 5
-			jmp(".next");
+			putNop(this, 128);
+			jmp(".next", T_NEAR);
 			L("start1");
 			inc(eax); // 4
-			jmp(".back");
+			jmp(".back", T_NEAR);
 				inLocalLabel();
 				L(".back");
 				inc(eax); // 2
-				jmp(".next");
+				jmp(".next", T_NEAR);
 				L("start0");
 				inc(eax); // 1
-				jmp(".back");
+				jmp(".back", T_NEAR);
 				L(".next");
 				inc(eax); // 3
-				jmp("start1");
+				jmp("start1", T_NEAR);
 				outLocalLabel();
 			L(".next");
 			inc(eax); // 6
-			jmp("start2");
+			jmp("start2", T_NEAR);
 			outLocalLabel();
 		L(".next");
 		inc(eax); // 9
-		jmp("start3");
+		jmp("start3", T_NEAR);
 			inLocalLabel();
 			L(".back");
 			inc(eax); // 14
-			jmp("exit");
+			jmp("exit", T_NEAR);
 		L("start4");
 			inc(eax); // 13
-			jmp(".back");
+			jmp(".back", T_NEAR);
 			outLocalLabel();
 		L("start3");
 			inc(eax); // 10
 			inLocalLabel();
-			jmp(".next");
+			jmp(".next", T_NEAR);
 			L(".back");
 			inc(eax); // 12
-			jmp("start4");
+			jmp("start4", T_NEAR);
 			L(".next");
 			inc(eax); // 11
-			jmp(".back");
+			jmp(".back", T_NEAR);
 			outLocalLabel();
 		outLocalLabel();
 		L("exit");
@@ -612,12 +614,16 @@ struct TestLocal : public Xbyak::CodeGenerator {
 
 void test6()
 {
-	puts("test6");
-	TestLocal code;
-	int (*f)() = code.getCode<int (*)()>();
-	int a = f();
-	if (a != 15) {
-		printf("ERR a=%d\n", a);
+	for (int i = 0; i < 2; i++) {
+		const bool grow = i == 1;
+		printf("test6 grow=%d\n", i);
+		TestLocal code(grow);
+		if (grow) code.ready();
+		int (*f)() = code.getCode<int (*)()>();
+		int a = f();
+		if (a != 15) {
+			printf("ERR a=%d\n", a);
+		}
 	}
 }
 
