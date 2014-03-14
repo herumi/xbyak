@@ -627,6 +627,37 @@ void test6()
 	}
 }
 
+void testNewLabel()
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code(bool grow)
+			: Xbyak::CodeGenerator(grow ? 128 : 4096, grow ? Xbyak::AutoGrow : 0)
+		{
+			xor_(eax, eax);
+			Label label;
+			inLocalLabel();
+			jmp(".start0");
+		L(label);
+			inc(eax);
+			jmp(".exit");
+		L(".start0");
+			inc(eax);
+			jmp(label);
+		L(".exit");
+			ret();
+			outLocalLabel();
+		}
+	};
+	const bool grow = false;
+	printf("testNewLabel grow=%d\n", grow);
+	Code code(grow);
+	int (*f)() = code.getCode<int (*)()>();
+	int r = f();
+	if (r != 2) {
+		printf("err %d\n", r);
+	}
+}
+
 int main()
 {
 	try {
@@ -642,6 +673,7 @@ int main()
 		testMovLabel(false);
 		testMovLabel(true);
 		testMovLabel2();
+		testNewLabel();
 	} catch (std::exception& e) {
 		printf("ERR:%s\n", e.what());
 	} catch (...) {
