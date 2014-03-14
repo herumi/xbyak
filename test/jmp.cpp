@@ -634,18 +634,49 @@ void testNewLabel()
 			: Xbyak::CodeGenerator(grow ? 128 : 4096, grow ? Xbyak::AutoGrow : 0)
 		{
 			xor_(eax, eax);
-			Label label;
-			inLocalLabel();
-			jmp(".start0");
-		L(label);
-			inc(eax);
-			jmp(".exit");
-		L(".start0");
-			inc(eax);
-			jmp(label);
-		L(".exit");
+			{
+				Label label1;
+				Label label2;
+				Label label3;
+				Label label4;
+				Label exit;
+				jmp(label1);
+			L(label2);
+				inc(eax); // 2
+				jmp(label3);
+			L(label4);
+				inc(eax); // 4
+				jmp(exit);
+			L(label3);
+				inc(eax); // 3
+				jmp(label4);
+			L(label1);
+				inc(eax); // 1
+				jmp(label2);
+			L(exit);
+			}
+			{
+				Label label1;
+				Label label2;
+				Label label3;
+				Label label4;
+				Label exit;
+				jmp(label1);
+			L(label2);
+				inc(eax); // 6
+				jmp(label3);
+			L(label4);
+				inc(eax); // 8
+				jmp(exit);
+			L(label3);
+				inc(eax); // 7
+				jmp(label4);
+			L(label1);
+				inc(eax); // 5
+				jmp(label2);
+			L(exit);
+			}
 			ret();
-			outLocalLabel();
 		}
 	};
 	const bool grow = false;
@@ -653,30 +684,30 @@ void testNewLabel()
 	Code code(grow);
 	int (*f)() = code.getCode<int (*)()>();
 	int r = f();
-	if (r != 2) {
+	if (r != 8) {
 		printf("err %d\n", r);
 	}
 }
 
 int main()
-{
-	try {
-		test1();
-		test2();
+try {
+#if 0
+	test1();
+	test2();
 #ifdef ONLY_32BIT
-		test3();
+	test3();
 #endif
-		test4();
-		test5();
-		test6();
-		testJmpCx();
-		testMovLabel(false);
-		testMovLabel(true);
-		testMovLabel2();
-		testNewLabel();
-	} catch (std::exception& e) {
-		printf("ERR:%s\n", e.what());
-	} catch (...) {
-		printf("unknown error\n");
-	}
+	test4();
+	test5();
+	test6();
+	testJmpCx();
+	testMovLabel(false);
+	testMovLabel(true);
+	testMovLabel2();
+#endif
+	testNewLabel();
+} catch (std::exception& e) {
+	printf("ERR:%s\n", e.what());
+} catch (...) {
+	printf("unknown error\n");
 }

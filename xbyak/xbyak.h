@@ -881,11 +881,12 @@ struct JmpLabel {
 
 // QQQ
 class Label {
-	int id; // 0 : not set, > 0 : id
+	int id;
 	friend class LabelManager;
 public:
 	Label() : id(0) {}
-	bool isSet() const { return id > 0; }
+
+	// backward compatibility
 	static std::string toStr(int num)
 	{
 		char buf[16];
@@ -1047,8 +1048,7 @@ public:
 	}
 	void define2(Label& label)
 	{
-		if (label.isSet()) throw Error(ERR_LABEL_IS_ALREADY_SET);
-		label.id = labelId_++;
+		if (label.id == 0) label.id = labelId_++;
 		// add label
 		const size_t addrOffset = base_->getSize();
 		DefinedList2::value_type item(label.id, addrOffset);
