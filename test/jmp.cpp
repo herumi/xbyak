@@ -655,6 +655,7 @@ void testNewLabel()
 				jmp(label2);
 			L(exit);
 			}
+			putNop(this, 128);
 			{
 				Label label1;
 				Label label2;
@@ -679,13 +680,16 @@ void testNewLabel()
 			ret();
 		}
 	};
-	const bool grow = false;
-	printf("testNewLabel grow=%d\n", grow);
-	Code code(grow);
-	int (*f)() = code.getCode<int (*)()>();
-	int r = f();
-	if (r != 8) {
-		printf("err %d\n", r);
+	for (int i = 0; i < 2; i++) {
+		const bool grow = i == 1;
+		printf("testNewLabel grow=%d\n", grow);
+		Code code(grow);
+		if (grow) code.ready();
+		int (*f)() = code.getCode<int (*)()>();
+		int r = f();
+		if (r != 8) {
+			printf("err %d %d\n", i, r);
+		}
 	}
 }
 
