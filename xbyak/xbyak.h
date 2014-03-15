@@ -933,17 +933,16 @@ private:
 		@f --> @@.<num + 1>
 		.*** -> .***.<num>
 	*/
-	std::string convertLabel(const std::string& label) const
+	std::string convertLabel(std::string label) const
 	{
-		std::string newLabel(label);
-		if (newLabel == "@f" || newLabel == "@F") {
-			newLabel = std::string("@@") + Label::toStr(anonymousCount_ + 1);
-		} else if (newLabel == "@b" || newLabel == "@B") {
-			newLabel = std::string("@@") + Label::toStr(anonymousCount_);
+		if (label == "@f" || label == "@F") {
+			label = std::string("@@") + Label::toStr(anonymousCount_ + 1);
+		} else if (label == "@b" || label == "@B") {
+			label = std::string("@@") + Label::toStr(anonymousCount_);
 		} else if (*label.c_str() == '.') {
-			newLabel += Label::toStr(localCount_);
+			label += Label::toStr(localCount_);
 		}
-		return newLabel;
+		return label;
 	}
 	template<class DefList, class UndefList, class T>
 	void define_inner(DefList& defList, UndefList& undefList, const T& labelId)
@@ -1019,6 +1018,11 @@ public:
 		}
 		define_inner(definedList_, undefinedList_, label);
 	}
+	void define2(Label& label)
+	{
+		if (label.id == 0) label.id = labelId_++;
+		define_inner(definedList2_, undefinedList2_, label.id);
+	}
 	bool getOffset(size_t *offset, const std::string& label) const
 	{
 		std::string newLabel = convertLabel(label);
@@ -1030,10 +1034,28 @@ public:
 			return false;
 		}
 	}
+	bool getOffset(size_t *offset, Label& label)
+	{
+		if (label.id == 0) {
+			label.id = labelId_++;
+			return false;
+		}
+		DefinedList2::const_iterator itr = definedList2_.find(label.id);
+		if (itr == definedList2_.end()) {
+			printf("FATAL ERRin getOffset\n");
+			exit(1);
+		}
+		*offset = itr->second;
+		return true;
+	}
 	void addUndefinedLabel(const std::string& label, const JmpLabel& jmp)
 	{
 		std::string newLabel = convertLabel(label);
 		undefinedList_.insert(UndefinedList::value_type(newLabel, jmp));
+	}
+	void addUndefinedLabel(const Label& label, const JmpLabel& jmp)
+	{
+		undefinedList2_.insert(UndefinedList2::value_type(label.id, jmp));
 	}
 	bool hasUndefinedLabel() const
 	{
@@ -1043,29 +1065,6 @@ public:
 			}
 		}
 		return !undefinedList_.empty();
-	}
-	void define2(Label& label)
-	{
-		if (label.id == 0) label.id = labelId_++;
-		define_inner(definedList2_, undefinedList2_, label.id);
-	}
-	bool getOffset2(size_t *offset, Label& label)
-	{
-		if (label.id == 0) {
-			label.id = labelId_++;
-			return false;
-		}
-		DefinedList2::const_iterator itr = definedList2_.find(label.id);
-		if (itr == definedList2_.end()) {
-			printf("FATAL ERRin getOffset2\n");
-			exit(1);
-		}
-		*offset = itr->second;
-		return true;
-	}
-	void addUndefinedLabel2(const Label& label, const JmpLabel& jmp)
-	{
-		undefinedList2_.insert(UndefinedList2::value_type(label.id, jmp));
 	}
 	bool hasUndefinedLabel2() const
 	{
@@ -1191,7 +1190,8 @@ private:
 			db(longCode); dd(disp - longJmpSize);
 		}
 	}
-	void opJmp(const std::string& label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
+	template<class T>
+	void opJmp(T& label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
 	{
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory(); /* avoid splitting code of jmp */
 		size_t offset = 0;
@@ -1214,24 +1214,7 @@ private:
 	}
 	void opJmp2(Label& label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
 	{
-		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory(); /* avoid splitting code of jmp */
-		size_t offset = 0;
-		if (labelMgr_.getOffset2(&offset, label)) { /* label exists */
-			makeJmp(inner::VerifyInInt32(offset - size_), type, shortCode, longCode, longPref);
-		} else {
-			JmpLabel jmp;
-			if (type == T_NEAR) {
-				jmp.jmpSize = 4;
-				if (longPref) db(longPref);
-				db(longCode); dd(0);
-			} else {
-				jmp.jmpSize = 1;
-				db(shortCode); db(0);
-			}
-			jmp.mode = inner::LasIs;
-			jmp.endOfJmp = size_;
-			labelMgr_.addUndefinedLabel2(label, jmp);
-		}
+		opJmp(label, type, shortCode, longCode, longPref);
 	}
 	void opJmpAbs(const void *addr, LabelType type, uint8 shortCode, uint8 longCode)
 	{
