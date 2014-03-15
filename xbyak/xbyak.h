@@ -1212,10 +1212,6 @@ private:
 			labelMgr_.addUndefinedLabel(label, jmp);
 		}
 	}
-	void opJmp2(Label& label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
-	{
-		opJmp(label, type, shortCode, longCode, longPref);
-	}
 	void opJmpAbs(const void *addr, LabelType type, uint8 shortCode, uint8 longCode)
 	{
 		if (isAutoGrow()) {
@@ -1536,7 +1532,7 @@ public:
 	}
 	void jmp(Label& label, LabelType type = T_AUTO)
 	{
-		opJmp2(label, type, B11101011, B11101001, 0);
+		opJmp(label, type, B11101011, B11101001, 0);
 	}
 	void jmp(const char *label, LabelType type = T_AUTO) { jmp(std::string(label), type); }
 	void jmp(const void *addr, LabelType type = T_AUTO)
