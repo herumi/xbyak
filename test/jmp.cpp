@@ -640,22 +640,22 @@ void testNewLabel()
 				Label label3;
 				Label label4;
 				Label exit;
-				jmp(label1);
+				jmp(label1, T_NEAR);
 			L(label2);
 				inc(eax); // 2
-				jmp(label3);
+				jmp(label3, T_NEAR);
 			L(label4);
 				inc(eax); // 4
-				jmp(exit);
+				jmp(exit, T_NEAR);
+				putNop(this, 128);
 			L(label3);
 				inc(eax); // 3
-				jmp(label4);
+				jmp(label4, T_NEAR);
 			L(label1);
 				inc(eax); // 1
-				jmp(label2);
+				jmp(label2, T_NEAR);
 			L(exit);
 			}
-			putNop(this, 128);
 			{
 				Label label1;
 				Label label2;
