@@ -454,32 +454,6 @@ void test5()
 	diff(fm, gm);
 }
 
-struct MovLabelCode : Xbyak::CodeGenerator {
-	MovLabelCode(bool grow)
-		: Xbyak::CodeGenerator(grow ? 128 : 4096, grow ? Xbyak::AutoGrow : 0)
-	{
-#ifdef XBYAK64
-		const Reg64& a = rax;
-#else
-		const Reg32& a = eax;
-#endif
-		inLocalLabel();
-		nop(); // 0x90
-	L(".lp1");
-		nop();
-		mov(a, ".lp1"); // 0xb8 + <4byte> / 0x48bb + <8byte>
-		nop();
-		mov(a, ".lp2"); // 0xb8
-		// force realloc if AutoGrow
-		for (int i = 0; i < 256; i++) {
-			nop();
-		}
-		nop();
-	L(".lp2");
-		outLocalLabel();
-	}
-};
-
 size_t getValue(const uint8* p)
 {
 	size_t v = 0;
@@ -499,6 +473,30 @@ void checkAddr(const uint8 *p, size_t offset, size_t expect)
 void testMovLabel(bool grow)
 {
 	printf("testMovLabel grow=%d\n", grow);
+	struct MovLabelCode : Xbyak::CodeGenerator {
+		MovLabelCode(bool grow)
+			: Xbyak::CodeGenerator(grow ? 128 : 4096, grow ? Xbyak::AutoGrow : 0)
+		{
+	#ifdef XBYAK64
+			const Reg64& a = rax;
+	#else
+			const Reg32& a = eax;
+	#endif
+			inLocalLabel();
+			nop(); // 0x90
+		L(".lp1");
+			nop();
+			mov(a, ".lp1"); // 0xb8 + <4byte> / 0x48bb + <8byte>
+			nop();
+			mov(a, ".lp2"); // 0xb8
+			// force realloc if AutoGrow
+			putNop(this, 256);
+			nop();
+		L(".lp2");
+			outLocalLabel();
+		}
+	};
+
 	MovLabelCode code(grow);
 	code.ready();
 	const uint8* const p = code.getCode();
@@ -716,6 +714,29 @@ void testNewLabel()
 				jmp(label2);
 			L(exit);
 			}
+			{	// eax == 8
+				Label label1;
+				Label label2;
+			L(label1);
+				inc(eax); // 9, 10, 11, 13
+				cmp(eax, 9);
+				je(label1);
+				// 10, 11, 13
+				inc(eax); // 11, 12, 13
+				cmp(eax, 11);
+				je(label1);
+				// 12, 13
+				cmp(eax, 12);
+				je(label2);
+				inc(eax); // 14
+				cmp(eax, 14);
+				je(label2);
+				ud2();
+			L(label2); // 14
+				inc(eax); // 13, 15
+				cmp(eax, 13);
+				je(label1);
+			}
 			ret();
 		}
 	};
@@ -726,7 +747,7 @@ void testNewLabel()
 		if (grow) code.ready();
 		int (*f)() = code.getCode<int (*)()>();
 		int r = f();
-		if (r != 8) {
+		if (r != 15) {
 			printf("err %d %d\n", i, r);
 		}
 	}

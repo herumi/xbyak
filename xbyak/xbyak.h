@@ -1031,9 +1031,8 @@ public:
 		if (itr != definedList_.end()) {
 			*offset = itr->second;
 			return true;
-		} else {
-			return false;
 		}
+		return false;
 	}
 	bool getOffset(size_t *offset, Label& label)
 	{
@@ -1042,12 +1041,11 @@ public:
 			return false;
 		}
 		DefinedList2::const_iterator itr = definedList2_.find(label.id);
-		if (itr == definedList2_.end()) {
-			printf("FATAL ERRin getOffset\n");
-			exit(1);
+		if (itr != definedList2_.end()) {
+			*offset = itr->second;
+			return true;
 		}
-		*offset = itr->second;
-		return true;
+		return false;
 	}
 	void addUndefinedLabel(const std::string& label, const JmpLabel& jmp)
 	{
