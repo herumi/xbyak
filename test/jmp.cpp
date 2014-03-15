@@ -16,59 +16,76 @@ void putNop(Xbyak::CodeGenerator *gen, int n)
 		gen->nop();
 	}
 }
-struct TestJmp : public Xbyak::CodeGenerator {
-/*
-     4                                  X0:
-     5 00000004 EBFE                    jmp short X0
-     6
-     7                                  X1:
-     8 00000006 <res 00000001>          dummyX1 resb 1
-     9 00000007 EBFD                    jmp short X1
-    10
-    11                                  X126:
-    12 00000009 <res 0000007E>          dummyX126 resb 126
-    13 00000087 EB80                    jmp short X126
-    14
-    15                                  X127:
-    16 00000089 <res 0000007F>          dummyX127 resb 127
-    17 00000108 E97CFFFFFF              jmp near X127
-    18
-    19 0000010D EB00                    jmp short Y0
-    20                                  Y0:
-    21
-    22 0000010F EB01                    jmp short Y1
-    23 00000111 <res 00000001>          dummyY1 resb 1
-    24                                  Y1:
-    25
-    26 00000112 EB7F                    jmp short Y127
-    27 00000114 <res 0000007F>          dummyY127 resb 127
-    28                                  Y127:
-    29
-    30 00000193 E980000000              jmp near Y128
-    31 00000198 <res 00000080>          dummyY128 resb 128
-    32                                  Y128:
-*/
-	TestJmp(int offset, bool isBack, bool isShort)
-	{
-		if (isBack) {
-			L("@@");
-			putNop(this, offset);
-			jmp("@b");
-		} else {
-			if (isShort) {
-				jmp("@f");
-			} else {
-				jmp("@f", T_NEAR);
-			}
-			putNop(this, offset);
-			L("@@");
-		}
-	}
-};
 
 void test1()
 {
 	puts("test1");
+	struct TestJmp : public Xbyak::CodeGenerator {
+	/*
+	     4                                  X0:
+	     5 00000004 EBFE                    jmp short X0
+	     6
+	     7                                  X1:
+	     8 00000006 <res 00000001>          dummyX1 resb 1
+	     9 00000007 EBFD                    jmp short X1
+	    10
+	    11                                  X126:
+	    12 00000009 <res 0000007E>          dummyX126 resb 126
+	    13 00000087 EB80                    jmp short X126
+	    14
+	    15                                  X127:
+	    16 00000089 <res 0000007F>          dummyX127 resb 127
+	    17 00000108 E97CFFFFFF              jmp near X127
+	    18
+	    19 0000010D EB00                    jmp short Y0
+	    20                                  Y0:
+	    21
+	    22 0000010F EB01                    jmp short Y1
+	    23 00000111 <res 00000001>          dummyY1 resb 1
+	    24                                  Y1:
+	    25
+	    26 00000112 EB7F                    jmp short Y127
+	    27 00000114 <res 0000007F>          dummyY127 resb 127
+	    28                                  Y127:
+	    29
+	    30 00000193 E980000000              jmp near Y128
+	    31 00000198 <res 00000080>          dummyY128 resb 128
+	    32                                  Y128:
+	*/
+		TestJmp(int offset, bool isBack, bool isShort, bool useNewLabel)
+		{
+			if (useNewLabel) {
+				Label label;
+				if (isBack) {
+					L(label);
+					putNop(this, offset);
+					jmp(label);
+				} else {
+					if (isShort) {
+						jmp(label);
+					} else {
+						jmp(label, T_NEAR);
+					}
+					putNop(this, offset);
+					L(label);
+				}
+			} else {
+				if (isBack) {
+					L("@@");
+					putNop(this, offset);
+					jmp("@b");
+				} else {
+					if (isShort) {
+						jmp("@f");
+					} else {
+						jmp("@f", T_NEAR);
+					}
+					putNop(this, offset);
+					L("@@");
+				}
+			}
+		}
+	};
 	static const struct Tbl {
 		int offset;
 		bool isBack;
@@ -87,91 +104,70 @@ void test1()
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
-		TestJmp jmp(p->offset, p->isBack, p->isShort);
-		const uint8 *q = (const uint8*)jmp.getCode();
-		if (p->isBack) q += p->offset; /* skip nop */
-		for (int j = 0; j < p->size; j++) {
-			if (q[j] != p->result[j]) {
-				printf("err (%d,%d) %02x assume=%02x\n", (int)i, j, q[j], p->result[j]);
+		for (int k = 0; k < 2; k++) {
+			TestJmp jmp(p->offset, p->isBack, p->isShort, k == 0);
+			const uint8 *q = (const uint8*)jmp.getCode();
+			if (p->isBack) q += p->offset; /* skip nop */
+			for (int j = 0; j < p->size; j++) {
+				if (q[j] != p->result[j]) {
+					printf("err (%d, %d, %d) %02x assume=%02x\n", (int)i, k, j, q[j], p->result[j]);
+				}
 			}
 		}
 	}
 }
 
-struct TestJmp2 : public CodeGenerator {
-/*
-  1 00000000 90                      nop
-  2 00000001 90                      nop
-  3                                  f1:
-  4 00000002 <res 0000007E>          dummyX1 resb 126
-  6 00000080 EB80                     jmp f1
-  7
-  8                                  f2:
-  9 00000082 <res 0000007F>          dummyX2 resb 127
- 11 00000101 E97CFFFFFF               jmp f2
- 12
- 13
- 14 00000106 EB7F                    jmp f3
- 15 00000108 <res 0000007F>          dummyX3 resb 127
- 17                                  f3:
- 18
- 19 00000187 E980000000              jmp f4
- 20 0000018C <res 00000080>          dummyX4 resb 128
- 22                                  f4:
-*/
-	explicit TestJmp2(void *p)
-		: Xbyak::CodeGenerator(8192, p)
-	{
-		inLocalLabel();
-		nop();
-		nop();
-	L(".f1");
-		putNop(this, 126);
-		jmp(".f1");
-	L(".f2");
-		putNop(this, 127);
-		jmp(".f2", T_NEAR);
-
-		jmp(".f3");
-		putNop(this, 127);
-	L(".f3");
-		jmp(".f4", T_NEAR);
-		putNop(this, 128);
-	L(".f4");
-		outLocalLabel();
-	}
-};
-
-struct TestJmpCx : public CodeGenerator {
-	explicit TestJmpCx(void *p)
-		: Xbyak::CodeGenerator(16, p)
-	{
-		inLocalLabel();
-	L(".lp");
-#ifdef XBYAK64
-		puts("TestJmpCx 64bit");
-		/*
-			67 E3 FD ; jecxz lp
-			E3 FB    ; jrcxz lp
-		*/
-		jecxz(".lp");
-		jrcxz(".lp");
-#else
-		puts("TestJmpCx 32bit");
-		/*
-			E3FE   ; jecxz lp
-			67E3FB ; jcxz lp
-		*/
-		jecxz(".lp");
-		jcxz(".lp");
-#endif
-		outLocalLabel();
-	}
-};
-
 void testJmpCx()
 {
 	puts("testJmpCx");
+	struct TestJmpCx : public CodeGenerator {
+		explicit TestJmpCx(void *p, bool useNewLabel)
+			: Xbyak::CodeGenerator(16, p)
+		{
+			if (useNewLabel) {
+				Label lp;
+			L(lp);
+#ifdef XBYAK64
+				puts("TestJmpCx 64bit");
+				/*
+					67 E3 FD ; jecxz lp
+					E3 FB    ; jrcxz lp
+				*/
+				jecxz(lp);
+				jrcxz(lp);
+#else
+				puts("TestJmpCx 32bit");
+				/*
+					E3FE   ; jecxz lp
+					67E3FB ; jcxz lp
+				*/
+				jecxz(lp);
+				jcxz(lp);
+#endif
+			} else {
+				inLocalLabel();
+			L(".lp");
+#ifdef XBYAK64
+				puts("TestJmpCx 64bit");
+				/*
+					67 E3 FD ; jecxz lp
+					E3 FB    ; jrcxz lp
+				*/
+				jecxz(".lp");
+				jrcxz(".lp");
+#else
+				puts("TestJmpCx 32bit");
+				/*
+					E3FE   ; jecxz lp
+					67E3FB ; jcxz lp
+				*/
+				jecxz(".lp");
+				jcxz(".lp");
+#endif
+				outLocalLabel();
+			}
+		}
+	};
 	const struct {
 		const char *p;
 		size_t len;
@@ -182,15 +178,17 @@ void testJmpCx()
 		"\xe3\xfe\x67\xe3\xfb", 5
 #endif
 	};
-	char buf[16] = {};
-	TestJmpCx code(buf);
-	if (memcmp(buf, tbl.p, tbl.len) == 0) {
-	} else {
-		puts("ng");
-		for (int i = 0; i < 8; i++) {
-			printf("%02x ", (unsigned char)buf[i]);
+	for (int j = 0; j < 2; j++) {
+		char buf[16] = {};
+		TestJmpCx code(buf, j == 0);
+		if (memcmp(buf, tbl.p, tbl.len) == 0) {
+		} else {
+			printf("err %d\n", j);
+			for (int i = 0; i < 8; i++) {
+				printf("%02x ", (unsigned char)buf[i]);
+			}
+			printf("\n");
 		}
-		printf("\n");
 	}
 }
 
@@ -200,6 +198,50 @@ void testJmpCx()
 void test2()
 {
 	puts("test2");
+	struct TestJmp2 : public CodeGenerator {
+	/*
+	  1 00000000 90                      nop
+	  2 00000001 90                      nop
+	  3                                  f1:
+	  4 00000002 <res 0000007E>          dummyX1 resb 126
+	  6 00000080 EB80                     jmp f1
+	  7
+	  8                                  f2:
+	  9 00000082 <res 0000007F>          dummyX2 resb 127
+	 11 00000101 E97CFFFFFF               jmp f2
+	 12
+	 13
+	 14 00000106 EB7F                    jmp f3
+	 15 00000108 <res 0000007F>          dummyX3 resb 127
+	 17                                  f3:
+	 18
+	 19 00000187 E980000000              jmp f4
+	 20 0000018C <res 00000080>          dummyX4 resb 128
+	 22                                  f4:
+	*/
+		explicit TestJmp2(void *p)
+			: Xbyak::CodeGenerator(8192, p)
+		{
+			inLocalLabel();
+			nop();
+			nop();
+		L(".f1");
+			putNop(this, 126);
+			jmp(".f1");
+		L(".f2");
+			putNop(this, 127);
+			jmp(".f2", T_NEAR);
+
+			jmp(".f3");
+			putNop(this, 127);
+		L(".f3");
+			jmp(".f4", T_NEAR);
+			putNop(this, 128);
+		L(".f4");
+			outLocalLabel();
+		}
+	};
+
 	std::string ok;
 	ok.resize(0x18C + 128, (char)0x90);
 	ok[0x080] = (char)0xeb;
@@ -241,27 +283,26 @@ void test2()
 int add5(int x) { return x + 5; }
 int add2(int x) { return x + 2; }
 
-struct Grow : Xbyak::CodeGenerator {
-	Grow(int dummySize)
-		: Xbyak::CodeGenerator(128, Xbyak::AutoGrow)
-	{
-		mov(eax, 100);
-		push(eax);
-		call((void*)add5);
-		add(esp, 4);
-		push(eax);
-		call((void*)add2);
-		add(esp, 4);
-		ret();
-		for (int i = 0; i < dummySize; i++) {
-			db(0);
-		}
-	}
-};
-
 void test3()
 {
 	puts("test3");
+	struct Grow : Xbyak::CodeGenerator {
+		Grow(int dummySize)
+			: Xbyak::CodeGenerator(128, Xbyak::AutoGrow)
+		{
+			mov(eax, 100);
+			push(eax);
+			call((void*)add5);
+			add(esp, 4);
+			push(eax);
+			call((void*)add2);
+			add(esp, 4);
+			ret();
+			for (int i = 0; i < dummySize; i++) {
+				db(0);
+			}
+		}
+	};
 	for (int dummySize = 0; dummySize < 40000; dummySize += 10000) {
 		printf("dummySize=%d\n", dummySize);
 		Grow g(dummySize);
@@ -327,24 +368,24 @@ void diff(const std::string& a, const std::string& b)
 	}
 }
 
-struct Test4 : Xbyak::CodeGenerator {
-	explicit Test4(int size, void *mode)
-		: CodeGenerator(size, mode)
-	{
-		using namespace Xbyak;
-		inLocalLabel();
-		outLocalLabel();
-		jmp(".x");
-		for (int i = 0; i < 10; i++) {
-			nop();
-		}
-	L(".x");
-		ret();
-	}
-};
 void test4()
 {
 	puts("test4");
+	struct Test4 : Xbyak::CodeGenerator {
+		explicit Test4(int size, void *mode)
+			: CodeGenerator(size, mode)
+		{
+			using namespace Xbyak;
+			inLocalLabel();
+			outLocalLabel();
+			jmp(".x");
+			for (int i = 0; i < 10; i++) {
+				nop();
+			}
+		L(".x");
+			ret();
+		}
+	};
 	std::string fm, gm;
 	Test4 fc(1024, 0);
 	Test4 gc(5, Xbyak::AutoGrow);
@@ -356,41 +397,40 @@ void test4()
 	diff(gm, gm);
 }
 
-struct Test5 : Xbyak::CodeGenerator {
-	explicit Test5(int size, int count, void *mode)
-		: CodeGenerator(size, mode, &myAlloc)
-	{
-		using namespace Xbyak;
-		inLocalLabel();
-		mov(ecx, count);
-		xor(eax, eax);
-	L(".lp");
-		for (int i = 0; i < count; i++) {
-			L(Label::toStr(i));
-			add(eax, 1);
-			int to = 0;
-			if (i < count / 2) {
-				to = count - 1 - i;
-			} else {
-				to = count  - i;
-			}
-			if (i == count / 2) {
-				jmp(".exit", T_NEAR);
-			} else {
-				jmp(Label::toStr(to), T_NEAR);
-			}
-		}
-	L(".exit");
-		sub(ecx, 1);
-		jnz(".lp", T_NEAR);
-		ret();
-		outLocalLabel();
-	}
-};
-
 void test5()
 {
 	puts("test5");
+	struct Test5 : Xbyak::CodeGenerator {
+		explicit Test5(int size, int count, void *mode)
+			: CodeGenerator(size, mode, &myAlloc)
+		{
+			using namespace Xbyak;
+			inLocalLabel();
+			mov(ecx, count);
+			xor(eax, eax);
+		L(".lp");
+			for (int i = 0; i < count; i++) {
+				L(Label::toStr(i));
+				add(eax, 1);
+				int to = 0;
+				if (i < count / 2) {
+					to = count - 1 - i;
+				} else {
+					to = count  - i;
+				}
+				if (i == count / 2) {
+					jmp(".exit", T_NEAR);
+				} else {
+					jmp(Label::toStr(to), T_NEAR);
+				}
+			}
+		L(".exit");
+			sub(ecx, 1);
+			jnz(".lp", T_NEAR);
+			ret();
+			outLocalLabel();
+		}
+	};
 	std::string fm, gm;
 	const int count = 50;
 	int ret;
@@ -509,111 +549,110 @@ void testMovLabel(bool grow)
 #endif
 }
 
-struct MovLabel2Code : Xbyak::CodeGenerator {
-	MovLabel2Code()
-	{
-#ifdef XBYAK64
-		const Reg64& a = rax;
-		const Reg64& c = rcx;
-#else
-		const Reg32& a = eax;
-		const Reg32& c = ecx;
-#endif
-		xor(a, a);
-		xor(c, c);
-		jmp("in");
-		ud2();
-	L("@@"); // L1
-		add(a, 2);
-		mov(c, "@f");
-		jmp(c); // goto L2
-		ud2();
-	L("in");
-		mov(c, "@b");
-		add(a, 1);
-		jmp(c); // goto L1
-		ud2();
-	L("@@"); // L2
-		add(a, 4);
-		ret();
-	}
-};
-
 void testMovLabel2()
 {
 	puts("tsetMovLabel2");
+	struct MovLabel2Code : Xbyak::CodeGenerator {
+		MovLabel2Code()
+		{
+	#ifdef XBYAK64
+			const Reg64& a = rax;
+			const Reg64& c = rcx;
+	#else
+			const Reg32& a = eax;
+			const Reg32& c = ecx;
+	#endif
+			xor(a, a);
+			xor(c, c);
+			jmp("in");
+			ud2();
+		L("@@"); // L1
+			add(a, 2);
+			mov(c, "@f");
+			jmp(c); // goto L2
+			ud2();
+		L("in");
+			mov(c, "@b");
+			add(a, 1);
+			jmp(c); // goto L1
+			ud2();
+		L("@@"); // L2
+			add(a, 4);
+			ret();
+		}
+	};
 	MovLabel2Code code;
 	int ret = code.getCode<int (*)()>()();
 	if (ret != 7) printf("ERR=%d\n", ret);
 }
 
-struct TestLocal : public Xbyak::CodeGenerator {
-	TestLocal(bool grow)
-		: Xbyak::CodeGenerator(grow ? 128 : 4096, grow ? Xbyak::AutoGrow : 0)
-	{
-		xor_(eax, eax);
-		inLocalLabel();
-		jmp("start0", T_NEAR);
-		L(".back");
-		inc(eax); // 8
-		jmp(".next", T_NEAR);
-		L("start2");
-		inc(eax); // 7
-		jmp(".back", T_NEAR);
+void test6()
+{
+	struct TestLocal : public Xbyak::CodeGenerator {
+		TestLocal(bool grow)
+			: Xbyak::CodeGenerator(grow ? 128 : 4096, grow ? Xbyak::AutoGrow : 0)
+		{
+			xor_(eax, eax);
 			inLocalLabel();
+			jmp("start0", T_NEAR);
 			L(".back");
-			inc(eax); // 5
-			putNop(this, 128);
+			inc(eax); // 8
 			jmp(".next", T_NEAR);
-			L("start1");
-			inc(eax); // 4
+			L("start2");
+			inc(eax); // 7
 			jmp(".back", T_NEAR);
 				inLocalLabel();
 				L(".back");
-				inc(eax); // 2
+				inc(eax); // 5
+				putNop(this, 128);
 				jmp(".next", T_NEAR);
-				L("start0");
-				inc(eax); // 1
+				L("start1");
+				inc(eax); // 4
 				jmp(".back", T_NEAR);
+					inLocalLabel();
+					L(".back");
+					inc(eax); // 2
+					jmp(".next", T_NEAR);
+					L("start0");
+					inc(eax); // 1
+					jmp(".back", T_NEAR);
+					L(".next");
+					inc(eax); // 3
+					jmp("start1", T_NEAR);
+					outLocalLabel();
 				L(".next");
-				inc(eax); // 3
-				jmp("start1", T_NEAR);
+				inc(eax); // 6
+				jmp("start2", T_NEAR);
 				outLocalLabel();
 			L(".next");
-			inc(eax); // 6
-			jmp("start2", T_NEAR);
+			inc(eax); // 9
+			jmp("start3", T_NEAR);
+				inLocalLabel();
+				L(".back");
+				inc(eax); // 14
+				jmp("exit", T_NEAR);
+			L("start4");
+				inc(eax); // 13
+				jmp(".back", T_NEAR);
+				outLocalLabel();
+			L("start3");
+				inc(eax); // 10
+				inLocalLabel();
+				jmp(".next", T_NEAR);
+				L(".back");
+				inc(eax); // 12
+				jmp("start4", T_NEAR);
+				L(".next");
+				inc(eax); // 11
+				jmp(".back", T_NEAR);
+				outLocalLabel();
 			outLocalLabel();
-		L(".next");
-		inc(eax); // 9
-		jmp("start3", T_NEAR);
-			inLocalLabel();
-			L(".back");
-			inc(eax); // 14
-			jmp("exit", T_NEAR);
-		L("start4");
-			inc(eax); // 13
-			jmp(".back", T_NEAR);
-			outLocalLabel();
-		L("start3");
-			inc(eax); // 10
-			inLocalLabel();
-			jmp(".next", T_NEAR);
-			L(".back");
-			inc(eax); // 12
-			jmp("start4", T_NEAR);
-			L(".next");
-			inc(eax); // 11
-			jmp(".back", T_NEAR);
-			outLocalLabel();
-		outLocalLabel();
-		L("exit");
-		inc(eax); // 15
-		ret();
-	}
-};
+			L("exit");
+			inc(eax); // 15
+			ret();
+		}
+	};
 
-void test6()
-{
 	for (int i = 0; i < 2; i++) {
 		const bool grow = i == 1;
 		printf("test6 grow=%d\n", i);
@@ -695,7 +734,6 @@ void testNewLabel()
 
 int main()
 try {
-#if 0
 	test1();
 	test2();
 #ifdef ONLY_32BIT
@@ -708,7 +746,6 @@ try {
 	testMovLabel(false);
 	testMovLabel(true);
 	testMovLabel2();
-#endif
 	testNewLabel();
 } catch (std::exception& e) {
 	printf("ERR:%s\n", e.what());

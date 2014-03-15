@@ -304,10 +304,14 @@ void jg(Label& label, LabelType type = T_AUTO) { opJmp(label, type, 0x7F, 0x8F, 
 void setg(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, B10010000 | 15); }
 #ifdef XBYAK32
 void jcxz(const std::string& label) { db(0x67); opJmp(label, T_SHORT, 0xe3, 0, 0); }
+void jcxz(Label& label) { db(0x67); opJmp(label, T_SHORT, 0xe3, 0, 0); }
 void jecxz(const std::string& label) { opJmp(label, T_SHORT, 0xe3, 0, 0); }
+void jecxz(Label& label) { opJmp(label, T_SHORT, 0xe3, 0, 0); }
 #else
 void jecxz(const std::string& label) { db(0x67); opJmp(label, T_SHORT, 0xe3, 0, 0); }
+void jecxz(Label& label) { db(0x67); opJmp(label, T_SHORT, 0xe3, 0, 0); }
 void jrcxz(const std::string& label) { opJmp(label, T_SHORT, 0xe3, 0, 0); }
+void jrcxz(Label& label) { opJmp(label, T_SHORT, 0xe3, 0, 0); }
 #endif
 #ifdef XBYAK64
 void cdqe() { db(0x48); db(0x98); }

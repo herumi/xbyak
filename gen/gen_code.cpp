@@ -49,6 +49,7 @@ std::string type2String(int type)
 void put_jREGz(const char *reg, bool prefix)
 {
 	printf("void j%sz(const std::string& label) { %sopJmp(label, T_SHORT, 0xe3, 0, 0); }\n", reg, prefix ? "db(0x67); " : "");
+	printf("void j%sz(Label& label) { %sopJmp(label, T_SHORT, 0xe3, 0, 0); }\n", reg, prefix ? "db(0x67); " : "");
 }
 
 void put()
