@@ -146,7 +146,8 @@ enum {
 	ERR_BAD_TNUM,
 	ERR_BAD_VSIB_ADDRESSING,
 	ERR_CANT_CONVERT,
-	ERR_LABEL_IS_ALREADY_SET,
+	ERR_LABEL_IS_SET_BY_L,
+	ERR_LABEL_IS_SET_BY_J,
 	ERR_INTERNAL
 };
 
@@ -193,7 +194,8 @@ public:
 			"bad tNum",
 			"bad vsib addressing",
 			"can't convert",
-			"label is already set",
+			"label is set by L()",
+			"label is set by jxx()",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -885,10 +887,13 @@ struct JmpLabel {
 };
 
 class Label {
-	int id;
+	static const int setByL = 1;
+	static const int setByJ = 2;
+	mutable int id;
+	mutable int state;
 	friend class LabelManager;
 public:
-	Label() : id(0) {}
+	Label() : id(0), state(0) {}
 	int getId() const { return id; }
 
 	// backward compatibility
@@ -915,7 +920,7 @@ class LabelManager {
 	int stackPos_;
 	int usedCount_;
 	int localCount_; // for .***
-	int labelId_;
+	mutable int labelId_;
 
 	// for string label
 	typedef XBYAK_STD_UNORDERED_MAP<std::string, size_t> DefinedList;
@@ -1019,33 +1024,34 @@ public:
 		}
 		define_inner(definedList_, undefinedList_, label);
 	}
-	void define2(Label& label)
+	void define2(const Label& label)
 	{
-		if (label.id == 0) label.id = labelId_++;
+		if (label.state & Label::setByL) throw Error(ERR_LABEL_IS_SET_BY_L);
+		if (label.id == 0) {
+			label.id = labelId_++;
+			label.state |= Label::setByL;
+		}
 		define_inner(definedList2_, undefinedList2_, label.id);
 	}
 	bool getOffset(size_t *offset, const std::string& label) const
 	{
-		std::string newLabel = convertLabel(label);
+		const std::string newLabel = convertLabel(label);
 		DefinedList::const_iterator itr = definedList_.find(newLabel);
-		if (itr != definedList_.end()) {
-			*offset = itr->second;
-			return true;
-		}
-		return false;
+		if (itr == definedList_.end()) return false;
+		*offset = itr->second;
+		return true;
 	}
-	bool getOffset(size_t *offset, Label& label)
+	bool getOffset(size_t *offset, const Label& label) const
 	{
 		if (label.id == 0) {
 			label.id = labelId_++;
+			label.state |= Label::setByJ;
 			return false;
 		}
 		DefinedList2::const_iterator itr = definedList2_.find(label.id);
-		if (itr != definedList2_.end()) {
-			*offset = itr->second;
-			return true;
-		}
-		return false;
+		if (itr == definedList2_.end()) return false;
+		*offset = itr->second;
+		return true;
 	}
 	void addUndefinedLabel(const std::string& label, const JmpLabel& jmp)
 	{
@@ -1519,21 +1525,15 @@ public:
 	const Ymm &ym8, &ym9, &ym10, &ym11, &ym12, &ym13, &ym14, &ym15;
 	const RegRip rip;
 #endif
-	void L(const std::string& label)
-	{
-		labelMgr_.define(label);
-	}
-	void L(Label& label)
-	{
-		labelMgr_.define2(label);
-	}
+	void L(const std::string& label) { labelMgr_.define(label); }
+	void L(const Label& label) { labelMgr_.define2(label); }
 	void inLocalLabel() { labelMgr_.enterLocal(); }
 	void outLocalLabel() { labelMgr_.leaveLocal(); }
 	void jmp(const std::string& label, LabelType type = T_AUTO)
 	{
 		opJmp(label, type, B11101011, B11101001, 0);
 	}
-	void jmp(Label& label, LabelType type = T_AUTO)
+	void jmp(const Label& label, LabelType type = T_AUTO)
 	{
 		opJmp(label, type, B11101011, B11101001, 0);
 	}
@@ -1732,14 +1732,8 @@ public:
 		put address of label to buffer
 		@note the put size is 4(32-bit), 8(64-bit)
 	*/
-	void putL(const std::string& label)
-	{
-		putL_inner(label);
-	}
-	void putL(const Label& label)
-	{
-		putL_inner(const_cast<Label&>(label));
-	}
+	void putL(const std::string& label) { putL_inner(label); }
+	void putL(const Label& label) { putL_inner(label); }
 	void cmpxchg8b(const Address& addr) { opModM(addr, Reg32(1), 0x0F, B11000111); }
 #ifdef XBYAK64
 	void cmpxchg16b(const Address& addr) { opModM(addr, Reg64(1), 0x0F, B11000111); }
