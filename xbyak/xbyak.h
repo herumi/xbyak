@@ -1673,6 +1673,28 @@ private:
 		db(code | (idx & 7));
 		return bit / 8;
 	}
+	template<class T>
+	void putL_inner(T& label)
+	{
+		const int jmpSize = (int)sizeof(size_t);
+		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory();
+		size_t offset = 0;
+		if (labelMgr_.getOffset(&offset, label)) {
+			if (isAutoGrow()) {
+				db(uint64(0), jmpSize);
+				save(size_ - jmpSize, offset, jmpSize, inner::LaddTop);
+			} else {
+				db(size_t(top_) + offset, jmpSize);
+			}
+			return;
+		}
+		db(uint64(0), jmpSize);
+		JmpLabel jmp;
+		jmp.endOfJmp = size_;
+		jmp.jmpSize = jmpSize;
+		jmp.mode = isAutoGrow() ? inner::LaddTop : inner::Labs;
+		labelMgr_.addUndefinedLabel(label, jmp);
+	}
 public:
 	void mov(const Operand& op,
 #ifdef XBYAK64
@@ -1714,30 +1736,33 @@ public:
 		mov_imm(reg, dummyAddr);
 		putL(label);
 	}
+	void mov(
+#ifdef XBYAK64
+		const Reg64& reg,
+#else
+		const Reg32& reg,
+#endif
+		const Label& label)
+	{
+#ifdef XBYAK64
+		const size_t dummyAddr = (size_t(0x11223344) << 32) | 55667788;
+#else
+		const size_t dummyAddr = 0x12345678;
+#endif
+		mov_imm(reg, dummyAddr);
+		putL(label);
+	}
 	/*
 		put address of label to buffer
 		@note the put size is 4(32-bit), 8(64-bit)
 	*/
 	void putL(const std::string& label)
 	{
-		const int jmpSize = (int)sizeof(size_t);
-		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory();
-		size_t offset = 0;
-		if (labelMgr_.getOffset(&offset, label)) {
-			if (isAutoGrow()) {
-				db(uint64(0), jmpSize);
-				save(size_ - jmpSize, offset, jmpSize, inner::LaddTop);
-			} else {
-				db(size_t(top_) + offset, jmpSize);
-			}
-			return;
-		}
-		db(uint64(0), jmpSize);
-		JmpLabel jmp;
-		jmp.endOfJmp = size_;
-		jmp.jmpSize = jmpSize;
-		jmp.mode = isAutoGrow() ? inner::LaddTop : inner::Labs;
-		labelMgr_.addUndefinedLabel(label, jmp);
+		putL_inner(label);
+	}
+	void putL(const Label& label)
+	{
+		putL_inner(const_cast<Label&>(label));
 	}
 	void cmpxchg8b(const Address& addr) { opModM(addr, Reg32(1), 0x0F, B11000111); }
 #ifdef XBYAK64

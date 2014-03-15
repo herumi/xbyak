@@ -17,6 +17,17 @@ void putNop(Xbyak::CodeGenerator *gen, int n)
 	}
 }
 
+void diff(const std::string& a, const std::string& b)
+{
+	if (a == b) return;
+	if (a.size() != b.size()) printf("size diff %d %d\n", (int)a.size(), (int)b.size());
+	for (size_t i = 0; i < (std::min)(a.size(), b.size()); i++) {
+		if (a[i] != b[i]) {
+			printf("diff %d(%04x) %02x %02x\n", (int)i, (int)i, (unsigned char)a[i], (unsigned char)b[i]);
+		}
+	}
+}
+
 void test1()
 {
 	puts("test1");
@@ -219,26 +230,45 @@ void test2()
 	 20 0000018C <res 00000080>          dummyX4 resb 128
 	 22                                  f4:
 	*/
-		explicit TestJmp2(void *p)
+		TestJmp2(void *p, bool useNewLabel)
 			: Xbyak::CodeGenerator(8192, p)
 		{
-			inLocalLabel();
-			nop();
-			nop();
-		L(".f1");
-			putNop(this, 126);
-			jmp(".f1");
-		L(".f2");
-			putNop(this, 127);
-			jmp(".f2", T_NEAR);
+			if (useNewLabel) {
+				inLocalLabel();
+				nop();
+				nop();
+			L(".f1");
+				putNop(this, 126);
+				jmp(".f1");
+			L(".f2");
+				putNop(this, 127);
+				jmp(".f2", T_NEAR);
 
-			jmp(".f3");
-			putNop(this, 127);
-		L(".f3");
-			jmp(".f4", T_NEAR);
-			putNop(this, 128);
-		L(".f4");
-			outLocalLabel();
+				jmp(".f3");
+				putNop(this, 127);
+			L(".f3");
+				jmp(".f4", T_NEAR);
+				putNop(this, 128);
+			L(".f4");
+				outLocalLabel();
+			} else {
+				nop();
+				nop();
+				Label f1, f2, f3, f4;
+			L(f1);
+				putNop(this, 126);
+				jmp(f1);
+			L(f2);
+				putNop(this, 127);
+				jmp(f2, T_NEAR);
+
+				jmp(f3);
+				putNop(this, 127);
+			L(f3);
+				jmp(f4, T_NEAR);
+				putNop(this, 128);
+			L(f4);
+			}
 		}
 	};
 
@@ -261,20 +291,12 @@ void test2()
 	ok[0x189] = (char)0x00;
 	ok[0x18a] = (char)0x00;
 	ok[0x18b] = (char)0x00;
-	for (int j = 0; j < 2; j++) {
-		TestJmp2 c(j == 0 ? 0 : Xbyak::AutoGrow);
-		c.ready();
-		std::string m((const char*)c.getCode(), c.getSize());
-		if (m.size() != ok.size()) {
-			printf("test2 err %d %d\n", (int)m.size(), (int)ok.size());
-		} else {
-			if (m != ok) {
-				for (size_t i = 0; i < m.size(); i++) {
-					if (m[i] != ok[i]) {
-						printf("diff 0x%03x %02x %02x\n", (int)i, (unsigned char)m[i], (unsigned char)ok[i]);
-					}
-				}
-			}
+	for (int i = 0; i < 2; i++) {
+		for (int j = 0; j < 2; j++) {
+			TestJmp2 c(i == 0 ? 0 : Xbyak::AutoGrow, j == 0);
+			c.ready();
+			std::string m((const char*)c.getCode(), c.getSize());
+			diff(m, ok);
 		}
 	}
 }
@@ -358,16 +380,6 @@ void dump(const std::string& m)
 	putchar('\n');
 }
 
-void diff(const std::string& a, const std::string& b)
-{
-	if (a.size() != b.size()) printf("size diff %d %d\n", (int)a.size(), (int)b.size());
-	for (size_t i = 0; i < a.size(); i++) {
-		if (a[i] != b[i]) {
-			printf("diff %d(%04x) %02x %02x\n", (int)i, (int)i, (unsigned char)a[i], (unsigned char)b[i]);
-		}
-	}
-}
-
 void test4()
 {
 	puts("test4");
@@ -377,13 +389,11 @@ void test4()
 		{
 			using namespace Xbyak;
 			inLocalLabel();
-			outLocalLabel();
 			jmp(".x");
-			for (int i = 0; i < 10; i++) {
-				nop();
-			}
+			putNop(this, 10);
 		L(".x");
 			ret();
+			outLocalLabel();
 		}
 	};
 	std::string fm, gm;
@@ -442,14 +452,10 @@ void test5()
 	fm.assign((const char*)fc.getCode(), fc.getSize());
 	Test5 gc(10, count, Xbyak::AutoGrow);
 	gc.ready();
-#if 0
 	ret = ((int (*)())gc.getCode())();
 	if (ret != count * count) {
 		printf("err ret=%d, %d\n", ret, count * count);
-	} else {
-		puts("ok");
 	}
-#endif
 	gm.assign((const char*)gc.getCode(), gc.getSize());
 	diff(fm, gm);
 }
@@ -470,36 +476,47 @@ void checkAddr(const uint8 *p, size_t offset, size_t expect)
 	printf("err p=%p, offset=%lld, v=%llx(%llx), expect=%d\n", p, (long long)offset, (long long)v, (long long)(expect + size_t(p)), (int)expect);
 }
 
-void testMovLabel(bool grow)
+void testMovLabel()
 {
-	printf("testMovLabel grow=%d\n", grow);
+	puts("testMovLabel");
 	struct MovLabelCode : Xbyak::CodeGenerator {
-		MovLabelCode(bool grow)
+		MovLabelCode(bool grow, bool useNewLabel)
 			: Xbyak::CodeGenerator(grow ? 128 : 4096, grow ? Xbyak::AutoGrow : 0)
 		{
-	#ifdef XBYAK64
+#ifdef XBYAK64
 			const Reg64& a = rax;
-	#else
+#else
 			const Reg32& a = eax;
-	#endif
-			inLocalLabel();
-			nop(); // 0x90
-		L(".lp1");
-			nop();
-			mov(a, ".lp1"); // 0xb8 + <4byte> / 0x48bb + <8byte>
-			nop();
-			mov(a, ".lp2"); // 0xb8
-			// force realloc if AutoGrow
-			putNop(this, 256);
-			nop();
-		L(".lp2");
-			outLocalLabel();
+#endif
+			if (useNewLabel) {
+				nop(); // 0x90
+				Label lp1, lp2;
+			L(lp1);
+				nop();
+				mov(a, lp1); // 0xb8 + <4byte> / 0x48bb + <8byte>
+				nop();
+				mov(a, lp2); // 0xb8
+				// force realloc if AutoGrow
+				putNop(this, 256);
+				nop();
+			L(lp2);
+			} else {
+				inLocalLabel();
+				nop(); // 0x90
+			L(".lp1");
+				nop();
+				mov(a, ".lp1"); // 0xb8 + <4byte> / 0x48bb + <8byte>
+				nop();
+				mov(a, ".lp2"); // 0xb8
+				// force realloc if AutoGrow
+				putNop(this, 256);
+				nop();
+			L(".lp2");
+				outLocalLabel();
+			}
 		}
 	};
 
-	MovLabelCode code(grow);
-	code.ready();
-	const uint8* const p = code.getCode();
 	const struct {
 		int pos;
 		uint8 ok;
@@ -530,21 +547,30 @@ void testMovLabel(bool grow)
 		// lp2:0x118
 #endif
 	};
-	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-		int pos = tbl[i].pos;
-		uint8 x = p[pos];
-		uint8 ok = tbl[i].ok;
-		if (x != ok) {
-			printf("err pos=%d, x=%02x, ok=%02x\n", pos, x, ok);
+	for (int j = 0; j < 2; j++) {
+		const bool grow = j == 0;
+		for (int k = 0; k < 2; k++) {
+			const bool useNewLabel = k == 0;
+			MovLabelCode code(grow, useNewLabel);
+			if (grow) code.ready();
+			const uint8* const p = code.getCode();
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				int pos = tbl[i].pos;
+				uint8 x = p[pos];
+				uint8 ok = tbl[i].ok;
+				if (x != ok) {
+					printf("err pos=%d, x=%02x, ok=%02x\n", pos, x, ok);
+				}
+			}
+#ifdef XBYAK32
+			checkAddr(p, 0x03, 0x001);
+			checkAddr(p, 0x09, 0x10e);
+#else
+			checkAddr(p, 0x04, 0x001);
+			checkAddr(p, 0x0f, 0x118);
+#endif
 		}
 	}
-#ifdef XBYAK32
-	checkAddr(p, 0x03, 0x001);
-	checkAddr(p, 0x09, 0x10e);
-#else
-	checkAddr(p, 0x04, 0x001);
-	checkAddr(p, 0x0f, 0x118);
-#endif
 }
 
 void testMovLabel2()
@@ -560,8 +586,8 @@ void testMovLabel2()
 			const Reg32& a = eax;
 			const Reg32& c = ecx;
 	#endif
-			xor(a, a);
-			xor(c, c);
+			xor_(a, a);
+			xor_(c, c);
 			jmp("in");
 			ud2();
 		L("@@"); // L1
@@ -764,8 +790,7 @@ try {
 	test5();
 	test6();
 	testJmpCx();
-	testMovLabel(false);
-	testMovLabel(true);
+	testMovLabel();
 	testMovLabel2();
 	testNewLabel();
 } catch (std::exception& e) {
