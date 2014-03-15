@@ -950,12 +950,12 @@ class LabelManager {
 	{
 		// add label
 		const size_t addrOffset = base_->getSize();
-		DefList::value_type item(labelId, addrOffset);
-		std::pair<DefList::iterator, bool> ret = defList.insert(item);
+		typename DefList::value_type item(labelId, addrOffset);
+		std::pair<typename DefList::iterator, bool> ret = defList.insert(item);
 		if (!ret.second) throw Error(ERR_LABEL_IS_REDEFINED);
 		// search undefined label
 		for (;;) {
-			UndefList::iterator itr = undefList.find(labelId);
+			typename UndefList::iterator itr = undefList.find(labelId);
 			if (itr == undefList.end()) break;
 			const JmpLabel *jmp = &itr->second;
 			const size_t offset = jmp->endOfJmp - jmp->jmpSize;
