@@ -884,12 +884,12 @@ struct JmpLabel {
 	inner::LabelMode mode;
 };
 
-// QQQ
 class Label {
 	int id;
 	friend class LabelManager;
 public:
 	Label() : id(0) {}
+	int getId() const { return id; }
 
 	// backward compatibility
 	static std::string toStr(int num)
@@ -916,14 +916,15 @@ class LabelManager {
 	int usedCount_;
 	int localCount_; // for .***
 	int labelId_;
-public:
-private:
+
+	// for string label
 	typedef XBYAK_STD_UNORDERED_MAP<std::string, size_t> DefinedList;
 	typedef XBYAK_STD_UNORDERED_MULTIMAP<std::string, const JmpLabel> UndefinedList;
-	typedef XBYAK_STD_UNORDERED_MAP<int, size_t> DefinedList2;
-	typedef XBYAK_STD_UNORDERED_MULTIMAP<int, const JmpLabel> UndefinedList2;
 	DefinedList definedList_;
 	UndefinedList undefinedList_;
+	// for Label class
+	typedef XBYAK_STD_UNORDERED_MAP<int, size_t> DefinedList2;
+	typedef XBYAK_STD_UNORDERED_MULTIMAP<int, const JmpLabel> UndefinedList2;
 	DefinedList2 definedList2_;
 	UndefinedList2 undefinedList2_;
 
