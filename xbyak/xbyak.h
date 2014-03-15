@@ -945,6 +945,38 @@ private:
 		}
 		return newLabel;
 	}
+	template<class DefList, class UndefList, class T>
+	void define_inner(DefList& defList, UndefList& undefList, const T& labelId)
+	{
+		// add label
+		const size_t addrOffset = base_->getSize();
+		DefList::value_type item(labelId, addrOffset);
+		std::pair<DefList::iterator, bool> ret = defList.insert(item);
+		if (!ret.second) throw Error(ERR_LABEL_IS_REDEFINED);
+		// search undefined label
+		for (;;) {
+			UndefList::iterator itr = undefList.find(labelId);
+			if (itr == undefList.end()) break;
+			const JmpLabel *jmp = &itr->second;
+			const size_t offset = jmp->endOfJmp - jmp->jmpSize;
+			size_t disp;
+			if (jmp->mode == inner::LaddTop) {
+				disp = addrOffset;
+			} else if (jmp->mode == inner::Labs) {
+				disp = size_t(base_->getCurr());
+			} else {
+				disp = addrOffset - jmp->endOfJmp;
+				if (jmp->jmpSize <= 4) disp = inner::VerifyInInt32(disp);
+				if (jmp->jmpSize == 1 && !inner::IsInDisp8((uint32)disp)) throw Error(ERR_LABEL_IS_TOO_FAR);
+			}
+			if (base_->isAutoGrow()) {
+				base_->save(offset, disp, jmp->jmpSize, jmp->mode);
+			} else {
+				base_->rewrite(offset, disp, jmp->jmpSize);
+			}
+			undefList.erase(itr);
+		}
+	}
 public:
 	LabelManager()
 		: base_(0)
@@ -985,34 +1017,7 @@ public:
 		} else if (*label.c_str() == '.') {
 			label += Label::toStr(localCount_);
 		}
-		// add label
-		const size_t addrOffset = base_->getSize();
-		DefinedList::value_type item(label, addrOffset);
-		std::pair<DefinedList::iterator, bool> ret = definedList_.insert(item);
-		if (!ret.second) throw Error(ERR_LABEL_IS_REDEFINED);
-		// search undefined label
-		for (;;) {
-			UndefinedList::iterator itr = undefinedList_.find(label);
-			if (itr == undefinedList_.end()) break;
-			const JmpLabel *jmp = &itr->second;
-			const size_t offset = jmp->endOfJmp - jmp->jmpSize;
-			size_t disp;
-			if (jmp->mode == inner::LaddTop) {
-				disp = addrOffset;
-			} else if (jmp->mode == inner::Labs) {
-				disp = size_t(base_->getCurr());
-			} else {
-				disp = addrOffset - jmp->endOfJmp;
-				if (jmp->jmpSize <= 4) disp = inner::VerifyInInt32(disp);
-				if (jmp->jmpSize == 1 && !inner::IsInDisp8((uint32)disp)) throw Error(ERR_LABEL_IS_TOO_FAR);
-			}
-			if (base_->isAutoGrow()) {
-				base_->save(offset, disp, jmp->jmpSize, jmp->mode);
-			} else {
-				base_->rewrite(offset, disp, jmp->jmpSize);
-			}
-			undefinedList_.erase(itr);
-		}
+		define_inner(definedList_, undefinedList_, label);
 	}
 	bool getOffset(size_t *offset, const std::string& label) const
 	{
@@ -1042,34 +1047,7 @@ public:
 	void define2(Label& label)
 	{
 		if (label.id == 0) label.id = labelId_++;
-		// add label
-		const size_t addrOffset = base_->getSize();
-		DefinedList2::value_type item(label.id, addrOffset);
-		std::pair<DefinedList2::iterator, bool> ret = definedList2_.insert(item);
-		if (!ret.second) throw Error(ERR_LABEL_IS_REDEFINED);
-		// search undefined label
-		for (;;) {
-			UndefinedList2::iterator itr = undefinedList2_.find(label.id);
-			if (itr == undefinedList2_.end()) break;
-			const JmpLabel *jmp = &itr->second;
-			const size_t offset = jmp->endOfJmp - jmp->jmpSize;
-			size_t disp;
-			if (jmp->mode == inner::LaddTop) {
-				disp = addrOffset;
-			} else if (jmp->mode == inner::Labs) {
-				disp = size_t(base_->getCurr());
-			} else {
-				disp = addrOffset - jmp->endOfJmp;
-				if (jmp->jmpSize <= 4) disp = inner::VerifyInInt32(disp);
-				if (jmp->jmpSize == 1 && !inner::IsInDisp8((uint32)disp)) throw Error(ERR_LABEL_IS_TOO_FAR);
-			}
-			if (base_->isAutoGrow()) {
-				base_->save(offset, disp, jmp->jmpSize, jmp->mode);
-			} else {
-				base_->rewrite(offset, disp, jmp->jmpSize);
-			}
-			undefinedList2_.erase(itr);
-		}
+		define_inner(definedList2_, undefinedList2_, label.id);
 	}
 	bool getOffset2(size_t *offset, Label& label)
 	{
