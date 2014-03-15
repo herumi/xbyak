@@ -1087,8 +1087,12 @@ private:
 	CodeGenerator operator=(const CodeGenerator&); // don't call
 #ifdef XBYAK64
 	enum { i32e = 32 | 64, BIT = 64 };
+	static const size_t dummyAddr = (size_t(0x11223344) << 32) | 55667788;
+	typedef Reg64 NativeReg;
 #else
 	enum { i32e = 32, BIT = 32 };
+	static const size_t dummyAddr = 0x12345678;
+	typedef Reg32 NativeReg;
 #endif
 	// (XMM, XMM|MEM)
 	static inline bool isXMM_XMMorMEM(const Operand& op1, const Operand& op2)
@@ -1696,13 +1700,7 @@ private:
 		labelMgr_.addUndefinedLabel(label, jmp);
 	}
 public:
-	void mov(const Operand& op,
-#ifdef XBYAK64
-	uint64 imm
-#else
-	uint32 imm
-#endif
-	)
+	void mov(const Operand& op, size_t imm)
 	{
 		verifyMemHasSize(op);
 		if (op.isREG()) {
@@ -1716,39 +1714,17 @@ public:
 			throw Error(ERR_BAD_COMBINATION);
 		}
 	}
-	void mov(
-#ifdef XBYAK64
-		const Reg64& reg,
-#else
-		const Reg32& reg,
-#endif
-		const char *label) // can't use std::string
+	void mov(const NativeReg& reg, const char *label) // can't use std::string
 	{
 		if (label == 0) {
 			mov(static_cast<const Operand&>(reg), 0); // call imm
 			return;
 		}
-#ifdef XBYAK64
-		const size_t dummyAddr = (size_t(0x11223344) << 32) | 55667788;
-#else
-		const size_t dummyAddr = 0x12345678;
-#endif
 		mov_imm(reg, dummyAddr);
 		putL(label);
 	}
-	void mov(
-#ifdef XBYAK64
-		const Reg64& reg,
-#else
-		const Reg32& reg,
-#endif
-		const Label& label)
+	void mov(const NativeReg& reg, const Label& label)
 	{
-#ifdef XBYAK64
-		const size_t dummyAddr = (size_t(0x11223344) << 32) | 55667788;
-#else
-		const size_t dummyAddr = 0x12345678;
-#endif
 		mov_imm(reg, dummyAddr);
 		putL(label);
 	}
