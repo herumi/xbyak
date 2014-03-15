@@ -384,27 +384,37 @@ void test4()
 {
 	puts("test4");
 	struct Test4 : Xbyak::CodeGenerator {
-		explicit Test4(int size, void *mode)
+		Test4(int size, void *mode, bool useNewLabel)
 			: CodeGenerator(size, mode)
 		{
-			using namespace Xbyak;
-			inLocalLabel();
-			jmp(".x");
-			putNop(this, 10);
-		L(".x");
-			ret();
-			outLocalLabel();
+			if (useNewLabel) {
+				Label x;
+				jmp(x);
+				putNop(this, 10);
+			L(x);
+				ret();
+			} else {
+				inLocalLabel();
+				jmp(".x");
+				putNop(this, 10);
+			L(".x");
+				ret();
+				outLocalLabel();
+			}
 		}
 	};
-	std::string fm, gm;
-	Test4 fc(1024, 0);
-	Test4 gc(5, Xbyak::AutoGrow);
-	gc.ready();
-	fm.assign((const char*)fc.getCode(), fc.getSize());
-	gm.assign((const char*)gc.getCode(), gc.getSize());
-//	dump(fm);
-//	dump(gm);
-	diff(gm, gm);
+	for (int i = 0; i < 2; i++) {
+		const bool useNewLabel = i == 0;
+		std::string fm, gm;
+		Test4 fc(1024, 0, useNewLabel);
+		Test4 gc(5, Xbyak::AutoGrow, !useNewLabel);
+		gc.ready();
+		fm.assign((const char*)fc.getCode(), fc.getSize());
+		gm.assign((const char*)gc.getCode(), gc.getSize());
+//		dump(fm);
+//		dump(gm);
+		diff(gm, gm);
+	}
 }
 
 void test5()
