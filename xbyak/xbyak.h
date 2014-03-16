@@ -887,13 +887,10 @@ struct JmpLabel {
 };
 
 class Label {
-	static const int setByL = 1;
-	static const int setByJ = 2;
 	mutable int id;
-	mutable int state;
 	friend class LabelManager;
 public:
-	Label() : id(0), state(0) {}
+	Label() : id(0) {}
 	int getId() const { return id; }
 
 	// backward compatibility
@@ -939,7 +936,7 @@ class LabelManager {
 		@f --> @@.<num + 1>
 		.*** -> .***.<num>
 	*/
-	std::string convertLabel(std::string label) const
+	std::string getId(std::string label) const
 	{
 		if (label == "@f" || label == "@F") {
 			label = std::string("@@") + Label::toStr(anonymousCount_ + 1);
@@ -949,6 +946,11 @@ class LabelManager {
 			label += Label::toStr(localCount_);
 		}
 		return label;
+	}
+	int getId(const Label& label) const
+	{
+		if (label.id == 0) label.id = labelId_++;
+		return label.id;
 	}
 	template<class DefList, class UndefList, class T>
 	void define_inner(DefList& defList, UndefList& undefList, const T& labelId, size_t addrOffset)
@@ -982,6 +984,14 @@ class LabelManager {
 			}
 			undefList.erase(itr);
 		}
+	}
+	template<class DefList, class T>
+	bool getOffset_inner(const DefList& defList, size_t *offset, const T& label) const
+	{
+		typename DefList::const_iterator i = defList.find(getId(label));
+		if (i == defList.end()) return false;
+		*offset = i->second;
+		return true;
 	}
 public:
 	LabelManager()
@@ -1027,49 +1037,25 @@ public:
 	}
 	void define2(const Label& label)
 	{
-		if (label.state & Label::setByL) throw Error(ERR_LABEL_IS_SET_BY_L);
-		if (label.id == 0) {
-			label.id = labelId_++;
-			label.state |= Label::setByL;
-		}
-		define_inner(definedList2_, undefinedList2_, label.id, base_->getSize());
+		define_inner(definedList2_, undefinedList2_, getId(label), base_->getSize());
 	}
 	void assign(Label& dst, const Label& src)
 	{
-		if (dst.state == 0) {
-			dst = src;
-			return;
-		}
-		if (dst.state & Label::setByL) throw Error(ERR_LABEL_IS_SET_BY_L);
 		DefinedList2::const_iterator i = definedList2_.find(src.id);
 		if (i == definedList2_.end()) throw Error(ERR_LABEL_ISNOT_SET_BY_L);
-		dst.state |= Label::setByL;
 		define_inner(definedList2_, undefinedList2_, dst.id, i->second);
 	}
 	bool getOffset(size_t *offset, const std::string& label) const
 	{
-		const std::string newLabel = convertLabel(label);
-		DefinedList::const_iterator itr = definedList_.find(newLabel);
-		if (itr == definedList_.end()) return false;
-		*offset = itr->second;
-		return true;
+		return getOffset_inner(definedList_, offset, label);
 	}
 	bool getOffset(size_t *offset, const Label& label) const
 	{
-		if (label.id == 0) {
-			label.id = labelId_++;
-			label.state |= Label::setByJ;
-			return false;
-		}
-		DefinedList2::const_iterator itr = definedList2_.find(label.id);
-		if (itr == definedList2_.end()) return false;
-		*offset = itr->second;
-		return true;
+		return getOffset_inner(definedList2_, offset, label);
 	}
 	void addUndefinedLabel(const std::string& label, const JmpLabel& jmp)
 	{
-		std::string newLabel = convertLabel(label);
-		undefinedList_.insert(UndefinedList::value_type(newLabel, jmp));
+		undefinedList_.insert(UndefinedList::value_type(getId(label), jmp));
 	}
 	void addUndefinedLabel(const Label& label, const JmpLabel& jmp)
 	{
