@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 4.40
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 4.50
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -173,6 +173,34 @@ void func2()
 
 上記サンプルではinLocalLabel(), outLocalLabel()が無いと、
 ".lp"ラベルの二重定義エラーになります。
+
+3. 新しいLabelクラスによるジャンプ命令
+
+ジャンプ先を文字列による指定だけでなくラベルクラスを使えるようになりました。
+
+      Label label1, label2;
+    L(label1);
+      ...
+      jmp(label1);
+      ...
+      jmp(label2);
+      ...
+    L(label2);
+
+更にラベルの割り当てを行うassignL(dstLabel, srcLabel)という命令も追加されました。
+
+      Label label1, label2;
+    L(label1);
+      ...
+      jmp(label2);
+      ...
+      assignL(label2, label1);
+
+上記jmp命令はlabel1にジャンプします。
+
+制限
+* srcLabelはL()により飛び先が確定していないといけません。
+* dstLabelはL()により飛び先が確定していてはいけません。
 
 ・Xbyak::CodeGenerator()コンストラクタインタフェース
 

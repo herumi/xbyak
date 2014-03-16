@@ -1,5 +1,5 @@
 
-Xbyak 4.40 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 4.50 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -168,8 +168,36 @@ inLocalLabel() and outLocalLabel() can be nested.
         inLocalLabel();
     }
 
+### New Label class
+
+L() and jxx() functions support a new Label class.
+
+      Label label1, label2;
+    L(label1);
+      ...
+      jmp(label1);
+      ...
+      jmp(label2);
+      ...
+    L(label2);
+
+Moreover, assignL(dstLabel, srcLabel) method binds dstLabel with srcLabel.
+
+      Label label1, label2;
+    L(label1);
+      ...
+      jmp(label2);
+      ...
+      assignL(label2, label1); // label2 <= label1
+
+The above jmp opecode jumps label1.
+
+* Restriction:
+* srcLabel must be used in L().
+* dstLabel must not be used in L().
+
 ### Code size
-The default max code size is 2048 bytes. Please set it in constructor of CodeGenerator() if you want to use large size.
+The default max code size is 4096 bytes. Please set it in constructor of CodeGenerator() if you want to use large size.
 
     class Quantize : public Xbyak::CodeGenerator {
     public:
@@ -237,6 +265,7 @@ http://opensource.org/licenses/BSD-3-Clause
 
 History
 -------------
+* 2014/Mar/16 ver 4.50 support new Label
 * 2014/Mar/05 ver 4.40 fix wrong detection of BMI/enhanced rep on VirtualBox
 * 2013/Dec/03 ver 4.30 support Reg::cvt8(), cvt16(), cvt32(), cvt64()
 * 2013/Oct/16 ver 4.21 label support std::string
