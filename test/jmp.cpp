@@ -2,7 +2,8 @@
 #include <string.h>
 #include <string>
 #include <xbyak/xbyak.h>
-#define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
+#include <cybozu/inttype.hpp>
+#include <cybozu/test.hpp>
 
 #if !defined(_WIN64) && !defined(__x86_64__)
 	#define ONLY_32BIT
@@ -28,9 +29,27 @@ void diff(const std::string& a, const std::string& b)
 	}
 }
 
-void test1()
+void dump(const std::string& m)
 {
-	puts("test1");
+	printf("size=%d\n     ", (int)m.size());
+	for (int i = 0; i < 16; i++) {
+		printf("%02x ", i);
+	}
+	printf("\n     ");
+	for (int i = 0; i < 16; i++) {
+		printf("---");
+	}
+	printf("\n");
+	for (size_t i = 0; i < m.size(); i++) {
+		if ((i % 16) == 0) printf("%04x ", (int)(i / 16));
+		printf("%02x ", (unsigned char)m[i]);
+		if ((i % 16) == 15) putchar('\n');
+	}
+	putchar('\n');
+}
+
+CYBOZU_TEST_AUTO(test1)
+{
 	struct TestJmp : public Xbyak::CodeGenerator {
 	/*
 	     4                                  X0:
@@ -113,24 +132,21 @@ void test1()
 		{ 127, false, true, { 0xeb, 0x7f }, 2 },
 		{ 128, false, false, { 0xe9, 0x80, 0x00, 0x00, 0x00 }, 5 },
 	};
-	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+	for (size_t i = 0; i < CYBOZU_NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
 		for (int k = 0; k < 2; k++) {
 			TestJmp jmp(p->offset, p->isBack, p->isShort, k == 0);
 			const uint8 *q = (const uint8*)jmp.getCode();
 			if (p->isBack) q += p->offset; /* skip nop */
 			for (int j = 0; j < p->size; j++) {
-				if (q[j] != p->result[j]) {
-					printf("err (%d, %d, %d) %02x assume=%02x\n", (int)i, k, j, q[j], p->result[j]);
-				}
+				CYBOZU_TEST_EQUAL(q[j], p->result[j]);
 			}
 		}
 	}
 }
 
-void testJmpCx()
+CYBOZU_TEST_AUTO(testJmpCx)
 {
-	puts("testJmpCx");
 	struct TestJmpCx : public CodeGenerator {
 		explicit TestJmpCx(void *p, bool useNewLabel)
 			: Xbyak::CodeGenerator(16, p)
@@ -139,7 +155,6 @@ void testJmpCx()
 				Label lp;
 			L(lp);
 #ifdef XBYAK64
-				puts("TestJmpCx 64bit");
 				/*
 					67 E3 FD ; jecxz lp
 					E3 FB    ; jrcxz lp
@@ -147,7 +162,6 @@ void testJmpCx()
 				jecxz(lp);
 				jrcxz(lp);
 #else
-				puts("TestJmpCx 32bit");
 				/*
 					E3FE   ; jecxz lp
 					67E3FB ; jcxz lp
@@ -159,7 +173,6 @@ void testJmpCx()
 				inLocalLabel();
 			L(".lp");
 #ifdef XBYAK64
-				puts("TestJmpCx 64bit");
 				/*
 					67 E3 FD ; jecxz lp
 					E3 FB    ; jrcxz lp
@@ -167,7 +180,6 @@ void testJmpCx()
 				jecxz(".lp");
 				jrcxz(".lp");
 #else
-				puts("TestJmpCx 32bit");
 				/*
 					E3FE   ; jecxz lp
 					67E3FB ; jcxz lp
@@ -192,23 +204,15 @@ void testJmpCx()
 	for (int j = 0; j < 2; j++) {
 		char buf[16] = {};
 		TestJmpCx code(buf, j == 0);
-		if (memcmp(buf, tbl.p, tbl.len) == 0) {
-		} else {
-			printf("err %d\n", j);
-			for (int i = 0; i < 8; i++) {
-				printf("%02x ", (unsigned char)buf[i]);
-			}
-			printf("\n");
-		}
+		CYBOZU_TEST_EQUAL(memcmp(buf, tbl.p, tbl.len), 0);
 	}
 }
 
 #ifdef _MSC_VER
 	#pragma warning(disable : 4310)
 #endif
-void test2()
+CYBOZU_TEST_AUTO(test2)
 {
-	puts("test2");
 	struct TestJmp2 : public CodeGenerator {
 	/*
 	  1 00000000 90                      nop
@@ -296,7 +300,7 @@ void test2()
 			TestJmp2 c(i == 0 ? 0 : Xbyak::AutoGrow, j == 0);
 			c.ready();
 			std::string m((const char*)c.getCode(), c.getSize());
-			diff(m, ok);
+			CYBOZU_TEST_EQUAL(m, ok);
 		}
 	}
 }
@@ -305,9 +309,8 @@ void test2()
 int add5(int x) { return x + 5; }
 int add2(int x) { return x + 2; }
 
-void test3()
+CYBOZU_TEST_AUTO(test3)
 {
-	puts("test3");
 	struct Grow : Xbyak::CodeGenerator {
 		Grow(int dummySize)
 			: Xbyak::CodeGenerator(128, Xbyak::AutoGrow)
@@ -332,9 +335,7 @@ void test3()
 		int (*f)() = (int (*)())g.getCode();
 		int x = f();
 		const int ok = 107;
-		if (x != ok) {
-			printf("err %d assume %d\n", x, ok);
-		}
+		CYBOZU_TEST_EQUAL(x, ok);
 	}
 }
 #endif
@@ -361,28 +362,8 @@ struct MyAllocator : Xbyak::Allocator {
 	}
 } myAlloc;
 
-void dump(const std::string& m)
+CYBOZU_TEST_AUTO(test4)
 {
-	printf("size=%d\n     ", (int)m.size());
-	for (int i = 0; i < 16; i++) {
-		printf("%02x ", i);
-	}
-	printf("\n     ");
-	for (int i = 0; i < 16; i++) {
-		printf("---");
-	}
-	printf("\n");
-	for (size_t i = 0; i < m.size(); i++) {
-		if ((i % 16) == 0) printf("%04x ", (int)(i / 16));
-		printf("%02x ", (unsigned char)m[i]);
-		if ((i % 16) == 15) putchar('\n');
-	}
-	putchar('\n');
-}
-
-void test4()
-{
-	puts("test4");
 	struct Test4 : Xbyak::CodeGenerator {
 		Test4(int size, void *mode, bool useNewLabel)
 			: CodeGenerator(size, mode)
@@ -411,15 +392,12 @@ void test4()
 		gc.ready();
 		fm.assign((const char*)fc.getCode(), fc.getSize());
 		gm.assign((const char*)gc.getCode(), gc.getSize());
-//		dump(fm);
-//		dump(gm);
-		diff(gm, gm);
+		CYBOZU_TEST_EQUAL(fm, gm);
 	}
 }
 
-void test5()
+CYBOZU_TEST_AUTO(test5)
 {
-	puts("test5");
 	struct Test5 : Xbyak::CodeGenerator {
 		explicit Test5(int size, int count, void *mode)
 			: CodeGenerator(size, mode, &myAlloc)
@@ -456,18 +434,14 @@ void test5()
 	int ret;
 	Test5 fc(1024 * 64, count, 0);
 	ret = ((int (*)())fc.getCode())();
-	if (ret != count * count) {
-		printf("err ret=%d, %d\n", ret, count * count);
-	}
+	CYBOZU_TEST_EQUAL(ret, count * count);
 	fm.assign((const char*)fc.getCode(), fc.getSize());
 	Test5 gc(10, count, Xbyak::AutoGrow);
 	gc.ready();
 	ret = ((int (*)())gc.getCode())();
-	if (ret != count * count) {
-		printf("err ret=%d, %d\n", ret, count * count);
-	}
+	CYBOZU_TEST_EQUAL(ret, count * count);
 	gm.assign((const char*)gc.getCode(), gc.getSize());
-	diff(fm, gm);
+	CYBOZU_TEST_EQUAL(fm, gm);
 }
 
 size_t getValue(const uint8* p)
@@ -482,13 +456,11 @@ size_t getValue(const uint8* p)
 void checkAddr(const uint8 *p, size_t offset, size_t expect)
 {
 	size_t v = getValue(p + offset);
-	if (v == size_t(p) + expect) return;
-	printf("err p=%p, offset=%lld, v=%llx(%llx), expect=%d\n", p, (long long)offset, (long long)v, (long long)(expect + size_t(p)), (int)expect);
+	CYBOZU_TEST_EQUAL(v, size_t(p) + expect);
 }
 
-void testMovLabel()
+CYBOZU_TEST_AUTO(MovLabel)
 {
-	puts("testMovLabel");
 	struct MovLabelCode : Xbyak::CodeGenerator {
 		MovLabelCode(bool grow, bool useNewLabel)
 			: Xbyak::CodeGenerator(grow ? 128 : 4096, grow ? Xbyak::AutoGrow : 0)
@@ -564,13 +536,11 @@ void testMovLabel()
 			MovLabelCode code(grow, useNewLabel);
 			if (grow) code.ready();
 			const uint8* const p = code.getCode();
-			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			for (size_t i = 0; i < CYBOZU_NUM_OF_ARRAY(tbl); i++) {
 				int pos = tbl[i].pos;
 				uint8 x = p[pos];
 				uint8 ok = tbl[i].ok;
-				if (x != ok) {
-					printf("err pos=%d, x=%02x, ok=%02x\n", pos, x, ok);
-				}
+				CYBOZU_TEST_EQUAL(x, ok);
 			}
 #ifdef XBYAK32
 			checkAddr(p, 0x03, 0x001);
@@ -583,9 +553,8 @@ void testMovLabel()
 	}
 }
 
-void testMovLabel2()
+CYBOZU_TEST_AUTO(testMovLabel2)
 {
-	puts("tsetMovLabel2");
 	struct MovLabel2Code : Xbyak::CodeGenerator {
 		MovLabel2Code()
 		{
@@ -617,10 +586,10 @@ void testMovLabel2()
 	};
 	MovLabel2Code code;
 	int ret = code.getCode<int (*)()>()();
-	if (ret != 7) printf("ERR=%d\n", ret);
+	CYBOZU_TEST_EQUAL(ret, 7);
 }
 
-void test6()
+CYBOZU_TEST_AUTO(test6)
 {
 	struct TestLocal : public Xbyak::CodeGenerator {
 		TestLocal(bool grow)
@@ -694,13 +663,11 @@ void test6()
 		if (grow) code.ready();
 		int (*f)() = code.getCode<int (*)()>();
 		int a = f();
-		if (a != 15) {
-			printf("ERR a=%d\n", a);
-		}
+		CYBOZU_TEST_EQUAL(a, 15);
 	}
 }
 
-void testNewLabel()
+CYBOZU_TEST_AUTO(testNewLabel)
 {
 	struct Code : Xbyak::CodeGenerator {
 		Code(bool grow)
@@ -788,13 +755,11 @@ void testNewLabel()
 		if (grow) code.ready();
 		int (*f)() = code.getCode<int (*)()>();
 		int r = f();
-		if (r != 16) {
-			printf("err %d %d\n", i, r);
-		}
+		CYBOZU_TEST_EQUAL(r, 16);
 	}
 }
 
-void testAssign()
+CYBOZU_TEST_AUTO(testAssign)
 {
 	struct Code : Xbyak::CodeGenerator {
 		Code(bool grow)
@@ -821,29 +786,6 @@ void testAssign()
 		if (grow) code.ready();
 		int (*f)() = code.getCode<int (*)()>();
 		int ret = f();
-		if (ret != 5) {
-			printf("err %d\n", ret);
-		}
+		CYBOZU_TEST_EQUAL(ret, 5);
     }
-}
-
-int main()
-try {
-	test1();
-	test2();
-#ifdef ONLY_32BIT
-	test3();
-#endif
-	test4();
-	test5();
-	test6();
-	testJmpCx();
-	testMovLabel();
-	testMovLabel2();
-	testNewLabel();
-	testAssign();
-} catch (std::exception& e) {
-	printf("ERR:%s\n", e.what());
-} catch (...) {
-	printf("unknown error\n");
 }
