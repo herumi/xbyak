@@ -789,3 +789,38 @@ CYBOZU_TEST_AUTO(testAssign)
 		CYBOZU_TEST_EQUAL(ret, 5);
     }
 }
+
+CYBOZU_TEST_AUTO(doubleDefine)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			{
+				Label label;
+			L(label);
+				// forbitten double L()
+				CYBOZU_TEST_EXCEPTION(L(label), Xbyak::Error);
+			}
+			{
+				Label label;
+				jmp(label);
+				CYBOZU_TEST_ASSERT(hasUndefinedLabel());
+			}
+			{
+				Label label1, label2;
+			L(label1);
+				jmp(label2);
+				assignL(label2, label1);
+				// forbitten double assignL
+				CYBOZU_TEST_EXCEPTION(assignL(label2, label1), Xbyak::Error);
+			}
+			{
+				Label label1, label2;
+			L(label1);
+				jmp(label2);
+				// forbitten assignment to label1 set by L()
+				CYBOZU_TEST_EXCEPTION(assignL(label1, label2), Xbyak::Error);
+			}
+		}
+	} code;
+}
