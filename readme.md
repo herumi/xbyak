@@ -265,7 +265,7 @@ http://opensource.org/licenses/BSD-3-Clause
 
 The files under test/cybozu/ are copied from cybozulib(https://github.com/herumi/cybozulib/),
 which is licensed by BSD-3-Clause and are used for only tests.
-The header files under xbyak/ are independent from cybozulib.
+The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
