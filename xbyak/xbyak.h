@@ -147,7 +147,7 @@ enum {
 	ERR_BAD_VSIB_ADDRESSING,
 	ERR_CANT_CONVERT,
 	ERR_LABEL_IS_SET_BY_L,
-	ERR_LABEL_IS_SET_BY_J,
+	ERR_LABEL_ISNOT_SET_BY_L,
 	ERR_INTERNAL
 };
 
@@ -195,7 +195,7 @@ public:
 			"bad vsib addressing",
 			"can't convert",
 			"label is set by L()",
-			"label is set by jxx()",
+			"label is not set by L()",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -951,10 +951,9 @@ class LabelManager {
 		return label;
 	}
 	template<class DefList, class UndefList, class T>
-	void define_inner(DefList& defList, UndefList& undefList, const T& labelId)
+	void define_inner(DefList& defList, UndefList& undefList, const T& labelId, size_t addrOffset)
 	{
 		// add label
-		const size_t addrOffset = base_->getSize();
 		typename DefList::value_type item(labelId, addrOffset);
 		std::pair<typename DefList::iterator, bool> ret = defList.insert(item);
 		if (!ret.second) throw Error(ERR_LABEL_IS_REDEFINED);
@@ -1022,7 +1021,7 @@ public:
 		} else if (*label.c_str() == '.') {
 			label += Label::toStr(localCount_);
 		}
-		define_inner(definedList_, undefinedList_, label);
+		define_inner(definedList_, undefinedList_, label, base_->getSize());
 	}
 	void define2(const Label& label)
 	{
@@ -1031,7 +1030,19 @@ public:
 			label.id = labelId_++;
 			label.state |= Label::setByL;
 		}
-		define_inner(definedList2_, undefinedList2_, label.id);
+		define_inner(definedList2_, undefinedList2_, label.id, base_->getSize());
+	}
+	void assign(Label& dst, const Label& src)
+	{
+		if (dst.state == 0) {
+			dst = src;
+			return;
+		}
+		if (dst.state & Label::setByL) throw Error(ERR_LABEL_IS_SET_BY_L);
+		DefinedList2::const_iterator i = definedList2_.find(src.id);
+		if (i == definedList2_.end()) throw Error(ERR_LABEL_ISNOT_SET_BY_L);
+		dst.state |= Label::setByL;
+		define_inner(definedList2_, undefinedList2_, dst.id, i->second);
 	}
 	bool getOffset(size_t *offset, const std::string& label) const
 	{
@@ -1200,7 +1211,7 @@ private:
 		}
 	}
 	template<class T>
-	void opJmp(T& label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
+	void opJmp(const T& label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
 	{
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory(); /* avoid splitting code of jmp */
 		size_t offset = 0;
@@ -1527,6 +1538,13 @@ public:
 #endif
 	void L(const std::string& label) { labelMgr_.define(label); }
 	void L(const Label& label) { labelMgr_.define2(label); }
+	/*
+		assign src to dst
+		require
+		dst : does not used by L()
+		src : used by L()
+	*/
+	void assignL(Label& dst, const Label& src) { labelMgr_.assign(dst, src); }
 	void inLocalLabel() { labelMgr_.enterLocal(); }
 	void outLocalLabel() { labelMgr_.leaveLocal(); }
 	void jmp(const std::string& label, LabelType type = T_AUTO)
