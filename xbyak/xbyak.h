@@ -146,7 +146,6 @@ enum {
 	ERR_BAD_TNUM,
 	ERR_BAD_VSIB_ADDRESSING,
 	ERR_CANT_CONVERT,
-	ERR_LABEL_IS_SET_BY_L,
 	ERR_LABEL_ISNOT_SET_BY_L,
 	ERR_INTERNAL
 };
@@ -194,7 +193,6 @@ public:
 			"bad tNum",
 			"bad vsib addressing",
 			"can't convert",
-			"label is set by L()",
 			"label is not set by L()",
 			"internal error",
 		};
