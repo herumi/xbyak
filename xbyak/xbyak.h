@@ -1779,15 +1779,12 @@ public:
 		}
 		opModRM(*p1, *p2, (p1->isREG() && p2->isREG() && (p1->getBit() == p2->getBit())), p2->isMEM(), B10000110 | (p1->isBit(8) ? 0 : 1));
 	}
-	void call(const std::string& label)
-	{
-		opJmp(label, T_NEAR, 0, B11101000, 0);
-	}
+	void call(const std::string& label) { opJmp(label, T_NEAR, 0, B11101000, 0); }
+	// call(string label)
 	void call(const char *label) { call(std::string(label)); }
-	void call(const void *addr)
-	{
-		opJmpAbs(addr, T_NEAR, 0, B11101000);
-	}
+	void call(const Label& label) { opJmp(label, T_NEAR, 0, B11101000, 0); }
+	// call(function pointer)
+	void call(const void *addr) { opJmpAbs(addr, T_NEAR, 0, B11101000); }
 	// special case
 	void movd(const Address& addr, const Mmx& mmx)
 	{

@@ -750,6 +750,7 @@ void testNewLabel()
 				jmp(label2);
 			L(exit);
 			}
+			Label callLabel;
 			{	// eax == 8
 				Label label1;
 				Label label2;
@@ -773,6 +774,10 @@ void testNewLabel()
 				cmp(eax, 13);
 				je(label1);
 			}
+			call(callLabel);
+			ret();
+		L(callLabel);
+			inc(eax); // 16
 			ret();
 		}
 	};
@@ -783,7 +788,7 @@ void testNewLabel()
 		if (grow) code.ready();
 		int (*f)() = code.getCode<int (*)()>();
 		int r = f();
-		if (r != 15) {
+		if (r != 16) {
 			printf("err %d %d\n", i, r);
 		}
 	}
