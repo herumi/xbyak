@@ -798,26 +798,27 @@ void testAssign()
 			xor_(eax, eax);
 			Label dst, src;
 		L(src);
-            inc(eax);
-            cmp(eax, 1);
-            je(dst);
-            inc(eax); // 2, 3, 5
+			inc(eax);
+			cmp(eax, 1);
+			je(dst);
+			inc(eax); // 2, 3, 5
 			cmp(eax, 5);
-            jne(dst);
+			putNop(this, 128);
+			jne(dst, T_NEAR);
 			ret();
 		assignL(dst, src);
 		}
 	};
-    for (int i = 0; i < 2; i++) {
-        const bool grow = i == 0;
-        printf("testAssign grow=%d\n", grow);
-	    Code code(grow);
-        if (grow) code.ready();
-	    int (*f)() = code.getCode<int (*)()>();
-	    int ret = f();
-	    if (ret != 5) {
-		    printf("err %d\n", ret);
-	    }
+	for (int i = 0; i < 2; i++) {
+		const bool grow = i == 0;
+		printf("testAssign grow=%d\n", grow);
+		Code code(grow);
+		if (grow) code.ready();
+		int (*f)() = code.getCode<int (*)()>();
+		int ret = f();
+		if (ret != 5) {
+			printf("err %d\n", ret);
+		}
     }
 }
 

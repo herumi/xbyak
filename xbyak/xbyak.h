@@ -970,8 +970,10 @@ class LabelManager {
 				disp = size_t(base_->getCurr());
 			} else {
 				disp = addrOffset - jmp->endOfJmp;
-				if (jmp->jmpSize <= 4) disp = inner::VerifyInInt32(disp);
-				if (jmp->jmpSize == 1 && !inner::IsInDisp8((uint32)disp)) throw Error(ERR_LABEL_IS_TOO_FAR);
+#ifdef XBYAK64
+                if (jmp->jmpSize <= 4 && !inner::IsInInt32(disp)) throw Error(ERR_OFFSET_IS_TOO_BIG);
+#endif
+                if (jmp->jmpSize == 1 && !inner::IsInDisp8((uint32)disp)) throw Error(ERR_LABEL_IS_TOO_FAR);
 			}
 			if (base_->isAutoGrow()) {
 				base_->save(offset, disp, jmp->jmpSize, jmp->mode);
@@ -1676,12 +1678,12 @@ private:
 	/*
 		mov(r, imm) = db(imm, mov_imm(r, imm))
 	*/
-	int mov_imm(const Reg& reg, uint64 imm)
+	int mov_imm(const Reg& reg, size_t imm)
 	{
 		int bit = reg.getBit();
 		const int idx = reg.getIdx();
 		int code = B10110000 | ((bit == 8 ? 0 : 1) << 3);
-		if (bit == 64 && (imm >> 32) == 0) {
+		if (bit == 64 && (imm & ~size_t(0xffffffffu)) == 0) {
 			rex(Reg32(idx));
 			bit = 32;
 		} else {
