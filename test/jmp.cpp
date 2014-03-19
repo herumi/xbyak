@@ -777,6 +777,14 @@ CYBOZU_TEST_AUTO(testAssign)
 			jne(dst, T_NEAR);
 			ret();
 		assignL(dst, src);
+			// test of copy  label
+			{
+				Label sss(dst);
+				{
+					Label ttt;
+					ttt = src;
+				}
+			}
 		}
 	};
 	for (int i = 0; i < 2; i++) {

@@ -147,6 +147,7 @@ enum {
 	ERR_BAD_VSIB_ADDRESSING,
 	ERR_CANT_CONVERT,
 	ERR_LABEL_ISNOT_SET_BY_L,
+	ERR_LABEL_IS_ALREADY_SET_BY_L,
 	ERR_INTERNAL
 };
 
@@ -194,6 +195,7 @@ public:
 			"bad vsib addressing",
 			"can't convert",
 			"label is not set by L()",
+			"label is already set by L()",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -884,11 +886,17 @@ struct JmpLabel {
 	inner::LabelMode mode;
 };
 
+class LabelManager;
+
 class Label {
+	mutable LabelManager *mgr;
 	mutable int id;
 	friend class LabelManager;
 public:
-	Label() : id(0) {}
+	Label() : mgr(0), id(0) {}
+	Label(const Label& rhs);
+	Label& operator=(const Label& rhs);
+	~Label();
 	int getId() const { return id; }
 
 	// backward compatibility
@@ -925,8 +933,10 @@ class LabelManager {
 	// for Label class
 	typedef XBYAK_STD_UNORDERED_MAP<int, size_t> DefinedList2;
 	typedef XBYAK_STD_UNORDERED_MULTIMAP<int, const JmpLabel> UndefinedList2;
+	typedef XBYAK_STD_UNORDERED_MAP<int, int> RefCount;
 	DefinedList2 definedList2_;
 	UndefinedList2 undefinedList2_;
+	RefCount refCount_;
 
 	/*
 		@@ --> @@.<num>
@@ -991,6 +1001,19 @@ class LabelManager {
 		*offset = i->second;
 		return true;
 	}
+	friend class Label;
+	void incRefCount(int id) { refCount_[id]++; }
+	void decRefCount(int id)
+	{
+		RefCount::iterator i = refCount_.find(id);
+		if (i == refCount_.end()) return;
+		if (i->second == 1) {
+			refCount_.erase(i);
+			definedList2_.erase(id);
+		} else {
+			--i->second;
+		}
+	}
 public:
 	LabelManager()
 		: base_(0)
@@ -1036,12 +1059,16 @@ public:
 	void define2(const Label& label)
 	{
 		define_inner(definedList2_, undefinedList2_, getId(label), base_->getSize());
+		refCount_[label.id] = 1;
+		label.mgr = this;
 	}
 	void assign(Label& dst, const Label& src)
 	{
 		DefinedList2::const_iterator i = definedList2_.find(src.id);
 		if (i == definedList2_.end()) throw Error(ERR_LABEL_ISNOT_SET_BY_L);
 		define_inner(definedList2_, undefinedList2_, dst.id, i->second);
+		refCount_[dst.id] = 1;
+		dst.mgr = this;
 	}
 	bool getOffset(size_t *offset, const std::string& label) const
 	{
@@ -1078,6 +1105,25 @@ public:
 		return !undefinedList2_.empty();
 	}
 };
+
+inline Label::Label(const Label& rhs)
+{
+	id = rhs.id;
+	mgr = rhs.mgr;
+	if (mgr) mgr->incRefCount(id);
+}
+inline Label& Label::operator=(const Label& rhs)
+{
+	if (id) throw Error(ERR_LABEL_IS_ALREADY_SET_BY_L);
+	id = rhs.id;
+	mgr = rhs.mgr;
+	if (mgr) mgr->incRefCount(id);
+	return *this;
+}
+inline Label::~Label()
+{
+	if (id && mgr) mgr->decRefCount(id);
+}
 
 class CodeGenerator : public CodeArray {
 public:
