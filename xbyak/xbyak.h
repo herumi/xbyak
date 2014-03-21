@@ -914,6 +914,21 @@ public:
 };
 
 class LabelManager {
+	// for string label
+	struct StrLabelVal {
+		size_t offset;
+		StrLabelVal(size_t offset) : offset(offset) {}
+	};
+	typedef XBYAK_STD_UNORDERED_MAP<std::string, StrLabelVal> DefinedList;
+	typedef XBYAK_STD_UNORDERED_MULTIMAP<std::string, const JmpLabel> UndefinedList;
+	// for Label class
+	struct LabelClassVal {
+		LabelClassVal(size_t offset = 0) : offset(offset), refCount(1) {}
+		size_t offset;
+		int refCount;
+	};
+	typedef XBYAK_STD_UNORDERED_MAP<int, LabelClassVal> DefinedList2;
+	typedef XBYAK_STD_UNORDERED_MULTIMAP<int, const JmpLabel> UndefinedList2;
 	CodeArray *base_;
 	int anonymousCount_; // for @@, @f, @b
 	enum {
@@ -925,18 +940,11 @@ class LabelManager {
 	int localCount_; // for .***
 	mutable int labelId_;
 
-	// for string label
-	typedef XBYAK_STD_UNORDERED_MAP<std::string, size_t> DefinedList;
-	typedef XBYAK_STD_UNORDERED_MULTIMAP<std::string, const JmpLabel> UndefinedList;
 	DefinedList definedList_;
 	UndefinedList undefinedList_;
-	// for Label class
-	typedef XBYAK_STD_UNORDERED_MAP<int, size_t> DefinedList2;
-	typedef XBYAK_STD_UNORDERED_MULTIMAP<int, const JmpLabel> UndefinedList2;
 	typedef XBYAK_STD_UNORDERED_MAP<int, int> RefCount;
 	DefinedList2 definedList2_;
 	UndefinedList2 undefinedList2_;
-	RefCount refCount_;
 
 	/*
 		@@ --> @@.<num>
@@ -998,20 +1006,19 @@ class LabelManager {
 	{
 		typename DefList::const_iterator i = defList.find(getId(label));
 		if (i == defList.end()) return false;
-		*offset = i->second;
+		*offset = i->second.offset;
 		return true;
 	}
 	friend class Label;
-	void incRefCount(int id) { refCount_[id]++; }
+	void incRefCount(int id) { definedList2_[id].refCount++; }
 	void decRefCount(int id)
 	{
-		RefCount::iterator i = refCount_.find(id);
-		if (i == refCount_.end()) return;
-		if (i->second == 1) {
-			refCount_.erase(i);
+		DefinedList2::iterator i = definedList2_.find(id);
+		if (i == definedList2_.end()) return;
+		if (i->second.refCount == 1) {
 			definedList2_.erase(id);
 		} else {
-			--i->second;
+			--i->second.refCount;
 		}
 	}
 public:
@@ -1059,15 +1066,13 @@ public:
 	void define2(const Label& label)
 	{
 		define_inner(definedList2_, undefinedList2_, getId(label), base_->getSize());
-		refCount_[label.id] = 1;
 		label.mgr = this;
 	}
 	void assign(Label& dst, const Label& src)
 	{
 		DefinedList2::const_iterator i = definedList2_.find(src.id);
 		if (i == definedList2_.end()) throw Error(ERR_LABEL_ISNOT_SET_BY_L);
-		define_inner(definedList2_, undefinedList2_, dst.id, i->second);
-		refCount_[dst.id] = 1;
+		define_inner(definedList2_, undefinedList2_, dst.id, i->second.offset);
 		dst.mgr = this;
 	}
 	bool getOffset(size_t *offset, const std::string& label) const
