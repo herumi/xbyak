@@ -589,6 +589,109 @@ CYBOZU_TEST_AUTO(testMovLabel2)
 	CYBOZU_TEST_EQUAL(ret, 7);
 }
 
+CYBOZU_TEST_AUTO(testF_B)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code(int type)
+		{
+			inLocalLabel();
+			xor_(eax, eax);
+			switch (type) {
+			case 0:
+			L("@@");
+				inc(eax);
+				cmp(eax, 1);
+				je("@b");
+				break;
+			case 1:
+				test(eax, eax);
+				jz("@f");
+				ud2();
+			L("@@");
+				break;
+			case 2:
+			L("@@");
+				inc(eax);
+				cmp(eax, 1); // 1, 2
+				je("@b");
+				cmp(eax, 2); // 2, 3
+				je("@b");
+				break;
+			case 3:
+			L("@@");
+				inc(eax);
+				cmp(eax, 1); // 1, 2
+				je("@b");
+				cmp(eax, 2); // 2, 3
+				je("@b");
+				jmp("@f");
+				ud2();
+			L("@@");
+				break;
+			case 4:
+			L("@@");
+				inc(eax);
+				cmp(eax, 1); // 1, 2
+				je("@b");
+				cmp(eax, 2); // 2, 3
+				je("@b");
+				jmp("@f");
+				ud2();
+			L("@@");
+				inc(eax); // 4, 5
+				cmp(eax, 4);
+				je("@b");
+				break;
+			case 5:
+			L("@@");
+			L("@@");
+				inc(eax);
+				cmp(eax, 1);
+				je("@b");
+				break;
+			case 6:
+			L("@@");
+			L("@@");
+			L("@@");
+				inc(eax);
+				cmp(eax, 1);
+				je("@b");
+				break;
+			case 7:
+				jmp("@f");
+			L("@@");
+				inc(eax); // 1, 2
+				cmp(eax, 1);
+				je("@b");
+				cmp(eax, 2);
+				jne("@f"); // not jmp
+				inc(eax); // 3
+			L("@@");
+				inc(eax); // 4, 5, 6
+				cmp(eax, 4);
+				je("@b");
+				cmp(eax, 5);
+				je("@b");
+				jmp("@f");
+				jmp("@f");
+				jmp("@b");
+			L("@@");
+				break;
+			}
+			ret();
+			outLocalLabel();
+		}
+	};
+	const int expectedTbl[] = {
+		2, 0, 3, 3, 5, 2, 2, 6
+	};
+	for (size_t i = 0; i < CYBOZU_NUM_OF_ARRAY(expectedTbl); i++) {
+		Code code(i);
+		int ret = code.getCode<int (*)()>()();
+		CYBOZU_TEST_EQUAL(ret, expectedTbl[i]);
+	}
+}
+
 CYBOZU_TEST_AUTO(test6)
 {
 	struct TestLocal : public Xbyak::CodeGenerator {
