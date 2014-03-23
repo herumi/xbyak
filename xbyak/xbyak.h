@@ -954,12 +954,8 @@ class LabelManager {
 	*/
 	std::string getId(std::string label) const
 	{
-		if (label == "@f" || label == "@F") {
-			label = std::string("@@") + Label::toStr(anonymousCount_ + 1);
-		} else if (label == "@b" || label == "@B") {
-			label = std::string("@@") + Label::toStr(anonymousCount_);
-		} else if (*label.c_str() == '.') {
-			label += Label::toStr(localCount_);
+		if (*label.c_str() == '.') {
+			return label + Label::toStr(localCount_);
 		}
 		return label;
 	}
@@ -1021,6 +1017,7 @@ class LabelManager {
 			--i->second.refCount;
 		}
 	}
+	bool hasDefinedList(const char *label) const { return definedList_.find(label) != definedList_.end(); }
 public:
 	LabelManager()
 		: base_(0)
@@ -1056,10 +1053,19 @@ public:
 	// copy label because it is modified
 	void define(std::string label)
 	{
+		if (label == "@b" || label == "@f") throw Error(ERR_BAD_PARAMETER); // QQQ
 		if (label == "@@") {
-			label += Label::toStr(++anonymousCount_);
-		} else if (*label.c_str() == '.') {
-			label += Label::toStr(localCount_);
+			if (hasDefinedList("@b")) {
+				definedList_.erase("@b");
+				label = "@f";
+			} else if (hasDefinedList("@f")) {
+				definedList_.erase("@f");
+				label = "@b";
+			} else {
+				label = "@f";
+			}
+		} else {
+			label = getId(label);
 		}
 		define_inner(definedList_, undefinedList_, label, base_->getSize());
 	}
@@ -1075,8 +1081,19 @@ public:
 		define_inner(definedList2_, undefinedList2_, dst.id, i->second.offset);
 		dst.mgr = this;
 	}
-	bool getOffset(size_t *offset, const std::string& label) const
+	bool getOffset(size_t *offset, std::string& label) const
 	{
+		if (label == "@b") {
+			if (hasDefinedList("@f")) {
+				label = "@f";
+			} else if (!hasDefinedList("@b")) {
+				throw Error(ERR_LABEL_IS_NOT_FOUND);
+			}
+		} else if (label == "@f") {
+			if (hasDefinedList("@f")) {
+				label = "@b";
+			}
+		}
 		return getOffset_inner(definedList_, offset, label);
 	}
 	bool getOffset(size_t *offset, const Label& label) const
@@ -1248,7 +1265,7 @@ private:
 		}
 	}
 	template<class T>
-	void opJmp(const T& label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
+	void opJmp(T& label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
 	{
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory(); /* avoid splitting code of jmp */
 		size_t offset = 0;
@@ -1584,7 +1601,7 @@ public:
 	void assignL(Label& dst, const Label& src) { labelMgr_.assign(dst, src); }
 	void inLocalLabel() { labelMgr_.enterLocal(); }
 	void outLocalLabel() { labelMgr_.leaveLocal(); }
-	void jmp(const std::string& label, LabelType type = T_AUTO)
+	void jmp(std::string label, LabelType type = T_AUTO)
 	{
 		opJmp(label, type, B11101011, B11101001, 0);
 	}
@@ -1787,7 +1804,7 @@ public:
 		put address of label to buffer
 		@note the put size is 4(32-bit), 8(64-bit)
 	*/
-	void putL(const std::string& label) { putL_inner(label); }
+	void putL(std::string label) { putL_inner(label); }
 	void putL(const Label& label) { putL_inner(label); }
 	void cmpxchg8b(const Address& addr) { opModM(addr, Reg32(1), 0x0F, B11000111); }
 #ifdef XBYAK64
@@ -1814,7 +1831,7 @@ public:
 		}
 		opModRM(*p1, *p2, (p1->isREG() && p2->isREG() && (p1->getBit() == p2->getBit())), p2->isMEM(), B10000110 | (p1->isBit(8) ? 0 : 1));
 	}
-	void call(const std::string& label) { opJmp(label, T_NEAR, 0, B11101000, 0); }
+	void call(std::string label) { opJmp(label, T_NEAR, 0, B11101000, 0); }
 	// call(string label)
 	void call(const char *label) { call(std::string(label)); }
 	void call(const Label& label) { opJmp(label, T_NEAR, 0, B11101000, 0); }
