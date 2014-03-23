@@ -148,6 +148,7 @@ enum {
 	ERR_CANT_CONVERT,
 	ERR_LABEL_ISNOT_SET_BY_L,
 	ERR_LABEL_IS_ALREADY_SET_BY_L,
+	ERR_BAD_LABEL_STR,
 	ERR_INTERNAL
 };
 
@@ -196,6 +197,7 @@ public:
 			"can't convert",
 			"label is not set by L()",
 			"label is already set by L()",
+			"bad label string",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -930,7 +932,6 @@ class LabelManager {
 	typedef XBYAK_STD_UNORDERED_MAP<int, LabelClassVal> DefinedList2;
 	typedef XBYAK_STD_UNORDERED_MULTIMAP<int, const JmpLabel> UndefinedList2;
 	CodeArray *base_;
-	int anonymousCount_; // for @@, @f, @b
 	enum {
 		maxStack = 16
 	};
@@ -952,7 +953,7 @@ class LabelManager {
 		@f --> @@.<num + 1>
 		.*** -> .***.<num>
 	*/
-	std::string getId(std::string label) const
+	std::string getId(const std::string& label) const
 	{
 		if (*label.c_str() == '.') {
 			return label + Label::toStr(localCount_);
@@ -1021,7 +1022,6 @@ class LabelManager {
 public:
 	LabelManager()
 		: base_(0)
-		, anonymousCount_(0)
 		, stackPos_(1)
 		, usedCount_(0)
 		, localCount_(0)
@@ -1031,7 +1031,6 @@ public:
 	void reset()
 	{
 		base_ = 0;
-		anonymousCount_ = 0;
 		stackPos_ = 1;
 		usedCount_ = 0;
 		localCount_ = 0;
@@ -1050,18 +1049,19 @@ public:
 		localCount_ = stack_[--stackPos_ - 1];
 	}
 	void set(CodeArray *base) { base_ = base; }
-	// copy label because it is modified
 	void define(std::string label)
 	{
-		if (label == "@b" || label == "@f") throw Error(ERR_BAD_PARAMETER); // QQQ
+		if (label == "@b" || label == "@f") throw Error(ERR_BAD_LABEL_STR);
 		if (label == "@@") {
-			if (hasDefinedList("@b")) {
-				definedList_.erase("@b");
-				label = "@f";
-			} else if (hasDefinedList("@f")) {
-				definedList_.erase("@f");
+			DefinedList::iterator i = definedList_.find("@f");
+			if (i != definedList_.end()) {
+				definedList_.erase(i);
 				label = "@b";
 			} else {
+				i = definedList_.find("@b");
+				if (i != definedList_.end()) {
+					definedList_.erase(i);
+				}
 				label = "@f";
 			}
 		} else {
