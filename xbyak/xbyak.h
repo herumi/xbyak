@@ -948,9 +948,6 @@ class LabelManager {
 	UndefinedList2 undefinedList2_;
 
 	/*
-		@@ --> @@.<num>
-		@b --> @@.<num>
-		@f --> @@.<num + 1>
 		.*** -> .***.<num>
 	*/
 	std::string getId(const std::string& label) const
