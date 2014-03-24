@@ -943,7 +943,6 @@ class LabelManager {
 
 	DefinedList definedList_;
 	UndefinedList undefinedList_;
-	typedef XBYAK_STD_UNORDERED_MAP<int, int> RefCount;
 	DefinedList2 definedList2_;
 	UndefinedList2 undefinedList2_;
 
