@@ -20,6 +20,9 @@
 #include <list>
 #include <string>
 #include <algorithm>
+#ifndef NDEBUG
+#include <iostream>
+#endif
 
 // This covers -std=(gnu|c)++(0x|11|1y), -stdlib=libc++, and modern Microsoft.
 #if ((defined(_MSC_VER) && (_MSC_VER >= 1600)) || defined(_LIBCPP_VERSION) ||\
@@ -241,7 +244,6 @@ inline const To CastTo(From p) throw()
 }
 namespace inner {
 
-enum { debug = 1 };
 static const size_t ALIGN_PAGE_SIZE = 4096;
 
 inline bool IsInDisp8(uint32 x) { return 0xFFFFFF80 <= x || x <= 0x7F; }
@@ -1015,6 +1017,16 @@ class LabelManager {
 		}
 	}
 	bool hasDefinedList(const char *label) const { return definedList_.find(label) != definedList_.end(); }
+	template<class T>
+	bool hasUndefinedLabel_inner(const T& list) const
+	{
+#ifndef NDEBUG
+		for (typename T::const_iterator i = list.begin(); i != list.end(); ++i) {
+			std::cerr << "undefined label:" << i->first << std::endl;
+		}
+#endif
+		return !list.empty();
+	}
 public:
 	LabelManager()
 		: base_(0)
@@ -1104,24 +1116,8 @@ public:
 	{
 		undefinedList2_.insert(UndefinedList2::value_type(label.id, jmp));
 	}
-	bool hasUndefinedLabel() const
-	{
-		if (inner::debug) {
-			for (UndefinedList::const_iterator i = undefinedList_.begin(); i != undefinedList_.end(); ++i) {
-				fprintf(stderr, "undefined label:%s\n", i->first.c_str());
-			}
-		}
-		return !undefinedList_.empty();
-	}
-	bool hasUndefinedLabel2() const
-	{
-		if (inner::debug) {
-			for (UndefinedList2::const_iterator i = undefinedList2_.begin(); i != undefinedList2_.end(); ++i) {
-				fprintf(stderr, "undefined label2:%d\n", i->first);
-			}
-		}
-		return !undefinedList2_.empty();
-	}
+	bool hasUndefinedLabel() const { return hasUndefinedLabel_inner(undefinedList_); }
+	bool hasUndefinedLabel2() const { return hasUndefinedLabel_inner(undefinedList2_); }
 };
 
 inline Label::Label(const Label& rhs)
