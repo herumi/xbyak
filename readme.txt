@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 4.50
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 4.51
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -204,7 +204,7 @@ void func2()
 
 ・Xbyak::CodeGenerator()コンストラクタインタフェース
 
-@param maxSize [in] コード生成最大サイズ(デフォルト2048byte)
+@param maxSize [in] コード生成最大サイズ(デフォルト4096byte)
 @param userPtr [in] ユーザ指定メモリ
 
 CodeGenerator(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0);
@@ -285,6 +285,8 @@ cybozulibは単体テストでのみ利用されていて、xbyak/ディレク�
 -----------------------------------------------------------------------------
 ◎履歴
 
+2014/03/25 ver 4.51 参照されなくなったラベルの状態を削除する
+2014/03/16 ver 4.50 新しいラベルクラスのサポート
 2014/03/05 ver 4.40 VirtualBox上でBMI/enhanced repのサポート判定を間違うことがあるのを修正
 2013/12/03 ver 4.30 Reg::cvt8(), cvt16(), cvt32()のサポート
 2013/10/16 ver 4.21 ラベルでstd::stringを受け付ける。

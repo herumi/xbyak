@@ -91,7 +91,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4500 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4510 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -972,9 +972,9 @@ class LabelManager {
 			} else {
 				disp = addrOffset - jmp->endOfJmp;
 #ifdef XBYAK64
-                if (jmp->jmpSize <= 4 && !inner::IsInInt32(disp)) throw Error(ERR_OFFSET_IS_TOO_BIG);
+				if (jmp->jmpSize <= 4 && !inner::IsInInt32(disp)) throw Error(ERR_OFFSET_IS_TOO_BIG);
 #endif
-                if (jmp->jmpSize == 1 && !inner::IsInDisp8((uint32)disp)) throw Error(ERR_LABEL_IS_TOO_FAR);
+				if (jmp->jmpSize == 1 && !inner::IsInDisp8((uint32)disp)) throw Error(ERR_LABEL_IS_TOO_FAR);
 			}
 			if (base_->isAutoGrow()) {
 				base_->save(offset, disp, jmp->jmpSize, jmp->mode);
