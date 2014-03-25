@@ -140,7 +140,7 @@ enum {
 	ERR_MEM_SIZE_IS_NOT_SPECIFIED,
 	ERR_BAD_MEM_SIZE,
 	ERR_BAD_ST_COMBINATION,
-	ERR_OVER_LOCAL_LABEL,
+	ERR_OVER_LOCAL_LABEL, // not used
 	ERR_UNDER_LOCAL_LABEL,
 	ERR_CANT_ALLOC,
 	ERR_ONLY_T_NEAR_IS_SUPPORTED_IN_AUTO_GROW,
@@ -925,6 +925,13 @@ class LabelManager {
 	};
 	typedef XBYAK_STD_UNORDERED_MAP<std::string, StrLabelVal> DefinedList;
 	typedef XBYAK_STD_UNORDERED_MULTIMAP<std::string, const JmpLabel> UndefinedList;
+	struct State {
+		DefinedList defList;
+		UndefinedList undefList;
+	};
+	typedef std::list<State> StateList;
+	// global : stateList_.front(), local : stateList_.back()
+	StateList stateList_;
 	// for Label class
 	struct LabelClassVal {
 		LabelClassVal(size_t offset = 0) : offset(offset), refCount(1) {}
@@ -934,30 +941,11 @@ class LabelManager {
 	typedef XBYAK_STD_UNORDERED_MAP<int, LabelClassVal> DefinedList2;
 	typedef XBYAK_STD_UNORDERED_MULTIMAP<int, const JmpLabel> UndefinedList2;
 	CodeArray *base_;
-	enum {
-		maxStack = 16
-	};
-	int stack_[maxStack];
-	int stackPos_;
-	int usedCount_;
-	int localCount_; // for .***
 	mutable int labelId_;
 
-	DefinedList definedList_;
-	UndefinedList undefinedList_;
 	DefinedList2 definedList2_;
 	UndefinedList2 undefinedList2_;
 
-	/*
-		.*** -> .***.<num>
-	*/
-	std::string getId(const std::string& label) const
-	{
-		if (*label.c_str() == '.') {
-			return label + Label::toStr(localCount_);
-		}
-		return label;
-	}
 	int getId(const Label& label) const
 	{
 		if (label.id == 0) label.id = labelId_++;
@@ -999,7 +987,7 @@ class LabelManager {
 	template<class DefList, class T>
 	bool getOffset_inner(const DefList& defList, size_t *offset, const T& label) const
 	{
-		typename DefList::const_iterator i = defList.find(getId(label));
+		typename DefList::const_iterator i = defList.find(label);
 		if (i == defList.end()) return false;
 		*offset = i->second.offset;
 		return true;
@@ -1016,7 +1004,6 @@ class LabelManager {
 			--i->second.refCount;
 		}
 	}
-	bool hasDefinedList(const char *label) const { return definedList_.find(label) != definedList_.end(); }
 	template<class T>
 	bool hasUndefinedLabel_inner(const T& list) const
 	{
@@ -1029,53 +1016,47 @@ class LabelManager {
 	}
 public:
 	LabelManager()
-		: base_(0)
-		, stackPos_(1)
-		, usedCount_(0)
-		, localCount_(0)
-		, labelId_(1)
 	{
+		reset();
 	}
 	void reset()
 	{
 		base_ = 0;
-		stackPos_ = 1;
-		usedCount_ = 0;
-		localCount_ = 0;
 		labelId_ = 1;
-		definedList_.clear();
-		undefinedList_.clear();
+		stateList_.clear();
+		stateList_.push_back(State());
+		stateList_.push_back(State());
 	}
 	void enterLocal()
 	{
-		if (stackPos_ == maxStack) throw Error(ERR_OVER_LOCAL_LABEL);
-		localCount_ = stack_[stackPos_++] = ++usedCount_;
+		stateList_.push_back(State());
 	}
 	void leaveLocal()
 	{
-		if (stackPos_ == 1) throw Error(ERR_UNDER_LOCAL_LABEL);
-		localCount_ = stack_[--stackPos_ - 1];
+		if (stateList_.size() <= 2) throw Error(ERR_UNDER_LOCAL_LABEL);
+		if (hasUndefinedLabel_inner(stateList_.back().undefList)) throw Error(ERR_LABEL_IS_NOT_FOUND);
+		stateList_.pop_back();
 	}
 	void set(CodeArray *base) { base_ = base; }
 	void define(std::string label)
 	{
 		if (label == "@b" || label == "@f") throw Error(ERR_BAD_LABEL_STR);
 		if (label == "@@") {
-			DefinedList::iterator i = definedList_.find("@f");
-			if (i != definedList_.end()) {
-				definedList_.erase(i);
+			DefinedList& defList = stateList_.front().defList;
+			DefinedList::iterator i = defList.find("@f");
+			if (i != defList.end()) {
+				defList.erase(i);
 				label = "@b";
 			} else {
-				i = definedList_.find("@b");
-				if (i != definedList_.end()) {
-					definedList_.erase(i);
+				i = defList.find("@b");
+				if (i != defList.end()) {
+					defList.erase(i);
 				}
 				label = "@f";
 			}
-		} else {
-			label = getId(label);
 		}
-		define_inner(definedList_, undefinedList_, label, base_->getSize());
+		State& st = *label.c_str() == '.' ? stateList_.back() : stateList_.front();
+		define_inner(st.defList, st.undefList, label, base_->getSize());
 	}
 	void define2(const Label& label)
 	{
@@ -1091,32 +1072,42 @@ public:
 	}
 	bool getOffset(size_t *offset, std::string& label) const
 	{
+		const DefinedList& defList = stateList_.front().defList;
 		if (label == "@b") {
-			if (hasDefinedList("@f")) {
+			if (defList.find("@f") != defList.end()) {
 				label = "@f";
-			} else if (!hasDefinedList("@b")) {
+			} else if (defList.find("@b") == defList.end()) {
 				throw Error(ERR_LABEL_IS_NOT_FOUND);
 			}
 		} else if (label == "@f") {
-			if (hasDefinedList("@f")) {
+			if (defList.find("@f") != defList.end()) {
 				label = "@b";
 			}
 		}
-		return getOffset_inner(definedList_, offset, label);
+		const State& st = *label.c_str() == '.' ? stateList_.back() : stateList_.front();
+		return getOffset_inner(st.defList, offset, label);
 	}
 	bool getOffset(size_t *offset, const Label& label) const
 	{
-		return getOffset_inner(definedList2_, offset, label);
+		return getOffset_inner(definedList2_, offset, getId(label));
 	}
 	void addUndefinedLabel(const std::string& label, const JmpLabel& jmp)
 	{
-		undefinedList_.insert(UndefinedList::value_type(getId(label), jmp));
+		State& st = *label.c_str() == '.' ? stateList_.back() : stateList_.front();
+		st.undefList.insert(UndefinedList::value_type(label, jmp));
 	}
 	void addUndefinedLabel(const Label& label, const JmpLabel& jmp)
 	{
 		undefinedList2_.insert(UndefinedList2::value_type(label.id, jmp));
 	}
-	bool hasUndefinedLabel() const { return hasUndefinedLabel_inner(undefinedList_); }
+	bool hasUndefinedLabel() const
+	{
+		for (StateList::const_iterator i = stateList_.begin(), ie = stateList_.end(); i != ie; ++i) {
+			bool found = hasUndefinedLabel_inner(i->undefList);
+			if (found) return true;
+		}
+		return false;
+	}
 	bool hasUndefinedLabel2() const { return hasUndefinedLabel_inner(undefinedList2_); }
 };
 
