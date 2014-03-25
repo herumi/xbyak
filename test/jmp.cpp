@@ -686,7 +686,7 @@ CYBOZU_TEST_AUTO(testF_B)
 		2, 0, 3, 3, 5, 2, 2, 6
 	};
 	for (size_t i = 0; i < CYBOZU_NUM_OF_ARRAY(expectedTbl); i++) {
-		Code code(i);
+		Code code((int)i);
 		int ret = code.getCode<int (*)()>()();
 		CYBOZU_TEST_EQUAL(ret, expectedTbl[i]);
 	}
