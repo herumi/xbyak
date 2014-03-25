@@ -919,32 +919,32 @@ public:
 
 class LabelManager {
 	// for string label
-	struct StrLabelVal {
+	struct SlabelVal {
 		size_t offset;
-		StrLabelVal(size_t offset) : offset(offset) {}
+		SlabelVal(size_t offset) : offset(offset) {}
 	};
-	typedef XBYAK_STD_UNORDERED_MAP<std::string, StrLabelVal> DefinedList;
-	typedef XBYAK_STD_UNORDERED_MULTIMAP<std::string, const JmpLabel> UndefinedList;
-	struct State {
-		DefinedList defList;
-		UndefinedList undefList;
+	typedef XBYAK_STD_UNORDERED_MAP<std::string, SlabelVal> SlabelDefList;
+	typedef XBYAK_STD_UNORDERED_MULTIMAP<std::string, const JmpLabel> SlabelUndefList;
+	struct SlabelState {
+		SlabelDefList defList;
+		SlabelUndefList undefList;
 	};
-	typedef std::list<State> StateList;
-	// global : stateList_.front(), local : stateList_.back()
-	StateList stateList_;
+	typedef std::list<SlabelState> StateList;
 	// for Label class
-	struct LabelClassVal {
-		LabelClassVal(size_t offset = 0) : offset(offset), refCount(1) {}
+	struct ClabelVal {
+		ClabelVal(size_t offset = 0) : offset(offset), refCount(1) {}
 		size_t offset;
 		int refCount;
 	};
-	typedef XBYAK_STD_UNORDERED_MAP<int, LabelClassVal> DefinedList2;
-	typedef XBYAK_STD_UNORDERED_MULTIMAP<int, const JmpLabel> UndefinedList2;
-	CodeArray *base_;
-	mutable int labelId_;
+	typedef XBYAK_STD_UNORDERED_MAP<int, ClabelVal> ClabelDefList;
+	typedef XBYAK_STD_UNORDERED_MULTIMAP<int, const JmpLabel> ClabelUndefList;
 
-	DefinedList2 definedList2_;
-	UndefinedList2 undefinedList2_;
+	CodeArray *base_;
+	// global : stateList_.front(), local : stateList_.back()
+	StateList stateList_;
+	mutable int labelId_;
+	ClabelDefList clabelDefList_;
+	ClabelUndefList clabelUndefList_;
 
 	int getId(const Label& label) const
 	{
@@ -993,13 +993,13 @@ class LabelManager {
 		return true;
 	}
 	friend class Label;
-	void incRefCount(int id) { definedList2_[id].refCount++; }
+	void incRefCount(int id) { clabelDefList_[id].refCount++; }
 	void decRefCount(int id)
 	{
-		DefinedList2::iterator i = definedList2_.find(id);
-		if (i == definedList2_.end()) return;
+		ClabelDefList::iterator i = clabelDefList_.find(id);
+		if (i == clabelDefList_.end()) return;
 		if (i->second.refCount == 1) {
-			definedList2_.erase(id);
+			clabelDefList_.erase(id);
 		} else {
 			--i->second.refCount;
 		}
@@ -1024,12 +1024,12 @@ public:
 		base_ = 0;
 		labelId_ = 1;
 		stateList_.clear();
-		stateList_.push_back(State());
-		stateList_.push_back(State());
+		stateList_.push_back(SlabelState());
+		stateList_.push_back(SlabelState());
 	}
 	void enterLocal()
 	{
-		stateList_.push_back(State());
+		stateList_.push_back(SlabelState());
 	}
 	void leaveLocal()
 	{
@@ -1038,12 +1038,12 @@ public:
 		stateList_.pop_back();
 	}
 	void set(CodeArray *base) { base_ = base; }
-	void define(std::string label)
+	void defineSlabel(std::string label)
 	{
 		if (label == "@b" || label == "@f") throw Error(ERR_BAD_LABEL_STR);
 		if (label == "@@") {
-			DefinedList& defList = stateList_.front().defList;
-			DefinedList::iterator i = defList.find("@f");
+			SlabelDefList& defList = stateList_.front().defList;
+			SlabelDefList::iterator i = defList.find("@f");
 			if (i != defList.end()) {
 				defList.erase(i);
 				label = "@b";
@@ -1055,24 +1055,24 @@ public:
 				label = "@f";
 			}
 		}
-		State& st = *label.c_str() == '.' ? stateList_.back() : stateList_.front();
+		SlabelState& st = *label.c_str() == '.' ? stateList_.back() : stateList_.front();
 		define_inner(st.defList, st.undefList, label, base_->getSize());
 	}
-	void define2(const Label& label)
+	void defineClabel(const Label& label)
 	{
-		define_inner(definedList2_, undefinedList2_, getId(label), base_->getSize());
+		define_inner(clabelDefList_, clabelUndefList_, getId(label), base_->getSize());
 		label.mgr = this;
 	}
 	void assign(Label& dst, const Label& src)
 	{
-		DefinedList2::const_iterator i = definedList2_.find(src.id);
-		if (i == definedList2_.end()) throw Error(ERR_LABEL_ISNOT_SET_BY_L);
-		define_inner(definedList2_, undefinedList2_, dst.id, i->second.offset);
+		ClabelDefList::const_iterator i = clabelDefList_.find(src.id);
+		if (i == clabelDefList_.end()) throw Error(ERR_LABEL_ISNOT_SET_BY_L);
+		define_inner(clabelDefList_, clabelUndefList_, dst.id, i->second.offset);
 		dst.mgr = this;
 	}
 	bool getOffset(size_t *offset, std::string& label) const
 	{
-		const DefinedList& defList = stateList_.front().defList;
+		const SlabelDefList& defList = stateList_.front().defList;
 		if (label == "@b") {
 			if (defList.find("@f") != defList.end()) {
 				label = "@f";
@@ -1084,31 +1084,30 @@ public:
 				label = "@b";
 			}
 		}
-		const State& st = *label.c_str() == '.' ? stateList_.back() : stateList_.front();
+		const SlabelState& st = *label.c_str() == '.' ? stateList_.back() : stateList_.front();
 		return getOffset_inner(st.defList, offset, label);
 	}
 	bool getOffset(size_t *offset, const Label& label) const
 	{
-		return getOffset_inner(definedList2_, offset, getId(label));
+		return getOffset_inner(clabelDefList_, offset, getId(label));
 	}
 	void addUndefinedLabel(const std::string& label, const JmpLabel& jmp)
 	{
-		State& st = *label.c_str() == '.' ? stateList_.back() : stateList_.front();
-		st.undefList.insert(UndefinedList::value_type(label, jmp));
+		SlabelState& st = *label.c_str() == '.' ? stateList_.back() : stateList_.front();
+		st.undefList.insert(SlabelUndefList::value_type(label, jmp));
 	}
 	void addUndefinedLabel(const Label& label, const JmpLabel& jmp)
 	{
-		undefinedList2_.insert(UndefinedList2::value_type(label.id, jmp));
+		clabelUndefList_.insert(ClabelUndefList::value_type(label.id, jmp));
 	}
-	bool hasUndefinedLabel() const
+	bool hasUndefSlabel() const
 	{
 		for (StateList::const_iterator i = stateList_.begin(), ie = stateList_.end(); i != ie; ++i) {
-			bool found = hasUndefinedLabel_inner(i->undefList);
-			if (found) return true;
+			if (hasUndefinedLabel_inner(i->undefList)) return true;
 		}
 		return false;
 	}
-	bool hasUndefinedLabel2() const { return hasUndefinedLabel_inner(undefinedList2_); }
+	bool hasUndefClabel() const { return hasUndefinedLabel_inner(clabelUndefList_); }
 };
 
 inline Label::Label(const Label& rhs)
@@ -1573,8 +1572,8 @@ public:
 	const Ymm &ym8, &ym9, &ym10, &ym11, &ym12, &ym13, &ym14, &ym15;
 	const RegRip rip;
 #endif
-	void L(const std::string& label) { labelMgr_.define(label); }
-	void L(const Label& label) { labelMgr_.define2(label); }
+	void L(const std::string& label) { labelMgr_.defineSlabel(label); }
+	void L(const Label& label) { labelMgr_.defineClabel(label); }
 	/*
 		assign src to dst
 		require
@@ -1966,7 +1965,7 @@ public:
 		labelMgr_.reset();
 		labelMgr_.set(this);
 	}
-	bool hasUndefinedLabel() const { return labelMgr_.hasUndefinedLabel() || labelMgr_.hasUndefinedLabel2(); }
+	bool hasUndefinedLabel() const { return labelMgr_.hasUndefSlabel() || labelMgr_.hasUndefClabel(); }
 	/*
 		call ready() to complete generating code on AutoGrow
 	*/
