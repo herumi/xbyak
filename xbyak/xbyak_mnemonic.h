@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "4.51"; }
+const char *getVersionString() const { return "4.52"; }
 void packssdw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x6B); }
 void packsswb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x63); }
 void packuswb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x67); }

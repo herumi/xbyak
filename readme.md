@@ -1,5 +1,5 @@
 
-Xbyak 4.51 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 4.52 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -269,6 +269,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2014/Apr/11 ver 4.52 add detection of rdrand
 * 2014/Mar/25 ver 4.51 remove state information of unreferenced labels
 * 2014/Mar/16 ver 4.50 support new Label
 * 2014/Mar/05 ver 4.40 fix wrong detection of BMI/enhanced rep on VirtualBox

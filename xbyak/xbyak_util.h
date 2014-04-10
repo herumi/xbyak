@@ -154,6 +154,7 @@ public:
 		tGPR2 = tBMI2, // backward compatibility
 		tLZCNT = 1 << 23,
 		tENHANCED_REP = 1 << 26, // enhanced rep movsb/stosb
+		tRDRAND = 1 << 27,
 
 		tINTEL = 1 << 24,
 		tAMD = 1 << 25
@@ -190,6 +191,7 @@ public:
 		if (data[2] & (1U << 25)) type_ |= tAESNI;
 		if (data[2] & (1U << 1)) type_ |= tPCLMULQDQ;
 		if (data[2] & (1U << 27)) type_ |= tOSXSAVE;
+		if (data[2] & (1U << 30)) type_ |= tRDRAND;
 
 		if (data[3] & (1U << 15)) type_ |= tCMOV;
 		if (data[3] & (1U << 23)) type_ |= tMMX;

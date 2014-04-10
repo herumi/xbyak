@@ -48,6 +48,7 @@ void putCPUinfo()
 		{ Cpu::tBMI2, "bmi2" },
 		{ Cpu::tLZCNT, "lzcnt" },
 		{ Cpu::tENHANCED_REP, "enh_rep" },
+		{ Cpu::tRDRAND, "rdrand" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
