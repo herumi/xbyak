@@ -91,7 +91,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4520 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4600 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1467,7 +1467,7 @@ private:
 			b = static_cast<const Reg&>(*p2).isExtIdx();
 		}
 		if (w == -1) w = 0;
-		vex(r.isExtIdx(), p1->getIdx(), r.isYMM(), type, x, b, w);
+		vex(r.isExtIdx(), p1 ? p1->getIdx() : 0, r.isYMM(), type, x, b, w);
 		db(code);
 		if (p2->isMEM()) {
 			const Address& addr = static_cast<const Address&>(*p2);
