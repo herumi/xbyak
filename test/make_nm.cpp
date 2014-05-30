@@ -829,6 +829,22 @@ class Test {
 			put(p, REG8|REG8_3|AL, IMM|NEG8);
 		}
 	}
+	void putBt() const
+	{
+		static const char tbl[][16] = {
+			"bt",
+			"bts",
+			"btr",
+			"btc",
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const char *p = tbl[i];
+			put(p, MEM|REG16, REG16);
+			put(p, MEM|REG32, REG32);
+			put(p, MEM|REG64, REG64);
+			put(p, MEM16|REG16, IMM);
+		}
+	}
 	void putRorM() const
 	{
 		static const char tbl[][16] = {
@@ -2121,6 +2137,7 @@ public:
 #else
 		putSIMPLE();
 		putReg1();
+		putBt();
 		putRorM();
 		separateFunc();
 		putPushPop();

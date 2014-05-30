@@ -640,6 +640,23 @@ void put()
 			uint8 ext;
 			const char *name;
 		} tbl[] = {
+			{ 0xa3, 4, "bt" },
+			{ 0xab, 5, "bts" },
+			{ 0xb3, 6, "btr" },
+			{ 0xbb, 7, "btc" },
+		};
+		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			printf("void %s(const Operand& op, const Reg& reg) { opModRM(reg, op, op.isREG(16|32|64) && op.getBit() == reg.getBit(), op.isMEM(), 0x0f, 0x%02x); }\n", p->name, p->code);
+			printf("void %s(const Operand& op, uint8 imm) { opR_ModM(op, 16|32|64, %d, 0x0f, 0xba); db(imm); }\n", p->name, p->ext);
+		}
+	}
+	{
+		const struct Tbl {
+			uint8 code;
+			uint8 ext;
+			const char *name;
+		} tbl[] = {
 			{ B11110110, 6, "div" },
 			{ B11110110, 7, "idiv" },
 			{ B11110110, 5, "imul" },
