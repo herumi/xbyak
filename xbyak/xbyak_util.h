@@ -412,24 +412,24 @@ public:
 		if (pNum < 0 || pNum > 4) throw Error(ERR_BAD_PNUM);
 		const int allRegNum = pNum + tNum_ + (useRcx_ ? 1 : 0) + (useRdx_ ? 1 : 0);
 		if (allRegNum < pNum || allRegNum > 14) throw Error(ERR_BAD_TNUM);
-		const Reg64& rsp = code->rsp;
-		const AddressFrame& ptr = code->ptr;
+		const Reg64& _rsp = code->rsp;
+		const AddressFrame& _ptr = code->ptr;
 		saveNum_ = (std::max)(0, allRegNum - noSaveNum);
 		const int *tbl = getOrderTbl() + noSaveNum;
 		P_ = saveNum_ + (stackSizeByte + 7) / 8;
 		if (P_ > 0 && (P_ & 1) == 0) P_++; // here (rsp % 16) == 8, then increment P_ for 16 byte alignment
 		P_ *= 8;
-		if (P_ > 0) code->sub(rsp, P_);
+		if (P_ > 0) code->sub(_rsp, P_);
 #ifdef XBYAK64_WIN
 		for (int i = 0; i < (std::min)(saveNum_, 4); i++) {
-			code->mov(ptr [rsp + P_ + (i + 1) * 8], Reg64(tbl[i]));
+			code->mov(_ptr [_rsp + P_ + (i + 1) * 8], Reg64(tbl[i]));
 		}
 		for (int i = 4; i < saveNum_; i++) {
-			code->mov(ptr [rsp + P_ - 8 * (saveNum_ - i)], Reg64(tbl[i]));
+			code->mov(_ptr [_rsp + P_ - 8 * (saveNum_ - i)], Reg64(tbl[i]));
 		}
 #else
 		for (int i = 0; i < saveNum_; i++) {
-			code->mov(ptr [rsp + P_ - 8 * (saveNum_ - i)], Reg64(tbl[i]));
+			code->mov(_ptr [_rsp + P_ - 8 * (saveNum_ - i)], Reg64(tbl[i]));
 		}
 #endif
 		int pos = 0;
@@ -451,22 +451,22 @@ public:
 	void close(bool callRet = true)
 	{
 		using namespace Xbyak;
-		const Reg64& rsp = code_->rsp;
-		const AddressFrame& ptr = code_->ptr;
+		const Reg64& _rsp = code_->rsp;
+		const AddressFrame& _ptr = code_->ptr;
 		const int *tbl = getOrderTbl() + noSaveNum;
 #ifdef XBYAK64_WIN
 		for (int i = 0; i < (std::min)(saveNum_, 4); i++) {
-			code_->mov(Reg64(tbl[i]), ptr [rsp + P_ + (i + 1) * 8]);
+			code_->mov(Reg64(tbl[i]), _ptr [_rsp + P_ + (i + 1) * 8]);
 		}
 		for (int i = 4; i < saveNum_; i++) {
-			code_->mov(Reg64(tbl[i]), ptr [rsp + P_ - 8 * (saveNum_ - i)]);
+			code_->mov(Reg64(tbl[i]), _ptr [_rsp + P_ - 8 * (saveNum_ - i)]);
 		}
 #else
 		for (int i = 0; i < saveNum_; i++) {
-			code_->mov(Reg64(tbl[i]), ptr [rsp + P_ - 8 * (saveNum_ - i)]);
+			code_->mov(Reg64(tbl[i]), _ptr [_rsp + P_ - 8 * (saveNum_ - i)]);
 		}
 #endif
-		if (P_ > 0) code_->add(rsp, P_);
+		if (P_ > 0) code_->add(_rsp, P_);
 
 		if (callRet) code_->ret();
 	}

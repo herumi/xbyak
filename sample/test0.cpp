@@ -2,6 +2,9 @@
 	#pragma warning(disable:4514)
 	#pragma warning(disable:4786)
 #endif
+#if defined(_MSC_VER) && (_MSC_VER >= 1900)
+	#pragma warning(disable:4456)
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #define XBYAK_NO_OP_NAMES

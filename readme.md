@@ -1,5 +1,5 @@
 
-Xbyak 4.61 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 4.62 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -269,6 +269,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2014/Jun/13 ver 4.62 disable warning of VC2014
 * 2014/May/30 ver 4.61 support bt, bts, btr, btc
 * 2014/May/28 ver 4.60 support vcvtph2ps, vcvtps2ph
 * 2014/Apr/11 ver 4.52 add detection of rdrand

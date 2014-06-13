@@ -696,7 +696,7 @@ void put()
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Operand& op, int imm) { opShift(op, imm, %d); }\n", p->name, p->ext);
-			printf("void %s(const Operand& op, const Reg8& cl) { opShift(op, cl, %d); }\n", p->name, p->ext);
+			printf("void %s(const Operand& op, const Reg8& _cl) { opShift(op, _cl, %d); }\n", p->name, p->ext);
 		}
 	}
 	{
@@ -710,7 +710,7 @@ void put()
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Operand& op, const Reg& reg, uint8 imm) { opShxd(op, reg, imm, 0x%02X); }\n", p->name, p->code);
-			printf("void %s(const Operand& op, const Reg& reg, const Reg8& cl) { opShxd(op, reg, 0, 0x%02X, &cl); }\n", p->name, p->code);
+			printf("void %s(const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(op, reg, 0, 0x%02X, &_cl); }\n", p->name, p->code);
 		}
 	}
 	{
@@ -1204,7 +1204,7 @@ void put()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			std::string type = type2String(p->type);
-			printf("void v%s(const Xmm& xm1, const Xmm& xm2, const Operand& op%s) { opAVX_X_X_XM(xm1, xm2, op, %s, 0x%02X, %s, %d)%s; }\n"
+			printf("void v%s(const Xmm& x1, const Xmm& x2, const Operand& op%s) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X, %s, %d)%s; }\n"
 				, p->name, p->hasIMM ? ", uint8 imm" : "", type.c_str(), p->code, p->supportYMM ? "true" : "false", p->w, p->hasIMM ? "; db(imm)" : "");
 			if (!p->enableOmit) continue;
 			printf("void v%s(const Xmm& xmm, const Operand& op%s) { opAVX_X_X_XM(xmm, xmm, op, %s, 0x%02X, %s, %d)%s; }\n"
@@ -1342,16 +1342,16 @@ void put()
 	{
 		const char suf[][8] = { "ps", "pd" };
 		for (int i = 0; i < 2; i++) {
-			printf("void vmaskmov%s(const Xmm& xm1, const Xmm& xm2, const Address& addr) { opAVX_X_X_XM(xm1, xm2, addr, MM_0F38 | PP_66, 0x%02X, true, 0); }\n", suf[i], 0x2C + i);
-			printf("void vmaskmov%s(const Address& addr, const Xmm& xm1, const Xmm& xm2) { opAVX_X_X_XM(xm2, xm1, addr, MM_0F38 | PP_66, 0x%02X, true, 0); }\n", suf[i], 0x2E + i);
+			printf("void vmaskmov%s(const Xmm& x1, const Xmm& x2, const Address& addr) { opAVX_X_X_XM(x1, x2, addr, MM_0F38 | PP_66, 0x%02X, true, 0); }\n", suf[i], 0x2C + i);
+			printf("void vmaskmov%s(const Address& addr, const Xmm& x1, const Xmm& x2) { opAVX_X_X_XM(x2, x1, addr, MM_0F38 | PP_66, 0x%02X, true, 0); }\n", suf[i], 0x2E + i);
 		}
 	}
 	// vpmaskmov
 	{
 		const char suf[][8] = { "d", "q" };
 		for (int i = 0; i < 2; i++) {
-			printf("void vpmaskmov%s(const Xmm& xm1, const Xmm& xm2, const Address& addr) { opAVX_X_X_XM(xm1, xm2, addr, MM_0F38 | PP_66, 0x%02X, true, %d); }\n", suf[i], 0x8C, i);
-			printf("void vpmaskmov%s(const Address& addr, const Xmm& xm1, const Xmm& xm2) { opAVX_X_X_XM(xm2, xm1, addr, MM_0F38 | PP_66, 0x%02X, true, %d); }\n", suf[i], 0x8E, i);
+			printf("void vpmaskmov%s(const Xmm& x1, const Xmm& x2, const Address& addr) { opAVX_X_X_XM(x1, x2, addr, MM_0F38 | PP_66, 0x%02X, true, %d); }\n", suf[i], 0x8C, i);
+			printf("void vpmaskmov%s(const Address& addr, const Xmm& x1, const Xmm& x2) { opAVX_X_X_XM(x2, x1, addr, MM_0F38 | PP_66, 0x%02X, true, %d); }\n", suf[i], 0x8E, i);
 		}
 	}
 	// vpermd, vpermps
