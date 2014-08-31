@@ -5,7 +5,7 @@ ifeq ($(shell uname -m),x86_64)
 BIT=64
 endif
 
-ifneq ($(MODE_BIT),64)
+ifeq ($(MODE_BIT),64)
 	TARGET += jmp64 address64
 endif
 
