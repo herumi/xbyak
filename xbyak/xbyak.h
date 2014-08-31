@@ -322,6 +322,14 @@ public:
 	bool isMEM(int bit = 0) const { return is(MEM, bit); }
 	bool isFPU() const { return is(FPU); }
 	bool isExt8bit() const { return (idx_ & 0x80) != 0; }
+	// ah, ch, dh, bh?
+	bool isHigh8bit() const
+	{
+		if (!isBit(8)) return false;
+		if (isExt8bit()) return false;
+		const int idx = getIdx();
+		return AH <= idx && idx <= BH;
+	}
 	// any bit is accetable if bit == 0
 	bool is(int kind, uint32 bit = 0) const
 	{
@@ -1424,6 +1432,9 @@ private:
 	{
 		if (op.isBit(32)) throw Error(ERR_BAD_COMBINATION);
 		int w = op.isBit(16);
+#ifdef XBYAK64
+		if (op.isHigh8bit()) throw Error(ERR_BAD_COMBINATION);
+#endif
 		bool cond = reg.isREG() && (reg.getBit() > op.getBit());
 		opModRM(reg, op, cond && op.isREG(), cond && op.isMEM(), 0x0F, code | w);
 	}
