@@ -25,6 +25,9 @@
 #endif
 
 //#define XBYAK_USE_MMAP_ALLOCATOR
+#ifndef __GNUC__
+	#undef XBYAK_USE_MMAP_ALLOCATOR
+#endif
 
 // This covers -std=(gnu|c)++(0x|11|1y), -stdlib=libc++, and modern Microsoft.
 #if ((defined(_MSC_VER) && (_MSC_VER >= 1600)) || defined(_LIBCPP_VERSION) ||\
@@ -280,9 +283,6 @@ struct Allocator {
 	virtual bool useProtect() const { return true; }
 };
 
-#ifndef __GNUC__
-	#undef XBYAK_USE_MMAP_ALLOCATOR
-#endif
 #ifdef __GNUC__
 class MmapAllocator : Allocator {
 	typedef XBYAK_STD_UNORDERED_MAP<uintptr_t, size_t> SizeList;
@@ -292,7 +292,14 @@ public:
 	{
 		const size_t alignedSizeM1 = inner::ALIGN_PAGE_SIZE - 1;
 		size = (size + alignedSizeM1) & ~alignedSizeM1;
-		void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+#ifdef MAP_ANONYMOUS
+		const int mode = MAP_PRIVATE | MAP_ANONYMOUS;
+#elif defined(MAP_ANON)
+		const int mode = MAP_PRIVATE | MAP_ANON;
+#else
+		#error "not supported"
+#endif
+		void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, mode, -1, 0);
 		if (p == MAP_FAILED) throw Error(ERR_CANT_ALLOC);
 		assert(p);
 		sizeList_[(uintptr_t)p] = size;
