@@ -24,6 +24,8 @@
 #include <iostream>
 #endif
 
+//#define XBYAK_USE_MMAP_ALLOCATOR
+
 // This covers -std=(gnu|c)++(0x|11|1y), -stdlib=libc++, and modern Microsoft.
 #if ((defined(_MSC_VER) && (_MSC_VER >= 1600)) || defined(_LIBCPP_VERSION) ||\
 	 			 ((__cplusplus >= 201103) || defined(__GXX_EXPERIMENTAL_CXX0X__)))
@@ -152,6 +154,7 @@ enum {
 	ERR_LABEL_ISNOT_SET_BY_L,
 	ERR_LABEL_IS_ALREADY_SET_BY_L,
 	ERR_BAD_LABEL_STR,
+	ERR_MUNMAP,
 	ERR_INTERNAL
 };
 
@@ -201,6 +204,7 @@ public:
 			"label is not set by L()",
 			"label is already set by L()",
 			"bad label string",
+			"err munmap",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -275,6 +279,35 @@ struct Allocator {
 	/* override to return false if you call protect() manually */
 	virtual bool useProtect() const { return true; }
 };
+
+#ifndef __GNUC__
+	#undef XBYAK_USE_MMAP_ALLOCATOR
+#endif
+#ifdef __GNUC__
+class MmapAllocator : Allocator {
+	typedef XBYAK_STD_UNORDERED_MAP<uintptr_t, size_t> SizeList;
+	SizeList sizeList_;
+public:
+	uint8 *alloc(size_t size)
+	{
+		const size_t alignedSizeM1 = inner::ALIGN_PAGE_SIZE - 1;
+		size = (size + alignedSizeM1) & ~alignedSizeM1;
+		void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		if (p == MAP_FAILED) throw Error(ERR_CANT_ALLOC);
+		assert(p);
+		sizeList_[(uintptr_t)p] = size;
+		return (uint8*)p;
+	}
+	void free(uint8 *p)
+	{
+		if (p == 0) return;
+		SizeList::iterator i = sizeList_.find((uintptr_t)p);
+		if (i == sizeList_.end()) throw Error(ERR_BAD_PARAMETER);
+		if (munmap((void*)i->first, i->second) < 0) throw Error(ERR_MUNMAP);
+		sizeList_.erase(i);
+	}
+};
+#endif
 
 class Operand {
 private:
@@ -599,7 +632,11 @@ class CodeArray {
 	typedef std::list<AddrInfo> AddrInfoList;
 	AddrInfoList addrInfoList_;
 	const Type type_;
+#ifdef XBYAK_USE_MMAP_ALLOCATOR
+	MmapAllocator defaultAllocator_;
+#else
 	Allocator defaultAllocator_;
+#endif
 	Allocator *alloc_;
 protected:
 	size_t maxSize_;
@@ -633,7 +670,7 @@ protected:
 public:
 	explicit CodeArray(size_t maxSize, void *userPtr = 0, Allocator *allocator = 0)
 		: type_(userPtr == AutoGrow ? AUTO_GROW : userPtr ? USER_BUF : ALLOC_BUF)
-		, alloc_(allocator ? allocator : &defaultAllocator_)
+		, alloc_(allocator ? allocator : (Allocator*)&defaultAllocator_)
 		, maxSize_(maxSize)
 		, top_(type_ == USER_BUF ? reinterpret_cast<uint8*>(userPtr) : alloc_->alloc((std::max<size_t>)(maxSize, 1)))
 		, size_(0)
