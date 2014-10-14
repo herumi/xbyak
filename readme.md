@@ -1,5 +1,5 @@
 
-Xbyak 4.62 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 4.70 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -61,7 +61,14 @@ Please rename Reg32e as RegExp if you use (old) Reg32e as RegExp.
 New Feature
 -------------
 
-AutoGrow mode is a mode that Xbyak grows memory automatically if necessary.
+* Use MmapAllocator if XBYAK_USE_MMAP_ALLOCATOR.
+Default allocator calls posix_memalign on Linux, then mprotect recudes map count.
+The max value is written in  ```/proc/sys/vm/max_map_count```.
+The max number of instances of ```Xbyak::CodeGenerator``` is limited to the value.
+Use MmapAllocator if you want to avoid the restriction(This behavior may be default in the feature).
+
+
+* AutoGrow mode is a mode that Xbyak grows memory automatically if necessary.
 Call ready() before calling getCode() to calc address of jmp.
 
     struct Code : Xbyak::CodeGenerator {
@@ -269,6 +276,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2014/Oct/14 ver 4.70 support MmapAllocator
 * 2014/Jun/13 ver 4.62 disable warning of VC2014
 * 2014/May/30 ver 4.61 support bt, bts, btr, btc
 * 2014/May/28 ver 4.60 support vcvtph2ps, vcvtps2ph
