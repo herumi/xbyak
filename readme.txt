@@ -46,6 +46,17 @@ Linuxではmake installで/usr/local/include/xbyakにコピーされます。
 -----------------------------------------------------------------------------
 ◎新機能
 
+MmapAllocator追加
+これはUnix系OSでのみの仕様です。XBYAK_USE_MMAP_ALLOCATORを使うと利用できます。
+デフォルトのAllocatorはメモリ確保時にposix_memalignを使います。
+この領域に対するmprotectはmap countを減らします。
+map countの最大値は/proc/sys/vm/max_map_countに書かれています。
+デフォルトでは3万個ほどのXbyak::CodeGeneratorインスタンスを生成するとエラーになります。
+test/mprotect_test.cppで確認できます。
+これを避けるためにはmmapを使うMmapAllocatorを使ってください。
+将来この挙動がデフォルトになるかもしれません。
+
+
 AutoGrowモード追加
 これはメモリ伸長を動的に行うモードです。
 今まではXbyak::CodeGenerator()に渡したメモリサイズを超えると例外が発生して

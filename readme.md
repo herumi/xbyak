@@ -65,12 +65,13 @@ New Feature
 Default allocator calls posix_memalign on Linux, then mprotect recudes map count.
 The max value is written in  ```/proc/sys/vm/max_map_count```.
 The max number of instances of ```Xbyak::CodeGenerator``` is limited to the value.
+See ```test/mprotect_test.cpp```.
 Use MmapAllocator if you want to avoid the restriction(This behavior may be default in the feature).
 
 
 * AutoGrow mode is a mode that Xbyak grows memory automatically if necessary.
 Call ready() before calling getCode() to calc address of jmp.
-
+```
     struct Code : Xbyak::CodeGenerator {
       Code()
         : Xbyak::CodeGenerator(<default memory size>, Xbyak::AutoGrow)
@@ -80,7 +81,7 @@ Call ready() before calling getCode() to calc address of jmp.
     };
     Code c;
     c.ready(); // Don't forget to call this function
-
+```
 >Don't use the address returned by getCurr() before calling ready().
 >It may be invalid address.
 >RESTRICTION : rip addressing is not supported in AutoGrow
