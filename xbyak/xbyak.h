@@ -69,10 +69,10 @@
 	#include <stdint.h>
 #endif
 
-#if defined(__x86_64__) && !defined(__MINGW64__)
-		#define XBYAK64_GCC
-#elif defined(_WIN64)
-		#define XBYAK64_WIN
+#if defined(_WIN64) || defined(__MINGW64__) || (defined(__CYGWIN__) && defined(__x86_64__))
+	#define XBYAK64_WIN
+#elif defined(__x86_64__)
+	#define XBYAK64_GCC
 #endif
 #if !defined(XBYAK64) && !defined(XBYAK32)
 	#if defined(XBYAK64_GCC) || defined(XBYAK64_WIN)
