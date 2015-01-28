@@ -150,6 +150,7 @@ public:
 		tAVX2 = 1 << 20,
 		tBMI1 = 1 << 21, // andn, bextr, blsi, blsmsk, blsr, tzcnt
 		tBMI2 = 1 << 22, // bzhi, mulx, pdep, pext, rorx, sarx, shlx, shrx
+		tADX = 1 << 23, // adcx, adox
 		tGPR1 = tBMI1, // backward compatibility
 		tGPR2 = tBMI2, // backward compatibility
 		tLZCNT = 1 << 23,
@@ -212,6 +213,7 @@ public:
 			if (data[1] & (1U << 3)) type_ |= tBMI1;
 			if (data[1] & (1U << 8)) type_ |= tBMI2;
 			if (data[1] & (1U << 9)) type_ |= tENHANCED_REP;
+			if (data[1] & (1U << 19)) type_ |= tADX;
 		}
 		setFamily();
 	}

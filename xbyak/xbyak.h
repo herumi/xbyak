@@ -1229,6 +1229,11 @@ private:
 	{
 		return op1.isREG(i32e) && (op2.isXMM() || op2.isMEM());
 	}
+	// (REG32, REG32|MEM)
+	static inline bool isREG32_REG32orMEM(const Operand& op1, const Operand& op2)
+	{
+		return op1.isREG(i32e) && ((op2.isREG(i32e) && op1.getBit() == op2.getBit()) || op2.isMEM());
+	}
 	void rex(const Operand& op1, const Operand& op2 = Operand())
 	{
 		uint8 rex = 0;
@@ -1843,6 +1848,8 @@ public:
 	*/
 	void putL(std::string label) { putL_inner(label); }
 	void putL(const Label& label) { putL_inner(label); }
+	void adcx(const Reg32e& reg, const Operand& op) { opGen(reg, op, 0xF6, 0x66, isREG32_REG32orMEM, NONE, 0x38); }
+	void adox(const Reg32e& reg, const Operand& op) { opGen(reg, op, 0xF6, 0xF3, isREG32_REG32orMEM, NONE, 0x38); }
 	void cmpxchg8b(const Address& addr) { opModM(addr, Reg32(1), 0x0F, B11000111); }
 #ifdef XBYAK64
 	void cmpxchg16b(const Address& addr) { opModM(addr, Reg64(1), 0x0F, B11000111); }

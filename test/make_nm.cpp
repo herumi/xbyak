@@ -828,6 +828,17 @@ class Test {
 			put(p, REG16|AX, IMM8|IMM16|NEG8|NEG16);
 			put(p, REG8|REG8_3|AL, IMM|NEG8);
 		}
+		{
+			const char tbl[][8] = {
+				"adcx",
+				"adox",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				const char *p = tbl[i];
+				put(p, REG32, REG32|MEM);
+				put(p, REG64, REG64|MEM);
+			}
+		}
 	}
 	void putBt() const
 	{

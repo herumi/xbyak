@@ -277,7 +277,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
-* 2015/Jar/28 ver 4.71 support cmpxchg
+* 2015/Jar/28 ver 4.71 support adcx, adox, cmpxchg
 * 2014/Oct/14 ver 4.70 support MmapAllocator
 * 2014/Jun/13 ver 4.62 disable warning of VC2014
 * 2014/May/30 ver 4.61 support bt, bts, btr, btc
