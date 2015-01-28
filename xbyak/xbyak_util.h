@@ -58,7 +58,7 @@ namespace Xbyak { namespace util {
 	CPU detection class
 */
 class Cpu {
-	unsigned int type_;
+	uint64 type_;
 	unsigned int get32bitAsBE(const char *x) const
 	{
 		return x[0] | (x[1] << 8) | (x[2] << 16) | (x[3] << 24);
@@ -124,43 +124,45 @@ public:
 		return ((uint64)edx << 32) | eax;
 #endif
 	}
-	enum Type {
-		NONE = 0,
-		tMMX = 1 << 0,
-		tMMX2 = 1 << 1,
-		tCMOV = 1 << 2,
-		tSSE = 1 << 3,
-		tSSE2 = 1 << 4,
-		tSSE3 = 1 << 5,
-		tSSSE3 = 1 << 6,
-		tSSE41 = 1 << 7,
-		tSSE42 = 1 << 8,
-		tPOPCNT = 1 << 9,
-		tAESNI = 1 << 10,
-		tSSE5 = 1 << 11,
-		tOSXSAVE = 1 << 12,
-		tPCLMULQDQ = 1 << 13,
-		tAVX = 1 << 14,
-		tFMA = 1 << 15,
+	typedef uint64 Type;
+	static const Type NONE = 0;
+	static const Type tMMX = 1 << 0;
+	static const Type tMMX2 = 1 << 1;
+	static const Type tCMOV = 1 << 2;
+	static const Type tSSE = 1 << 3;
+	static const Type tSSE2 = 1 << 4;
+	static const Type tSSE3 = 1 << 5;
+	static const Type tSSSE3 = 1 << 6;
+	static const Type tSSE41 = 1 << 7;
+	static const Type tSSE42 = 1 << 8;
+	static const Type tPOPCNT = 1 << 9;
+	static const Type tAESNI = 1 << 10;
+	static const Type tSSE5 = 1 << 11;
+	static const Type tOSXSAVE = 1 << 12;
+	static const Type tPCLMULQDQ = 1 << 13;
+	static const Type tAVX = 1 << 14;
+	static const Type tFMA = 1 << 15;
 
-		t3DN = 1 << 16,
-		tE3DN = 1 << 17,
-		tSSE4a = 1 << 18,
-		tRDTSCP = 1 << 19,
-		tAVX2 = 1 << 20,
-		tBMI1 = 1 << 21, // andn, bextr, blsi, blsmsk, blsr, tzcnt
-		tBMI2 = 1 << 22, // bzhi, mulx, pdep, pext, rorx, sarx, shlx, shrx
-		tLZCNT = 1 << 23,
-		tENHANCED_REP = 1 << 26, // enhanced rep movsb/stosb
-		tRDRAND = 1 << 27,
-		tADX = 1 << 28, // adcx, adox
-		tRDSEED = 1 << 29, // rdseed
-		tSMAP = 1 << 30, // stac
-		tHLE = 1 << 31, // xacquire, xrelease, xtest
+	static const Type t3DN = 1 << 16;
+	static const Type tE3DN = 1 << 17;
+	static const Type tSSE4a = 1 << 18;
+	static const Type tRDTSCP = 1 << 19;
+	static const Type tAVX2 = 1 << 20;
+	static const Type tBMI1 = 1 << 21; // andn, bextr, blsi, blsmsk, blsr, tzcnt
+	static const Type tBMI2 = 1 << 22; // bzhi, mulx, pdep, pext, rorx, sarx, shlx, shrx
+	static const Type tLZCNT = 1 << 23;
 
-		tINTEL = 1 << 24,
-		tAMD = 1 << 25
-	};
+	static const Type tINTEL = 1 << 24;
+	static const Type tAMD = 1 << 25;
+
+	static const Type tENHANCED_REP = 1 << 26; // enhanced rep movsb/stosb
+	static const Type tRDRAND = 1 << 27;
+	static const Type tADX = 1 << 28; // adcx, adox
+	static const Type tRDSEED = 1 << 29; // rdseed
+	static const Type tSMAP = 1 << 30; // stac
+	static const Type tHLE = uint64(1) << 31; // xacquire, xrelease, xtest
+	static const Type tRTM = uint64(1) << 32; // xbegin, xend, xabort
+
 	Cpu()
 		: type_(NONE)
 	{
@@ -218,6 +220,7 @@ public:
 			if (data[1] & (1U << 19)) type_ |= tADX;
 			if (data[1] & (1U << 20)) type_ |= tSMAP;
 			if (data[1] & (1U << 4)) type_ |= tHLE;
+			if (data[1] & (1U << 11)) type_ |= tRTM;
 		}
 		setFamily();
 	}
