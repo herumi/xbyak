@@ -96,7 +96,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4700 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4710 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1850,6 +1850,10 @@ public:
 	void xadd(const Operand& op, const Reg& reg)
 	{
 		opModRM(reg, op, (op.isREG() && reg.isREG() && op.getBit() == reg.getBit()), op.isMEM(), 0x0F, B11000000 | (reg.isBit(8) ? 0 : 1));
+	}
+	void cmpxchg(const Operand& op, const Reg& reg)
+	{
+		opModRM(reg, op, (op.isREG() && reg.isREG() && op.getBit() == reg.getBit()), op.isMEM(), 0x0F, 0xb0 | (reg.isBit(8) ? 0 : 1));
 	}
 	void xchg(const Operand& op1, const Operand& op2)
 	{

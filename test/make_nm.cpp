@@ -977,10 +977,19 @@ class Test {
 #ifdef XBYAK64
 		put("cmpxchg16b", MEM);
 #endif
-		put("xadd", REG8|MEM, REG8);
-		put("xadd", REG16|MEM, REG16);
-		put("xadd", REG32|MEM, REG32);
-		put("xadd", REG64|MEM, REG64);
+		{
+			const char tbl[][8] = {
+				"xadd",
+				"cmpxchg"
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				const char *p = tbl[i];
+				put(p, REG8|MEM, REG8);
+				put(p, REG16|MEM, REG16);
+				put(p, REG32|MEM, REG32);
+				put(p, REG64|MEM, REG64);
+			}
+		}
 
 		put("xchg", AL|REG8, AL|REG8|MEM);
 		put("xchg", MEM, AL|REG8);
