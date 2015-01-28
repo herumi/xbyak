@@ -518,6 +518,7 @@ void put()
 
 			{ "popf", B10011101 },
 			{ "pushf", B10011100 },
+			{ "stac", 0x0F, 0x01, 0xCB },
 
 			{ "vzeroall", 0xC5, 0xFC, 0x77 },
 			{ "vzeroupper", 0xC5, 0xF8, 0x77 },

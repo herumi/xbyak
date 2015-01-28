@@ -150,12 +150,13 @@ public:
 		tAVX2 = 1 << 20,
 		tBMI1 = 1 << 21, // andn, bextr, blsi, blsmsk, blsr, tzcnt
 		tBMI2 = 1 << 22, // bzhi, mulx, pdep, pext, rorx, sarx, shlx, shrx
-		tADX = 1 << 23, // adcx, adox
-		tGPR1 = tBMI1, // backward compatibility
-		tGPR2 = tBMI2, // backward compatibility
 		tLZCNT = 1 << 23,
 		tENHANCED_REP = 1 << 26, // enhanced rep movsb/stosb
 		tRDRAND = 1 << 27,
+		tADX = 1 << 28, // adcx, adox
+		tRDSEED = 1 << 29, // rdseed
+		tSMAP = 1 << 30, // stac
+		tHLE = 1 << 31, // xacquire, xrelease, xtest
 
 		tINTEL = 1 << 24,
 		tAMD = 1 << 25
@@ -213,7 +214,10 @@ public:
 			if (data[1] & (1U << 3)) type_ |= tBMI1;
 			if (data[1] & (1U << 8)) type_ |= tBMI2;
 			if (data[1] & (1U << 9)) type_ |= tENHANCED_REP;
+			if (data[1] & (1U << 18)) type_ |= tRDSEED;
 			if (data[1] & (1U << 19)) type_ |= tADX;
+			if (data[1] & (1U << 20)) type_ |= tSMAP;
+			if (data[1] & (1U << 4)) type_ |= tHLE;
 		}
 		setFamily();
 	}

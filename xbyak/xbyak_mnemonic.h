@@ -365,6 +365,7 @@ void wrmsr() { db(0x0F); db(0x30); }
 void xlatb() { db(0xD7); }
 void popf() { db(0x9D); }
 void pushf() { db(0x9C); }
+void stac() { db(0x0F); db(0x01); db(0xCB); }
 void vzeroall() { db(0xC5); db(0xFC); db(0x77); }
 void vzeroupper() { db(0xC5); db(0xF8); db(0x77); }
 void xgetbv() { db(0x0F); db(0x01); db(0xD0); }

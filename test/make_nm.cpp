@@ -372,6 +372,7 @@ class Test {
 
 			"popf",
 			"pushf",
+			"stac",
 
 			"xgetbv",
 			"vzeroall",
@@ -2035,6 +2036,7 @@ public:
 	void putGprOtherwise()
 	{
 		put("rdrand", REG16 | REG32e);
+		put("rdseed", REG16 | REG32e);
 		put("rorx", REG32, REG32 | MEM, IMM8);
 #ifdef XBYAK64
 		put("rorx", REG64, REG64 | MEM, IMM8);
