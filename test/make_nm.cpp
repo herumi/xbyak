@@ -1751,7 +1751,6 @@ class Test {
 
 		put("vmovntdq", MEM, XMM | YMM);
 		put("vmovntpd", MEM, XMM | YMM);
-		put("vmovntps", MEM, XMM | YMM);
 		put("vmovntdqa", XMM | YMM, MEM);
 
 		{
@@ -1907,6 +1906,7 @@ class Test {
 		put("vpcmpgtq", XMM, XMM, XMM | MEM);
 
 		put("vpextrw", REG32e | MEM, XMM, IMM); // nasm iw wrong?
+		put("vmovntps", MEM, XMM | YMM); // nasm error
 #endif
 	}
 	void putCmp()
