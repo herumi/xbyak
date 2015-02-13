@@ -25,7 +25,7 @@
 #endif
 
 //#define XBYAK_USE_MMAP_ALLOCATOR
-#ifndef __GNUC__
+#if !defined(__GNUC__) || defined(__MINGW32__)
 	#undef XBYAK_USE_MMAP_ALLOCATOR
 #endif
 
@@ -283,7 +283,7 @@ struct Allocator {
 	virtual bool useProtect() const { return true; }
 };
 
-#ifdef __GNUC__
+#ifdef XBYAK_USE_MMAP_ALLOCATOR
 class MmapAllocator : Allocator {
 	typedef XBYAK_STD_UNORDERED_MAP<uintptr_t, size_t> SizeList;
 	SizeList sizeList_;
