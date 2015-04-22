@@ -96,7 +96,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4710 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4800 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -411,6 +411,8 @@ public:
 	bool operator!=(const Operand& rhs) const { return !operator==(rhs); }
 };
 
+class Label;
+
 struct Reg8;
 struct Reg16;
 struct Reg32;
@@ -471,13 +473,18 @@ struct Reg64 : public Reg32e {
 	explicit Reg64(int idx = 0) : Reg32e(idx, 64) {}
 };
 struct RegRip {
-	uint32 disp_;
-	explicit RegRip(unsigned int disp = 0) : disp_(disp) {}
-	friend const RegRip operator+(const RegRip& r, unsigned int disp) {
-		return RegRip(r.disp_ + disp);
+	sint64 disp_;
+	Label* label_;
+	explicit RegRip(sint64 disp = 0, Label* label = 0) : disp_(disp), label_(label) {}
+	friend const RegRip operator+(const RegRip& r, sint64 disp) {
+		return RegRip(r.disp_ + disp, r.label_);
 	}
-	friend const RegRip operator-(const RegRip& r, unsigned int disp) {
-		return RegRip(r.disp_ - disp);
+	friend const RegRip operator-(const RegRip& r, sint64 disp) {
+		return RegRip(r.disp_ - disp, r.label_);
+	}
+	friend const RegRip operator+(const RegRip& r, Label& label) {
+		if (r.label_) throw Error(ERR_BAD_ADDRESSING);
+		return RegRip(r.disp_, &label);
 	}
 };
 #endif
@@ -814,6 +821,7 @@ class Address : public Operand {
 	uint8 size_;
 	uint8 rex_;
 	uint64 disp_;
+	const Label* label_;
 	bool isOnlyDisp_;
 	bool is64bitDisp_;
 	bool is32bit_;
@@ -826,11 +834,25 @@ public:
 		, size_(0)
 		, rex_(0)
 		, disp_(disp)
+		, label_(0)
 		, isOnlyDisp_(isOnlyDisp)
 		, is64bitDisp_(is64bitDisp)
 		, is32bit_(is32bit)
 		, isVsib_(isVsib)
 		, isYMM_(isYMM)
+	{
+	}
+	Address(uint32 sizeBit, const Label *label, uint64 disp)
+		: Operand(0, MEM, sizeBit)
+		, size_(0)
+		, rex_(0)
+		, disp_(disp)
+		, label_(label)
+		, isOnlyDisp_(false)
+		, is64bitDisp_(false)
+		, is32bit_(false)
+		, isVsib_(false)
+		, isYMM_(false)
 	{
 	}
 	void db(int code)
@@ -854,6 +876,7 @@ public:
 	uint8 getRex() const { verify(); return rex_; }
 	bool is64bitDisp() const { verify(); return is64bitDisp_; } // for moffset
 	void setRex(uint8 rex) { rex_ = rex; }
+	const Label* getLabel() const { return label_; }
 };
 
 class AddressFrame {
@@ -924,9 +947,10 @@ public:
 	}
 	Address operator[](const RegRip& addr) const
 	{
+		if (addr.label_) return Address(bit_, addr.label_, addr.disp_);
 		Address frame(bit_, true, addr.disp_, false);
-		frame.db(B00000101);
-		frame.dd(addr.disp_);
+		frame.db(0x05);
+		frame.dd(inner::VerifyInInt32(addr.disp_));
 		return frame;
 	}
 #endif
@@ -940,6 +964,11 @@ struct JmpLabel {
 	size_t endOfJmp; /* offset from top to the end address of jmp */
 	int jmpSize;
 	inner::LabelMode mode;
+	uint64 disp; // disp for [rip + disp]
+	explicit JmpLabel(size_t endOfJmp = 0, int jmpSize = 0, inner::LabelMode mode = inner::LasIs, uint64 disp = 0)
+		: endOfJmp(endOfJmp), jmpSize(jmpSize), mode(mode), disp(disp)
+	{
+	}
 };
 
 class LabelManager;
@@ -1022,7 +1051,7 @@ class LabelManager {
 			} else if (jmp->mode == inner::Labs) {
 				disp = size_t(base_->getCurr());
 			} else {
-				disp = addrOffset - jmp->endOfJmp;
+				disp = addrOffset - jmp->endOfJmp + jmp->disp;
 #ifdef XBYAK64
 				if (jmp->jmpSize <= 4 && !inner::IsInInt32(disp)) throw Error(ERR_OFFSET_IS_TOO_BIG);
 #endif
@@ -1288,7 +1317,7 @@ private:
 		rex(addr, reg);
 		db(code0 | (reg.isBit(8) ? 0 : 1)); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
 		addr.updateRegField(static_cast<uint8>(reg.getIdx()));
-		db(addr.getCode(), static_cast<int>(addr.getSize()));
+		opAddr(addr);
 	}
 	void makeJmp(uint32 disp, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
 	{
@@ -1311,17 +1340,16 @@ private:
 		if (labelMgr_.getOffset(&offset, label)) { /* label exists */
 			makeJmp(inner::VerifyInInt32(offset - size_), type, shortCode, longCode, longPref);
 		} else {
-			JmpLabel jmp;
+			int jmpSize = 0;
 			if (type == T_NEAR) {
-				jmp.jmpSize = 4;
+				jmpSize = 4;
 				if (longPref) db(longPref);
 				db(longCode); dd(0);
 			} else {
-				jmp.jmpSize = 1;
+				jmpSize = 1;
 				db(shortCode); db(0);
 			}
-			jmp.mode = inner::LasIs;
-			jmp.endOfJmp = size_;
+			JmpLabel jmp(size_, jmpSize, inner::LasIs);
 			labelMgr_.addUndefinedLabel(label, jmp);
 		}
 	}
@@ -1337,6 +1365,15 @@ private:
 			makeJmp(inner::VerifyInInt32(reinterpret_cast<const uint8*>(addr) - getCurr()), type, shortCode, longCode, 0);
 		}
 
+	}
+	void opAddr(const Address &addr)
+	{
+		if (addr.getLabel()) { // [rip + Label]
+			db(0x05);
+			putL_inner(*addr.getLabel(), true, addr.getDisp());
+		} else {
+			db(addr.getCode(), static_cast<int>(addr.getSize()));
+		}
 	}
 	/* preCode is for SSSE3/SSE4 */
 	void opGen(const Operand& reg, const Operand& op, int code, int pref, bool isValid(const Operand&, const Operand&), int imm8 = NONE, int preCode = NONE)
@@ -1497,7 +1534,7 @@ private:
 		rex(addr, st0);
 		db(code);
 		addr.updateRegField(ext);
-		db(addr.getCode(), static_cast<int>(addr.getSize()));
+		opAddr(addr);
 	}
 	// use code1 if reg1 == st0
 	// use code2 if reg1 != st0 && reg2 == st0
@@ -1532,7 +1569,7 @@ private:
 		if (p2->isMEM()) {
 			const Address& addr = static_cast<const Address&>(*p2);
 			addr.updateRegField(static_cast<uint8>(r.getIdx()));
-			db(addr.getCode(), static_cast<int>(addr.getSize()));
+			opAddr(addr);
 		} else {
 			db(getModRM(3, r.getIdx(), p2->getIdx()));
 		}
@@ -1792,13 +1829,15 @@ private:
 		return bit / 8;
 	}
 	template<class T>
-	void putL_inner(T& label)
+	void putL_inner(T& label, bool relative = false, uint64 disp = 0)
 	{
-		const int jmpSize = (int)sizeof(size_t);
+		const int jmpSize = relative ? 4 : (int)sizeof(size_t);
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory();
 		size_t offset = 0;
 		if (labelMgr_.getOffset(&offset, label)) {
-			if (isAutoGrow()) {
+			if (relative) {
+				db(inner::VerifyInInt32(offset + disp - size_ - jmpSize), jmpSize);
+			} else if (isAutoGrow()) {
 				db(uint64(0), jmpSize);
 				save(size_ - jmpSize, offset, jmpSize, inner::LaddTop);
 			} else {
@@ -1807,10 +1846,7 @@ private:
 			return;
 		}
 		db(uint64(0), jmpSize);
-		JmpLabel jmp;
-		jmp.endOfJmp = size_;
-		jmp.jmpSize = jmpSize;
-		jmp.mode = isAutoGrow() ? inner::LaddTop : inner::Labs;
+		JmpLabel jmp(size_, jmpSize, (relative ? inner::LasIs : isAutoGrow() ? inner::LaddTop : inner::Labs), disp);
 		labelMgr_.addUndefinedLabel(label, jmp);
 	}
 public:

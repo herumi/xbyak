@@ -187,7 +187,7 @@ class Test {
 				if (ccc & 1) {
 					return isXbyak_ ? "ptr[rdx+r15+0x12]" : "[rdx+r15+0x12]";
 				} else {
-					return isXbyak_ ? "ptr[rip - 0x13456]" : "[rip - 0x13456]";
+					return isXbyak_ ? "ptr[rip - 0x13456+1-3]" : "[rip - 0x13456+1-3]";
 				}
 			}
 		case MEM8:
@@ -457,6 +457,8 @@ class Test {
 #ifdef USE_YASM
 		put("jmp", "ptr[rip + 0x12345678]", "[rip+0x12345678]");
 		put("call", "ptr[rip + 0x12345678]", "[rip+0x12345678]");
+		put("call", "ptr[rip -23]", "[rip-23]");
+		put("call", "ptr[rip -23+56]", "[rip-23+56]");
 #endif
 #endif
 	}
