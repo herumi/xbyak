@@ -5,10 +5,6 @@
 #include <cybozu/inttype.hpp>
 #include <cybozu/test.hpp>
 
-#if !defined(_WIN64) && !defined(__x86_64__)
-	#define ONLY_32BIT
-#endif
-
 using namespace Xbyak;
 
 void putNop(Xbyak::CodeGenerator *gen, int n)
@@ -305,7 +301,7 @@ CYBOZU_TEST_AUTO(test2)
 	}
 }
 
-#ifdef ONLY_32BIT
+#ifdef XBYAK32
 int add5(int x) { return x + 5; }
 int add2(int x) { return x + 2; }
 
@@ -558,13 +554,13 @@ CYBOZU_TEST_AUTO(testMovLabel2)
 	struct MovLabel2Code : Xbyak::CodeGenerator {
 		MovLabel2Code()
 		{
-	#ifdef XBYAK64
+#ifdef XBYAK64
 			const Reg64& a = rax;
 			const Reg64& c = rcx;
-	#else
+#else
 			const Reg32& a = eax;
 			const Reg32& c = ecx;
-	#endif
+#endif
 			xor_(a, a);
 			xor_(c, c);
 			jmp("in");
@@ -936,7 +932,7 @@ CYBOZU_TEST_AUTO(doubleDefine)
 	} code;
 }
 
-#ifndef ONLY_32BIT
+#ifdef XBYAK64
 CYBOZU_TEST_AUTO(rip)
 {
 	int a[] = { 1, 10 };
@@ -967,5 +963,36 @@ CYBOZU_TEST_AUTO(rip)
 	} code(a, b);
 	int ret = code.getCode<int (*)()>()();
 	CYBOZU_TEST_EQUAL(ret, a[0] + a[1] + b[0] + b[1]);
+}
+
+int ret1234()
+{
+	return 1234;
+}
+
+int ret9999()
+{
+	return 9999;
+}
+
+CYBOZU_TEST_AUTO(rip_jmp)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			Label label;
+			xor_(eax, eax);
+			call(ptr [rip + label]);
+			mov(ecx, eax);
+			call(ptr [rip + label + 8]);
+			add(eax, ecx);
+			ret();
+		L(label);
+			db((size_t)ret1234, 8);
+			db((size_t)ret9999, 8);
+		}
+	} code;
+	int ret = code.getCode<int (*)()>()();
+	CYBOZU_TEST_EQUAL(ret, ret1234() + ret9999());
 }
 #endif
