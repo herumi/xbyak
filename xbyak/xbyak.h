@@ -842,19 +842,6 @@ public:
 		, isYMM_(isYMM)
 	{
 	}
-	Address(uint32 sizeBit, const Label *label, uint64 disp)
-		: Operand(0, MEM, sizeBit)
-		, size_(0)
-		, rex_(0)
-		, disp_(disp)
-		, label_(label)
-		, isOnlyDisp_(false)
-		, is64bitDisp_(false)
-		, is32bit_(false)
-		, isVsib_(false)
-		, isYMM_(false)
-	{
-	}
 	void db(int code)
 	{
 		if (size_ >= sizeof(top_)) throw Error(ERR_CODE_IS_TOO_BIG);
@@ -876,6 +863,7 @@ public:
 	uint8 getRex() const { verify(); return rex_; }
 	bool is64bitDisp() const { verify(); return is64bitDisp_; } // for moffset
 	void setRex(uint8 rex) { rex_ = rex; }
+	void setLabel(const Label* label) { label_ = label; }
 	const Label* getLabel() const { return label_; }
 };
 
@@ -947,10 +935,13 @@ public:
 	}
 	Address operator[](const RegRip& addr) const
 	{
-		if (addr.label_) return Address(bit_, addr.label_, addr.disp_);
 		Address frame(bit_, true, addr.disp_, false);
 		frame.db(0x05);
-		frame.dd(inner::VerifyInInt32(addr.disp_));
+		if (addr.label_) {
+			frame.setLabel(addr.label_);
+		} else {
+			frame.dd(inner::VerifyInInt32(addr.disp_));
+		}
 		return frame;
 	}
 #endif
@@ -1368,11 +1359,9 @@ private:
 	}
 	void opAddr(const Address &addr)
 	{
+		db(addr.getCode(), static_cast<int>(addr.getSize()));
 		if (addr.getLabel()) { // [rip + Label]
-			db(0x05);
 			putL_inner(*addr.getLabel(), true, addr.getDisp());
-		} else {
-			db(addr.getCode(), static_cast<int>(addr.getSize()));
 		}
 	}
 	/* preCode is for SSSE3/SSE4 */

@@ -454,6 +454,15 @@ class Test {
 #ifdef XBYAK64
 		put("jmp", "ptr[(void*)0x12345678]", "[0x12345678]");
 		put("call", "ptr[(void*)0x12345678]", "[0x12345678]");
+		if (isXbyak_) {
+			puts("{ Label label0;");
+			puts("L(label0);");
+			puts("pshufb (xmm14, ptr [rip+label0]); dump();");
+			puts("}");
+		} else {
+			puts("label0:");
+			puts("pshufb xmm14, [rel label0]");
+		}
 #ifdef USE_YASM
 		put("jmp", "ptr[rip + 0x12345678]", "[rip+0x12345678]");
 		put("call", "ptr[rip + 0x12345678]", "[rip+0x12345678]");

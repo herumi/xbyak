@@ -951,9 +951,11 @@ CYBOZU_TEST_AUTO(rip)
 			db(a[1], 4);
 		L("@@");
 			mov(eax, ptr [rip + label1]);       // a[0]
-			add(eax, ptr [rip + label1+4]);     // a[1]
-			add(eax, ptr [rip + label2-8+2+6]); // b[0]
-			add(eax, ptr [rip + 16+label2-12]); // b[1]
+			mov(ecx, ptr [rip + label1+4]);     // a[1]
+			mov(edx, ptr [rip + label2-8+2+6]); // b[0]
+			add(ecx, ptr [rip + 16+label2-12]); // b[1]
+			add(eax, ecx);
+			add(eax, edx);
 			ret();
 		L(label2);
 			db(b[0], 4);
