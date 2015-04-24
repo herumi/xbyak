@@ -729,6 +729,7 @@ public:
 	}
 	void dw(uint32 code) { db(code, 2); }
 	void dd(uint32 code) { db(code, 4); }
+	void dq(uint64 code) { db(code, 8); }
 	const uint8 *getCode() const { return top_; }
 	template<class F>
 	const F getCode() const { return CastTo<F>(top_); }
