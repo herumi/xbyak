@@ -1,5 +1,5 @@
 
-Xbyak 4.80 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 4.81 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -277,6 +277,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2015/Apr/25 ver 4.81 fix the condition to throw exception for setSize(thanks to whyisthisfieldhere)
 * 2015/Apr/22 ver 4.80 rip supports label(thanks to whyisthisfieldhere)
 * 2015/Jar/28 ver 4.71 support adcx, adox, cmpxchg, rdseed, stac
 * 2014/Oct/14 ver 4.70 support MmapAllocator

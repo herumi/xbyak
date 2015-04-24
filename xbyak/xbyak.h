@@ -96,7 +96,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4800 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4810 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -739,7 +739,7 @@ public:
 	size_t getSize() const { return size_; }
 	void setSize(size_t size)
 	{
-		if (size >= maxSize_) throw Error(ERR_OFFSET_IS_TOO_BIG);
+		if (size > maxSize_) throw Error(ERR_OFFSET_IS_TOO_BIG);
 		size_ = size;
 	}
 	void dump() const
