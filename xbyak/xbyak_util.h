@@ -7,7 +7,7 @@
 	Xbyak::util::Cpu ; detect CPU
 	@note this header is UNDER CONSTRUCTION!
 */
-#include "xbyak/xbyak.h"
+#include "xbyak.h"
 
 #ifdef _MSC_VER
 	#if (_MSC_VER < 1400) && defined(XBYAK32)
