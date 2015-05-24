@@ -162,6 +162,7 @@ public:
 	static const Type tSMAP = 1 << 30; // stac
 	static const Type tHLE = uint64(1) << 31; // xacquire, xrelease, xtest
 	static const Type tRTM = uint64(1) << 32; // xbegin, xend, xabort
+	static const Type tF16C = uint64(1) << 33; // vcvtph2ps, vcvtps2ph
 
 	Cpu()
 		: type_(NONE)
@@ -196,6 +197,7 @@ public:
 		if (data[2] & (1U << 1)) type_ |= tPCLMULQDQ;
 		if (data[2] & (1U << 27)) type_ |= tOSXSAVE;
 		if (data[2] & (1U << 30)) type_ |= tRDRAND;
+		if (data[2] & (1U << 29)) type_ |= tF16C;
 
 		if (data[3] & (1U << 15)) type_ |= tCMOV;
 		if (data[3] & (1U << 23)) type_ |= tMMX;

@@ -53,6 +53,7 @@ void putCPUinfo()
 		{ Cpu::tSMAP, "smap" },
 		{ Cpu::tHLE, "hle" },
 		{ Cpu::tRTM, "rtm" },
+		{ Cpu::tF16C, "f16c" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
