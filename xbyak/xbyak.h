@@ -1759,6 +1759,19 @@ public:
 	{
 		opModR(Reg32(1), reg, 0x0F);
 	}
+	void movbe(const Operand& reg1, const Operand& reg2)
+	{
+		if (reg1.isREG() && reg2.isREG()) {
+			throw Error(ERR_BAD_COMBINATION);
+		}
+		if (reg1.isREG() && reg2.isMEM()) {
+			opModM(static_cast<const Address&>(reg2), static_cast<const Reg&>(reg1),
+						 0x0F, 0x38, 0xF0);
+		} else {
+			opModRM(reg2, reg1, reg1.isREG() && reg1.getKind() == reg2.getKind(),
+							reg1.isMEM() && reg2.isREG(), 0x0F, 0x38, 0xF0 | 1);
+		}
+	}
 	void mov(const Operand& reg1, const Operand& reg2)
 	{
 		const Reg *reg = 0;
