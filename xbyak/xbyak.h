@@ -96,7 +96,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4820 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4830 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1868,6 +1868,8 @@ public:
 		mov_imm(reg, dummyAddr);
 		putL(label);
 	}
+	void movbe(const Reg& reg, const Address& addr) { opModM(addr, reg, 0x0F, 0x38, 0xF0); }
+	void movbe(const Address& addr, const Reg& reg) { opModM(addr, reg, 0x0F, 0x38, 0xF1); }
 	/*
 		put address of label to buffer
 		@note the put size is 4(32-bit), 8(64-bit)

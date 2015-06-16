@@ -54,6 +54,7 @@ void putCPUinfo()
 		{ Cpu::tHLE, "hle" },
 		{ Cpu::tRTM, "rtm" },
 		{ Cpu::tF16C, "f16c" },
+		{ Cpu::tMOVBE, "movbe" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);

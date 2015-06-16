@@ -163,6 +163,7 @@ public:
 	static const Type tHLE = uint64(1) << 31; // xacquire, xrelease, xtest
 	static const Type tRTM = uint64(1) << 32; // xbegin, xend, xabort
 	static const Type tF16C = uint64(1) << 33; // vcvtph2ps, vcvtps2ph
+	static const Type tMOVBE = uint64(1) << 34; // mobve
 
 	Cpu()
 		: type_(NONE)
@@ -192,6 +193,7 @@ public:
 		if (data[2] & (1U << 9)) type_ |= tSSSE3;
 		if (data[2] & (1U << 19)) type_ |= tSSE41;
 		if (data[2] & (1U << 20)) type_ |= tSSE42;
+		if (data[2] & (1U << 22)) type_ |= tMOVBE;
 		if (data[2] & (1U << 23)) type_ |= tPOPCNT;
 		if (data[2] & (1U << 25)) type_ |= tAESNI;
 		if (data[2] & (1U << 1)) type_ |= tPCLMULQDQ;
