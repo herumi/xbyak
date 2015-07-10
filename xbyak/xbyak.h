@@ -1043,7 +1043,7 @@ class LabelManager {
 			} else if (jmp->mode == inner::Labs) {
 				disp = size_t(base_->getCurr());
 			} else {
-				disp = addrOffset - jmp->endOfJmp + jmp->disp;
+				disp = addrOffset - jmp->endOfJmp + (size_t)jmp->disp;
 #ifdef XBYAK64
 				if (jmp->jmpSize <= 4 && !inner::IsInInt32(disp)) throw Error(ERR_OFFSET_IS_TOO_BIG);
 #endif
