@@ -821,7 +821,7 @@ class Address : public Operand {
 	mutable uint8 top_[6]; // 6 = 1(ModRM) + 1(SIB) + 4(disp)
 	uint8 size_;
 	uint8 rex_;
-	uint64 disp_;
+	size_t disp_;
 	const Label* label_;
 	bool isOnlyDisp_;
 	bool is64bitDisp_;
@@ -830,7 +830,7 @@ class Address : public Operand {
 	bool isYMM_;
 	void verify() const { if (isVsib_) throw Error(ERR_BAD_VSIB_ADDRESSING); }
 public:
-	Address(uint32 sizeBit, bool isOnlyDisp, uint64 disp, bool is32bit, bool is64bitDisp = false, bool isVsib = false, bool isYMM = false)
+	Address(uint32 sizeBit, bool isOnlyDisp, size_t disp, bool is32bit, bool is64bitDisp = false, bool isVsib = false, bool isYMM = false)
 		: Operand(0, MEM, sizeBit)
 		, size_(0)
 		, rex_(0)
@@ -860,7 +860,7 @@ public:
 	bool isYMM() const { return isYMM_; }
 	bool is32bit() const { verify(); return is32bit_; }
 	bool isOnlyDisp() const { verify(); return isOnlyDisp_; } // for mov eax
-	uint64 getDisp() const { verify(); return disp_; }
+	size_t getDisp() const { verify(); return disp_; }
 	uint8 getRex() const { verify(); return rex_; }
 	bool is64bitDisp() const { verify(); return is64bitDisp_; } // for moffset
 	void setRex(uint8 rex) { rex_ = rex; }
@@ -956,8 +956,8 @@ struct JmpLabel {
 	size_t endOfJmp; /* offset from top to the end address of jmp */
 	int jmpSize;
 	inner::LabelMode mode;
-	uint64 disp; // disp for [rip + disp]
-	explicit JmpLabel(size_t endOfJmp = 0, int jmpSize = 0, inner::LabelMode mode = inner::LasIs, uint64 disp = 0)
+	size_t disp; // disp for [rip + disp]
+	explicit JmpLabel(size_t endOfJmp = 0, int jmpSize = 0, inner::LabelMode mode = inner::LasIs, size_t disp = 0)
 		: endOfJmp(endOfJmp), jmpSize(jmpSize), mode(mode), disp(disp)
 	{
 	}
@@ -1043,7 +1043,7 @@ class LabelManager {
 			} else if (jmp->mode == inner::Labs) {
 				disp = size_t(base_->getCurr());
 			} else {
-				disp = addrOffset - jmp->endOfJmp + (size_t)jmp->disp;
+				disp = addrOffset - jmp->endOfJmp + jmp->disp;
 #ifdef XBYAK64
 				if (jmp->jmpSize <= 4 && !inner::IsInInt32(disp)) throw Error(ERR_OFFSET_IS_TOO_BIG);
 #endif
@@ -1819,7 +1819,7 @@ private:
 		return bit / 8;
 	}
 	template<class T>
-	void putL_inner(T& label, bool relative = false, uint64 disp = 0)
+	void putL_inner(T& label, bool relative = false, size_t disp = 0)
 	{
 		const int jmpSize = relative ? 4 : (int)sizeof(size_t);
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory();
