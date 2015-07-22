@@ -74,7 +74,11 @@ public:
 #else
 		mov(eax, ptr [esp + 4]);
 		push(eax);
+#ifdef XBYAK_VARIADIC_TEMPLATE
+		call(atoi);
+#else
 		call(Xbyak::CastTo<void*>(atoi));
+#endif
 		add(esp, 4);
 #endif
 		ret();

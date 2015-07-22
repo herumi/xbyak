@@ -82,6 +82,10 @@
 	#endif
 #endif
 
+#if (__cplusplus >= 201103) || (_MSC_VER >= 1800)
+	#define XBYAK_VARIADIC_TEMPLATE
+#endif
+
 #ifdef _MSC_VER
 	#pragma warning(push)
 	#pragma warning(disable : 4514) /* remove inline function */
@@ -96,7 +100,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4830 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4840 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1912,6 +1916,10 @@ public:
 	void call(const char *label) { call(std::string(label)); }
 	void call(const Label& label) { opJmp(label, T_NEAR, 0, B11101000, 0); }
 	// call(function pointer)
+#ifdef XBYAK_VARIADIC_TEMPLATE
+	template<class Ret, class... Params>
+	void call(Ret(*func)(Params...)) { call(CastTo<const void*>(func)); }
+#endif
 	void call(const void *addr) { opJmpAbs(addr, T_NEAR, 0, B11101000); }
 	// special case
 	void movd(const Address& addr, const Mmx& mmx)
