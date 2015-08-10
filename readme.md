@@ -1,5 +1,5 @@
 
-Xbyak 4.84 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 4.85 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -277,6 +277,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2015/Aug/10 ver 4.85 Address::operator==() is not correct(thanks to inolen)
 * 2015/Jun/22 ver 4.84 call() support variadic template if available(thanks to randomstuff)
 * 2015/Jun/16 ver 4.83 support movbe(thanks to benvanik)
 * 2015/May/24 ver 4.82 support detection of F16C

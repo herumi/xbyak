@@ -21,3 +21,14 @@ CYBOZU_TEST_AUTO(setSize)
 		}
 	} code;
 }
+
+CYBOZU_TEST_AUTO(compOperand)
+{
+	using namespace Xbyak::util;
+	CYBOZU_TEST_ASSERT(eax == eax);
+	CYBOZU_TEST_ASSERT(ecx != xmm0);
+	CYBOZU_TEST_ASSERT(ptr[eax] == ptr[eax]);
+	CYBOZU_TEST_ASSERT(dword[eax] != ptr[eax]);
+	CYBOZU_TEST_ASSERT(ptr[eax] != ptr[eax+3]);
+	CYBOZU_TEST_ASSERT(ptr[eax] != ptr[eax+3]);
+}

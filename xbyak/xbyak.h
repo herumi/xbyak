@@ -100,7 +100,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4840 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4850 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -411,7 +411,8 @@ public:
 		}
 		throw Error(ERR_INTERNAL);
 	}
-	bool operator==(const Operand& rhs) const { return idx_ == rhs.idx_ && kind_ == rhs.kind_ && bit_ == rhs.bit_; }
+	bool isSameNotInherited(const Operand& rhs) const { return idx_ == rhs.idx_ && kind_ == rhs.kind_ && bit_ == rhs.bit_; }
+	bool operator==(const Operand& rhs) const;
 	bool operator!=(const Operand& rhs) const { return !operator==(rhs); }
 };
 
@@ -870,7 +871,19 @@ public:
 	void setRex(uint8 rex) { rex_ = rex; }
 	void setLabel(const Label* label) { label_ = label; }
 	const Label* getLabel() const { return label_; }
+	bool operator==(const Address& rhs) const
+	{
+		return getBit() == rhs.getBit() && size_ == rhs.size_ && rex_ == rhs.rex_ && disp_ == rhs.disp_ && label_ == rhs.label_ && isOnlyDisp_ == rhs.isOnlyDisp_
+			&& is64bitDisp_ == rhs.is64bitDisp_ && is32bit_ == rhs.is32bit_ && isVsib_ == rhs.isVsib_ && isYMM_ == rhs.isYMM_;
+	}
+	bool operator!=(const Address& rhs) const { return !operator==(rhs); }
 };
+
+inline bool Operand::operator==(const Operand& rhs) const
+{
+	if (isMEM() && rhs.isMEM()) return static_cast<const Address&>(*this) == static_cast<const Address&>(rhs);
+	return isSameNotInherited(rhs);
+}
 
 class AddressFrame {
 private:
