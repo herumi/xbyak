@@ -100,7 +100,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4850 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4851 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1866,6 +1866,7 @@ public:
 		} else if (op.isMEM()) {
 			opModM(static_cast<const Address&>(op), Reg(0, Operand::REG, op.getBit()), B11000110);
 			int size = op.getBit() / 8; if (size > 4) size = 4;
+			if (0xffffffff < imm && imm <= ~uint64(0x7fffffffu)) throw Error(ERR_OFFSET_IS_TOO_BIG);
 			db(static_cast<uint32>(imm), size);
 		} else {
 			throw Error(ERR_BAD_COMBINATION);
