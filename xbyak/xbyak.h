@@ -1866,7 +1866,7 @@ public:
 		} else if (op.isMEM()) {
 			opModM(static_cast<const Address&>(op), Reg(0, Operand::REG, op.getBit()), B11000110);
 			int size = op.getBit() / 8; if (size > 4) size = 4;
-			if (0xffffffff < imm && imm <= ~uint64(0x7fffffffu)) throw Error(ERR_OFFSET_IS_TOO_BIG);
+			if (0xffffffff < imm && imm <= ~uint64(0x7fffffffu)) throw Error(ERR_IMM_IS_TOO_BIG);
 			db(static_cast<uint32>(imm), size);
 		} else {
 			throw Error(ERR_BAD_COMBINATION);
