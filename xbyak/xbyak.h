@@ -1865,8 +1865,11 @@ public:
 			db(imm, size);
 		} else if (op.isMEM()) {
 			opModM(static_cast<const Address&>(op), Reg(0, Operand::REG, op.getBit()), B11000110);
-			int size = op.getBit() / 8; if (size > 4) size = 4;
-			if (0xffffffff < imm && imm <= ~uint64(0x7fffffffu)) throw Error(ERR_IMM_IS_TOO_BIG);
+			int size = op.getBit() / 8;
+			if (size == 8) {
+				if (!inner::IsInInt32(imm)) throw Error(ERR_IMM_IS_TOO_BIG);
+				size = 4;
+			}
 			db(static_cast<uint32>(imm), size);
 		} else {
 			throw Error(ERR_BAD_COMBINATION);
