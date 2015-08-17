@@ -1859,14 +1859,17 @@ private:
 public:
 	void mov(const Operand& op, size_t imm)
 	{
-		verifyMemHasSize(op);
 		if (op.isREG()) {
 			const int size = mov_imm(static_cast<const Reg&>(op), imm);
 			db(imm, size);
 		} else if (op.isMEM()) {
+			verifyMemHasSize(op);
 			opModM(static_cast<const Address&>(op), Reg(0, Operand::REG, op.getBit()), B11000110);
 			int size = op.getBit() / 8;
-			if (size == 8) {
+			if (size <= 4) {
+				sint64 s = sint64(imm) >> (size * 8);
+				if (s != 0 && s != -1) throw Error(ERR_IMM_IS_TOO_BIG);
+			} else {
 				if (!inner::IsInInt32(imm)) throw Error(ERR_IMM_IS_TOO_BIG);
 				size = 4;
 			}

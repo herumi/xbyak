@@ -32,19 +32,52 @@ CYBOZU_TEST_AUTO(compOperand)
 	CYBOZU_TEST_ASSERT(ptr[eax] != ptr[eax+3]);
 }
 
-#ifdef XBYAK64
 CYBOZU_TEST_AUTO(mov_const)
 {
 	struct Code : Xbyak::CodeGenerator {
 		Code()
 		{
-			CYBOZU_TEST_NO_EXCEPTION(mov(qword[eax], 0x12345678));
-			CYBOZU_TEST_NO_EXCEPTION(mov(qword[eax], 0x7fffffff));
-			CYBOZU_TEST_NO_EXCEPTION(mov(qword[eax], -1));
-			CYBOZU_TEST_NO_EXCEPTION(mov(qword[eax], 0xffffffffffffffffull));
-			CYBOZU_TEST_EXCEPTION(mov(qword[eax], 0x80000000), Xbyak::Error);
-			CYBOZU_TEST_EXCEPTION(mov(qword[eax], 0xffffffff), Xbyak::Error);
+			const struct {
+				uint64_t v;
+				int bit;
+				bool error;
+			} tbl[] = {
+				{ -1, 8, false },
+				{ 0x12, 8, false },
+				{ 0x80, 8, false },
+				{ 0xff, 8, false },
+				{ 0x100, 8, true },
+
+				{ 1, 16, false },
+				{ -1, 16, false },
+				{ 0x7fff, 16, false },
+				{ 0xffff, 16, false },
+				{ 0x10000, 16, true },
+
+				{ -1, 32, false },
+				{ 0x7fffffff, 32, false },
+				{ -0x7fffffff, 32, false },
+				{ 0xffffffff, 32, false },
+				{ 0x100000000ull, 32, true },
+
+#ifdef XBYAK64
+				{ -1, 64, false },
+				{ 0x7fffffff, 64, false },
+				{ 0xffffffffffffffffull, 64, false },
+				{ 0x80000000, 64, true },
+				{ 0xffffffff, 64, true },
+#endif
+			};
+			for (size_t i = 0; i < CYBOZU_NUM_OF_ARRAY(tbl); i++) {
+				const int bit = tbl[i].bit;
+				const uint64_t v = tbl[i].v;
+				const Xbyak::AddressFrame& af = bit == 8 ? byte : bit == 16 ? word : bit == 32 ? dword : qword;
+				if (tbl[i].error) {
+					CYBOZU_TEST_EXCEPTION(mov(af[eax], v), Xbyak::Error);
+				} else {
+					CYBOZU_TEST_NO_EXCEPTION(mov(af[eax], v));
+				}
+			}
 		}
 	} code;
 }
-#endif
