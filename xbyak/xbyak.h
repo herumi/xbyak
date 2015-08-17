@@ -1116,6 +1116,8 @@ public:
 		stateList_.clear();
 		stateList_.push_back(SlabelState());
 		stateList_.push_back(SlabelState());
+		clabelDefList_.clear();
+		clabelUndefList_.clear();
 	}
 	void enterLocal()
 	{
