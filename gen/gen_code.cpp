@@ -649,7 +649,7 @@ void put()
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Operand& op, const Reg& reg) { opModRM(reg, op, op.isREG(16|32|64) && op.getBit() == reg.getBit(), op.isMEM(), 0x0f, 0x%02x); }\n", p->name, p->code);
-			printf("void %s(const Operand& op, uint8 imm) { opR_ModM(op, 16|32|64, %d, 0x0f, 0xba); db(imm); }\n", p->name, p->ext);
+			printf("void %s(const Operand& op, uint8 imm) { opR_ModM(op, 16|32|64, %d, 0x0f, 0xba, NONE, false, 1); db(imm); }\n", p->name, p->ext);
 		}
 	}
 	{

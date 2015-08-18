@@ -1746,9 +1746,9 @@ public:
 	void imul(const Reg& reg, const Operand& op, int imm)
 	{
 		int s = inner::IsInDisp8(imm) ? 1 : 0;
-        int size = s ? 1 : reg.isREG(16) ? 2 : 4;
-		opModRM(reg, op, op.isREG() && (reg.getKind() == op.getKind()), op.isMEM(), B01101001 | (s << 1), NONE, NONE, size);
-		db(imm, size);
+        int immSize = s ? 1 : reg.isREG(16) ? 2 : 4;
+		opModRM(reg, op, op.isREG() && (reg.getKind() == op.getKind()), op.isMEM(), B01101001 | (s << 1), NONE, NONE, immSize);
+		db(imm, immSize);
 	}
 	void pop(const Operand& op)
 	{
