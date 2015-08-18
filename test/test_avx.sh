@@ -1,6 +1,6 @@
 #!/bin/tcsh
 
-set FILTER=cat
+set FILTER="grep -v warning"
 
 if ($1 == "Y") then
 	echo "yasm(32bit)"

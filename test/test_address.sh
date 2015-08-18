@@ -1,6 +1,6 @@
 #!/bin/sh
 
-FILTER=cat
+FILTER="grep -v warning"
 
 sub()
 {
