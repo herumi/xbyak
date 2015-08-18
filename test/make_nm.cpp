@@ -78,6 +78,8 @@ const uint64 YMM = _YMM | _YMM2;
 const uint64 NOPARA = 1ULL << (bitEnd - 1);
 
 class Test {
+	Test(const Test&);
+	void operator=(const Test&);
 	const bool isXbyak_;
 	int funcNum_;
 	// check all op1, op2, op3

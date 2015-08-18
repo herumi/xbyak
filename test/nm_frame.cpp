@@ -3,6 +3,9 @@
 
 using namespace Xbyak;
 
+#ifdef _MSC_VER
+	#pragma warning(disable : 4245)
+#endif
 class Sample : public CodeGenerator {
 	void operator=(const Sample&);
 public:
