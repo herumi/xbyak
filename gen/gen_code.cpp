@@ -1205,11 +1205,11 @@ void put()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			std::string type = type2String(p->type);
-			printf("void v%s(const Xmm& x1, const Xmm& x2, const Operand& op%s) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X, %s, %d)%s; }\n"
-				, p->name, p->hasIMM ? ", uint8 imm" : "", type.c_str(), p->code, p->supportYMM ? "true" : "false", p->w, p->hasIMM ? "; db(imm)" : "");
+			printf("void v%s(const Xmm& x1, const Xmm& x2, const Operand& op%s) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X, %s, %d%s); }\n"
+				, p->name, p->hasIMM ? ", uint8 imm" : "", type.c_str(), p->code, p->supportYMM ? "true" : "false", p->w, p->hasIMM ? ", imm" : "");
 			if (!p->enableOmit) continue;
-			printf("void v%s(const Xmm& xmm, const Operand& op%s) { opAVX_X_X_XM(xmm, xmm, op, %s, 0x%02X, %s, %d)%s; }\n"
-				, p->name, p->hasIMM ? ", uint8 imm" : "", type.c_str(), p->code, p->supportYMM ? "true" : "false", p->w, p->hasIMM ? "; db(imm)" : "");
+			printf("void v%s(const Xmm& xmm, const Operand& op%s) { opAVX_X_X_XM(xmm, xmm, op, %s, 0x%02X, %s, %d%s); }\n"
+				, p->name, p->hasIMM ? ", uint8 imm" : "", type.c_str(), p->code, p->supportYMM ? "true" : "false", p->w, p->hasIMM ? ", imm" : "");
 		}
 	}
 	// (x, x/m[, imm]) or (y, y/m[, imm])
@@ -1485,33 +1485,33 @@ void put()
 			printf("void %s(const Xmm& x, const Operand& op) { if (!(op.isXMM() || op.isMEM())) throw Error(ERR_BAD_COMBINATION); opAVX_X_XM_IMM(x, op, MM_0F38 | PP_66, 0x%02x, true, 0); }\n", p.name, p.code);
 		}
 
-		printf("void vextractf128(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, y.isXMM() ? xm0 : ym0, op, op.isXMM(), Operand::YMM, MM_0F3A | PP_66, 0x19, true, 0); db(imm); }\n");
-		printf("void vextracti128(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, y.isXMM() ? xm0 : ym0, op, op.isXMM(), Operand::YMM, MM_0F3A | PP_66, 0x39, true, 0); db(imm); }\n");
-		printf("void vextractps(const Operand& op, const Xmm& x, uint8 imm) { if (!(op.isREG(32) || op.isMEM()) || x.isYMM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, x.isXMM() ? xm0 : ym0, op, op.isREG(), Operand::XMM, MM_0F3A | PP_66, 0x17, false, 0); db(imm); }\n");
-		printf("void vinsertf128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(y1, y2, op, op.isXMM(), Operand::YMM, MM_0F3A | PP_66, 0x18, true, 0); db(imm); }\n");
-		printf("void vinserti128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(y1, y2, op, op.isXMM(), Operand::YMM, MM_0F3A | PP_66, 0x38, true, 0); db(imm); }\n");
-		printf("void vperm2f128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XM(y1, y2, op, MM_0F3A | PP_66, 0x06, true, 0); db(imm); }\n");
-		printf("void vperm2i128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XM(y1, y2, op, MM_0F3A | PP_66, 0x46, true, 0); db(imm); }\n");
+		printf("void vextractf128(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, y.isXMM() ? xm0 : ym0, op, op.isXMM(), Operand::YMM, MM_0F3A | PP_66, 0x19, true, 0, imm); }\n");
+		printf("void vextracti128(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, y.isXMM() ? xm0 : ym0, op, op.isXMM(), Operand::YMM, MM_0F3A | PP_66, 0x39, true, 0, imm); }\n");
+		printf("void vextractps(const Operand& op, const Xmm& x, uint8 imm) { if (!(op.isREG(32) || op.isMEM()) || x.isYMM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, x.isXMM() ? xm0 : ym0, op, op.isREG(), Operand::XMM, MM_0F3A | PP_66, 0x17, false, 0, imm); }\n");
+		printf("void vinsertf128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(y1, y2, op, op.isXMM(), Operand::YMM, MM_0F3A | PP_66, 0x18, true, 0, imm); }\n");
+		printf("void vinserti128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(y1, y2, op, op.isXMM(), Operand::YMM, MM_0F3A | PP_66, 0x38, true, 0, imm); }\n");
+		printf("void vperm2f128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XM(y1, y2, op, MM_0F3A | PP_66, 0x06, true, 0, imm); }\n");
+		printf("void vperm2i128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XM(y1, y2, op, MM_0F3A | PP_66, 0x46, true, 0, imm); }\n");
 
 		printf("void vlddqu(const Xmm& x, const Address& addr) { opAVX_X_X_XM(x, x.isXMM() ? xm0 : ym0, addr, MM_0F | PP_F2, 0xF0, true, 0); }\n");
 		printf("void vldmxcsr(const Address& addr) { opAVX_X_X_XM(xm2, xm0, addr, MM_0F, 0xAE, false, -1); }\n");
 		printf("void vstmxcsr(const Address& addr) { opAVX_X_X_XM(xm3, xm0, addr, MM_0F, 0xAE, false, -1); }\n");
 		printf("void vmaskmovdqu(const Xmm& x1, const Xmm& x2) { opAVX_X_X_XM(x1, xm0, x2, MM_0F | PP_66, 0xF7, false, -1); }\n");
 
-		printf("void vpextrb(const Operand& op, const Xmm& x, uint8 imm) { if (!op.isREG(i32e) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, xm0, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x14, false); db(imm); }\n");
+		printf("void vpextrb(const Operand& op, const Xmm& x, uint8 imm) { if (!op.isREG(i32e) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, xm0, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x14, false, -1, imm); }\n");
 		// according to Intel' manual, VEX.W1 is ignored in 64-bit mode, then always VEX.W = 0, but I follow yasm encoding.
-		printf("void vpextrw(const Reg& r, const Xmm& x, uint8 imm) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, x, MM_0F | PP_66, 0xC5, false, r.isBit(64) ? 1 : 0); db(imm); }\n");
-		printf("void vpextrw(const Address& addr, const Xmm& x, uint8 imm) { opAVX_X_X_XM(x, xm0, addr, MM_0F3A | PP_66, 0x15, false); db(imm); }\n");
-		printf("void vpextrd(const Operand& op, const Xmm& x, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, xm0, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x16, false, 0); db(imm); }\n");
+		printf("void vpextrw(const Reg& r, const Xmm& x, uint8 imm) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, x, MM_0F | PP_66, 0xC5, false, r.isBit(64) ? 1 : 0, imm); }\n");
+		printf("void vpextrw(const Address& addr, const Xmm& x, uint8 imm) { opAVX_X_X_XM(x, xm0, addr, MM_0F3A | PP_66, 0x15, false, -1, imm); }\n");
+		printf("void vpextrd(const Operand& op, const Xmm& x, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, xm0, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x16, false, 0, imm); }\n");
 
-		printf("void vpinsrb(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x1, x2, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x20, false); db(imm); }\n");
-		printf("void vpinsrb(const Xmm& x, const Operand& op, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, x, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x20, false); db(imm); }\n");
+		printf("void vpinsrb(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x1, x2, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x20, false, -1, imm); }\n");
+		printf("void vpinsrb(const Xmm& x, const Operand& op, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, x, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x20, false, -1, imm); }\n");
 
-		printf("void vpinsrw(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x1, x2, op, !op.isMEM(), Operand::XMM, MM_0F | PP_66, 0xC4, false); db(imm); }\n");
-		printf("void vpinsrw(const Xmm& x, const Operand& op, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, x, op, !op.isMEM(), Operand::XMM, MM_0F | PP_66, 0xC4, false); db(imm); }\n");
+		printf("void vpinsrw(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x1, x2, op, !op.isMEM(), Operand::XMM, MM_0F | PP_66, 0xC4, false, -1, imm); }\n");
+		printf("void vpinsrw(const Xmm& x, const Operand& op, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, x, op, !op.isMEM(), Operand::XMM, MM_0F | PP_66, 0xC4, false, -1, imm); }\n");
 
-		printf("void vpinsrd(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x1, x2, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x22, false, 0); db(imm); }\n");
-		printf("void vpinsrd(const Xmm& x, const Operand& op, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, x, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x22, false, 0); db(imm); }\n");
+		printf("void vpinsrd(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x1, x2, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x22, false, 0, imm); }\n");
+		printf("void vpinsrd(const Xmm& x, const Operand& op, uint8 imm) { if (!op.isREG(32) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, x, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x22, false, 0, imm); }\n");
 
 		printf("void vpmovmskb(const Reg32e& r, const Xmm& x) { bool isYMM= x.isYMM(); opAVX_X_X_XM(isYMM ? Ymm(r.getIdx()) : Xmm(r.getIdx()), isYMM ? ym0 : xm0, x, MM_0F | PP_66, 0xD7, true); }\n");
 
@@ -1536,20 +1536,20 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			printf("void v%s(const Xmm& x1, const Xmm& x2, uint8 imm) { opAVX_X_X_XM(x1.isYMM() ? ym%d : xm%d, x1, x2, MM_0F | PP_66, 0x%02X, true); db(imm); }\n", p.name, p.idx, p.idx, p.code);
-			printf("void v%s(const Xmm& x, uint8 imm) { opAVX_X_X_XM(x.isYMM() ? ym%d : xm%d, x, x, MM_0F | PP_66, 0x%02X, true); db(imm); }\n", p.name, p.idx, p.idx, p.code);
+			printf("void v%s(const Xmm& x1, const Xmm& x2, uint8 imm) { opAVX_X_X_XM(x1.isYMM() ? ym%d : xm%d, x1, x2, MM_0F | PP_66, 0x%02X, true, -1, imm); }\n", p.name, p.idx, p.idx, p.code);
+			printf("void v%s(const Xmm& x, uint8 imm) { opAVX_X_X_XM(x.isYMM() ? ym%d : xm%d, x, x, MM_0F | PP_66, 0x%02X, true, -1, imm); }\n", p.name, p.idx, p.idx, p.code);
 		}
 	}
 	// 4-op
 	{
-		printf("void vblendvpd(const Xmm& x1, const Xmm& x2, const Operand& op, const Xmm& x4) { opAVX_X_X_XM(x1, x2, op, MM_0F3A | PP_66, 0x4B, true); db(x4.getIdx() << 4); }\n");
-		printf("void vblendvpd(const Xmm& x1, const Operand& op, const Xmm& x4) { opAVX_X_X_XM(x1, x1, op, MM_0F3A | PP_66, 0x4B, true); db(x4.getIdx() << 4); }\n");
+		printf("void vblendvpd(const Xmm& x1, const Xmm& x2, const Operand& op, const Xmm& x4) { opAVX_X_X_XM(x1, x2, op, MM_0F3A | PP_66, 0x4B, true, -1, x4.getIdx() << 4); }\n");
+		printf("void vblendvpd(const Xmm& x1, const Operand& op, const Xmm& x4) { opAVX_X_X_XM(x1, x1, op, MM_0F3A | PP_66, 0x4B, true, -1, x4.getIdx() << 4); }\n");
 
-		printf("void vblendvps(const Xmm& x1, const Xmm& x2, const Operand& op, const Xmm& x4) { opAVX_X_X_XM(x1, x2, op, MM_0F3A | PP_66, 0x4A, true); db(x4.getIdx() << 4); }\n");
-		printf("void vblendvps(const Xmm& x1, const Operand& op, const Xmm& x4) { opAVX_X_X_XM(x1, x1, op, MM_0F3A | PP_66, 0x4A, true); db(x4.getIdx() << 4); }\n");
+		printf("void vblendvps(const Xmm& x1, const Xmm& x2, const Operand& op, const Xmm& x4) { opAVX_X_X_XM(x1, x2, op, MM_0F3A | PP_66, 0x4A, true, -1, x4.getIdx() << 4); }\n");
+		printf("void vblendvps(const Xmm& x1, const Operand& op, const Xmm& x4) { opAVX_X_X_XM(x1, x1, op, MM_0F3A | PP_66, 0x4A, true, -1, x4.getIdx() << 4); }\n");
 
-		printf("void vpblendvb(const Xmm& x1, const Xmm& x2, const Operand& op, const Xmm& x4) { opAVX_X_X_XM(x1, x2, op, MM_0F3A | PP_66, 0x4C, false); db(x4.getIdx() << 4); }\n");
-		printf("void vpblendvb(const Xmm& x1, const Operand& op, const Xmm& x4) { opAVX_X_X_XM(x1, x1, op, MM_0F3A | PP_66, 0x4C, false); db(x4.getIdx() << 4); }\n");
+		printf("void vpblendvb(const Xmm& x1, const Xmm& x2, const Operand& op, const Xmm& x4) { opAVX_X_X_XM(x1, x2, op, MM_0F3A | PP_66, 0x4C, false, -1, x4.getIdx() << 4); }\n");
+		printf("void vpblendvb(const Xmm& x1, const Operand& op, const Xmm& x4) { opAVX_X_X_XM(x1, x1, op, MM_0F3A | PP_66, 0x4C, false, -1, x4.getIdx() << 4); }\n");
 	}
 	// mov
 	{
@@ -1600,7 +1600,7 @@ void put()
 		printf("void vcvttpd2dq(const Xmm& x, const Operand& op) { if (x.isYMM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XM(op.isYMM() ? Ymm(x.getIdx()) : x, op.isYMM() ? ym0 : xm0, op, MM_0F | PP_66, 0xE6, true); }\n");
 
 		printf("void vcvtph2ps(const Xmm& x, const Operand& op) { if (!op.isMEM() && !op.isXMM()) throw Error(ERR_BAD_COMBINATION); opVex(x, NULL, &op, MM_0F38 | PP_66, 0x13, 0); }\n");
-		printf("void vcvtps2ph(const Operand& op, const Xmm& x, uint8 imm) { if (!op.isMEM() && !op.isXMM()) throw Error(ERR_BAD_COMBINATION); opVex(x, NULL, &op, MM_0F3A | PP_66, 0x1d, 0); db(imm); }\n");
+		printf("void vcvtps2ph(const Operand& op, const Xmm& x, uint8 imm) { if (!op.isMEM() && !op.isXMM()) throw Error(ERR_BAD_COMBINATION); opVex(x, NULL, &op, MM_0F3A | PP_66, 0x1d, 0, imm); }\n");
 	}
 	// x64
 	{
@@ -1609,10 +1609,10 @@ void put()
 		printf("void vmovq(const Xmm& x, const Reg64& reg) { opAVX_X_X_XM(x, xm0, Xmm(reg.getIdx()), MM_0F | PP_66, 0x6E, false, 1); }\n");
 		printf("void vmovq(const Reg64& reg, const Xmm& x) { opAVX_X_X_XM(x, xm0, Xmm(reg.getIdx()), MM_0F | PP_66, 0x7E, false, 1); }\n");
 
-		printf("void vpextrq(const Operand& op, const Xmm& x, uint8 imm) { if (!op.isREG(64) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, xm0, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x16, false, 1); db(imm); }\n");
+		printf("void vpextrq(const Operand& op, const Xmm& x, uint8 imm) { if (!op.isREG(64) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, xm0, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x16, false, 1, imm); }\n");
 
-		printf("void vpinsrq(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { if (!op.isREG(64) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x1, x2, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x22, false, 1); db(imm); }\n");
-		printf("void vpinsrq(const Xmm& x, const Operand& op, uint8 imm) { if (!op.isREG(64) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, x, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x22, false, 1); db(imm); }\n");
+		printf("void vpinsrq(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { if (!op.isREG(64) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x1, x2, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x22, false, 1, imm); }\n");
+		printf("void vpinsrq(const Xmm& x, const Operand& op, uint8 imm) { if (!op.isREG(64) && !op.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, x, op, !op.isMEM(), Operand::XMM, MM_0F3A | PP_66, 0x22, false, 1, imm); }\n");
 
 		printf("void vcvtss2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, MM_0F | PP_F3, 0x2D, false, 1); }\n");
 		printf("void vcvttss2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, MM_0F | PP_F3, 0x2C, false, 1); }\n");

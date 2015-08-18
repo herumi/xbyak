@@ -1322,13 +1322,13 @@ private:
 		db(code0 | (reg1.isBit(8) ? 0 : 1)); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
 		db(getModRM(3, reg1.getIdx(), reg2.getIdx()));
 	}
-	void opModM(const Address& addr, const Reg& reg, int code0, int code1 = NONE, int code2 = NONE, int endOffset = 0)
+	void opModM(const Address& addr, const Reg& reg, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
 	{
 		if (addr.is64bitDisp()) throw Error(ERR_CANT_USE_64BIT_DISP);
 		rex(addr, reg);
 		db(code0 | (reg.isBit(8) ? 0 : 1)); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
 		addr.updateRegField(static_cast<uint8>(reg.getIdx()));
-		opAddr(addr, endOffset);
+		opAddr(addr, immSize);
 	}
 	void makeJmp(uint32 disp, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
 	{
@@ -1377,11 +1377,12 @@ private:
 		}
 
 	}
-	void opAddr(const Address &addr, int endOffset = 0)
+	// immSize is the size for immediate value
+	void opAddr(const Address &addr, int immSize = 0)
 	{
 		db(addr.getCode(), static_cast<int>(addr.getSize()));
 		if (addr.getLabel()) { // [rip + Label]
-			putL_inner(*addr.getLabel(), true, addr.getDisp() - endOffset);
+			putL_inner(*addr.getLabel(), true, addr.getDisp() - immSize);
 		}
 	}
 	/* preCode is for SSSE3/SSE4 */
@@ -1426,14 +1427,14 @@ private:
 			opGen(mmx, op, code, 0x66, isXMM_REG32orMEM, imm, B00111010);
 		}
 	}
-	void opR_ModM(const Operand& op, int bit, int ext, int code0, int code1 = NONE, int code2 = NONE, bool disableRex = false, int endOffset = 0)
+	void opR_ModM(const Operand& op, int bit, int ext, int code0, int code1 = NONE, int code2 = NONE, bool disableRex = false, int immSize = 0)
 	{
 		int opBit = op.getBit();
 		if (disableRex && opBit == 64) opBit = 32;
 		if (op.isREG(bit)) {
 			opModR(Reg(ext, Operand::REG, opBit), static_cast<const Reg&>(op).changeBit(opBit), code0, code1, code2);
 		} else if (op.isMEM()) {
-			opModM(static_cast<const Address&>(op), Reg(ext, Operand::REG, opBit), code0, code1, code2, endOffset);
+			opModM(static_cast<const Address&>(op), Reg(ext, Operand::REG, opBit), code0, code1, code2, immSize);
 		} else {
 			throw Error(ERR_BAD_COMBINATION);
 		}
@@ -1449,12 +1450,12 @@ private:
 		if (cl.getIdx() != Operand::CL) throw Error(ERR_BAD_COMBINATION);
 		opR_ModM(op, 0, ext, B11010010);
 	}
-	void opModRM(const Operand& op1, const Operand& op2, bool condR, bool condM, int code0, int code1 = NONE, int code2 = NONE, int endOffset = 0)
+	void opModRM(const Operand& op1, const Operand& op2, bool condR, bool condM, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
 	{
 		if (condR) {
 			opModR(static_cast<const Reg&>(op1), static_cast<const Reg&>(op2), code0, code1, code2);
 		} else if (condM) {
-			opModM(static_cast<const Address&>(op2), static_cast<const Reg&>(op1), code0, code1, code2, endOffset);
+			opModM(static_cast<const Address&>(op2), static_cast<const Reg&>(op1), code0, code1, code2, immSize);
 		} else {
 			throw Error(ERR_BAD_COMBINATION);
 		}
@@ -1619,7 +1620,7 @@ private:
 		opAVX_X_X_XM(x1, op1, cvt ? kind == Operand::XMM ? static_cast<const Operand&>(Xmm(op2.getIdx())) : static_cast<const Operand&>(Ymm(op2.getIdx())) : op2, type, code0, supportYMM, w, imm8);
 	}
 	// support (x, x/m, imm), (y, y/m, imm)
-	void opAVX_X_XM_IMM (const Xmm& x, const Operand& op, int type, int code, bool supportYMM, int w = -1, int imm8 = NONE)
+	void opAVX_X_XM_IMM(const Xmm& x, const Operand& op, int type, int code, bool supportYMM, int w = -1, int imm8 = NONE)
 	{
 		opAVX_X_X_XM(x, x.isXMM() ? xm0 : ym0, op, type, code, supportYMM, w, imm8);
 	}
