@@ -1445,9 +1445,9 @@ private:
 		opR_ModM(op, 0, ext, (B11000000 | ((imm == 1 ? 1 : 0) << 4)), NONE, NONE, false, (imm != 1) ? 1 : 0);
 		if (imm != 1) db(imm);
 	}
-	void opShift(const Operand& op, const Reg8& cl, int ext)
+	void opShift(const Operand& op, const Reg8& _cl, int ext)
 	{
-		if (cl.getIdx() != Operand::CL) throw Error(ERR_BAD_COMBINATION);
+		if (_cl.getIdx() != Operand::CL) throw Error(ERR_BAD_COMBINATION);
 		opR_ModM(op, 0, ext, B11010010);
 	}
 	void opModRM(const Operand& op1, const Operand& op2, bool condR, bool condM, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
@@ -1460,11 +1460,11 @@ private:
 			throw Error(ERR_BAD_COMBINATION);
 		}
 	}
-	void opShxd(const Operand& op, const Reg& reg, uint8 imm, int code, const Reg8 *cl = 0)
+	void opShxd(const Operand& op, const Reg& reg, uint8 imm, int code, const Reg8 *_cl = 0)
 	{
-		if (cl && cl->getIdx() != Operand::CL) throw Error(ERR_BAD_COMBINATION);
-		opModRM(reg, op, (op.isREG(16 | i32e) && op.getBit() == reg.getBit()), op.isMEM() && (reg.isREG(16 | i32e)), 0x0F, code | (cl ? 1 : 0), NONE, cl ? 0 : 1);
-		if (!cl) db(imm);
+		if (_cl && _cl->getIdx() != Operand::CL) throw Error(ERR_BAD_COMBINATION);
+		opModRM(reg, op, (op.isREG(16 | i32e) && op.getBit() == reg.getBit()), op.isMEM() && (reg.isREG(16 | i32e)), 0x0F, code | (_cl ? 1 : 0), NONE, _cl ? 0 : 1);
+		if (!_cl) db(imm);
 	}
 	// (REG, REG|MEM), (MEM, REG)
 	void opRM_RM(const Operand& op1, const Operand& op2, int code)
