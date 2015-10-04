@@ -100,7 +100,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4860 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4870 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -525,6 +525,23 @@ inline Reg64 Reg::cvt64() const
 	if (isBit(8) && (4 <= idx && idx < 8) && !isExt8bit()) throw Error(ERR_CANT_CONVERT);
 	return Reg64(idx);
 }
+#endif
+
+#ifndef XBYAK_DISABLE_SEGMENT
+// not derived from Reg
+class Segment {
+	int idx_;
+public:
+	Segment(int idx) : idx_(idx) { assert(0 <= idx_ && idx_ < 6); }
+	int getIdx() const { return idx_; }
+	const char *toString() const
+	{
+		static const char tbl[][3] = {
+			"es", "cs", "ss", "ds", "fs", "gs"
+		};
+		return tbl[idx_];
+	}
+};
 #endif
 
 class RegExp {
@@ -1680,6 +1697,9 @@ public:
 	const Ymm &ym8, &ym9, &ym10, &ym11, &ym12, &ym13, &ym14, &ym15;
 	const RegRip rip;
 #endif
+#ifndef XBYAK_DISABLE_SEGMENT
+	const Segment es, cs, ss, ds, fs, gs;
+#endif
 	void L(const std::string& label) { labelMgr_.defineSlabel(label); }
 	void L(const Label& label) { labelMgr_.defineClabel(label); }
 	/*
@@ -1897,6 +1917,29 @@ public:
 		mov_imm(reg, dummyAddr);
 		putL(label);
 	}
+#ifndef XBYAK_DISABLE_SEGMENT
+	void putSeg(const Segment& seg)
+	{
+		switch (seg.getIdx()) {
+		case 0: db(0x2e); break;
+		case 1: db(0x36); break;
+		case 2: db(0x3e); break;
+		case 3: db(0x26); break;
+		case 4: db(0x64); break;
+		case 5: db(0x65); break;
+		default:
+			assert(0);
+		}
+	}
+	void mov(const Operand& op, const Segment& seg)
+	{
+		opModRM(Reg8(seg.getIdx()), op, op.isREG(16|i32e), op.isMEM(), 0x8C);
+	}
+	void mov(const Segment& seg, const Operand& op)
+	{
+		opModRM(Reg8(seg.getIdx()), op.isREG(16|i32e) ? static_cast<const Operand&>(static_cast<const Reg&>(op).cvt32()) : op, op.isREG(16|i32e), op.isMEM(), 0x8E);
+	}
+#endif
 	void movbe(const Reg& reg, const Address& addr) { opModM(addr, reg, 0x0F, 0x38, 0xF0); }
 	void movbe(const Address& addr, const Reg& reg) { opModM(addr, reg, 0x0F, 0x38, 0xF1); }
 	/*
@@ -2084,6 +2127,9 @@ public:
 		, ym8(ymm8), ym9(ymm9), ym10(ymm10), ym11(ymm11), ym12(ymm12), ym13(ymm13), ym14(ymm14), ym15(ymm15) // for my convenience
 		, rip()
 #endif
+#ifndef XBYAK_DISABLE_SEGMENT
+		, es(0), cs(1), ss(2), ds(3), fs(4), gs(5)
+#endif
 	{
 		labelMgr_.set(this);
 	}
@@ -2141,6 +2187,9 @@ static const Reg8 r8b(Operand::R8B), r9b(Operand::R9B), r10b(Operand::R10B), r11
 static const Xmm xmm8(8), xmm9(9), xmm10(10), xmm11(11), xmm12(12), xmm13(13), xmm14(14), xmm15(15);
 static const Ymm ymm8(8), ymm9(9), ymm10(10), ymm11(11), ymm12(12), ymm13(13), ymm14(14), ymm15(15);
 static const RegRip rip;
+#endif
+#ifndef XBYAK_DISABLE_SEGMENT
+static const Segment es(0), cs(1), ss(2), ds(3), fs(4), gs(5);
 #endif
 } // util
 

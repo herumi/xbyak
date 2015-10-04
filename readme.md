@@ -1,5 +1,5 @@
 
-Xbyak 4.86 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 4.87 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -106,7 +106,15 @@ pointer by calling cgetCode() and casting the return value.
     mov eax, [ebx+ecx] --> mov (eax, ptr[ebx+ecx]);
     test byte [esp], 4 --> test (byte [esp], 4);
 
->selector is not supported.
+
+How to use Selector(Segment Register)
+
+>Note: Segment class is not derived from Operand.
+
+```
+mov eax, [fs:eax] --> putSeg(fs); mov(eax, ptr [eax]);
+mov ax, cs        --> mov(ax, cs);
+```
 
 >you can use ptr for almost memory access unless you specify the size of memory.
 

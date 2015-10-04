@@ -101,7 +101,12 @@ ret           --> ret();
 (ptr|dword|word|byte) [base + index * (1|2|4|8) + displacement]
                       [rip + 32bit disp] ; x64 only
 という形で指定します。サイズを指定する必要がない限りptrを使えばよいです。
-セレクタはサポートしていません。
+
+セレクター(セグメントレジスタ)をサポートしました。
+(注意)セグメントレジスタはOperandを継承していません。
+
+mov eax, [fs:eax]  --> putSeg(fs); mov(eax, ptr [eax]);
+mov ax, cs         --> mov(ax, cs);
 
 mov eax, [ebx+ecx] --> mov (eax, ptr[ebx+ecx]);
 test byte [esp], 4 --> test (byte [esp], 4);
