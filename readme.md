@@ -285,6 +285,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2015/Oct/05 ver 4.87 support segment selectors
 * 2015/Aug/18 ver 4.86 fix [rip + label] addressing with immediate value(thanks to whyisthisfieldhere)
 * 2015/Aug/10 ver 4.85 Address::operator==() is not correct(thanks to inolen)
 * 2015/Jun/22 ver 4.84 call() support variadic template if available(thanks to randomstuff)
