@@ -532,6 +532,9 @@ inline Reg64 Reg::cvt64() const
 class Segment {
 	int idx_;
 public:
+	enum {
+		es, cs, ss, ds, fs, gs
+	};
 	Segment(int idx) : idx_(idx) { assert(0 <= idx_ && idx_ < 6); }
 	int getIdx() const { return idx_; }
 	const char *toString() const
@@ -1797,6 +1800,34 @@ public:
 			push(dword, imm);
 		}
 	}
+#ifndef XBYAK_DISABLE_SEGMENT
+	void push(const Segment& seg)
+	{
+		switch (seg.getIdx()) {
+		case Segment::es: db(0x06); break;
+		case Segment::cs: db(0x0e); break;
+		case Segment::ss: db(0x16); break;
+		case Segment::ds: db(0x1e); break;
+		case Segment::fs: db(0x0f); db(0xa0); break;
+		case Segment::gs: db(0x0f); db(0xa8); break;
+		default:
+			assert(0);
+		}
+	}
+	void pop(const Segment& seg)
+	{
+		switch (seg.getIdx()) {
+		case Segment::es: db(0x07); break;
+		case Segment::cs: throw Error(ERR_BAD_COMBINATION);
+		case Segment::ss: db(0x17); break;
+		case Segment::ds: db(0x1f); break;
+		case Segment::fs: db(0x0f); db(0xa1); break;
+		case Segment::gs: db(0x0f); db(0xa9); break;
+		default:
+			assert(0);
+		}
+	}
+#endif
 	void bswap(const Reg32e& reg)
 	{
 		opModR(Reg32(1), reg, 0x0F);
@@ -1921,12 +1952,12 @@ public:
 	void putSeg(const Segment& seg)
 	{
 		switch (seg.getIdx()) {
-		case 0: db(0x2e); break;
-		case 1: db(0x36); break;
-		case 2: db(0x3e); break;
-		case 3: db(0x26); break;
-		case 4: db(0x64); break;
-		case 5: db(0x65); break;
+		case Segment::es: db(0x2e); break;
+		case Segment::cs: db(0x36); break;
+		case Segment::ss: db(0x3e); break;
+		case Segment::ds: db(0x26); break;
+		case Segment::fs: db(0x64); break;
+		case Segment::gs: db(0x65); break;
 		default:
 			assert(0);
 		}
@@ -2128,7 +2159,7 @@ public:
 		, rip()
 #endif
 #ifndef XBYAK_DISABLE_SEGMENT
-		, es(0), cs(1), ss(2), ds(3), fs(4), gs(5)
+		, es(Segment::es), cs(Segment::cs), ss(Segment::ss), ds(Segment::ds), fs(Segment::fs), gs(Segment::gs)
 #endif
 	{
 		labelMgr_.set(this);
@@ -2189,7 +2220,7 @@ static const Ymm ymm8(8), ymm9(9), ymm10(10), ymm11(11), ymm12(12), ymm13(13), y
 static const RegRip rip;
 #endif
 #ifndef XBYAK_DISABLE_SEGMENT
-static const Segment es(0), cs(1), ss(2), ds(3), fs(4), gs(5);
+static const Segment es(Segment::es), cs(Segment::cs), ss(Segment::ss), ds(Segment::ds), fs(Segment::fs), gs(Segment::gs);
 #endif
 } // util
 

@@ -2168,9 +2168,13 @@ public:
 				if (isXbyak_) {
 					printf("mov(%s, %s); dump();\n", op1, seg);
 					printf("mov(%s, %s); dump();\n", seg, op1);
+					printf("push(%s); dump();\n", seg);
+					if (strcmp(seg, "cs") != 0) printf("pop(%s); dump();\n", seg);
 				} else {
 					printf("mov %s, %s\n", op1, seg);
 					printf("mov %s, %s\n", seg, op1);
+					printf("push %s\n", seg);
+					if (strcmp(seg, "cs") != 0) printf("pop %s\n", seg);
 				}
 			}
 		}
