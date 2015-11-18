@@ -58,6 +58,7 @@
 	#define XBYAK_STD_UNORDERED_MULTIMAP std::multimap
 #endif
 #ifdef _WIN32
+	#include <winsock2.h>
 	#include <windows.h>
 	#include <malloc.h>
 #elif defined(__GNUC__)
