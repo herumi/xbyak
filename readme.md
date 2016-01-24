@@ -1,5 +1,5 @@
 
-Xbyak 4.87 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 4.88 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -285,6 +285,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2016/Jan/24 ver 4.88 lea, cmov supports 16-bit register(thanks to whyisthisfieldhere)
 * 2015/Oct/05 ver 4.87 support segment selectors
 * 2015/Aug/18 ver 4.86 fix [rip + label] addressing with immediate value(thanks to whyisthisfieldhere)
 * 2015/Aug/10 ver 4.85 Address::operator==() is not correct(thanks to inolen)

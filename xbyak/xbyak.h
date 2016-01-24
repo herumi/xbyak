@@ -101,7 +101,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4870 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4880 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -2112,7 +2112,11 @@ public:
 		if (!reg1.isMMX() || !reg2.isMMX()) throw Error(ERR_BAD_COMBINATION);
 		opModR(reg1, reg2, 0x0F, B11110111);
 	}
-	void lea(const Reg32e& reg, const Address& addr) { opModM(addr, reg, B10001101); }
+	void lea(const Reg& reg, const Address& addr)
+	{
+		if (!reg.isBit(16 | i32e)) throw Error(ERR_BAD_SIZE_OF_REGISTER);
+		opModM(addr, reg, B10001101);
+	}
 
 	void movmskps(const Reg32e& reg, const Xmm& xmm) { opModR(reg, xmm, 0x0F, B01010000); }
 	void movmskpd(const Reg32e& reg, const Xmm& xmm) { db(0x66); movmskps(reg, xmm); }

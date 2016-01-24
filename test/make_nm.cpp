@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "xbyak/xbyak.h"
 #include <stdlib.h>
+#include <string.h>
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
 using namespace Xbyak;
@@ -429,7 +430,7 @@ class Test {
 		}
 
 		put("bswap", REG32e);
-		put("lea", REG32e, MEM);
+		put("lea", REG32e|REG16, MEM);
 		put("fldcw", MEM);
 		put("fstcw", MEM);
 	}
@@ -805,6 +806,7 @@ class Test {
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			char buf[16];
 			sprintf(buf, "cmov%s", tbl[i]);
+			put(buf, REG16, REG16|MEM);
 			put(buf, REG32, REG32|MEM);
 			put(buf, REG64, REG64|MEM);
 			sprintf(buf, "set%s", tbl[i]);
@@ -2168,13 +2170,30 @@ public:
 				if (isXbyak_) {
 					printf("mov(%s, %s); dump();\n", op1, seg);
 					printf("mov(%s, %s); dump();\n", seg, op1);
-					printf("push(%s); dump();\n", seg);
-					if (strcmp(seg, "cs") != 0) printf("pop(%s); dump();\n", seg);
 				} else {
 					printf("mov %s, %s\n", op1, seg);
 					printf("mov %s, %s\n", seg, op1);
+				}
+			}
+		}
+		{
+			const char *segTbl[] = {
+#ifdef XBYAK32
+				"es",
+				"ss",
+				"ds",
+#endif
+				"fs",
+				"gs",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(segTbl); i++) {
+				const char *seg = segTbl[i];
+				if (isXbyak_) {
+					printf("push(%s); dump();\n", seg);
+					printf("pop(%s); dump();\n", seg);
+				} else {
 					printf("push %s\n", seg);
-					if (strcmp(seg, "cs") != 0) printf("pop %s\n", seg);
+					printf("pop %s\n", seg);
 				}
 			}
 		}
