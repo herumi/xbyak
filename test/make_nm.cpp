@@ -1805,7 +1805,7 @@ class Test {
 			} tbl[] = {
 				{ "vblendvpd", true },
 				{ "vblendvps", true },
-				{ "vpblendvb", false },
+				{ "vpblendvb", true },
 			};
 			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 				const Tbl& p = tbl[i];
