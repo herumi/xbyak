@@ -1807,11 +1807,11 @@ public:
 	{
 		switch (seg.getIdx()) {
 		case Segment::es: db(0x06); break;
-		case Segment::cs: db(0x0e); break;
+		case Segment::cs: db(0x0E); break;
 		case Segment::ss: db(0x16); break;
-		case Segment::ds: db(0x1e); break;
-		case Segment::fs: db(0x0f); db(0xa0); break;
-		case Segment::gs: db(0x0f); db(0xa8); break;
+		case Segment::ds: db(0x1E); break;
+		case Segment::fs: db(0x0F); db(0xA0); break;
+		case Segment::gs: db(0x0F); db(0xA8); break;
 		default:
 			assert(0);
 		}
@@ -1822,9 +1822,9 @@ public:
 		case Segment::es: db(0x07); break;
 		case Segment::cs: throw Error(ERR_BAD_COMBINATION);
 		case Segment::ss: db(0x17); break;
-		case Segment::ds: db(0x1f); break;
-		case Segment::fs: db(0x0f); db(0xa1); break;
-		case Segment::gs: db(0x0f); db(0xa9); break;
+		case Segment::ds: db(0x1F); break;
+		case Segment::fs: db(0x0F); db(0xA1); break;
+		case Segment::gs: db(0x0F); db(0xA9); break;
 		default:
 			assert(0);
 		}
@@ -1954,9 +1954,9 @@ public:
 	void putSeg(const Segment& seg)
 	{
 		switch (seg.getIdx()) {
-		case Segment::es: db(0x2e); break;
+		case Segment::es: db(0x2E); break;
 		case Segment::cs: db(0x36); break;
-		case Segment::ss: db(0x3e); break;
+		case Segment::ss: db(0x3E); break;
 		case Segment::ds: db(0x26); break;
 		case Segment::fs: db(0x64); break;
 		case Segment::gs: db(0x65); break;
@@ -2136,8 +2136,8 @@ public:
 		db(0xF2);
 		opModRM(reg, op, op.isREG(), op.isMEM(), 0x0F, 0x38, 0xF0 | (op.isBit(8) ? 0 : 1));
 	}
-	void rdrand(const Reg& r) { if (r.isBit(8)) throw Error(ERR_BAD_SIZE_OF_REGISTER); opModR(Reg(6, Operand::REG, r.getBit()), r, 0x0f, 0xc7); }
-	void rdseed(const Reg& r) { if (r.isBit(8)) throw Error(ERR_BAD_SIZE_OF_REGISTER); opModR(Reg(7, Operand::REG, r.getBit()), r, 0x0f, 0xc7); }
+	void rdrand(const Reg& r) { if (r.isBit(8)) throw Error(ERR_BAD_SIZE_OF_REGISTER); opModR(Reg(6, Operand::REG, r.getBit()), r, 0x0F, 0xC7); }
+	void rdseed(const Reg& r) { if (r.isBit(8)) throw Error(ERR_BAD_SIZE_OF_REGISTER); opModR(Reg(7, Operand::REG, r.getBit()), r, 0x0F, 0xC7); }
 	void rorx(const Reg32e& r, const Operand& op, uint8 imm) { opGpr(r, op, Reg32e(0, r.getBit()), MM_0F3A | PP_F2, 0xF0, false, imm); }
 	enum { NONE = 256 };
 	CodeGenerator(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0, Allocator *allocator = 0)
