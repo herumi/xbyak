@@ -75,42 +75,42 @@ void put()
 			const char *name;
 		} tbl[] = {
 			// MMX
-			{ B01101011, "packssdw" },
-			{ B01100011, "packsswb" },
-			{ B01100111, "packuswb" },
+			{ 0x6B, "packssdw" },
+			{ 0x63, "packsswb" },
+			{ 0x67, "packuswb" },
 
-			{ B11011011, "pand" },
-			{ B11011111, "pandn" },
+			{ 0xDB, "pand" },
+			{ 0xDF, "pandn" },
 
-			{ B11110101, "pmaddwd" },
-			{ B11100100, "pmulhuw" },
-			{ B11100101, "pmulhw" },
-			{ B11010101, "pmullw" },
+			{ 0xF5, "pmaddwd" },
+			{ 0xE4, "pmulhuw" },
+			{ 0xE5, "pmulhw" },
+			{ 0xD5, "pmullw" },
 
-			{ B11101011, "por" },
+			{ 0xEB, "por" },
 
-			{ B01101000, "punpckhbw" },
-			{ B01101001, "punpckhwd" },
-			{ B01101010, "punpckhdq" },
+			{ 0x68, "punpckhbw" },
+			{ 0x69, "punpckhwd" },
+			{ 0x6A, "punpckhdq" },
 
-			{ B01100000, "punpcklbw" },
-			{ B01100001, "punpcklwd" },
-			{ B01100010, "punpckldq" },
+			{ 0x60, "punpcklbw" },
+			{ 0x61, "punpcklwd" },
+			{ 0x62, "punpckldq" },
 
-			{ B11101111, "pxor" },
+			{ 0xEF, "pxor" },
 
 			// MMX2
-			{ B11100000, "pavgb" },
-			{ B11100011, "pavgw" },
-			{ B11101110, "pmaxsw" },
-			{ B11011110, "pmaxub" },
-			{ B11101010, "pminsw" },
-			{ B11011010, "pminub" },
-			{ B11110110, "psadbw" },
+			{ 0xE0, "pavgb" },
+			{ 0xE3, "pavgw" },
+			{ 0xEE, "pmaxsw" },
+			{ 0xDE, "pmaxub" },
+			{ 0xEA, "pminsw" },
+			{ 0xDA, "pminub" },
+			{ 0xF6, "psadbw" },
 			//
-			{ B11010100, "paddq" },
-			{ B11110100, "pmuludq" },
-			{ B11111011, "psubq" },
+			{ 0xD4, "paddq" },
+			{ 0xF4, "pmuludq" },
+			{ 0xFB, "psubq" },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -125,17 +125,17 @@ void put()
 			int mode;
 			const char *name;
 		} tbl[] = {
-			{ B11111100, B|W|D, "padd" },
-			{ B11101100, B|W  , "padds" },
-			{ B11011100, B|W  , "paddus" },
-			{ B01110100, B|W|D, "pcmpeq" },
-			{ B01100100, B|W|D, "pcmpgt" },
-			{ B11110000, W|D|Q, "psll" },
-			{ B11100000, W|D  , "psra" },
-			{ B11010000, W|D|Q, "psrl" },
-			{ B11111000, B|W|D, "psub" },
-			{ B11101000, B|W  , "psubs" },
-			{ B11011000, B|W  , "psubus" },
+			{ 0xFC, B|W|D, "padd" },
+			{ 0xEC, B|W  , "padds" },
+			{ 0xDC, B|W  , "paddus" },
+			{ 0x74, B|W|D, "pcmpeq" },
+			{ 0x64, B|W|D, "pcmpgt" },
+			{ 0xF0, W|D|Q, "psll" },
+			{ 0xE0, W|D  , "psra" },
+			{ 0xD0, W|D|Q, "psrl" },
+			{ 0xF8, B|W|D, "psub" },
+			{ 0xE8, B|W  , "psubs" },
+			{ 0xD8, B|W  , "psubus" },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -160,9 +160,9 @@ void put()
 			int mode;
 			const char *name;
 		} tbl[] = {
-			{ B01110000, 6, W|D|Q, "psll" },
-			{ B01110000, 4, W|D  , "psra" },
-			{ B01110000, 2, W|D|Q, "psrl" },
+			{ 0x70, 6, W|D|Q, "psll" },
+			{ 0x70, 4, W|D  , "psra" },
+			{ 0x70, 2, W|D|Q, "psrl" },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -179,8 +179,8 @@ void put()
 				);
 			}
 		}
-		printf("void pslldq(const Xmm& xmm, int imm8) { opMMX_IMM(xmm, imm8, 0x%02X, %d); }\n", B01110011, 7);
-		printf("void psrldq(const Xmm& xmm, int imm8) { opMMX_IMM(xmm, imm8, 0x%02X, %d); }\n", B01110011, 3);
+		printf("void pslldq(const Xmm& xmm, int imm8) { opMMX_IMM(xmm, imm8, 0x%02X, %d); }\n", 0x73, 7);
+		printf("void psrldq(const Xmm& xmm, int imm8) { opMMX_IMM(xmm, imm8, 0x%02X, %d); }\n", 0x73, 3);
 	}
 
 	{
@@ -189,10 +189,10 @@ void put()
 			uint8 pref;
 			const char *name;
 		} tbl[] = {
-			{ B01110000, 0, "pshufw" },
-			{ B01110000, 0xF2, "pshuflw" },
-			{ B01110000, 0xF3, "pshufhw" },
-			{ B01110000, 0x66, "pshufd" },
+			{ 0x70, 0, "pshufw" },
+			{ 0x70, 0xF2, "pshuflw" },
+			{ 0x70, 0xF3, "pshufhw" },
+			{ 0x70, 0x66, "pshufd" },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -206,15 +206,15 @@ void put()
 			int pref;
 			const char *name;
 		} mmxTbl6[] = {
-			{ B01101111, B01111111, 0x66, "movdqa" },
-			{ B01101111, B01111111, 0xF3, "movdqu" },
+			{ 0x6F, 0x7F, 0x66, "movdqa" },
+			{ 0x6F, 0x7F, 0xF3, "movdqu" },
 			// SSE2
-			{ B00101000, B00101001, NO, "movaps" },
-			{ B00010000, B00010001, 0xF3, "movss" },
-			{ B00010000, B00010001, NO, "movups" },
-			{ B00101000, B00101001, 0x66, "movapd" },
-			{ B00010000, B00010001, 0xF2, "movsd" },
-			{ B00010000, B00010001, 0x66, "movupd" },
+			{ 0x28, 0x29, NO, "movaps" },
+			{ 0x10, 0x11, 0xF3, "movss" },
+			{ 0x10, 0x11, NO, "movups" },
+			{ 0x28, 0x29, 0x66, "movapd" },
+			{ 0x10, 0x11, 0xF2, "movsd" },
+			{ 0x10, 0x11, 0x66, "movupd" },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(mmxTbl6); i++) {
 			const MmxTbl6 *p = &mmxTbl6[i];
@@ -246,23 +246,23 @@ void put()
 			const char *name;
 			bool hasImm;
 		} tbl[] = {
-			{ B01011000, PS|SS|PD|SD, "add" },
-			{ B01010101, PS|PD      , "andn" },
-			{ B01010100, PS|PD      , "and" },
-			{ B11000010, PS|SS|PD|SD, "cmp", true },
-			{ B01011110, PS|SS|PD|SD, "div" },
-			{ B01011111, PS|SS|PD|SD, "max" },
-			{ B01011101, PS|SS|PD|SD, "min" },
-			{ B01011001, PS|SS|PD|SD, "mul" },
-			{ B01010110, PS|PD      , "or" },
-			{ B01010011, PS|SS      , "rcp" },
-			{ B01010010, PS|SS      , "rsqrt" },
-			{ B11000110, PS|PD      , "shuf", true },
-			{ B01010001, PS|SS|PD|SD, "sqrt" },
-			{ B01011100, PS|SS|PD|SD, "sub" },
-			{ B00010101, PS|PD      , "unpckh" },
-			{ B00010100, PS|PD      , "unpckl" },
-			{ B01010111, PS|PD      , "xor" },
+			{ 0x58, PS|SS|PD|SD, "add" },
+			{ 0x55, PS|PD      , "andn" },
+			{ 0x54, PS|PD      , "and" },
+			{ 0xC2, PS|SS|PD|SD, "cmp", true },
+			{ 0x5E, PS|SS|PD|SD, "div" },
+			{ 0x5F, PS|SS|PD|SD, "max" },
+			{ 0x5D, PS|SS|PD|SD, "min" },
+			{ 0x59, PS|SS|PD|SD, "mul" },
+			{ 0x56, PS|PD      , "or" },
+			{ 0x53, PS|SS      , "rcp" },
+			{ 0x52, PS|SS      , "rsqrt" },
+			{ 0xC6, PS|PD      , "shuf", true },
+			{ 0x51, PS|SS|PD|SD, "sqrt" },
+			{ 0x5C, PS|SS|PD|SD, "sub" },
+			{ 0x15, PS|PD      , "unpckh" },
+			{ 0x14, PS|PD      , "unpckl" },
+			{ 0x57, PS|PD      , "xor" },
 			//
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
@@ -285,9 +285,9 @@ void put()
 			uint8 pref;
 			const char *name;
 		} tbl[] = {
-			{ B11110111, 0x66, "maskmovdqu" },
-			{ B00010010, 0   , "movhlps" },
-			{ B00010110, 0   , "movlhps" },
+			{ 0xF7, 0x66, "maskmovdqu" },
+			{ 0x12, 0   , "movhlps" },
+			{ 0x16, 0   , "movlhps" },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -303,36 +303,36 @@ void put()
 			int pref;
 			const char *name;
 		} tbl[] = {
-			{ B01101101, 0x66, "punpckhqdq" },
-			{ B01101100, 0x66, "punpcklqdq" },
+			{ 0x6D, 0x66, "punpckhqdq" },
+			{ 0x6C, 0x66, "punpcklqdq" },
 
-			{ B00101111, NO  , "comiss" },
-			{ B00101110, NO  , "ucomiss" },
-			{ B00101111, 0x66, "comisd" },
-			{ B00101110, 0x66, "ucomisd" },
+			{ 0x2F, NO  , "comiss" },
+			{ 0x2E, NO  , "ucomiss" },
+			{ 0x2F, 0x66, "comisd" },
+			{ 0x2E, 0x66, "ucomisd" },
 
-			{ B01011010, 0x66, "cvtpd2ps" },
-			{ B01011010, NO  , "cvtps2pd" },
-			{ B01011010, 0xF2, "cvtsd2ss" },
-			{ B01011010, 0xF3, "cvtss2sd" },
-			{ B11100110, 0xF2, "cvtpd2dq" },
-			{ B11100110, 0x66, "cvttpd2dq" },
-			{ B11100110, 0xF3, "cvtdq2pd" },
-			{ B01011011, 0x66, "cvtps2dq" },
-			{ B01011011, 0xF3, "cvttps2dq" },
-			{ B01011011, NO  , "cvtdq2ps" },
+			{ 0x5A, 0x66, "cvtpd2ps" },
+			{ 0x5A, NO  , "cvtps2pd" },
+			{ 0x5A, 0xF2, "cvtsd2ss" },
+			{ 0x5A, 0xF3, "cvtss2sd" },
+			{ 0xE6, 0xF2, "cvtpd2dq" },
+			{ 0xE6, 0x66, "cvttpd2dq" },
+			{ 0xE6, 0xF3, "cvtdq2pd" },
+			{ 0x5B, 0x66, "cvtps2dq" },
+			{ 0x5B, 0xF3, "cvttps2dq" },
+			{ 0x5B, NO  , "cvtdq2ps" },
 
 			// SSE3
-			{ B11010000, 0x66, "addsubpd" },
-			{ B11010000, 0xF2, "addsubps" },
-			{ B01111100, 0x66, "haddpd" },
-			{ B01111100, 0xF2, "haddps" },
-			{ B01111101, 0x66, "hsubpd" },
-			{ B01111101, 0xF2, "hsubps" },
+			{ 0xD0, 0x66, "addsubpd" },
+			{ 0xD0, 0xF2, "addsubps" },
+			{ 0x7C, 0x66, "haddpd" },
+			{ 0x7C, 0xF2, "haddps" },
+			{ 0x7D, 0x66, "hsubpd" },
+			{ 0x7D, 0xF2, "hsubps" },
 
-			{ B00010010, 0xF2, "movddup" },
-			{ B00010110, 0xF3, "movshdup" },
-			{ B00010010, 0xF3, "movsldup" },
+			{ 0x12, 0xF2, "movddup" },
+			{ 0x16, 0xF3, "movshdup" },
+			{ 0x12, 0xF3, "movsldup" },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -348,18 +348,18 @@ void put()
 			const char *name;
 			const char *cond;
 		} tbl[] = {
-			{ B00101010, NO  , "cvtpi2ps",  "isXMM_MMXorMEM" },
-			{ B00101101, NO  , "cvtps2pi",  "isMMX_XMMorMEM" },
-			{ B00101010, 0xF3, "cvtsi2ss",  "isXMM_REG32orMEM" },
-			{ B00101101, 0xF3, "cvtss2si",  "isREG32_XMMorMEM" },
-			{ B00101100, NO  , "cvttps2pi", "isMMX_XMMorMEM" },
-			{ B00101100, 0xF3, "cvttss2si", "isREG32_XMMorMEM" },
-			{ B00101010, 0x66, "cvtpi2pd",  "isXMM_MMXorMEM" },
-			{ B00101101, 0x66, "cvtpd2pi",  "isMMX_XMMorMEM" },
-			{ B00101010, 0xF2, "cvtsi2sd",  "isXMM_REG32orMEM" },
-			{ B00101101, 0xF2, "cvtsd2si",  "isREG32_XMMorMEM" },
-			{ B00101100, 0x66, "cvttpd2pi", "isMMX_XMMorMEM" },
-			{ B00101100, 0xF2, "cvttsd2si", "isREG32_XMMorMEM" },
+			{ 0x2A, NO  , "cvtpi2ps",  "isXMM_MMXorMEM" },
+			{ 0x2D, NO  , "cvtps2pi",  "isMMX_XMMorMEM" },
+			{ 0x2A, 0xF3, "cvtsi2ss",  "isXMM_REG32orMEM" },
+			{ 0x2D, 0xF3, "cvtss2si",  "isREG32_XMMorMEM" },
+			{ 0x2C, NO  , "cvttps2pi", "isMMX_XMMorMEM" },
+			{ 0x2C, 0xF3, "cvttss2si", "isREG32_XMMorMEM" },
+			{ 0x2A, 0x66, "cvtpi2pd",  "isXMM_MMXorMEM" },
+			{ 0x2D, 0x66, "cvtpd2pi",  "isMMX_XMMorMEM" },
+			{ 0x2A, 0xF2, "cvtsi2sd",  "isXMM_REG32orMEM" },
+			{ 0x2D, 0xF2, "cvtsd2si",  "isREG32_XMMorMEM" },
+			{ 0x2C, 0x66, "cvttpd2pi", "isMMX_XMMorMEM" },
+			{ 0x2C, 0xF2, "cvttsd2si", "isREG32_XMMorMEM" },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -379,7 +379,7 @@ void put()
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void prefetch%s(const Address& addr) { opModM(addr, Reg32(%d), 0x0F, B00011000); }\n", p->name, p->ext);
+			printf("void prefetch%s(const Address& addr) { opModM(addr, Reg32(%d), 0x0F, 0x18); }\n", p->name, p->ext);
 		}
 	}
 	{
@@ -388,10 +388,10 @@ void put()
 			int pref;
 			const char *name;
 		} tbl[] = {
-			{ B00010110, NO,   "movhps" },
-			{ B00010010, NO,   "movlps" },
-			{ B00010110, 0x66, "movhpd" },
-			{ B00010010, 0x66, "movlpd" },
+			{ 0x16, NO,   "movhps" },
+			{ 0x12, NO,   "movlps" },
+			{ 0x16, 0x66, "movhpd" },
+			{ 0x12, 0x66, "movlpd" },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -437,12 +437,12 @@ void put()
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void cmov%s(const Reg& reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, B01000000 | %d); }\n", p->name, p->ext);
-			printf("void j%s(std::string label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }\n", p->name, p->ext | B01110000, p->ext | B10000000, 0x0F);
-			printf("void j%s(const Label& label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }\n", p->name, p->ext | B01110000, p->ext | B10000000, 0x0F);
+			printf("void cmov%s(const Reg& reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, 0x40 | %d); }\n", p->name, p->ext);
+			printf("void j%s(std::string label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }\n", p->name, p->ext | 0x70, p->ext | 0x80, 0x0F);
+			printf("void j%s(const Label& label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }\n", p->name, p->ext | 0x70, p->ext | 0x80, 0x0F);
 			printf("void j%s(const char *label, LabelType type = T_AUTO) { j%s(std::string(label), type); }\n", p->name, p->name);
-			printf("void j%s(const void *addr) { opJmpAbs(addr, T_NEAR, 0x%02X, 0x%02X, 0x%02X); }\n", p->name, p->ext | B01110000, p->ext | B10000000, 0x0F);
-			printf("void set%s(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, B10010000 | %d); }\n", p->name, p->ext);
+			printf("void j%s(const void *addr) { opJmpAbs(addr, T_NEAR, 0x%02X, 0x%02X, 0x%02X); }\n", p->name, p->ext | 0x70, p->ext | 0x80, 0x0F);
+			printf("void set%s(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, 0x90 | %d); }\n", p->name, p->ext);
 		}
 		puts("#ifdef XBYAK32");
 		put_jREGz("cx", true);
@@ -461,65 +461,65 @@ void put()
 			uint8 code3;
 		} tbl[] = {
 			// only 64-bit mode(from)
-			{ "cdqe", B01001000, B10011000 },
+			{ "cdqe", 0x48, 0x98 },
 			{ "cqo", 0x48, 0x99 },
 			{ "@@@" }, /// here
 			// only 32-bit mode(from)
-			{ "aaa", B00110111 },
-			{ "aad", B11010101, B00001010 },
-			{ "aam", B11010100, B00001010 },
-			{ "aas", B00111111 },
-			{ "daa", B00100111 },
-			{ "das", B00101111 },
-			{ "popad", B01100001 },
-			{ "popfd", B10011101 },
-			{ "pusha", B01100000 },
-			{ "pushad", B01100000 },
-			{ "pushfd", B10011100 },
-			{ "popa", B01100001 },
+			{ "aaa", 0x37 },
+			{ "aad", 0xD5, 0x0A },
+			{ "aam", 0xD4, 0x0A },
+			{ "aas", 0x3F },
+			{ "daa", 0x27 },
+			{ "das", 0x2F },
+			{ "popad", 0x61 },
+			{ "popfd", 0x9D },
+			{ "pusha", 0x60 },
+			{ "pushad", 0x60 },
+			{ "pushfd", 0x9C },
+			{ "popa", 0x61 },
 			{ "@@@" }, /// here
 
-			{ "cbw", 0x66, B10011000 },
-			{ "cdq", B10011001 },
-			{ "clc", B11111000 },
-			{ "cld", B11111100 },
-			{ "cli", B11111010 },
-			{ "cmc", B11110101 },
+			{ "cbw", 0x66, 0x98 },
+			{ "cdq", 0x99 },
+			{ "clc", 0xF8 },
+			{ "cld", 0xFC },
+			{ "cli", 0xFA },
+			{ "cmc", 0xF5 },
 
-			{ "cpuid", 0x0F, B10100010 },
-			{ "cwd", 0x66, B10011001 },
-			{ "cwde", B10011000 },
+			{ "cpuid", 0x0F, 0xA2 },
+			{ "cwd", 0x66, 0x99 },
+			{ "cwde", 0x98 },
 
-			{ "lahf", B10011111 },
-			{ "lock", B11110000 },
-			{ "nop", B10010000 },
+			{ "lahf", 0x9F },
+			{ "lock", 0xF0 },
+			{ "nop", 0x90 },
 
-			{ "sahf", B10011110 },
-			{ "stc", B11111001 },
-			{ "std", B11111101 },
-			{ "sti", B11111011 },
+			{ "sahf", 0x9E },
+			{ "stc", 0xF9 },
+			{ "std", 0xFD },
+			{ "sti", 0xFB },
 
-			{ "emms", 0x0F, B01110111 },
-			{ "pause", 0xF3, B10010000 },
-			{ "sfence", 0x0F, B10101110, B11111000 },
-			{ "lfence", 0x0F, B10101110, B11101000 },
-			{ "mfence", 0x0F, B10101110, B11110000 },
-			{ "monitor", 0x0F, B00000001, B11001000 },
-			{ "mwait", 0x0F, B00000001, B11001001 },
+			{ "emms", 0x0F, 0x77 },
+			{ "pause", 0xF3, 0x90 },
+			{ "sfence", 0x0F, 0xAE, 0xF8 },
+			{ "lfence", 0x0F, 0xAE, 0xE8 },
+			{ "mfence", 0x0F, 0xAE, 0xF0 },
+			{ "monitor", 0x0F, 0x01, 0xC8 },
+			{ "mwait", 0x0F, 0x01, 0xC9 },
 
-			{ "rdmsr", 0x0F, B00110010 },
-			{ "rdpmc", 0x0F, B00110011 },
-			{ "rdtsc", 0x0F, B00110001 },
+			{ "rdmsr", 0x0F, 0x32 },
+			{ "rdpmc", 0x0F, 0x33 },
+			{ "rdtsc", 0x0F, 0x31 },
 			{ "rdtscp", 0x0F, 0x01, 0xF9 },
 			{ "ud2", 0x0F, 0x0B },
 			{ "wait", 0x9B },
 			{ "fwait", 0x9B },
-			{ "wbinvd", 0x0F, B00001001 },
-			{ "wrmsr", 0x0F, B00110000 },
+			{ "wbinvd", 0x0F, 0x09 },
+			{ "wrmsr", 0x0F, 0x30 },
 			{ "xlatb", 0xD7 },
 
-			{ "popf", B10011101 },
-			{ "pushf", B10011100 },
+			{ "popf", 0x9D },
+			{ "pushf", 0x9C },
 			{ "stac", 0x0F, 0x01, 0xCB },
 
 			{ "vzeroall", 0xC5, 0xFC, 0x77 },
@@ -597,14 +597,14 @@ void put()
 			uint8 ext; // (reg, imm)
 			const char *name;
 		} tbl[] = {
-			{ B00010000, 2, "adc" },
-			{ B00000000, 0, "add" },
-			{ B00100000, 4, "and" },
-			{ B00111000, 7, "cmp" },
-			{ B00001000, 1, "or" },
-			{ B00011000, 3, "sbb" },
-			{ B00101000, 5, "sub" },
-			{ B00110000, 6, "xor" },
+			{ 0x10, 2, "adc" },
+			{ 0x00, 0, "add" },
+			{ 0x20, 4, "and" },
+			{ 0x38, 7, "cmp" },
+			{ 0x08, 1, "or" },
+			{ 0x18, 3, "sbb" },
+			{ 0x28, 5, "sub" },
+			{ 0x30, 6, "xor" },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -629,8 +629,8 @@ void put()
 			uint8 ext;
 			const char *name;
 		} tbl[] = {
-			{ B01001000, 1, "dec" },
-			{ B01000000, 0, "inc" },
+			{ 0x48, 1, "dec" },
+			{ 0x40, 0, "inc" },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -660,12 +660,12 @@ void put()
 			uint8 ext;
 			const char *name;
 		} tbl[] = {
-			{ B11110110, 6, "div" },
-			{ B11110110, 7, "idiv" },
-			{ B11110110, 5, "imul" },
-			{ B11110110, 4, "mul" },
-			{ B11110110, 3, "neg" },
-			{ B11110110, 2, "not" },
+			{ 0xF6, 6, "div" },
+			{ 0xF6, 7, "idiv" },
+			{ 0xF6, 5, "imul" },
+			{ 0xF6, 4, "mul" },
+			{ 0xF6, 3, "neg" },
+			{ 0xF6, 2, "not" },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -707,8 +707,8 @@ void put()
 			const char *name;
 			uint8 code;
 		} tbl[] = {
-			{ "shld", B10100100 },
-			{ "shrd", B10101100 },
+			{ "shld", 0xA4 },
+			{ "shrd", 0xAC },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -871,9 +871,9 @@ void put()
 			uint8 ext;
 			const char *name;
 		} tbl[] = {
-			{ 0x0F, B10101110, 2, "ldmxcsr" },
-			{ 0x0F, B10101110, 3, "stmxcsr" },
-			{ 0x0F, B10101110, 7, "clflush" }, // 0x80 is bug of nasm ?
+			{ 0x0F, 0xAE, 2, "ldmxcsr" },
+			{ 0x0F, 0xAE, 3, "stmxcsr" },
+			{ 0x0F, 0xAE, 7, "clflush" }, // 0x80 is bug of nasm ?
 			{ 0xD9, NONE, 5, "fldcw" },
 //			{ 0x9B, 0xD9, 7, "fstcw" }, // not correct order for fstcw [eax] on 64bit OS
 		};
@@ -888,8 +888,8 @@ void put()
 			uint8 code;
 			const char *name;
 		} tbl[] = {
-			{ B00101011, "movntpd" },
-			{ B11100111, "movntdq" },
+			{ 0x2B, "movntpd" },
+			{ 0xE7, "movntdq" },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -902,8 +902,8 @@ void put()
 			uint8 code;
 			const char *name;
 		} tbl[] = {
-			{ B10111110, "movsx" },
-			{ B10110110, "movzx" },
+			{ 0xBE, "movsx" },
+			{ 0xB6, "movzx" },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
