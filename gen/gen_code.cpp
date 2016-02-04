@@ -440,6 +440,8 @@ void put()
 			printf("void cmov%s(const Reg& reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, B01000000 | %d); }\n", p->name, p->ext);
 			printf("void j%s(std::string label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }\n", p->name, p->ext | B01110000, p->ext | B10000000, 0x0F);
 			printf("void j%s(const Label& label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }\n", p->name, p->ext | B01110000, p->ext | B10000000, 0x0F);
+			printf("void j%s(const char *label, LabelType type = T_AUTO) { j%s(std::string(label), type); }\n", p->name, p->name);
+			printf("void j%s(const void *addr) { opJmpAbs(addr, T_NEAR, 0x%02X, 0x%02X, 0x%02X); }\n", p->name, p->ext | B01110000, p->ext | B10000000, 0x0F);
 			printf("void set%s(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, B10010000 | %d); }\n", p->name, p->ext);
 		}
 		puts("#ifdef XBYAK32");

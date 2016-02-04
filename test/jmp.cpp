@@ -766,6 +766,36 @@ CYBOZU_TEST_AUTO(test6)
 	}
 }
 
+CYBOZU_TEST_AUTO(test_jcc)
+{
+	struct A : Xbyak::CodeGenerator {
+		A()
+		{
+			add(eax, 5);
+			ret();
+		}
+	};
+	struct B : Xbyak::CodeGenerator {
+		B(bool grow, const void *p) : Xbyak::CodeGenerator(grow ? 0 : 4096, grow ? Xbyak::AutoGrow : 0)
+		{
+			mov(eax, 1);
+			add(eax, 2);
+			jnz(p);
+		}
+	};
+	A a;
+	const void *p = a.getCode<const void*>();
+	for (int i = 0; i < 2; i++) {
+		bool grow = i == 1;
+		B b(grow, p);
+		if (grow) {
+			b.ready();
+		}
+		int (*f)() = b.getCode<int (*)()>();
+		CYBOZU_TEST_EQUAL(f(), 8);
+	}
+}
+
 CYBOZU_TEST_AUTO(testNewLabel)
 {
 	struct Code : Xbyak::CodeGenerator {

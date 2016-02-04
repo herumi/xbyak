@@ -101,7 +101,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4890 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4900 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1385,16 +1385,17 @@ private:
 			labelMgr_.addUndefinedLabel(label, jmp);
 		}
 	}
-	void opJmpAbs(const void *addr, LabelType type, uint8 shortCode, uint8 longCode)
+	void opJmpAbs(const void *addr, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref = 0)
 	{
 		if (isAutoGrow()) {
 			if (type != T_NEAR) throw Error(ERR_ONLY_T_NEAR_IS_SUPPORTED_IN_AUTO_GROW);
 			if (size_ + 16 >= maxSize_) growMemory();
+			if (longPref) db(longPref);
 			db(longCode);
 			dd(0);
 			save(size_ - 4, size_t(addr) - size_, 4, inner::Labs);
 		} else {
-			makeJmp(inner::VerifyInInt32(reinterpret_cast<const uint8*>(addr) - getCurr()), type, shortCode, longCode, 0);
+			makeJmp(inner::VerifyInInt32(reinterpret_cast<const uint8*>(addr) - getCurr()), type, shortCode, longCode, longPref);
 		}
 
 	}
