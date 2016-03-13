@@ -705,7 +705,7 @@ protected:
 			uint64 disp = i->getVal(top_);
 			rewrite(i->codeOffset, disp, i->jmpSize);
 		}
-		if (alloc_->useProtect() && !protect(top_, size_, true)) throw Error(ERR_CANT_PROTECT);
+		if (isAutoGrow() && alloc_->useProtect() && !protect(top_, size_, true)) throw Error(ERR_CANT_PROTECT);
 	}
 public:
 	explicit CodeArray(size_t maxSize, void *userPtr = 0, Allocator *allocator = 0)
@@ -2178,7 +2178,7 @@ public:
 	}
 	bool hasUndefinedLabel() const { return labelMgr_.hasUndefSlabel() || labelMgr_.hasUndefClabel(); }
 	/*
-		call ready() to complete generating code on AutoGrow
+		call ready() to complete generating code
 	*/
 	void ready()
 	{
