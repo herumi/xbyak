@@ -101,7 +101,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x4900 /* 0xABCD = A.BC(D) */
+	VERSION = 0x4901 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -2178,12 +2178,13 @@ public:
 	}
 	bool hasUndefinedLabel() const { return labelMgr_.hasUndefSlabel() || labelMgr_.hasUndefClabel(); }
 	/*
-		call ready() to complete generating code on AutoGrow
+		MUST call ready() to complete generating code if you use AutoGrow mode.
+		It is not necessary for the other mode if hasUndefinedLabel() is true.
 	*/
 	void ready()
 	{
 		if (hasUndefinedLabel()) throw Error(ERR_LABEL_IS_NOT_FOUND);
-		calcJmpAddress();
+		if (isAutoGrow()) calcJmpAddress();
 	}
 #ifdef XBYAK_TEST
 	void dump(bool doClear = true)
