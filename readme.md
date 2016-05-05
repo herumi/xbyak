@@ -1,5 +1,5 @@
 
-Xbyak 4.901 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 4.91 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -285,7 +285,8 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
-* 2016/May/14 ver 4.901 comment to ready() function(thanks to skmp)
+* 2016/May/05 ver 4.91 add detection of AVX-512 to Xbyak::util::Cpu
+* 2016/Mar/14 ver 4.901 comment to ready() function(thanks to skmp)
 * 2016/Feb/04 ver 4.90 add jcc(const void *addr);
 * 2016/Jan/30 ver 4.89 vpblendvb supports ymm reg(thanks to John Funnell)
 * 2016/Jan/24 ver 4.88 lea, cmov supports 16-bit register(thanks to whyisthisfieldhere)

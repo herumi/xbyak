@@ -96,6 +96,9 @@ public:
 	int extFamily;
 	int displayFamily; // family + extFamily
 	int displayModel; // model + extModel
+	/*
+		data[] = { eax, ebx, ecx, edx }
+	*/
 	static inline void getCpuid(unsigned int eaxIn, unsigned int data[4])
 	{
 #ifdef _MSC_VER
@@ -164,6 +167,15 @@ public:
 	static const Type tRTM = uint64(1) << 32; // xbegin, xend, xabort
 	static const Type tF16C = uint64(1) << 33; // vcvtph2ps, vcvtps2ph
 	static const Type tMOVBE = uint64(1) << 34; // mobve
+	static const Type tAVX512F = uint64(1) << 35;
+	static const Type tAVX512DQ = uint64(1) << 36;
+	static const Type tAVX512IFMA = uint64(1) << 37;
+	static const Type tAVX512PF = uint64(1) << 38;
+	static const Type tAVX512ER = uint64(1) << 39;
+	static const Type tAVX512CD = uint64(1) << 40;
+	static const Type tAVX512BW = uint64(1) << 41;
+	static const Type tAVX512VL = uint64(1) << 42;
+	static const Type tAVX512VBMI = uint64(1) << 43;
 
 	Cpu()
 		: type_(NONE)
@@ -212,6 +224,21 @@ public:
 			if ((bv & 6) == 6) {
 				if (data[2] & (1U << 28)) type_ |= tAVX;
 				if (data[2] & (1U << 12)) type_ |= tFMA;
+				if (((bv >> 5) & 7) == 7) {
+					getCpuid(7, data);
+					if (data[1] & (1U << 16)) type_ |= tAVX512F;
+					if (type_ & tAVX512F) {
+						getCpuidEx(7, 0, data);
+						if (data[1] & (1U << 17)) type_ |= tAVX512DQ;
+						if (data[1] & (1U << 21)) type_ |= tAVX512IFMA;
+						if (data[1] & (1U << 26)) type_ |= tAVX512PF;
+						if (data[1] & (1U << 27)) type_ |= tAVX512ER;
+						if (data[1] & (1U << 28)) type_ |= tAVX512CD;
+						if (data[1] & (1U << 30)) type_ |= tAVX512BW;
+						if (data[1] & (1U << 31)) type_ |= tAVX512VL;
+						if (data[2] & (1U << 1)) type_ |= tAVX512VBMI;
+					}
+				}
 			}
 		}
 		if (maxNum >= 7) {

@@ -55,6 +55,15 @@ void putCPUinfo()
 		{ Cpu::tRTM, "rtm" },
 		{ Cpu::tF16C, "f16c" },
 		{ Cpu::tMOVBE, "movbe" },
+		{ Cpu::tAVX512F, "avx512f" },
+		{ Cpu::tAVX512DQ, "avx512dq" },
+		{ Cpu::tAVX512IFMA, "avx512ifma" },
+		{ Cpu::tAVX512PF, "avx512pf" },
+		{ Cpu::tAVX512ER, "avx512er" },
+		{ Cpu::tAVX512CD, "avx512cd" },
+		{ Cpu::tAVX512BW, "avx512bw" },
+		{ Cpu::tAVX512VL, "avx512vl" },
+		{ Cpu::tAVX512VBMI, "avx512vbmi" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
