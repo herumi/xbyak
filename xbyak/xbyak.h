@@ -323,9 +323,10 @@ public:
 
 class Operand {
 private:
-	uint8 idx_; // 0..15, MSB = 1 if spl/bpl/sil/dil
-	uint8 kind_;
-	uint16 bit_;
+	static const int EXT8BIT = 0x80;
+	unsigned int idx_:8; // 0..31, MSB = 1 if spl/bpl/sil/dil
+	unsigned int kind_:10;
+	unsigned int bit_:14;
 public:
 	enum Kind {
 		NONE = 0,
@@ -335,7 +336,9 @@ public:
 		MMX = 1 << 4,
 		XMM = 1 << 5,
 		FPU = 1 << 6,
-		YMM = 1 << 7
+		YMM = 1 << 7,
+		ZMM = 1 << 8,
+		OPMASK = 1 << 9
 	};
 	enum Code {
 #ifdef XBYAK64
@@ -351,22 +354,24 @@ public:
 	};
 	Operand() : idx_(0), kind_(0), bit_(0) { }
 	Operand(int idx, Kind kind, int bit, bool ext8bit = 0)
-		: idx_(static_cast<uint8>(idx | (ext8bit ? 0x80 : 0)))
+		: idx_(static_cast<uint8>(idx | (ext8bit ? EXT8BIT : 0)))
 		, kind_(static_cast<uint8>(kind))
 		, bit_(static_cast<uint16>(bit))
 	{
 		assert((bit_ & (bit_ - 1)) == 0); // bit must be power of two
 	}
 	Kind getKind() const { return static_cast<Kind>(kind_); }
-	int getIdx() const { return idx_ & 15; }
+	int getIdx() const { return idx_ & 31; }
 	bool isNone() const { return kind_ == 0; }
 	bool isMMX() const { return is(MMX); }
 	bool isXMM() const { return is(XMM); }
 	bool isYMM() const { return is(YMM); }
+	bool isZMM() const { return is(ZMM); }
+	bool isOPMASK() const { return is(OPMASK); }
 	bool isREG(int bit = 0) const { return is(REG, bit); }
 	bool isMEM(int bit = 0) const { return is(MEM, bit); }
 	bool isFPU() const { return is(FPU); }
-	bool isExt8bit() const { return (idx_ & 0x80) != 0; }
+	bool isExt8bit() const { return (idx_ & EXT8BIT) != 0; }
 	// ah, ch, dh, bh?
 	bool isHigh8bit() const
 	{
@@ -397,6 +402,15 @@ public:
 				{ "rax", "rcx", "rdx", "rbx", "rsp", "rbp", "rsi", "rdi", "r8", "r9", "r10",  "r11", "r12", "r13", "r14", "r15" },
 			};
 			return tbl[bit_ == 8 ? 0 : bit_ == 16 ? 1 : bit_ == 32 ? 2 : 3][idx];
+		} else if (isOPMASK()) {
+			static const char *tbl[8] = { "k0", "k1", "k2", "k3", "k4", "k5", "k6", "k7" };
+			return tbl[idx];
+		} else if (isZMM()) {
+			static const char *tbl[32] = {
+				"zm0", "zm1", "zm2", "zm3", "zm4", "zm5", "zm6", "zm7", "zm8", "zm9", "zm10", "zm11", "zm12", "zm13", "zm14", "zm15",
+				"zm16", "zm17", "zm18", "zm19", "zm20", "zm21", "zm22", "zm23", "zm24", "zm25", "zm26", "zm27", "zm28", "zm29", "zm30", "zm31"
+			};
+			return tbl[idx];
 		} else if (isYMM()) {
 			static const char *tbl[16] = { "ym0", "ym1", "ym2", "ym3", "ym4", "ym5", "ym6", "ym7", "ym8", "ym9", "ym10", "ym11", "ym12", "ym13", "ym14", "ym15" };
 			return tbl[idx];
@@ -461,7 +475,11 @@ struct Xmm : public Mmx {
 };
 
 struct Ymm : public Xmm {
-	explicit Ymm(int idx = 0) : Xmm(idx, Operand::YMM, 256) { }
+	explicit Ymm(int idx = 0, Kind kind = Operand::YMM, int bit = 256) : Xmm(idx, kind, bit) { }
+};
+
+struct Zmm : public Ymm {
+	explicit Zmm(int idx = 0) : Ymm(idx, Operand::ZMM, 512) { }
 };
 
 struct Fpu : public Reg {
@@ -551,8 +569,8 @@ public:
 class RegExp {
 public:
 	struct SReg {
-		uint16 bit:9; // 32/64/128/256 none if 0
-		uint16 idx:7;
+		uint16 bit:10; // 32/64/128/256/512 none if 0
+		uint16 idx:6;
 		SReg() : bit(0), idx(0) { }
 		void set(const Reg& r) { this->bit = uint16(r.getBit()); this->idx = uint16(r.getIdx()); }
 		bool operator==(const SReg& rhs) const { return bit == rhs.bit && idx == rhs.idx; }
@@ -570,12 +588,12 @@ public:
 			base_.set(r);
 		}
 	}
-	bool isVsib() const { return index_.bit >= 128; }
-	bool isYMM() const { return index_.bit >= 256; }
+	bool isVsib() const { return 128 <= index_.bit && index_.bit <= 256; }
+	bool isYMM() const { return index_.bit == 256; }
 	RegExp optimize() const // select smaller size
 	{
 		// [reg * 2] => [reg + reg]
-		if (!isVsib() && !base_.bit && index_.bit && scale_ == 2) {
+		if (index_.bit <= 64 && !base_.bit && index_.bit && scale_ == 2) {
 			RegExp ret = *this;
 			ret.base_ = index_;
 			ret.scale_ = 1;
@@ -1683,8 +1701,10 @@ public:
 	const Mmx mm0, mm1, mm2, mm3, mm4, mm5, mm6, mm7;
 	const Xmm xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7;
 	const Ymm ymm0, ymm1, ymm2, ymm3, ymm4, ymm5, ymm6, ymm7;
+	const Zmm zmm0, zmm1, zmm2, zmm3, zmm4, zmm5, zmm6, zmm7;
 	const Xmm &xm0, &xm1, &xm2, &xm3, &xm4, &xm5, &xm6, &xm7;
 	const Ymm &ym0, &ym1, &ym2, &ym3, &ym4, &ym5, &ym6, &ym7;
+	const Ymm &zm0, &zm1, &zm2, &zm3, &zm4, &zm5, &zm6, &zm7;
 	const Reg32 eax, ecx, edx, ebx, esp, ebp, esi, edi;
 	const Reg16 ax, cx, dx, bx, sp, bp, si, di;
 	const Reg8 al, cl, dl, bl, ah, ch, dh, bh;
@@ -1698,8 +1718,14 @@ public:
 	const Reg8 spl, bpl, sil, dil;
 	const Xmm xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
 	const Ymm ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14, ymm15;
+	const Zmm zmm8, zmm9, zmm10, zmm11, zmm12, zmm13, zmm14, zmm15;
+	const Zmm zmm16, zmm17, zmm18, zmm19, zmm20, zmm21, zmm22, zmm23;
+	const Zmm zmm24, zmm25, zmm26, zmm27, zmm28, zmm29, zmm30, zmm31;
 	const Xmm &xm8, &xm9, &xm10, &xm11, &xm12, &xm13, &xm14, &xm15; // for my convenience
 	const Ymm &ym8, &ym9, &ym10, &ym11, &ym12, &ym13, &ym14, &ym15;
+	const Zmm &zm8, &zm9, &zm10, &zm11, &zm12, &zm13, &zm14, &zm15;
+	const Zmm &zm16, &zm17, &zm18, &zm19, &zm20, &zm21, &zm22, &zm23;
+	const Zmm &zm24, &zm25, &zm26, &zm27, &zm28, &zm29, &zm30, &zm31;
 	const RegRip rip;
 #endif
 #ifndef XBYAK_DISABLE_SEGMENT
@@ -2145,8 +2171,11 @@ public:
 		, mm0(0), mm1(1), mm2(2), mm3(3), mm4(4), mm5(5), mm6(6), mm7(7)
 		, xmm0(0), xmm1(1), xmm2(2), xmm3(3), xmm4(4), xmm5(5), xmm6(6), xmm7(7)
 		, ymm0(0), ymm1(1), ymm2(2), ymm3(3), ymm4(4), ymm5(5), ymm6(6), ymm7(7)
-		, xm0(xmm0), xm1(xmm1), xm2(xmm2), xm3(xmm3), xm4(xmm4), xm5(xmm5), xm6(xmm6), xm7(xmm7) // for my convenience
-		, ym0(ymm0), ym1(ymm1), ym2(ymm2), ym3(ymm3), ym4(ymm4), ym5(ymm5), ym6(ymm6), ym7(ymm7) // for my convenience
+		, zmm0(0), zmm1(1), zmm2(2), zmm3(3), zmm4(4), zmm5(5), zmm6(6), zmm7(7)
+		// for my convenience
+		, xm0(xmm0), xm1(xmm1), xm2(xmm2), xm3(xmm3), xm4(xmm4), xm5(xmm5), xm6(xmm6), xm7(xmm7)
+		, ym0(ymm0), ym1(ymm1), ym2(ymm2), ym3(ymm3), ym4(ymm4), ym5(ymm5), ym6(ymm6), ym7(ymm7)
+		, zm0(zmm0), zm1(zmm1), zm2(zmm2), zm3(zmm3), zm4(zmm4), zm5(zmm5), zm6(zmm6), zm7(zmm7)
 		, eax(Operand::EAX), ecx(Operand::ECX), edx(Operand::EDX), ebx(Operand::EBX), esp(Operand::ESP), ebp(Operand::EBP), esi(Operand::ESI), edi(Operand::EDI)
 		, ax(Operand::AX), cx(Operand::CX), dx(Operand::DX), bx(Operand::BX), sp(Operand::SP), bp(Operand::BP), si(Operand::SI), di(Operand::DI)
 		, al(Operand::AL), cl(Operand::CL), dl(Operand::DL), bl(Operand::BL), ah(Operand::AH), ch(Operand::CH), dh(Operand::DH), bh(Operand::BH)
@@ -2160,8 +2189,15 @@ public:
 		, spl(Operand::SPL, true), bpl(Operand::BPL, true), sil(Operand::SIL, true), dil(Operand::DIL, true)
 		, xmm8(8), xmm9(9), xmm10(10), xmm11(11), xmm12(12), xmm13(13), xmm14(14), xmm15(15)
 		, ymm8(8), ymm9(9), ymm10(10), ymm11(11), ymm12(12), ymm13(13), ymm14(14), ymm15(15)
-		, xm8(xmm8), xm9(xmm9), xm10(xmm10), xm11(xmm11), xm12(xmm12), xm13(xmm13), xm14(xmm14), xm15(xmm15) // for my convenience
-		, ym8(ymm8), ym9(ymm9), ym10(ymm10), ym11(ymm11), ym12(ymm12), ym13(ymm13), ym14(ymm14), ym15(ymm15) // for my convenience
+		, zmm8(8), zmm9(9), zmm10(10), zmm11(11), zmm12(12), zmm13(13), zmm14(14), zmm15(15)
+		, zmm16(16), zmm17(17), zmm18(18), zmm19(19), zmm20(20), zmm21(21), zmm22(22), zmm23(23)
+		, zmm24(24), zmm25(25), zmm26(26), zmm27(27), zmm28(28), zmm29(29), zmm30(30), zmm31(31)
+		// for my convenience
+		, xm8(xmm8), xm9(xmm9), xm10(xmm10), xm11(xmm11), xm12(xmm12), xm13(xmm13), xm14(xmm14), xm15(xmm15)
+		, ym8(ymm8), ym9(ymm9), ym10(ymm10), ym11(ymm11), ym12(ymm12), ym13(ymm13), ym14(ymm14), ym15(ymm15)
+		, zm8(zmm8), zm9(zmm9), zm10(zmm10), zm11(zmm11), zm12(zmm12), zm13(zmm13), zm14(zmm14), zm15(zmm15)
+		, zm16(zmm16), zm17(zmm17), zm18(zmm18), zm19(zmm19), zm20(zmm20), zm21(zmm21), zm22(zmm22), zm23(zmm23)
+		, zm24(zmm24), zm25(zmm25), zm26(zmm26), zm27(zmm27), zm28(zmm28), zm29(zmm29), zm30(zmm30), zm31(zmm31)
 		, rip()
 #endif
 #ifndef XBYAK_DISABLE_SEGMENT
@@ -2212,6 +2248,7 @@ namespace util {
 static const Mmx mm0(0), mm1(1), mm2(2), mm3(3), mm4(4), mm5(5), mm6(6), mm7(7);
 static const Xmm xmm0(0), xmm1(1), xmm2(2), xmm3(3), xmm4(4), xmm5(5), xmm6(6), xmm7(7);
 static const Ymm ymm0(0), ymm1(1), ymm2(2), ymm3(3), ymm4(4), ymm5(5), ymm6(6), ymm7(7);
+static const Zmm zmm0(0), zmm1(1), zmm2(2), zmm3(3), zmm4(4), zmm5(5), zmm6(6), zmm7(7);
 static const Reg32 eax(Operand::EAX), ecx(Operand::ECX), edx(Operand::EDX), ebx(Operand::EBX), esp(Operand::ESP), ebp(Operand::EBP), esi(Operand::ESI), edi(Operand::EDI);
 static const Reg16 ax(Operand::AX), cx(Operand::CX), dx(Operand::DX), bx(Operand::BX), sp(Operand::SP), bp(Operand::BP), si(Operand::SI), di(Operand::DI);
 static const Reg8 al(Operand::AL), cl(Operand::CL), dl(Operand::DL), bl(Operand::BL), ah(Operand::AH), ch(Operand::CH), dh(Operand::DH), bh(Operand::BH);
@@ -2224,6 +2261,9 @@ static const Reg16 r8w(Operand::R8W), r9w(Operand::R9W), r10w(Operand::R10W), r1
 static const Reg8 r8b(Operand::R8B), r9b(Operand::R9B), r10b(Operand::R10B), r11b(Operand::R11B), r12b(Operand::R12B), r13b(Operand::R13B), r14b(Operand::R14B), r15b(Operand::R15B), spl(Operand::SPL, 1), bpl(Operand::BPL, 1), sil(Operand::SIL, 1), dil(Operand::DIL, 1);
 static const Xmm xmm8(8), xmm9(9), xmm10(10), xmm11(11), xmm12(12), xmm13(13), xmm14(14), xmm15(15);
 static const Ymm ymm8(8), ymm9(9), ymm10(10), ymm11(11), ymm12(12), ymm13(13), ymm14(14), ymm15(15);
+static const Zmm zmm8(8), zmm9(9), zmm10(10), zmm11(11), zmm12(12), zmm13(13), zmm14(14), zmm15(15);
+static const Zmm zmm16(16), zmm17(17), zmm18(18), zmm19(19), zmm20(20), zmm21(21), zmm22(22), zmm23(23);
+static const Zmm zmm24(24), zmm25(25), zmm26(26), zmm27(27), zmm28(28), zmm29(29), zmm30(30), zmm31(31);
 static const RegRip rip;
 #endif
 #ifndef XBYAK_DISABLE_SEGMENT

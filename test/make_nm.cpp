@@ -2147,32 +2147,34 @@ public:
 	}
 	void putSeg()
 	{
-		const char *segTbl[] = {
-			"es",
-			"cs",
-			"ss",
-			"ds",
-			"fs",
-			"gs",
-		};
-		for (size_t i = 0; i < NUM_OF_ARRAY(segTbl); i++) {
-			const char *seg = segTbl[i];
-			const char *op1Tbl[] = {
-				"ax",
-				"edx",
-				(isXbyak_ ? "ptr [eax]" : "[eax]"),
-#ifdef XBYAK64
-				"r9",
-#endif
+		{
+			const char *segTbl[] = {
+				"es",
+				"cs",
+				"ss",
+				"ds",
+				"fs",
+				"gs",
 			};
-			for (size_t j = 0; j < NUM_OF_ARRAY(op1Tbl); j++) {
-				const char *op1 = op1Tbl[j];
-				if (isXbyak_) {
-					printf("mov(%s, %s); dump();\n", op1, seg);
-					printf("mov(%s, %s); dump();\n", seg, op1);
-				} else {
-					printf("mov %s, %s\n", op1, seg);
-					printf("mov %s, %s\n", seg, op1);
+			for (size_t i = 0; i < NUM_OF_ARRAY(segTbl); i++) {
+				const char *seg = segTbl[i];
+				const char *op1Tbl[] = {
+					"ax",
+					"edx",
+					(isXbyak_ ? "ptr [eax]" : "[eax]"),
+#ifdef XBYAK64
+					"r9",
+#endif
+				};
+				for (size_t j = 0; j < NUM_OF_ARRAY(op1Tbl); j++) {
+					const char *op1 = op1Tbl[j];
+					if (isXbyak_) {
+						printf("mov(%s, %s); dump();\n", op1, seg);
+						printf("mov(%s, %s); dump();\n", seg, op1);
+					} else {
+						printf("mov %s, %s\n", op1, seg);
+						printf("mov %s, %s\n", seg, op1);
+					}
 				}
 			}
 		}
