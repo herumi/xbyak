@@ -57,6 +57,9 @@ ifeq ($(BIT),64)
 	./test_avx.sh Y64
 endif
 
+test_avx512: normalize_prefix
+	./test_avx512.sh
+
 clean:
 	rm -rf *.o $(TARGET) lib_run
 

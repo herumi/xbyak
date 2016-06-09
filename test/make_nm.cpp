@@ -35,7 +35,7 @@ const uint64 _YMM = 1ULL << 24;
 const uint64 VM32X_32 = 1ULL << 39;
 const uint64 VM32X_64 = 1ULL << 40;
 const uint64 VM32Y_32 = 1ULL << 41;
-const uint64 VM32Y_64 = 1ULL << 42; // max value
+const uint64 VM32Y_64 = 1ULL << 42;
 #ifdef XBYAK64
 const uint64 _MEMe = 1ULL << 25;
 const uint64 REG32_2 = 1ULL << 26; // r8d, ...
@@ -76,6 +76,10 @@ const uint64 IMM_2 = 1ULL << 38;
 const uint64 IMM = IMM_1 | IMM_2;
 const uint64 XMM = _XMM | _XMM2;
 const uint64 YMM = _YMM | _YMM2;
+
+const uint64 K = 1ULL << 43; // max value
+//const uint64 _ZMM = 1ULL << 44;
+
 const uint64 NOPARA = 1ULL << (bitEnd - 1);
 
 class Test {
@@ -84,7 +88,7 @@ class Test {
 	const bool isXbyak_;
 	int funcNum_;
 	// check all op1, op2, op3
-	void put(const char *nm, uint64 op1 = NOPARA, uint64 op2 = NOPARA, uint64 op3 = NOPARA, uint64 op4 = NOPARA) const
+	void put(const std::string& nm, uint64 op1 = NOPARA, uint64 op2 = NOPARA, uint64 op3 = NOPARA, uint64 op4 = NOPARA) const
 	{
 		for (int i = 0; i < bitEnd; i++) {
 			if ((op1 & (1ULL << i)) == 0) continue;
@@ -94,7 +98,7 @@ class Test {
 					if ((op3 & (1ULL << k)) == 0) continue;
 					for (int s = 0; s < bitEnd; s++) {
 						if ((op4 & (1ULL << s)) == 0) continue;
-						printf("%s ", nm);
+						printf("%s ", nm.c_str());
 						if (isXbyak_) printf("(");
 						if (!(op1 & NOPARA)) printf("%s", get(1ULL << i));
 						if (!(op2 & NOPARA)) printf(", %s", get(1ULL << j));
@@ -310,6 +314,13 @@ class Test {
 			return isXbyak_ ? "ptr [ymm4]" : "[ymm4]";
 		case VM32Y_64:
 			return isXbyak_ ? "ptr [12345+ymm13*2+r13]" : "[12345+ymm13*2+r13]";
+		case K:
+			{
+				static const char kTbl[][5] = {
+					"k1", "k2", "k3", "k4", "k5", "k6", "k7",
+				};
+				return kTbl[idx % 7];
+			}
 		}
 		return 0;
 	}
@@ -2202,6 +2213,10 @@ public:
 	}
 	void put()
 	{
+#ifdef USE_AVX512
+		putAVX512();
+		return;
+#endif
 #ifdef USE_AVX
 
 		separateFunc();
@@ -2298,6 +2313,28 @@ public:
 #endif // XBYAK64
 
 #endif // USE_AVX
+	}
+	void putOpmask()
+	{
+		const char *tbl[] = {
+			"kadd",
+			"kand",
+			"kandn",
+			"kor",
+			"kxnor",
+			"kxor",
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			std::string name = tbl[i];
+			put(name + "b", K, K, K);
+			put(name + "w", K, K, K);
+			put(name + "q", K, K, K);
+			put(name + "d", K, K, K);
+		}
+	}
+	void putAVX512()
+	{
+		putOpmask();
 	}
 };
 

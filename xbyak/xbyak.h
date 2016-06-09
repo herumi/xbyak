@@ -24,6 +24,8 @@
 #include <iostream>
 #endif
 
+// #define XBYAK_AVX512
+
 //#define XBYAK_USE_MMAP_ALLOCATOR
 #if !defined(__GNUC__) || defined(__MINGW32__)
 	#undef XBYAK_USE_MMAP_ALLOCATOR
@@ -403,7 +405,7 @@ public:
 			};
 			return tbl[bit_ == 8 ? 0 : bit_ == 16 ? 1 : bit_ == 32 ? 2 : 3][idx];
 		} else if (isOPMASK()) {
-			static const char *tbl[8] = { "k0", "k1", "k2", "k3", "k4", "k5", "k6", "k7" };
+			static const char *tbl[8] = { "", "k1", "k2", "k3", "k4", "k5", "k6", "k7" };
 			return tbl[idx];
 		} else if (isZMM()) {
 			static const char *tbl[32] = {
@@ -480,6 +482,10 @@ struct Ymm : public Xmm {
 
 struct Zmm : public Ymm {
 	explicit Zmm(int idx = 0) : Ymm(idx, Operand::ZMM, 512) { }
+};
+
+struct Opmask : public Reg {
+	explicit Opmask(int idx = 0) : Reg(idx, Operand::OPMASK, 64) {}
 };
 
 struct Fpu : public Reg {
@@ -1599,6 +1605,14 @@ private:
 	{
 		db(code1); db(code2 | reg.getIdx());
 	}
+#ifdef XBYAK_AVX512
+	void opK(const Opmask& r1, const Opmask& r2, const Opmask& r3, int type, int code, int w)
+	{
+		vex(false, r2.getIdx(), true, type, false, false, w);
+		db(code);
+		db(getModRM(3, r1.getIdx(), r3.getIdx()));
+	}
+#endif
 	void opVex(const Reg& r, const Operand *p1, const Operand *p2, int type, int code, int w, int imm8 = NONE)
 	{
 		bool x, b;
@@ -1710,6 +1724,7 @@ public:
 	const Reg8 al, cl, dl, bl, ah, ch, dh, bh;
 	const AddressFrame ptr, byte, word, dword, qword;
 	const Fpu st0, st1, st2, st3, st4, st5, st6, st7;
+	const Opmask k1, k2, k3, k4, k5, k6, k7;
 #ifdef XBYAK64
 	const Reg64 rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15;
 	const Reg32 r8d, r9d, r10d, r11d, r12d, r13d, r14d, r15d;
@@ -2181,6 +2196,7 @@ public:
 		, al(Operand::AL), cl(Operand::CL), dl(Operand::DL), bl(Operand::BL), ah(Operand::AH), ch(Operand::CH), dh(Operand::DH), bh(Operand::BH)
 		, ptr(0), byte(8), word(16), dword(32), qword(64)
 		, st0(0), st1(1), st2(2), st3(3), st4(4), st5(5), st6(6), st7(7)
+		, k1(1), k2(2), k3(3), k4(4), k5(5), k6(6), k7(7)
 #ifdef XBYAK64
 		, rax(Operand::RAX), rcx(Operand::RCX), rdx(Operand::RDX), rbx(Operand::RBX), rsp(Operand::RSP), rbp(Operand::RBP), rsi(Operand::RSI), rdi(Operand::RDI), r8(Operand::R8), r9(Operand::R9), r10(Operand::R10), r11(Operand::R11), r12(Operand::R12), r13(Operand::R13), r14(Operand::R14), r15(Operand::R15)
 		, r8d(Operand::R8D), r9d(Operand::R9D), r10d(Operand::R10D), r11d(Operand::R11D), r12d(Operand::R12D), r13d(Operand::R13D), r14d(Operand::R14D), r15d(Operand::R15D)
@@ -2242,6 +2258,9 @@ public:
 		}
 	}
 #endif
+#ifdef XBYAK_AVX512
+#include "xbyak_avx512.h"
+#endif
 };
 
 namespace util {
@@ -2254,6 +2273,7 @@ static const Reg16 ax(Operand::AX), cx(Operand::CX), dx(Operand::DX), bx(Operand
 static const Reg8 al(Operand::AL), cl(Operand::CL), dl(Operand::DL), bl(Operand::BL), ah(Operand::AH), ch(Operand::CH), dh(Operand::DH), bh(Operand::BH);
 static const AddressFrame ptr(0), byte(8), word(16), dword(32), qword(64);
 static const Fpu st0(0), st1(1), st2(2), st3(3), st4(4), st5(5), st6(6), st7(7);
+static const Opmask k1(1), k2(2), k3(3), k4(4), k5(5), k6(6), k7(7);
 #ifdef XBYAK64
 static const Reg64 rax(Operand::RAX), rcx(Operand::RCX), rdx(Operand::RDX), rbx(Operand::RBX), rsp(Operand::RSP), rbp(Operand::RBP), rsi(Operand::RSI), rdi(Operand::RDI), r8(Operand::R8), r9(Operand::R9), r10(Operand::R10), r11(Operand::R11), r12(Operand::R12), r13(Operand::R13), r14(Operand::R14), r15(Operand::R15);
 static const Reg32 r8d(Operand::R8D), r9d(Operand::R9D), r10d(Operand::R10D), r11d(Operand::R11D), r12d(Operand::R12D), r13d(Operand::R13D), r14d(Operand::R14D), r15d(Operand::R15D);
