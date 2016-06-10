@@ -357,8 +357,8 @@ public:
 	Operand() : idx_(0), kind_(0), bit_(0) { }
 	Operand(int idx, Kind kind, int bit, bool ext8bit = 0)
 		: idx_(static_cast<uint8>(idx | (ext8bit ? EXT8BIT : 0)))
-		, kind_(static_cast<uint8>(kind))
-		, bit_(static_cast<uint16>(bit))
+		, kind_(kind)
+		, bit_(bit)
 	{
 		assert((bit_ & (bit_ - 1)) == 0); // bit must be power of two
 	}
