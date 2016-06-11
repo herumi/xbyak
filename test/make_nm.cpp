@@ -2316,21 +2316,61 @@ public:
 	}
 	void putOpmask()
 	{
-		const char *tbl[] = {
-			"kadd",
-			"kand",
-			"kandn",
-			"kor",
-			"kxnor",
-			"kxor",
-		};
-		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-			std::string name = tbl[i];
-			put(name + "b", K, K, K);
-			put(name + "w", K, K, K);
-			put(name + "q", K, K, K);
-			put(name + "d", K, K, K);
+		{
+			const char *tbl[] = {
+				"kadd",
+				"kand",
+				"kandn",
+				"kor",
+				"kxnor",
+				"kxor",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				std::string name = tbl[i];
+				put(name + "b", K, K, K);
+				put(name + "w", K, K, K);
+				put(name + "q", K, K, K);
+				put(name + "d", K, K, K);
+			}
+			put("kunpckbw", K, K, K);
+			put("kunpckwd", K, K, K);
+			put("kunpckdq", K, K, K);
 		}
+		{
+			const char *tbl[] = {
+				"knot",
+				"kortest",
+				"ktest",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				std::string name = tbl[i];
+				put(name + "b", K, K);
+				put(name + "w", K, K);
+				put(name + "q", K, K);
+				put(name + "d", K, K);
+			}
+		}
+#if 0
+		for (int i = 1; i < 8; i++) {
+			for (int j = 1; j < 8; j++) {
+				for (int k = 1; k < 8; k++) {
+					std::string s = "kandb ";
+					if (isXbyak_) {
+						s += "(";
+					}
+					s += Opmask(i).toString();
+					s += ",";
+					s += Opmask(j).toString();
+					s += ",";
+					s += Opmask(k).toString();
+					if (isXbyak_) {
+						s += "); dump();";
+					}
+					printf("%s\n", s.c_str());
+				}
+			}
+		}
+#endif
 	}
 	void putAVX512()
 	{

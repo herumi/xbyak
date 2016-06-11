@@ -44,23 +44,45 @@ std::string type2String(int type)
 
 void putOpmask()
 {
-	const struct Tbl {
-		const char *name;
-		uint8 code;
-	} tbl[] = {
-		{ "kadd", 0x4A },
-		{ "kand", 0x41 },
-		{ "kandn", 0x42 },
-		{ "kor", 0x45 },
-		{ "kxnor", 0x46 },
-		{ "kxor", 0x47 },
-	};
-	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-		const Tbl& p = tbl[i];
-		printf("void %sw(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, r2, r3, MM_0F, 0x%02X, %d); }\n", p.name, p.code, 0);
-		printf("void %sb(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, r2, r3, MM_0F | PP_66, 0x%02X, %d); }\n", p.name, p.code, 0);
-		printf("void %sq(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, r2, r3, MM_0F, 0x%02X, %d); }\n", p.name, p.code, 1);
-		printf("void %sd(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, r2, r3, MM_0F | PP_66, 0x%02X, %d); }\n", p.name, p.code, 1);
+	{
+		const struct Tbl {
+			const char *name;
+			uint8 code;
+		} tbl[] = {
+			{ "kadd", 0x4A },
+			{ "kand", 0x41 },
+			{ "kandn", 0x42 },
+			{ "kor", 0x45 },
+			{ "kxnor", 0x46 },
+			{ "kxor", 0x47 },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			printf("void %sw(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, &r2, r3, true, MM_0F, 0x%02X, %d); }\n", p.name, p.code, 0);
+			printf("void %sb(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, &r2, r3, true, MM_0F | PP_66, 0x%02X, %d); }\n", p.name, p.code, 0);
+			printf("void %sq(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, &r2, r3, true, MM_0F, 0x%02X, %d); }\n", p.name, p.code, 1);
+			printf("void %sd(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, &r2, r3, true, MM_0F | PP_66, 0x%02X, %d); }\n", p.name, p.code, 1);
+		}
+		printf("void kunpckbw(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, &r2, r3, true, MM_0F | PP_66, 0x4B, 0); }\n");
+		printf("void kunpckwd(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, &r2, r3, true, MM_0F, 0x4B, 0); }\n");
+		printf("void kunpckdq(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, &r2, r3, true, MM_0F, 0x4B, 1); }\n");
+	}
+	{
+		const struct Tbl {
+			const char *name;
+			uint8 code;
+		} tbl[] = {
+			{ "knot", 0x44 },
+			{ "kortest", 0x98 },
+			{ "ktest", 0x99 },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			printf("void %sw(const Opmask& r1, const Opmask& r2) { opK(r1, 0, r2, false, MM_0F, 0x%02X, %d); }\n", p.name, p.code, 0);
+			printf("void %sb(const Opmask& r1, const Opmask& r2) { opK(r1, 0, r2, false, MM_0F | PP_66, 0x%02X, %d); }\n", p.name, p.code, 0);
+			printf("void %sq(const Opmask& r1, const Opmask& r2) { opK(r1, 0, r2, false, MM_0F, 0x%02X, %d); }\n", p.name, p.code, 1);
+			printf("void %sd(const Opmask& r1, const Opmask& r2) { opK(r1, 0, r2, false, MM_0F | PP_66, 0x%02X, %d); }\n", p.name, p.code, 1);
+		}
 	}
 }
 

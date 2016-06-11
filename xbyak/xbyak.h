@@ -1606,9 +1606,9 @@ private:
 		db(code1); db(code2 | reg.getIdx());
 	}
 #ifdef XBYAK_AVX512
-	void opK(const Opmask& r1, const Opmask& r2, const Opmask& r3, int type, int code, int w)
+	void opK(const Opmask& r1, const Opmask *r2, const Opmask& r3, bool isL1, int type, int code, int w)
 	{
-		vex(false, r2.getIdx(), true, type, false, false, w);
+		vex(false, r2 ? r2->getIdx() : 0, isL1, type, false, false, w);
 		db(code);
 		db(getModRM(3, r1.getIdx(), r3.getIdx()));
 	}
