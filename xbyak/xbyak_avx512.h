@@ -38,4 +38,12 @@ void ktestw(const Opmask& r1, const Opmask& r2) { opK(r1, 0, r2, false, MM_0F, 0
 void ktestb(const Opmask& r1, const Opmask& r2) { opK(r1, 0, r2, false, MM_0F | PP_66, 0x99, 0); }
 void ktestq(const Opmask& r1, const Opmask& r2) { opK(r1, 0, r2, false, MM_0F, 0x99, 1); }
 void ktestd(const Opmask& r1, const Opmask& r2) { opK(r1, 0, r2, false, MM_0F | PP_66, 0x99, 1); }
+void kshiftlw(const Opmask& r1, const Opmask& r2, uint8 imm) { opK(r1, 0, r2, false, PP_66 | MM_0F3A, 0x32, 1, imm); }
+void kshiftlb(const Opmask& r1, const Opmask& r2, uint8 imm) { opK(r1, 0, r2, false, PP_66 | MM_0F3A, 0x32, 0, imm); }
+void kshiftlq(const Opmask& r1, const Opmask& r2, uint8 imm) { opK(r1, 0, r2, false, PP_66 | MM_0F3A, 0x33, 1, imm); }
+void kshiftld(const Opmask& r1, const Opmask& r2, uint8 imm) { opK(r1, 0, r2, false, PP_66 | MM_0F3A, 0x33, 0, imm); }
+void kshiftrw(const Opmask& r1, const Opmask& r2, uint8 imm) { opK(r1, 0, r2, false, PP_66 | MM_0F3A, 0x30, 1, imm); }
+void kshiftrb(const Opmask& r1, const Opmask& r2, uint8 imm) { opK(r1, 0, r2, false, PP_66 | MM_0F3A, 0x30, 0, imm); }
+void kshiftrq(const Opmask& r1, const Opmask& r2, uint8 imm) { opK(r1, 0, r2, false, PP_66 | MM_0F3A, 0x31, 1, imm); }
+void kshiftrd(const Opmask& r1, const Opmask& r2, uint8 imm) { opK(r1, 0, r2, false, PP_66 | MM_0F3A, 0x31, 0, imm); }
 #endif

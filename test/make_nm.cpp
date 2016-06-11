@@ -2350,6 +2350,19 @@ public:
 				put(name + "d", K, K);
 			}
 		}
+		{
+			const char *tbl[] = {
+				"kshiftl",
+				"kshiftr",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				std::string name = tbl[i];
+				put(name + "b", K, K, IMM8);
+				put(name + "w", K, K, IMM8);
+				put(name + "q", K, K, IMM8);
+				put(name + "d", K, K, IMM8);
+			}
+		}
 #if 0
 		for (int i = 1; i < 8; i++) {
 			for (int j = 1; j < 8; j++) {
