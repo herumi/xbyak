@@ -58,14 +58,14 @@ void putOpmask()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			printf("void %sw(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, &r2, r3, VEX_L1 | MM_0F, 0x%02X, 0); }\n", p.name, p.code);
-			printf("void %sb(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, &r2, r3, VEX_L1 | MM_0F | PP_66, 0x%02X, 0); }\n", p.name, p.code);
-			printf("void %sq(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, &r2, r3, VEX_L1 | MM_0F, 0x%02X, 1); }\n", p.name, p.code);
-			printf("void %sd(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, &r2, r3, VEX_L1 | MM_0F | PP_66, 0x%02X, 1); }\n", p.name, p.code);
+			printf("void %sw(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opVex(r1, &r2, &r3, VEX_L1 | MM_0F, 0x%02X, 0); }\n", p.name, p.code);
+			printf("void %sb(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opVex(r1, &r2, &r3, VEX_L1 | MM_0F | PP_66, 0x%02X, 0); }\n", p.name, p.code);
+			printf("void %sq(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opVex(r1, &r2, &r3, VEX_L1 | MM_0F, 0x%02X, 1); }\n", p.name, p.code);
+			printf("void %sd(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opVex(r1, &r2, &r3, VEX_L1 | MM_0F | PP_66, 0x%02X, 1); }\n", p.name, p.code);
 		}
-		printf("void kunpckbw(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, &r2, r3, VEX_L1 | MM_0F | PP_66, 0x4B, 0); }\n");
-		printf("void kunpckwd(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, &r2, r3, VEX_L1 | MM_0F, 0x4B, 0); }\n");
-		printf("void kunpckdq(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opK(r1, &r2, r3, VEX_L1 | MM_0F, 0x4B, 1); }\n");
+		printf("void kunpckbw(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opVex(r1, &r2, &r3, VEX_L1 | MM_0F | PP_66, 0x4B, 0); }\n");
+		printf("void kunpckwd(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opVex(r1, &r2, &r3, VEX_L1 | MM_0F, 0x4B, 0); }\n");
+		printf("void kunpckdq(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opVex(r1, &r2, &r3, VEX_L1 | MM_0F, 0x4B, 1); }\n");
 	}
 	{
 		const struct Tbl {
@@ -78,10 +78,10 @@ void putOpmask()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			printf("void %sw(const Opmask& r1, const Opmask& r2) { opK(r1, 0, r2, MM_0F, 0x%02X, 0); }\n", p.name, p.code);
-			printf("void %sb(const Opmask& r1, const Opmask& r2) { opK(r1, 0, r2, MM_0F | PP_66, 0x%02X, 0); }\n", p.name, p.code);
-			printf("void %sq(const Opmask& r1, const Opmask& r2) { opK(r1, 0, r2, MM_0F, 0x%02X, 1); }\n", p.name, p.code);
-			printf("void %sd(const Opmask& r1, const Opmask& r2) { opK(r1, 0, r2, MM_0F | PP_66, 0x%02X, 1); }\n", p.name, p.code);
+			printf("void %sw(const Opmask& r1, const Opmask& r2) { opVex(r1, 0, &r2, MM_0F, 0x%02X, 0); }\n", p.name, p.code);
+			printf("void %sb(const Opmask& r1, const Opmask& r2) { opVex(r1, 0, &r2, MM_0F | PP_66, 0x%02X, 0); }\n", p.name, p.code);
+			printf("void %sq(const Opmask& r1, const Opmask& r2) { opVex(r1, 0, &r2, MM_0F, 0x%02X, 1); }\n", p.name, p.code);
+			printf("void %sd(const Opmask& r1, const Opmask& r2) { opVex(r1, 0, &r2, MM_0F | PP_66, 0x%02X, 1); }\n", p.name, p.code);
 		}
 	}
 	{
@@ -94,10 +94,10 @@ void putOpmask()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			printf("void %sw(const Opmask& r1, const Opmask& r2, uint8 imm) { opK(r1, 0, r2, PP_66 | MM_0F3A, 0x%02X, 1, imm); }\n", p.name, p.code);
-			printf("void %sb(const Opmask& r1, const Opmask& r2, uint8 imm) { opK(r1, 0, r2, PP_66 | MM_0F3A, 0x%02X, 0, imm); }\n", p.name, p.code);
-			printf("void %sq(const Opmask& r1, const Opmask& r2, uint8 imm) { opK(r1, 0, r2, PP_66 | MM_0F3A, 0x%02X, 1, imm); }\n", p.name, p.code + 1);
-			printf("void %sd(const Opmask& r1, const Opmask& r2, uint8 imm) { opK(r1, 0, r2, PP_66 | MM_0F3A, 0x%02X, 0, imm); }\n", p.name, p.code + 1);
+			printf("void %sw(const Opmask& r1, const Opmask& r2, uint8 imm) { opVex(r1, 0, &r2, PP_66 | MM_0F3A, 0x%02X, 1, imm); }\n", p.name, p.code);
+			printf("void %sb(const Opmask& r1, const Opmask& r2, uint8 imm) { opVex(r1, 0, &r2, PP_66 | MM_0F3A, 0x%02X, 0, imm); }\n", p.name, p.code);
+			printf("void %sq(const Opmask& r1, const Opmask& r2, uint8 imm) { opVex(r1, 0, &r2, PP_66 | MM_0F3A, 0x%02X, 1, imm); }\n", p.name, p.code + 1);
+			printf("void %sd(const Opmask& r1, const Opmask& r2, uint8 imm) { opVex(r1, 0, &r2, PP_66 | MM_0F3A, 0x%02X, 0, imm); }\n", p.name, p.code + 1);
 		}
 	}
 }

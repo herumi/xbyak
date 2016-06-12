@@ -1607,16 +1607,6 @@ private:
 	{
 		db(code1); db(code2 | reg.getIdx());
 	}
-#ifdef XBYAK_AVX512
-	void opK(const Opmask& r1, const Opmask *r2, const Opmask& r3, int type, int code, int w, int imm8 = NONE)
-	{
-		bool isL1 = (type & VEX_L1) != 0;
-		vex(false, r2 ? r2->getIdx() : 0, isL1, type, false, false, w);
-		db(code);
-		db(getModRM(3, r1.getIdx(), r3.getIdx()));
-		if (imm8 != NONE) db(imm8);
-	}
-#endif
 	void opVex(const Reg& r, const Operand *p1, const Operand *p2, int type, int code, int w, int imm8 = NONE)
 	{
 		bool x, b;
@@ -1632,7 +1622,8 @@ private:
 			b = static_cast<const Reg&>(*p2).isExtIdx();
 		}
 		if (w == -1) w = 0;
-		vex(r.isExtIdx(), p1 ? p1->getIdx() : 0, r.isYMM(), type, x, b, w);
+		bool is256 = (type & VEX_L1) ? true : (type & VEX_L0) ? false : r.isYMM();
+		vex(r.isExtIdx(), p1 ? p1->getIdx() : 0, is256, type, x, b, w);
 		db(code);
 		if (p2->isMEM()) {
 			const Address& addr = static_cast<const Address&>(*p2);
