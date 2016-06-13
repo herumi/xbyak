@@ -2363,26 +2363,18 @@ public:
 				put(name + "d", K, K, IMM8);
 			}
 		}
-#if 0
-		for (int i = 1; i < 8; i++) {
-			for (int j = 1; j < 8; j++) {
-				for (int k = 1; k < 8; k++) {
-					std::string s = "kandb ";
-					if (isXbyak_) {
-						s += "(";
-					}
-					s += Opmask(i).toString();
-					s += ",";
-					s += Opmask(j).toString();
-					s += ",";
-					s += Opmask(k).toString();
-					if (isXbyak_) {
-						s += "); dump();";
-					}
-					printf("%s\n", s.c_str());
-				}
-			}
-		}
+		put("kmovw", K, K | MEM | REG32);
+		put("kmovq", K, K | MEM);
+		put("kmovb", K, K | MEM | REG32);
+		put("kmovd", K, K | MEM | REG32);
+
+		put("kmovw", MEM | REG32, K);
+		put("kmovq", MEM, K);
+		put("kmovb", MEM | REG32, K);
+		put("kmovd", MEM | REG32, K);
+#ifdef XBYAK64
+		put("kmovq", K, REG64);
+		put("kmovq", REG64, K);
 #endif
 	}
 	void putAVX512()

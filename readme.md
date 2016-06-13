@@ -1,5 +1,5 @@
 
-Xbyak 4.91 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.00 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -285,6 +285,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2016/Jun/13 avx-512 add mask instructions
 * 2016/May/05 ver 4.91 add detection of AVX-512 to Xbyak::util::Cpu
 * 2016/Mar/14 ver 4.901 comment to ready() function(thanks to skmp)
 * 2016/Feb/04 ver 4.90 add jcc(const void *addr);
