@@ -22,9 +22,8 @@ if /i "%1"=="Y" (
 	set OPT2=-DXBYAK32
 	set OPT3=win32
 )
-pushd ..\gen
-call update
-popd
+call set_opt
+bmake -f Makefile.win all
 echo cl -I../ make_nm.cpp %OPT% %OPT2% /EHs /DUSE_AVX
 cl -I../ make_nm.cpp %OPT% %OPT2% /EHs /DUSE_AVX
 make_nm > a.asm

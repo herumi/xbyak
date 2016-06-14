@@ -8,9 +8,8 @@ if /i "%1"=="64" (
 	set OPT3=win32
 )
 
-pushd ..\gen
-call update
-popd
+call set_opt
+bmake -f Makefile.win all
 
 if /i "%1"=="64" (
 	call :sub 1
