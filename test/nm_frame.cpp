@@ -28,6 +28,7 @@ public:
 	}
 };
 int main()
+	try
 {
 	try {
 		Sample s;
@@ -39,4 +40,7 @@ int main()
 	}
 	ErrorSample es;
 	es.gen();
+} catch (std::exception& e) {
+	printf("err %s\n", e.what());
+	return 1;
 }
