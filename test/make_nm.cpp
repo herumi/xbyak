@@ -2202,6 +2202,7 @@ public:
 	{
 #ifdef USE_AVX
 
+		separateFunc();
 		putFMA2();
 
 #ifdef USE_YASM
@@ -2213,15 +2214,23 @@ public:
 		putGatherAll();
 #else
 		putAVX1();
+		separateFunc();
 		putAVX2();
 		putAVX_X_X_XM_omit();
+		separateFunc();
 		putAVX_X_X_XM_IMM();
+		separateFunc();
 		putAVX_X_XM_IMM();
+		separateFunc();
 		putAVX_X_X_XM();
+		separateFunc();
 		putAVX_X_XM();
+		separateFunc();
 		putAVX_M_X();
 		putAVX_X_X_IMM_omit();
+		separateFunc();
 		putAVX_Y_XM();
+		separateFunc();
 		putFMA();
 #endif
 
