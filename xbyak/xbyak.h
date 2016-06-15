@@ -412,10 +412,16 @@ public:
 			};
 			return tbl[idx];
 		} else if (isYMM()) {
-			static const char *tbl[16] = { "ym0", "ym1", "ym2", "ym3", "ym4", "ym5", "ym6", "ym7", "ym8", "ym9", "ym10", "ym11", "ym12", "ym13", "ym14", "ym15" };
+			static const char *tbl[32] = {
+				"ym0", "ym1", "ym2", "ym3", "ym4", "ym5", "ym6", "ym7", "ym8", "ym9", "ym10", "ym11", "ym12", "ym13", "ym14", "ym15",
+				"ym16", "ym17", "ym18", "ym19", "ym20", "ym21", "ym22", "ym23", "ym24", "ym25", "ym26", "ym27", "ym28", "ym29", "ym30", "ym31"
+			};
 			return tbl[idx];
 		} else if (isXMM()) {
-			static const char *tbl[16] = { "xm0", "xm1", "xm2", "xm3", "xm4", "xm5", "xm6", "xm7", "xm8", "xm9", "xm10", "xm11", "xm12", "xm13", "xm14", "xm15" };
+			static const char *tbl[32] = {
+				"xm0", "xm1", "xm2", "xm3", "xm4", "xm5", "xm6", "xm7", "xm8", "xm9", "xm10", "xm11", "xm12", "xm13", "xm14", "xm15",
+				"xm16", "xm17", "xm18", "xm19", "xm20", "xm21", "xm22", "xm23", "xm24", "xm25", "xm26", "xm27", "xm28", "xm29", "xm30", "xm31"
+			};
 			return tbl[idx];
 		} else if (isMMX()) {
 			static const char *tbl[8] = { "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7" };
@@ -610,7 +616,7 @@ public:
 	const Operand& getBase() const { return base_; }
 	const Operand& getIndex() const { return index_; }
 	int getScale() const { return scale_; }
-	uint32 getDisp() const { return uint32(disp_); }
+	size_t getDisp() const { return disp_; }
 	void verify() const
 	{
 		if (base_.getBit() >= 128) throw Error(ERR_BAD_SIZE_OF_REGISTER);
@@ -876,15 +882,15 @@ class Address : public Operand {
 	RegExp e_;
 	void verify() const { if (isVsib_) throw Error(ERR_BAD_VSIB_ADDRESSING); }
 public:
-	Address(const RegExp& e, uint32 sizeBit, bool isOnlyDisp, size_t disp, bool is32bit, bool is64bitDisp = false)
+	Address(const RegExp& e, uint32 sizeBit, bool is64bitDisp)
 		: Operand(0, MEM, sizeBit)
 		, size_(0)
 		, rex_(0)
-		, disp_(disp)
+		, disp_(e.getDisp())
 		, label_(0)
-		, isOnlyDisp_(isOnlyDisp)
+		, isOnlyDisp_(!e.getBase().getBit() && !e.getIndex().getBit())
 		, is64bitDisp_(is64bitDisp)
-		, is32bit_(is32bit)
+		, is32bit_(e.getBase().getBit() == 32 || e.getIndex().getBit() == 32)
 		, isVsib_(e.isVsib())
 		, e_(e)
 	{
@@ -926,82 +932,82 @@ inline bool Operand::operator==(const Operand& rhs) const
 	return isEqualIfNotInherited(rhs);
 }
 
-class AddressFrame {
-private:
-	void operator=(const AddressFrame&);
-	static inline void setModRM(Address& frame, const Operand& base, const Operand& index, int scale, uint32 disp)
-	{
-		const int baseIdx = base.getIdx();
-		const int baseBit = base.getBit();
-		const int indexBit = index.getBit();
-		const int indexIdx = index.getIdx();
-		enum {
-			mod00 = 0, mod01 = 1, mod10 = 2
-		};
-		int mod;
-		if (!baseBit || ((baseIdx & 7) != Operand::EBP && disp == 0)) {
-			mod = mod00;
-		} else if (inner::IsInDisp8(disp)) {
-			mod = mod01;
-		} else {
-			mod = mod10;
-		}
-		const int newBaseIdx = baseBit ? (baseIdx & 7) : Operand::EBP;
-		/* ModR/M = [2:3:3] = [Mod:reg/code:R/M] */
-		bool hasSIB = indexBit || (baseIdx & 7) == Operand::ESP;
+namespace inner {
+
+inline void setModRM(Address& frame, const Operand& base, const Operand& index, int scale, size_t disp64)
+{
 #ifdef XBYAK64
-		if (!baseBit && !indexBit) hasSIB = true;
+	size_t high = disp64 >> 32;
+	if (high != 0 && high != 0xFFFFFFFF) throw Error(ERR_OFFSET_IS_TOO_BIG);
 #endif
-		if (hasSIB) {
-			frame.db((mod << 6) | Operand::ESP);
-			/* SIB = [2:3:3] = [SS:index:base(=rm)] */
-			const int newIndexIdx = indexBit ? (indexIdx & 7) : Operand::ESP;
-			const int ss = (scale == 8) ? 3 : (scale == 4) ? 2 : (scale == 2) ? 1 : 0;
-			frame.db((ss << 6) | (newIndexIdx << 3) | newBaseIdx);
-		} else {
-			frame.db((mod << 6) | newBaseIdx);
-		}
-		if (mod == mod01) {
-			frame.db(disp);
-		} else if (mod == mod10 || (mod == mod00 && !baseBit)) {
-			frame.dd(disp);
-		}
-		int rex = ((indexIdx >> 3) << 1) | (baseIdx >> 3);
-		if (rex) rex |= 0x40;
-		frame.setRex(uint8(rex));
+	uint32_t disp = static_cast<uint32>(disp64);
+	const int baseIdx = base.getIdx();
+	const int baseBit = base.getBit();
+	const int indexBit = index.getBit();
+	const int indexIdx = index.getIdx();
+	enum {
+		mod00 = 0, mod01 = 1, mod10 = 2
+	};
+	int mod;
+	if (!baseBit || ((baseIdx & 7) != Operand::EBP && disp == 0)) {
+		mod = mod00;
+	} else if (inner::IsInDisp8(disp)) {
+		mod = mod01;
+	} else {
+		mod = mod10;
 	}
-	Address makeAddress(const RegExp& e) const
-	{
-		e.verify();
-		const Operand& base = e.getBase();
-		const Operand& index = e.getIndex();
-		const int baseBit = base.getBit();
-		const int indexBit = index.getBit();
-		const uint32 disp = e.getDisp();
-		Address frame(e, bit_, (!baseBit && !indexBit), disp, baseBit == 32 || indexBit == 32, false);
-		setModRM(frame, base, index, e.getScale(), disp);
-		return frame;
+	const int newBaseIdx = baseBit ? (baseIdx & 7) : Operand::EBP;
+	/* ModR/M = [2:3:3] = [Mod:reg/code:R/M] */
+	bool hasSIB = indexBit || (baseIdx & 7) == Operand::ESP;
+#ifdef XBYAK64
+	if (!baseBit && !indexBit) hasSIB = true;
+#endif
+	if (hasSIB) {
+		frame.db((mod << 6) | Operand::ESP);
+		/* SIB = [2:3:3] = [SS:index:base(=rm)] */
+		const int newIndexIdx = indexBit ? (indexIdx & 7) : Operand::ESP;
+		const int ss = (scale == 8) ? 3 : (scale == 4) ? 2 : (scale == 2) ? 1 : 0;
+		frame.db((ss << 6) | (newIndexIdx << 3) | newBaseIdx);
+	} else {
+		frame.db((mod << 6) | newBaseIdx);
 	}
+	if (mod == mod01) {
+		frame.db(disp);
+	} else if (mod == mod10 || (mod == mod00 && !baseBit)) {
+		frame.dd(disp);
+	}
+	int rex = ((indexIdx >> 3) << 1) | (baseIdx >> 3);
+	if (rex) rex |= 0x40;
+	frame.setRex(uint8(rex));
+}
+
+} // inner
+
+class AddressFrame {
+	void operator=(const AddressFrame&);
 public:
 	const uint32 bit_;
 	explicit AddressFrame(uint32 bit) : bit_(bit) { }
+	Address operator[](const RegExp& e0) const
+	{
+		RegExp e = e0.optimize();
+		e.verify();
+		Address frame(e, bit_, false);
+		inner::setModRM(frame, e.getBase(), e.getIndex(), e.getScale(), e.getDisp());
+		return frame;
+	}
 	Address operator[](const void *disp) const
 	{
-		size_t adr = reinterpret_cast<size_t>(disp);
-#ifdef XBYAK64
-		if (adr > 0xFFFFFFFFU) throw Error(ERR_OFFSET_IS_TOO_BIG);
-#endif
-		RegExp e(static_cast<uint32>(adr));
-		return operator[](e);
+		return operator[](RegExp(reinterpret_cast<size_t>(disp)));
 	}
 #ifdef XBYAK64
 	Address operator[](uint64 disp) const
 	{
-		return Address(RegExp(), 64, true, disp, false, true);
+		return Address(RegExp(disp), 64, true);
 	}
 	Address operator[](const RegRip& addr) const
 	{
-		Address frame(RegExp(), bit_, true, addr.disp_, false);
+		Address frame(RegExp(addr.disp_), bit_, false);
 		frame.db(0x05);
 		if (addr.label_) {
 			frame.setLabel(addr.label_);
@@ -1011,10 +1017,6 @@ public:
 		return frame;
 	}
 #endif
-	Address operator[](const RegExp& e) const
-	{
-		return makeAddress(e.optimize());
-	}
 };
 
 struct JmpLabel {
