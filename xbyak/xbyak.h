@@ -583,10 +583,10 @@ public:
 #else
 	enum { i32e = 32 };
 #endif
-	RegExp(size_t disp = 0) : disp_(disp), scale_(0) { }
+	RegExp(size_t disp = 0) : scale_(0), disp_(disp) { }
 	RegExp(const Reg& r, int scale = 1)
-		: disp_(0)
-		, scale_(scale)
+		: scale_(scale)
+		, disp_(0)
 	{
 		if (!r.isREG(i32e) && !r.is(Reg::XMM|Reg::YMM)) throw Error(ERR_BAD_SIZE_OF_REGISTER);
 		if (scale != 1 && scale != 2 && scale != 4 && scale != 8) throw Error(ERR_BAD_SCALE);
@@ -611,7 +611,7 @@ public:
 	}
 	bool operator==(const RegExp& rhs) const
 	{
-		return base_ == rhs.base_ && index_ == rhs.index_ && disp_ == rhs.disp_;
+		return base_ == rhs.base_ && index_ == rhs.index_ && disp_ == rhs.disp_ && scale_ == rhs.scale_;
 	}
 	const Operand& getBase() const { return base_; }
 	const Operand& getIndex() const { return index_; }
@@ -632,10 +632,10 @@ private:
 		[base_ + index_ * scale_ + disp_]
 		base : Reg32e, index : Reg32e(w/o esp), Xmm, Ymm
 	*/
-	size_t disp_;
-	int scale_;
 	Operand base_;
 	Operand index_;
+	int scale_;
+	size_t disp_;
 };
 
 inline RegExp operator+(const RegExp& a, const RegExp& b)
@@ -870,30 +870,24 @@ public:
 };
 
 class Address : public Operand {
+	RegExp e_;
 	mutable uint8 top_[6]; // 6 = 1(ModRM) + 1(SIB) + 4(disp)
 	uint8 size_;
 	uint8 rex_;
-	size_t disp_;
 	const Label* label_;
-	bool isOnlyDisp_;
 	bool is64bitDisp_;
-	bool is32bit_;
 	mutable bool isVsib_;
-	RegExp e_;
 	void verify() const { if (isVsib_) throw Error(ERR_BAD_VSIB_ADDRESSING); }
 public:
 	Address(const RegExp& e, uint32 sizeBit, bool is64bitDisp)
 		: Operand(0, MEM, sizeBit)
 		, size_(0)
 		, rex_(0)
-		, disp_(e.getDisp())
 		, label_(0)
-		, isOnlyDisp_(!e.getBase().getBit() && !e.getIndex().getBit())
 		, is64bitDisp_(is64bitDisp)
-		, is32bit_(e.getBase().getBit() == 32 || e.getIndex().getBit() == 32)
-		, isVsib_(e.isVsib())
-		, e_(e)
 	{
+		e_ = e;
+		isVsib_ = e.isVsib();
 	}
 	void db(int code)
 	{
@@ -910,9 +904,9 @@ public:
 	void setVsib(bool isVsib) const { isVsib_ = isVsib; }
 	bool isVsib() const { return isVsib_; }
 	bool isYMM() const { return e_.isYMM(); }
-	bool is32bit() const { verify(); return is32bit_; }
-	bool isOnlyDisp() const { verify(); return isOnlyDisp_; } // for mov eax
-	size_t getDisp() const { verify(); return disp_; }
+	bool is32bit() const { verify(); return e_.getBase().getBit() == 32 || e_.getIndex().getBit() == 32; }
+	bool isOnlyDisp() const { verify(); return !e_.getBase().getBit() && !e_.getIndex().getBit(); } // for mov eax
+	size_t getDisp() const { verify(); return e_.getDisp(); }
 	uint8 getRex() const { verify(); return rex_; }
 	bool is64bitDisp() const { verify(); return is64bitDisp_; } // for moffset
 	void setRex(uint8 rex) { rex_ = rex; }
@@ -920,8 +914,8 @@ public:
 	const Label* getLabel() const { return label_; }
 	bool operator==(const Address& rhs) const
 	{
-		return getBit() == rhs.getBit() && size_ == rhs.size_ && rex_ == rhs.rex_ && disp_ == rhs.disp_ && label_ == rhs.label_ && isOnlyDisp_ == rhs.isOnlyDisp_
-			&& is64bitDisp_ == rhs.is64bitDisp_ && is32bit_ == rhs.is32bit_ && isVsib_ == rhs.isVsib_ && isYMM() == rhs.isYMM();
+		return getBit() == rhs.getBit() && size_ == rhs.size_ && rex_ == rhs.rex_ && label_ == rhs.label_
+			&& is64bitDisp_ == rhs.is64bitDisp_ && isVsib_ == rhs.isVsib_ && isYMM() == rhs.isYMM() && e_ == rhs.e_;
 	}
 	bool operator!=(const Address& rhs) const { return !operator==(rhs); }
 };
