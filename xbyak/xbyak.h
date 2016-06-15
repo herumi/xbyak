@@ -576,6 +576,8 @@ public:
 };
 #endif
 
+class Address;
+
 class RegExp {
 public:
 #ifdef XBYAK64
@@ -598,16 +600,13 @@ public:
 	}
 	bool isVsib() const { return index_.isBit(128|256); }
 	bool isYMM() const { return index_.isBit(256); }
-	RegExp optimize() const // select smaller size
+	void optimize()
 	{
 		// [reg * 2] => [reg + reg]
 		if (index_.isBit(i32e) && !base_.getBit() && index_.getBit() && scale_ == 2) {
-			RegExp ret = *this;
-			ret.base_ = index_;
-			ret.scale_ = 1;
-			return ret;
+			base_ = index_;
+			scale_ = 1;
 		}
-		return *this;
 	}
 	bool operator==(const RegExp& rhs) const
 	{
@@ -625,6 +624,7 @@ public:
 			if (base_.getBit() && base_.getBit() != index_.getBit()) throw Error(ERR_BAD_SIZE_OF_REGISTER);
 		}
 	}
+	void setModRM(Address& addr) const;
 	friend RegExp operator+(const RegExp& a, const RegExp& b);
 	friend RegExp operator-(const RegExp& e, size_t disp);
 private:
@@ -870,24 +870,35 @@ public:
 };
 
 class Address : public Operand {
-	RegExp e_;
-	mutable uint8 top_[6]; // 6 = 1(ModRM) + 1(SIB) + 4(disp)
-	uint8 size_;
-	uint8 rex_;
-	const Label* label_;
-	bool is64bitDisp_;
-	mutable bool isVsib_;
-	void verify() const { if (isVsib_) throw Error(ERR_BAD_VSIB_ADDRESSING); }
 public:
-	Address(const RegExp& e, uint32 sizeBit, bool is64bitDisp)
-		: Operand(0, MEM, sizeBit)
-		, size_(0)
-		, rex_(0)
-		, label_(0)
-		, is64bitDisp_(is64bitDisp)
+	enum Mode {
+		M_ModRM,
+		M_64bitDisp,
+		M_rip
+	};
+	Address(uint32 sizeBit, const RegExp& e)
+		: Operand(0, MEM, sizeBit), e_(e), size_(0), rex_(0), label_(0), mode_(M_ModRM)
 	{
-		e_ = e;
+		e_.optimize();
 		isVsib_ = e.isVsib();
+		e_.verify();
+		e_.setModRM(*this);
+	}
+#ifdef XBYAK64
+	explicit Address(size_t disp)
+		: Operand(0, MEM, 64), e_(disp), size_(0), rex_(0), label_(0), mode_(M_64bitDisp), isVsib_(false) { }
+	Address(uint32 sizeBit, const RegRip& addr)
+		: Operand(0, MEM, sizeBit), e_(addr.disp_), size_(0), rex_(0), label_(addr.label_), mode_(M_rip), isVsib_(false)
+	{
+		db(0x05);
+		if (!label_) dd(inner::VerifyInInt32(e_.getDisp()));
+	}
+#endif
+	const uint8 *getCode() const { return top_; }
+	size_t getSize() const { return size_; }
+	void updateRegField(uint8 regIdx) const
+	{
+		*top_ = (*top_ & 0xC7) | ((regIdx << 3) & 0x38);
 	}
 	void db(int code)
 	{
@@ -895,12 +906,6 @@ public:
 		top_[size_++] = static_cast<uint8>(code);
 	}
 	void dd(uint32 code) { for (int i = 0; i < 4; i++) db(code >> (i * 8)); }
-	const uint8 *getCode() const { return top_; }
-	size_t getSize() const { return size_; }
-	void updateRegField(uint8 regIdx) const
-	{
-		*top_ = (*top_ & 0xC7) | ((regIdx << 3) & 0x38);
-	}
 	void setVsib(bool isVsib) const { isVsib_ = isVsib; }
 	bool isVsib() const { return isVsib_; }
 	bool isYMM() const { return e_.isYMM(); }
@@ -908,37 +913,38 @@ public:
 	bool isOnlyDisp() const { verify(); return !e_.getBase().getBit() && !e_.getIndex().getBit(); } // for mov eax
 	size_t getDisp() const { verify(); return e_.getDisp(); }
 	uint8 getRex() const { verify(); return rex_; }
-	bool is64bitDisp() const { verify(); return is64bitDisp_; } // for moffset
+	bool is64bitDisp() const { verify(); return mode_ == M_64bitDisp; } // for moffset
 	void setRex(uint8 rex) { rex_ = rex; }
 	void setLabel(const Label* label) { label_ = label; }
 	const Label* getLabel() const { return label_; }
 	bool operator==(const Address& rhs) const
 	{
 		return getBit() == rhs.getBit() && size_ == rhs.size_ && rex_ == rhs.rex_ && label_ == rhs.label_
-			&& is64bitDisp_ == rhs.is64bitDisp_ && isVsib_ == rhs.isVsib_ && isYMM() == rhs.isYMM() && e_ == rhs.e_;
+			&& mode_ == rhs.mode_ && isVsib_ == rhs.isVsib_ && e_ == rhs.e_;
 	}
 	bool operator!=(const Address& rhs) const { return !operator==(rhs); }
+private:
+	RegExp e_;
+	mutable uint8 top_[6]; // 6 = 1(ModRM) + 1(SIB) + 4(disp)
+	uint8 size_;
+	uint8 rex_;
+	const Label* label_;
+	Mode mode_;
+	mutable bool isVsib_;
+	void verify() const { if (isVsib_) throw Error(ERR_BAD_VSIB_ADDRESSING); }
 };
 
-inline bool Operand::operator==(const Operand& rhs) const
-{
-	if (isMEM() && rhs.isMEM()) return static_cast<const Address&>(*this) == static_cast<const Address&>(rhs);
-	return isEqualIfNotInherited(rhs);
-}
-
-namespace inner {
-
-inline void setModRM(Address& frame, const Operand& base, const Operand& index, int scale, size_t disp64)
+inline void RegExp::setModRM(Address& addr) const
 {
 #ifdef XBYAK64
-	size_t high = disp64 >> 32;
+	size_t high = disp_ >> 32;
 	if (high != 0 && high != 0xFFFFFFFF) throw Error(ERR_OFFSET_IS_TOO_BIG);
 #endif
-	uint32_t disp = static_cast<uint32>(disp64);
-	const int baseIdx = base.getIdx();
-	const int baseBit = base.getBit();
-	const int indexBit = index.getBit();
-	const int indexIdx = index.getIdx();
+	uint32_t disp = static_cast<uint32>(disp_);
+	const int baseIdx = base_.getIdx();
+	const int baseBit = base_.getBit();
+	const int indexBit = index_.getBit();
+	const int indexIdx = index_.getIdx();
 	enum {
 		mod00 = 0, mod01 = 1, mod10 = 2
 	};
@@ -957,59 +963,45 @@ inline void setModRM(Address& frame, const Operand& base, const Operand& index, 
 	if (!baseBit && !indexBit) hasSIB = true;
 #endif
 	if (hasSIB) {
-		frame.db((mod << 6) | Operand::ESP);
-		/* SIB = [2:3:3] = [SS:index:base(=rm)] */
+		addr.db((mod << 6) | Operand::ESP);
+		/* SIB = [2:3:3] = [SS:index_:base_(=rm)] */
 		const int newIndexIdx = indexBit ? (indexIdx & 7) : Operand::ESP;
-		const int ss = (scale == 8) ? 3 : (scale == 4) ? 2 : (scale == 2) ? 1 : 0;
-		frame.db((ss << 6) | (newIndexIdx << 3) | newBaseIdx);
+		const int ss = (scale_ == 8) ? 3 : (scale_ == 4) ? 2 : (scale_ == 2) ? 1 : 0;
+		addr.db((ss << 6) | (newIndexIdx << 3) | newBaseIdx);
 	} else {
-		frame.db((mod << 6) | newBaseIdx);
+		addr.db((mod << 6) | newBaseIdx);
 	}
 	if (mod == mod01) {
-		frame.db(disp);
+		addr.db(disp);
 	} else if (mod == mod10 || (mod == mod00 && !baseBit)) {
-		frame.dd(disp);
+		addr.dd(disp);
 	}
 	int rex = ((indexIdx >> 3) << 1) | (baseIdx >> 3);
 	if (rex) rex |= 0x40;
-	frame.setRex(uint8(rex));
+	addr.setRex(uint8(rex));
 }
-
-} // inner
+inline bool Operand::operator==(const Operand& rhs) const
+{
+	if (isMEM() && rhs.isMEM()) return static_cast<const Address&>(*this) == static_cast<const Address&>(rhs);
+	return isEqualIfNotInherited(rhs);
+}
 
 class AddressFrame {
 	void operator=(const AddressFrame&);
 public:
 	const uint32 bit_;
 	explicit AddressFrame(uint32 bit) : bit_(bit) { }
-	Address operator[](const RegExp& e0) const
+	Address operator[](const RegExp& e) const
 	{
-		RegExp e = e0.optimize();
-		e.verify();
-		Address frame(e, bit_, false);
-		inner::setModRM(frame, e.getBase(), e.getIndex(), e.getScale(), e.getDisp());
-		return frame;
+		return Address(bit_, e);
 	}
 	Address operator[](const void *disp) const
 	{
-		return operator[](RegExp(reinterpret_cast<size_t>(disp)));
+		return Address(bit_, RegExp(reinterpret_cast<size_t>(disp)));
 	}
 #ifdef XBYAK64
-	Address operator[](uint64 disp) const
-	{
-		return Address(RegExp(disp), 64, true);
-	}
-	Address operator[](const RegRip& addr) const
-	{
-		Address frame(RegExp(addr.disp_), bit_, false);
-		frame.db(0x05);
-		if (addr.label_) {
-			frame.setLabel(addr.label_);
-		} else {
-			frame.dd(inner::VerifyInInt32(addr.disp_));
-		}
-		return frame;
-	}
+	Address operator[](uint64 disp) const { return Address(disp); }
+	Address operator[](const RegRip& addr) const { return Address(bit_, addr); }
 #endif
 };
 
@@ -1726,12 +1718,20 @@ public:
 	const Reg8 r8b, r9b, r10b, r11b, r12b, r13b, r14b, r15b;
 	const Reg8 spl, bpl, sil, dil;
 	const Xmm xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
+	const Xmm xmm16, xmm17, xmm18, xmm19, xmm20, xmm21, xmm22, xmm23;
+	const Xmm xmm24, xmm25, xmm26, xmm27, xmm28, xmm29, xmm30, xmm31;
 	const Ymm ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14, ymm15;
+	const Ymm ymm16, ymm17, ymm18, ymm19, ymm20, ymm21, ymm22, ymm23;
+	const Ymm ymm24, ymm25, ymm26, ymm27, ymm28, ymm29, ymm30, ymm31;
 	const Zmm zmm8, zmm9, zmm10, zmm11, zmm12, zmm13, zmm14, zmm15;
 	const Zmm zmm16, zmm17, zmm18, zmm19, zmm20, zmm21, zmm22, zmm23;
 	const Zmm zmm24, zmm25, zmm26, zmm27, zmm28, zmm29, zmm30, zmm31;
 	const Xmm &xm8, &xm9, &xm10, &xm11, &xm12, &xm13, &xm14, &xm15; // for my convenience
+	const Xmm &xm16, &xm17, &xm18, &xm19, &xm20, &xm21, &xm22, &xm23;
+	const Xmm &xm24, &xm25, &xm26, &xm27, &xm28, &xm29, &xm30, &xm31;
 	const Ymm &ym8, &ym9, &ym10, &ym11, &ym12, &ym13, &ym14, &ym15;
+	const Ymm &ym16, &ym17, &ym18, &ym19, &ym20, &ym21, &ym22, &ym23;
+	const Ymm &ym24, &ym25, &ym26, &ym27, &ym28, &ym29, &ym30, &ym31;
 	const Zmm &zm8, &zm9, &zm10, &zm11, &zm12, &zm13, &zm14, &zm15;
 	const Zmm &zm16, &zm17, &zm18, &zm19, &zm20, &zm21, &zm22, &zm23;
 	const Zmm &zm24, &zm25, &zm26, &zm27, &zm28, &zm29, &zm30, &zm31;
@@ -2193,18 +2193,26 @@ public:
 		, k1(1), k2(2), k3(3), k4(4), k5(5), k6(6), k7(7)
 #ifdef XBYAK64
 		, rax(Operand::RAX), rcx(Operand::RCX), rdx(Operand::RDX), rbx(Operand::RBX), rsp(Operand::RSP), rbp(Operand::RBP), rsi(Operand::RSI), rdi(Operand::RDI), r8(Operand::R8), r9(Operand::R9), r10(Operand::R10), r11(Operand::R11), r12(Operand::R12), r13(Operand::R13), r14(Operand::R14), r15(Operand::R15)
-		, r8d(Operand::R8D), r9d(Operand::R9D), r10d(Operand::R10D), r11d(Operand::R11D), r12d(Operand::R12D), r13d(Operand::R13D), r14d(Operand::R14D), r15d(Operand::R15D)
-		, r8w(Operand::R8W), r9w(Operand::R9W), r10w(Operand::R10W), r11w(Operand::R11W), r12w(Operand::R12W), r13w(Operand::R13W), r14w(Operand::R14W), r15w(Operand::R15W)
-		, r8b(Operand::R8B), r9b(Operand::R9B), r10b(Operand::R10B), r11b(Operand::R11B), r12b(Operand::R12B), r13b(Operand::R13B), r14b(Operand::R14B), r15b(Operand::R15B)
+		, r8d(8), r9d(9), r10d(10), r11d(11), r12d(12), r13d(13), r14d(14), r15d(15)
+		, r8w(8), r9w(9), r10w(10), r11w(11), r12w(12), r13w(13), r14w(14), r15w(15)
+		, r8b(8), r9b(9), r10b(10), r11b(11), r12b(12), r13b(13), r14b(14), r15b(15)
 		, spl(Operand::SPL, true), bpl(Operand::BPL, true), sil(Operand::SIL, true), dil(Operand::DIL, true)
 		, xmm8(8), xmm9(9), xmm10(10), xmm11(11), xmm12(12), xmm13(13), xmm14(14), xmm15(15)
+		, xmm16(16), xmm17(17), xmm18(18), xmm19(19), xmm20(20), xmm21(21), xmm22(22), xmm23(23)
+		, xmm24(24), xmm25(25), xmm26(26), xmm27(27), xmm28(28), xmm29(29), xmm30(30), xmm31(31)
 		, ymm8(8), ymm9(9), ymm10(10), ymm11(11), ymm12(12), ymm13(13), ymm14(14), ymm15(15)
+		, ymm16(16), ymm17(17), ymm18(18), ymm19(19), ymm20(20), ymm21(21), ymm22(22), ymm23(23)
+		, ymm24(24), ymm25(25), ymm26(26), ymm27(27), ymm28(28), ymm29(29), ymm30(30), ymm31(31)
 		, zmm8(8), zmm9(9), zmm10(10), zmm11(11), zmm12(12), zmm13(13), zmm14(14), zmm15(15)
 		, zmm16(16), zmm17(17), zmm18(18), zmm19(19), zmm20(20), zmm21(21), zmm22(22), zmm23(23)
 		, zmm24(24), zmm25(25), zmm26(26), zmm27(27), zmm28(28), zmm29(29), zmm30(30), zmm31(31)
 		// for my convenience
 		, xm8(xmm8), xm9(xmm9), xm10(xmm10), xm11(xmm11), xm12(xmm12), xm13(xmm13), xm14(xmm14), xm15(xmm15)
+		, xm16(xmm16), xm17(xmm17), xm18(xmm18), xm19(xmm19), xm20(xmm20), xm21(xmm21), xm22(xmm22), xm23(xmm23)
+		, xm24(xmm24), xm25(xmm25), xm26(xmm26), xm27(xmm27), xm28(xmm28), xm29(xmm29), xm30(xmm30), xm31(xmm31)
 		, ym8(ymm8), ym9(ymm9), ym10(ymm10), ym11(ymm11), ym12(ymm12), ym13(ymm13), ym14(ymm14), ym15(ymm15)
+		, ym16(ymm16), ym17(ymm17), ym18(ymm18), ym19(ymm19), ym20(ymm20), ym21(ymm21), ym22(ymm22), ym23(ymm23)
+		, ym24(ymm24), ym25(ymm25), ym26(ymm26), ym27(ymm27), ym28(ymm28), ym29(ymm29), ym30(ymm30), ym31(ymm31)
 		, zm8(zmm8), zm9(zmm9), zm10(zmm10), zm11(zmm11), zm12(zmm12), zm13(zmm13), zm14(zmm14), zm15(zmm15)
 		, zm16(zmm16), zm17(zmm17), zm18(zmm18), zm19(zmm19), zm20(zmm20), zm21(zmm21), zm22(zmm22), zm23(zmm23)
 		, zm24(zmm24), zm25(zmm25), zm26(zmm26), zm27(zmm27), zm28(zmm28), zm29(zmm29), zm30(zmm30), zm31(zmm31)
@@ -2274,7 +2282,11 @@ static const Reg32 r8d(Operand::R8D), r9d(Operand::R9D), r10d(Operand::R10D), r1
 static const Reg16 r8w(Operand::R8W), r9w(Operand::R9W), r10w(Operand::R10W), r11w(Operand::R11W), r12w(Operand::R12W), r13w(Operand::R13W), r14w(Operand::R14W), r15w(Operand::R15W);
 static const Reg8 r8b(Operand::R8B), r9b(Operand::R9B), r10b(Operand::R10B), r11b(Operand::R11B), r12b(Operand::R12B), r13b(Operand::R13B), r14b(Operand::R14B), r15b(Operand::R15B), spl(Operand::SPL, 1), bpl(Operand::BPL, 1), sil(Operand::SIL, 1), dil(Operand::DIL, 1);
 static const Xmm xmm8(8), xmm9(9), xmm10(10), xmm11(11), xmm12(12), xmm13(13), xmm14(14), xmm15(15);
+static const Xmm xmm16(16), xmm17(17), xmm18(18), xmm19(19), xmm20(20), xmm21(21), xmm22(22), xmm23(23);
+static const Xmm xmm24(24), xmm25(25), xmm26(26), xmm27(27), xmm28(28), xmm29(29), xmm30(30), xmm31(31);
 static const Ymm ymm8(8), ymm9(9), ymm10(10), ymm11(11), ymm12(12), ymm13(13), ymm14(14), ymm15(15);
+static const Ymm ymm16(16), ymm17(17), ymm18(18), ymm19(19), ymm20(20), ymm21(21), ymm22(22), ymm23(23);
+static const Ymm ymm24(24), ymm25(25), ymm26(26), ymm27(27), ymm28(28), ymm29(29), ymm30(30), ymm31(31);
 static const Zmm zmm8(8), zmm9(9), zmm10(10), zmm11(11), zmm12(12), zmm13(13), zmm14(14), zmm15(15);
 static const Zmm zmm16(16), zmm17(17), zmm18(18), zmm19(19), zmm20(20), zmm21(21), zmm22(22), zmm23(23);
 static const Zmm zmm24(24), zmm25(25), zmm26(26), zmm27(27), zmm28(28), zmm29(29), zmm30(30), zmm31(31);
