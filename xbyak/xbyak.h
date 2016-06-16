@@ -407,20 +407,20 @@ public:
 			return tbl[idx];
 		} else if (isZMM()) {
 			static const char *tbl[32] = {
-				"zm0", "zm1", "zm2", "zm3", "zm4", "zm5", "zm6", "zm7", "zm8", "zm9", "zm10", "zm11", "zm12", "zm13", "zm14", "zm15",
-				"zm16", "zm17", "zm18", "zm19", "zm20", "zm21", "zm22", "zm23", "zm24", "zm25", "zm26", "zm27", "zm28", "zm29", "zm30", "zm31"
+				"zmm0", "zmm1", "zmm2", "zmm3", "zmm4", "zmm5", "zmm6", "zmm7", "zmm8", "zmm9", "zmm10", "zmm11", "zmm12", "zmm13", "zmm14", "zmm15",
+				"zmm16", "zmm17", "zmm18", "zmm19", "zmm20", "zmm21", "zmm22", "zmm23", "zmm24", "zmm25", "zmm26", "zmm27", "zmm28", "zmm29", "zmm30", "zmm31"
 			};
 			return tbl[idx];
 		} else if (isYMM()) {
 			static const char *tbl[32] = {
-				"ym0", "ym1", "ym2", "ym3", "ym4", "ym5", "ym6", "ym7", "ym8", "ym9", "ym10", "ym11", "ym12", "ym13", "ym14", "ym15",
-				"ym16", "ym17", "ym18", "ym19", "ym20", "ym21", "ym22", "ym23", "ym24", "ym25", "ym26", "ym27", "ym28", "ym29", "ym30", "ym31"
+				"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7", "ymm8", "ymm9", "ymm10", "ymm11", "ymm12", "ymm13", "ymm14", "ymm15",
+				"ymm16", "ymm17", "ymm18", "ymm19", "ymm20", "ymm21", "ymm22", "ymm23", "ymm24", "ymm25", "ymm26", "ymm27", "ymm28", "ymm29", "ymm30", "ymm31"
 			};
 			return tbl[idx];
 		} else if (isXMM()) {
 			static const char *tbl[32] = {
-				"xm0", "xm1", "xm2", "xm3", "xm4", "xm5", "xm6", "xm7", "xm8", "xm9", "xm10", "xm11", "xm12", "xm13", "xm14", "xm15",
-				"xm16", "xm17", "xm18", "xm19", "xm20", "xm21", "xm22", "xm23", "xm24", "xm25", "xm26", "xm27", "xm28", "xm29", "xm30", "xm31"
+				"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7", "xmm8", "xmm9", "xmm10", "xmm11", "xmm12", "xmm13", "xmm14", "xmm15",
+				"xmm16", "xmm17", "xmm18", "xmm19", "xmm20", "xmm21", "xmm22", "xmm23", "xmm24", "xmm25", "xmm26", "xmm27", "xmm28", "xmm29", "xmm30", "xmm31"
 			};
 			return tbl[idx];
 		} else if (isMMX()) {
@@ -582,8 +582,6 @@ public:
 };
 #endif
 
-class Address;
-
 class RegExp {
 public:
 #ifdef XBYAK64
@@ -618,8 +616,8 @@ public:
 	{
 		return base_ == rhs.base_ && index_ == rhs.index_ && disp_ == rhs.disp_ && scale_ == rhs.scale_;
 	}
-	const Operand& getBase() const { return base_; }
-	const Operand& getIndex() const { return index_; }
+	const Reg& getBase() const { return base_; }
+	const Reg& getIndex() const { return index_; }
 	int getScale() const { return scale_; }
 	size_t getDisp() const { return disp_; }
 	void verify() const
@@ -637,8 +635,8 @@ private:
 		[base_ + index_ * scale_ + disp_]
 		base : Reg32e, index : Reg32e(w/o esp), Xmm, Ymm
 	*/
-	Operand base_;
-	Operand index_;
+	Reg base_;
+	Reg index_;
 	int scale_;
 	size_t disp_;
 };
@@ -886,7 +884,6 @@ public:
 	{
 		e_.verify();
 		e_.optimize();
-		permitVsib_ = e.isVsib();
 	}
 #ifdef XBYAK64
 	explicit Address(size_t disp)
@@ -895,8 +892,7 @@ public:
 		: Operand(0, MEM, sizeBit), e_(addr.disp_), label_(addr.label_), mode_(M_rip), permitVsib_(false) { }
 #endif
 	void permitVsib() const { permitVsib_ = true; }
-	bool isVsib() const { return e_.isVsib(); }
-	bool isYMM() const { return e_.isYMM(); }
+	const RegExp& getRegExp() const { return e_; }
 	Mode getMode() const { return mode_; }
 	bool is32bit() const { verify(); return e_.getBase().getBit() == 32 || e_.getIndex().getBit() == 32; }
 	bool isOnlyDisp() const { verify(); return !e_.getBase().getBit() && !e_.getIndex().getBit(); } // for mov eax
@@ -905,9 +901,7 @@ public:
 	{
 		verify();
 		if (mode_ != M_ModRM) return 0;
-		const Reg& base = static_cast<const Reg&>(e_.getBase());
-		const Reg& index = static_cast<const Reg&>(e_.getIndex());
-		uint8 rex = index.getRexX() | base.getRexB();
+		uint8 rex = e_.getIndex().getRexX() | e_.getBase().getRexB();
 		if (rex) rex |= 0x40;
 		return rex;
 	}
@@ -918,59 +912,12 @@ public:
 		return getBit() == rhs.getBit() && label_ == rhs.label_ && mode_ == rhs.mode_ && permitVsib_ == rhs.permitVsib_ && e_ == rhs.e_;
 	}
 	bool operator!=(const Address& rhs) const { return !operator==(rhs); }
-	void setModRM(CodeArray& code, int reg) const
-	{
-		size_t disp64 = e_.getDisp();
-		const Reg& base = static_cast<const Reg&>(e_.getBase());
-		const Reg& index = static_cast<const Reg&>(e_.getIndex());
-#ifdef XBYAK64
-		size_t high = disp64 >> 32;
-		if (high != 0 && high != 0xFFFFFFFF) throw Error(ERR_OFFSET_IS_TOO_BIG);
-#endif
-		uint32_t disp = static_cast<uint32>(disp64);
-		const int baseIdx = base.getIdx();
-		const int baseBit = base.getBit();
-		const int indexBit = index.getBit();
-		const int indexIdx = index.getIdx();
-		enum {
-			mod00 = 0, mod01 = 1, mod10 = 2
-		};
-		int mod;
-		if (!baseBit || ((baseIdx & 7) != Operand::EBP && disp == 0)) {
-			mod = mod00;
-		} else if (inner::IsInDisp8(disp)) {
-			mod = mod01;
-		} else {
-			mod = mod10;
-		}
-		const int newBaseIdx = baseBit ? (baseIdx & 7) : Operand::EBP;
-		/* ModR/M = [2:3:3] = [Mod:reg/code:R/M] */
-		bool hasSIB = indexBit || (baseIdx & 7) == Operand::ESP;
-#ifdef XBYAK64
-		if (!baseBit && !indexBit) hasSIB = true;
-#endif
-		if (hasSIB) {
-			code.db((mod << 6) | Operand::ESP | reg);
-			/* SIB = [2:3:3] = [SS:index:base(=rm)] */
-			const int newIndexIdx = indexBit ? (indexIdx & 7) : Operand::ESP;
-			const int scale = e_.getScale();
-			const int ss = (scale == 8) ? 3 : (scale == 4) ? 2 : (scale == 2) ? 1 : 0;
-			code.db((ss << 6) | (newIndexIdx << 3) | newBaseIdx);
-		} else {
-			code.db((mod << 6) | newBaseIdx | reg);
-		}
-		if (mod == mod01) {
-			code.db(disp);
-		} else if (mod == mod10 || (mod == mod00 && !baseBit)) {
-			code.dd(disp);
-		}
-	}
 private:
 	RegExp e_;
 	const Label* label_;
 	Mode mode_;
 	mutable bool permitVsib_;
-	void verify() const { if (isVsib() && !permitVsib_) throw Error(ERR_BAD_VSIB_ADDRESSING); }
+	void verify() const { if (e_.isVsib() && !permitVsib_) throw Error(ERR_BAD_VSIB_ADDRESSING); }
 };
 
 inline bool Operand::operator==(const Operand& rhs) const
@@ -1344,14 +1291,63 @@ private:
 			db(0xC4); db((r ? 0 : 0x80) | (x ? 0 : 0x40) | (b ? 0 : 0x20) | mmmm); db((w << 7) | vvvv);
 		}
 	}
+	void setModRM(int mod, int r1, int r2)
+	{
+		db(static_cast<uint8>((mod << 6) | ((r1 & 7) << 3) | (r2 & 7)));
+	}
+	void setSIB(const RegExp& e, int reg)
+	{
+		size_t disp64 = e.getDisp();
+#ifdef XBYAK64
+		size_t high = disp64 >> 32;
+		if (high != 0 && high != 0xFFFFFFFF) throw Error(ERR_OFFSET_IS_TOO_BIG);
+#endif
+		uint32_t disp = static_cast<uint32>(disp64);
+		const Reg& base = e.getBase();
+		const Reg& index = e.getIndex();
+		const int baseIdx = base.getIdx();
+		const int baseBit = base.getBit();
+		const int indexBit = index.getBit();
+		enum {
+			mod00 = 0, mod01 = 1, mod10 = 2
+		};
+		int mod;
+		if (!baseBit || ((baseIdx & 7) != Operand::EBP && disp == 0)) {
+			mod = mod00;
+		} else if (inner::IsInDisp8(disp)) {
+			mod = mod01;
+		} else {
+			mod = mod10;
+		}
+		const int newBaseIdx = baseBit ? (baseIdx & 7) : Operand::EBP;
+		/* ModR/M = [2:3:3] = [Mod:reg/code:R/M] */
+		bool hasSIB = indexBit || (baseIdx & 7) == Operand::ESP;
+#ifdef XBYAK64
+		if (!baseBit && !indexBit) hasSIB = true;
+#endif
+		if (hasSIB) {
+			setModRM(mod, reg, Operand::ESP);
+			/* SIB = [2:3:3] = [SS:index:base(=rm)] */
+			const int idx = indexBit ? (index.getIdx() & 7) : Operand::ESP;
+			const int scale = e.getScale();
+			const int ss = (scale == 8) ? 3 : (scale == 4) ? 2 : (scale == 2) ? 1 : 0;
+			setModRM(ss, idx, newBaseIdx);
+		} else {
+			setModRM(mod, reg, newBaseIdx);
+		}
+		if (mod == mod01) {
+			db(disp);
+		} else if (mod == mod10 || (mod == mod00 && !baseBit)) {
+			dd(disp);
+		}
+	}
 	LabelManager labelMgr_;
 	bool isInDisp16(uint32 x) const { return 0xFFFF8000 <= x || x <= 0x7FFF; }
-	uint8 getModRM(int mod, int r1, int r2) const { return static_cast<uint8>((mod << 6) | ((r1 & 7) << 3) | (r2 & 7)); }
 	void opModR(const Reg& reg1, const Reg& reg2, int code0, int code1 = NONE, int code2 = NONE)
 	{
 		rex(reg2, reg1);
 		db(code0 | (reg1.isBit(8) ? 0 : 1)); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
-		db(getModRM(3, reg1.getIdx(), reg2.getIdx()));
+		setModRM(3, reg1.getIdx(), reg2.getIdx());
 	}
 	void opModM(const Address& addr, const Reg& reg, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
 	{
@@ -1412,11 +1408,10 @@ private:
 	// immSize is the size for immediate value
 	void opAddr(const Address &addr, int reg, int immSize = 0)
 	{
-		reg = (reg & 7) << 3;
 		if (addr.getMode() == Address::M_ModRM) {
-			addr.setModRM(*this, reg);
+			setSIB(addr.getRegExp(), reg);
 		} else if (addr.getMode() == Address::M_rip) {
-			db(0x05 | reg);
+			setModRM(0, reg, 5);
 			if (addr.getLabel()) { // [rip + Label]
 				putL_inner(*addr.getLabel(), true, addr.getDisp() - immSize);
 			} else {
@@ -1618,7 +1613,7 @@ private:
 			const Address& addr = static_cast<const Address&>(*p2);
 			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0);
 		} else {
-			db(getModRM(3, r.getIdx(), p2->getIdx()));
+			setModRM(3, r.getIdx(), p2->getIdx());
 		}
 		if (imm8 != NONE) db(imm8);
 	}
@@ -1672,11 +1667,11 @@ private:
 	}
 	void opGather(const Xmm& x1, const Address& addr, const Xmm& x2, int type, uint8 code, int w, int mode)
 	{
-		if (!addr.isVsib()) throw Error(ERR_BAD_VSIB_ADDRESSING);
+		if (!addr.getRegExp().isVsib()) throw Error(ERR_BAD_VSIB_ADDRESSING);
 		const int y_vx_y = 0;
 		const int y_vy_y = 1;
 //		const int x_vy_x = 2;
-		const bool isAddrYMM = addr.isYMM();
+		const bool isAddrYMM = addr.getRegExp().isYMM();
 		if (!x1.isXMM() || isAddrYMM || !x2.isXMM()) {
 			bool isOK = false;
 			if (mode == y_vx_y) {
