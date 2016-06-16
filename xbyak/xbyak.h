@@ -446,15 +446,21 @@ struct Reg32;
 struct Reg64;
 #endif
 class Reg : public Operand {
-	bool hasRex() const { return isExt8bit() | isREG(64) | isExtIdx(); }
 public:
 	Reg() { }
 	Reg(int idx, Kind kind, int bit = 0, bool ext8bit = false) : Operand(idx, kind, bit, ext8bit) { }
 	Reg changeBit(int bit) const { return Reg(getIdx(), getKind(), bit, isExt8bit()); }
 	bool isExtIdx() const { return getIdx() > 7; }
+	bool hasRex() const { return isExt8bit() | isREG(64) | isExtIdx(); }
+	uint8 getRexW() const { return isREG(64) ? 8 : 0; }
+	uint8 getRexR() const { return isExtIdx() ? 4 : 0; }
+	uint8 getRexX() const { return isExtIdx() ? 2 : 0; }
+	uint8 getRexB() const { return isExtIdx() ? 1 : 0; }
 	uint8 getRex(const Reg& base = Reg()) const
 	{
-		return (hasRex() || base.hasRex()) ? uint8(0x40 | ((isREG(64) | base.isREG(64)) ? 8 : 0) | (isExtIdx() ? 4 : 0)| (base.isExtIdx() ? 1 : 0)) : 0;
+		uint8 rex = getRexW() | getRexR() | base.getRexW() | base.getRexB();
+		if (rex || isExt8bit() || base.isExt8bit()) rex |= 0x40;
+		return rex;
 	}
 	Reg8 cvt8() const;
 	Reg16 cvt16() const;
@@ -624,7 +630,6 @@ public:
 			if (base_.getBit() && base_.getBit() != index_.getBit()) throw Error(ERR_BAD_SIZE_OF_REGISTER);
 		}
 	}
-	void setModRM(Address& addr) const;
 	friend RegExp operator+(const RegExp& a, const RegExp& b);
 	friend RegExp operator-(const RegExp& e, size_t disp);
 private:
@@ -877,109 +882,97 @@ public:
 		M_rip
 	};
 	Address(uint32 sizeBit, const RegExp& e)
-		: Operand(0, MEM, sizeBit), e_(e), size_(0), rex_(0), label_(0), mode_(M_ModRM)
+		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), permitVsib_(false)
 	{
-		e_.optimize();
-		isVsib_ = e.isVsib();
 		e_.verify();
-		e_.setModRM(*this);
+		e_.optimize();
+		permitVsib_ = e.isVsib();
 	}
 #ifdef XBYAK64
 	explicit Address(size_t disp)
-		: Operand(0, MEM, 64), e_(disp), size_(0), rex_(0), label_(0), mode_(M_64bitDisp), isVsib_(false) { }
+		: Operand(0, MEM, 64), e_(disp), label_(0), mode_(M_64bitDisp), permitVsib_(false) { }
 	Address(uint32 sizeBit, const RegRip& addr)
-		: Operand(0, MEM, sizeBit), e_(addr.disp_), size_(0), rex_(0), label_(addr.label_), mode_(M_rip), isVsib_(false)
-	{
-		db(0x05);
-		if (!label_) dd(inner::VerifyInInt32(e_.getDisp()));
-	}
+		: Operand(0, MEM, sizeBit), e_(addr.disp_), label_(addr.label_), mode_(M_rip), permitVsib_(false) { }
 #endif
-	const uint8 *getCode() const { return top_; }
-	size_t getSize() const { return size_; }
-	void updateRegField(uint8 regIdx) const
-	{
-		*top_ = (*top_ & 0xC7) | ((regIdx << 3) & 0x38);
-	}
-	void db(int code)
-	{
-		if (size_ >= sizeof(top_)) throw Error(ERR_CODE_IS_TOO_BIG);
-		top_[size_++] = static_cast<uint8>(code);
-	}
-	void dd(uint32 code) { for (int i = 0; i < 4; i++) db(code >> (i * 8)); }
-	void setVsib(bool isVsib) const { isVsib_ = isVsib; }
-	bool isVsib() const { return isVsib_; }
+	void permitVsib() const { permitVsib_ = true; }
+	bool isVsib() const { return e_.isVsib(); }
 	bool isYMM() const { return e_.isYMM(); }
+	Mode getMode() const { return mode_; }
 	bool is32bit() const { verify(); return e_.getBase().getBit() == 32 || e_.getIndex().getBit() == 32; }
 	bool isOnlyDisp() const { verify(); return !e_.getBase().getBit() && !e_.getIndex().getBit(); } // for mov eax
 	size_t getDisp() const { verify(); return e_.getDisp(); }
-	uint8 getRex() const { verify(); return rex_; }
+	uint8 getRex() const
+	{
+		verify();
+		if (mode_ != M_ModRM) return 0;
+		const Reg& base = static_cast<const Reg&>(e_.getBase());
+		const Reg& index = static_cast<const Reg&>(e_.getIndex());
+		uint8 rex = index.getRexX() | base.getRexB();
+		if (rex) rex |= 0x40;
+		return rex;
+	}
 	bool is64bitDisp() const { verify(); return mode_ == M_64bitDisp; } // for moffset
-	void setRex(uint8 rex) { rex_ = rex; }
-	void setLabel(const Label* label) { label_ = label; }
 	const Label* getLabel() const { return label_; }
 	bool operator==(const Address& rhs) const
 	{
-		return getBit() == rhs.getBit() && size_ == rhs.size_ && rex_ == rhs.rex_ && label_ == rhs.label_
-			&& mode_ == rhs.mode_ && isVsib_ == rhs.isVsib_ && e_ == rhs.e_;
+		return getBit() == rhs.getBit() && label_ == rhs.label_ && mode_ == rhs.mode_ && permitVsib_ == rhs.permitVsib_ && e_ == rhs.e_;
 	}
 	bool operator!=(const Address& rhs) const { return !operator==(rhs); }
+	void setModRM(CodeArray& code, int reg) const
+	{
+		size_t disp64 = e_.getDisp();
+		const Reg& base = static_cast<const Reg&>(e_.getBase());
+		const Reg& index = static_cast<const Reg&>(e_.getIndex());
+#ifdef XBYAK64
+		size_t high = disp64 >> 32;
+		if (high != 0 && high != 0xFFFFFFFF) throw Error(ERR_OFFSET_IS_TOO_BIG);
+#endif
+		uint32_t disp = static_cast<uint32>(disp64);
+		const int baseIdx = base.getIdx();
+		const int baseBit = base.getBit();
+		const int indexBit = index.getBit();
+		const int indexIdx = index.getIdx();
+		enum {
+			mod00 = 0, mod01 = 1, mod10 = 2
+		};
+		int mod;
+		if (!baseBit || ((baseIdx & 7) != Operand::EBP && disp == 0)) {
+			mod = mod00;
+		} else if (inner::IsInDisp8(disp)) {
+			mod = mod01;
+		} else {
+			mod = mod10;
+		}
+		const int newBaseIdx = baseBit ? (baseIdx & 7) : Operand::EBP;
+		/* ModR/M = [2:3:3] = [Mod:reg/code:R/M] */
+		bool hasSIB = indexBit || (baseIdx & 7) == Operand::ESP;
+#ifdef XBYAK64
+		if (!baseBit && !indexBit) hasSIB = true;
+#endif
+		if (hasSIB) {
+			code.db((mod << 6) | Operand::ESP | reg);
+			/* SIB = [2:3:3] = [SS:index:base(=rm)] */
+			const int newIndexIdx = indexBit ? (indexIdx & 7) : Operand::ESP;
+			const int scale = e_.getScale();
+			const int ss = (scale == 8) ? 3 : (scale == 4) ? 2 : (scale == 2) ? 1 : 0;
+			code.db((ss << 6) | (newIndexIdx << 3) | newBaseIdx);
+		} else {
+			code.db((mod << 6) | newBaseIdx | reg);
+		}
+		if (mod == mod01) {
+			code.db(disp);
+		} else if (mod == mod10 || (mod == mod00 && !baseBit)) {
+			code.dd(disp);
+		}
+	}
 private:
 	RegExp e_;
-	mutable uint8 top_[6]; // 6 = 1(ModRM) + 1(SIB) + 4(disp)
-	uint8 size_;
-	uint8 rex_;
 	const Label* label_;
 	Mode mode_;
-	mutable bool isVsib_;
-	void verify() const { if (isVsib_) throw Error(ERR_BAD_VSIB_ADDRESSING); }
+	mutable bool permitVsib_;
+	void verify() const { if (isVsib() && !permitVsib_) throw Error(ERR_BAD_VSIB_ADDRESSING); }
 };
 
-inline void RegExp::setModRM(Address& addr) const
-{
-#ifdef XBYAK64
-	size_t high = disp_ >> 32;
-	if (high != 0 && high != 0xFFFFFFFF) throw Error(ERR_OFFSET_IS_TOO_BIG);
-#endif
-	uint32_t disp = static_cast<uint32>(disp_);
-	const int baseIdx = base_.getIdx();
-	const int baseBit = base_.getBit();
-	const int indexBit = index_.getBit();
-	const int indexIdx = index_.getIdx();
-	enum {
-		mod00 = 0, mod01 = 1, mod10 = 2
-	};
-	int mod;
-	if (!baseBit || ((baseIdx & 7) != Operand::EBP && disp == 0)) {
-		mod = mod00;
-	} else if (inner::IsInDisp8(disp)) {
-		mod = mod01;
-	} else {
-		mod = mod10;
-	}
-	const int newBaseIdx = baseBit ? (baseIdx & 7) : Operand::EBP;
-	/* ModR/M = [2:3:3] = [Mod:reg/code:R/M] */
-	bool hasSIB = indexBit || (baseIdx & 7) == Operand::ESP;
-#ifdef XBYAK64
-	if (!baseBit && !indexBit) hasSIB = true;
-#endif
-	if (hasSIB) {
-		addr.db((mod << 6) | Operand::ESP);
-		/* SIB = [2:3:3] = [SS:index_:base_(=rm)] */
-		const int newIndexIdx = indexBit ? (indexIdx & 7) : Operand::ESP;
-		const int ss = (scale_ == 8) ? 3 : (scale_ == 4) ? 2 : (scale_ == 2) ? 1 : 0;
-		addr.db((ss << 6) | (newIndexIdx << 3) | newBaseIdx);
-	} else {
-		addr.db((mod << 6) | newBaseIdx);
-	}
-	if (mod == mod01) {
-		addr.db(disp);
-	} else if (mod == mod10 || (mod == mod00 && !baseBit)) {
-		addr.dd(disp);
-	}
-	int rex = ((indexIdx >> 3) << 1) | (baseIdx >> 3);
-	if (rex) rex |= 0x40;
-	addr.setRex(uint8(rex));
-}
 inline bool Operand::operator==(const Operand& rhs) const
 {
 	if (isMEM() && rhs.isMEM()) return static_cast<const Address&>(*this) == static_cast<const Address&>(rhs);
@@ -1365,8 +1358,7 @@ private:
 		if (addr.is64bitDisp()) throw Error(ERR_CANT_USE_64BIT_DISP);
 		rex(addr, reg);
 		db(code0 | (reg.isBit(8) ? 0 : 1)); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
-		addr.updateRegField(static_cast<uint8>(reg.getIdx()));
-		opAddr(addr, immSize);
+		opAddr(addr, reg.getIdx(), immSize);
 	}
 	void makeJmp(uint32 disp, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
 	{
@@ -1416,12 +1408,20 @@ private:
 		}
 
 	}
+	// reg is reg field of ModRM
 	// immSize is the size for immediate value
-	void opAddr(const Address &addr, int immSize = 0)
+	void opAddr(const Address &addr, int reg, int immSize = 0)
 	{
-		db(addr.getCode(), static_cast<int>(addr.getSize()));
-		if (addr.getLabel()) { // [rip + Label]
-			putL_inner(*addr.getLabel(), true, addr.getDisp() - immSize);
+		reg = (reg & 7) << 3;
+		if (addr.getMode() == Address::M_ModRM) {
+			addr.setModRM(*this, reg);
+		} else if (addr.getMode() == Address::M_rip) {
+			db(0x05 | reg);
+			if (addr.getLabel()) { // [rip + Label]
+				putL_inner(*addr.getLabel(), true, addr.getDisp() - immSize);
+			} else {
+				dd(inner::VerifyInInt32(addr.getDisp()));
+			}
 		}
 	}
 	/* preCode is for SSSE3/SSE4 */
@@ -1582,8 +1582,7 @@ private:
 
 		rex(addr, st0);
 		db(code);
-		addr.updateRegField(ext);
-		opAddr(addr);
+		opAddr(addr, ext);
 	}
 	// use code1 if reg1 == st0
 	// use code2 if reg1 != st0 && reg2 == st0
@@ -1607,7 +1606,6 @@ private:
 			x = (rex & 2) != 0;
 			b = (rex & 1) != 0;
 			if (BIT == 64 && addr.is32bit()) db(0x67);
-			if (BIT == 64 && w == -1) w = (rex & 4) ? 1 : 0;
 		} else {
 			x = false;
 			b = static_cast<const Reg&>(*p2).isExtIdx();
@@ -1618,8 +1616,7 @@ private:
 		db(code);
 		if (p2->isMEM()) {
 			const Address& addr = static_cast<const Address&>(*p2);
-			addr.updateRegField(static_cast<uint8>(r.getIdx()));
-			opAddr(addr, (imm8 != NONE) ? 1 : 0);
+			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0);
 		} else {
 			db(getModRM(3, r.getIdx(), p2->getIdx()));
 		}
@@ -1691,9 +1688,8 @@ private:
 			}
 			if (!isOK) throw Error(ERR_BAD_VSIB_ADDRESSING);
 		}
-		addr.setVsib(false);
+		addr.permitVsib();
 		opAVX_X_X_XM(isAddrYMM ? Ymm(x1.getIdx()) : x1, isAddrYMM ? Ymm(x2.getIdx()) : x2, addr, type, code, true, w);
-		addr.setVsib(true);
 	}
 public:
 	unsigned int getVersion() const { return VERSION; }
