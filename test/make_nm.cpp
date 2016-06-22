@@ -76,9 +76,9 @@ const uint64 IMM_2 = 1ULL << 38;
 const uint64 IMM = IMM_1 | IMM_2;
 const uint64 XMM = _XMM | _XMM2;
 const uint64 YMM = _YMM | _YMM2;
-
-const uint64 K = 1ULL << 43; // max value
-//const uint64 _ZMM = 1ULL << 44;
+const uint64 K = 1ULL << 43;
+const uint64 _ZMM = 1ULL << 44; // max value
+const uint64 ZMM = _ZMM;
 
 const uint64 NOPARA = 1ULL << (bitEnd - 1);
 
@@ -167,6 +167,13 @@ class Test {
 				};
 				return tbl[idx];
 			}
+		case _ZMM:
+			{
+				static const char tbl[][6] = {
+					"zmm0", "zmm1", "zmm2", "zmm3", "zmm4", "zmm5", "zmm6", "zmm7"
+				};
+				return tbl[idx];
+			}
 #ifdef XBYAK64
 		case _XMM2:
 			{
@@ -178,7 +185,7 @@ class Test {
 		case _YMM2:
 			{
 				static const char tbl[][6] = {
-					"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7",
+					"ymm8", "ymm9", "ymm10", "ymm11", "ymm12", "ymm13", "ymm14", "ymm15",
 				};
 				return tbl[idx];
 			}
@@ -1328,21 +1335,22 @@ class Test {
 		const struct Tbl {
 			const char *name;
 			bool only_pd_ps;
+			bool supportZMM;
 		} tbl[] = {
-			{ "add", false },
-			{ "sub", false },
-			{ "mul", false },
-			{ "div", false },
-			{ "max", false },
-			{ "min", false },
-			{ "and", true },
-			{ "andn", true },
-			{ "or", true },
-			{ "xor", true },
+			{ "add", false, true },
+			{ "sub", false, true },
+			{ "mul", false, true },
+			{ "div", false, true },
+			{ "max", false, true },
+			{ "min", false, true },
+			{ "and", true, true },
+			{ "andn", true, true },
+			{ "or", true, true },
+			{ "xor", true, true },
 
-			{ "addsub", true },
-			{ "hadd", true },
-			{ "hsub", true },
+			{ "addsub", true, false },
+			{ "hadd", true, false },
+			{ "hsub", true, false },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const struct Suf {
@@ -1363,6 +1371,8 @@ class Test {
 				if (!suf[j].supportYMM) continue;
 				put(p, YMM, YMM | MEM);
 				put(p, YMM, YMM, YMM | MEM);
+				if (!tbl[i].supportZMM) continue;
+				put(p, ZMM, ZMM, ZMM);
 			}
 		}
 	}
@@ -2314,6 +2324,7 @@ public:
 
 #endif // USE_AVX
 	}
+#ifdef USE_AVX512
 	void putOpmask()
 	{
 		{
@@ -2377,10 +2388,55 @@ public:
 		put("kmovq", REG64, K);
 #endif
 	}
+	void putCombi()
+	{
+		const char *xTbl[] = {
+			"xmm2",
+#ifdef XBYAK64
+			"xmm8", "xmm31"
+#else
+			"xmm5", "xmm6"
+#endif
+		};
+		const char *yTbl[] = {
+			"ymm0",
+#ifdef XBYAK64
+			"ymm15", "ymm31"
+#else
+			"ymm4", "ymm2"
+#endif
+		};
+		const char *zTbl[] = {
+			"zmm1",
+#ifdef XBYAK64
+			"zmm9", "zmm30"
+#else
+			"zmm3", "zmm7"
+#endif
+		};
+		const size_t N = NUM_OF_ARRAY(zTbl);
+		for (size_t i = 0; i < N; i++) {
+			for (size_t j = 0; j < N; j++) {
+				for (size_t k = 0; k < N; k++) {
+					if (isXbyak_) {
+						printf("vaddpd(%s, %s, %s); dump();\n", xTbl[i], xTbl[j], xTbl[k]);
+						printf("vaddpd(%s, %s, %s); dump();\n", yTbl[i], yTbl[j], yTbl[k]);
+						printf("vaddpd(%s, %s, %s); dump();\n", zTbl[i], zTbl[j], zTbl[k]);
+					} else {
+						printf("vaddpd %s, %s, %s\n", xTbl[i], xTbl[j], xTbl[k]);
+						printf("vaddpd %s, %s, %s\n", yTbl[i], yTbl[j], yTbl[k]);
+						printf("vaddpd %s, %s, %s\n", zTbl[i], zTbl[j], zTbl[k]);
+					}
+				}
+			}
+		}
+	}
 	void putAVX512()
 	{
 		putOpmask();
+		putCombi();
 	}
+#endif
 };
 
 int main(int argc, char *[])

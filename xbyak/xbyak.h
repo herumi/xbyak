@@ -372,6 +372,10 @@ public:
 	bool isMEM(int bit = 0) const { return is(MEM, bit); }
 	bool isFPU() const { return is(FPU); }
 	bool isExt8bit() const { return (idx_ & EXT8BIT) != 0; }
+	bool isExtIdx() const { return (getIdx() & 8) != 0; }
+	bool isExtIdx2() const { return (getIdx() & 16) != 0; }
+	bool hasEvex() const { return isZMM() || (is(XMM | YMM) && isExtIdx2()); }
+	bool hasRex() const { return isExt8bit() | isREG(64) | isExtIdx(); }
 	// ah, ch, dh, bh?
 	bool isHigh8bit() const
 	{
@@ -450,8 +454,6 @@ public:
 	Reg() { }
 	Reg(int idx, Kind kind, int bit = 0, bool ext8bit = false) : Operand(idx, kind, bit, ext8bit) { }
 	Reg changeBit(int bit) const { return Reg(getIdx(), getKind(), bit, isExt8bit()); }
-	bool isExtIdx() const { return getIdx() > 7; }
-	bool hasRex() const { return isExt8bit() | isREG(64) | isExtIdx(); }
 	uint8 getRexW() const { return isREG(64) ? 8 : 0; }
 	uint8 getRexR() const { return isExtIdx() ? 4 : 0; }
 	uint8 getRexX() const { return isExtIdx() ? 2 : 0; }
@@ -1280,8 +1282,13 @@ private:
 		VEX_L0 = 1 << 8,
 		VEX_L1 = 1 << 9
 	};
-	void vex(bool r, int idx, bool is256, int type, bool x = false, bool b = false, int w = 1)
+	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x, int w)
 	{
+		if (w == -1) w = 0;
+		bool is256 = (type & VEX_L1) ? true : (type & VEX_L0) ? false : reg.isYMM();
+		bool r = reg.isExtIdx();
+		bool b = base.isExtIdx();
+		int idx = v ? v->getIdx() : 0;
 		uint32 pp = (type & PP_66) ? 1 : (type & PP_F3) ? 2 : (type & PP_F2) ? 3 : 0;
 		uint32 vvvv = (((~idx) & 15) << 3) | (is256 ? 4 : 0) | pp;
 		if (!b && !x && !w && (type & MM_0F)) {
@@ -1290,6 +1297,14 @@ private:
 			uint32 mmmm = (type & MM_0F) ? 1 : (type & MM_0F38) ? 2 : (type & MM_0F3A) ? 3 : 0;
 			db(0xC4); db((r ? 0 : 0x80) | (x ? 0 : 0x40) | (b ? 0 : 0x20) | mmmm); db((w << 7) | vvvv);
 		}
+		db(code);
+	}
+	void evex(bool R, bool X, bool B, bool Rp, int mm, bool W, int vvvv, int pp, bool z, int LL, bool b, bool Vp, int aaa)
+	{
+		db(0x62);
+		db((R ? 0x80 : 0) | (X ? 0x40 : 0) | (B ? 0x20 : 0) | (Rp ? 0x10 : 0) | (mm & 3));
+		db((W ? 0x80 : 0) | ((vvvv & 15) << 3) | 4 | (pp & 3));
+		db((z ? 0x80 : 0) | ((LL & 3) << 5) | (b ? 0x10 : 0) | (Vp ? 8 : 0) | (aaa & 7));
 	}
 	void setModRM(int mod, int r1, int r2)
 	{
@@ -1330,8 +1345,8 @@ private:
 			/* SIB = [2:3:3] = [SS:index:base(=rm)] */
 			const int idx = indexBit ? (index.getIdx() & 7) : Operand::ESP;
 			const int scale = e.getScale();
-			const int ss = (scale == 8) ? 3 : (scale == 4) ? 2 : (scale == 2) ? 1 : 0;
-			setModRM(ss, idx, newBaseIdx);
+			const int SS = (scale == 8) ? 3 : (scale == 4) ? 2 : (scale == 2) ? 1 : 0;
+			setModRM(SS, idx, newBaseIdx);
 		} else {
 			setModRM(mod, reg, newBaseIdx);
 		}
@@ -1592,31 +1607,55 @@ private:
 	{
 		db(code1); db(code2 | reg.getIdx());
 	}
-	void opVex(const Reg& r, const Operand *p1, const Operand *p2, int type, int code, int w, int imm8 = NONE)
+	void opVex(const Reg& r, const Operand *p1, const Operand& op2, int type, int code, int w, int imm8 = NONE)
 	{
-		bool x, b;
-		if (p2->isMEM()) {
-			const Address& addr = static_cast<const Address&>(*p2);
-			uint8 rex = addr.getRex();
-			x = (rex & 2) != 0;
-			b = (rex & 1) != 0;
+		if (op2.isMEM()) {
+			const Address& addr = static_cast<const Address&>(op2);
 			if (BIT == 64 && addr.is32bit()) db(0x67);
-		} else {
-			x = false;
-			b = static_cast<const Reg&>(*p2).isExtIdx();
-		}
-		if (w == -1) w = 0;
-		bool is256 = (type & VEX_L1) ? true : (type & VEX_L0) ? false : r.isYMM();
-		vex(r.isExtIdx(), p1 ? p1->getIdx() : 0, is256, type, x, b, w);
-		db(code);
-		if (p2->isMEM()) {
-			const Address& addr = static_cast<const Address&>(*p2);
+			bool x = addr.getRegExp().getIndex().isExtIdx();
+			vex(r, addr.getRegExp().getBase(), p1, type, code, x, w);
 			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0);
 		} else {
-			setModRM(3, r.getIdx(), p2->getIdx());
+			const Reg& r3 = static_cast<const Reg&>(op2);
+			if (r.hasEvex() || (p1 && p1->hasEvex()) || r3.hasEvex()) {
+				assert(p1); // QQQ
+				opEvex(r, static_cast<const Reg&>(*p1), r3, type, code, w);
+			} else {
+				bool x = false;
+				vex(r, r3, p1, type, code, x, w);
+				setModRM(3, r.getIdx(), r3.getIdx());
+			}
 		}
 		if (imm8 != NONE) db(imm8);
 	}
+	void opEvex(const Reg& x1, const Reg& x2, const Reg& x3, int type, int code, int w)
+	{
+//		if (w == -1) w = 0; // QQQ : old rex
+		w = 1; // for vaddpd, w = 0 if vaddps
+	//	bool is256 = (type & VEX_L1) ? true : (type & VEX_L0) ? false : x1.isYMM();
+		uint32 mm = (type & MM_0F) ? 1 : (type & MM_0F38) ? 2 : (type & MM_0F3A) ? 3 : 0;
+		uint32 pp = (type & PP_66) ? 1 : (type & PP_F3) ? 2 : (type & PP_F2) ? 3 : 0;
+
+		int idx = x2.getIdx();
+		uint32 vvvv = ~idx;
+
+		bool R = !x1.isExtIdx();
+		bool X = !x3.isExtIdx2();
+		bool B = !x3.isExtIdx();
+		bool Rp = !x1.isExtIdx2();
+		bool z = false;
+		int LL = x1.isZMM() ? 2 : x1.isYMM() ? 1 : 0;
+		bool b = false;
+		bool Vp = !x2.isExtIdx2();
+		int aaa = 0;
+		evex(R, X, B, Rp, mm, w == 1, vvvv, pp, z, LL, b, Vp, aaa);
+		db(code);
+		setModRM(3, x1.getIdx(), x3.getIdx());
+
+	//	opVex(x1, &x2, &x3, MM_0F | PP_66, 0x58, NONE);
+	//	opAVX_X_X_XM(xmm, op1, op2, MM_0F | PP_66, 0x58, true);
+	}
+public:
 	// (r, r, r/m) if isR_R_RM
 	// (r, r/m, r)
 	void opGpr(const Reg32e& r, const Operand& op1, const Operand& op2, int type, uint8 code, bool isR_R_RM, int imm8 = NONE)
@@ -1627,7 +1666,7 @@ private:
 		const unsigned int bit = r.getBit();
 		if (p1->getBit() != bit || (p2->isREG() && p2->getBit() != bit)) throw Error(ERR_BAD_COMBINATION);
 		int w = bit == 64;
-		opVex(r, p1, p2, type, code, w, imm8);
+		opVex(r, p1, *p2, type, code, w, imm8);
 	}
 	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, bool supportYMM, int w = -1, int imm8 = NONE)
 	{
@@ -1637,13 +1676,13 @@ private:
 			x2 = &x1;
 			op = &op1;
 		} else {
-			if (!(op1.isXMM() || (supportYMM && op1.isYMM()))) throw Error(ERR_BAD_COMBINATION);
+			if (!(op1.isXMM() || (supportYMM && op1.is(Operand::YMM | Operand::ZMM)))) throw Error(ERR_BAD_COMBINATION);
 			x2 = static_cast<const Xmm*>(&op1);
 			op = &op2;
 		}
 		// (x1, x2, op)
-		if (!((x1.isXMM() && x2->isXMM()) || (supportYMM && x1.isYMM() && x2->isYMM()))) throw Error(ERR_BAD_COMBINATION);
-		opVex(x1, x2, op, type, code0, w, imm8);
+		if (!((x1.isXMM() && x2->isXMM()) || (supportYMM && ((x1.isYMM() && x2->isYMM()) || (x1.isZMM() && x2->isZMM()))))) throw Error(ERR_BAD_COMBINATION);
+		opVex(x1, x2, *op, type, code0, w, imm8);
 	}
 	// if cvt then return pointer to Xmm(idx) (or Ymm(idx)), otherwise return op
 	void opAVX_X_X_XMcvt(const Xmm& x1, const Operand& op1, const Operand& op2, bool cvt, Operand::Kind kind, int type, int code0, bool supportYMM, int w = -1, int imm8 = NONE)
