@@ -1372,7 +1372,7 @@ class Test {
 				put(p, YMM, YMM | MEM);
 				put(p, YMM, YMM, YMM | MEM);
 				if (!tbl[i].supportZMM) continue;
-//				put(p, ZMM, ZMM, ZMM); // QQQ
+				put(p, ZMM, ZMM, ZMM); // QQQ
 			}
 		}
 	}
