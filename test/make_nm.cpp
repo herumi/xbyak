@@ -1372,7 +1372,7 @@ class Test {
 				put(p, YMM, YMM | MEM);
 				put(p, YMM, YMM, YMM | MEM);
 				if (!tbl[i].supportZMM) continue;
-				put(p, ZMM, ZMM, ZMM);
+//				put(p, ZMM, ZMM, ZMM); // QQQ
 			}
 		}
 	}
@@ -1873,7 +1873,26 @@ class Test {
 	}
 	void putFMA2()
 	{
-#ifndef USE_YASM
+#ifdef USE_YASM
+		put("vextractf128", XMM | MEM, YMM, IMM);
+		put("vextracti128", XMM | MEM, YMM, IMM);
+		put("vmaskmovps", MEM, YMM, YMM);
+		put("vmaskmovpd", MEM, YMM, YMM);
+		put("vlddqu", XMM | YMM, MEM);
+
+		put("vmovshdup", XMM, XMM | MEM);
+		put("vmovshdup", YMM, YMM | MEM);
+		put("vmovsldup", XMM, XMM | MEM);
+		put("vmovsldup", YMM, YMM | MEM);
+
+		// QQQ:nasm is wrong
+		put("vpcmpeqq", XMM, XMM | MEM);
+		put("vpcmpeqq", XMM, XMM, XMM | MEM);
+		put("vpcmpgtq", XMM, XMM | MEM);
+		put("vpcmpgtq", XMM, XMM, XMM | MEM);
+
+		put("vmovntps", MEM, XMM | YMM); // nasm error
+#else
 		put("vmaskmovps", XMM, XMM, MEM);
 		put("vmaskmovps", YMM, YMM, MEM);
 
@@ -1934,26 +1953,7 @@ class Test {
 				put(name, YMM, YMM | MEM, IMM8);
 			}
 		}
-#else
-		put("vextractf128", XMM | MEM, YMM, IMM);
-		put("vextracti128", XMM | MEM, YMM, IMM);
-		put("vmaskmovps", MEM, YMM, YMM);
-		put("vmaskmovpd", MEM, YMM, YMM);
-		put("vlddqu", XMM | YMM, MEM);
-
-		put("vmovshdup", XMM, XMM | MEM);
-		put("vmovshdup", YMM, YMM | MEM);
-		put("vmovsldup", XMM, XMM | MEM);
-		put("vmovsldup", YMM, YMM | MEM);
-
-		// QQQ:nasm is wrong
-		put("vpcmpeqq", XMM, XMM | MEM);
-		put("vpcmpeqq", XMM, XMM, XMM | MEM);
-		put("vpcmpgtq", XMM, XMM | MEM);
-		put("vpcmpgtq", XMM, XMM, XMM | MEM);
-
-		put("vpextrw", REG32e | MEM, XMM, IMM); // nasm iw wrong?
-		put("vmovntps", MEM, XMM | YMM); // nasm error
+		put("vpextrw", REG32e | MEM, XMM, IMM); // nasm is ok, yasm generate redundant code
 #endif
 	}
 	void putCmp()

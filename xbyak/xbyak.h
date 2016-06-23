@@ -1280,11 +1280,16 @@ private:
 		MM_0F38 = 1 << 6,
 		MM_0F3A = 1 << 7,
 		VEX_L0 = 1 << 8,
-		VEX_L1 = 1 << 9
+		VEX_L1 = 1 << 9,
+		T_WIG = 1 << 10, // default
+		T_W0 = 1 << 11,
+		T_W1 = 1 << 12,
+		T_EW0 = 1 << 13,
+		T_EW1 = 1 << 14
 	};
-	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x, int w)
+	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x)
 	{
-		if (w == -1) w = 0;
+		int w = (type & T_W1) ? 1 : 0;
 		bool is256 = (type & VEX_L1) ? true : (type & VEX_L0) ? false : reg.isYMM();
 		bool r = reg.isExtIdx();
 		bool b = base.isExtIdx();
@@ -1607,31 +1612,30 @@ private:
 	{
 		db(code1); db(code2 | reg.getIdx());
 	}
-	void opVex(const Reg& r, const Operand *p1, const Operand& op2, int type, int code, int w, int imm8 = NONE)
+	void opVex(const Reg& r, const Operand *p1, const Operand& op2, int type, int code, int imm8 = NONE)
 	{
 		if (op2.isMEM()) {
 			const Address& addr = static_cast<const Address&>(op2);
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			bool x = addr.getRegExp().getIndex().isExtIdx();
-			vex(r, addr.getRegExp().getBase(), p1, type, code, x, w);
+			vex(r, addr.getRegExp().getBase(), p1, type, code, x);
 			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0);
 		} else {
 			const Reg& r3 = static_cast<const Reg&>(op2);
 			if (r.hasEvex() || (p1 && p1->hasEvex()) || r3.hasEvex()) {
 				assert(p1); // QQQ
-				opEvex(r, static_cast<const Reg&>(*p1), r3, type, code, w);
+				opEvex(r, static_cast<const Reg&>(*p1), r3, type, code);
 			} else {
 				bool x = false;
-				vex(r, r3, p1, type, code, x, w);
+				vex(r, r3, p1, type, code, x);
 				setModRM(3, r.getIdx(), r3.getIdx());
 			}
 		}
 		if (imm8 != NONE) db(imm8);
 	}
-	void opEvex(const Reg& x1, const Reg& x2, const Reg& x3, int type, int code, int w)
+	void opEvex(const Reg& x1, const Reg& x2, const Reg& x3, int type, int code)
 	{
-//		if (w == -1) w = 0; // QQQ : old rex
-		w = 1; // for vaddpd, w = 0 if vaddps
+		int w = (type & T_EW1) ? 1 : 0;
 	//	bool is256 = (type & VEX_L1) ? true : (type & VEX_L0) ? false : x1.isYMM();
 		uint32 mm = (type & MM_0F) ? 1 : (type & MM_0F38) ? 2 : (type & MM_0F3A) ? 3 : 0;
 		uint32 pp = (type & PP_66) ? 1 : (type & PP_F3) ? 2 : (type & PP_F2) ? 3 : 0;
@@ -1665,10 +1669,10 @@ public:
 		if (!isR_R_RM) std::swap(p1, p2);
 		const unsigned int bit = r.getBit();
 		if (p1->getBit() != bit || (p2->isREG() && p2->getBit() != bit)) throw Error(ERR_BAD_COMBINATION);
-		int w = bit == 64;
-		opVex(r, p1, *p2, type, code, w, imm8);
+		type |= (bit == 64) ? T_W1 : T_W0;
+		opVex(r, p1, *p2, type, code, imm8);
 	}
-	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, bool supportYMM, int w = -1, int imm8 = NONE)
+	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, bool supportYMM, int imm8 = NONE)
 	{
 		const Xmm *x2;
 		const Operand *op;
@@ -1682,18 +1686,18 @@ public:
 		}
 		// (x1, x2, op)
 		if (!((x1.isXMM() && x2->isXMM()) || (supportYMM && ((x1.isYMM() && x2->isYMM()) || (x1.isZMM() && x2->isZMM()))))) throw Error(ERR_BAD_COMBINATION);
-		opVex(x1, x2, *op, type, code0, w, imm8);
+		opVex(x1, x2, *op, type, code0, imm8);
 	}
 	// if cvt then return pointer to Xmm(idx) (or Ymm(idx)), otherwise return op
-	void opAVX_X_X_XMcvt(const Xmm& x1, const Operand& op1, const Operand& op2, bool cvt, Operand::Kind kind, int type, int code0, bool supportYMM, int w = -1, int imm8 = NONE)
+	void opAVX_X_X_XMcvt(const Xmm& x1, const Operand& op1, const Operand& op2, bool cvt, Operand::Kind kind, int type, int code0, bool supportYMM, int imm8 = NONE)
 	{
 		// use static_cast to avoid calling unintentional copy constructor on gcc
-		opAVX_X_X_XM(x1, op1, cvt ? kind == Operand::XMM ? static_cast<const Operand&>(Xmm(op2.getIdx())) : static_cast<const Operand&>(Ymm(op2.getIdx())) : op2, type, code0, supportYMM, w, imm8);
+		opAVX_X_X_XM(x1, op1, cvt ? kind == Operand::XMM ? static_cast<const Operand&>(Xmm(op2.getIdx())) : static_cast<const Operand&>(Ymm(op2.getIdx())) : op2, type, code0, supportYMM, imm8);
 	}
 	// support (x, x/m, imm), (y, y/m, imm)
-	void opAVX_X_XM_IMM(const Xmm& x, const Operand& op, int type, int code, bool supportYMM, int w = -1, int imm8 = NONE)
+	void opAVX_X_XM_IMM(const Xmm& x, const Operand& op, int type, int code, bool supportYMM, int imm8 = NONE)
 	{
-		opAVX_X_X_XM(x, x.isXMM() ? xm0 : ym0, op, type, code, supportYMM, w, imm8);
+		opAVX_X_X_XM(x, x.isXMM() ? xm0 : ym0, op, type, code, supportYMM, imm8);
 	}
 	// QQQ:need to refactor
 	void opSp1(const Reg& reg, const Operand& op, uint8 pref, uint8 code0, uint8 code1)
@@ -1704,7 +1708,7 @@ public:
 		if (is16bit) db(0x66);
 		db(pref); opModRM(reg.changeBit(i32e == 32 ? 32 : reg.getBit()), op, op.isREG(), true, code0, code1);
 	}
-	void opGather(const Xmm& x1, const Address& addr, const Xmm& x2, int type, uint8 code, int w, int mode)
+	void opGather(const Xmm& x1, const Address& addr, const Xmm& x2, int type, uint8 code, int mode)
 	{
 		if (!addr.getRegExp().isVsib()) throw Error(ERR_BAD_VSIB_ADDRESSING);
 		const int y_vx_y = 0;
@@ -1723,7 +1727,7 @@ public:
 			if (!isOK) throw Error(ERR_BAD_VSIB_ADDRESSING);
 		}
 		addr.permitVsib();
-		opAVX_X_X_XM(isAddrYMM ? Ymm(x1.getIdx()) : x1, isAddrYMM ? Ymm(x2.getIdx()) : x2, addr, type, code, true, w);
+		opAVX_X_X_XM(isAddrYMM ? Ymm(x1.getIdx()) : x1, isAddrYMM ? Ymm(x2.getIdx()) : x2, addr, type, code, true);
 	}
 public:
 	unsigned int getVersion() const { return VERSION; }
