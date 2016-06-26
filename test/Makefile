@@ -59,7 +59,9 @@ endif
 
 test_avx512: normalize_prefix
 	./test_avx512.sh
-
+ifeq ($(BIT),64)
+	./test_avx512.sh 64
+endif
 clean:
 	rm -rf *.o $(TARGET) lib_run
 
