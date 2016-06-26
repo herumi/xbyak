@@ -165,6 +165,8 @@ enum {
 	ERR_LABEL_IS_ALREADY_SET_BY_L,
 	ERR_BAD_LABEL_STR,
 	ERR_MUNMAP,
+	ERR_OPMASK_IS_ALREADY_SET,
+	ERR_ROUNDING_IS_ALREADY_SET,
 	ERR_INTERNAL
 };
 
@@ -215,6 +217,8 @@ public:
 			"label is already set by L()",
 			"bad label string",
 			"err munmap",
+			"opmask is already set",
+			"rounding is already set",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -325,9 +329,13 @@ public:
 
 class Operand {
 	static const uint8 EXT8BIT = 0x80;
-	uint8 idx_; // 0..31, EXT8BIT = 1 if spl/bpl/sil/dil
-	uint8 kind_;
-	uint16 bit_;
+	unsigned int idx_:8; // 0..31, EXT8BIT = 1 if spl/bpl/sil/dil
+	unsigned int kind_:8;
+	unsigned int bit_:9;
+protected:
+	unsigned int zero_:1;
+	unsigned int mask_:3;
+	unsigned int rounding_:3;
 public:
 	enum Kind {
 		NONE = 0,
@@ -352,11 +360,12 @@ public:
 		AX = 0, CX, DX, BX, SP, BP, SI, DI,
 		AL = 0, CL, DL, BL, AH, CH, DH, BH
 	};
-	Operand() : idx_(0), kind_(0), bit_(0) { }
+	Operand() : idx_(0), kind_(0), bit_(0), zero_(0), mask_(0), rounding_(0) { }
 	Operand(int idx, Kind kind, int bit, bool ext8bit = 0)
 		: idx_(static_cast<uint8>(idx | (ext8bit ? EXT8BIT : 0)))
 		, kind_(static_cast<uint8>(kind))
 		, bit_(static_cast<uint16>(bit))
+		, zero_(0), mask_(0), rounding_(0)
 	{
 		assert((bit_ & (bit_ - 1)) == 0); // bit must be power of two
 	}
@@ -376,6 +385,9 @@ public:
 	bool isExtIdx2() const { return (getIdx() & 16) != 0; }
 	bool hasEvex() const { return isZMM() || (is(XMM | YMM) && isExtIdx2()); }
 	bool hasRex() const { return isExt8bit() | isREG(64) | isExtIdx(); }
+	bool isZeroMask() const { return zero_; }
+	int getOpmaskIdx() const { return mask_; }
+	int getRounding() const { return rounding_; }
 	// ah, ch, dh, bh?
 	bool isHigh8bit() const
 	{
@@ -436,7 +448,7 @@ public:
 		}
 		throw Error(ERR_INTERNAL);
 	}
-	bool isEqualIfNotInherited(const Operand& rhs) const { return idx_ == rhs.idx_ && kind_ == rhs.kind_ && bit_ == rhs.bit_; }
+	bool isEqualIfNotInherited(const Operand& rhs) const { return idx_ == rhs.idx_ && kind_ == rhs.kind_ && bit_ == rhs.bit_ && zero_ == rhs.zero_ && mask_ == rhs.mask_ && rounding_ == rhs.rounding_; }
 	bool operator==(const Operand& rhs) const;
 	bool operator!=(const Operand& rhs) const { return !operator==(rhs); }
 };
@@ -484,20 +496,60 @@ struct Mmx : public Reg {
 	explicit Mmx(int idx = 0, Kind kind = Operand::MMX, int bit = 64) : Reg(idx, kind, bit) { }
 };
 
+struct EvexModifierRounding {
+	explicit EvexModifierRounding(int rounding) : rounding(rounding) {}
+	int rounding;
+};
+
+static const EvexModifierRounding T_sae(1);
+static const EvexModifierRounding T_rn_sae(2);
+static const EvexModifierRounding T_rd_sae(3);
+static const EvexModifierRounding T_ru_sae(4);
+static const EvexModifierRounding T_rz_sae(5);
+
 struct Xmm : public Mmx {
 	explicit Xmm(int idx = 0, Kind kind = Operand::XMM, int bit = 128) : Mmx(idx, kind, bit) { }
+	Xmm operator|(const EvexModifierRounding& emr) const
+	{
+		if (rounding_) throw Error(ERR_ROUNDING_IS_ALREADY_SET);
+		Xmm r(*this);
+		r.rounding_ = emr.rounding;
+		return r;
+	}
 };
 
 struct Ymm : public Xmm {
 	explicit Ymm(int idx = 0, Kind kind = Operand::YMM, int bit = 256) : Xmm(idx, kind, bit) { }
 };
 
-struct Zmm : public Ymm {
-	explicit Zmm(int idx = 0) : Ymm(idx, Operand::ZMM, 512) { }
-};
-
 struct Opmask : public Reg {
 	explicit Opmask(int idx = 0) : Reg(idx, Operand::OPMASK, 64) {}
+};
+
+static const struct EvexModifierZero{} T_z; // {z}
+
+struct Zmm : public Ymm {
+	explicit Zmm(int idx = 0) : Ymm(idx, Operand::ZMM, 512) { }
+	Zmm operator|(const Opmask& k) const
+	{
+		if (mask_) throw Error(ERR_OPMASK_IS_ALREADY_SET);
+		Zmm z(*this);
+		z.mask_ = k.getIdx();
+		return z;
+	}
+	Zmm operator|(const EvexModifierZero&) const
+	{
+		Zmm z(*this);
+		z.zero_ = true;
+		return z;
+	}
+	Zmm operator|(const EvexModifierRounding& emr) const
+	{
+		if (rounding_) throw Error(ERR_ROUNDING_IS_ALREADY_SET);
+		Zmm r(*this);
+		r.rounding_ = emr.rounding;
+		return r;
+	}
 };
 
 struct Fpu : public Reg {
