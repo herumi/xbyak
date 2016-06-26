@@ -385,7 +385,7 @@ public:
 	bool isExtIdx2() const { return (getIdx() & 16) != 0; }
 	bool hasEvex() const { return isZMM() || (is(XMM | YMM) && isExtIdx2()); }
 	bool hasRex() const { return isExt8bit() | isREG(64) | isExtIdx(); }
-	bool isZeroMask() const { return zero_; }
+	bool hasZero() const { return zero_; }
 	int getOpmaskIdx() const { return mask_; }
 	int getRounding() const { return rounding_; }
 	// ah, ch, dh, bh?
@@ -1699,11 +1699,11 @@ private:
 		bool X = !x3.isExtIdx2();
 		bool B = !x3.isExtIdx();
 		bool Rp = !x1.isExtIdx2();
-		bool z = false;
 		int LL = x1.isZMM() ? 2 : x1.isYMM() ? 1 : 0;
 		bool b = false;
 		bool Vp = !x2.isExtIdx2();
-		int aaa = 0;
+		bool z = x1.isZMM() && x1.hasZero() ? true : false;
+		int aaa = x1.isZMM() ? x1.getOpmaskIdx() : 0;
 		evex(R, X, B, Rp, mm, w == 1, vvvv, pp, z, LL, b, Vp, aaa);
 		db(code);
 		setModRM(3, x1.getIdx(), x3.getIdx());
