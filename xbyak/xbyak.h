@@ -383,7 +383,7 @@ public:
 	bool isExt8bit() const { return (idx_ & EXT8BIT) != 0; }
 	bool isExtIdx() const { return (getIdx() & 8) != 0; }
 	bool isExtIdx2() const { return (getIdx() & 16) != 0; }
-	bool hasEvex() const { return isZMM() || (is(XMM | YMM) && isExtIdx2()); }
+	bool hasEvex() const { return isZMM() || isExtIdx2() || hasZero() || getOpmaskIdx() || getRounding(); }
 	bool hasRex() const { return isExt8bit() | isREG(64) | isExtIdx(); }
 	bool hasZero() const { return zero_; }
 	int getOpmaskIdx() const { return mask_; }
@@ -1016,7 +1016,7 @@ public:
 	int getId() const { return id; }
 
 	// backward compatibility
-	static std::string toStr(int num)
+	static inline std::string toStr(int num)
 	{
 		char buf[16];
 #ifdef _MSC_VER
@@ -1693,8 +1693,8 @@ private:
 		int LL = x1.isZMM() ? 2 : x1.isYMM() ? 1 : 0;
 		bool b = false;
 		bool Vp = !x2.isExtIdx2();
-		bool z = x1.isZMM() && x1.hasZero() ? true : false;
-		int aaa = x1.isZMM() ? x1.getOpmaskIdx() : 0;
+		bool z = x1.hasZero();
+		int aaa = x1.getOpmaskIdx();
 		evex(R, X, B, Rp, mm, w == 1, vvvv, pp, z, LL, b, Vp, aaa);
 		db(code);
 		setModRM(3, x1.getIdx(), x3.getIdx());

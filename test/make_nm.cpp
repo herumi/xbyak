@@ -2,6 +2,7 @@
 #include "xbyak/xbyak.h"
 #include <stdlib.h>
 #include <string.h>
+#include "cybozu/inttype.hpp"
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
 using namespace Xbyak;
@@ -2388,6 +2389,21 @@ public:
 		put("kmovq", REG64, K);
 #endif
 	}
+	void put_vaddpd(const char *r1, const char *r2, const char *r3, int kIdx = 0, bool z = false)
+	{
+		std::string modifier;
+		char pk[16] = "";
+		const char *pz = "";
+		if (isXbyak_) {
+			if (kIdx) CYBOZU_SNPRINTF(pk, sizeof(pk), "|k%d", kIdx);
+			if (z) pz = "|T_z";
+			printf("vaddpd(%s%s%s, %s, %s); dump();\n", r1, pk, pz, r2, r3);
+		} else {
+			if (kIdx) CYBOZU_SNPRINTF(pk, sizeof(pk), "{k%d}", kIdx);
+			if (z) pz = "{z}";
+			printf("vaddpd %s%s%s, %s, %s\n", r1, pk, pz, r2, r3);
+		}
+	}
 	void putCombi()
 	{
 		const char *xTbl[] = {
@@ -2418,15 +2434,19 @@ public:
 		for (size_t i = 0; i < N; i++) {
 			for (size_t j = 0; j < N; j++) {
 				for (size_t k = 0; k < N; k++) {
-					if (isXbyak_) {
-						printf("vaddpd(%s, %s, %s); dump();\n", xTbl[i], xTbl[j], xTbl[k]);
-						printf("vaddpd(%s, %s, %s); dump();\n", yTbl[i], yTbl[j], yTbl[k]);
-						printf("vaddpd(%s, %s, %s); dump();\n", zTbl[i], zTbl[j], zTbl[k]);
-					} else {
-						printf("vaddpd %s, %s, %s\n", xTbl[i], xTbl[j], xTbl[k]);
-						printf("vaddpd %s, %s, %s\n", yTbl[i], yTbl[j], yTbl[k]);
-						printf("vaddpd %s, %s, %s\n", zTbl[i], zTbl[j], zTbl[k]);
+#ifdef XBYAK64
+					for (int kIdx = 0; kIdx < 8; kIdx++) {
+						for (int z = 0; z < 2; z++) {
+							put_vaddpd(xTbl[i], xTbl[j], xTbl[k], kIdx, z == 1);
+							put_vaddpd(yTbl[i], yTbl[j], yTbl[k], kIdx, z == 1);
+							put_vaddpd(zTbl[i], zTbl[j], zTbl[k], kIdx, z == 1);
+						}
 					}
+#else
+					put_vaddpd(xTbl[i], xTbl[j], xTbl[k]);
+					put_vaddpd(yTbl[i], yTbl[j], yTbl[k]);
+					put_vaddpd(zTbl[i], zTbl[j], zTbl[k]);
+#endif
 				}
 			}
 		}
