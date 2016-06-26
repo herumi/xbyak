@@ -388,6 +388,17 @@ public:
 	bool hasZero() const { return zero_; }
 	int getOpmaskIdx() const { return mask_; }
 	int getRounding() const { return rounding_; }
+	void setOpmaskIdx(int idx)
+	{
+		if (mask_) throw Error(ERR_OPMASK_IS_ALREADY_SET);
+		mask_ = idx;
+	}
+	void setRounding(int idx)
+	{
+		if (rounding_) throw Error(ERR_ROUNDING_IS_ALREADY_SET);
+		rounding_ = idx;
+	}
+	void setZero() { zero_ = true; }
 	// ah, ch, dh, bh?
 	bool isHigh8bit() const
 	{
@@ -496,6 +507,10 @@ struct Mmx : public Reg {
 	explicit Mmx(int idx = 0, Kind kind = Operand::MMX, int bit = 64) : Reg(idx, kind, bit) { }
 };
 
+struct Opmask : public Reg {
+	explicit Opmask(int idx = 0) : Reg(idx, Operand::OPMASK, 64) {}
+};
+
 struct EvexModifierRounding {
 	explicit EvexModifierRounding(int rounding) : rounding(rounding) {}
 	int rounding;
@@ -506,50 +521,27 @@ static const EvexModifierRounding T_rn_sae(2);
 static const EvexModifierRounding T_rd_sae(3);
 static const EvexModifierRounding T_ru_sae(4);
 static const EvexModifierRounding T_rz_sae(5);
+static const struct EvexModifierZero{} T_z; // {z}
 
 struct Xmm : public Mmx {
 	explicit Xmm(int idx = 0, Kind kind = Operand::XMM, int bit = 128) : Mmx(idx, kind, bit) { }
-	Xmm operator|(const EvexModifierRounding& emr) const
-	{
-		if (rounding_) throw Error(ERR_ROUNDING_IS_ALREADY_SET);
-		Xmm r(*this);
-		r.rounding_ = emr.rounding;
-		return r;
-	}
+	Xmm operator|(const Opmask& k) const { Xmm r(*this); r.setOpmaskIdx(k.getIdx()); return r; }
+	Xmm operator|(const EvexModifierZero&) const { Xmm r(*this); r.setZero(); return r; }
+	Xmm operator|(const EvexModifierRounding& emr) const { Xmm r(*this); r.setRounding(emr.rounding); return r; }
 };
 
 struct Ymm : public Xmm {
 	explicit Ymm(int idx = 0, Kind kind = Operand::YMM, int bit = 256) : Xmm(idx, kind, bit) { }
+	Ymm operator|(const Opmask& k) const { Ymm r(*this); r.setOpmaskIdx(k.getIdx()); return r; }
+	Ymm operator|(const EvexModifierZero&) const { Ymm r(*this); r.setZero(); return r; }
+	Ymm operator|(const EvexModifierRounding& emr) const { Ymm r(*this); r.setRounding(emr.rounding); return r; }
 };
-
-struct Opmask : public Reg {
-	explicit Opmask(int idx = 0) : Reg(idx, Operand::OPMASK, 64) {}
-};
-
-static const struct EvexModifierZero{} T_z; // {z}
 
 struct Zmm : public Ymm {
 	explicit Zmm(int idx = 0) : Ymm(idx, Operand::ZMM, 512) { }
-	Zmm operator|(const Opmask& k) const
-	{
-		if (mask_) throw Error(ERR_OPMASK_IS_ALREADY_SET);
-		Zmm z(*this);
-		z.mask_ = k.getIdx();
-		return z;
-	}
-	Zmm operator|(const EvexModifierZero&) const
-	{
-		Zmm z(*this);
-		z.zero_ = true;
-		return z;
-	}
-	Zmm operator|(const EvexModifierRounding& emr) const
-	{
-		if (rounding_) throw Error(ERR_ROUNDING_IS_ALREADY_SET);
-		Zmm r(*this);
-		r.rounding_ = emr.rounding;
-		return r;
-	}
+	Zmm operator|(const Opmask& k) const { Zmm r(*this); r.setOpmaskIdx(k.getIdx()); return r; }
+	Zmm operator|(const EvexModifierZero&) const { Zmm r(*this); r.setZero(); return r; }
+	Zmm operator|(const EvexModifierRounding& emr) const { Zmm r(*this); r.setRounding(emr.rounding); return r; }
 };
 
 struct Fpu : public Reg {
