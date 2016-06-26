@@ -1359,7 +1359,7 @@ void put()
 					printf("void cmp%s%s(const Xmm& x, const Operand& op) { cmp%s(x, op, %d); }\n", pred[j], s, s, j);
 				}
 				printf("void vcmp%s%s(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmp%s(x1, x2, op, %d); }\n", pred[j], s, s, j);
-				printf("void vcmp%s%s(const Xmm& x, const Operand& op) { vcmp%s(x, op, %d); }\n", pred[j], s, s, j);
+				printf("void vcmp%s%s(const Xmm& x, const Operand& op) { vcmp%s%s(x, x, op); }\n", pred[j], s, pred[j], s);
 			}
 		}
 	}

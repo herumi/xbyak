@@ -1043,292 +1043,292 @@ void vpermq(const Ymm& y, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(y, op, 
 void vpermpd(const Ymm& y, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(y, op, T_0F3A | T_66 | T_W1 | T_SUPPORT_YMM, 0x01, imm); }
 void cmpeqpd(const Xmm& x, const Operand& op) { cmppd(x, op, 0); }
 void vcmpeqpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 0); }
-void vcmpeqpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 0); }
+void vcmpeqpd(const Xmm& x, const Operand& op) { vcmpeqpd(x, x, op); }
 void cmpltpd(const Xmm& x, const Operand& op) { cmppd(x, op, 1); }
 void vcmpltpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 1); }
-void vcmpltpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 1); }
+void vcmpltpd(const Xmm& x, const Operand& op) { vcmpltpd(x, x, op); }
 void cmplepd(const Xmm& x, const Operand& op) { cmppd(x, op, 2); }
 void vcmplepd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 2); }
-void vcmplepd(const Xmm& x, const Operand& op) { vcmppd(x, op, 2); }
+void vcmplepd(const Xmm& x, const Operand& op) { vcmplepd(x, x, op); }
 void cmpunordpd(const Xmm& x, const Operand& op) { cmppd(x, op, 3); }
 void vcmpunordpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 3); }
-void vcmpunordpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 3); }
+void vcmpunordpd(const Xmm& x, const Operand& op) { vcmpunordpd(x, x, op); }
 void cmpneqpd(const Xmm& x, const Operand& op) { cmppd(x, op, 4); }
 void vcmpneqpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 4); }
-void vcmpneqpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 4); }
+void vcmpneqpd(const Xmm& x, const Operand& op) { vcmpneqpd(x, x, op); }
 void cmpnltpd(const Xmm& x, const Operand& op) { cmppd(x, op, 5); }
 void vcmpnltpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 5); }
-void vcmpnltpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 5); }
+void vcmpnltpd(const Xmm& x, const Operand& op) { vcmpnltpd(x, x, op); }
 void cmpnlepd(const Xmm& x, const Operand& op) { cmppd(x, op, 6); }
 void vcmpnlepd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 6); }
-void vcmpnlepd(const Xmm& x, const Operand& op) { vcmppd(x, op, 6); }
+void vcmpnlepd(const Xmm& x, const Operand& op) { vcmpnlepd(x, x, op); }
 void cmpordpd(const Xmm& x, const Operand& op) { cmppd(x, op, 7); }
 void vcmpordpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 7); }
-void vcmpordpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 7); }
+void vcmpordpd(const Xmm& x, const Operand& op) { vcmpordpd(x, x, op); }
 void vcmpeq_uqpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 8); }
-void vcmpeq_uqpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 8); }
+void vcmpeq_uqpd(const Xmm& x, const Operand& op) { vcmpeq_uqpd(x, x, op); }
 void vcmpngepd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 9); }
-void vcmpngepd(const Xmm& x, const Operand& op) { vcmppd(x, op, 9); }
+void vcmpngepd(const Xmm& x, const Operand& op) { vcmpngepd(x, x, op); }
 void vcmpngtpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 10); }
-void vcmpngtpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 10); }
+void vcmpngtpd(const Xmm& x, const Operand& op) { vcmpngtpd(x, x, op); }
 void vcmpfalsepd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 11); }
-void vcmpfalsepd(const Xmm& x, const Operand& op) { vcmppd(x, op, 11); }
+void vcmpfalsepd(const Xmm& x, const Operand& op) { vcmpfalsepd(x, x, op); }
 void vcmpneq_oqpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 12); }
-void vcmpneq_oqpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 12); }
+void vcmpneq_oqpd(const Xmm& x, const Operand& op) { vcmpneq_oqpd(x, x, op); }
 void vcmpgepd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 13); }
-void vcmpgepd(const Xmm& x, const Operand& op) { vcmppd(x, op, 13); }
+void vcmpgepd(const Xmm& x, const Operand& op) { vcmpgepd(x, x, op); }
 void vcmpgtpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 14); }
-void vcmpgtpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 14); }
+void vcmpgtpd(const Xmm& x, const Operand& op) { vcmpgtpd(x, x, op); }
 void vcmptruepd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 15); }
-void vcmptruepd(const Xmm& x, const Operand& op) { vcmppd(x, op, 15); }
+void vcmptruepd(const Xmm& x, const Operand& op) { vcmptruepd(x, x, op); }
 void vcmpeq_ospd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 16); }
-void vcmpeq_ospd(const Xmm& x, const Operand& op) { vcmppd(x, op, 16); }
+void vcmpeq_ospd(const Xmm& x, const Operand& op) { vcmpeq_ospd(x, x, op); }
 void vcmplt_oqpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 17); }
-void vcmplt_oqpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 17); }
+void vcmplt_oqpd(const Xmm& x, const Operand& op) { vcmplt_oqpd(x, x, op); }
 void vcmple_oqpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 18); }
-void vcmple_oqpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 18); }
+void vcmple_oqpd(const Xmm& x, const Operand& op) { vcmple_oqpd(x, x, op); }
 void vcmpunord_spd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 19); }
-void vcmpunord_spd(const Xmm& x, const Operand& op) { vcmppd(x, op, 19); }
+void vcmpunord_spd(const Xmm& x, const Operand& op) { vcmpunord_spd(x, x, op); }
 void vcmpneq_uspd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 20); }
-void vcmpneq_uspd(const Xmm& x, const Operand& op) { vcmppd(x, op, 20); }
+void vcmpneq_uspd(const Xmm& x, const Operand& op) { vcmpneq_uspd(x, x, op); }
 void vcmpnlt_uqpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 21); }
-void vcmpnlt_uqpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 21); }
+void vcmpnlt_uqpd(const Xmm& x, const Operand& op) { vcmpnlt_uqpd(x, x, op); }
 void vcmpnle_uqpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 22); }
-void vcmpnle_uqpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 22); }
+void vcmpnle_uqpd(const Xmm& x, const Operand& op) { vcmpnle_uqpd(x, x, op); }
 void vcmpord_spd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 23); }
-void vcmpord_spd(const Xmm& x, const Operand& op) { vcmppd(x, op, 23); }
+void vcmpord_spd(const Xmm& x, const Operand& op) { vcmpord_spd(x, x, op); }
 void vcmpeq_uspd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 24); }
-void vcmpeq_uspd(const Xmm& x, const Operand& op) { vcmppd(x, op, 24); }
+void vcmpeq_uspd(const Xmm& x, const Operand& op) { vcmpeq_uspd(x, x, op); }
 void vcmpnge_uqpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 25); }
-void vcmpnge_uqpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 25); }
+void vcmpnge_uqpd(const Xmm& x, const Operand& op) { vcmpnge_uqpd(x, x, op); }
 void vcmpngt_uqpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 26); }
-void vcmpngt_uqpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 26); }
+void vcmpngt_uqpd(const Xmm& x, const Operand& op) { vcmpngt_uqpd(x, x, op); }
 void vcmpfalse_ospd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 27); }
-void vcmpfalse_ospd(const Xmm& x, const Operand& op) { vcmppd(x, op, 27); }
+void vcmpfalse_ospd(const Xmm& x, const Operand& op) { vcmpfalse_ospd(x, x, op); }
 void vcmpneq_ospd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 28); }
-void vcmpneq_ospd(const Xmm& x, const Operand& op) { vcmppd(x, op, 28); }
+void vcmpneq_ospd(const Xmm& x, const Operand& op) { vcmpneq_ospd(x, x, op); }
 void vcmpge_oqpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 29); }
-void vcmpge_oqpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 29); }
+void vcmpge_oqpd(const Xmm& x, const Operand& op) { vcmpge_oqpd(x, x, op); }
 void vcmpgt_oqpd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 30); }
-void vcmpgt_oqpd(const Xmm& x, const Operand& op) { vcmppd(x, op, 30); }
+void vcmpgt_oqpd(const Xmm& x, const Operand& op) { vcmpgt_oqpd(x, x, op); }
 void vcmptrue_uspd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmppd(x1, x2, op, 31); }
-void vcmptrue_uspd(const Xmm& x, const Operand& op) { vcmppd(x, op, 31); }
+void vcmptrue_uspd(const Xmm& x, const Operand& op) { vcmptrue_uspd(x, x, op); }
 void cmpeqps(const Xmm& x, const Operand& op) { cmpps(x, op, 0); }
 void vcmpeqps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 0); }
-void vcmpeqps(const Xmm& x, const Operand& op) { vcmpps(x, op, 0); }
+void vcmpeqps(const Xmm& x, const Operand& op) { vcmpeqps(x, x, op); }
 void cmpltps(const Xmm& x, const Operand& op) { cmpps(x, op, 1); }
 void vcmpltps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 1); }
-void vcmpltps(const Xmm& x, const Operand& op) { vcmpps(x, op, 1); }
+void vcmpltps(const Xmm& x, const Operand& op) { vcmpltps(x, x, op); }
 void cmpleps(const Xmm& x, const Operand& op) { cmpps(x, op, 2); }
 void vcmpleps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 2); }
-void vcmpleps(const Xmm& x, const Operand& op) { vcmpps(x, op, 2); }
+void vcmpleps(const Xmm& x, const Operand& op) { vcmpleps(x, x, op); }
 void cmpunordps(const Xmm& x, const Operand& op) { cmpps(x, op, 3); }
 void vcmpunordps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 3); }
-void vcmpunordps(const Xmm& x, const Operand& op) { vcmpps(x, op, 3); }
+void vcmpunordps(const Xmm& x, const Operand& op) { vcmpunordps(x, x, op); }
 void cmpneqps(const Xmm& x, const Operand& op) { cmpps(x, op, 4); }
 void vcmpneqps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 4); }
-void vcmpneqps(const Xmm& x, const Operand& op) { vcmpps(x, op, 4); }
+void vcmpneqps(const Xmm& x, const Operand& op) { vcmpneqps(x, x, op); }
 void cmpnltps(const Xmm& x, const Operand& op) { cmpps(x, op, 5); }
 void vcmpnltps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 5); }
-void vcmpnltps(const Xmm& x, const Operand& op) { vcmpps(x, op, 5); }
+void vcmpnltps(const Xmm& x, const Operand& op) { vcmpnltps(x, x, op); }
 void cmpnleps(const Xmm& x, const Operand& op) { cmpps(x, op, 6); }
 void vcmpnleps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 6); }
-void vcmpnleps(const Xmm& x, const Operand& op) { vcmpps(x, op, 6); }
+void vcmpnleps(const Xmm& x, const Operand& op) { vcmpnleps(x, x, op); }
 void cmpordps(const Xmm& x, const Operand& op) { cmpps(x, op, 7); }
 void vcmpordps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 7); }
-void vcmpordps(const Xmm& x, const Operand& op) { vcmpps(x, op, 7); }
+void vcmpordps(const Xmm& x, const Operand& op) { vcmpordps(x, x, op); }
 void vcmpeq_uqps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 8); }
-void vcmpeq_uqps(const Xmm& x, const Operand& op) { vcmpps(x, op, 8); }
+void vcmpeq_uqps(const Xmm& x, const Operand& op) { vcmpeq_uqps(x, x, op); }
 void vcmpngeps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 9); }
-void vcmpngeps(const Xmm& x, const Operand& op) { vcmpps(x, op, 9); }
+void vcmpngeps(const Xmm& x, const Operand& op) { vcmpngeps(x, x, op); }
 void vcmpngtps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 10); }
-void vcmpngtps(const Xmm& x, const Operand& op) { vcmpps(x, op, 10); }
+void vcmpngtps(const Xmm& x, const Operand& op) { vcmpngtps(x, x, op); }
 void vcmpfalseps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 11); }
-void vcmpfalseps(const Xmm& x, const Operand& op) { vcmpps(x, op, 11); }
+void vcmpfalseps(const Xmm& x, const Operand& op) { vcmpfalseps(x, x, op); }
 void vcmpneq_oqps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 12); }
-void vcmpneq_oqps(const Xmm& x, const Operand& op) { vcmpps(x, op, 12); }
+void vcmpneq_oqps(const Xmm& x, const Operand& op) { vcmpneq_oqps(x, x, op); }
 void vcmpgeps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 13); }
-void vcmpgeps(const Xmm& x, const Operand& op) { vcmpps(x, op, 13); }
+void vcmpgeps(const Xmm& x, const Operand& op) { vcmpgeps(x, x, op); }
 void vcmpgtps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 14); }
-void vcmpgtps(const Xmm& x, const Operand& op) { vcmpps(x, op, 14); }
+void vcmpgtps(const Xmm& x, const Operand& op) { vcmpgtps(x, x, op); }
 void vcmptrueps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 15); }
-void vcmptrueps(const Xmm& x, const Operand& op) { vcmpps(x, op, 15); }
+void vcmptrueps(const Xmm& x, const Operand& op) { vcmptrueps(x, x, op); }
 void vcmpeq_osps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 16); }
-void vcmpeq_osps(const Xmm& x, const Operand& op) { vcmpps(x, op, 16); }
+void vcmpeq_osps(const Xmm& x, const Operand& op) { vcmpeq_osps(x, x, op); }
 void vcmplt_oqps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 17); }
-void vcmplt_oqps(const Xmm& x, const Operand& op) { vcmpps(x, op, 17); }
+void vcmplt_oqps(const Xmm& x, const Operand& op) { vcmplt_oqps(x, x, op); }
 void vcmple_oqps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 18); }
-void vcmple_oqps(const Xmm& x, const Operand& op) { vcmpps(x, op, 18); }
+void vcmple_oqps(const Xmm& x, const Operand& op) { vcmple_oqps(x, x, op); }
 void vcmpunord_sps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 19); }
-void vcmpunord_sps(const Xmm& x, const Operand& op) { vcmpps(x, op, 19); }
+void vcmpunord_sps(const Xmm& x, const Operand& op) { vcmpunord_sps(x, x, op); }
 void vcmpneq_usps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 20); }
-void vcmpneq_usps(const Xmm& x, const Operand& op) { vcmpps(x, op, 20); }
+void vcmpneq_usps(const Xmm& x, const Operand& op) { vcmpneq_usps(x, x, op); }
 void vcmpnlt_uqps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 21); }
-void vcmpnlt_uqps(const Xmm& x, const Operand& op) { vcmpps(x, op, 21); }
+void vcmpnlt_uqps(const Xmm& x, const Operand& op) { vcmpnlt_uqps(x, x, op); }
 void vcmpnle_uqps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 22); }
-void vcmpnle_uqps(const Xmm& x, const Operand& op) { vcmpps(x, op, 22); }
+void vcmpnle_uqps(const Xmm& x, const Operand& op) { vcmpnle_uqps(x, x, op); }
 void vcmpord_sps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 23); }
-void vcmpord_sps(const Xmm& x, const Operand& op) { vcmpps(x, op, 23); }
+void vcmpord_sps(const Xmm& x, const Operand& op) { vcmpord_sps(x, x, op); }
 void vcmpeq_usps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 24); }
-void vcmpeq_usps(const Xmm& x, const Operand& op) { vcmpps(x, op, 24); }
+void vcmpeq_usps(const Xmm& x, const Operand& op) { vcmpeq_usps(x, x, op); }
 void vcmpnge_uqps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 25); }
-void vcmpnge_uqps(const Xmm& x, const Operand& op) { vcmpps(x, op, 25); }
+void vcmpnge_uqps(const Xmm& x, const Operand& op) { vcmpnge_uqps(x, x, op); }
 void vcmpngt_uqps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 26); }
-void vcmpngt_uqps(const Xmm& x, const Operand& op) { vcmpps(x, op, 26); }
+void vcmpngt_uqps(const Xmm& x, const Operand& op) { vcmpngt_uqps(x, x, op); }
 void vcmpfalse_osps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 27); }
-void vcmpfalse_osps(const Xmm& x, const Operand& op) { vcmpps(x, op, 27); }
+void vcmpfalse_osps(const Xmm& x, const Operand& op) { vcmpfalse_osps(x, x, op); }
 void vcmpneq_osps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 28); }
-void vcmpneq_osps(const Xmm& x, const Operand& op) { vcmpps(x, op, 28); }
+void vcmpneq_osps(const Xmm& x, const Operand& op) { vcmpneq_osps(x, x, op); }
 void vcmpge_oqps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 29); }
-void vcmpge_oqps(const Xmm& x, const Operand& op) { vcmpps(x, op, 29); }
+void vcmpge_oqps(const Xmm& x, const Operand& op) { vcmpge_oqps(x, x, op); }
 void vcmpgt_oqps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 30); }
-void vcmpgt_oqps(const Xmm& x, const Operand& op) { vcmpps(x, op, 30); }
+void vcmpgt_oqps(const Xmm& x, const Operand& op) { vcmpgt_oqps(x, x, op); }
 void vcmptrue_usps(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpps(x1, x2, op, 31); }
-void vcmptrue_usps(const Xmm& x, const Operand& op) { vcmpps(x, op, 31); }
+void vcmptrue_usps(const Xmm& x, const Operand& op) { vcmptrue_usps(x, x, op); }
 void cmpeqsd(const Xmm& x, const Operand& op) { cmpsd(x, op, 0); }
 void vcmpeqsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 0); }
-void vcmpeqsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 0); }
+void vcmpeqsd(const Xmm& x, const Operand& op) { vcmpeqsd(x, x, op); }
 void cmpltsd(const Xmm& x, const Operand& op) { cmpsd(x, op, 1); }
 void vcmpltsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 1); }
-void vcmpltsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 1); }
+void vcmpltsd(const Xmm& x, const Operand& op) { vcmpltsd(x, x, op); }
 void cmplesd(const Xmm& x, const Operand& op) { cmpsd(x, op, 2); }
 void vcmplesd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 2); }
-void vcmplesd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 2); }
+void vcmplesd(const Xmm& x, const Operand& op) { vcmplesd(x, x, op); }
 void cmpunordsd(const Xmm& x, const Operand& op) { cmpsd(x, op, 3); }
 void vcmpunordsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 3); }
-void vcmpunordsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 3); }
+void vcmpunordsd(const Xmm& x, const Operand& op) { vcmpunordsd(x, x, op); }
 void cmpneqsd(const Xmm& x, const Operand& op) { cmpsd(x, op, 4); }
 void vcmpneqsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 4); }
-void vcmpneqsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 4); }
+void vcmpneqsd(const Xmm& x, const Operand& op) { vcmpneqsd(x, x, op); }
 void cmpnltsd(const Xmm& x, const Operand& op) { cmpsd(x, op, 5); }
 void vcmpnltsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 5); }
-void vcmpnltsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 5); }
+void vcmpnltsd(const Xmm& x, const Operand& op) { vcmpnltsd(x, x, op); }
 void cmpnlesd(const Xmm& x, const Operand& op) { cmpsd(x, op, 6); }
 void vcmpnlesd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 6); }
-void vcmpnlesd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 6); }
+void vcmpnlesd(const Xmm& x, const Operand& op) { vcmpnlesd(x, x, op); }
 void cmpordsd(const Xmm& x, const Operand& op) { cmpsd(x, op, 7); }
 void vcmpordsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 7); }
-void vcmpordsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 7); }
+void vcmpordsd(const Xmm& x, const Operand& op) { vcmpordsd(x, x, op); }
 void vcmpeq_uqsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 8); }
-void vcmpeq_uqsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 8); }
+void vcmpeq_uqsd(const Xmm& x, const Operand& op) { vcmpeq_uqsd(x, x, op); }
 void vcmpngesd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 9); }
-void vcmpngesd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 9); }
+void vcmpngesd(const Xmm& x, const Operand& op) { vcmpngesd(x, x, op); }
 void vcmpngtsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 10); }
-void vcmpngtsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 10); }
+void vcmpngtsd(const Xmm& x, const Operand& op) { vcmpngtsd(x, x, op); }
 void vcmpfalsesd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 11); }
-void vcmpfalsesd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 11); }
+void vcmpfalsesd(const Xmm& x, const Operand& op) { vcmpfalsesd(x, x, op); }
 void vcmpneq_oqsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 12); }
-void vcmpneq_oqsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 12); }
+void vcmpneq_oqsd(const Xmm& x, const Operand& op) { vcmpneq_oqsd(x, x, op); }
 void vcmpgesd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 13); }
-void vcmpgesd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 13); }
+void vcmpgesd(const Xmm& x, const Operand& op) { vcmpgesd(x, x, op); }
 void vcmpgtsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 14); }
-void vcmpgtsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 14); }
+void vcmpgtsd(const Xmm& x, const Operand& op) { vcmpgtsd(x, x, op); }
 void vcmptruesd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 15); }
-void vcmptruesd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 15); }
+void vcmptruesd(const Xmm& x, const Operand& op) { vcmptruesd(x, x, op); }
 void vcmpeq_ossd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 16); }
-void vcmpeq_ossd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 16); }
+void vcmpeq_ossd(const Xmm& x, const Operand& op) { vcmpeq_ossd(x, x, op); }
 void vcmplt_oqsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 17); }
-void vcmplt_oqsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 17); }
+void vcmplt_oqsd(const Xmm& x, const Operand& op) { vcmplt_oqsd(x, x, op); }
 void vcmple_oqsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 18); }
-void vcmple_oqsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 18); }
+void vcmple_oqsd(const Xmm& x, const Operand& op) { vcmple_oqsd(x, x, op); }
 void vcmpunord_ssd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 19); }
-void vcmpunord_ssd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 19); }
+void vcmpunord_ssd(const Xmm& x, const Operand& op) { vcmpunord_ssd(x, x, op); }
 void vcmpneq_ussd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 20); }
-void vcmpneq_ussd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 20); }
+void vcmpneq_ussd(const Xmm& x, const Operand& op) { vcmpneq_ussd(x, x, op); }
 void vcmpnlt_uqsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 21); }
-void vcmpnlt_uqsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 21); }
+void vcmpnlt_uqsd(const Xmm& x, const Operand& op) { vcmpnlt_uqsd(x, x, op); }
 void vcmpnle_uqsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 22); }
-void vcmpnle_uqsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 22); }
+void vcmpnle_uqsd(const Xmm& x, const Operand& op) { vcmpnle_uqsd(x, x, op); }
 void vcmpord_ssd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 23); }
-void vcmpord_ssd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 23); }
+void vcmpord_ssd(const Xmm& x, const Operand& op) { vcmpord_ssd(x, x, op); }
 void vcmpeq_ussd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 24); }
-void vcmpeq_ussd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 24); }
+void vcmpeq_ussd(const Xmm& x, const Operand& op) { vcmpeq_ussd(x, x, op); }
 void vcmpnge_uqsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 25); }
-void vcmpnge_uqsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 25); }
+void vcmpnge_uqsd(const Xmm& x, const Operand& op) { vcmpnge_uqsd(x, x, op); }
 void vcmpngt_uqsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 26); }
-void vcmpngt_uqsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 26); }
+void vcmpngt_uqsd(const Xmm& x, const Operand& op) { vcmpngt_uqsd(x, x, op); }
 void vcmpfalse_ossd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 27); }
-void vcmpfalse_ossd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 27); }
+void vcmpfalse_ossd(const Xmm& x, const Operand& op) { vcmpfalse_ossd(x, x, op); }
 void vcmpneq_ossd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 28); }
-void vcmpneq_ossd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 28); }
+void vcmpneq_ossd(const Xmm& x, const Operand& op) { vcmpneq_ossd(x, x, op); }
 void vcmpge_oqsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 29); }
-void vcmpge_oqsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 29); }
+void vcmpge_oqsd(const Xmm& x, const Operand& op) { vcmpge_oqsd(x, x, op); }
 void vcmpgt_oqsd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 30); }
-void vcmpgt_oqsd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 30); }
+void vcmpgt_oqsd(const Xmm& x, const Operand& op) { vcmpgt_oqsd(x, x, op); }
 void vcmptrue_ussd(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpsd(x1, x2, op, 31); }
-void vcmptrue_ussd(const Xmm& x, const Operand& op) { vcmpsd(x, op, 31); }
+void vcmptrue_ussd(const Xmm& x, const Operand& op) { vcmptrue_ussd(x, x, op); }
 void cmpeqss(const Xmm& x, const Operand& op) { cmpss(x, op, 0); }
 void vcmpeqss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 0); }
-void vcmpeqss(const Xmm& x, const Operand& op) { vcmpss(x, op, 0); }
+void vcmpeqss(const Xmm& x, const Operand& op) { vcmpeqss(x, x, op); }
 void cmpltss(const Xmm& x, const Operand& op) { cmpss(x, op, 1); }
 void vcmpltss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 1); }
-void vcmpltss(const Xmm& x, const Operand& op) { vcmpss(x, op, 1); }
+void vcmpltss(const Xmm& x, const Operand& op) { vcmpltss(x, x, op); }
 void cmpless(const Xmm& x, const Operand& op) { cmpss(x, op, 2); }
 void vcmpless(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 2); }
-void vcmpless(const Xmm& x, const Operand& op) { vcmpss(x, op, 2); }
+void vcmpless(const Xmm& x, const Operand& op) { vcmpless(x, x, op); }
 void cmpunordss(const Xmm& x, const Operand& op) { cmpss(x, op, 3); }
 void vcmpunordss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 3); }
-void vcmpunordss(const Xmm& x, const Operand& op) { vcmpss(x, op, 3); }
+void vcmpunordss(const Xmm& x, const Operand& op) { vcmpunordss(x, x, op); }
 void cmpneqss(const Xmm& x, const Operand& op) { cmpss(x, op, 4); }
 void vcmpneqss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 4); }
-void vcmpneqss(const Xmm& x, const Operand& op) { vcmpss(x, op, 4); }
+void vcmpneqss(const Xmm& x, const Operand& op) { vcmpneqss(x, x, op); }
 void cmpnltss(const Xmm& x, const Operand& op) { cmpss(x, op, 5); }
 void vcmpnltss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 5); }
-void vcmpnltss(const Xmm& x, const Operand& op) { vcmpss(x, op, 5); }
+void vcmpnltss(const Xmm& x, const Operand& op) { vcmpnltss(x, x, op); }
 void cmpnless(const Xmm& x, const Operand& op) { cmpss(x, op, 6); }
 void vcmpnless(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 6); }
-void vcmpnless(const Xmm& x, const Operand& op) { vcmpss(x, op, 6); }
+void vcmpnless(const Xmm& x, const Operand& op) { vcmpnless(x, x, op); }
 void cmpordss(const Xmm& x, const Operand& op) { cmpss(x, op, 7); }
 void vcmpordss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 7); }
-void vcmpordss(const Xmm& x, const Operand& op) { vcmpss(x, op, 7); }
+void vcmpordss(const Xmm& x, const Operand& op) { vcmpordss(x, x, op); }
 void vcmpeq_uqss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 8); }
-void vcmpeq_uqss(const Xmm& x, const Operand& op) { vcmpss(x, op, 8); }
+void vcmpeq_uqss(const Xmm& x, const Operand& op) { vcmpeq_uqss(x, x, op); }
 void vcmpngess(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 9); }
-void vcmpngess(const Xmm& x, const Operand& op) { vcmpss(x, op, 9); }
+void vcmpngess(const Xmm& x, const Operand& op) { vcmpngess(x, x, op); }
 void vcmpngtss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 10); }
-void vcmpngtss(const Xmm& x, const Operand& op) { vcmpss(x, op, 10); }
+void vcmpngtss(const Xmm& x, const Operand& op) { vcmpngtss(x, x, op); }
 void vcmpfalsess(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 11); }
-void vcmpfalsess(const Xmm& x, const Operand& op) { vcmpss(x, op, 11); }
+void vcmpfalsess(const Xmm& x, const Operand& op) { vcmpfalsess(x, x, op); }
 void vcmpneq_oqss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 12); }
-void vcmpneq_oqss(const Xmm& x, const Operand& op) { vcmpss(x, op, 12); }
+void vcmpneq_oqss(const Xmm& x, const Operand& op) { vcmpneq_oqss(x, x, op); }
 void vcmpgess(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 13); }
-void vcmpgess(const Xmm& x, const Operand& op) { vcmpss(x, op, 13); }
+void vcmpgess(const Xmm& x, const Operand& op) { vcmpgess(x, x, op); }
 void vcmpgtss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 14); }
-void vcmpgtss(const Xmm& x, const Operand& op) { vcmpss(x, op, 14); }
+void vcmpgtss(const Xmm& x, const Operand& op) { vcmpgtss(x, x, op); }
 void vcmptruess(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 15); }
-void vcmptruess(const Xmm& x, const Operand& op) { vcmpss(x, op, 15); }
+void vcmptruess(const Xmm& x, const Operand& op) { vcmptruess(x, x, op); }
 void vcmpeq_osss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 16); }
-void vcmpeq_osss(const Xmm& x, const Operand& op) { vcmpss(x, op, 16); }
+void vcmpeq_osss(const Xmm& x, const Operand& op) { vcmpeq_osss(x, x, op); }
 void vcmplt_oqss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 17); }
-void vcmplt_oqss(const Xmm& x, const Operand& op) { vcmpss(x, op, 17); }
+void vcmplt_oqss(const Xmm& x, const Operand& op) { vcmplt_oqss(x, x, op); }
 void vcmple_oqss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 18); }
-void vcmple_oqss(const Xmm& x, const Operand& op) { vcmpss(x, op, 18); }
+void vcmple_oqss(const Xmm& x, const Operand& op) { vcmple_oqss(x, x, op); }
 void vcmpunord_sss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 19); }
-void vcmpunord_sss(const Xmm& x, const Operand& op) { vcmpss(x, op, 19); }
+void vcmpunord_sss(const Xmm& x, const Operand& op) { vcmpunord_sss(x, x, op); }
 void vcmpneq_usss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 20); }
-void vcmpneq_usss(const Xmm& x, const Operand& op) { vcmpss(x, op, 20); }
+void vcmpneq_usss(const Xmm& x, const Operand& op) { vcmpneq_usss(x, x, op); }
 void vcmpnlt_uqss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 21); }
-void vcmpnlt_uqss(const Xmm& x, const Operand& op) { vcmpss(x, op, 21); }
+void vcmpnlt_uqss(const Xmm& x, const Operand& op) { vcmpnlt_uqss(x, x, op); }
 void vcmpnle_uqss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 22); }
-void vcmpnle_uqss(const Xmm& x, const Operand& op) { vcmpss(x, op, 22); }
+void vcmpnle_uqss(const Xmm& x, const Operand& op) { vcmpnle_uqss(x, x, op); }
 void vcmpord_sss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 23); }
-void vcmpord_sss(const Xmm& x, const Operand& op) { vcmpss(x, op, 23); }
+void vcmpord_sss(const Xmm& x, const Operand& op) { vcmpord_sss(x, x, op); }
 void vcmpeq_usss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 24); }
-void vcmpeq_usss(const Xmm& x, const Operand& op) { vcmpss(x, op, 24); }
+void vcmpeq_usss(const Xmm& x, const Operand& op) { vcmpeq_usss(x, x, op); }
 void vcmpnge_uqss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 25); }
-void vcmpnge_uqss(const Xmm& x, const Operand& op) { vcmpss(x, op, 25); }
+void vcmpnge_uqss(const Xmm& x, const Operand& op) { vcmpnge_uqss(x, x, op); }
 void vcmpngt_uqss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 26); }
-void vcmpngt_uqss(const Xmm& x, const Operand& op) { vcmpss(x, op, 26); }
+void vcmpngt_uqss(const Xmm& x, const Operand& op) { vcmpngt_uqss(x, x, op); }
 void vcmpfalse_osss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 27); }
-void vcmpfalse_osss(const Xmm& x, const Operand& op) { vcmpss(x, op, 27); }
+void vcmpfalse_osss(const Xmm& x, const Operand& op) { vcmpfalse_osss(x, x, op); }
 void vcmpneq_osss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 28); }
-void vcmpneq_osss(const Xmm& x, const Operand& op) { vcmpss(x, op, 28); }
+void vcmpneq_osss(const Xmm& x, const Operand& op) { vcmpneq_osss(x, x, op); }
 void vcmpge_oqss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 29); }
-void vcmpge_oqss(const Xmm& x, const Operand& op) { vcmpss(x, op, 29); }
+void vcmpge_oqss(const Xmm& x, const Operand& op) { vcmpge_oqss(x, x, op); }
 void vcmpgt_oqss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 30); }
-void vcmpgt_oqss(const Xmm& x, const Operand& op) { vcmpss(x, op, 30); }
+void vcmpgt_oqss(const Xmm& x, const Operand& op) { vcmpgt_oqss(x, x, op); }
 void vcmptrue_usss(const Xmm& x1, const Xmm& x2, const Operand& op) { vcmpss(x1, x2, op, 31); }
-void vcmptrue_usss(const Xmm& x, const Operand& op) { vcmpss(x, op, 31); }
+void vcmptrue_usss(const Xmm& x, const Operand& op) { vcmptrue_usss(x, x, op); }
 void vmovhpd(const Xmm& x, const Operand& op1, const Operand& op2 = Operand()) { if (!op2.isNone() && !op2.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XM(x, op1, op2, T_0F | T_66, 0x16); }
 void vmovhpd(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, xm0, addr, T_0F | T_66, 0x17); }
 void vmovhps(const Xmm& x, const Operand& op1, const Operand& op2 = Operand()) { if (!op2.isNone() && !op2.isMEM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XM(x, op1, op2, T_0F, 0x16); }
