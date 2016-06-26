@@ -1323,35 +1323,34 @@ private:
 		if (rex) db(rex);
 	}
 	enum AVXtype {
-		PP_NONE = 1 << 0,
-		PP_66 = 1 << 1,
-		PP_F3 = 1 << 2,
-		PP_F2 = 1 << 3,
-		MM_RESERVED = 1 << 4,
-		MM_0F = 1 << 5,
-		MM_0F38 = 1 << 6,
-		MM_0F3A = 1 << 7,
-		VEX_L0 = 1 << 8,
-		VEX_L1 = 1 << 9,
+		T_66 = 1 << 1,
+		T_F3 = 1 << 2,
+		T_F2 = 1 << 3,
+		T_0F = 1 << 5,
+		T_0F38 = 1 << 6,
+		T_0F3A = 1 << 7,
+		T_L0 = 1 << 8,
+		T_L1 = 1 << 9,
 		T_WIG = 1 << 10, // default
 		T_W0 = 1 << 11,
 		T_W1 = 1 << 12,
 		T_EW0 = 1 << 13,
-		T_EW1 = 1 << 14
+		T_EW1 = 1 << 14,
+		T_SUPPORT_YMM = 1 << 15
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x)
 	{
 		int w = (type & T_W1) ? 1 : 0;
-		bool is256 = (type & VEX_L1) ? true : (type & VEX_L0) ? false : reg.isYMM();
+		bool is256 = (type & T_L1) ? true : (type & T_L0) ? false : reg.isYMM();
 		bool r = reg.isExtIdx();
 		bool b = base.isExtIdx();
 		int idx = v ? v->getIdx() : 0;
-		uint32 pp = (type & PP_66) ? 1 : (type & PP_F3) ? 2 : (type & PP_F2) ? 3 : 0;
+		uint32 pp = (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0;
 		uint32 vvvv = (((~idx) & 15) << 3) | (is256 ? 4 : 0) | pp;
-		if (!b && !x && !w && (type & MM_0F)) {
+		if (!b && !x && !w && (type & T_0F)) {
 			db(0xC5); db((r ? 0 : 0x80) | vvvv);
 		} else {
-			uint32 mmmm = (type & MM_0F) ? 1 : (type & MM_0F38) ? 2 : (type & MM_0F3A) ? 3 : 0;
+			uint32 mmmm = (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0;
 			db(0xC4); db((r ? 0 : 0x80) | (x ? 0 : 0x40) | (b ? 0 : 0x20) | mmmm); db((w << 7) | vvvv);
 		}
 		db(code);
@@ -1688,9 +1687,9 @@ private:
 	void opEvex(const Reg& x1, const Reg& x2, const Reg& x3, int type, int code)
 	{
 		int w = (type & T_EW1) ? 1 : 0;
-	//	bool is256 = (type & VEX_L1) ? true : (type & VEX_L0) ? false : x1.isYMM();
-		uint32 mm = (type & MM_0F) ? 1 : (type & MM_0F38) ? 2 : (type & MM_0F3A) ? 3 : 0;
-		uint32 pp = (type & PP_66) ? 1 : (type & PP_F3) ? 2 : (type & PP_F2) ? 3 : 0;
+	//	bool is256 = (type & T_L1) ? true : (type & T_L0) ? false : x1.isYMM();
+		uint32 mm = (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0;
+		uint32 pp = (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0;
 
 		int idx = x2.getIdx();
 		uint32 vvvv = ~idx;
@@ -1708,8 +1707,8 @@ private:
 		db(code);
 		setModRM(3, x1.getIdx(), x3.getIdx());
 
-	//	opVex(x1, &x2, &x3, MM_0F | PP_66, 0x58, NONE);
-	//	opAVX_X_X_XM(xmm, op1, op2, MM_0F | PP_66, 0x58, true);
+	//	opVex(x1, &x2, &x3, T_0F | T_66, 0x58, NONE);
+	//	opAVX_X_X_XM(xmm, op1, op2, T_0F | T_66, 0x58, true);
 	}
 public:
 	// (r, r, r/m) if isR_R_RM
@@ -1724,7 +1723,7 @@ public:
 		type |= (bit == 64) ? T_W1 : T_W0;
 		opVex(r, p1, *p2, type, code, imm8);
 	}
-	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, bool supportYMM, int imm8 = NONE)
+	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, int imm8 = NONE)
 	{
 		const Xmm *x2;
 		const Operand *op;
@@ -1732,24 +1731,24 @@ public:
 			x2 = &x1;
 			op = &op1;
 		} else {
-			if (!(op1.isXMM() || (supportYMM && op1.is(Operand::YMM | Operand::ZMM)))) throw Error(ERR_BAD_COMBINATION);
+			if (!(op1.isXMM() || ((type & T_SUPPORT_YMM) && op1.is(Operand::YMM | Operand::ZMM)))) throw Error(ERR_BAD_COMBINATION);
 			x2 = static_cast<const Xmm*>(&op1);
 			op = &op2;
 		}
 		// (x1, x2, op)
-		if (!((x1.isXMM() && x2->isXMM()) || (supportYMM && ((x1.isYMM() && x2->isYMM()) || (x1.isZMM() && x2->isZMM()))))) throw Error(ERR_BAD_COMBINATION);
+		if (!((x1.isXMM() && x2->isXMM()) || ((type & T_SUPPORT_YMM) && ((x1.isYMM() && x2->isYMM()) || (x1.isZMM() && x2->isZMM()))))) throw Error(ERR_BAD_COMBINATION);
 		opVex(x1, x2, *op, type, code0, imm8);
 	}
 	// if cvt then return pointer to Xmm(idx) (or Ymm(idx)), otherwise return op
-	void opAVX_X_X_XMcvt(const Xmm& x1, const Operand& op1, const Operand& op2, bool cvt, Operand::Kind kind, int type, int code0, bool supportYMM, int imm8 = NONE)
+	void opAVX_X_X_XMcvt(const Xmm& x1, const Operand& op1, const Operand& op2, bool cvt, Operand::Kind kind, int type, int code0, int imm8 = NONE)
 	{
 		// use static_cast to avoid calling unintentional copy constructor on gcc
-		opAVX_X_X_XM(x1, op1, cvt ? kind == Operand::XMM ? static_cast<const Operand&>(Xmm(op2.getIdx())) : static_cast<const Operand&>(Ymm(op2.getIdx())) : op2, type, code0, supportYMM, imm8);
+		opAVX_X_X_XM(x1, op1, cvt ? kind == Operand::XMM ? static_cast<const Operand&>(Xmm(op2.getIdx())) : static_cast<const Operand&>(Ymm(op2.getIdx())) : op2, type, code0, imm8);
 	}
 	// support (x, x/m, imm), (y, y/m, imm)
-	void opAVX_X_XM_IMM(const Xmm& x, const Operand& op, int type, int code, bool supportYMM, int imm8 = NONE)
+	void opAVX_X_XM_IMM(const Xmm& x, const Operand& op, int type, int code, int imm8 = NONE)
 	{
-		opAVX_X_X_XM(x, x.isXMM() ? xm0 : ym0, op, type, code, supportYMM, imm8);
+		opAVX_X_X_XM(x, x.isXMM() ? xm0 : ym0, op, type, code, imm8);
 	}
 	// QQQ:need to refactor
 	void opSp1(const Reg& reg, const Operand& op, uint8 pref, uint8 code0, uint8 code1)
@@ -1779,7 +1778,7 @@ public:
 			if (!isOK) throw Error(ERR_BAD_VSIB_ADDRESSING);
 		}
 		addr.permitVsib();
-		opAVX_X_X_XM(isAddrYMM ? Ymm(x1.getIdx()) : x1, isAddrYMM ? Ymm(x2.getIdx()) : x2, addr, type, code, true);
+		opAVX_X_X_XM(isAddrYMM ? Ymm(x1.getIdx()) : x1, isAddrYMM ? Ymm(x2.getIdx()) : x2, addr, type | T_SUPPORT_YMM, code);
 	}
 public:
 	unsigned int getVersion() const { return VERSION; }
@@ -2259,7 +2258,7 @@ public:
 	}
 	void rdrand(const Reg& r) { if (r.isBit(8)) throw Error(ERR_BAD_SIZE_OF_REGISTER); opModR(Reg(6, Operand::REG, r.getBit()), r, 0x0F, 0xC7); }
 	void rdseed(const Reg& r) { if (r.isBit(8)) throw Error(ERR_BAD_SIZE_OF_REGISTER); opModR(Reg(7, Operand::REG, r.getBit()), r, 0x0F, 0xC7); }
-	void rorx(const Reg32e& r, const Operand& op, uint8 imm) { opGpr(r, op, Reg32e(0, r.getBit()), MM_0F3A | PP_F2, 0xF0, false, imm); }
+	void rorx(const Reg32e& r, const Operand& op, uint8 imm) { opGpr(r, op, Reg32e(0, r.getBit()), T_0F3A | T_F2, 0xF0, false, imm); }
 	enum { NONE = 256 };
 	CodeGenerator(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0, Allocator *allocator = 0)
 		: CodeArray(maxSize, userPtr, allocator)
