@@ -1330,7 +1330,7 @@ private:
 		T_EW1 = 1 << 14,
 		T_SUPPORT_YMM = 1 << 15
 	};
-	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x)
+	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
 	{
 		int w = (type & T_W1) ? 1 : 0;
 		bool is256 = (type & T_L1) ? true : (type & T_L0) ? false : reg.isYMM();
@@ -1347,12 +1347,30 @@ private:
 		}
 		db(code);
 	}
-	void evex(bool R, bool X, bool B, bool Rp, int mm, bool W, int vvvv, int pp, bool z, int LL, bool b, bool Vp, int aaa)
+	void evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code)
 	{
+		int w = (type & T_EW1) ? 1 : 0;
+	//	bool is256 = (type & T_L1) ? true : (type & T_L0) ? false : reg.isYMM();
+		uint32 mm = (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0;
+		uint32 pp = (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0;
+
+		int idx = v ? v->getIdx() : 0;
+		uint32 vvvv = ~idx;
+
+		bool R = !reg.isExtIdx();
+		bool X = !base.isExtIdx2();
+		bool B = !base.isExtIdx();
+		bool Rp = !reg.isExtIdx2();
+		int LL = reg.isZMM() ? 2 : reg.isYMM() ? 1 : 0;
+		bool b = false;
+		bool Vp = !(v ? v->isExtIdx2() : 0);
+		bool z = reg.hasZero();
+		int aaa = reg.getOpmaskIdx();
 		db(0x62);
 		db((R ? 0x80 : 0) | (X ? 0x40 : 0) | (B ? 0x20 : 0) | (Rp ? 0x10 : 0) | (mm & 3));
-		db((W ? 0x80 : 0) | ((vvvv & 15) << 3) | 4 | (pp & 3));
+		db((w == 1 ? 0x80 : 0) | ((vvvv & 15) << 3) | 4 | (pp & 3));
 		db((z ? 0x80 : 0) | ((LL & 3) << 5) | (b ? 0x10 : 0) | (Vp ? 8 : 0) | (aaa & 7));
+		db(code);
 	}
 	void setModRM(int mod, int r1, int r2)
 	{
@@ -1659,50 +1677,26 @@ private:
 	{
 		if (op2.isMEM()) {
 			const Address& addr = static_cast<const Address&>(op2);
+			const Reg& base = addr.getRegExp().getBase();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
-			bool x = addr.getRegExp().getIndex().isExtIdx();
-			vex(r, addr.getRegExp().getBase(), p1, type, code, x);
+			if (r.hasEvex() || (p1 && p1->hasEvex()) /*|| base.hasEvex()*/) {
+				evex(r, base, p1, type, code);
+			} else {
+				bool x = addr.getRegExp().getIndex().isExtIdx();
+				vex(r, base, p1, type, code, x);
+			}
 			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0);
 		} else {
-			const Reg& r3 = static_cast<const Reg&>(op2);
-			if (r.hasEvex() || (p1 && p1->hasEvex()) || r3.hasEvex()) {
-				assert(p1); // QQQ
-				opEvex(r, static_cast<const Reg&>(*p1), r3, type, code);
+			const Reg& base = static_cast<const Reg&>(op2);
+			if (r.hasEvex() || (p1 && p1->hasEvex()) || base.hasEvex()) {
+				evex(r, base, p1, type, code);
 			} else {
-				bool x = false;
-				vex(r, r3, p1, type, code, x);
-				setModRM(3, r.getIdx(), r3.getIdx());
+				vex(r, base, p1, type, code);
 			}
+			setModRM(3, r.getIdx(), base.getIdx());
 		}
 		if (imm8 != NONE) db(imm8);
 	}
-	void opEvex(const Reg& x1, const Reg& x2, const Reg& x3, int type, int code)
-	{
-		int w = (type & T_EW1) ? 1 : 0;
-	//	bool is256 = (type & T_L1) ? true : (type & T_L0) ? false : x1.isYMM();
-		uint32 mm = (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0;
-		uint32 pp = (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0;
-
-		int idx = x2.getIdx();
-		uint32 vvvv = ~idx;
-
-		bool R = !x1.isExtIdx();
-		bool X = !x3.isExtIdx2();
-		bool B = !x3.isExtIdx();
-		bool Rp = !x1.isExtIdx2();
-		int LL = x1.isZMM() ? 2 : x1.isYMM() ? 1 : 0;
-		bool b = false;
-		bool Vp = !x2.isExtIdx2();
-		bool z = x1.hasZero();
-		int aaa = x1.getOpmaskIdx();
-		evex(R, X, B, Rp, mm, w == 1, vvvv, pp, z, LL, b, Vp, aaa);
-		db(code);
-		setModRM(3, x1.getIdx(), x3.getIdx());
-
-	//	opVex(x1, &x2, &x3, T_0F | T_66, 0x58, NONE);
-	//	opAVX_X_X_XM(xmm, op1, op2, T_0F | T_66, 0x58, true);
-	}
-public:
 	// (r, r, r/m) if isR_R_RM
 	// (r, r/m, r)
 	void opGpr(const Reg32e& r, const Operand& op1, const Operand& op2, int type, uint8 code, bool isR_R_RM, int imm8 = NONE)

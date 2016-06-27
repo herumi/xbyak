@@ -78,8 +78,13 @@ const uint64 IMM = IMM_1 | IMM_2;
 const uint64 XMM = _XMM | _XMM2;
 const uint64 YMM = _YMM | _YMM2;
 const uint64 K = 1ULL << 43;
-const uint64 _ZMM = 1ULL << 44; // max value
+const uint64 _ZMM = 1ULL << 44;
+const uint64 _ZMM2 = 1ULL << 45; // max value
+#ifdef XBYAK64
+const uint64 ZMM = _ZMM | _ZMM2;
+#else
 const uint64 ZMM = _ZMM;
+#endif
 
 const uint64 NOPARA = 1ULL << (bitEnd - 1);
 
@@ -187,6 +192,13 @@ class Test {
 			{
 				static const char tbl[][6] = {
 					"ymm8", "ymm9", "ymm10", "ymm11", "ymm12", "ymm13", "ymm14", "ymm15",
+				};
+				return tbl[idx];
+			}
+		case _ZMM2:
+			{
+				static const char tbl[][6] = {
+					"zmm8", "zmm9", "zmm10", "zmm11", "zmm28", "zmm29", "zmm30", "zmm31",
 				};
 				return tbl[idx];
 			}
@@ -1373,7 +1385,7 @@ class Test {
 				put(p, YMM, YMM | MEM);
 				put(p, YMM, YMM, YMM | MEM);
 				if (!tbl[i].supportZMM) continue;
-				put(p, ZMM, ZMM, ZMM); // QQQ
+				put(p, ZMM, ZMM, ZMM | MEM);
 			}
 		}
 	}
