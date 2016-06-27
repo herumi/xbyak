@@ -516,11 +516,23 @@ struct EvexModifierRounding {
 	int rounding;
 };
 
-static const EvexModifierRounding T_sae(1);
-static const EvexModifierRounding T_rn_sae(2);
-static const EvexModifierRounding T_rd_sae(3);
-static const EvexModifierRounding T_ru_sae(4);
-static const EvexModifierRounding T_rz_sae(5);
+namespace inner {
+
+enum SAEtype {
+	T_SAE,
+	T_RN_SAE = 1,
+	T_RD_SAE = 2,
+	T_RU_SAE = 3,
+	T_RZ_SAE = 4,
+};
+
+} // inner
+
+static const EvexModifierRounding T_sae(inner::T_SAE);
+static const EvexModifierRounding T_rn_sae(inner::T_RN_SAE);
+static const EvexModifierRounding T_rd_sae(inner::T_RD_SAE);
+static const EvexModifierRounding T_ru_sae(inner::T_RU_SAE);
+static const EvexModifierRounding T_rz_sae(inner::T_RZ_SAE);
 static const struct EvexModifierZero{} T_z; // {z}
 
 struct Xmm : public Mmx {
@@ -1361,8 +1373,17 @@ private:
 		bool X = x ? false : !base.isExtIdx2();
 		bool B = !base.isExtIdx();
 		bool Rp = !reg.isExtIdx2();
-		int LL = reg.isZMM() ? 2 : reg.isYMM() ? 1 : 0;
 		bool b = false;
+		int LL = 2;
+		if (reg.isZMM()) {
+			int rounding = base.getRounding();
+			if (rounding) {
+				LL = rounding - 1;
+				b = true;
+			}
+		} else {
+			LL = reg.isYMM() ? 1 : 0;
+		}
 		bool Vp = !(v ? v->isExtIdx2() : 0);
 		bool z = reg.hasZero();
 		int aaa = reg.getOpmaskIdx();

@@ -2401,19 +2401,21 @@ public:
 		put("kmovq", REG64, K);
 #endif
 	}
-	void put_vaddpd(const char *r1, const char *r2, const char *r3, int kIdx = 0, bool z = false)
+	void put_vaddpd(const char *r1, const char *r2, const char *r3, int kIdx = 0, bool z = false, int sae = 0)
 	{
 		std::string modifier;
 		char pk[16] = "";
 		const char *pz = "";
+		const char *saeTblXbyak[] = { "", "|T_rn_sae", "|T_rd_sae", "|T_ru_sae", "|T_rz_sae" };
+		const char *saeTblNASM[] = { "", ",{rn-sae}", ",{rd-sae}", ",{ru-sae}", ",{rz-sae}" };
 		if (isXbyak_) {
 			if (kIdx) CYBOZU_SNPRINTF(pk, sizeof(pk), "|k%d", kIdx);
 			if (z) pz = "|T_z";
-			printf("vaddpd(%s%s%s, %s, %s); dump();\n", r1, pk, pz, r2, r3);
+			printf("vaddpd(%s%s%s, %s, %s%s); dump();\n", r1, pk, pz, r2, r3, saeTblXbyak[sae]);
 		} else {
 			if (kIdx) CYBOZU_SNPRINTF(pk, sizeof(pk), "{k%d}", kIdx);
 			if (z) pz = "{z}";
-			printf("vaddpd %s%s%s, %s, %s\n", r1, pk, pz, r2, r3);
+			printf("vaddpd %s%s%s, %s, %s%s\n", r1, pk, pz, r2, r3, saeTblNASM[sae]);
 		}
 	}
 	void putCombi()
@@ -2445,19 +2447,24 @@ public:
 		const size_t N = NUM_OF_ARRAY(zTbl);
 		for (size_t i = 0; i < N; i++) {
 			for (size_t j = 0; j < N; j++) {
+				separateFunc();
 				for (size_t k = 0; k < N; k++) {
 #ifdef XBYAK64
 					for (int kIdx = 0; kIdx < 8; kIdx++) {
 						for (int z = 0; z < 2; z++) {
 							put_vaddpd(xTbl[i], xTbl[j], xTbl[k], kIdx, z == 1);
 							put_vaddpd(yTbl[i], yTbl[j], yTbl[k], kIdx, z == 1);
-							put_vaddpd(zTbl[i], zTbl[j], zTbl[k], kIdx, z == 1);
+							for (int sae = 0; sae < 5; sae++) {
+								put_vaddpd(zTbl[i], zTbl[j], zTbl[k], kIdx, z == 1, sae);
+							}
 						}
 					}
 #else
 					put_vaddpd(xTbl[i], xTbl[j], xTbl[k]);
 					put_vaddpd(yTbl[i], yTbl[j], yTbl[k]);
-					put_vaddpd(zTbl[i], zTbl[j], zTbl[k]);
+					for (int sae = 0; sae < 5; sae++) {
+						put_vaddpd(zTbl[i], zTbl[j], zTbl[k], sae);
+					}
 #endif
 				}
 			}
