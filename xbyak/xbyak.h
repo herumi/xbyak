@@ -1376,7 +1376,7 @@ private:
 	{
 		db(static_cast<uint8>((mod << 6) | ((r1 & 7) << 3) | (r2 & 7)));
 	}
-	void setSIB(const RegExp& e, int reg)
+	void setSIB(const RegExp& e, int reg, bool disp32 = false)
 	{
 		size_t disp64 = e.getDisp();
 #ifdef XBYAK64
@@ -1395,7 +1395,7 @@ private:
 		int mod;
 		if (!baseBit || ((baseIdx & 7) != Operand::EBP && disp == 0)) {
 			mod = mod00;
-		} else if (inner::IsInDisp8(disp)) {
+		} else if (!disp32 && inner::IsInDisp8(disp)) {
 			mod = mod01;
 		} else {
 			mod = mod10;
@@ -1487,10 +1487,10 @@ private:
 	}
 	// reg is reg field of ModRM
 	// immSize is the size for immediate value
-	void opAddr(const Address &addr, int reg, int immSize = 0)
+	void opAddr(const Address &addr, int reg, int immSize = 0, bool disp32 = false)
 	{
 		if (addr.getMode() == Address::M_ModRM) {
-			setSIB(addr.getRegExp(), reg);
+			setSIB(addr.getRegExp(), reg, disp32);
 		} else if (addr.getMode() == Address::M_rip) {
 			setModRM(0, reg, 5);
 			if (addr.getLabel()) { // [rip + Label]
@@ -1679,13 +1679,15 @@ private:
 			const Address& addr = static_cast<const Address&>(op2);
 			const Reg& base = addr.getRegExp().getBase();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
+			bool disp32 = false;
 			if (r.hasEvex() || (p1 && p1->hasEvex()) /*|| base.hasEvex()*/) {
 				evex(r, base, p1, type, code);
+				disp32 = true;
 			} else {
 				bool x = addr.getRegExp().getIndex().isExtIdx();
 				vex(r, base, p1, type, code, x);
 			}
-			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0);
+			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0, disp32);
 		} else {
 			const Reg& base = static_cast<const Reg&>(op2);
 			if (r.hasEvex() || (p1 && p1->hasEvex()) || base.hasEvex()) {
