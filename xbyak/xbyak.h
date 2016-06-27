@@ -1360,7 +1360,7 @@ private:
 		T_W1 = 1 << 12,
 		T_EW0 = 1 << 13,
 		T_EW1 = 1 << 14,
-		T_SUPPORT_YMM = 1 << 15
+		T_YMM = 1 << 15
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
 	{
@@ -1760,12 +1760,12 @@ private:
 			x2 = &x1;
 			op = &op1;
 		} else {
-			if (!(op1.isXMM() || ((type & T_SUPPORT_YMM) && op1.is(Operand::YMM | Operand::ZMM)))) throw Error(ERR_BAD_COMBINATION);
+			if (!(op1.isXMM() || ((type & T_YMM) && op1.is(Operand::YMM | Operand::ZMM)))) throw Error(ERR_BAD_COMBINATION);
 			x2 = static_cast<const Xmm*>(&op1);
 			op = &op2;
 		}
 		// (x1, x2, op)
-		if (!((x1.isXMM() && x2->isXMM()) || ((type & T_SUPPORT_YMM) && ((x1.isYMM() && x2->isYMM()) || (x1.isZMM() && x2->isZMM()))))) throw Error(ERR_BAD_COMBINATION);
+		if (!((x1.isXMM() && x2->isXMM()) || ((type & T_YMM) && ((x1.isYMM() && x2->isYMM()) || (x1.isZMM() && x2->isZMM()))))) throw Error(ERR_BAD_COMBINATION);
 		opVex(x1, x2, *op, type, code0, imm8);
 	}
 	// if cvt then return pointer to Xmm(idx) (or Ymm(idx)), otherwise return op
@@ -1807,7 +1807,7 @@ private:
 			if (!isOK) throw Error(ERR_BAD_VSIB_ADDRESSING);
 		}
 		addr.permitVsib();
-		opAVX_X_X_XM(isAddrYMM ? Ymm(x1.getIdx()) : x1, isAddrYMM ? Ymm(x2.getIdx()) : x2, addr, type | T_SUPPORT_YMM, code);
+		opAVX_X_X_XM(isAddrYMM ? Ymm(x1.getIdx()) : x1, isAddrYMM ? Ymm(x2.getIdx()) : x2, addr, type | T_YMM, code);
 	}
 public:
 	unsigned int getVersion() const { return VERSION; }
