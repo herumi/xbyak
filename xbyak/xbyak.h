@@ -1347,7 +1347,7 @@ private:
 		}
 		db(code);
 	}
-	void evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code)
+	void evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
 	{
 		int w = (type & T_EW1) ? 1 : 0;
 	//	bool is256 = (type & T_L1) ? true : (type & T_L0) ? false : reg.isYMM();
@@ -1358,7 +1358,7 @@ private:
 		uint32 vvvv = ~idx;
 
 		bool R = !reg.isExtIdx();
-		bool X = !base.isExtIdx2();
+		bool X = x ? false : !base.isExtIdx2();
 		bool B = !base.isExtIdx();
 		bool Rp = !reg.isExtIdx2();
 		int LL = reg.isZMM() ? 2 : reg.isYMM() ? 1 : 0;
@@ -1680,11 +1680,11 @@ private:
 			const Reg& base = addr.getRegExp().getBase();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			bool disp32 = false;
+			bool x = addr.getRegExp().getIndex().isExtIdx();
 			if (r.hasEvex() || (p1 && p1->hasEvex()) /*|| base.hasEvex()*/) {
-				evex(r, base, p1, type, code);
+				evex(r, base, p1, type, code, x);
 				disp32 = true;
 			} else {
-				bool x = addr.getRegExp().getIndex().isExtIdx();
 				vex(r, base, p1, type, code, x);
 			}
 			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0, disp32);
