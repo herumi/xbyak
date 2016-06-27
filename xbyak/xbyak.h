@@ -167,6 +167,7 @@ enum {
 	ERR_MUNMAP,
 	ERR_OPMASK_IS_ALREADY_SET,
 	ERR_ROUNDING_IS_ALREADY_SET,
+	ERR_K0_IS_INVALID,
 	ERR_INTERNAL
 };
 
@@ -219,6 +220,7 @@ public:
 			"err munmap",
 			"opmask is already set",
 			"rounding is already set",
+			"k0 is invalid",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -390,6 +392,7 @@ public:
 	int getRounding() const { return rounding_; }
 	void setOpmaskIdx(int idx)
 	{
+		if (idx == 0) throw Error(ERR_K0_IS_INVALID);
 		if (mask_) throw Error(ERR_OPMASK_IS_ALREADY_SET);
 		mask_ = idx;
 	}
@@ -537,24 +540,41 @@ static const struct EvexModifierZero{} T_z; // {z}
 
 struct Xmm : public Mmx {
 	explicit Xmm(int idx = 0, Kind kind = Operand::XMM, int bit = 128) : Mmx(idx, kind, bit) { }
-	Xmm operator|(const Opmask& k) const { Xmm r(*this); r.setOpmaskIdx(k.getIdx()); return r; }
-	Xmm operator|(const EvexModifierZero&) const { Xmm r(*this); r.setZero(); return r; }
 	Xmm operator|(const EvexModifierRounding& emr) const { Xmm r(*this); r.setRounding(emr.rounding); return r; }
 };
 
 struct Ymm : public Xmm {
 	explicit Ymm(int idx = 0, Kind kind = Operand::YMM, int bit = 256) : Xmm(idx, kind, bit) { }
-	Ymm operator|(const Opmask& k) const { Ymm r(*this); r.setOpmaskIdx(k.getIdx()); return r; }
-	Ymm operator|(const EvexModifierZero&) const { Ymm r(*this); r.setZero(); return r; }
 	Ymm operator|(const EvexModifierRounding& emr) const { Ymm r(*this); r.setRounding(emr.rounding); return r; }
 };
 
 struct Zmm : public Ymm {
 	explicit Zmm(int idx = 0) : Ymm(idx, Operand::ZMM, 512) { }
-	Zmm operator|(const Opmask& k) const { Zmm r(*this); r.setOpmaskIdx(k.getIdx()); return r; }
-	Zmm operator|(const EvexModifierZero&) const { Zmm r(*this); r.setZero(); return r; }
 	Zmm operator|(const EvexModifierRounding& emr) const { Zmm r(*this); r.setRounding(emr.rounding); return r; }
 };
+
+template<class T>
+T operator|(const T& x, const Opmask& k)
+{
+	if (!x.is(Operand::XMM | Operand::YMM | Operand::ZMM)) throw Error(ERR_BAD_COMBINATION);
+	T r(x);
+	r.setOpmaskIdx(k.getIdx());
+	return r;
+}
+template<class T> T operator|(const T& x, const EvexModifierZero&)
+{
+	if (!x.is(Operand::XMM | Operand::YMM | Operand::ZMM)) throw Error(ERR_BAD_COMBINATION);
+	T r(x);
+	r.setZero();
+	return r;
+}
+template<class T> T operator|(const T& x, const EvexModifierRounding& emr)
+{
+	if (!x.is(Operand::XMM | Operand::YMM | Operand::ZMM)) throw Error(ERR_BAD_COMBINATION);
+	T r(x);
+	r.setRounding(emr.rounding);
+	return r;
+}
 
 struct Fpu : public Reg {
 	explicit Fpu(int idx = 0) : Reg(idx, Operand::FPU, 32) { }
