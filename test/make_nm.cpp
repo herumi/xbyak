@@ -79,11 +79,13 @@ const uint64 XMM = _XMM | _XMM2;
 const uint64 YMM = _YMM | _YMM2;
 const uint64 K = 1ULL << 43;
 const uint64 _ZMM = 1ULL << 44;
-const uint64 _ZMM2 = 1ULL << 45; // max value
+const uint64 _ZMM2 = 1ULL << 45;
 #ifdef XBYAK64
 const uint64 ZMM = _ZMM | _ZMM2;
+const uint64 _YMM3 = 1ULL << 46; // max value
 #else
 const uint64 ZMM = _ZMM;
+const uint64 _YMM3 = 0;
 #endif
 
 const uint64 NOPARA = 1ULL << (bitEnd - 1);
@@ -192,6 +194,13 @@ class Test {
 			{
 				static const char tbl[][6] = {
 					"ymm8", "ymm9", "ymm10", "ymm11", "ymm12", "ymm13", "ymm14", "ymm15",
+				};
+				return tbl[idx];
+			}
+		case _YMM3:
+			{
+				static const char tbl[][6] = {
+					"ymm16", "ymm17", "ymm18", "ymm19", "ymm20", "ymm21", "ymm22", "ymm23",
 				};
 				return tbl[idx];
 			}
@@ -1917,7 +1926,8 @@ class Test {
 
 		put("vbroadcastf128", YMM, MEM);
 		put("vbroadcasti128", YMM, MEM);
-		put("vbroadcastsd", YMM, XMM|MEM);
+		put("vbroadcastsd", YMM|_YMM3, XMM|MEM);
+		put("vbroadcastsd", ZMM, XMM|MEM);
 		{
 			const char *tbl[] = {
 				"vbroadcastss",
@@ -1927,7 +1937,7 @@ class Test {
 				"vpbroadcastq",
 			};
 			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-				put(tbl[i], XMM | YMM, XMM|MEM);
+				put(tbl[i], XMM | YMM | ZMM, XMM|MEM);
 			}
 		}
 

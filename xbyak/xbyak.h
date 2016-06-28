@@ -169,6 +169,8 @@ enum {
 	ERR_ROUNDING_IS_ALREADY_SET,
 	ERR_K0_IS_INVALID,
 	ERR_EVEX_IS_INVALID,
+	ERR_SAE_IS_INVALID,
+	ERR_ER_IS_INVALID,
 	ERR_INTERNAL
 };
 
@@ -223,6 +225,8 @@ public:
 			"rounding is already set",
 			"k0 is invalid",
 			"evex is invalid",
+			"sae(suppress all exceptions) is invalid",
+			"er(embedded rounding) is invalid",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -524,11 +528,11 @@ struct EvexModifierRounding {
 namespace inner {
 
 enum SAEtype {
-	T_SAE,
 	T_RN_SAE = 1,
 	T_RD_SAE = 2,
 	T_RU_SAE = 3,
 	T_RZ_SAE = 4,
+	T_SAE = 5
 };
 
 } // inner
@@ -1364,6 +1368,8 @@ private:
 		T_EW1 = 1 << 14,
 		T_YMM = 1 << 15,
 		T_EVEX = 1 << 16,
+		T_ER = 1 << 17,
+		T_SAE = 1 << 18
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
 	{
@@ -1402,6 +1408,8 @@ private:
 		if (reg.isZMM()) {
 			int rounding = base.getRounding();
 			if (rounding) {
+				if (rounding == inner::T_SAE && !(type & T_SAE)) throw Error(ERR_SAE_IS_INVALID);
+				if (rounding != inner::T_SAE && !(type & T_ER)) throw Error(ERR_ER_IS_INVALID);
 				LL = rounding - 1;
 				b = true;
 			}
@@ -1781,7 +1789,7 @@ private:
 	// support (x, x/m, imm), (y, y/m, imm)
 	void opAVX_X_XM_IMM(const Xmm& x, const Operand& op, int type, int code, int imm8 = NONE)
 	{
-		opAVX_X_X_XM(x, x.isXMM() ? xm0 : ym0, op, type, code, imm8);
+		opAVX_X_X_XM(x, x.isXMM() ? xm0 : x.isYMM() ? ym0 : zm0, op, type, code, imm8);
 	}
 	// QQQ:need to refactor
 	void opSp1(const Reg& reg, const Operand& op, uint8 pref, uint8 code0, uint8 code1)
