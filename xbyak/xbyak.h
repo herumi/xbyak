@@ -339,7 +339,7 @@ class Operand {
 	static const uint8 EXT8BIT = 0x80;
 	unsigned int idx_:8; // 0..31, EXT8BIT = 1 if spl/bpl/sil/dil
 	unsigned int kind_:8;
-	unsigned int bit_:9;
+	unsigned int bit_:10;
 protected:
 	unsigned int zero_:1;
 	unsigned int mask_:3;
@@ -372,7 +372,7 @@ public:
 	Operand(int idx, Kind kind, int bit, bool ext8bit = 0)
 		: idx_(static_cast<uint8>(idx | (ext8bit ? EXT8BIT : 0)))
 		, kind_(static_cast<uint8>(kind))
-		, bit_(static_cast<uint16>(bit))
+		, bit_(bit)
 		, zero_(0), mask_(0), rounding_(0)
 	{
 		assert((bit_ & (bit_ - 1)) == 0); // bit must be power of two
@@ -516,10 +516,6 @@ struct Mmx : public Reg {
 	explicit Mmx(int idx = 0, Kind kind = Operand::MMX, int bit = 64) : Reg(idx, kind, bit) { }
 };
 
-struct Opmask : public Reg {
-	explicit Opmask(int idx = 0) : Reg(idx, Operand::OPMASK, 64) {}
-};
-
 struct EvexModifierRounding {
 	explicit EvexModifierRounding(int rounding) : rounding(rounding) {}
 	int rounding;
@@ -559,10 +555,14 @@ struct Zmm : public Ymm {
 	Zmm operator|(const EvexModifierRounding& emr) const { Zmm r(*this); r.setRounding(emr.rounding); return r; }
 };
 
+struct Opmask : public Reg {
+	explicit Opmask(int idx = 0) : Reg(idx, Operand::OPMASK, 64) {}
+};
+
 template<class T>
 T operator|(const T& x, const Opmask& k)
 {
-	if (!x.is(Operand::XMM | Operand::YMM | Operand::ZMM)) throw Error(ERR_BAD_COMBINATION);
+	if (!x.is(Operand::XMM | Operand::YMM | Operand::ZMM | Operand::OPMASK)) throw Error(ERR_BAD_COMBINATION);
 	T r(x);
 	r.setOpmaskIdx(k.getIdx());
 	return r;
@@ -1369,7 +1369,8 @@ private:
 		T_YMM = 1 << 15,
 		T_EVEX = 1 << 16,
 		T_ER = 1 << 17,
-		T_SAE = 1 << 18
+		T_SAE = 1 << 18,
+		T_MUST_EVEX = 1 << 19
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
 	{
@@ -1388,6 +1389,7 @@ private:
 		}
 		db(code);
 	}
+	int Max(int a, int b) const { return a > b ? a : b; }
 	void evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
 	{
 		if (!(type & T_EVEX)) throw Error(ERR_EVEX_IS_INVALID);
@@ -1404,17 +1406,16 @@ private:
 		bool B = !base.isExtIdx();
 		bool Rp = !reg.isExtIdx2();
 		bool b = false;
-		int LL = 2;
-		if (reg.isZMM()) {
-			int rounding = base.getRounding();
-			if (rounding) {
-				if (rounding == inner::T_SAE && !(type & T_SAE)) throw Error(ERR_SAE_IS_INVALID);
-				if (rounding != inner::T_SAE && !(type & T_ER)) throw Error(ERR_ER_IS_INVALID);
-				LL = rounding - 1;
-				b = true;
-			}
+		int LL;
+		int rounding = base.getRounding();
+		if (rounding) {
+			if (!base.isZMM() || (rounding == inner::T_SAE && !(type & T_SAE))) throw Error(ERR_SAE_IS_INVALID);
+			if (!base.isZMM() || (rounding != inner::T_SAE && !(type & T_ER))) throw Error(ERR_ER_IS_INVALID);
+			LL = rounding - 1;
+			b = true;
 		} else {
-			LL = reg.isYMM() ? 1 : 0;
+			int bit = Max(Max(reg.getBit(), base.getBit()), (v ? v->getBit() : 0));
+			LL = (bit == 512) ? 2 : (bit == 256) ? 1 : 0;
 		}
 		bool Vp = !(v ? v->isExtIdx2() : 0);
 		bool z = reg.hasZero();
@@ -1734,7 +1735,7 @@ private:
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			bool disp32 = false;
 			bool x = addr.getRegExp().getIndex().isExtIdx();
-			if (r.hasEvex() || (p1 && p1->hasEvex()) /*|| base.hasEvex()*/) {
+			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex())) {
 				evex(r, base, p1, type, code, x);
 				disp32 = true;
 			} else {
@@ -1743,7 +1744,7 @@ private:
 			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0, disp32);
 		} else {
 			const Reg& base = static_cast<const Reg&>(op2);
-			if (r.hasEvex() || (p1 && p1->hasEvex()) || base.hasEvex()) {
+			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || base.hasEvex()) {
 				evex(r, base, p1, type, code);
 			} else {
 				vex(r, base, p1, type, code);
@@ -1779,6 +1780,11 @@ private:
 		// (x1, x2, op)
 		if (!((x1.isXMM() && x2->isXMM()) || ((type & T_YMM) && ((x1.isYMM() && x2->isYMM()) || (x1.isZMM() && x2->isZMM()))))) throw Error(ERR_BAD_COMBINATION);
 		opVex(x1, x2, *op, type, code0, imm8);
+	}
+	void opAVX_K_X_XM(const Opmask& k1, const Xmm& x2, const Operand& op3, int type, int code0, int imm8 = NONE)
+	{
+		if (!op3.isMEM() && (x2.getKind() != op3.getKind())) throw Error(ERR_BAD_COMBINATION);
+		opVex(k1, &x2, op3, type, code0, imm8);
 	}
 	// if cvt then return pointer to Xmm(idx) (or Ymm(idx)), otherwise return op
 	void opAVX_X_X_XMcvt(const Xmm& x1, const Operand& op1, const Operand& op2, bool cvt, Operand::Kind kind, int type, int code0, int imm8 = NONE)

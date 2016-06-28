@@ -1519,3 +1519,7 @@ void vpgatherdd(const Xmm& x1, const Address& addr, const Xmm& x2) { opGather(x1
 void vpgatherqd(const Xmm& x1, const Address& addr, const Xmm& x2) { opGather(x1, addr, x2, T_0F38 | T_66 | T_W0, 0x91, 2); }
 void vpgatherdq(const Xmm& x1, const Address& addr, const Xmm& x2) { opGather(x1, addr, x2, T_0F38 | T_66 | T_W1, 0x90, 0); }
 void vpgatherqq(const Xmm& x1, const Address& addr, const Xmm& x2) { opGather(x1, addr, x2, T_0F38 | T_66 | T_W1, 0x91, 1); }
+void vcmppd(const Opmask& k, const Xmm& x, const Operand& op, uint8 imm) { opAVX_K_X_XM(k, x, op, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX | T_SAE | T_MUST_EVEX, 0xC2, imm); }
+void vcmpps(const Opmask& k, const Xmm& x, const Operand& op, uint8 imm) { opAVX_K_X_XM(k, x, op, T_0F | T_EW0 | T_YMM | T_EVEX | T_SAE | T_MUST_EVEX, 0xC2, imm); }
+void vcmpsd(const Opmask& k, const Xmm& x, const Operand& op, uint8 imm) { opAVX_K_X_XM(k, x, op, T_0F | T_F2 | T_EW1 | T_EVEX | T_SAE | T_MUST_EVEX, 0xC2, imm); }
+void vcmpss(const Opmask& k, const Xmm& x, const Operand& op, uint8 imm) { opAVX_K_X_XM(k, x, op, T_0F | T_F3 | T_EW0 | T_EVEX | T_SAE | T_MUST_EVEX, 0xC2, imm); }

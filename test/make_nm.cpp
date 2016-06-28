@@ -82,11 +82,14 @@ const uint64 _ZMM = 1ULL << 44;
 const uint64 _ZMM2 = 1ULL << 45;
 #ifdef XBYAK64
 const uint64 ZMM = _ZMM | _ZMM2;
-const uint64 _YMM3 = 1ULL << 46; // max value
+const uint64 _YMM3 = 1ULL << 46;
 #else
 const uint64 ZMM = _ZMM;
 const uint64 _YMM3 = 0;
 #endif
+const uint64 K2 = 1ULL << 47;
+const uint64 ZMM_SAE = 1ULL << 48;
+const uint64 ZMM_ER = 1ULL << 49; // max value
 
 const uint64 NOPARA = 1ULL << (bitEnd - 1);
 
@@ -350,6 +353,19 @@ class Test {
 				};
 				return kTbl[idx % 7];
 			}
+		case K2:
+			return isXbyak_ ? "k3 | k5" : "k3{k5}";
+#ifdef XBYAK64
+		case ZMM_SAE:
+			return isXbyak_ ? "zmm25 | T_sae" : "zmm25, {sae}";
+		case ZMM_ER:
+			return isXbyak_ ? "zmm20 | T_rd_sae" : "zmm20, {rd-sae}";
+#else
+		case ZMM_SAE:
+			return isXbyak_ ? "zmm5 | T_sae" : "zmm5, {sae}";
+		case ZMM_ER:
+			return isXbyak_ ? "zmm2 | T_rd_sae" : "zmm2, {rd-sae}";
+#endif
 		}
 		return 0;
 	}
@@ -2480,10 +2496,31 @@ public:
 			}
 		}
 	}
+	void putCmpK()
+	{
+		const struct Tbl {
+			const char *name;
+			bool supportYMM;
+		} tbl[] = {
+			{ "vcmppd", true },
+			{ "vcmpps", true },
+			{ "vcmpsd", false },
+			{ "vcmpss", false },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			put(p->name, K, XMM, XMM | MEM, IMM);
+			if (!p->supportYMM) continue;
+			put(p->name, K, YMM, YMM | MEM, IMM);
+			put(p->name, K, ZMM, ZMM | MEM, IMM);
+		}
+		put("vcmppd", K2, ZMM, ZMM_SAE, IMM);
+	}
 	void putAVX512()
 	{
 		putOpmask();
 		putCombi();
+		putCmpK();
 	}
 #endif
 };
