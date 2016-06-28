@@ -168,6 +168,7 @@ enum {
 	ERR_OPMASK_IS_ALREADY_SET,
 	ERR_ROUNDING_IS_ALREADY_SET,
 	ERR_K0_IS_INVALID,
+	ERR_EVEX_IS_INVALID,
 	ERR_INTERNAL
 };
 
@@ -221,6 +222,7 @@ public:
 			"opmask is already set",
 			"rounding is already set",
 			"k0 is invalid",
+			"evex is invalid",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -1360,7 +1362,8 @@ private:
 		T_W1 = 1 << 12,
 		T_EW0 = 1 << 13,
 		T_EW1 = 1 << 14,
-		T_YMM = 1 << 15
+		T_YMM = 1 << 15,
+		T_EVEX = 1 << 16,
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
 	{
@@ -1381,6 +1384,7 @@ private:
 	}
 	void evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
 	{
+		if (!(type & T_EVEX)) throw Error(ERR_EVEX_IS_INVALID);
 		int w = (type & T_EW1) ? 1 : 0;
 	//	bool is256 = (type & T_L1) ? true : (type & T_L0) ? false : reg.isYMM();
 		uint32 mm = (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0;

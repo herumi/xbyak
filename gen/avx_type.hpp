@@ -13,7 +13,8 @@ enum {
 	T_W1 = 1 << 12,
 	T_EW0 = 1 << 13,
 	T_EW1 = 1 << 14,
-	T_YMM = 1 << 15
+	T_YMM = 1 << 15,
+	T_EVEX = 1 << 16
 };
 
 const int NONE = 256; // same as Xbyak::CodeGenerator::NONE
@@ -72,6 +73,10 @@ std::string type2String(int type)
 	if (type & T_YMM) {
 		if (!str.empty()) str += " | ";
 		str += "T_YMM";
+	}
+	if (type & T_EVEX) {
+		if (!str.empty()) str += " | ";
+		str += "T_EVEX";
 	}
 	return str;
 }
