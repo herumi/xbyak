@@ -129,6 +129,20 @@ You can omit a destination for almost 3-op mnemonics.
     vaddps(xmm2, xmm3, ptr [rax]); // use ptr to access memory
     vgatherdpd(xmm1, ptr [ebp+123+xmm2*4], xmm3);
 
+### AVX-512
+
+```
+vaddpd zmm2, zmm5, zmm30                --> vaddpd(zmm2, zmm5, zmm30);
+vaddpd zmm2{k5}, zmm4, zmm2             --> vaddpd(zmm2 | k5, zmm4, zmm2);
+vaddpd zmm2{k5}{z}, zmm4, zmm2          --> vaddpd(zmm2 | k5 | T_z, zmm4, zmm2);
+vaddpd zmm2{k5}{z}, zmm4, zmm2,{rd-sae} --> vaddpd(zmm2 | k5 | T_z, zmm4, zmm2 | T_rd_sae);
+vcmppd k4{k3}, zmm1, zmm2, {sae}, 5     --> vcmppd(k4 | k3, zmm1, zmm2 | T_sae, 5);
+```
+Remark
+* k1, ..., k7 are new opmask registers.
+* use `| T_z`, `| T_sae`, `| T_rn_sae`, `| T_rd_sae`, `| T_ru_sae`, `| T_rz_sae` instead of `,{z}`, `,{sae}`, `,{rn-sae}`, `,{rd-sae}`, `,{ru-sae}`, `,{rz-sae}` respectively.
+* `k4 | k3` is different from `k3 | k4`.
+
 ### Label
 
     L("L1");
