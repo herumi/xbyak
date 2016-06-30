@@ -171,6 +171,7 @@ enum {
 	ERR_EVEX_IS_INVALID,
 	ERR_SAE_IS_INVALID,
 	ERR_ER_IS_INVALID,
+	ERR_BROADCAST_IS_ALREADY_SET,
 	ERR_INTERNAL
 };
 
@@ -227,6 +228,7 @@ public:
 			"evex is invalid",
 			"sae(suppress all exceptions) is invalid",
 			"er(embedded rounding) is invalid",
+			"broadcast is alerady set",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -533,12 +535,13 @@ enum SAEtype {
 
 } // inner
 
-static const EvexModifierRounding T_sae(inner::T_SAE);
-static const EvexModifierRounding T_rn_sae(inner::T_RN_SAE);
-static const EvexModifierRounding T_rd_sae(inner::T_RD_SAE);
-static const EvexModifierRounding T_ru_sae(inner::T_RU_SAE);
-static const EvexModifierRounding T_rz_sae(inner::T_RZ_SAE);
+static const EvexModifierRounding T_sae(inner::T_SAE); // {sae}
+static const EvexModifierRounding T_rn_sae(inner::T_RN_SAE); // {rn-sae}
+static const EvexModifierRounding T_rd_sae(inner::T_RD_SAE); // {rd-sae}
+static const EvexModifierRounding T_ru_sae(inner::T_RU_SAE); // {ru-sae}
+static const EvexModifierRounding T_rz_sae(inner::T_RZ_SAE); // {rz-sae}
 static const struct EvexModifierZero{} T_z; // {z}
+static const struct EvexModifierBroadcast{} T_b; // {1to2},{1to4},{1to8},{1to16},{b}
 
 struct Xmm : public Mmx {
 	explicit Xmm(int idx = 0, Kind kind = Operand::XMM, int bit = 128) : Mmx(idx, kind, bit) { }
@@ -964,7 +967,7 @@ public:
 		M_rip
 	};
 	Address(uint32 sizeBit, const RegExp& e)
-		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), permitVsib_(false)
+		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), permitVsib_(false), broadcast_(false)
 	{
 		e_.verify();
 		e_.optimize();
@@ -990,17 +993,26 @@ public:
 		return rex;
 	}
 	bool is64bitDisp() const { verify(); return mode_ == M_64bitDisp; } // for moffset
+	bool isBroadcast() const { return broadcast_; }
 	const Label* getLabel() const { return label_; }
 	bool operator==(const Address& rhs) const
 	{
-		return getBit() == rhs.getBit() && label_ == rhs.label_ && mode_ == rhs.mode_ && permitVsib_ == rhs.permitVsib_ && e_ == rhs.e_;
+		return getBit() == rhs.getBit() && e_ == rhs.e_ && label_ == rhs.label_ && mode_ == rhs.mode_ && permitVsib_ == rhs.permitVsib_ && broadcast_ == rhs.broadcast_;
 	}
 	bool operator!=(const Address& rhs) const { return !operator==(rhs); }
+	Address operator|(const EvexModifierBroadcast&) const
+	{
+		if (broadcast_) throw Error(ERR_BROADCAST_IS_ALREADY_SET);
+		Address r(*this);
+		r.broadcast_ = true;
+		return r;
+	}
 private:
 	RegExp e_;
 	const Label* label_;
 	Mode mode_;
 	mutable bool permitVsib_;
+	bool broadcast_;
 	void verify() const { if (e_.isVsib() && !permitVsib_) throw Error(ERR_BAD_VSIB_ADDRESSING); }
 };
 
@@ -1404,7 +1416,7 @@ private:
 		if (((type & T_ER_X) && r.isXMM()) || ((type & T_ER_Y) && r.isYMM()) || ((type & T_ER_Z) && r.isZMM())) return;
 		throw Error(ERR_ER_IS_INVALID);
 	}
-	void evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
+	void evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool broadcast = false)
 	{
 		if (!(type & T_EVEX)) throw Error(ERR_EVEX_IS_INVALID);
 		int w = (type & T_EW1) ? 1 : 0;
@@ -1419,7 +1431,7 @@ private:
 		bool X = x ? false : !base.isExtIdx2();
 		bool B = !base.isExtIdx();
 		bool Rp = !reg.isExtIdx2();
-		bool b = false;
+		bool b = broadcast;
 		int LL;
 		int rounding = base.getRounding();
 		if (rounding) {
@@ -1750,7 +1762,7 @@ private:
 			bool disp32 = false;
 			bool x = addr.getRegExp().getIndex().isExtIdx();
 			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex())) {
-				evex(r, base, p1, type, code, x);
+				evex(r, base, p1, type, code, x, addr.isBroadcast());
 				disp32 = true;
 			} else {
 				vex(r, base, p1, type, code, x);
