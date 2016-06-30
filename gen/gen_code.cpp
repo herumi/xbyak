@@ -1003,11 +1003,11 @@ void put()
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void v%spd(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX | T_ER, 0x%02X); }\n", p->name, p->code);
-			printf("void v%sps(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_EW0 | T_YMM | T_EVEX | T_ER, 0x%02X); }\n", p->name, p->code);
+			printf("void v%spd(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX | T_ER_Z, 0x%02X); }\n", p->name, p->code);
+			printf("void v%sps(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_EW0 | T_YMM | T_EVEX | T_ER_Z, 0x%02X); }\n", p->name, p->code);
 			if (p->only_pd_ps) continue;
-			printf("void v%ssd(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_F2 | T_EW1 | T_EVEX | T_ER, 0x%02X); }\n", p->name, p->code);
-			printf("void v%sss(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_F3 | T_EW0 | T_EVEX | T_ER, 0x%02X); }\n", p->name, p->code);
+			printf("void v%ssd(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_F2 | T_EW1 | T_EVEX | T_ER_Z, 0x%02X); }\n", p->name, p->code);
+			printf("void v%sss(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_F3 | T_EW0 | T_EVEX | T_ER_Z, 0x%02X); }\n", p->name, p->code);
 		}
 	}
 	// (x, x, x/m[, imm]) or (y, y, y/m[, imm])
@@ -1199,8 +1199,8 @@ void put()
 			{ 0x62, "pcmpistrm", T_0F3A | T_66, true },
 			{ 0x0E, "testps", T_0F38 | T_66 | T_YMM, false },
 			{ 0x0F, "testpd", T_0F38 | T_66 | T_YMM, false },
-			{ 0x2F, "comisd", T_0F | T_66, false },
-			{ 0x2F, "comiss", T_0F, false },
+			{ 0x2F, "comisd", T_0F | T_66 | T_EVEX | T_EW1 | T_SAE_X, false },
+			{ 0x2F, "comiss", T_0F | T_EVEX | T_EW0 | T_SAE_X, false },
 			{ 0x5B, "cvtdq2ps", T_0F | T_YMM, false },
 			{ 0x5B, "cvtps2dq", T_0F | T_66 | T_YMM, false },
 			{ 0x5B, "cvttps2dq", T_0F | T_F3 | T_YMM, false },

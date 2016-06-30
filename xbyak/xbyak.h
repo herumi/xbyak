@@ -1368,9 +1368,13 @@ private:
 		T_EW1 = 1 << 14,
 		T_YMM = 1 << 15,
 		T_EVEX = 1 << 16,
-		T_ER = 1 << 17,
-		T_SAE = 1 << 18,
-		T_MUST_EVEX = 1 << 19
+		T_ER_X = 1 << 17, // xmm{er}
+		T_ER_Y = 1 << 18, // ymm{er}
+		T_ER_Z = 1 << 19, // zmm{er}
+		T_SAE_X = 1 << 20, // xmm{sae}
+		T_SAE_Y = 1 << 21, // ymm{sae}
+		T_SAE_Z = 1 << 22, // zmm{sae}
+		T_MUST_EVEX = 1 << 23
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
 	{
@@ -1390,6 +1394,16 @@ private:
 		db(code);
 	}
 	int Max(int a, int b) const { return a > b ? a : b; }
+	void verifySAE(const Reg& r, int type) const
+	{
+		if (((type & T_SAE_X) && r.isXMM()) || ((type & T_SAE_Y) && r.isYMM()) || ((type & T_SAE_Z) && r.isZMM())) return;
+		throw Error(ERR_SAE_IS_INVALID);
+	}
+	void verifyER(const Reg& r, int type) const
+	{
+		if (((type & T_ER_X) && r.isXMM()) || ((type & T_ER_Y) && r.isYMM()) || ((type & T_ER_Z) && r.isZMM())) return;
+		throw Error(ERR_ER_IS_INVALID);
+	}
 	void evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
 	{
 		if (!(type & T_EVEX)) throw Error(ERR_EVEX_IS_INVALID);
@@ -1409,8 +1423,8 @@ private:
 		int LL;
 		int rounding = base.getRounding();
 		if (rounding) {
-			if (!base.isZMM() || (rounding == inner::T_SAE && !(type & T_SAE))) throw Error(ERR_SAE_IS_INVALID);
-			if (!base.isZMM() || (rounding != inner::T_SAE && !(type & T_ER))) throw Error(ERR_ER_IS_INVALID);
+			if (rounding == inner::T_SAE) verifySAE(base, type);
+			if (rounding != inner::T_SAE) verifyER(base, type);
 			LL = rounding - 1;
 			b = true;
 		} else {

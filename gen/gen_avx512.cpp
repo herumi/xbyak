@@ -101,10 +101,10 @@ void putVcmp()
 		int type;
 		bool hasIMM;
 	} tbl[] = {
-		{ 0xC2, "cmppd", T_0F | T_EVEX | T_MUST_EVEX | T_EW1 | T_SAE | T_YMM | T_66, true },
-		{ 0xC2, "cmpps", T_0F | T_EVEX | T_MUST_EVEX | T_EW0 | T_SAE | T_YMM, true },
-		{ 0xC2, "cmpsd", T_0F | T_EVEX | T_MUST_EVEX | T_EW1 | T_SAE | T_F2, true },
-		{ 0xC2, "cmpss", T_0F | T_EVEX | T_MUST_EVEX | T_EW0 | T_SAE | T_F3, true },
+		{ 0xC2, "cmppd", T_0F | T_EVEX | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_YMM | T_66, true },
+		{ 0xC2, "cmpps", T_0F | T_EVEX | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_YMM, true },
+		{ 0xC2, "cmpsd", T_0F | T_EVEX | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_F2, true },
+		{ 0xC2, "cmpss", T_0F | T_EVEX | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_F3, true },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];

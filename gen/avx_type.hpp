@@ -15,9 +15,13 @@ enum {
 	T_EW1 = 1 << 14,
 	T_YMM = 1 << 15,
 	T_EVEX = 1 << 16,
-	T_ER = 1 << 17,
-	T_SAE = 1 << 18,
-	T_MUST_EVEX = 1 << 19
+	T_ER_X = 1 << 17, // xmm{er}
+	T_ER_Y = 1 << 18, // ymm{er}
+	T_ER_Z = 1 << 19, // zmm{er}
+	T_SAE_X = 1 << 20, // xmm{sae}
+	T_SAE_Y = 1 << 21, // ymm{sae}
+	T_SAE_Z = 1 << 22, // zmm{sae}
+	T_MUST_EVEX = 1 << 23
 };
 
 const int NONE = 256; // same as Xbyak::CodeGenerator::NONE
@@ -81,13 +85,29 @@ std::string type2String(int type)
 		if (!str.empty()) str += " | ";
 		str += "T_EVEX";
 	}
-	if (type & T_ER) {
+	if (type & T_ER_X) {
 		if (!str.empty()) str += " | ";
-		str += "T_ER";
+		str += "T_ER_X";
 	}
-	if (type & T_SAE) {
+	if (type & T_ER_Y) {
 		if (!str.empty()) str += " | ";
-		str += "T_SAE";
+		str += "T_ER_Y";
+	}
+	if (type & T_ER_Z) {
+		if (!str.empty()) str += " | ";
+		str += "T_ER_Z";
+	}
+	if (type & T_SAE_X) {
+		if (!str.empty()) str += " | ";
+		str += "T_SAE_X";
+	}
+	if (type & T_SAE_Y) {
+		if (!str.empty()) str += " | ";
+		str += "T_SAE_Y";
+	}
+	if (type & T_SAE_Z) {
+		if (!str.empty()) str += " | ";
+		str += "T_SAE_Z";
 	}
 	if (type & T_MUST_EVEX) {
 		if (!str.empty()) str += " | ";

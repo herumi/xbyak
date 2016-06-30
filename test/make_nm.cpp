@@ -89,7 +89,11 @@ const uint64 _YMM3 = 0;
 #endif
 const uint64 K2 = 1ULL << 47;
 const uint64 ZMM_SAE = 1ULL << 48;
-const uint64 ZMM_ER = 1ULL << 49; // max value
+const uint64 ZMM_ER = 1ULL << 49;
+#ifdef XBYAK64
+const uint64 _XMM3 = 1ULL << 50;
+#endif
+const uint64 XMM_SAE = 1ULL << 51; // max value
 
 const uint64 NOPARA = 1ULL << (bitEnd - 1);
 
@@ -190,6 +194,13 @@ class Test {
 			{
 				static const char tbl[][6] = {
 					"xmm8", "xmm9", "xmm10", "xmm11", "xmm12", "xmm13", "xmm14", "xmm15"
+				};
+				return tbl[idx];
+			}
+		case _XMM3:
+			{
+				static const char tbl[][6] = {
+					"xmm16", "xmm17", "xmm18", "xmm19", "xmm20", "xmm21", "xmm22", "xmm23"
 				};
 				return tbl[idx];
 			}
@@ -356,11 +367,15 @@ class Test {
 		case K2:
 			return isXbyak_ ? "k3 | k5" : "k3{k5}";
 #ifdef XBYAK64
+		case XMM_SAE:
+			return isXbyak_ ? "xmm25 | T_sae" : "xmm25, {sae}";
 		case ZMM_SAE:
 			return isXbyak_ ? "zmm25 | T_sae" : "zmm25, {sae}";
 		case ZMM_ER:
 			return isXbyak_ ? "zmm20 | T_rd_sae" : "zmm20, {rd-sae}";
 #else
+		case XMM_SAE:
+			return isXbyak_ ? "xmm5 | T_sae" : "xmm5, {sae}";
 		case ZMM_SAE:
 			return isXbyak_ ? "zmm5 | T_sae" : "zmm5, {sae}";
 		case ZMM_ER:
@@ -2498,23 +2513,31 @@ public:
 	}
 	void putCmpK()
 	{
-		const struct Tbl {
-			const char *name;
-			bool supportYMM;
-		} tbl[] = {
-			{ "vcmppd", true },
-			{ "vcmpps", true },
-			{ "vcmpsd", false },
-			{ "vcmpss", false },
-		};
-		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-			const Tbl *p = &tbl[i];
-			put(p->name, K, XMM, XMM | MEM, IMM);
-			if (!p->supportYMM) continue;
-			put(p->name, K, YMM, YMM | MEM, IMM);
-			put(p->name, K, ZMM, ZMM | MEM, IMM);
+		{
+			const struct Tbl {
+				const char *name;
+				bool supportYMM;
+			} tbl[] = {
+				{ "vcmppd", true },
+				{ "vcmpps", true },
+				{ "vcmpsd", false },
+				{ "vcmpss", false },
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				const Tbl *p = &tbl[i];
+				put(p->name, K, XMM, XMM | MEM, IMM);
+				if (!p->supportYMM) continue;
+				put(p->name, K, YMM, YMM | MEM, IMM);
+				put(p->name, K, ZMM, ZMM | MEM, IMM);
+			}
 		}
 		put("vcmppd", K2, ZMM, ZMM_SAE, IMM);
+#ifdef XBYAK64
+		put("vcomisd", _XMM3, XMM | MEM);
+		put("vcomisd", XMM, XMM_SAE);
+		put("vcomiss", _XMM3, XMM | MEM);
+		put("vcomiss", XMM, XMM_SAE);
+#endif
 	}
 	void putAVX512()
 	{
