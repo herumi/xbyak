@@ -2533,8 +2533,20 @@ public:
 		}
 		put("vcmppd", K2, ZMM, ZMM_SAE, IMM);
 #ifdef XBYAK64
-		put("vcomisd", _XMM3, XMM | MEM);
-		put("vcomisd", XMM, XMM_SAE);
+		{
+			const struct Tbl {
+				const char *name;
+			} tbl[] = {
+				{ "vcomisd" },
+				{ "vcomiss" },
+				{ "vucomisd" },
+				{ "vucomiss" },
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				const Tbl *p = &tbl[i];
+				put(p->name, XMM | _XMM3, XMM_SAE | XMM | MEM);
+			}
+		}
 		put("vcomiss", _XMM3, XMM | MEM);
 		put("vcomiss", XMM, XMM_SAE);
 #endif

@@ -1244,8 +1244,8 @@ void put()
 			{ 0x51, "sqrtpd", T_0F | T_66 | T_YMM, false },
 			{ 0x51, "sqrtps", T_0F | T_YMM, false },
 
-			{ 0x2E, "ucomisd", T_0F | T_66, false },
-			{ 0x2E, "ucomiss", T_0F, false },
+			{ 0x2E, "ucomisd", T_0F | T_66 | T_EVEX | T_EW1 | T_SAE_X, false },
+			{ 0x2E, "ucomiss", T_0F | T_EVEX | T_EW0 | T_SAE_X, false },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
