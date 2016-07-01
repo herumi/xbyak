@@ -2551,11 +2551,30 @@ public:
 		put("vcomiss", XMM, XMM_SAE);
 #endif
 	}
+	void putBroadcastSub(int disp)
+	{
+		if (isXbyak_) {
+			printf("vaddpd(zmm0, zmm1, ptr_b[rax+%d]);dump();\n", disp);
+			printf("vaddpd(ymm0, ymm1, ptr_b[rax+%d]);dump();\n", disp);
+			printf("vaddpd(xmm0, xmm1, ptr_b[rax+%d]);dump();\n", disp);
+		} else {
+			printf("vaddpd zmm0, zmm1, [rax+%d]{1to8}\n", disp);
+			printf("vaddpd ymm0, ymm1, [rax+%d]{1to4}\n", disp);
+			printf("vaddpd xmm0, xmm1, [rax+%d]{1to2}\n", disp);
+		}
+	}
+	void putBroadcast()
+	{
+		for (int i = 0; i < 9; i++) {
+			putBroadcastSub(i);
+		}
+	}
 	void putAVX512()
 	{
 		putOpmask();
 		putCombi();
 		putCmpK();
+		putBroadcast();
 	}
 #endif
 };

@@ -21,7 +21,10 @@ enum {
 	T_SAE_X = 1 << 20, // xmm{sae}
 	T_SAE_Y = 1 << 21, // ymm{sae}
 	T_SAE_Z = 1 << 22, // zmm{sae}
-	T_MUST_EVEX = 1 << 23
+	T_MUST_EVEX = 1 << 23,
+	T_B32 = 1 << 24, // m32bcst
+	T_B64 = 1 << 25, // m64bcst
+	T_XXX
 };
 
 const int NONE = 256; // same as Xbyak::CodeGenerator::NONE
@@ -112,6 +115,14 @@ std::string type2String(int type)
 	if (type & T_MUST_EVEX) {
 		if (!str.empty()) str += " | ";
 		str += "T_MUST_EVEX";
+	}
+	if (type & T_B32) {
+		if (!str.empty()) str += " | ";
+		str += "T_B32";
+	}
+	if (type & T_B64) {
+		if (!str.empty()) str += " | ";
+		str += "T_B64";
 	}
 	return str;
 }

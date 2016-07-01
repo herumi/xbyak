@@ -171,7 +171,7 @@ enum {
 	ERR_EVEX_IS_INVALID,
 	ERR_SAE_IS_INVALID,
 	ERR_ER_IS_INVALID,
-	ERR_BROADCAST_IS_ALREADY_SET,
+	ERR_INVALID_BROADCAST,
 	ERR_INTERNAL
 };
 
@@ -228,7 +228,7 @@ public:
 			"evex is invalid",
 			"sae(suppress all exceptions) is invalid",
 			"er(embedded rounding) is invalid",
-			"broadcast is alerady set",
+			"invalid broadcast",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -522,26 +522,7 @@ struct EvexModifierRounding {
 	explicit EvexModifierRounding(int rounding) : rounding(rounding) {}
 	int rounding;
 };
-
-namespace inner {
-
-enum SAEtype {
-	T_RN_SAE = 1,
-	T_RD_SAE = 2,
-	T_RU_SAE = 3,
-	T_RZ_SAE = 4,
-	T_SAE = 5
-};
-
-} // inner
-
-static const EvexModifierRounding T_sae(inner::T_SAE); // {sae}
-static const EvexModifierRounding T_rn_sae(inner::T_RN_SAE); // {rn-sae}
-static const EvexModifierRounding T_rd_sae(inner::T_RD_SAE); // {rd-sae}
-static const EvexModifierRounding T_ru_sae(inner::T_RU_SAE); // {ru-sae}
-static const EvexModifierRounding T_rz_sae(inner::T_RZ_SAE); // {rz-sae}
-static const struct EvexModifierZero{} T_z; // {z}
-static const struct EvexModifierBroadcast{} T_b; // {1to2},{1to4},{1to8},{1to16},{b}
+struct EvexModifierZero{};
 
 struct Xmm : public Mmx {
 	explicit Xmm(int idx = 0, Kind kind = Operand::XMM, int bit = 128) : Mmx(idx, kind, bit) { }
@@ -966,17 +947,17 @@ public:
 		M_64bitDisp,
 		M_rip
 	};
-	Address(uint32 sizeBit, const RegExp& e)
-		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), permitVsib_(false), broadcast_(false)
+	Address(uint32 sizeBit, bool broadcast, const RegExp& e)
+		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), permitVsib_(false), broadcast_(broadcast)
 	{
 		e_.verify();
 		e_.optimize();
 	}
 #ifdef XBYAK64
 	explicit Address(size_t disp)
-		: Operand(0, MEM, 64), e_(disp), label_(0), mode_(M_64bitDisp), permitVsib_(false) { }
-	Address(uint32 sizeBit, const RegRip& addr)
-		: Operand(0, MEM, sizeBit), e_(addr.disp_), label_(addr.label_), mode_(M_rip), permitVsib_(false) { }
+		: Operand(0, MEM, 64), e_(disp), label_(0), mode_(M_64bitDisp), permitVsib_(false), broadcast_(false) { }
+	Address(uint32 sizeBit, bool broadcast, const RegRip& addr)
+		: Operand(0, MEM, sizeBit), e_(addr.disp_), label_(addr.label_), mode_(M_rip), permitVsib_(false), broadcast_(broadcast) { }
 #endif
 	void permitVsib() const { permitVsib_ = true; }
 	const RegExp& getRegExp() const { return e_; }
@@ -1000,13 +981,6 @@ public:
 		return getBit() == rhs.getBit() && e_ == rhs.e_ && label_ == rhs.label_ && mode_ == rhs.mode_ && permitVsib_ == rhs.permitVsib_ && broadcast_ == rhs.broadcast_;
 	}
 	bool operator!=(const Address& rhs) const { return !operator==(rhs); }
-	Address operator|(const EvexModifierBroadcast&) const
-	{
-		if (broadcast_) throw Error(ERR_BROADCAST_IS_ALREADY_SET);
-		Address r(*this);
-		r.broadcast_ = true;
-		return r;
-	}
 private:
 	RegExp e_;
 	const Label* label_;
@@ -1026,18 +1000,19 @@ class AddressFrame {
 	void operator=(const AddressFrame&);
 public:
 	const uint32 bit_;
-	explicit AddressFrame(uint32 bit) : bit_(bit) { }
+	const bool broadcast_;
+	explicit AddressFrame(uint32 bit, bool broadcast = false) : bit_(bit), broadcast_(broadcast) { }
 	Address operator[](const RegExp& e) const
 	{
-		return Address(bit_, e);
+		return Address(bit_, broadcast_, e);
 	}
 	Address operator[](const void *disp) const
 	{
-		return Address(bit_, RegExp(reinterpret_cast<size_t>(disp)));
+		return Address(bit_, broadcast_, RegExp(reinterpret_cast<size_t>(disp)));
 	}
 #ifdef XBYAK64
 	Address operator[](uint64 disp) const { return Address(disp); }
-	Address operator[](const RegRip& addr) const { return Address(bit_, addr); }
+	Address operator[](const RegRip& addr) const { return Address(bit_, broadcast_, addr); }
 #endif
 };
 
@@ -1386,7 +1361,10 @@ private:
 		T_SAE_X = 1 << 20, // xmm{sae}
 		T_SAE_Y = 1 << 21, // ymm{sae}
 		T_SAE_Z = 1 << 22, // zmm{sae}
-		T_MUST_EVEX = 1 << 23
+		T_MUST_EVEX = 1 << 23,
+		T_B32 = 1 << 24, // m32bcst
+		T_B64 = 1 << 25, // m64bcst
+		T_XXX
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
 	{
@@ -1416,7 +1394,14 @@ private:
 		if (((type & T_ER_X) && r.isXMM()) || ((type & T_ER_Y) && r.isYMM()) || ((type & T_ER_Z) && r.isZMM())) return;
 		throw Error(ERR_ER_IS_INVALID);
 	}
-	void evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool broadcast = false)
+	enum {
+		T_RN_SAE = 1,
+		T_RD_SAE = 2,
+		T_RU_SAE = 3,
+		T_RZ_SAE = 4,
+		T_SAE = 5,
+	};
+	void evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool b = false)
 	{
 		if (!(type & T_EVEX)) throw Error(ERR_EVEX_IS_INVALID);
 		int w = (type & T_EW1) ? 1 : 0;
@@ -1431,13 +1416,14 @@ private:
 		bool X = x ? false : !base.isExtIdx2();
 		bool B = !base.isExtIdx();
 		bool Rp = !reg.isExtIdx2();
-		bool b = broadcast;
 		int LL;
 		int rounding = base.getRounding();
 		if (rounding) {
-			if (rounding == inner::T_SAE) verifySAE(base, type);
-			if (rounding != inner::T_SAE) verifyER(base, type);
-			LL = rounding - 1;
+			if (rounding == T_SAE){
+				verifySAE(base, type); LL = 0;
+			} else {
+				verifyER(base, type); LL = rounding - 1;
+			}
 			b = true;
 		} else {
 			int bit = Max(Max(reg.getBit(), base.getBit()), (v ? v->getBit() : 0));
@@ -1456,7 +1442,7 @@ private:
 	{
 		db(static_cast<uint8>((mod << 6) | ((r1 & 7) << 3) | (r2 & 7)));
 	}
-	void setSIB(const RegExp& e, int reg, bool disp32 = false)
+	void setSIB(const RegExp& e, int reg, int disp8N = 0)
 	{
 		size_t disp64 = e.getDisp();
 #ifdef XBYAK64
@@ -1472,13 +1458,21 @@ private:
 		enum {
 			mod00 = 0, mod01 = 1, mod10 = 2
 		};
-		int mod;
+		int mod = mod10; // disp32
 		if (!baseBit || ((baseIdx & 7) != Operand::EBP && disp == 0)) {
 			mod = mod00;
-		} else if (!disp32 && inner::IsInDisp8(disp)) {
-			mod = mod01;
 		} else {
-			mod = mod10;
+			if (disp8N == 0) {
+				if (inner::IsInDisp8(disp)) {
+					mod = mod01;
+				}
+			} else if (disp8N > 1) {
+				uint32_t t = disp / disp8N;
+				if (t * disp8N == disp && inner::IsInDisp8(t)) {
+					disp = t;
+					mod = mod01;
+				}
+			}
 		}
 		const int newBaseIdx = baseBit ? (baseIdx & 7) : Operand::EBP;
 		/* ModR/M = [2:3:3] = [Mod:reg/code:R/M] */
@@ -1567,10 +1561,11 @@ private:
 	}
 	// reg is reg field of ModRM
 	// immSize is the size for immediate value
-	void opAddr(const Address &addr, int reg, int immSize = 0, bool disp32 = false)
+	// disp8N = 0(normal), disp8N = 1(force disp32), disp8N = {2, 4, 8} ; compressed displacement
+	void opAddr(const Address &addr, int reg, int immSize = 0, int disp8N = 0)
 	{
 		if (addr.getMode() == Address::M_ModRM) {
-			setSIB(addr.getRegExp(), reg, disp32);
+			setSIB(addr.getRegExp(), reg, disp8N);
 		} else if (addr.getMode() == Address::M_rip) {
 			setModRM(0, reg, 5);
 			if (addr.getLabel()) { // [rip + Label]
@@ -1759,15 +1754,22 @@ private:
 			const Address& addr = static_cast<const Address&>(op2);
 			const Reg& base = addr.getRegExp().getBase();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
-			bool disp32 = false;
+			int disp8N = 0;
 			bool x = addr.getRegExp().getIndex().isExtIdx();
-			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex())) {
-				evex(r, base, p1, type, code, x, addr.isBroadcast());
-				disp32 = true;
+			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || addr.isBroadcast()) {
+				bool b = false;
+				if (addr.isBroadcast()) {
+					if (!(type & (T_B32 | T_B64))) throw Error(ERR_INVALID_BROADCAST);
+					disp8N = (type & T_B32) ? 4 : 8;
+					b = true;
+				} else {
+					disp8N = 1;
+				}
+				evex(r, base, p1, type, code, x, b);
 			} else {
 				vex(r, base, p1, type, code, x);
 			}
-			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0, disp32);
+			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0, disp8N);
 		} else {
 			const Reg& base = static_cast<const Reg&>(op2);
 			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || base.hasEvex()) {
@@ -1807,10 +1809,10 @@ private:
 		if (!((x1.isXMM() && x2->isXMM()) || ((type & T_YMM) && ((x1.isYMM() && x2->isYMM()) || (x1.isZMM() && x2->isZMM()))))) throw Error(ERR_BAD_COMBINATION);
 		opVex(x1, x2, *op, type, code0, imm8);
 	}
-	void opAVX_K_X_XM(const Opmask& k1, const Xmm& x2, const Operand& op3, int type, int code0, int imm8 = NONE)
+	void opAVX_K_X_XM(const Opmask& k, const Xmm& x2, const Operand& op3, int type, int code0, int imm8 = NONE)
 	{
 		if (!op3.isMEM() && (x2.getKind() != op3.getKind())) throw Error(ERR_BAD_COMBINATION);
-		opVex(k1, &x2, op3, type, code0, imm8);
+		opVex(k, &x2, op3, type, code0, imm8);
 	}
 	// if cvt then return pointer to Xmm(idx) (or Ymm(idx)), otherwise return op
 	void opAVX_X_X_XMcvt(const Xmm& x1, const Operand& op1, const Operand& op2, bool cvt, Operand::Kind kind, int type, int code0, int imm8 = NONE)
@@ -1867,8 +1869,11 @@ public:
 	const Reg16 ax, cx, dx, bx, sp, bp, si, di;
 	const Reg8 al, cl, dl, bl, ah, ch, dh, bh;
 	const AddressFrame ptr, byte, word, dword, qword;
+	const AddressFrame ptr_b; // broadcast such as {1to2}, {1to4}, {1to8}, {1to16}, {b}
 	const Fpu st0, st1, st2, st3, st4, st5, st6, st7;
 	const Opmask k0, k1, k2, k3, k4, k5, k6, k7;
+	const EvexModifierRounding T_sae, T_rn_sae, T_rd_sae, T_ru_sae, T_rz_sae; // {sae}, {rn-sae}, {rd-sae}, {ru-sae}, {rz-sae}
+	const EvexModifierZero T_z; // {z}
 #ifdef XBYAK64
 	const Reg64 rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15;
 	const Reg32 r8d, r9d, r10d, r11d, r12d, r13d, r14d, r15d;
@@ -2346,9 +2351,11 @@ public:
 		, eax(Operand::EAX), ecx(Operand::ECX), edx(Operand::EDX), ebx(Operand::EBX), esp(Operand::ESP), ebp(Operand::EBP), esi(Operand::ESI), edi(Operand::EDI)
 		, ax(Operand::AX), cx(Operand::CX), dx(Operand::DX), bx(Operand::BX), sp(Operand::SP), bp(Operand::BP), si(Operand::SI), di(Operand::DI)
 		, al(Operand::AL), cl(Operand::CL), dl(Operand::DL), bl(Operand::BL), ah(Operand::AH), ch(Operand::CH), dh(Operand::DH), bh(Operand::BH)
-		, ptr(0), byte(8), word(16), dword(32), qword(64)
+		, ptr(0), byte(8), word(16), dword(32), qword(64), ptr_b(0, true)
 		, st0(0), st1(1), st2(2), st3(3), st4(4), st5(5), st6(6), st7(7)
 		, k0(0), k1(1), k2(2), k3(3), k4(4), k5(5), k6(6), k7(7)
+		, T_sae(T_SAE), T_rn_sae(T_RN_SAE), T_rd_sae(T_RD_SAE), T_ru_sae(T_RU_SAE), T_rz_sae(T_RZ_SAE)
+		, T_z()
 #ifdef XBYAK64
 		, rax(Operand::RAX), rcx(Operand::RCX), rdx(Operand::RDX), rbx(Operand::RBX), rsp(Operand::RSP), rbp(Operand::RBP), rsi(Operand::RSI), rdi(Operand::RDI), r8(Operand::R8), r9(Operand::R9), r10(Operand::R10), r11(Operand::R11), r12(Operand::R12), r13(Operand::R13), r14(Operand::R14), r15(Operand::R15)
 		, r8d(8), r9d(9), r10d(10), r11d(11), r12d(12), r13d(13), r14d(14), r15d(15)
