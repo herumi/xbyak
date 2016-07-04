@@ -2553,14 +2553,19 @@ public:
 	}
 	void putBroadcastSub(int disp)
 	{
+#ifdef XBYAK64
+		const char *a = "rax";
+#else
+		const char *a = "eax";
+#endif
 		if (isXbyak_) {
-			printf("vaddpd(zmm0, zmm1, ptr_b[rax+%d]);dump();\n", disp);
-			printf("vaddpd(ymm0, ymm1, ptr_b[rax+%d]);dump();\n", disp);
-			printf("vaddpd(xmm0, xmm1, ptr_b[rax+%d]);dump();\n", disp);
+			printf("vaddpd(zmm0, zmm1, ptr_b[%s+%d]);dump();\n", a, disp);
+			printf("vaddpd(ymm0, ymm1, ptr_b[%s+%d]);dump();\n", a, disp);
+			printf("vaddpd(xmm0, xmm1, ptr_b[%s+%d]);dump();\n", a, disp);
 		} else {
-			printf("vaddpd zmm0, zmm1, [rax+%d]{1to8}\n", disp);
-			printf("vaddpd ymm0, ymm1, [rax+%d]{1to4}\n", disp);
-			printf("vaddpd xmm0, xmm1, [rax+%d]{1to2}\n", disp);
+			printf("vaddpd zmm0, zmm1, [%s+%d]{1to8}\n", a, disp);
+			printf("vaddpd ymm0, ymm1, [%s+%d]{1to4}\n", a, disp);
+			printf("vaddpd xmm0, xmm1, [%s+%d]{1to2}\n", a, disp);
 		}
 	}
 	void putBroadcast()
@@ -2569,12 +2574,29 @@ public:
 			putBroadcastSub(i);
 		}
 	}
+	void putAVX512_M_X()
+	{
+		const char *tbl[] = {
+			"vmovapd",
+			"vmovaps",
+//			"vmovdqa",
+//			"vmovdqu",
+			"vmovupd",
+			"vmovups",
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const char *name = tbl[i];
+			put(name, MEM, ZMM);
+			put(name, ZMM, MEM);
+		}
+	}
 	void putAVX512()
 	{
 		putOpmask();
 		putCombi();
 		putCmpK();
 		putBroadcast();
+		putAVX512_M_X();
 	}
 #endif
 };

@@ -1204,15 +1204,15 @@ void put()
 			{ 0x5B, "cvtdq2ps", T_0F | T_YMM, false },
 			{ 0x5B, "cvtps2dq", T_0F | T_66 | T_YMM, false },
 			{ 0x5B, "cvttps2dq", T_0F | T_F3 | T_YMM, false },
-			{ 0x28, "movapd", T_0F | T_66 | T_YMM, false },
-			{ 0x28, "movaps", T_0F | T_YMM, false },
+			{ 0x28, "movapd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1, false },
+			{ 0x28, "movaps", T_0F | T_YMM | T_EVEX | T_EW0, false },
 			{ 0x12, "movddup", T_0F | T_F2 | T_YMM, false },
 			{ 0x6F, "movdqa", T_0F | T_66 | T_YMM, false },
 			{ 0x6F, "movdqu", T_0F | T_F3 | T_YMM, false },
 			{ 0x16, "movshdup", T_0F | T_F3 | T_YMM, false },
 			{ 0x12, "movsldup", T_0F | T_F3 | T_YMM, false },
-			{ 0x10, "movupd", T_0F | T_66 | T_YMM, false },
-			{ 0x10, "movups", T_0F | T_YMM, false },
+			{ 0x10, "movupd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1, false },
+			{ 0x10, "movups", T_0F | T_YMM | T_EVEX | T_EW0, false },
 
 			{ 0x1C, "pabsb", T_0F38 | T_66 | T_YMM, false },
 			{ 0x1D, "pabsw", T_0F38 | T_66 | T_YMM, false },
@@ -1261,12 +1261,12 @@ void put()
 			const char *name;
 			int type;
 		} tbl[] = {
-			{ 0x29, "movapd", T_0F | T_66 | T_YMM},
-			{ 0x29, "movaps", T_0F | T_YMM},
+			{ 0x29, "movapd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1},
+			{ 0x29, "movaps", T_0F | T_YMM | T_EVEX | T_EW0},
 			{ 0x7F, "movdqa", T_0F | T_66 | T_YMM},
 			{ 0x7F, "movdqu", T_0F | T_F3 | T_YMM},
-			{ 0x11, "movupd", T_0F | T_66 | T_YMM},
-			{ 0x11, "movups", T_0F | T_YMM},
+			{ 0x11, "movupd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1},
+			{ 0x11, "movups", T_0F | T_YMM | T_EVEX | T_EW0},
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
