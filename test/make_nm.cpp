@@ -2612,6 +2612,7 @@ public:
 		put("vmovq", MEM|REG64|XMM, _XMM3);
 		put("vmovhlps", _XMM3, _XMM3, _XMM3);
 		put("vmovlhps", _XMM3, _XMM3, _XMM3);
+		put("vmovntdqa", _XMM3|_YMM3|ZMM, MEM);
 		{
 			const char tbl[][16] = {
 				"vmovhpd",

@@ -1820,10 +1820,14 @@ private:
 		// use static_cast to avoid calling unintentional copy constructor on gcc
 		opAVX_X_X_XM(x1, op1, cvt ? kind == Operand::XMM ? static_cast<const Operand&>(Xmm(op2.getIdx())) : static_cast<const Operand&>(Ymm(op2.getIdx())) : op2, type, code0, imm8);
 	}
+	const Xmm& cvtIdx0(const Operand& x) const
+	{
+		return x.isXMM() ? xm0 : x.isYMM() ? ym0 : zm0;
+	}
 	// support (x, x/m, imm), (y, y/m, imm)
 	void opAVX_X_XM_IMM(const Xmm& x, const Operand& op, int type, int code, int imm8 = NONE)
 	{
-		opAVX_X_X_XM(x, x.isXMM() ? xm0 : x.isYMM() ? ym0 : zm0, op, type, code, imm8);
+		opAVX_X_X_XM(x, cvtIdx0(x), op, type, code, imm8);
 	}
 	// QQQ:need to refactor
 	void opSp1(const Reg& reg, const Operand& op, uint8 pref, uint8 code0, uint8 code1)
