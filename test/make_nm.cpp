@@ -2594,8 +2594,6 @@ public:
 		const char *tbl[] = {
 			"vmovapd",
 			"vmovaps",
-//			"vmovdqa",
-//			"vmovdqu",
 			"vmovupd",
 			"vmovups",
 		};
@@ -2612,6 +2610,20 @@ public:
 		put("vmovd", MEM|REG32, _XMM3);
 		put("vmovq", _XMM3, MEM|REG64|XMM);
 		put("vmovq", MEM|REG64|XMM, _XMM3);
+		put("vmovhlps", _XMM3, _XMM3, _XMM3);
+		put("vmovlhps", _XMM3, _XMM3, _XMM3);
+		{
+			const char tbl[][16] = {
+				"vmovhpd",
+				"vmovhps",
+				"vmovlpd",
+				"vmovlps",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				put(tbl[i], _XMM3, _XMM3, MEM);
+				put(tbl[i], MEM, _XMM3);
+			}
+		}
 #endif
 	}
 	void put512_X_MX()
