@@ -1465,7 +1465,7 @@ void vmovmskpd(const Reg& r, const Xmm& x) { if (!r.isBit(i32e)) throw Error(ERR
 void vmovmskps(const Reg& r, const Xmm& x) { if (!r.isBit(i32e)) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XM(x.isXMM() ? Xmm(r.getIdx()) : Ymm(r.getIdx()), cvtIdx0(x), x, T_0F | T_W0 | T_YMM, 0x50); }
 void vmovntdq(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, cvtIdx0(x), addr, T_0F | T_66 | T_YMM | T_EVEX | T_EW0, 0xE7); }
 void vmovntpd(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, cvtIdx0(x), addr, T_0F | T_66 | T_YMM | T_EVEX | T_EW1, 0x2B); }
-void vmovntps(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, cvtIdx0(x), addr, T_0F | T_YMM, 0x2B); }
+void vmovntps(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, cvtIdx0(x), addr, T_0F | T_YMM | T_EVEX | T_EW0, 0x2B); }
 void vmovntdqa(const Xmm& x, const Address& addr) { opAVX_X_X_XM(x, cvtIdx0(x), addr, T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0, 0x2A); }
 void vmovsd(const Xmm& x1, const Xmm& x2, const Operand& op = Operand()) { if (!op.isNone() && !op.isXMM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XM(x1, x2, op, T_0F | T_F2, 0x10); }
 void vmovsd(const Xmm& x, const Address& addr) { opAVX_X_X_XM(x, xm0, addr, T_0F | T_F2, 0x10); }

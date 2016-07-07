@@ -1535,7 +1535,7 @@ void put()
 
 		printf("void vmovntdq(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, cvtIdx0(x), addr, T_0F | T_66 | T_YMM | T_EVEX | T_EW0, 0xE7); }\n");
 		printf("void vmovntpd(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, cvtIdx0(x), addr, T_0F | T_66 | T_YMM | T_EVEX | T_EW1, 0x2B); }\n");
-		printf("void vmovntps(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, cvtIdx0(x), addr, T_0F | T_YMM, 0x2B); }\n");
+		printf("void vmovntps(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, cvtIdx0(x), addr, T_0F | T_YMM | T_EVEX | T_EW0, 0x2B); }\n");
 		printf("void vmovntdqa(const Xmm& x, const Address& addr) { opAVX_X_X_XM(x, cvtIdx0(x), addr, T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0, 0x2A); }\n");
 
 		// vmovsd, vmovss
