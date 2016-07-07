@@ -93,7 +93,16 @@ const uint64 ZMM_ER = 1ULL << 49;
 #ifdef XBYAK64
 const uint64 _XMM3 = 1ULL << 50;
 #endif
-const uint64 XMM_SAE = 1ULL << 51; // max value
+const uint64 XMM_SAE = 1ULL << 51;
+#ifdef XBYAK64
+const uint64 XMM_KZ = 1ULL << 52;
+const uint64 YMM_KZ = 1ULL << 53;
+const uint64 ZMM_KZ = 1ULL << 54; // max value
+#else
+const uint64 XMM_KZ = 0;
+const uint64 YMM_KZ = 0;
+const uint64 ZMM_KZ = 0;
+#endif
 
 const uint64 NOPARA = 1ULL << (bitEnd - 1);
 
@@ -373,6 +382,12 @@ class Test {
 			return isXbyak_ ? "zmm25 | T_sae" : "zmm25, {sae}";
 		case ZMM_ER:
 			return isXbyak_ ? "zmm20 | T_rd_sae" : "zmm20, {rd-sae}";
+		case XMM_KZ:
+			return isXbyak_ ? "xmm5 | k5" : "xmm5{k5}";
+		case YMM_KZ:
+			return isXbyak_ ? "ymm2 |k3|T_z" : "ymm2{k3}{z}";
+		case ZMM_KZ:
+			return isXbyak_ ? "zmm7|k1" : "zmm7{k1}";
 #else
 		case XMM_SAE:
 			return isXbyak_ ? "xmm5 | T_sae" : "xmm5, {sae}";
@@ -2599,6 +2614,18 @@ public:
 		put("vmovq", MEM|REG64|XMM, _XMM3);
 #endif
 	}
+	void put512_X_MX()
+	{
+		const char *tbl[] = {
+			"vmovddup",
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const char *name = tbl[i];
+			put(name, XMM|XMM_KZ, XMM|MEM);
+			put(name, YMM|YMM_KZ, YMM|MEM);
+			put(name, ZMM|ZMM_KZ, ZMM|MEM);
+		}
+	}
 	void putAVX512()
 	{
 		putOpmask();
@@ -2607,6 +2634,7 @@ public:
 		putBroadcast();
 		putAVX512_M_X();
 		put_vmov();
+		put512_X_MX();
 	}
 #endif
 };
