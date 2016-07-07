@@ -1,5 +1,5 @@
 
-Xbyak 5.00 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.00beta ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
