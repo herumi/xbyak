@@ -2590,6 +2590,15 @@ public:
 			put(name, ZMM, MEM);
 		}
 	}
+	void put_vmov()
+	{
+#ifdef XBYAK64
+		put("vmovd", _XMM3, MEM|REG32);
+		put("vmovd", MEM|REG32, _XMM3);
+		put("vmovq", _XMM3, MEM|REG64|XMM);
+		put("vmovq", MEM|REG64|XMM, _XMM3);
+#endif
+	}
 	void putAVX512()
 	{
 		putOpmask();
@@ -2597,6 +2606,7 @@ public:
 		putCmpK();
 		putBroadcast();
 		putAVX512_M_X();
+		put_vmov();
 	}
 #endif
 };
