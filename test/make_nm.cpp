@@ -2616,16 +2616,27 @@ public:
 	}
 	void put512_X_MX()
 	{
-		const char *tbl[] = {
-			"vmovddup",
-			"vmovdqa32",
-			"vmovdqa64",
+		const struct Tbl {
+			const char *name;
+			bool M_X;
+		} tbl[] = {
+			{ "vmovddup", false },
+			{ "vmovdqa32", true },
+			{ "vmovdqa64", true },
+			{ "vmovdqu8", true },
+			{ "vmovdqu16", true },
+			{ "vmovdqu32", true },
+			{ "vmovdqu64", true },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-			const char *name = tbl[i];
-			put(name, XMM|XMM_KZ, XMM|MEM);
-			put(name, YMM|YMM_KZ, YMM|MEM);
-			put(name, ZMM|ZMM_KZ, ZMM|MEM);
+			const Tbl& p = tbl[i];
+			put(p.name, XMM|XMM_KZ, XMM|MEM);
+			put(p.name, YMM|YMM_KZ, YMM|MEM);
+			put(p.name, ZMM|ZMM_KZ, ZMM|MEM);
+			if (!p.M_X) continue;
+			put(p.name, MEM, XMM);
+			put(p.name, MEM, YMM);
+			put(p.name, MEM, ZMM);
 		}
 	}
 	void putAVX512()
