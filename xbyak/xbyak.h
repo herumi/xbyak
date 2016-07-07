@@ -24,7 +24,7 @@
 #include <iostream>
 #endif
 
-// #define XBYAK_AVX512
+// #define XBYAK_DISABLE_AVX512
 
 //#define XBYAK_USE_MMAP_ALLOCATOR
 #if !defined(__GNUC__) || defined(__MINGW32__)
@@ -2424,9 +2424,9 @@ public:
 			nop();
 		}
 	}
-#endif
-#ifdef XBYAK_AVX512
+#ifndef XBYAK_DISABLE_AVX512
 #include "xbyak_avx512.h"
+#endif
 #endif
 };
 

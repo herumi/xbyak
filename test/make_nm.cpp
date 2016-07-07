@@ -2618,6 +2618,8 @@ public:
 	{
 		const char *tbl[] = {
 			"vmovddup",
+			"vmovdqa32",
+			"vmovdqa64",
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const char *name = tbl[i];

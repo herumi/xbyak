@@ -1,4 +1,4 @@
-#ifdef XBYAK_AVX512
+#ifndef XBYAK_DISABLE_AVX512
 void kaddw(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opVex(r1, &r2, r3, T_L1 | T_0F | T_W0, 0x4A); }
 void kaddq(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opVex(r1, &r2, r3, T_L1 | T_0F | T_W1, 0x4A); }
 void kaddb(const Opmask& r1, const Opmask& r2, const Opmask& r3) { opVex(r1, &r2, r3, T_L1 | T_0F | T_66 | T_W0, 0x4A); }
@@ -68,4 +68,8 @@ void vcmppd(const Opmask& k, const Xmm& x, const Operand& op, uint8 imm) { opAVX
 void vcmpps(const Opmask& k, const Xmm& x, const Operand& op, uint8 imm) { opAVX_K_X_XM(k, x, op, T_0F | T_EW0 | T_YMM | T_EVEX | T_SAE_Z | T_MUST_EVEX, 0xC2, imm); }
 void vcmpsd(const Opmask& k, const Xmm& x, const Operand& op, uint8 imm) { opAVX_K_X_XM(k, x, op, T_0F | T_F2 | T_EW1 | T_EVEX | T_SAE_Z | T_MUST_EVEX, 0xC2, imm); }
 void vcmpss(const Opmask& k, const Xmm& x, const Operand& op, uint8 imm) { opAVX_K_X_XM(k, x, op, T_0F | T_F3 | T_EW0 | T_EVEX | T_SAE_Z | T_MUST_EVEX, 0xC2, imm); }
+void vmovdqa32(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_0F | T_66 | T_EW0 | T_YMM | T_EVEX | T_ER_X | T_ER_Y | T_ER_Z | T_MUST_EVEX, 0x6F); }
+void vmovdqa64(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX | T_ER_X | T_ER_Y | T_ER_Z | T_MUST_EVEX, 0x6F); }
+void vmovdqa32(const Address& addr, const Xmm& x) { opAVX_X_XM_IMM(x, addr, T_0F | T_66 | T_EW0 | T_YMM | T_EVEX | T_ER_X | T_ER_Y | T_ER_Z | T_MUST_EVEX, 0x7F); }
+void vmovdqa64(const Address& addr, const Xmm& x) { opAVX_X_XM_IMM(x, addr, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX | T_ER_X | T_ER_Y | T_ER_Z | T_MUST_EVEX, 0x7F); }
 #endif

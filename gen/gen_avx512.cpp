@@ -114,10 +114,47 @@ void putVcmp()
 	}
 }
 
+// XM_X
+void putX_XM()
+{
+	const struct Tbl {
+		uint8 code;
+		const char *name;
+		int type;
+	} tbl[] = {
+		{ 0x6F, "vmovdqa32", T_66 | T_0F | T_EVEX | T_MUST_EVEX | T_YMM | T_EW0 | T_ER_X | T_ER_Y | T_ER_Z },
+		{ 0x6F, "vmovdqa64", T_66 | T_0F | T_EVEX | T_MUST_EVEX | T_YMM | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z },
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		const Tbl *p = &tbl[i];
+		std::string type = type2String(p->type);
+		printf("void %s(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, %s, 0x%02X); }\n", p->name, type.c_str(), p->code);
+	}
+}
+
+void putM_X()
+{
+	const struct Tbl {
+		uint8 code;
+		const char *name;
+		int type;
+	} tbl[] = {
+		{ 0x7F, "vmovdqa32", T_66 | T_0F | T_EVEX | T_MUST_EVEX | T_YMM | T_EW0 | T_ER_X | T_ER_Y | T_ER_Z },
+		{ 0x7F, "vmovdqa64", T_66 | T_0F | T_EVEX | T_MUST_EVEX | T_YMM | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z },
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		const Tbl *p = &tbl[i];
+		std::string type = type2String(p->type);
+		printf("void %s(const Address& addr, const Xmm& x) { opAVX_X_XM_IMM(x, addr, %s, 0x%02X); }\n", p->name, type.c_str(), p->code);
+	}
+}
+
 int main()
 {
-	puts("#ifdef XBYAK_AVX512");
+	puts("#ifndef XBYAK_DISABLE_AVX512");
 	putOpmask();
 	putVcmp();
+	putX_XM();
+	putM_X();
 	puts("#endif");
 }
