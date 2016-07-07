@@ -2613,6 +2613,7 @@ public:
 		put("vmovhlps", _XMM3, _XMM3, _XMM3);
 		put("vmovlhps", _XMM3, _XMM3, _XMM3);
 		put("vmovntdqa", _XMM3|_YMM3|ZMM, MEM);
+		put("vmovntdq", MEM, _XMM3 | _YMM3 | ZMM);
 		{
 			const char tbl[][16] = {
 				"vmovhpd",
