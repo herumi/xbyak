@@ -1209,8 +1209,8 @@ void put()
 			{ 0x12, "movddup", T_0F | T_F2 | T_YMM | T_EVEX | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z, false },
 			{ 0x6F, "movdqa", T_0F | T_66 | T_YMM, false },
 			{ 0x6F, "movdqu", T_0F | T_F3 | T_YMM, false },
-			{ 0x16, "movshdup", T_0F | T_F3 | T_YMM, false },
-			{ 0x12, "movsldup", T_0F | T_F3 | T_YMM, false },
+			{ 0x16, "movshdup", T_0F | T_F3 | T_YMM | T_EVEX | T_EW0, false },
+			{ 0x12, "movsldup", T_0F | T_F3 | T_YMM | T_EVEX | T_EW0, false },
 			{ 0x10, "movupd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1, false },
 			{ 0x10, "movups", T_0F | T_YMM | T_EVEX | T_EW0, false },
 

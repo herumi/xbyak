@@ -2628,6 +2628,10 @@ public:
 		put("vmovss", XMM_KZ, _XMM3, _XMM3);
 		put("vmovss", XMM_KZ, MEM);
 		put("vmovss", MEM_K, XMM);
+
+		put("vmovshdup", _ZMM, _ZMM);
+		put("vmovsldup", _ZMM, _ZMM);
+
 		{
 			const char tbl[][16] = {
 				"vmovhpd",
