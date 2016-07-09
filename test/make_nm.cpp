@@ -2672,6 +2672,8 @@ public:
 			{ "vmovdqu16", true },
 			{ "vmovdqu32", true },
 			{ "vmovdqu64", true },
+			{ "vsqrtpd", false },
+			{ "vsqrtps", false },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
