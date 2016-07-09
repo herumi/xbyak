@@ -97,12 +97,13 @@ const uint64 XMM_SAE = 1ULL << 51;
 #ifdef XBYAK64
 const uint64 XMM_KZ = 1ULL << 52;
 const uint64 YMM_KZ = 1ULL << 53;
-const uint64 ZMM_KZ = 1ULL << 54; // max value
+const uint64 ZMM_KZ = 1ULL << 54;
 #else
 const uint64 XMM_KZ = 0;
 const uint64 YMM_KZ = 0;
 const uint64 ZMM_KZ = 0;
 #endif
+const uint64 MEM_K = 1ULL << 55; // max value
 
 const uint64 NOPARA = 1ULL << (bitEnd - 1);
 
@@ -388,6 +389,8 @@ class Test {
 			return isXbyak_ ? "ymm2 |k3|T_z" : "ymm2{k3}{z}";
 		case ZMM_KZ:
 			return isXbyak_ ? "zmm7|k1" : "zmm7{k1}";
+		case MEM_K:
+			return isXbyak_ ? "ptr [rax] | k1" : "[rax]{k1}";
 #else
 		case XMM_SAE:
 			return isXbyak_ ? "xmm5 | T_sae" : "xmm5, {sae}";
@@ -395,6 +398,8 @@ class Test {
 			return isXbyak_ ? "zmm5 | T_sae" : "zmm5, {sae}";
 		case ZMM_ER:
 			return isXbyak_ ? "zmm2 | T_rd_sae" : "zmm2, {rd-sae}";
+		case MEM_K:
+			return isXbyak_ ? "ptr [eax] | k1" : "[eax]{k1}";
 #endif
 		}
 		return 0;
@@ -2616,6 +2621,13 @@ public:
 		put("vmovntdq", MEM, _XMM3 | _YMM3 | ZMM);
 		put("vmovntpd", MEM, _XMM3 | _YMM3 | ZMM);
 		put("vmovntps", MEM, _XMM3 | _YMM3 | ZMM);
+
+		put("vmovsd", XMM_KZ, _XMM3, _XMM3);
+		put("vmovsd", XMM_KZ, MEM);
+		put("vmovsd", MEM_K, XMM);
+		put("vmovss", XMM_KZ, _XMM3, _XMM3);
+		put("vmovss", XMM_KZ, MEM);
+		put("vmovss", MEM_K, XMM);
 		{
 			const char tbl[][16] = {
 				"vmovhpd",

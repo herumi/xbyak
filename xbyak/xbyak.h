@@ -172,6 +172,7 @@ enum {
 	ERR_SAE_IS_INVALID,
 	ERR_ER_IS_INVALID,
 	ERR_INVALID_BROADCAST,
+	ERR_INVALID_OPMASK_WITH_MEMORY,
 	ERR_INTERNAL
 };
 
@@ -229,6 +230,7 @@ public:
 			"sae(suppress all exceptions) is invalid",
 			"er(embedded rounding) is invalid",
 			"invalid broadcast",
+			"invalid opmask with memory",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -546,7 +548,7 @@ struct Opmask : public Reg {
 template<class T>
 T operator|(const T& x, const Opmask& k)
 {
-	if (!x.is(Operand::XMM | Operand::YMM | Operand::ZMM | Operand::OPMASK)) throw Error(ERR_BAD_COMBINATION);
+	if (!x.is(Operand::XMM | Operand::YMM | Operand::ZMM | Operand::OPMASK | Operand::MEM)) throw Error(ERR_BAD_COMBINATION);
 	T r(x);
 	r.setOpmaskIdx(k.getIdx());
 	return r;
@@ -955,7 +957,7 @@ public:
 	}
 #ifdef XBYAK64
 	explicit Address(size_t disp)
-		: Operand(0, MEM, 64), e_(disp), label_(0), mode_(M_64bitDisp), permitVsib_(false), broadcast_(false) { }
+		: Operand(0, MEM, 64), e_(disp), label_(0), mode_(M_64bitDisp), permitVsib_(false), broadcast_(false){ }
 	Address(uint32 sizeBit, bool broadcast, const RegRip& addr)
 		: Operand(0, MEM, sizeBit), e_(addr.disp_), label_(addr.label_), mode_(M_rip), permitVsib_(false), broadcast_(broadcast) { }
 #endif
@@ -1364,6 +1366,7 @@ private:
 		T_MUST_EVEX = 1 << 23,
 		T_B32 = 1 << 24, // m32bcst
 		T_B64 = 1 << 25, // m64bcst
+		T_M_K = 1 << 26, // mem{k}
 		T_XXX
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
@@ -1401,7 +1404,7 @@ private:
 		T_RZ_SAE = 4,
 		T_SAE = 5,
 	};
-	void evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool b = false)
+	void evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool b = false, int aaa = 0)
 	{
 		if (!(type & T_EVEX)) throw Error(ERR_EVEX_IS_INVALID);
 		int w = (type & T_EW1) ? 1 : 0;
@@ -1431,7 +1434,7 @@ private:
 		}
 		bool Vp = !(v ? v->isExtIdx2() : 0);
 		bool z = reg.hasZero();
-		int aaa = reg.getOpmaskIdx();
+		if (aaa == 0) aaa = reg.getOpmaskIdx();
 		db(0x62);
 		db((R ? 0x80 : 0) | (X ? 0x40 : 0) | (B ? 0x20 : 0) | (Rp ? 0x10 : 0) | (mm & 3));
 		db((w == 1 ? 0x80 : 0) | ((vvvv & 15) << 3) | 4 | (pp & 3));
@@ -1756,7 +1759,9 @@ private:
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			int disp8N = 0;
 			bool x = addr.getRegExp().getIndex().isExtIdx();
-			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || addr.isBroadcast()) {
+			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || addr.isBroadcast() || addr.getOpmaskIdx()) {
+				int aaa = addr.getOpmaskIdx();
+				if (aaa & !(type & T_M_K)) throw Error(ERR_INVALID_OPMASK_WITH_MEMORY);
 				bool b = false;
 				if (addr.isBroadcast()) {
 					if (!(type & (T_B32 | T_B64))) throw Error(ERR_INVALID_BROADCAST);
@@ -1765,7 +1770,7 @@ private:
 				} else {
 					disp8N = 1;
 				}
-				evex(r, base, p1, type, code, x, b);
+				evex(r, base, p1, type, code, x, b, aaa);
 			} else {
 				vex(r, base, p1, type, code, x);
 			}

@@ -1541,10 +1541,12 @@ void put()
 		// vmovsd, vmovss
 		for (int i = 0; i < 2; i++) {
 			char c1 = i == 0 ? 'd' : 's';
-			char c2 = i == 0 ? '2' : '3';
-			printf("void vmovs%c(const Xmm& x1, const Xmm& x2, const Operand& op = Operand()) { if (!op.isNone() && !op.isXMM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XM(x1, x2, op, T_0F | T_F%c, 0x10); }\n", c1, c2);
-			printf("void vmovs%c(const Xmm& x, const Address& addr) { opAVX_X_X_XM(x, xm0, addr, T_0F | T_F%c, 0x10); }\n", c1, c2);
-			printf("void vmovs%c(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, xm0, addr, T_0F | T_F%c, 0x11); }\n", c1, c2);
+			int type = T_0F | T_EVEX;
+			type |= i == 0 ? T_F2 | T_EW1 : T_F3 | T_EW0;
+			std::string s = type2String(type);
+			printf("void vmovs%c(const Xmm& x1, const Xmm& x2, const Operand& op = Operand()) { if (!op.isNone() && !op.isXMM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XM(x1, x2, op, %s, 0x10); }\n", c1, s.c_str());
+			printf("void vmovs%c(const Xmm& x, const Address& addr) { opAVX_X_X_XM(x, xm0, addr, %s, 0x10); }\n", c1, s.c_str());
+			printf("void vmovs%c(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, xm0, addr, %s | T_M_K, 0x11); }\n", c1, s.c_str());
 		}
 	}
 	// cvt

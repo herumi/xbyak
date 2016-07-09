@@ -24,6 +24,7 @@ enum {
 	T_MUST_EVEX = 1 << 23,
 	T_B32 = 1 << 24, // m32bcst
 	T_B64 = 1 << 25, // m64bcst
+	T_M_K = 1 << 26, // mem{k}
 	T_XXX
 };
 
@@ -123,6 +124,10 @@ std::string type2String(int type)
 	if (type & T_B64) {
 		if (!str.empty()) str += " | ";
 		str += "T_B64";
+	}
+	if (type & T_M_K) {
+		if (!str.empty()) str += " | ";
+		str += "T_M_K";
 	}
 	return str;
 }
