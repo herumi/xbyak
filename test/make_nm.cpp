@@ -2632,6 +2632,19 @@ public:
 		put("vmovshdup", _ZMM, _ZMM);
 		put("vmovsldup", _ZMM, _ZMM);
 
+
+		{
+			const char *tbl[] = {
+				"valignd",
+				"valignq",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				const char *name = tbl[i];
+				put(name, XMM_KZ, _XMM, _XMM | MEM, IMM);
+				put(name, _YMM3, _YMM3, _YMM3, IMM);
+				put(name, _ZMM, _ZMM, _ZMM, IMM);
+			}
+		}
 		{
 			const char tbl[][16] = {
 				"vmovhpd",

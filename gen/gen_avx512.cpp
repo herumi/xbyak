@@ -157,6 +157,25 @@ void putM_X()
 	}
 }
 
+void putX_X_XM_IMM()
+{
+	const struct Tbl {
+		uint8 code;
+		const char *name;
+		int type;
+		bool hasIMM;
+	} tbl[] = {
+		{ 0x03, "valignd", T_EVEX | T_MUST_EVEX | T_66 | T_0F3A | T_EW0 | T_YMM, true },
+		{ 0x03, "valignq", T_EVEX | T_MUST_EVEX | T_66 | T_0F3A | T_EW1 | T_YMM, true }
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		const Tbl *p = &tbl[i];
+		std::string type = type2String(p->type);
+		printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op%s) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X%s); }\n"
+			, p->name, p->hasIMM ? ", uint8 imm" : "", type.c_str(), p->code, p->hasIMM ? ", imm" : "");
+	}
+}
+
 int main()
 {
 	puts("#ifndef XBYAK_DISABLE_AVX512");
@@ -164,5 +183,6 @@ int main()
 	putVcmp();
 	putX_XM();
 	putM_X();
+	putX_X_XM_IMM();
 	puts("#endif");
 }
