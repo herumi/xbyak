@@ -2772,6 +2772,9 @@ public:
 
 			{ "vpandnd", ZMM_KZ, _ZMM, _ZMM | M_1to16 },
 			{ "vpandnq", ZMM_KZ, _ZMM, _ZMM | M_1to8 },
+
+			{ "vpavgb", ZMM_KZ, _ZMM, _ZMM },
+			{ "vpavgw", ZMM_KZ, _ZMM, _ZMM },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];

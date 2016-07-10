@@ -1066,8 +1066,8 @@ void put()
 			{ 0xDB, "pand", T_0F | T_66 | T_YMM, false, true },
 			{ 0xDF, "pandn", T_0F | T_66 | T_YMM, false, true },
 
-			{ 0xE0, "pavgb", T_0F | T_66 | T_YMM, false, true },
-			{ 0xE3, "pavgw", T_0F | T_66 | T_YMM, false, true },
+			{ 0xE0, "pavgb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xE3, "pavgw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
 
 			{ 0x74, "pcmpeqb", T_0F | T_66 | T_YMM, false, true },
 			{ 0x75, "pcmpeqw", T_0F | T_66 | T_YMM, false, true },
