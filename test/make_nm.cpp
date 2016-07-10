@@ -2736,6 +2736,12 @@ public:
 			const Tbl& p = tbl[i];
 			put(p.name, p.x1, p.x2, p.xm, IMM);
 		}
+#ifdef XBYAK64
+		put("vpextrb", _REG64, _XMM3, IMM);
+		put("vpextrw", _REG64|MEM, _XMM3, IMM);
+		put("vpextrd", _REG32, _XMM3, IMM);
+		put("vpextrq", _REG64, _XMM3, IMM);
+#endif
 	}
 	void putAVX512()
 	{
