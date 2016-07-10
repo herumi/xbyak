@@ -2553,10 +2553,10 @@ public:
 			};
 			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 				const Tbl *p = &tbl[i];
-				put(p->name, K, XMM, XMM | MEM, IMM);
+				put(p->name, K, _XMM, _XMM | MEM, IMM);
 				if (!p->supportYMM) continue;
-				put(p->name, K, YMM, YMM | MEM, IMM);
-				put(p->name, K, ZMM, ZMM | MEM, IMM);
+				put(p->name, K, _YMM, _YMM | MEM, IMM);
+				put(p->name, K, _ZMM, _ZMM | MEM, IMM);
 			}
 		}
 		put("vcmppd", K2, ZMM, ZMM_SAE, IMM);
@@ -2683,13 +2683,13 @@ public:
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			put(p.name, XMM|XMM_KZ, XMM|MEM);
-			put(p.name, YMM|YMM_KZ, YMM|MEM);
-			put(p.name, ZMM|ZMM_KZ, ZMM|MEM);
+			put(p.name, _XMM|XMM_KZ, _XMM|MEM);
+			put(p.name, _YMM|YMM_KZ, _YMM|MEM);
+			put(p.name, _ZMM|ZMM_KZ, _ZMM|MEM);
 			if (!p.M_X) continue;
-			put(p.name, MEM, XMM);
-			put(p.name, MEM, YMM);
-			put(p.name, MEM, ZMM);
+			put(p.name, MEM, _XMM);
+			put(p.name, MEM, _YMM);
+			put(p.name, MEM, _ZMM);
 		}
 		put("vsqrtpd", XMM_KZ, M_1to2);
 		put("vsqrtpd", YMM_KZ, M_1to4);
@@ -2705,13 +2705,18 @@ public:
 	{
 		const struct Tbl {
 			const char *name;
+			uint64_t mem;
 		} tbl[] = {
-			{ "vsqrtsd" },
-			{ "vsqrtss" },
+			{ "vsqrtsd", MEM },
+			{ "vsqrtss", MEM },
+			{ "vunpckhpd", M_1to2 },
+			{ "vunpckhps", M_1to4 },
+			{ "vunpcklpd", M_1to2 },
+			{ "vunpcklps", M_1to4 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			put(p.name, XMM_KZ, XMM, XMM|MEM);
+			put(p.name, XMM_KZ, _XMM, _XMM|p.mem);
 		}
 	}
 	void putAVX512()
