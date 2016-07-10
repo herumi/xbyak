@@ -1827,7 +1827,7 @@ private:
 	}
 	const Xmm& cvtIdx0(const Operand& x) const
 	{
-		return x.isXMM() ? xm0 : x.isYMM() ? ym0 : zm0;
+		return x.isZMM() ? zm0 : x.isYMM() ? ym0 : xm0;
 	}
 	// support (x, x/m, imm), (y, y/m, imm)
 	void opAVX_X_XM_IMM(const Xmm& x, const Operand& op, int type, int code, int imm8 = NONE)
