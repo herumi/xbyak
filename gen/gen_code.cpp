@@ -1044,7 +1044,7 @@ void put()
 			{ 0xC2, "cmpss", T_0F | T_F3, true, true },
 			{ 0x5A, "cvtsd2ss", T_0F | T_F2, false, true },
 			{ 0x5A, "cvtss2sd", T_0F | T_F3, false, true },
-			{ 0x21, "insertps", T_0F3A | T_66 | T_W0, true, true },
+			{ 0x21, "insertps", T_0F3A | T_66 | T_W0 | T_EVEX | T_EW0, true, true },
 			{ 0x63, "packsswb", T_0F | T_66 | T_YMM, false, true },
 			{ 0x6B, "packssdw", T_0F | T_66 | T_YMM, false, true },
 			{ 0x67, "packuswb", T_0F | T_66 | T_YMM, false, true },
