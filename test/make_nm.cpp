@@ -2775,6 +2775,12 @@ public:
 
 			{ "vpavgb", ZMM_KZ, _ZMM, _ZMM },
 			{ "vpavgw", ZMM_KZ, _ZMM, _ZMM },
+
+			{ "vpcmpeqb", K2, _ZMM, _ZMM | _MEM },
+			{ "vpcmpeqw", K2, _ZMM, _ZMM | _MEM },
+			{ "vpcmpeqd", K2, _ZMM, _ZMM | M_1to16 },
+			{ "vpcmpeqq", K2, _ZMM, _ZMM | M_1to8 },
+
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];

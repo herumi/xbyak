@@ -101,15 +101,19 @@ void putVcmp()
 		int type;
 		bool hasIMM;
 	} tbl[] = {
-		{ 0xC2, "cmppd", T_0F | T_EVEX | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_YMM | T_66, true },
-		{ 0xC2, "cmpps", T_0F | T_EVEX | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_YMM, true },
-		{ 0xC2, "cmpsd", T_0F | T_EVEX | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_F2, true },
-		{ 0xC2, "cmpss", T_0F | T_EVEX | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_F3, true },
+		{ 0xC2, "vcmppd", T_0F | T_EVEX | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_YMM | T_66, true },
+		{ 0xC2, "vcmpps", T_0F | T_EVEX | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_YMM, true },
+		{ 0xC2, "vcmpsd", T_0F | T_EVEX | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_F2, true },
+		{ 0xC2, "vcmpss", T_0F | T_EVEX | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_F3, true },
+		{ 0x76, "vpcmpeqd", T_66 | T_0F | T_EVEX | T_MUST_EVEX | T_YMM | T_B32, false },
+		{ 0x29, "vpcmpeqq", T_66 | T_0F38 | T_EVEX | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
+		{ 0x74, "vpcmpeqb", T_66 | T_0F | T_EVEX | T_MUST_EVEX | T_YMM, false },
+		{ 0x75, "vpcmpeqw", T_66 | T_0F | T_EVEX | T_MUST_EVEX | T_YMM, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
 		std::string type = type2String(p->type);
-		printf("void v%s(const Opmask& k, const Xmm& x, const Operand& op%s) { opAVX_K_X_XM(k, x, op, %s, 0x%02X%s); }\n"
+		printf("void %s(const Opmask& k, const Xmm& x, const Operand& op%s) { opAVX_K_X_XM(k, x, op, %s, 0x%02X%s); }\n"
 			, p->name, p->hasIMM ? ", uint8 imm" : "", type.c_str(), p->code, p->hasIMM ? ", imm" : "");
 	}
 }
