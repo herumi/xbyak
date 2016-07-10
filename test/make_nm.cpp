@@ -2726,6 +2726,37 @@ public:
 			put(p.name, XMM_KZ, _XMM, _XMM|p.mem);
 		}
 	}
+	void put512_X3()
+	{
+#ifdef XBYAK64
+		const struct Tbl {
+			const char *name;
+			uint64_t x1;
+			uint64_t x2;
+			uint64_t xm;
+		} tbl[] = {
+			{ "vpacksswb", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpacksswb", YMM_KZ, _YMM, _YMM | _MEM },
+			{ "vpacksswb", ZMM_KZ, _ZMM, _ZMM | _MEM },
+
+			{ "vpackssdw", XMM_KZ, _XMM, _XMM | M_1to4 },
+			{ "vpackssdw", YMM_KZ, _YMM, _YMM | M_1to8 },
+			{ "vpackssdw", ZMM_KZ, _ZMM, _ZMM | M_1to16 },
+
+			{ "vpackusdw", XMM_KZ, _XMM, _XMM | M_1to4 },
+			{ "vpackusdw", YMM_KZ, _YMM, _YMM | M_1to8 },
+			{ "vpackusdw", ZMM_KZ, _ZMM, _ZMM | M_1to16 },
+
+			{ "vpackuswb", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpackuswb", YMM_KZ, _YMM, _YMM | _MEM },
+			{ "vpackuswb", ZMM_KZ, _ZMM, _ZMM | _MEM },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			put(p.name, p.x1, p.x2, p.xm);
+		}
+#endif
+	}
 	void put512_X3_I()
 	{
 		const struct Tbl {
@@ -2764,6 +2795,7 @@ public:
 		put_vmov();
 		put512_X_XM();
 		put512_X_X_XM();
+		put512_X3();
 		put512_X3_I();
 	}
 #endif
