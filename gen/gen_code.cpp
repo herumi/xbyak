@@ -1162,8 +1162,8 @@ void put()
 			{ 0xC6, "shufpd", T_0F | T_66 | T_YMM, true, true },
 			{ 0xC6, "shufps", T_0F | T_YMM, true, true },
 
-			{ 0x51, "sqrtsd", T_0F | T_F2, false, true },
-			{ 0x51, "sqrtss", T_0F | T_F3, false, true },
+			{ 0x51, "sqrtsd", T_0F | T_F2 | T_EVEX | T_EW1 | T_ER_X, false, true },
+			{ 0x51, "sqrtss", T_0F | T_F3 | T_EVEX | T_EW0 | T_ER_X, false, true },
 
 			{ 0x15, "unpckhpd", T_0F | T_66 | T_YMM, false, true },
 			{ 0x15, "unpckhps", T_0F | T_YMM, false, true },
@@ -1241,8 +1241,8 @@ void put()
 			{ 0x53, "rcpps", T_0F | T_YMM, false },
 			{ 0x52, "rsqrtps", T_0F | T_YMM, false },
 
-			{ 0x51, "sqrtpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_ER_Z, false },
-			{ 0x51, "sqrtps", T_0F | T_YMM | T_EVEX | T_EW0 | T_ER_Z, false },
+			{ 0x51, "sqrtpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_ER_Z | T_B32 | T_B64, false },
+			{ 0x51, "sqrtps", T_0F | T_YMM | T_EVEX | T_EW0 | T_ER_Z | T_B32, false },
 
 			{ 0x2E, "ucomisd", T_0F | T_66 | T_EVEX | T_EW1 | T_SAE_X, false },
 			{ 0x2E, "ucomiss", T_0F | T_EVEX | T_EW0 | T_SAE_X, false },

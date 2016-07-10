@@ -2686,6 +2686,19 @@ public:
 			put(p.name, MEM, ZMM);
 		}
 	}
+	void put512_X_X_XM()
+	{
+		const struct Tbl {
+			const char *name;
+		} tbl[] = {
+			{ "vsqrtsd" },
+			{ "vsqrtss" },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			put(p.name, XMM_KZ, XMM, XMM|MEM);
+		}
+	}
 	void putAVX512()
 	{
 		putOpmask();
@@ -2695,6 +2708,7 @@ public:
 		putAVX512_M_X();
 		put_vmov();
 		put512_X_MX();
+		put512_X_X_XM();
 	}
 #endif
 };

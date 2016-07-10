@@ -950,9 +950,9 @@ void vshufpd(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { opAVX
 void vshufpd(const Xmm& x, const Operand& op, uint8 imm) { vshufpd(x, x, op, imm); }
 void vshufps(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { opAVX_X_X_XM(x1, x2, op, T_0F | T_YMM, 0xC6, imm); }
 void vshufps(const Xmm& x, const Operand& op, uint8 imm) { vshufps(x, x, op, imm); }
-void vsqrtsd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_F2, 0x51); }
+void vsqrtsd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_F2 | T_EW1 | T_EVEX | T_ER_X, 0x51); }
 void vsqrtsd(const Xmm& x, const Operand& op) { vsqrtsd(x, x, op); }
-void vsqrtss(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_F3, 0x51); }
+void vsqrtss(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_F3 | T_EW0 | T_EVEX | T_ER_X, 0x51); }
 void vsqrtss(const Xmm& x, const Operand& op) { vsqrtss(x, x, op); }
 void vunpckhpd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0x15); }
 void vunpckhpd(const Xmm& x, const Operand& op) { vunpckhpd(x, x, op); }
@@ -1009,8 +1009,8 @@ void vpshuflw(const Xmm& xm, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(xm, 
 void vptest(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F38 | T_66, 0x17); }
 void vrcpps(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F | T_YMM, 0x53); }
 void vrsqrtps(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F | T_YMM, 0x52); }
-void vsqrtpd(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX | T_ER_Z, 0x51); }
-void vsqrtps(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F | T_EW0 | T_YMM | T_EVEX | T_ER_Z, 0x51); }
+void vsqrtpd(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX | T_ER_Z | T_B32 | T_B64, 0x51); }
+void vsqrtps(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F | T_EW0 | T_YMM | T_EVEX | T_ER_Z | T_B32, 0x51); }
 void vucomisd(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F | T_66 | T_EW1 | T_EVEX | T_SAE_X, 0x2E); }
 void vucomiss(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F | T_EW0 | T_EVEX | T_SAE_X, 0x2E); }
 void vmovapd(const Address& addr, const Xmm& xmm) { opAVX_X_XM_IMM(xmm, addr, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX, 0x29); }
