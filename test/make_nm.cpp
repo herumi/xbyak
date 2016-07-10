@@ -2750,6 +2750,22 @@ public:
 			{ "vpackuswb", XMM_KZ, _XMM, _XMM | _MEM },
 			{ "vpackuswb", YMM_KZ, _YMM, _YMM | _MEM },
 			{ "vpackuswb", ZMM_KZ, _ZMM, _ZMM | _MEM },
+
+			{ "vpaddb", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpaddw", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpaddd", XMM_KZ, _XMM, _XMM | M_1to4 },
+
+			{ "vpaddsb", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpaddsb", ZMM_KZ, _ZMM, _ZMM | _MEM },
+
+			{ "vpaddsw", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpaddsw", ZMM_KZ, _ZMM, _ZMM | _MEM },
+
+			{ "vpaddusb", XMM_KZ, _XMM, _XMM | MEM },
+			{ "vpaddusb", ZMM_KZ, _ZMM, _ZMM | MEM },
+
+			{ "vpaddusw", XMM_KZ, _XMM, _XMM | MEM },
+			{ "vpaddusw", ZMM_KZ, _ZMM, _ZMM | MEM },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];

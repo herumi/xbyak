@@ -1050,16 +1050,16 @@ void put()
 			{ 0x67, "packuswb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
 			{ 0x2B, "packusdw", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
 
-			{ 0xFC, "paddb", T_0F | T_66 | T_YMM, false, true },
-			{ 0xFD, "paddw", T_0F | T_66 | T_YMM, false, true },
-			{ 0xFE, "paddd", T_0F | T_66 | T_YMM, false, true },
-			{ 0xD4, "paddq", T_0F | T_66 | T_YMM, false, true },
+			{ 0xFC, "paddb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xFD, "paddw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xFE, "paddd", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0xD4, "paddq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
 
-			{ 0xEC, "paddsb", T_0F | T_66 | T_YMM, false, true },
-			{ 0xED, "paddsw", T_0F | T_66 | T_YMM, false, true },
+			{ 0xEC, "paddsb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xED, "paddsw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
 
-			{ 0xDC, "paddusb", T_0F | T_66 | T_YMM, false, true },
-			{ 0xDD, "paddusw", T_0F | T_66 | T_YMM, false, true },
+			{ 0xDC, "paddusb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xDD, "paddusw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
 
 			{ 0x0F, "palignr", T_0F3A | T_66 | T_YMM | T_EVEX, true, true },
 
