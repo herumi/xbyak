@@ -1061,7 +1061,7 @@ void put()
 			{ 0xDC, "paddusb", T_0F | T_66 | T_YMM, false, true },
 			{ 0xDD, "paddusw", T_0F | T_66 | T_YMM, false, true },
 
-			{ 0x0F, "palignr", T_0F3A | T_66 | T_YMM, true, true },
+			{ 0x0F, "palignr", T_0F3A | T_66 | T_YMM | T_EVEX, true, true },
 
 			{ 0xDB, "pand", T_0F | T_66 | T_YMM, false, true },
 			{ 0xDF, "pandn", T_0F | T_66 | T_YMM, false, true },

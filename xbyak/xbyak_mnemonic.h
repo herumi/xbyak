@@ -801,7 +801,7 @@ void vpaddusb(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1
 void vpaddusb(const Xmm& x, const Operand& op) { vpaddusb(x, x, op); }
 void vpaddusw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xDD); }
 void vpaddusw(const Xmm& x, const Operand& op) { vpaddusw(x, x, op); }
-void vpalignr(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { opAVX_X_X_XM(x1, x2, op, T_0F3A | T_66 | T_YMM, 0x0F, imm); }
+void vpalignr(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { opAVX_X_X_XM(x1, x2, op, T_0F3A | T_66 | T_YMM | T_EVEX, 0x0F, imm); }
 void vpalignr(const Xmm& x, const Operand& op, uint8 imm) { vpalignr(x, x, op, imm); }
 void vpand(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xDB); }
 void vpand(const Xmm& x, const Operand& op) { vpand(x, x, op); }

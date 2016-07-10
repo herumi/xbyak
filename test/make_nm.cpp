@@ -2719,19 +2719,22 @@ public:
 			put(p.name, XMM_KZ, _XMM, _XMM|p.mem);
 		}
 	}
-	void put512_X_X_XM_I()
+	void put512_X3_I()
 	{
 		const struct Tbl {
 			const char *name;
-			uint64_t mem;
+			uint64_t x1;
+			uint64_t x2;
+			uint64_t xm;
 		} tbl[] = {
 #ifdef XBYAK64
-			{ "vinsertps", _XMM3 },
+			{ "vinsertps", _XMM, _XMM, _XMM3 },
 #endif
+			{ "vpalignr", ZMM_KZ, _ZMM, _ZMM },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			put(p.name, _XMM, _XMM, p.mem, IMM);
+			put(p.name, p.x1, p.x2, p.xm, IMM);
 		}
 	}
 	void putAVX512()
@@ -2744,7 +2747,7 @@ public:
 		put_vmov();
 		put512_X_MX();
 		put512_X_X_XM();
-		put512_X_X_XM_I();
+		put512_X3_I();
 	}
 #endif
 };
