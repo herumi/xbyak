@@ -2766,6 +2766,12 @@ public:
 
 			{ "vpaddusw", XMM_KZ, _XMM, _XMM | MEM },
 			{ "vpaddusw", ZMM_KZ, _ZMM, _ZMM | MEM },
+
+			{ "vpandd", ZMM_KZ, _ZMM, _ZMM | M_1to16 },
+			{ "vpandq", ZMM_KZ, _ZMM, _ZMM | M_1to8 },
+
+			{ "vpandnd", ZMM_KZ, _ZMM, _ZMM | M_1to16 },
+			{ "vpandnq", ZMM_KZ, _ZMM, _ZMM | M_1to8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
