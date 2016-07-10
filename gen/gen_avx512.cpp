@@ -134,6 +134,7 @@ void putX_XM()
 		std::string type = type2String(p->type);
 		printf("void %s(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, %s, 0x%02X); }\n", p->name, type.c_str(), p->code);
 	}
+	puts("void vpabsq(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_EVEX | T_MUST_EVEX | T_EW1 | T_B64 | T_YMM, 0x1F); }");
 }
 
 void putM_X()

@@ -2667,7 +2667,7 @@ public:
 		}
 #endif
 	}
-	void put512_X_MX()
+	void put512_X_XM()
 	{
 		const struct Tbl {
 			const char *name;
@@ -2680,6 +2680,10 @@ public:
 			{ "vmovdqu16", true },
 			{ "vmovdqu32", true },
 			{ "vmovdqu64", true },
+			{ "vpabsb", false },
+			{ "vpabsw", false },
+			{ "vpabsd", false },
+			{ "vpabsq", false },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
@@ -2700,6 +2704,9 @@ public:
 		put("vsqrtps", YMM_KZ, M_1to8);
 		put("vsqrtps", ZMM_KZ, M_1to16);
 		put("vsqrtps", ZMM_KZ, ZMM_ER);
+
+		put("vpabsd", ZMM_KZ, M_1to16);
+		put("vpabsq", ZMM_KZ, M_1to8);
 	}
 	void put512_X_X_XM()
 	{
@@ -2755,7 +2762,7 @@ public:
 		putBroadcast();
 		putAVX512_M_X();
 		put_vmov();
-		put512_X_MX();
+		put512_X_XM();
 		put512_X_X_XM();
 		put512_X3_I();
 	}

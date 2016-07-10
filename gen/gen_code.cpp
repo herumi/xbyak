@@ -1214,9 +1214,9 @@ void put()
 			{ 0x10, "movupd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1, false },
 			{ 0x10, "movups", T_0F | T_YMM | T_EVEX | T_EW0, false },
 
-			{ 0x1C, "pabsb", T_0F38 | T_66 | T_YMM, false },
-			{ 0x1D, "pabsw", T_0F38 | T_66 | T_YMM, false },
-			{ 0x1E, "pabsd", T_0F38 | T_66 | T_YMM, false },
+			{ 0x1C, "pabsb", T_0F38 | T_66 | T_YMM | T_EVEX, false },
+			{ 0x1D, "pabsw", T_0F38 | T_66 | T_YMM | T_EVEX, false },
+			{ 0x1E, "pabsd", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false },
 			{ 0x41, "phminposuw", T_0F38 | T_66, false },
 
 			{ 0x20, "pmovsxbw", T_0F38 | T_66 | T_YMM, false },
