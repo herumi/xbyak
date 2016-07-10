@@ -103,7 +103,11 @@ const uint64 XMM_KZ = 0;
 const uint64 YMM_KZ = 0;
 const uint64 ZMM_KZ = 0;
 #endif
-const uint64 MEM_K = 1ULL << 55; // max value
+const uint64 MEM_K = 1ULL << 55;
+const uint64 M_1to2 = 1ULL << 56;
+const uint64 M_1to4 = 1ULL << 57;
+const uint64 M_1to8 = 1ULL << 58;
+const uint64 M_1to16 = 1ULL << 59;
 
 const uint64 NOPARA = 1ULL << (bitEnd - 1);
 
@@ -367,6 +371,10 @@ class Test {
 			return isXbyak_ ? "ptr [ymm4]" : "[ymm4]";
 		case VM32Y_64:
 			return isXbyak_ ? "ptr [12345+ymm13*2+r13]" : "[12345+ymm13*2+r13]";
+		case M_1to2: return isXbyak_ ? "ptr_b [eax]" : "[eax]{1to2}";
+		case M_1to4: return isXbyak_ ? "ptr_b [eax]" : "[eax]{1to4}";
+		case M_1to8: return isXbyak_ ? "ptr_b [eax]" : "[eax]{1to8}";
+		case M_1to16: return isXbyak_ ? "ptr_b [eax]" : "[eax]{1to16}";
 		case K:
 			{
 				static const char kTbl[][5] = {
@@ -2672,8 +2680,6 @@ public:
 			{ "vmovdqu16", true },
 			{ "vmovdqu32", true },
 			{ "vmovdqu64", true },
-			{ "vsqrtpd", false },
-			{ "vsqrtps", false },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
@@ -2685,6 +2691,15 @@ public:
 			put(p.name, MEM, YMM);
 			put(p.name, MEM, ZMM);
 		}
+		put("vsqrtpd", XMM_KZ, M_1to2);
+		put("vsqrtpd", YMM_KZ, M_1to4);
+		put("vsqrtpd", ZMM_KZ, M_1to8);
+		put("vsqrtpd", ZMM_KZ, ZMM_ER);
+
+		put("vsqrtps", XMM_KZ, M_1to4);
+		put("vsqrtps", YMM_KZ, M_1to8);
+		put("vsqrtps", ZMM_KZ, M_1to16);
+		put("vsqrtps", ZMM_KZ, ZMM_ER);
 	}
 	void put512_X_X_XM()
 	{
