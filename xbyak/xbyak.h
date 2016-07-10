@@ -1827,6 +1827,7 @@ private:
 	}
 	const Xmm& cvtIdx0(const Operand& x) const
 	{
+		assert(!x.isMEM());
 		return x.isZMM() ? zm0 : x.isYMM() ? ym0 : xm0;
 	}
 	// support (x, x/m, imm), (y, y/m, imm)

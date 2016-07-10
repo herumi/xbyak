@@ -2734,13 +2734,17 @@ public:
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			put(p.name, p.x1, p.x2, p.xm, IMM);
+			put(p.name, p.x1, p.x2, p.xm, IMM8);
 		}
 #ifdef XBYAK64
-		put("vpextrb", _REG64, _XMM3, IMM);
-		put("vpextrw", _REG64|MEM, _XMM3, IMM);
-		put("vpextrd", _REG32, _XMM3, IMM);
-		put("vpextrq", _REG64, _XMM3, IMM);
+		put("vpextrb", _REG64, _XMM3, IMM8);
+		put("vpextrw", _REG64|MEM, _XMM3, IMM8);
+		put("vpextrd", _REG32, _XMM3, IMM8);
+		put("vpextrq", _REG64, _XMM3, IMM8);
+		put("vpinsrb", _XMM3, _XMM3, _REG32, IMM8);
+		put("vpinsrw", _XMM3, _XMM3, _REG32, IMM8);
+		put("vpinsrd", _XMM3, _XMM3, _REG32, IMM8);
+		put("vpinsrq", _XMM3, _XMM3, _REG64, IMM8);
 #endif
 	}
 	void putAVX512()
