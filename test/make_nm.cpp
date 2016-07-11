@@ -2798,6 +2798,16 @@ public:
 			{ "vpmaxuw", ZMM_KZ, _ZMM, _ZMM | _MEM },
 			{ "vpmaxud", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16 },
 			{ "vpmaxuq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8 },
+
+			{ "vpminsb", ZMM_KZ, _ZMM, _ZMM | _MEM },
+			{ "vpminsw", ZMM_KZ, _ZMM, _ZMM | _MEM },
+			{ "vpminsd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16 },
+			{ "vpminsq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8 },
+
+			{ "vpminub", ZMM_KZ, _ZMM, _ZMM | _MEM },
+			{ "vpminuw", ZMM_KZ, _ZMM, _ZMM | _MEM },
+			{ "vpminud", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16 },
+			{ "vpminuq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
