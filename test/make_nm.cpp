@@ -2786,8 +2786,12 @@ public:
 			{ "vpcmpgtd", K2, _ZMM, _ZMM | M_1to16 },
 			{ "vpcmpgtq", K2, _ZMM, _ZMM | M_1to8 },
 
-			{ "vpmaddubsw", ZMM_KZ, _ZMM, _ZMM },
-			{ "vpmaddwd", ZMM_KZ, _ZMM, _ZMM },
+			{ "vpmaddubsw", ZMM_KZ, _ZMM, _ZMM | _MEM },
+			{ "vpmaddwd", ZMM_KZ, _ZMM, _ZMM | _MEM },
+			{ "vpmaxsb", ZMM_KZ, _ZMM, _ZMM | _MEM },
+			{ "vpmaxsw", ZMM_KZ, _ZMM, _ZMM | _MEM },
+			{ "vpmaxsd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16 },
+			{ "vpmaxsq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];

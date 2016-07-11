@@ -1089,9 +1089,9 @@ void put()
 			{ 0xF5, "pmaddwd", T_0F | T_66 | T_YMM | T_EVEX, false, true },
 			{ 0x04, "pmaddubsw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
 
-			{ 0x3C, "pmaxsb", T_0F38 | T_66 | T_YMM, false, true },
-			{ 0xEE, "pmaxsw", T_0F | T_66 | T_YMM, false, true },
-			{ 0x3D, "pmaxsd", T_0F38 | T_66 | T_YMM, false, true },
+			{ 0x3C, "pmaxsb", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xEE, "pmaxsw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0x3D, "pmaxsd", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
 
 			{ 0xDE, "pmaxub", T_0F | T_66 | T_YMM, false, true },
 			{ 0x3E, "pmaxuw", T_0F38 | T_66 | T_YMM, false, true },
