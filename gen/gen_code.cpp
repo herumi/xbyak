@@ -1086,8 +1086,8 @@ void put()
 			{ 0x05, "phsubw", T_0F38 | T_66 | T_YMM, false, true },
 			{ 0x06, "phsubd", T_0F38 | T_66 | T_YMM, false, true },
 			{ 0x07, "phsubsw", T_0F38 | T_66 | T_YMM, false, true },
-			{ 0xF5, "pmaddwd", T_0F | T_66 | T_YMM, false, true },
-			{ 0x04, "pmaddubsw", T_0F38 | T_66 | T_YMM, false, true },
+			{ 0xF5, "pmaddwd", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0x04, "pmaddubsw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
 
 			{ 0x3C, "pmaxsb", T_0F38 | T_66 | T_YMM, false, true },
 			{ 0xEE, "pmaxsw", T_0F | T_66 | T_YMM, false, true },
