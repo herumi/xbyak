@@ -2788,10 +2788,16 @@ public:
 
 			{ "vpmaddubsw", ZMM_KZ, _ZMM, _ZMM | _MEM },
 			{ "vpmaddwd", ZMM_KZ, _ZMM, _ZMM | _MEM },
+
 			{ "vpmaxsb", ZMM_KZ, _ZMM, _ZMM | _MEM },
 			{ "vpmaxsw", ZMM_KZ, _ZMM, _ZMM | _MEM },
 			{ "vpmaxsd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16 },
 			{ "vpmaxsq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8 },
+
+			{ "vpmaxub", ZMM_KZ, _ZMM, _ZMM | _MEM },
+			{ "vpmaxuw", ZMM_KZ, _ZMM, _ZMM | _MEM },
+			{ "vpmaxud", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16 },
+			{ "vpmaxuq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
@@ -2830,14 +2836,23 @@ public:
 	void putAVX512()
 	{
 		putOpmask();
+		separateFunc();
 		putCombi();
+		separateFunc();
 		putCmpK();
+		separateFunc();
 		putBroadcast();
+		separateFunc();
 		putAVX512_M_X();
+		separateFunc();
 		put_vmov();
+		separateFunc();
 		put512_X_XM();
+		separateFunc();
 		put512_X_X_XM();
+		separateFunc();
 		put512_X3();
+		separateFunc();
 		put512_X3_I();
 	}
 #endif

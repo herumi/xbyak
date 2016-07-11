@@ -849,11 +849,11 @@ void vpmaxsw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1,
 void vpmaxsw(const Xmm& x, const Operand& op) { vpmaxsw(x, x, op); }
 void vpmaxsd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_EW0 | T_YMM | T_EVEX | T_B32, 0x3D); }
 void vpmaxsd(const Xmm& x, const Operand& op) { vpmaxsd(x, x, op); }
-void vpmaxub(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xDE); }
+void vpmaxub(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM | T_EVEX, 0xDE); }
 void vpmaxub(const Xmm& x, const Operand& op) { vpmaxub(x, x, op); }
-void vpmaxuw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_YMM, 0x3E); }
+void vpmaxuw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_YMM | T_EVEX, 0x3E); }
 void vpmaxuw(const Xmm& x, const Operand& op) { vpmaxuw(x, x, op); }
-void vpmaxud(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_YMM, 0x3F); }
+void vpmaxud(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_EW0 | T_YMM | T_EVEX | T_B32, 0x3F); }
 void vpmaxud(const Xmm& x, const Operand& op) { vpmaxud(x, x, op); }
 void vpminsb(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_YMM, 0x38); }
 void vpminsb(const Xmm& x, const Operand& op) { vpminsb(x, x, op); }
