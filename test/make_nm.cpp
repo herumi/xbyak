@@ -2781,6 +2781,10 @@ public:
 			{ "vpcmpeqd", K2, _ZMM, _ZMM | M_1to16 },
 			{ "vpcmpeqq", K2, _ZMM, _ZMM | M_1to8 },
 
+			{ "vpcmpgtb", K2, _ZMM, _ZMM | _MEM },
+			{ "vpcmpgtw", K2, _ZMM, _ZMM | _MEM },
+			{ "vpcmpgtd", K2, _ZMM, _ZMM | M_1to16 },
+			{ "vpcmpgtq", K2, _ZMM, _ZMM | M_1to8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];

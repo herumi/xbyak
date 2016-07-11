@@ -105,10 +105,16 @@ void putVcmp()
 		{ 0xC2, "vcmpps", T_0F | T_EVEX | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_YMM, true },
 		{ 0xC2, "vcmpsd", T_0F | T_EVEX | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_F2, true },
 		{ 0xC2, "vcmpss", T_0F | T_EVEX | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_F3, true },
-		{ 0x76, "vpcmpeqd", T_66 | T_0F | T_EVEX | T_MUST_EVEX | T_YMM | T_B32, false },
-		{ 0x29, "vpcmpeqq", T_66 | T_0F38 | T_EVEX | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
+
 		{ 0x74, "vpcmpeqb", T_66 | T_0F | T_EVEX | T_MUST_EVEX | T_YMM, false },
 		{ 0x75, "vpcmpeqw", T_66 | T_0F | T_EVEX | T_MUST_EVEX | T_YMM, false },
+		{ 0x76, "vpcmpeqd", T_66 | T_0F | T_EVEX | T_MUST_EVEX | T_YMM | T_B32, false },
+		{ 0x29, "vpcmpeqq", T_66 | T_0F38 | T_EVEX | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
+
+		{ 0x64, "vpcmpgtb", T_66 | T_0F | T_EVEX | T_MUST_EVEX | T_YMM, false },
+		{ 0x65, "vpcmpgtw", T_66 | T_0F | T_EVEX | T_MUST_EVEX | T_YMM, false },
+		{ 0x66, "vpcmpgtd", T_66 | T_0F | T_EVEX | T_MUST_EVEX | T_YMM | T_EW0 | T_B32, false },
+		{ 0x37, "vpcmpgtq", T_66 | T_0F38 | T_EVEX | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
