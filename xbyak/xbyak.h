@@ -1355,7 +1355,7 @@ private:
 		T_W1 = 1 << 12,
 		T_EW0 = 1 << 13,
 		T_EW1 = 1 << 14,
-		T_YMM = 1 << 15,
+		T_YMM = 1 << 15, // support YMM, ZMM
 		T_EVEX = 1 << 16,
 		T_ER_X = 1 << 17, // xmm{er}
 		T_ER_Y = 1 << 18, // ymm{er}
@@ -1363,7 +1363,7 @@ private:
 		T_SAE_X = 1 << 20, // xmm{sae}
 		T_SAE_Y = 1 << 21, // ymm{sae}
 		T_SAE_Z = 1 << 22, // zmm{sae}
-		T_MUST_EVEX = 1 << 23,
+		T_MUST_EVEX = 1 << 23, // contains T_EVEX
 		T_B32 = 1 << 24, // m32bcst
 		T_B64 = 1 << 25, // m64bcst
 		T_M_K = 1 << 26, // mem{k}
@@ -1406,7 +1406,7 @@ private:
 	};
 	void evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool b = false, int aaa = 0)
 	{
-		if (!(type & T_EVEX)) throw Error(ERR_EVEX_IS_INVALID);
+		if (!(type & (T_EVEX | T_MUST_EVEX))) throw Error(ERR_EVEX_IS_INVALID);
 		int w = (type & T_EW1) ? 1 : 0;
 	//	bool is256 = (type & T_L1) ? true : (type & T_L0) ? false : reg.isYMM();
 		uint32 mm = (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0;
