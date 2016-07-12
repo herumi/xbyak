@@ -187,6 +187,10 @@ void putX_X_XM_IMM()
 		{ 0x39, "vpminsq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
 		{ 0x3B, "vpminuq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
 		{ 0xE2, "vpsraq", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW1, false },
+		{ 0x46, "vpsravq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
+		{ 0x11, "vpsravw", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1, false },
+		{ 0x12, "vpsllvw", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1, false },
+		{ 0x10, "vpsrlvw", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -202,13 +206,13 @@ void putShift()
 		const char *name;
 		uint8 code;
 		int idx;
-		int ext_type;
+		int type;
 	} tbl[] = {
-		{ "vpsraq", 0x72, 4, T_EW1 | T_B64 },
+		{ "vpsraq", 0x72, 4, T_0F | T_66 | T_YMM | T_MUST_EVEX |T_EW1 | T_B64 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& p = tbl[i];
-		std::string type = type2String(T_0F | T_66 | T_YMM | T_EVEX | p.ext_type);
+		std::string type = type2String(p.type);
 		printf("void %s(const Xmm& x, const Operand& op, uint8 imm) { opAVX_X_X_XM(x.copyAndSetIdx(%d), x, op, %s, 0x%02X, imm); }\n", p.name, p.idx, type.c_str(), p.code);
 	}
 }

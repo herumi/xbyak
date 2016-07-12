@@ -2828,6 +2828,7 @@ public:
 			{ "vpsrad", XMM_KZ, _XMM | M_1to4, IMM8 },
 			{ "vpsrad", ZMM_KZ, _ZMM | M_1to16, IMM8 },
 
+			{ "vpsraq", XMM, XMM, IMM8 },
 			{ "vpsraq", XMM_KZ, _XMM | M_1to2, IMM8 },
 			{ "vpsraq", ZMM_KZ, _ZMM | M_1to8, IMM8 },
 
@@ -2843,6 +2844,33 @@ public:
 
 			{ "vpsrlq", _XMM3, _XMM3 | _MEM | M_1to2, IMM8 },
 			{ "vpsrlq", _ZMM, _ZMM | _MEM | M_1to8, IMM8 },
+
+			{ "vpsravw", XMM_KZ | _XMM, _XMM, _XMM },
+			{ "vpsravw", _ZMM, _ZMM, _MEM },
+
+			{ "vpsravd", XMM_KZ | _XMM, _XMM, _XMM },
+			{ "vpsravd", _ZMM, _ZMM, M_1to16 },
+
+			{ "vpsravq", XMM_KZ | _XMM, _XMM, _XMM },
+			{ "vpsravq", _ZMM, _ZMM, M_1to8 },
+
+			{ "vpsllvw", XMM_KZ | _XMM, _XMM, _XMM },
+			{ "vpsllvw", _ZMM, _ZMM, _MEM },
+
+			{ "vpsllvd", XMM_KZ | _XMM, _XMM, _XMM },
+			{ "vpsllvd", _ZMM, _ZMM, M_1to16 },
+
+			{ "vpsllvq", XMM_KZ | _XMM, _XMM, _XMM },
+			{ "vpsllvq", _ZMM, _ZMM, M_1to8 },
+
+			{ "vpsrlvw", XMM_KZ | _XMM, _XMM, _XMM },
+			{ "vpsrlvw", _ZMM, _ZMM, _MEM },
+
+			{ "vpsrlvd", XMM_KZ | _XMM, _XMM, _XMM },
+			{ "vpsrlvd", _ZMM, _ZMM, M_1to16 },
+
+			{ "vpsrlvq", XMM_KZ | _XMM, _XMM, _XMM },
+			{ "vpsrlvq", _ZMM, _ZMM, M_1to8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];

@@ -1032,11 +1032,11 @@ void put()
 			{ 0x0C, "permilps", T_0F38 | T_66 | T_W0 | T_YMM, false, false },
 			{ 0x0D, "permilpd", T_0F38 | T_66 | T_W0 | T_YMM, false, false },
 
-			{ 0x47, "psllvd", T_0F38 | T_66 | T_W0 | T_YMM, false, false },
-			{ 0x47, "psllvq", T_0F38 | T_66 | T_W1 | T_YMM, false, false },
-			{ 0x46, "psravd", T_0F38 | T_66 | T_W0 | T_YMM, false, false },
-			{ 0x45, "psrlvd", T_0F38 | T_66 | T_W0 | T_YMM, false, false },
-			{ 0x45, "psrlvq", T_0F38 | T_66 | T_W1 | T_YMM, false, false },
+			{ 0x47, "psllvd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false },
+			{ 0x47, "psllvq", T_0F38 | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B64, false, false },
+			{ 0x46, "psravd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false },
+			{ 0x45, "psrlvd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false },
+			{ 0x45, "psrlvq", T_0F38 | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B32, false, false },
 
 			{ 0xC2, "cmppd", T_0F | T_66 | T_YMM, true, true },
 			{ 0xC2, "cmpps", T_0F | T_YMM, true, true },

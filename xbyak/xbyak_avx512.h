@@ -100,5 +100,9 @@ void vpmaxuq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1,
 void vpminsq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0x39); }
 void vpminuq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0x3B); }
 void vpsraq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_EW1 | T_YMM | T_MUST_EVEX, 0xE2); }
-void vpsraq(const Xmm& x, const Operand& op, uint8 imm) { opAVX_X_X_XM(x.copyAndSetIdx(4), x, op, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX | T_B64, 0x72, imm); }
+void vpsravq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0x46); }
+void vpsravw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_EW1 | T_YMM | T_MUST_EVEX, 0x11); }
+void vpsllvw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_EW1 | T_YMM | T_MUST_EVEX, 0x12); }
+void vpsrlvw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_EW1 | T_YMM | T_MUST_EVEX, 0x10); }
+void vpsraq(const Xmm& x, const Operand& op, uint8 imm) { opAVX_X_X_XM(x.copyAndSetIdx(4), x, op, T_0F | T_66 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0x72, imm); }
 #endif
