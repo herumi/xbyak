@@ -1123,15 +1123,15 @@ void put()
 			{ 0x09, "psignw", T_0F38 | T_66 | T_YMM, false, true },
 			{ 0x0A, "psignd", T_0F38 | T_66 | T_YMM, false, true },
 
-			{ 0xF1, "psllw", T_0F | T_66 | T_YMM, false, true },
-			{ 0xF2, "pslld", T_0F | T_66 | T_YMM, false, true },
-			{ 0xF3, "psllq", T_0F | T_66 | T_YMM, false, true },
+			{ 0xF1, "psllw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xF2, "pslld", T_0F | T_66 | T_YMM | T_EVEX | T_EW0, false, true },
+			{ 0xF3, "psllq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1, false, true },
 
-			{ 0xE1, "psraw", T_0F | T_66 | T_YMM, false, true },
-			{ 0xE2, "psrad", T_0F | T_66 | T_YMM, false, true },
-			{ 0xD1, "psrlw", T_0F | T_66 | T_YMM, false, true },
-			{ 0xD2, "psrld", T_0F | T_66 | T_YMM, false, true },
-			{ 0xD3, "psrlq", T_0F | T_66 | T_YMM, false, true },
+			{ 0xE1, "psraw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xE2, "psrad", T_0F | T_66 | T_YMM | T_EVEX | T_EW0, false, true },
+			{ 0xD1, "psrlw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xD2, "psrld", T_0F | T_66 | T_YMM | T_EVEX | T_EW0, false, true },
+			{ 0xD3, "psrlq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1, false, true },
 
 			{ 0xF8, "psubb", T_0F | T_66 | T_YMM, false, true },
 			{ 0xF9, "psubw", T_0F | T_66 | T_YMM, false, true },
@@ -1483,22 +1483,24 @@ void put()
 			const char *name;
 			uint8 code;
 			int idx;
+			int ext_type;
 		} tbl[] = {
-			{ "pslldq", 0x73, 7 },
-			{ "psrldq", 0x73, 3 },
-			{ "psllw", 0x71, 6 },
-			{ "pslld", 0x72, 6 },
-			{ "psllq", 0x73, 6 },
-			{ "psraw", 0x71, 4 },
-			{ "psrad", 0x72, 4 },
-			{ "psrlw", 0x71, 2 },
-			{ "psrld", 0x72, 2 },
-			{ "psrlq", 0x73, 2 },
+			{ "pslldq", 0x73, 7, 0 },
+			{ "psrldq", 0x73, 3, 0 },
+			{ "psllw", 0x71, 6, 0 },
+			{ "pslld", 0x72, 6, T_EW0 | T_B32 },
+			{ "psllq", 0x73, 6, T_EW1 | T_B64 },
+			{ "psraw", 0x71, 4, 0 },
+			{ "psrad", 0x72, 4, T_EW0 | T_B32 },
+			{ "psrlw", 0x71, 2, 0 },
+			{ "psrld", 0x72, 2, T_EW0 | T_B32 },
+			{ "psrlq", 0x73, 2, T_EW1 | T_B64 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			printf("void v%s(const Xmm& x1, const Xmm& x2, uint8 imm) { opAVX_X_X_XM(x1.isYMM() ? ym%d : xm%d, x1, x2, T_0F | T_66 | T_YMM, 0x%02X, imm); }\n", p.name, p.idx, p.idx, p.code);
-			printf("void v%s(const Xmm& x, uint8 imm) { opAVX_X_X_XM(x.isYMM() ? ym%d : xm%d, x, x, T_0F | T_66 | T_YMM, 0x%02X, imm); }\n", p.name, p.idx, p.idx, p.code);
+			std::string type = type2String(T_0F | T_66 | T_YMM | T_EVEX | p.ext_type);
+			printf("void v%s(const Xmm& x, const Operand& op, uint8 imm) { opAVX_X_X_XM(x.copyAndSetIdx(%d), x, op, %s, 0x%02X, imm); }\n", p.name, p.idx, type.c_str(), p.code);
+			printf("void v%s(const Xmm& x, uint8 imm) { v%s(x, x, imm); }\n", p.name, p.name);
 		}
 	}
 	// 4-op

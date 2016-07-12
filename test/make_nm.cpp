@@ -1797,6 +1797,11 @@ class Test {
 			put(p.name, XMM, XMM, IMM);
 			put(p.name, YMM, YMM, IMM);
 			put(p.name, YMM, IMM);
+			put(p.name, _ZMM, _ZMM, IMM8);
+#ifdef XBYAK64
+			put(p.name, _XMM3, _XMM3, IMM8);
+			put(p.name, _YMM3, _YMM3, IMM8);
+#endif
 			if (p.support_Y_Y_X) {
 				put(p.name, YMM, YMM, XMM);
 			}
@@ -2808,6 +2813,36 @@ public:
 			{ "vpminuw", ZMM_KZ, _ZMM, _ZMM | _MEM },
 			{ "vpminud", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16 },
 			{ "vpminuq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8 },
+
+			{ "vpslldq", _XMM3, _XMM3 | _MEM, IMM8 },
+			{ "vpslldq", _YMM3, _YMM3 | _MEM, IMM8 },
+			{ "vpslldq", _ZMM, _ZMM | _MEM, IMM8 },
+
+			{ "vpsrldq", _XMM3, _XMM3 | _MEM, IMM8 },
+			{ "vpsrldq", _YMM3, _YMM3 | _MEM, IMM8 },
+			{ "vpsrldq", _ZMM, _ZMM | _MEM, IMM8 },
+
+			{ "vpsraw", XMM_KZ, _XMM, IMM8 },
+			{ "vpsraw", ZMM_KZ, _ZMM, IMM8 },
+
+			{ "vpsrad", XMM_KZ, _XMM | M_1to4, IMM8 },
+			{ "vpsrad", ZMM_KZ, _ZMM | M_1to16, IMM8 },
+
+			{ "vpsraq", XMM_KZ, _XMM | M_1to2, IMM8 },
+			{ "vpsraq", ZMM_KZ, _ZMM | M_1to8, IMM8 },
+
+			{ "vpsllw", _XMM3, _XMM3 | _MEM, IMM8 },
+			{ "vpslld", _XMM3, _XMM3 | _MEM | M_1to4, IMM8 },
+			{ "vpsllq", _XMM3, _XMM3 | _MEM | M_1to2, IMM8 },
+
+			{ "vpsrlw", XMM_KZ, _XMM, IMM8 },
+			{ "vpsrlw", ZMM_KZ, _ZMM, IMM8 },
+
+			{ "vpsrld", XMM_KZ, _XMM | M_1to4, IMM8 },
+			{ "vpsrld", ZMM_KZ, _ZMM | M_1to16, IMM8 },
+
+			{ "vpsrlq", _XMM3, _XMM3 | _MEM | M_1to2, IMM8 },
+			{ "vpsrlq", _ZMM, _ZMM | _MEM | M_1to8, IMM8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];

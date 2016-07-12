@@ -348,6 +348,7 @@ protected:
 	unsigned int zero_:1;
 	unsigned int mask_:3;
 	unsigned int rounding_:3;
+	void setIdx(int idx) { idx_ = idx; }
 public:
 	enum Kind {
 		NONE = 0,
@@ -529,6 +530,7 @@ struct EvexModifierZero{};
 struct Xmm : public Mmx {
 	explicit Xmm(int idx = 0, Kind kind = Operand::XMM, int bit = 128) : Mmx(idx, kind, bit) { }
 	Xmm operator|(const EvexModifierRounding& emr) const { Xmm r(*this); r.setRounding(emr.rounding); return r; }
+	Xmm copyAndSetIdx(int idx) const { Xmm ret(*this); ret.setIdx(idx); return ret; }
 };
 
 struct Ymm : public Xmm {
@@ -1829,6 +1831,11 @@ private:
 	{
 //		assert(!x.isMEM()); // QQQ
 		return x.isZMM() ? zm0 : x.isYMM() ? ym0 : xm0;
+	}
+	// get op.type(idx)
+	Xmm getXmm(const Operand& op, int idx) const
+	{
+		return op.isZMM() ? Zmm(idx) : op.isYMM() ? Ymm(idx) : Xmm(idx);
 	}
 	// support (x, x/m, imm), (y, y/m, imm)
 	void opAVX_X_XM_IMM(const Xmm& x, const Operand& op, int type, int code, int imm8 = NONE)
