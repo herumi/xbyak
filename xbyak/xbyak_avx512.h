@@ -106,5 +106,7 @@ void vpsllvw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1,
 void vpsrlvw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_EW1 | T_YMM | T_MUST_EVEX, 0x10); }
 void vpord(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_EW0 | T_YMM | T_MUST_EVEX | T_B32, 0xEB); }
 void vporq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0xEB); }
+void vpxord(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_EW0 | T_YMM | T_MUST_EVEX | T_B32, 0xEF); }
+void vpxorq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0xEF); }
 void vpsraq(const Xmm& x, const Operand& op, uint8 imm) { opAVX_X_X_XM(x.copyAndSetIdx(4), x, op, T_0F | T_66 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0x72, imm); }
 #endif

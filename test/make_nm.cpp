@@ -2895,6 +2895,12 @@ public:
 
 			{ "vporq", _XMM | XMM_KZ, _XMM, _XMM | M_1to2 },
 			{ "vporq", _ZMM | ZMM_KZ, _ZMM, M_1to8 },
+
+			{ "vpxord", _XMM | XMM_KZ, _XMM, _XMM | M_1to4 },
+			{ "vpxord", _ZMM | ZMM_KZ, _ZMM, M_1to16 },
+
+			{ "vpxorq", _XMM | XMM_KZ, _XMM, _XMM | M_1to2 },
+			{ "vpxorq", _ZMM | ZMM_KZ, _ZMM, M_1to8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
