@@ -1115,7 +1115,7 @@ void put()
 			{ 0x28, "pmuldq", T_0F38 | T_66 | T_YMM, false, true },
 
 			{ 0xEB, "por", T_0F | T_66 | T_YMM, false, true },
-			{ 0xF6, "psadbw", T_0F | T_66 | T_YMM, false, true },
+			{ 0xF6, "psadbw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
 
 			{ 0x00, "pshufb", T_0F38 | T_66 | T_YMM | T_EVEX, false, false },
 

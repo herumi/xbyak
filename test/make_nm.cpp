@@ -2901,6 +2901,9 @@ public:
 
 			{ "vpxorq", _XMM | XMM_KZ, _XMM, _XMM | M_1to2 },
 			{ "vpxorq", _ZMM | ZMM_KZ, _ZMM, M_1to8 },
+
+			{ "vpsadbw", _XMM3, _XMM, _XMM },
+			{ "vpsadbw", _ZMM, _ZMM, _MEM }
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
