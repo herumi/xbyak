@@ -2988,6 +2988,28 @@ public:
 			}
 		}
 	}
+	void put512_Y_XM()
+	{
+		const char *tbl[] = {
+			"vpmovsxbw",
+			"vpmovsxbd",
+			"vpmovsxbq",
+			"vpmovsxwd",
+			"vpmovsxwq",
+			"vpmovsxdq",
+			"vpmovzxbw",
+			"vpmovzxbd",
+			"vpmovzxbq",
+			"vpmovzxwd",
+			"vpmovzxwq",
+			"vpmovzxdq",
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const char *name = tbl[i];
+			put(name, XMM_KZ, _XMM);
+			put(name, _ZMM, _MEM);
+		}
+	}
 	void putAVX512()
 	{
 		putOpmask();
@@ -3011,6 +3033,8 @@ public:
 		put512_X3_I();
 		separateFunc();
 		put512_FMA();
+		separateFunc();
+		put512_Y_XM();
 	}
 #endif
 };
