@@ -1133,16 +1133,16 @@ void put()
 			{ 0xD2, "psrld", T_0F | T_66 | T_YMM | T_EVEX | T_EW0, false, true },
 			{ 0xD3, "psrlq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1, false, true },
 
-			{ 0xF8, "psubb", T_0F | T_66 | T_YMM, false, true },
-			{ 0xF9, "psubw", T_0F | T_66 | T_YMM, false, true },
-			{ 0xFA, "psubd", T_0F | T_66 | T_YMM, false, true },
-			{ 0xFB, "psubq", T_0F | T_66 | T_YMM, false, true },
+			{ 0xF8, "psubb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xF9, "psubw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xFA, "psubd", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0xFB, "psubq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
 
-			{ 0xE8, "psubsb", T_0F | T_66 | T_YMM, false, true },
-			{ 0xE9, "psubsw", T_0F | T_66 | T_YMM, false, true },
+			{ 0xE8, "psubsb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xE9, "psubsw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
 
-			{ 0xD8, "psubusb", T_0F | T_66 | T_YMM, false, true },
-			{ 0xD9, "psubusw", T_0F | T_66 | T_YMM, false, true },
+			{ 0xD8, "psubusb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xD9, "psubusw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
 
 			{ 0x68, "punpckhbw", T_0F | T_66 | T_YMM, false, true },
 			{ 0x69, "punpckhwd", T_0F | T_66 | T_YMM, false, true },

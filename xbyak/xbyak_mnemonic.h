@@ -908,21 +908,21 @@ void vpsrld(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, 
 void vpsrld(const Xmm& x, const Operand& op) { vpsrld(x, x, op); }
 void vpsrlq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX, 0xD3); }
 void vpsrlq(const Xmm& x, const Operand& op) { vpsrlq(x, x, op); }
-void vpsubb(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xF8); }
+void vpsubb(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM | T_EVEX, 0xF8); }
 void vpsubb(const Xmm& x, const Operand& op) { vpsubb(x, x, op); }
-void vpsubw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xF9); }
+void vpsubw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM | T_EVEX, 0xF9); }
 void vpsubw(const Xmm& x, const Operand& op) { vpsubw(x, x, op); }
-void vpsubd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xFA); }
+void vpsubd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_EW0 | T_YMM | T_EVEX | T_B32, 0xFA); }
 void vpsubd(const Xmm& x, const Operand& op) { vpsubd(x, x, op); }
-void vpsubq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xFB); }
+void vpsubq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX | T_B64, 0xFB); }
 void vpsubq(const Xmm& x, const Operand& op) { vpsubq(x, x, op); }
-void vpsubsb(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xE8); }
+void vpsubsb(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM | T_EVEX, 0xE8); }
 void vpsubsb(const Xmm& x, const Operand& op) { vpsubsb(x, x, op); }
-void vpsubsw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xE9); }
+void vpsubsw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM | T_EVEX, 0xE9); }
 void vpsubsw(const Xmm& x, const Operand& op) { vpsubsw(x, x, op); }
-void vpsubusb(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xD8); }
+void vpsubusb(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM | T_EVEX, 0xD8); }
 void vpsubusb(const Xmm& x, const Operand& op) { vpsubusb(x, x, op); }
-void vpsubusw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xD9); }
+void vpsubusw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM | T_EVEX, 0xD9); }
 void vpsubusw(const Xmm& x, const Operand& op) { vpsubusw(x, x, op); }
 void vpunpckhbw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0x68); }
 void vpunpckhbw(const Xmm& x, const Operand& op) { vpunpckhbw(x, x, op); }

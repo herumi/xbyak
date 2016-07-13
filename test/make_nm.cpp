@@ -2765,6 +2765,7 @@ public:
 			{ "vpaddb", XMM_KZ, _XMM, _XMM | _MEM },
 			{ "vpaddw", XMM_KZ, _XMM, _XMM | _MEM },
 			{ "vpaddd", XMM_KZ, _XMM, _XMM | M_1to4 },
+			{ "vpaddq", ZMM_KZ, _ZMM, M_1to8 },
 
 			{ "vpaddsb", XMM_KZ, _XMM, _XMM | _MEM },
 			{ "vpaddsb", ZMM_KZ, _ZMM, _ZMM | _MEM },
@@ -2777,6 +2778,23 @@ public:
 
 			{ "vpaddusw", XMM_KZ, _XMM, _XMM | MEM },
 			{ "vpaddusw", ZMM_KZ, _ZMM, _ZMM | MEM },
+
+			{ "vpsubb", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpsubw", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpsubd", XMM_KZ, _XMM, _XMM | M_1to4 },
+			{ "vpsubq", ZMM_KZ, _ZMM, M_1to8 },
+
+			{ "vpsubsb", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpsubsb", ZMM_KZ, _ZMM, _ZMM | _MEM },
+
+			{ "vpsubsw", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpsubsw", ZMM_KZ, _ZMM, _ZMM | _MEM },
+
+			{ "vpsubusb", XMM_KZ, _XMM, _XMM | MEM },
+			{ "vpsubusb", ZMM_KZ, _ZMM, _ZMM | MEM },
+
+			{ "vpsubusw", XMM_KZ, _XMM, _XMM | MEM },
+			{ "vpsubusw", ZMM_KZ, _ZMM, _ZMM | MEM },
 
 			{ "vpandd", ZMM_KZ, _ZMM, _ZMM | M_1to16 },
 			{ "vpandq", ZMM_KZ, _ZMM, _ZMM | M_1to8 },
