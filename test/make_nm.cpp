@@ -2871,6 +2871,19 @@ public:
 
 			{ "vpsrlvq", XMM_KZ | _XMM, _XMM, _XMM },
 			{ "vpsrlvq", _ZMM, _ZMM, M_1to8 },
+
+			{ "vpshufb", _XMM | XMM_KZ, _XMM, _XMM },
+			{ "vpshufb", ZMM_KZ, _ZMM, _MEM },
+
+			{ "vpshufhw", _XMM | XMM_KZ, _XMM, IMM8 },
+			{ "vpshufhw", ZMM_KZ, _MEM, IMM8 },
+
+			{ "vpshuflw", _XMM | XMM_KZ, _XMM, IMM8 },
+			{ "vpshuflw", ZMM_KZ, _MEM, IMM8 },
+
+			{ "vpshufd", _XMM | XMM_KZ, _XMM | M_1to4, IMM8 },
+			{ "vpshufd", _ZMM | ZMM_KZ, _ZMM | M_1to16, IMM8 },
+
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
@@ -2888,6 +2901,12 @@ public:
 		} tbl[] = {
 #ifdef XBYAK64
 			{ "vinsertps", _XMM, _XMM, _XMM3 },
+
+			{ "vshufpd", XMM_KZ, _XMM, M_1to2 },
+			{ "vshufpd", ZMM_KZ, _ZMM, M_1to8 },
+
+			{ "vshufps", XMM_KZ, _XMM, M_1to4 },
+			{ "vshufps", ZMM_KZ, _ZMM, M_1to16 },
 #endif
 			{ "vpalignr", ZMM_KZ, _ZMM, _ZMM },
 		};

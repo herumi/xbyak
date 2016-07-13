@@ -1117,7 +1117,7 @@ void put()
 			{ 0xEB, "por", T_0F | T_66 | T_YMM, false, true },
 			{ 0xF6, "psadbw", T_0F | T_66 | T_YMM, false, true },
 
-			{ 0x00, "pshufb", T_0F38 | T_66 | T_YMM, false, false },
+			{ 0x00, "pshufb", T_0F38 | T_66 | T_YMM | T_EVEX, false, false },
 
 			{ 0x08, "psignb", T_0F38 | T_66 | T_YMM, false, true },
 			{ 0x09, "psignw", T_0F38 | T_66 | T_YMM, false, true },
@@ -1159,8 +1159,8 @@ void put()
 			{ 0x53, "rcpss", T_0F | T_F3, false, true },
 			{ 0x52, "rsqrtss", T_0F | T_F3, false, true },
 
-			{ 0xC6, "shufpd", T_0F | T_66 | T_YMM, true, true },
-			{ 0xC6, "shufps", T_0F | T_YMM, true, true },
+			{ 0xC6, "shufpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, true, true },
+			{ 0xC6, "shufps", T_0F | T_YMM | T_EVEX | T_EW0 | T_B32, true, true },
 
 			{ 0x51, "sqrtsd", T_0F | T_F2 | T_EVEX | T_EW1 | T_ER_X, false, true },
 			{ 0x51, "sqrtss", T_0F | T_F3 | T_EVEX | T_EW0 | T_ER_X, false, true },
@@ -1233,9 +1233,9 @@ void put()
 			{ 0x34, "pmovzxwq", T_0F38 | T_66 | T_YMM, false },
 			{ 0x35, "pmovzxdq", T_0F38 | T_66 | T_YMM, false },
 
-			{ 0x70, "pshufd", T_0F | T_66 | T_YMM, true },
-			{ 0x70, "pshufhw", T_0F | T_F3 | T_YMM, true },
-			{ 0x70, "pshuflw", T_0F | T_F2 | T_YMM, true },
+			{ 0x70, "pshufd", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, true },
+			{ 0x70, "pshufhw", T_0F | T_F3 | T_YMM | T_EVEX, true },
+			{ 0x70, "pshuflw", T_0F | T_F2 | T_YMM | T_EVEX, true },
 
 			{ 0x17, "ptest", T_0F38 | T_66, false },
 			{ 0x53, "rcpps", T_0F | T_YMM, false },
