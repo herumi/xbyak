@@ -2946,6 +2946,30 @@ public:
 
 			{ "vpmuludq", _XMM3, _XMM, M_1to2 },
 			{ "vpmuludq", ZMM_KZ, _ZMM, M_1to8 },
+
+			{ "vpunpckhbw", _XMM3, _XMM, _XMM },
+			{ "vpunpckhbw", _ZMM, _ZMM, _MEM },
+
+			{ "vpunpckhwd", _XMM3, _XMM, _XMM },
+			{ "vpunpckhwd", _ZMM, _ZMM, _MEM },
+
+			{ "vpunpckhdq", _XMM3, _XMM, M_1to4 },
+			{ "vpunpckhdq", _ZMM, _ZMM, M_1to16 },
+
+			{ "vpunpckhqdq", _XMM3, _XMM, M_1to2 },
+			{ "vpunpckhqdq", _ZMM, _ZMM, M_1to8 },
+
+			{ "vpunpcklbw", _XMM3, _XMM, _XMM },
+			{ "vpunpcklbw", _ZMM, _ZMM, _MEM },
+
+			{ "vpunpcklwd", _XMM3, _XMM, _XMM },
+			{ "vpunpcklwd", _ZMM, _ZMM, _MEM },
+
+			{ "vpunpckldq", _XMM3, _XMM, M_1to4 },
+			{ "vpunpckldq", _ZMM, _ZMM, M_1to16 },
+
+			{ "vpunpcklqdq", _XMM3, _XMM, M_1to2 },
+			{ "vpunpcklqdq", _ZMM, _ZMM, M_1to8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
