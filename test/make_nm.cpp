@@ -108,6 +108,7 @@ const uint64 M_1to2 = 1ULL << 56;
 const uint64 M_1to4 = 1ULL << 57;
 const uint64 M_1to8 = 1ULL << 58;
 const uint64 M_1to16 = 1ULL << 59;
+const uint64 XMM_ER = 1ULL << 60;
 
 const uint64 NOPARA = 1ULL << (bitEnd - 1);
 
@@ -389,6 +390,8 @@ class Test {
 			return isXbyak_ ? "xmm25 | T_sae" : "xmm25, {sae}";
 		case ZMM_SAE:
 			return isXbyak_ ? "zmm25 | T_sae" : "zmm25, {sae}";
+		case XMM_ER:
+			return isXbyak_ ? "xmm4 | T_rd_sae" : "xmm4, {rd-sae}";
 		case ZMM_ER:
 			return isXbyak_ ? "zmm20 | T_rd_sae" : "zmm20, {rd-sae}";
 		case XMM_KZ:
@@ -404,6 +407,8 @@ class Test {
 			return isXbyak_ ? "xmm5 | T_sae" : "xmm5, {sae}";
 		case ZMM_SAE:
 			return isXbyak_ ? "zmm5 | T_sae" : "zmm5, {sae}";
+		case XMM_ER:
+			return isXbyak_ ? "xmm30 | T_rd_sae" : "xmm30, {rd-sae}";
 		case ZMM_ER:
 			return isXbyak_ ? "zmm2 | T_rd_sae" : "zmm2, {rd-sae}";
 		case MEM_K:
@@ -1834,12 +1839,13 @@ class Test {
 				{ "231" },
 			};
 			for (size_t j = 0; j < NUM_OF_ARRAY(ord); j++) {
-				const char suf[][2][8] = {
+				const char sufTbl[][2][8] = {
 					{ "pd", "ps" },
 					{ "sd", "ss" },
 				};
 				for (size_t k = 0; k < 2; k++) {
-					std::string name = std::string(p.name) + ord[j].name + suf[p.supportYMM ? 0 : 1][k];
+					const std::string suf = sufTbl[p.supportYMM ? 0 : 1][k];
+					std::string name = std::string(p.name) + ord[j].name + suf;
 					const char *q = name.c_str();
 					put(q, XMM, XMM, XMM | MEM);
 					if (!p.supportYMM) continue;
@@ -2925,6 +2931,63 @@ public:
 		put("vpinsrq", _XMM3, _XMM3, _REG64, IMM8);
 #endif
 	}
+	void put512_FMA()
+	{
+		const struct Tbl {
+			const char *name;
+			bool supportYMM;
+		} tbl[] = {
+			{ "vfmadd", true },
+			{ "vfmadd", false },
+			{ "vfmaddsub", true },
+			{ "vfmsubadd", true },
+			{ "vfmsub", true },
+			{ "vfmsub", false },
+			{ "vfnmadd", true },
+			{ "vfnmadd", false },
+			{ "vfnmsub", true },
+			{ "vfnmsub", false },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			const struct Ord {
+				const char *name;
+			} ord[] = {
+				{ "132" },
+				{ "213" },
+				{ "231" },
+			};
+			for (size_t j = 0; j < NUM_OF_ARRAY(ord); j++) {
+				const char sufTbl[][2][8] = {
+					{ "pd", "ps" },
+					{ "sd", "ss" },
+				};
+				for (size_t k = 0; k < 2; k++) {
+					const std::string suf = sufTbl[p.supportYMM ? 0 : 1][k];
+					uint64_t mem = 0;
+					if (suf == "pd") {
+						mem = M_1to2;
+					} else if (suf == "ps") {
+						mem = M_1to4;
+					} else {
+						mem = XMM_ER;
+					}
+					std::string name = std::string(p.name) + ord[j].name + suf;
+					const char *q = name.c_str();
+					put(q, XMM_KZ, _XMM, mem);
+					if (!p.supportYMM) continue;
+					if (suf == "pd") {
+						mem = M_1to8;
+					} else if (suf == "ps") {
+						mem = M_1to16;
+					} else {
+						mem = XMM_ER;
+					}
+					put(q, _ZMM, _ZMM, mem);
+				}
+			}
+		}
+	}
 	void putAVX512()
 	{
 		putOpmask();
@@ -2946,6 +3009,8 @@ public:
 		put512_X3();
 		separateFunc();
 		put512_X3_I();
+		separateFunc();
+		put512_FMA();
 	}
 #endif
 };

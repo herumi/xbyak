@@ -1406,7 +1406,7 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			for (int j = 0; j < 2; j++) {
-				const char suf[][2][8] = {
+				const char sufTbl[][2][8] = {
 					{ "pd", "ps" },
 					{ "sd", "ss" },
 				};
@@ -1419,8 +1419,20 @@ void put()
 						{ "213", 0xA0 },
 						{ "231", 0xB0 },
 					};
-					printf("void %s%s%s(const Xmm& xmm, const Xmm& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F38 | T_66 | T_W%d%s, 0x%02X); }\n"
-						, tbl[i].name, ord[k].str, suf[tbl[i].supportYMM ? 0 : 1][j], j == 0 ? 1 : 0, tbl[i].supportYMM ? " | T_YMM" : "", tbl[i].code + ord[k].code);
+					int t = T_0F38 | T_66 | T_EVEX;
+					t |= (j == 0) ? (T_W1 | T_EW1) : (T_W0 | T_EW0);
+					if (tbl[i].supportYMM) t |= T_YMM;
+					const std::string suf = sufTbl[tbl[i].supportYMM ? 0 : 1][j];
+					if (suf == "pd") {
+						t |= T_B64;
+					} else if (suf == "ps") {
+						t |= T_B32;
+					} else {
+						t |= T_ER_X;
+					}
+					std::string type = type2String(t);
+					printf("void %s%s%s(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X); }\n"
+						, tbl[i].name, ord[k].str, suf.c_str(), type.c_str(), tbl[i].code + ord[k].code);
 				}
 			}
 		}
