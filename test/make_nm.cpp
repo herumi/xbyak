@@ -2890,6 +2890,11 @@ public:
 			{ "vpshufd", _XMM | XMM_KZ, _XMM | M_1to4, IMM8 },
 			{ "vpshufd", _ZMM | ZMM_KZ, _ZMM | M_1to16, IMM8 },
 
+			{ "vpord", _XMM | XMM_KZ, _XMM, _XMM | M_1to4 },
+			{ "vpord", _ZMM | ZMM_KZ, _ZMM, M_1to16 },
+
+			{ "vporq", _XMM | XMM_KZ, _XMM, _XMM | M_1to2 },
+			{ "vporq", _ZMM | ZMM_KZ, _ZMM, M_1to8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
@@ -3010,6 +3015,58 @@ public:
 			put(name, _ZMM, _MEM);
 		}
 	}
+	void put512_AVX1()
+	{
+#ifdef XBYAK64
+		const struct Tbl {
+			std::string name;
+			bool only_pd_ps;
+		} tbl[] = {
+			{ "vadd", false },
+			{ "vsub", false },
+			{ "vmul", false },
+			{ "vdiv", false },
+			{ "vmax", false },
+			{ "vmin", false },
+			{ "vand", true },
+			{ "vandn", true },
+			{ "vor", true },
+			{ "vxor", true },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const struct Suf {
+				const char *suf;
+				bool supportYMM;
+			} sufTbl[] = {
+				{ "pd", true },
+				{ "ps", true },
+				{ "sd", false },
+				{ "ss", false },
+			};
+			for (size_t j = 0; j < NUM_OF_ARRAY(sufTbl); j++) {
+				if (tbl[i].only_pd_ps && j == 2) break;
+				std::string suf = sufTbl[j].suf;
+				std::string name = tbl[i].name + suf;
+				const char *p = name.c_str();
+				uint64_t mem = 0;
+				if (suf == "pd") {
+					mem = M_1to2;
+				} else if (suf == "ps") {
+					mem = M_1to4;
+				}
+				put(p, _XMM3 | XMM_KZ, _XMM, mem);
+				if (!sufTbl[j].supportYMM) continue;
+				mem = 0;
+				if (suf == "pd") {
+					mem = M_1to8;
+				} else if (suf == "ps") {
+					mem = M_1to16;
+				}
+				put(p, _ZMM, _ZMM, mem);
+			}
+		}
+#endif
+	}
 	void putAVX512()
 	{
 		putOpmask();
@@ -3035,6 +3092,8 @@ public:
 		put512_FMA();
 		separateFunc();
 		put512_Y_XM();
+		separateFunc();
+		put512_AVX1();
 	}
 #endif
 };
