@@ -1537,7 +1537,7 @@ class Test {
 			{ "vpmullw", true },
 			{ "vpmulld", true },
 
-			{ "vpmuludq", false },
+			{ "vpmuludq", true },
 			{ "vpmuldq", true },
 
 			{ "vpor", true },
@@ -2921,7 +2921,31 @@ public:
 			{ "vpxorq", _ZMM | ZMM_KZ, _ZMM, M_1to8 },
 
 			{ "vpsadbw", _XMM3, _XMM, _XMM },
-			{ "vpsadbw", _ZMM, _ZMM, _MEM }
+			{ "vpsadbw", _ZMM, _ZMM, _MEM },
+
+			{ "vpmuldq", _XMM3, _XMM, _XMM | M_1to2 },
+			{ "vpmuldq", ZMM_KZ, _ZMM, M_1to8 },
+
+			{ "vpmulhrsw", _XMM3, _XMM, _XMM },
+			{ "vpmulhrsw", ZMM_KZ, _ZMM, _MEM },
+
+			{ "vpmulhuw", _XMM3, _XMM, _XMM },
+			{ "vpmulhuw", ZMM_KZ, _ZMM, _MEM },
+
+			{ "vpmulhw", _XMM3, _XMM, _XMM },
+			{ "vpmulhw", ZMM_KZ, _ZMM, _MEM },
+
+			{ "vpmullw", _XMM3, _XMM, _XMM },
+			{ "vpmullw", ZMM_KZ, _ZMM, _MEM },
+
+			{ "vpmulld", _XMM3, _XMM, M_1to4 },
+			{ "vpmulld", ZMM_KZ, _ZMM, M_1to16 },
+
+			{ "vpmullq", _XMM3, _XMM, M_1to2 },
+			{ "vpmullq", ZMM_KZ, _ZMM, M_1to8 },
+
+			{ "vpmuludq", _XMM3, _XMM, M_1to2 },
+			{ "vpmuludq", ZMM_KZ, _ZMM, M_1to8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];

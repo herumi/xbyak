@@ -1105,14 +1105,14 @@ void put()
 			{ 0x3A, "pminuw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
 			{ 0x3B, "pminud", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
 
-			{ 0xE4, "pmulhuw", T_0F | T_66 | T_YMM, false, true },
-			{ 0x0B, "pmulhrsw", T_0F38 | T_66 | T_YMM, false, true },
-			{ 0xE5, "pmulhw", T_0F | T_66 | T_YMM, false, true },
-			{ 0xD5, "pmullw", T_0F | T_66 | T_YMM, false, true },
-			{ 0x40, "pmulld", T_0F38 | T_66 | T_YMM, false, true },
+			{ 0xE4, "pmulhuw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0x0B, "pmulhrsw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xE5, "pmulhw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xD5, "pmullw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0x40, "pmulld", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
 
-			{ 0xF4, "pmuludq", T_0F | T_66, false, true },
-			{ 0x28, "pmuldq", T_0F38 | T_66 | T_YMM, false, true },
+			{ 0xF4, "pmuludq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
+			{ 0x28, "pmuldq", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
 
 			{ 0xEB, "por", T_0F | T_66 | T_YMM, false, true },
 			{ 0xF6, "psadbw", T_0F | T_66 | T_YMM | T_EVEX, false, true },

@@ -867,19 +867,19 @@ void vpminuw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1,
 void vpminuw(const Xmm& x, const Operand& op) { vpminuw(x, x, op); }
 void vpminud(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_EW0 | T_YMM | T_EVEX | T_B32, 0x3B); }
 void vpminud(const Xmm& x, const Operand& op) { vpminud(x, x, op); }
-void vpmulhuw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xE4); }
+void vpmulhuw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM | T_EVEX, 0xE4); }
 void vpmulhuw(const Xmm& x, const Operand& op) { vpmulhuw(x, x, op); }
-void vpmulhrsw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_YMM, 0x0B); }
+void vpmulhrsw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_YMM | T_EVEX, 0x0B); }
 void vpmulhrsw(const Xmm& x, const Operand& op) { vpmulhrsw(x, x, op); }
-void vpmulhw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xE5); }
+void vpmulhw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM | T_EVEX, 0xE5); }
 void vpmulhw(const Xmm& x, const Operand& op) { vpmulhw(x, x, op); }
-void vpmullw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xD5); }
+void vpmullw(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM | T_EVEX, 0xD5); }
 void vpmullw(const Xmm& x, const Operand& op) { vpmullw(x, x, op); }
-void vpmulld(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_YMM, 0x40); }
+void vpmulld(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_EW0 | T_YMM | T_EVEX | T_B32, 0x40); }
 void vpmulld(const Xmm& x, const Operand& op) { vpmulld(x, x, op); }
-void vpmuludq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66, 0xF4); }
+void vpmuludq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX | T_B64, 0xF4); }
 void vpmuludq(const Xmm& x, const Operand& op) { vpmuludq(x, x, op); }
-void vpmuldq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_YMM, 0x28); }
+void vpmuldq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_EW1 | T_YMM | T_EVEX | T_B64, 0x28); }
 void vpmuldq(const Xmm& x, const Operand& op) { vpmuldq(x, x, op); }
 void vpor(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xEB); }
 void vpor(const Xmm& x, const Operand& op) { vpor(x, x, op); }
