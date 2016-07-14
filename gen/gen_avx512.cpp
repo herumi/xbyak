@@ -224,22 +224,31 @@ void putShift()
 	}
 }
 
-void putEtc()
+void putExtract()
 {
-/*
-EVEX.256.66.0F3A.W0 19 VEXTRACTF32X4 xmm1/m128 {k1}{z}, ymm2, imm8
-EVEX.512.66.0F3A.W0 19 VEXTRACTF32x4 xmm1/m128 {k1}{z}, zmm2, imm8
+	{
+		const struct Tbl {
+			const char *name;
+			uint8 code;
+			int type;
+			bool isZMM;
+		} tbl[] = {
+			{ "vextractf32x4", 0x19, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, false },
+			{ "vextractf64x2", 0x19, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, false },
+			{ "vextractf32x8", 0x1B, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, true },
+			{ "vextractf64x4", 0x1B, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, true },
 
-EVEX.256.66.0F3A.W1 19 VEXTRACTF64X2 xmm1/m128 {k1}{z}, ymm2, imm8
-EVEX.512.66.0F3A.W1 19 VEXTRACTF64X2 xmm1/m128 {k1}{z}, zmm2, imm8
-
-EVEX.512.66.0F3A.W0 1B VEXTRACTF32X8 ymm1/m256 {k1}{z}, zmm2, imm8
-EVEX.512.66.0F3A.W1 1B VEXTRACTF64x4 ymm1/m256 {k1}{z}, zmm2, imm8
-*/
-	puts("void vextractf32x4(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, cvtIdx0(y), op, op.isXMM(), Operand::YMM, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, 0x19, imm); }");
-	puts("void vextractf64x2(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, cvtIdx0(y), op, op.isXMM(), Operand::YMM, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, 0x19, imm); }");
-	puts("void vextractf32x8(const Operand& op, const Zmm& z, uint8 imm) { opAVX_X_X_XMcvt(z, cvtIdx0(z), op, op.isXMM(), Operand::YMM, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, 0x1B, imm); }");
-	puts("void vextractf64x4(const Operand& op, const Zmm& z, uint8 imm) { opAVX_X_X_XMcvt(z, cvtIdx0(z), op, op.isXMM(), Operand::YMM, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, 0x1B, imm); }");
+			{ "vextracti32x4", 0x39, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, false },
+			{ "vextracti64x2", 0x39, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, false },
+			{ "vextracti32x8", 0x3B, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, true },
+			{ "vextracti64x4", 0x3B, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, true },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			std::string type = type2String(p.type);
+			printf("void %s(const Operand& op, const %s& r, uint8 imm) { opAVX_X_X_XMcvt(r, cvtIdx0(r), op, op.isXMM(), Operand::YMM, %s, 0x%2X, imm); }\n", p.name, p.isZMM ? "Zmm" : "Ymm", type.c_str(), p.code);
+		}
+	}
 }
 
 int main()
@@ -251,6 +260,6 @@ int main()
 	putM_X();
 	putX_X_XM_IMM();
 	putShift();
-	putEtc();
+	putExtract();
 	puts("#endif");
 }

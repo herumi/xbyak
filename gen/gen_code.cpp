@@ -1462,7 +1462,7 @@ void put()
 
 		printf("void vextractf128(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, cvtIdx0(y), op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_W0 | T_YMM, 0x19, imm); }\n");
 		printf("void vextracti128(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, cvtIdx0(y), op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_W0 | T_YMM, 0x39, imm); }\n");
-		printf("void vextractps(const Operand& op, const Xmm& x, uint8 imm) { if (!(op.isREG(32) || op.isMEM()) || x.isYMM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, cvtIdx0(x), op, op.isREG(), Operand::XMM, T_0F3A | T_66 | T_W0, 0x17, imm); }\n");
+		printf("void vextractps(const Operand& op, const Xmm& x, uint8 imm) { if (!(op.isREG(32) || op.isMEM()) || x.isYMM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, cvtIdx0(x), op, op.isREG(), Operand::XMM, T_0F3A | T_66 | T_W0 | T_EVEX, 0x17, imm); }\n");
 		printf("void vinsertf128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(y1, y2, op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_W0 | T_YMM, 0x18, imm); }\n");
 		printf("void vinserti128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(y1, y2, op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_W0 | T_YMM, 0x38, imm); }\n");
 		printf("void vperm2f128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XM(y1, y2, op, T_0F3A | T_66 | T_W0 | T_YMM, 0x06, imm); }\n");

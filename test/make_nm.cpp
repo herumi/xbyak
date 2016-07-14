@@ -2975,6 +2975,13 @@ public:
 			{ "vextractf64x2", _XMM | XMM_KZ | _MEM, _YMM | _ZMM, IMM8 },
 			{ "vextractf32x8", _YMM | YMM_KZ | _MEM, _ZMM, IMM8 },
 			{ "vextractf64x4", _YMM | YMM_KZ | _MEM, _ZMM, IMM8 },
+
+			{ "vextracti32x4", _XMM | XMM_KZ | _MEM, _YMM | _ZMM, IMM8 },
+			{ "vextracti64x2", _XMM | XMM_KZ | _MEM, _YMM | _ZMM, IMM8 },
+			{ "vextracti32x8", _YMM | YMM_KZ | _MEM, _ZMM, IMM8 },
+			{ "vextracti64x4", _YMM | YMM_KZ | _MEM, _ZMM, IMM8 },
+
+			{ "vextractps", REG32 | _MEM, _XMM3, IMM8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
