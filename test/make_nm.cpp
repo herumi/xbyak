@@ -2991,6 +2991,16 @@ public:
 
 			{ "vpermd", YMM_KZ, _YMM, _YMM | M_1to8 },
 			{ "vpermd", ZMM_KZ, _ZMM, _ZMM | M_1to16 },
+
+			{ "vpermilpd", XMM_KZ, _XMM, _XMM | M_1to2 },
+			{ "vpermilpd", ZMM_KZ, _ZMM, M_1to8 },
+			{ "vpermilpd", XMM_KZ, M_1to2, IMM8 },
+			{ "vpermilpd", ZMM_KZ, M_1to8, IMM8 },
+
+			{ "vpermilps", XMM_KZ, _XMM, _XMM | M_1to4 },
+			{ "vpermilps", ZMM_KZ, _ZMM, M_1to16 },
+			{ "vpermilps", XMM_KZ, M_1to4, IMM8 },
+			{ "vpermilps", ZMM_KZ, M_1to16, IMM8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];

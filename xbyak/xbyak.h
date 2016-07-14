@@ -2335,7 +2335,6 @@ public:
 		if (!reg.isBit(16 | i32e)) throw Error(ERR_BAD_SIZE_OF_REGISTER);
 		opModM(addr, reg, 0x8D);
 	}
-
 	void movmskps(const Reg32e& reg, const Xmm& xmm) { opModR(reg, xmm, 0x0F, 0x50); }
 	void movmskpd(const Reg32e& reg, const Xmm& xmm) { db(0x66); movmskps(reg, xmm); }
 	void movntps(const Address& addr, const Xmm& xmm) { opModM(addr, Mmx(xmm.getIdx()), 0x0F, 0x2B); }

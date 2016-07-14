@@ -756,8 +756,8 @@ void vroundss(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { opAV
 void vroundss(const Xmm& x, const Operand& op, uint8 imm) { vroundss(x, x, op, imm); }
 void vpclmulqdq(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { opAVX_X_X_XM(x1, x2, op, T_0F3A | T_66 | T_W0, 0x44, imm); }
 void vpclmulqdq(const Xmm& x, const Operand& op, uint8 imm) { vpclmulqdq(x, x, op, imm); }
-void vpermilps(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_W0 | T_YMM, 0x0C); }
-void vpermilpd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_W0 | T_YMM, 0x0D); }
+void vpermilps(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_W0 | T_EW0 | T_YMM | T_EVEX | T_B32, 0x0C); }
+void vpermilpd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_W0 | T_EW1 | T_YMM | T_EVEX | T_B64, 0x0D); }
 void vpsllvd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_W0 | T_EW0 | T_YMM | T_EVEX | T_B32, 0x47); }
 void vpsllvq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_W1 | T_EW1 | T_YMM | T_EVEX | T_B64, 0x47); }
 void vpsravd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_W0 | T_EW0 | T_YMM | T_EVEX | T_B32, 0x46); }
@@ -965,8 +965,8 @@ void vunpcklps(const Xmm& x, const Operand& op) { vunpcklps(x, x, op); }
 void vaeskeygenassist(const Xmm& xm, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(xm, op, T_0F3A | T_66, 0xDF, imm); }
 void vroundpd(const Xmm& xm, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(xm, op, T_0F3A | T_66 | T_YMM, 0x09, imm); }
 void vroundps(const Xmm& xm, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(xm, op, T_0F3A | T_66 | T_YMM, 0x08, imm); }
-void vpermilpd(const Xmm& xm, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(xm, op, T_0F3A | T_66 | T_YMM, 0x05, imm); }
-void vpermilps(const Xmm& xm, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(xm, op, T_0F3A | T_66 | T_YMM, 0x04, imm); }
+void vpermilpd(const Xmm& xm, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(xm, op, T_0F3A | T_66 | T_EW1 | T_YMM | T_EVEX | T_B64, 0x05, imm); }
+void vpermilps(const Xmm& xm, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(xm, op, T_0F3A | T_66 | T_EW0 | T_YMM | T_EVEX | T_B32, 0x04, imm); }
 void vpcmpestri(const Xmm& xm, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(xm, op, T_0F3A | T_66, 0x61, imm); }
 void vpcmpestrm(const Xmm& xm, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(xm, op, T_0F3A | T_66, 0x60, imm); }
 void vpcmpistri(const Xmm& xm, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(xm, op, T_0F3A | T_66, 0x63, imm); }
