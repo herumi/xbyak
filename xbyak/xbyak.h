@@ -1822,9 +1822,10 @@ private:
 		opVex(k, &x2, op3, type, code0, imm8);
 	}
 	// if cvt then return pointer to Xmm(idx) (or Ymm(idx)), otherwise return op
-	void opAVX_X_X_XMcvt(const Xmm& x1, const Operand& op1, const Operand& op2, bool cvt, Operand::Kind kind, int type, int code0, int imm8 = NONE)
+	void opAVX_X_X_XMcvt(const Xmm& x1, bool copyAttr, const Operand& op1, const Operand& op2, bool cvt, Operand::Kind kind, int type, int code0, int imm8 = NONE)
 	{
-		Xmm x = x1; x.setOpmaskIdx(op2.getOpmaskIdx(), true); if (op2.hasZero()) x.setZero();
+		Xmm x = x1;
+		if (copyAttr) { x.setOpmaskIdx(op2.getOpmaskIdx(), true); if (op2.hasZero()) x.setZero(); }
 		// use static_cast to avoid calling unintentional copy constructor on gcc
 		opAVX_X_X_XM(x, op1, cvt ? kind == Operand::XMM ? static_cast<const Operand&>(Xmm(op2.getIdx())) : static_cast<const Operand&>(Ymm(op2.getIdx())) : op2, type, code0, imm8);
 	}

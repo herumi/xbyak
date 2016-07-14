@@ -2982,6 +2982,7 @@ public:
 			{ "vextracti64x4", _YMM | YMM_KZ | _MEM, _ZMM, IMM8 },
 
 			{ "vextractps", REG32 | _MEM, _XMM3, IMM8 },
+
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
@@ -3005,6 +3006,15 @@ public:
 
 			{ "vshufps", XMM_KZ, _XMM, M_1to4 },
 			{ "vshufps", ZMM_KZ, _ZMM, M_1to16 },
+
+			{ "vinsertf32x4", _YMM | YMM_KZ, _YMM, _XMM | _MEM },
+			{ "vinsertf32x4", _ZMM | ZMM_KZ, _ZMM, _XMM | _MEM },
+
+			{ "vinsertf64x2", _YMM | YMM_KZ, _YMM, _XMM | _MEM },
+			{ "vinsertf64x2", _ZMM | ZMM_KZ, _ZMM, _XMM | _MEM },
+
+			{ "vinsertf32x8", _ZMM | ZMM_KZ, _ZMM, _YMM | _MEM },
+			{ "vinsertf64x4", _ZMM | ZMM_KZ, _ZMM, _YMM | _MEM },
 #endif
 			{ "vpalignr", ZMM_KZ, _ZMM, _ZMM },
 		};

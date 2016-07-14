@@ -224,7 +224,7 @@ void putShift()
 	}
 }
 
-void putExtract()
+void putExtractInsert()
 {
 	{
 		const struct Tbl {
@@ -246,7 +246,26 @@ void putExtract()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
 			std::string type = type2String(p.type);
-			printf("void %s(const Operand& op, const %s& r, uint8 imm) { opAVX_X_X_XMcvt(r, cvtIdx0(r), op, op.isXMM(), Operand::YMM, %s, 0x%2X, imm); }\n", p.name, p.isZMM ? "Zmm" : "Ymm", type.c_str(), p.code);
+			printf("void %s(const Operand& op, const %s& r, uint8 imm) { opAVX_X_X_XMcvt(r, true, cvtIdx0(r), op, op.isXMM(), Operand::YMM, %s, 0x%2X, imm); }\n", p.name, p.isZMM ? "Zmm" : "Ymm", type.c_str(), p.code);
+		}
+	}
+	{
+		const struct Tbl {
+			const char *name;
+			uint8 code;
+			int type;
+			bool isZMM;
+		} tbl[] = {
+			{ "vinsertf32x4", 0x18, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, false },
+			{ "vinsertf64x2", 0x18, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, false },
+			{ "vinsertf32x8", 0x1A, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, true },
+			{ "vinsertf64x4", 0x1A, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, true },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			std::string type = type2String(p.type);
+			const char *x = p.isZMM ? "Zmm" : "Ymm";
+			printf("void %s(const %s& r1, const %s& r2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(r1, false, r2, op, op.isXMM(), Operand::YMM, %s, 0x%2X, imm); }\n", p.name, x, x, type.c_str(), p.code);
 		}
 	}
 }
@@ -260,6 +279,6 @@ int main()
 	putM_X();
 	putX_X_XM_IMM();
 	putShift();
-	putExtract();
+	putExtractInsert();
 	puts("#endif");
 }
