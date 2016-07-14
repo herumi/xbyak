@@ -278,6 +278,12 @@ void putExtractInsert()
 	}
 }
 
+void putBroadcast()
+{
+	puts("void vbroadcastf32x2(const Ymm& y, const Operand& op) { opAVX_X_XM_IMM(y, op, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 0x19); }");
+	puts("void vbroadcastf32x4(const Ymm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 0x1A); }");
+}
+
 int main()
 {
 	puts("#ifndef XBYAK_DISABLE_AVX512");
@@ -288,5 +294,8 @@ int main()
 	putX_X_XM_IMM();
 	putShift();
 	putExtractInsert();
+#ifdef XBYAK64
+	putBroadcast();
+#endif
 	puts("#endif");
 }

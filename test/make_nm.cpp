@@ -2718,6 +2718,9 @@ public:
 
 		put("vpabsd", ZMM_KZ, M_1to16);
 		put("vpabsq", ZMM_KZ, M_1to8);
+
+		put("vbroadcastf32x2", YMM_KZ | ZMM_KZ, _XMM | _MEM);
+		put("vbroadcastf32x4", YMM_KZ | ZMM_KZ, _MEM);
 	}
 	void put512_X_X_XM()
 	{
