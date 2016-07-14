@@ -122,4 +122,8 @@ void vinsertf32x4(const Ymm& r1, const Ymm& r2, const Operand& op, uint8 imm) { 
 void vinsertf64x2(const Ymm& r1, const Ymm& r2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(r1, false, r2, op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_EW1 | T_YMM | T_MUST_EVEX, 0x18, imm); }
 void vinsertf32x8(const Zmm& r1, const Zmm& r2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(r1, false, r2, op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_EW0 | T_YMM | T_MUST_EVEX, 0x1A, imm); }
 void vinsertf64x4(const Zmm& r1, const Zmm& r2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(r1, false, r2, op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_EW1 | T_YMM | T_MUST_EVEX, 0x1A, imm); }
+void vinserti32x4(const Ymm& r1, const Ymm& r2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(r1, false, r2, op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_EW0 | T_YMM | T_MUST_EVEX, 0x38, imm); }
+void vinserti64x2(const Ymm& r1, const Ymm& r2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(r1, false, r2, op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_EW1 | T_YMM | T_MUST_EVEX, 0x38, imm); }
+void vinserti32x8(const Zmm& r1, const Zmm& r2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(r1, false, r2, op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_EW0 | T_YMM | T_MUST_EVEX, 0x3A, imm); }
+void vinserti64x4(const Zmm& r1, const Zmm& r2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(r1, false, r2, op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_EW1 | T_YMM | T_MUST_EVEX, 0x3A, imm); }
 #endif

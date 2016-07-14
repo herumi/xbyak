@@ -260,6 +260,11 @@ void putExtractInsert()
 			{ "vinsertf64x2", 0x18, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, false },
 			{ "vinsertf32x8", 0x1A, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, true },
 			{ "vinsertf64x4", 0x1A, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, true },
+
+			{ "vinserti32x4", 0x38, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, false },
+			{ "vinserti64x2", 0x38, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, false },
+			{ "vinserti32x8", 0x3A, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, true },
+			{ "vinserti64x4", 0x3A, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, true },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];

@@ -3015,6 +3015,15 @@ public:
 
 			{ "vinsertf32x8", _ZMM | ZMM_KZ, _ZMM, _YMM | _MEM },
 			{ "vinsertf64x4", _ZMM | ZMM_KZ, _ZMM, _YMM | _MEM },
+
+			{ "vinserti32x4", _YMM | YMM_KZ, _YMM, _XMM | _MEM },
+			{ "vinserti32x4", _ZMM | ZMM_KZ, _ZMM, _XMM | _MEM },
+
+			{ "vinserti64x2", _YMM | YMM_KZ, _YMM, _XMM | _MEM },
+			{ "vinserti64x2", _ZMM | ZMM_KZ, _ZMM, _XMM | _MEM },
+
+			{ "vinserti32x8", _ZMM | ZMM_KZ, _ZMM, _YMM | _MEM },
+			{ "vinserti64x4", _ZMM | ZMM_KZ, _ZMM, _YMM | _MEM },
 #endif
 			{ "vpalignr", ZMM_KZ, _ZMM, _ZMM },
 		};
