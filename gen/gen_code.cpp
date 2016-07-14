@@ -1324,8 +1324,10 @@ void put()
 			const char *name;
 			int type;
 		} tbl[] = {
-			{ 0x36, "vpermd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32 },
-			{ 0x16, "vpermps", T_0F38 | T_66 | T_W0 | T_YMM },
+			{ 0x36, "vpermd", T_66 | T_0F38 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32 },
+			{ 0x36, "vpermq", T_66 | T_0F38 | T_W0 | T_YMM | T_EVEX | T_EW1 | T_B64 },
+			{ 0x16, "vpermps", T_66 | T_0F38 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32 },
+			{ 0x16, "vpermpd", T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_YMM | T_B64 },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
@@ -1335,15 +1337,18 @@ void put()
 	}
 	// vpermq, vpermpd
 	{
-		const struct {
-			const char *suf;
+		const struct Tbl {
 			uint8 code;
+			const char *name;
+			int type;
 		} tbl[] = {
-			{ "q", 0x00 },
-			{ "pd", 0x01 },
+			{ 0x00, "vpermq", T_0F3A | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B64 },
+			{ 0x01, "vpermpd", T_0F3A | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B64 },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-			printf("void vperm%s(const Ymm& y, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(y, op, T_0F3A | T_66 | T_W1 | T_YMM, 0x%02X, imm); }\n", tbl[i].suf, tbl[i].code);
+			const Tbl& p = tbl[i];
+			std::string type = type2String(p.type);
+			printf("void %s(const Ymm& y, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(y, op, %s, 0x%02X, imm); }\n", p.name, type.c_str(), p.code);
 		}
 	}
 	// vcmpeqps
