@@ -132,4 +132,15 @@ void vbroadcastf32x2(const Ymm& y, const Operand& op) { opAVX_X_XM_IMM(y, op, T_
 void vbroadcastf32x4(const Ymm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 0x1A); }
 void vbroadcastf64x2(const Ymm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, 0x1A); }
 void vbroadcastf64x4(const Zmm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, 0x1B); }
+void vpbroadcastb(const Xmm& x, const Reg8& r) { opVex(x, &cvtIdx0(x), r, T_0F38 | T_66 | T_EW0 | T_YMM | T_MUST_EVEX, 0x7A); }
+void vpbroadcastw(const Xmm& x, const Reg16& r) { opVex(x, &cvtIdx0(x), r, T_0F38 | T_66 | T_EW0 | T_YMM | T_MUST_EVEX, 0x7B); }
+void vpbroadcastd(const Xmm& x, const Reg32& r) { opVex(x, &cvtIdx0(x), r, T_0F38 | T_66 | T_EW0 | T_YMM | T_MUST_EVEX, 0x7C); }
+#ifdef XBYAK64
+void vpbroadcastq(const Xmm& x, const Reg64& r) { opVex(x, &cvtIdx0(x), r, T_0F38 | T_66 | T_EW1 | T_YMM | T_MUST_EVEX, 0x7C); }
+#endif
+void vbroadcasti32x2(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 0x59); }
+void vbroadcasti32x4(const Ymm& y, const Operand& op) { opAVX_X_XM_IMM(y, op, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 0x5A); }
+void vbroadcasti64x2(const Ymm& y, const Operand& op) { opAVX_X_XM_IMM(y, op, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, 0x5A); }
+void vbroadcasti32x8(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 0x5B); }
+void vbroadcasti64x4(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, 0x5B); }
 #endif

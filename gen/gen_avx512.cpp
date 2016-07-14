@@ -284,6 +284,31 @@ void putBroadcast()
 	puts("void vbroadcastf32x4(const Ymm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 0x1A); }");
 	puts("void vbroadcastf64x2(const Ymm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, 0x1A); }");
 	puts("void vbroadcastf64x4(const Zmm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, 0x1B); }");
+	{
+		const struct Tbl {
+			uint8 code;
+			const char *name;
+			int type;
+			int reg;
+		} tbl[] = {
+			{ 0x7A, "vpbroadcastb", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 8 },
+			{ 0x7B, "vpbroadcastw", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 16 },
+			{ 0x7C, "vpbroadcastd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 32 },
+			{ 0x7C, "vpbroadcastq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, 64},
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			std::string type = type2String(p.type);
+			if (p.reg == 64) puts("#ifdef XBYAK64");
+			printf("void %s(const Xmm& x, const Reg%d& r) { opVex(x, &cvtIdx0(x), r, %s, 0x%02X); }\n", p.name, p.reg, type.c_str(), p.code);
+			if (p.reg == 64) puts("#endif");
+		}
+	}
+	puts("void vbroadcasti32x2(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 0x59); }");
+	puts("void vbroadcasti32x4(const Ymm& y, const Operand& op) { opAVX_X_XM_IMM(y, op, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 0x5A); }");
+	puts("void vbroadcasti64x2(const Ymm& y, const Operand& op) { opAVX_X_XM_IMM(y, op, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, 0x5A); }");
+	puts("void vbroadcasti32x8(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 0x5B); }");
+	puts("void vbroadcasti64x4(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, 0x5B); }");
 }
 
 int main()

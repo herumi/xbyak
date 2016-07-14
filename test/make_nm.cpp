@@ -2612,6 +2612,28 @@ public:
 		for (int i = 0; i < 9; i++) {
 			putBroadcastSub(i);
 		}
+		put("vpbroadcastb", XMM_KZ | ZMM_KZ, REG8);
+		put("vpbroadcastw", XMM_KZ | ZMM_KZ, REG16);
+		put("vpbroadcastd", XMM_KZ | ZMM_KZ, REG32);
+#ifdef XBYAK64
+		put("vpbroadcastq", XMM_KZ | ZMM_KZ, REG64);
+#endif
+		{
+			const char *tbl[] = {
+				"vpbroadcastb",
+				"vpbroadcastw",
+				"vpbroadcastd",
+				"vpbroadcastq",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				put(tbl[i], XMM_KZ | ZMM_KZ, _XMM | _MEM);
+			}
+		}
+		put("vbroadcasti32x2", XMM_KZ | YMM_KZ | ZMM_KZ, _XMM | _MEM);
+		put("vbroadcasti32x4", YMM_KZ | ZMM_KZ, _MEM);
+		put("vbroadcasti64x2", YMM_KZ | ZMM_KZ, _MEM);
+		put("vbroadcasti32x8", ZMM_KZ, _MEM);
+		put("vbroadcasti64x4", ZMM_KZ, _MEM);
 	}
 	void putAVX512_M_X()
 	{
