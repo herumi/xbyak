@@ -1319,15 +1319,18 @@ void put()
 	}
 	// vpermd, vpermps
 	{
-		const struct {
-			const char *suf;
+		const struct Tbl {
 			uint8 code;
+			const char *name;
+			int type;
 		} tbl[] = {
-			{ "d", 0x36 },
-			{ "ps", 0x16 },
+			{ 0x36, "vpermd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32 },
+			{ 0x16, "vpermps", T_0F38 | T_66 | T_W0 | T_YMM },
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-			printf("void vperm%s(const Ymm& y1, const Ymm& y2, const Operand& op) { opAVX_X_X_XM(y1, y2, op, T_0F38 | T_66 | T_W0 | T_YMM, 0x%02X); }\n", tbl[i].suf, tbl[i].code);
+			const Tbl& p = tbl[i];
+			std::string type = type2String(p.type);
+			printf("void %s(const Ymm& y1, const Ymm& y2, const Operand& op) { opAVX_X_X_XM(y1, y2, op, %s, 0x%02X); }\n", p.name, type.c_str(), p.code);
 		}
 	}
 	// vpermq, vpermpd

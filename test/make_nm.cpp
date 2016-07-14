@@ -2983,6 +2983,14 @@ public:
 
 			{ "vextractps", REG32 | _MEM, _XMM3, IMM8 },
 
+			{ "vpermb", XMM_KZ, _XMM, _XMM },
+			{ "vpermb", ZMM_KZ, _ZMM, _ZMM | _MEM },
+
+			{ "vpermw", XMM_KZ, _XMM, _XMM },
+			{ "vpermw", ZMM_KZ, _ZMM, _ZMM | _MEM },
+
+			{ "vpermd", YMM_KZ, _YMM, _YMM | M_1to8 },
+			{ "vpermd", ZMM_KZ, _ZMM, _ZMM | M_1to16 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
