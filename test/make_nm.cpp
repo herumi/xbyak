@@ -2721,6 +2721,9 @@ public:
 
 		put("vbroadcastf32x2", YMM_KZ | ZMM_KZ, _XMM | _MEM);
 		put("vbroadcastf32x4", YMM_KZ | ZMM_KZ, _MEM);
+
+		put("vbroadcastf64x2", YMM_KZ | ZMM_KZ, _MEM);
+		put("vbroadcastf64x4", ZMM_KZ, _MEM);
 	}
 	void put512_X_X_XM()
 	{
