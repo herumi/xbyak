@@ -2970,6 +2970,11 @@ public:
 
 			{ "vpunpcklqdq", _XMM3, _XMM, M_1to2 },
 			{ "vpunpcklqdq", _ZMM, _ZMM, M_1to8 },
+
+			{ "vextractf32x4", _XMM | XMM_KZ | _MEM, _YMM | _ZMM, IMM8 },
+			{ "vextractf64x2", _XMM | XMM_KZ | _MEM, _YMM | _ZMM, IMM8 },
+			{ "vextractf32x8", _YMM | YMM_KZ | _MEM, _ZMM, IMM8 },
+			{ "vextractf64x4", _YMM | YMM_KZ | _MEM, _ZMM, IMM8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];

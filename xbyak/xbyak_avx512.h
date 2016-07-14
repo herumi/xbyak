@@ -110,4 +110,8 @@ void vpxord(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, 
 void vpxorq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0xEF); }
 void vpmullq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0x40); }
 void vpsraq(const Xmm& x, const Operand& op, uint8 imm) { opAVX_X_X_XM(x.copyAndSetIdx(4), x, op, T_0F | T_66 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0x72, imm); }
+void vextractf32x4(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, cvtIdx0(y), op, op.isXMM(), Operand::YMM, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, 0x19, imm); }
+void vextractf64x2(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, cvtIdx0(y), op, op.isXMM(), Operand::YMM, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, 0x19, imm); }
+void vextractf32x8(const Operand& op, const Zmm& z, uint8 imm) { opAVX_X_X_XMcvt(z, cvtIdx0(z), op, op.isXMM(), Operand::YMM, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, 0x1B, imm); }
+void vextractf64x4(const Operand& op, const Zmm& z, uint8 imm) { opAVX_X_X_XMcvt(z, cvtIdx0(z), op, op.isXMM(), Operand::YMM, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, 0x1B, imm); }
 #endif

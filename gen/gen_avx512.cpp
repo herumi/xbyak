@@ -224,6 +224,24 @@ void putShift()
 	}
 }
 
+void putEtc()
+{
+/*
+EVEX.256.66.0F3A.W0 19 VEXTRACTF32X4 xmm1/m128 {k1}{z}, ymm2, imm8
+EVEX.512.66.0F3A.W0 19 VEXTRACTF32x4 xmm1/m128 {k1}{z}, zmm2, imm8
+
+EVEX.256.66.0F3A.W1 19 VEXTRACTF64X2 xmm1/m128 {k1}{z}, ymm2, imm8
+EVEX.512.66.0F3A.W1 19 VEXTRACTF64X2 xmm1/m128 {k1}{z}, zmm2, imm8
+
+EVEX.512.66.0F3A.W0 1B VEXTRACTF32X8 ymm1/m256 {k1}{z}, zmm2, imm8
+EVEX.512.66.0F3A.W1 1B VEXTRACTF64x4 ymm1/m256 {k1}{z}, zmm2, imm8
+*/
+	puts("void vextractf32x4(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, cvtIdx0(y), op, op.isXMM(), Operand::YMM, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, 0x19, imm); }");
+	puts("void vextractf64x2(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, cvtIdx0(y), op, op.isXMM(), Operand::YMM, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, 0x19, imm); }");
+	puts("void vextractf32x8(const Operand& op, const Zmm& z, uint8 imm) { opAVX_X_X_XMcvt(z, cvtIdx0(z), op, op.isXMM(), Operand::YMM, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, 0x1B, imm); }");
+	puts("void vextractf64x4(const Operand& op, const Zmm& z, uint8 imm) { opAVX_X_X_XMcvt(z, cvtIdx0(z), op, op.isXMM(), Operand::YMM, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, 0x1B, imm); }");
+}
+
 int main()
 {
 	puts("#ifndef XBYAK_DISABLE_AVX512");
@@ -233,5 +251,6 @@ int main()
 	putM_X();
 	putX_X_XM_IMM();
 	putShift();
+	putEtc();
 	puts("#endif");
 }

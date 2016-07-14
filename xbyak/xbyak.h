@@ -401,9 +401,9 @@ public:
 	bool hasZero() const { return zero_; }
 	int getOpmaskIdx() const { return mask_; }
 	int getRounding() const { return rounding_; }
-	void setOpmaskIdx(int idx)
+	void setOpmaskIdx(int idx, bool ignore_idx0 = false)
 	{
-		if (idx == 0) throw Error(ERR_K0_IS_INVALID);
+		if (!ignore_idx0 && idx == 0) throw Error(ERR_K0_IS_INVALID);
 		if (mask_) throw Error(ERR_OPMASK_IS_ALREADY_SET);
 		mask_ = idx;
 	}
@@ -1824,8 +1824,9 @@ private:
 	// if cvt then return pointer to Xmm(idx) (or Ymm(idx)), otherwise return op
 	void opAVX_X_X_XMcvt(const Xmm& x1, const Operand& op1, const Operand& op2, bool cvt, Operand::Kind kind, int type, int code0, int imm8 = NONE)
 	{
+		Xmm x = x1; x.setOpmaskIdx(op2.getOpmaskIdx(), true); if (op2.hasZero()) x.setZero();
 		// use static_cast to avoid calling unintentional copy constructor on gcc
-		opAVX_X_X_XM(x1, op1, cvt ? kind == Operand::XMM ? static_cast<const Operand&>(Xmm(op2.getIdx())) : static_cast<const Operand&>(Ymm(op2.getIdx())) : op2, type, code0, imm8);
+		opAVX_X_X_XM(x, op1, cvt ? kind == Operand::XMM ? static_cast<const Operand&>(Xmm(op2.getIdx())) : static_cast<const Operand&>(Ymm(op2.getIdx())) : op2, type, code0, imm8);
 	}
 	const Xmm& cvtIdx0(const Operand& x) const
 	{
