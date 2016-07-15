@@ -3232,6 +3232,21 @@ public:
 		}
 #endif
 	}
+	void put512_cvt()
+	{
+#ifdef XBYAK64
+		put("vcvtdq2pd", XMM_KZ, _XMM | M_1to2);
+		put("vcvtdq2pd", YMM_KZ, _XMM | M_1to4);
+		put("vcvtdq2pd", ZMM_KZ, _YMM | M_1to8);
+
+		put("vcvtdq2ps", XMM_KZ, _XMM | M_1to4);
+		put("vcvtdq2ps", YMM_KZ, _YMM | M_1to8);
+		put("vcvtdq2ps", ZMM_KZ, _ZMM | M_1to16);
+
+		put("vcvtpd2dq", XMM_KZ, _XMM | _YMM | M_1to4);
+		put("vcvtpd2dq", YMM_KZ, _ZMM | ZMM_ER | M_1to8);
+#endif
+	}
 	void putAVX512()
 	{
 		putOpmask();
@@ -3259,6 +3274,8 @@ public:
 		put512_Y_XM();
 		separateFunc();
 		put512_AVX1();
+		separateFunc();
+		put512_cvt();
 	}
 #endif
 };

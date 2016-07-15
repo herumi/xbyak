@@ -401,6 +401,12 @@ public:
 	bool hasZero() const { return zero_; }
 	int getOpmaskIdx() const { return mask_; }
 	int getRounding() const { return rounding_; }
+	void setKind(Kind kind)
+	{
+		if ((kind & (XMM|YMM|ZMM)) == 0) return;
+		kind_ = kind;
+		bit_ = kind == XMM ? 128 : kind == YMM ? 256 : 512;
+	}
 	void setOpmaskIdx(int idx, bool ignore_idx0 = false)
 	{
 		if (!ignore_idx0 && idx == 0) throw Error(ERR_K0_IS_INVALID);
@@ -531,6 +537,7 @@ struct Xmm : public Mmx {
 	explicit Xmm(int idx = 0, Kind kind = Operand::XMM, int bit = 128) : Mmx(idx, kind, bit) { }
 	Xmm operator|(const EvexModifierRounding& emr) const { Xmm r(*this); r.setRounding(emr.rounding); return r; }
 	Xmm copyAndSetIdx(int idx) const { Xmm ret(*this); ret.setIdx(idx); return ret; }
+	Xmm copyAndSetKind(Operand::Kind kind) const { Xmm ret(*this); ret.setKind(kind); return ret; }
 };
 
 struct Ymm : public Xmm {
@@ -1833,11 +1840,6 @@ private:
 	{
 //		assert(!x.isMEM()); // QQQ
 		return x.isZMM() ? zm0 : x.isYMM() ? ym0 : xm0;
-	}
-	// get op.type(idx)
-	Xmm getXmm(const Operand& op, int idx) const
-	{
-		return op.isZMM() ? Zmm(idx) : op.isYMM() ? Ymm(idx) : Xmm(idx);
 	}
 	// support (x, x/m, imm), (y, y/m, imm)
 	void opAVX_X_XM_IMM(const Xmm& x, const Operand& op, int type, int code, int imm8 = NONE)
