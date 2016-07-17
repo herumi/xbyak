@@ -1199,8 +1199,8 @@ void put()
 			{ 0x62, "pcmpistrm", T_0F3A | T_66, true },
 			{ 0x0E, "testps", T_0F38 | T_66 | T_YMM, false },
 			{ 0x0F, "testpd", T_0F38 | T_66 | T_YMM, false },
-			{ 0x2F, "comisd", T_0F | T_66 | T_EVEX | T_EW1 | T_SAE_X, false },
-			{ 0x2F, "comiss", T_0F | T_EVEX | T_EW0 | T_SAE_X, false },
+			{ 0x2F, "comisd", T_0F | T_66 | T_EVEX | T_EW1 | T_SAE_X | T_N8, false },
+			{ 0x2F, "comiss", T_0F | T_EVEX | T_EW0 | T_SAE_X | T_N4, false },
 			{ 0x5B, "cvtdq2ps", T_0F | T_YMM | T_EVEX | T_EW0 | T_B32, false },
 			{ 0x5B, "cvtps2dq", T_0F | T_66 | T_YMM, false },
 			{ 0x5B, "cvttps2dq", T_0F | T_F3 | T_YMM, false },
@@ -1244,8 +1244,8 @@ void put()
 			{ 0x51, "sqrtpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_ER_Z | T_B64, false },
 			{ 0x51, "sqrtps", T_0F | T_YMM | T_EVEX | T_EW0 | T_ER_Z | T_B32, false },
 
-			{ 0x2E, "ucomisd", T_0F | T_66 | T_EVEX | T_EW1 | T_SAE_X, false },
-			{ 0x2E, "ucomiss", T_0F | T_EVEX | T_EW0 | T_SAE_X, false },
+			{ 0x2E, "ucomisd", T_0F | T_66 | T_EVEX | T_EW1 | T_SAE_X | T_N8, false },
+			{ 0x2E, "ucomiss", T_0F | T_EVEX | T_EW0 | T_SAE_X | T_N4, false },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
