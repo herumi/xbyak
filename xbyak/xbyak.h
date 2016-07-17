@@ -1418,11 +1418,10 @@ private:
 		T_RZ_SAE = 4,
 		T_SAE = 5,
 	};
-	void evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool b = false, int aaa = 0)
+	int evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool b = false, int aaa = 0)
 	{
 		if (!(type & (T_EVEX | T_MUST_EVEX))) throw Error(ERR_EVEX_IS_INVALID);
 		int w = (type & T_EW1) ? 1 : 0;
-	//	bool is256 = (type & T_L1) ? true : (type & T_L0) ? false : reg.isYMM();
 		uint32 mm = (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0;
 		uint32 pp = (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0;
 
@@ -1435,6 +1434,7 @@ private:
 		bool Rp = !reg.isExtIdx2();
 		int LL;
 		int rounding = base.getRounding();
+		int disp8N = 1;
 		if (rounding) {
 			if (rounding == T_SAE){
 				verifySAE(base, type); LL = 0;
@@ -1443,8 +1443,16 @@ private:
 			}
 			b = true;
 		} else {
-			int bit = Max(Max(reg.getBit(), base.getBit()), (v ? v->getBit() : 0));
-			LL = (bit == 512) ? 2 : (bit == 256) ? 1 : 0;
+			int VL = Max(Max(reg.getBit(), base.getBit()), (v ? v->getBit() : 0));
+			LL = (VL == 512) ? 2 : (VL == 256) ? 1 : 0;
+			if (b) {
+				disp8N = (type & T_B32) ? 4 : 8;
+			} else if (type & (T_N2 | T_N4 | T_N8 | T_N16)) {
+				disp8N = (type & T_N2) ? 2 : (type & T_N4) ? 4 : (type & T_N8) ? 8 : 16;
+				if (type & T_N_VL) disp8N *= (VL == 512 ? 4 : VL == 256 ? 2 : 1);
+			} else if (type & T_DUP) {
+				disp8N = VL == 128 ? 8 : VL == 256 ? 32 : 64;
+			}
 		}
 		bool Vp = !(v ? v->isExtIdx2() : 0);
 		bool z = reg.hasZero();
@@ -1454,6 +1462,7 @@ private:
 		db((w == 1 ? 0x80 : 0) | ((vvvv & 15) << 3) | 4 | (pp & 3));
 		db((z ? 0x80 : 0) | ((LL & 3) << 5) | (b ? 0x10 : 0) | (Vp ? 8 : 0) | (aaa & 7));
 		db(code);
+		return disp8N;
 	}
 	void setModRM(int mod, int r1, int r2)
 	{
@@ -1779,13 +1788,9 @@ private:
 				bool b = false;
 				if (addr.isBroadcast()) {
 					if (!(type & (T_B32 | T_B64))) throw Error(ERR_INVALID_BROADCAST);
-					disp8N = (type & T_B32) ? 4 : 8;
 					b = true;
-				} else {
-//					int bit = Max(r.getBit(), p1 ? p1->getBit() : 0);
-					disp8N = 1;//bit == 512 ? 64 : bit == 256 ? 32 : bit == 128 ? 16 : 1;
 				}
-				evex(r, base, p1, type, code, x, b, aaa);
+				disp8N = evex(r, base, p1, type, code, x, b, aaa);
 			} else {
 				vex(r, base, p1, type, code, x);
 			}

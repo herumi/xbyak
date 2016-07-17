@@ -1437,22 +1437,21 @@ class Test {
 		const struct Tbl {
 			const char *name;
 			bool only_pd_ps;
-			bool supportZMM;
 		} tbl[] = {
-			{ "add", false, true },
-			{ "sub", false, true },
-			{ "mul", false, true },
-			{ "div", false, true },
-			{ "max", false, true },
-			{ "min", false, true },
-			{ "and", true, true },
-			{ "andn", true, true },
-			{ "or", true, true },
-			{ "xor", true, true },
+			{ "add", false },
+			{ "sub", false },
+			{ "mul", false },
+			{ "div", false },
+			{ "max", false },
+			{ "min", false },
+			{ "and", true },
+			{ "andn", true },
+			{ "or", true },
+			{ "xor", true },
 
-			{ "addsub", true, false },
-			{ "hadd", true, false },
-			{ "hsub", true, false },
+			{ "addsub", true },
+			{ "hadd", true },
+			{ "hsub", true },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const struct Suf {
@@ -1473,8 +1472,6 @@ class Test {
 				if (!suf[j].supportYMM) continue;
 				put(p, YMM, YMM | MEM);
 				put(p, YMM, YMM, YMM | MEM);
-				if (!tbl[i].supportZMM) continue;
-				put(p, ZMM, ZMM, ZMM | MEM);
 			}
 		}
 	}
@@ -2009,60 +2006,6 @@ class Test {
 
 		put("vmaskmovps", MEM, XMM, XMM);
 		put("vmaskmovpd", MEM, XMM, XMM);
-
-		put("vbroadcastf128", YMM, MEM);
-		put("vbroadcasti128", YMM, MEM);
-		put("vbroadcastsd", YMM|_YMM3, XMM|MEM);
-		put("vbroadcastsd", ZMM, XMM|MEM);
-		{
-			const char *tbl[] = {
-				"vbroadcastss",
-				"vpbroadcastb",
-				"vpbroadcastw",
-				"vpbroadcastd",
-				"vpbroadcastq",
-			};
-			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-				put(tbl[i], XMM | YMM | ZMM, XMM|MEM);
-			}
-		}
-
-		put("vinsertf128", YMM, YMM, XMM | MEM, IMM8);
-		put("vinserti128", YMM, YMM, XMM | MEM, IMM8);
-		put("vperm2f128", YMM, YMM, YMM | MEM, IMM8);
-		put("vperm2i128", YMM, YMM, YMM | MEM, IMM8);
-
-		{
-			const char *tbl[] = {
-				"vpmaskmovd", "vpmaskmovq"
-			};
-			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-				const char *name = tbl[i];
-				put(name, XMM, XMM, MEM);
-				put(name, YMM, YMM, MEM);
-				put(name, MEM, XMM, XMM);
-				put(name, MEM, YMM, YMM);
-			}
-		}
-		{
-			const char *tbl[] = {
-				"vpermd", "vpermps",
-			};
-			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-				const char *name = tbl[i];
-				put(name, YMM, YMM, YMM | MEM);
-			}
-		}
-		{
-			const char *tbl[] = {
-				"vpermq", "vpermpd",
-			};
-			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-				const char *name = tbl[i];
-				put(name, YMM, YMM | MEM, IMM8);
-			}
-		}
-		put("vpextrw", REG32e | MEM, XMM, IMM); // nasm is ok, yasm generate redundant code
 #endif
 	}
 	void putCmp()
