@@ -1455,17 +1455,19 @@ void put()
 		const struct Tbl {
 			const char *name;
 			uint8 code;
+			int type;
 			bool ew1;
 		} tbl[] = {
-			{ "vbroadcastss", 0x18, false },
-			{ "vpbroadcastb", 0x78, false },
-			{ "vpbroadcastw", 0x79, false },
-			{ "vpbroadcastd", 0x58, false },
-			{ "vpbroadcastq", 0x59, true },
+			{ "vbroadcastss", 0x18, T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_N4 },
+			{ "vpbroadcastb", 0x78, T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_N4 },
+			{ "vpbroadcastw", 0x79, T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_N4 },
+			{ "vpbroadcastd", 0x58, T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_N4 },
+			{ "vpbroadcastq", 0x59, T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW1 | T_N8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			printf("void %s(const Xmm& x, const Operand& op) { if (!(op.isXMM() || op.isMEM())) throw Error(ERR_BAD_COMBINATION); opAVX_X_XM_IMM(x, op, T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX%s, 0x%02X); }\n", p.name, p.ew1 ? "|T_EW1" : "", p.code);
+			std::string type = type2String(p.type);
+			printf("void %s(const Xmm& x, const Operand& op) { if (!(op.isXMM() || op.isMEM())) throw Error(ERR_BAD_COMBINATION); opAVX_X_XM_IMM(x, op, %s, 0x%02X); }\n", p.name, type.c_str(), p.code);
 		}
 
 		printf("void vextractf128(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, false, cvtIdx0(y), op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_W0 | T_YMM, 0x19, imm); }\n");

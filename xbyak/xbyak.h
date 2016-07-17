@@ -1379,8 +1379,9 @@ private:
 		T_N4 = 1 << 25,
 		T_N8 = 1 << 26,
 		T_N16 = 1 << 27,
-		T_N_VL = 1 << 28, // N * (1, 2, 4) for VL
-		T_DUP = 1 << 29, // N = (8, 32, 64)
+		T_N32 = 1 << 28,
+		T_N_VL = 1 << 29, // N * (1, 2, 4) for VL
+		T_DUP = 1 << 30, // N = (8, 32, 64)
 		T_XXX
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
@@ -1447,8 +1448,8 @@ private:
 			LL = (VL == 512) ? 2 : (VL == 256) ? 1 : 0;
 			if (b) {
 				disp8N = (type & T_B32) ? 4 : 8;
-			} else if (type & (T_N2 | T_N4 | T_N8 | T_N16)) {
-				disp8N = (type & T_N2) ? 2 : (type & T_N4) ? 4 : (type & T_N8) ? 8 : 16;
+			} else if (type & (T_N2 | T_N4 | T_N8 | T_N16 | T_N32)) {
+				disp8N = (type & T_N2) ? 2 : (type & T_N4) ? 4 : (type & T_N8) ? 8 : (type & T_N16) ? 16 : 32;
 				if (type & T_N_VL) disp8N *= (VL == 512 ? 4 : VL == 256 ? 2 : 1);
 			} else if (type & T_DUP) {
 				disp8N = VL == 128 ? 8 : VL == 256 ? 32 : 64;

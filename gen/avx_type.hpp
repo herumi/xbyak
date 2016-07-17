@@ -28,8 +28,9 @@
 		T_N4 = 1 << 25,
 		T_N8 = 1 << 26,
 		T_N16 = 1 << 27,
-		T_N_VL = 1 << 28, // N * (1, 2, 4) for VL
-		T_DUP = 1 << 29, // N = (8, 32, 64)
+		T_N32 = 1 << 28,
+		T_N_VL = 1 << 29, // N * (1, 2, 4) for VL
+		T_DUP = 1 << 30, // N = (8, 32, 64)
 		T_XXX
 	};
 
@@ -149,6 +150,10 @@ std::string type2String(int type)
 	if (type & T_N16) {
 		if (!str.empty()) str += " | ";
 		str += "T_N16";
+	}
+	if (type & T_N32) {
+		if (!str.empty()) str += " | ";
+		str += "T_N32";
 	}
 	if (type & T_N_VL) {
 		if (!str.empty()) str += " | ";

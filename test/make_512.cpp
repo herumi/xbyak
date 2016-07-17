@@ -663,11 +663,11 @@ public:
 			putBroadcastSub(20, i);
 #endif
 		}
-		put("vpbroadcastb", XMM_KZ | ZMM_KZ, REG8);
-		put("vpbroadcastw", XMM_KZ | ZMM_KZ, REG16);
-		put("vpbroadcastd", XMM_KZ | ZMM_KZ, REG32);
+		put("vpbroadcastb", XMM_KZ | ZMM_KZ, REG8 | _MEM);
+		put("vpbroadcastw", XMM_KZ | ZMM_KZ, REG16 | _MEM);
+		put("vpbroadcastd", XMM_KZ | ZMM_KZ, REG32 | _MEM);
 #ifdef XBYAK64
-		put("vpbroadcastq", XMM_KZ | ZMM_KZ, REG64);
+		put("vpbroadcastq", XMM_KZ | ZMM_KZ, REG64 | _MEM);
 #endif
 		{
 			const char *tbl[] = {
@@ -1423,13 +1423,13 @@ public:
 		separateFunc();
 		putCombi();
 		separateFunc();
-#endif
 		putCmpK();
-#if 0
 		separateFunc();
 		putBroadcast();
 		separateFunc();
+#endif
 		putAVX512_M_X();
+#if 0
 		separateFunc();
 		put_vmov();
 		separateFunc();
