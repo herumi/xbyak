@@ -761,8 +761,12 @@ public:
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const char *name = tbl[i];
-			put(name, MEM, _XMM3|ZMM);
-			put(name, _XMM3|ZMM, MEM);
+			put(name, MEM, ZMM);
+			put(name, ZMM, MEM);
+#ifdef XBYAK64
+			put(name, MEM, _XMM3);
+			put(name, _XMM3, MEM);
+#endif
 		}
 	}
 	void put_vmov()
@@ -798,8 +802,8 @@ public:
 			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 				const char *name = tbl[i];
 				put(name, XMM_KZ, _XMM, _XMM | MEM, IMM);
-				put(name, _YMM3, _YMM3, _YMM3, IMM);
-				put(name, _ZMM, _ZMM, _ZMM, IMM);
+				put(name, _YMM3, _YMM3, _YMM3 | _MEM, IMM);
+				put(name, _ZMM, _ZMM, _ZMM | _MEM, IMM);
 			}
 		}
 		{
@@ -1427,12 +1431,12 @@ public:
 		separateFunc();
 		putBroadcast();
 		separateFunc();
-#endif
 		putAVX512_M_X();
 		separateFunc();
-#if 0
+#endif
 		put_vmov();
 		separateFunc();
+#if 0
 		put512_X_XM();
 		separateFunc();
 		put512_X_X_XM();
