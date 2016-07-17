@@ -761,8 +761,8 @@ public:
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const char *name = tbl[i];
-			put(name, MEM, ZMM);
-			put(name, ZMM, MEM);
+			put(name, MEM, _XMM3|ZMM);
+			put(name, _XMM3|ZMM, MEM);
 		}
 	}
 	void put_vmov()
@@ -1429,8 +1429,8 @@ public:
 		separateFunc();
 #endif
 		putAVX512_M_X();
-#if 0
 		separateFunc();
+#if 0
 		put_vmov();
 		separateFunc();
 		put512_X_XM();
