@@ -848,18 +848,18 @@ public:
 			put(p.name, MEM, _YMM);
 			put(p.name, MEM, _ZMM);
 		}
-		put("vsqrtpd", XMM_KZ, M_1to2);
-		put("vsqrtpd", YMM_KZ, M_1to4);
-		put("vsqrtpd", ZMM_KZ, M_1to8);
+		put("vsqrtpd", XMM_KZ, M_1to2 | _MEM);
+		put("vsqrtpd", YMM_KZ, M_1to4 | _MEM);
+		put("vsqrtpd", ZMM_KZ, M_1to8 | _MEM);
 		put("vsqrtpd", ZMM_KZ, ZMM_ER);
 
-		put("vsqrtps", XMM_KZ, M_1to4);
-		put("vsqrtps", YMM_KZ, M_1to8);
-		put("vsqrtps", ZMM_KZ, M_1to16);
+		put("vsqrtps", XMM_KZ, M_1to4 | _MEM);
+		put("vsqrtps", YMM_KZ, M_1to8 | _MEM);
+		put("vsqrtps", ZMM_KZ, M_1to16 | _MEM);
 		put("vsqrtps", ZMM_KZ, ZMM_ER);
 
-		put("vpabsd", ZMM_KZ, M_1to16);
-		put("vpabsq", ZMM_KZ, M_1to8);
+		put("vpabsd", ZMM_KZ, M_1to16 | _MEM);
+		put("vpabsq", ZMM_KZ, M_1to8 | _MEM);
 
 		put("vbroadcastf32x2", YMM_KZ | ZMM_KZ, _XMM | _MEM);
 		put("vbroadcastf32x4", YMM_KZ | ZMM_KZ, _MEM);
@@ -1433,12 +1433,12 @@ public:
 		separateFunc();
 		putAVX512_M_X();
 		separateFunc();
-#endif
 		put_vmov();
 		separateFunc();
-#if 0
+#endif
 		put512_X_XM();
 		separateFunc();
+#if 0
 		put512_X_X_XM();
 		separateFunc();
 		put512_X3();
