@@ -1824,14 +1824,6 @@ private:
 		if (!((x1.isXMM() && x2->isXMM()) || ((type & T_YMM) && ((x1.isYMM() && x2->isYMM()) || (x1.isZMM() && x2->isZMM()))))) throw Error(ERR_BAD_COMBINATION);
 		opVex(x1, x2, *op, type, code0, imm8);
 	}
-public:
-void vcvtpd2dq(const Xmm& x, const Operand& op)
-{
-	if (!(op.isMEM() || (x.isXMM() && op.is(Operand::XMM | Operand::YMM)) || (x.isYMM() && op.isZMM()))) throw Error(ERR_BAD_COMBINATION);
-	Operand::Kind kind = x.isXMM() ? (op.isBit(256) ? Operand::YMM : Operand::XMM) : Operand::ZMM;
-	opVex(x.copyAndSetKind(kind), &xm0, op, T_0F | T_F2 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_ER_Z, 0xE6);
-}
-
 	void opAVX_K_X_XM(const Opmask& k, const Xmm& x2, const Operand& op3, int type, int code0, int imm8 = NONE)
 	{
 		if (!op3.isMEM() && (x2.getKind() != op3.getKind())) throw Error(ERR_BAD_COMBINATION);
