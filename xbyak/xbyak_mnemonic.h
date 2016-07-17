@@ -762,7 +762,7 @@ void vpsllvd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1,
 void vpsllvq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_W1 | T_EW1 | T_YMM | T_EVEX | T_B64, 0x47); }
 void vpsravd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_W0 | T_EW0 | T_YMM | T_EVEX | T_B32, 0x46); }
 void vpsrlvd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_W0 | T_EW0 | T_YMM | T_EVEX | T_B32, 0x45); }
-void vpsrlvq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_W1 | T_EW1 | T_YMM | T_EVEX | T_B32, 0x45); }
+void vpsrlvq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38 | T_66 | T_W1 | T_EW1 | T_YMM | T_EVEX | T_B64, 0x45); }
 void vcmppd(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { opAVX_X_X_XM(x1, x2, op, T_0F | T_66 | T_YMM, 0xC2, imm); }
 void vcmppd(const Xmm& x, const Operand& op, uint8 imm) { vcmppd(x, x, op, imm); }
 void vcmpps(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { opAVX_X_X_XM(x1, x2, op, T_0F | T_YMM, 0xC2, imm); }
@@ -1009,7 +1009,7 @@ void vpshuflw(const Xmm& xm, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(xm, 
 void vptest(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F38 | T_66, 0x17); }
 void vrcpps(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F | T_YMM, 0x53); }
 void vrsqrtps(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F | T_YMM, 0x52); }
-void vsqrtpd(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX | T_ER_Z | T_B32 | T_B64, 0x51); }
+void vsqrtpd(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX | T_ER_Z | T_B64, 0x51); }
 void vsqrtps(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F | T_EW0 | T_YMM | T_EVEX | T_ER_Z | T_B32, 0x51); }
 void vucomisd(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F | T_66 | T_EW1 | T_EVEX | T_SAE_X, 0x2E); }
 void vucomiss(const Xmm& xm, const Operand& op) { opAVX_X_XM_IMM(xm, op, T_0F | T_EW0 | T_EVEX | T_SAE_X, 0x2E); }
@@ -1483,7 +1483,6 @@ void vcvtsi2sd(const Xmm& x, const Operand& op1, const Operand& op2 = Operand())
 void vcvtps2pd(const Xmm& x, const Operand& op) { if (!op.isMEM() && !op.isXMM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, false, cvtIdx0(x), op, !op.isMEM(), x.isXMM() ? Operand::XMM : Operand::YMM, T_0F | T_YMM, 0x5A); }
 void vcvtdq2pd(const Xmm& x, const Operand& op) { if (!(op.isMEM() || (x.is(Operand::XMM | Operand::YMM) && op.isXMM()) || (x.isZMM() && op.isYMM()))) throw Error(ERR_BAD_COMBINATION);opAVX_X_X_XMcvt(x, false, cvtIdx0(x), op, !op.isMEM(), x.isXMM() ? Operand::XMM : Operand::YMM, T_0F | T_F3 | T_YMM | T_EVEX | T_EW0 | T_B32, 0xE6); }
 void vcvtpd2ps(const Xmm& x, const Operand& op) { if (x.isYMM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XM(op.isYMM() ? Ymm(x.getIdx()) : x, cvtIdx0(op), op, T_0F | T_66 | T_YMM, 0x5A); }
-void vcvtpd2dq(const Xmm& x, const Operand& op) { if (!(op.isMEM() || (x.isXMM() && op.is(Operand::XMM | Operand::YMM)) || (x.isYMM() && op.isZMM()))) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XM(x.copyAndSetKind(op.getKind()), cvtIdx0(op.isMEM() ? x : op), op, T_0F | T_F2 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_ER_Z, 0xE6); }
 void vcvttpd2dq(const Xmm& x, const Operand& op) { if (x.isYMM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XM(op.isYMM() ? Ymm(x.getIdx()) : x, cvtIdx0(op), op, T_0F | T_66 | T_YMM, 0xE6); }
 void vcvtph2ps(const Xmm& x, const Operand& op) { if (!op.isMEM() && !op.isXMM()) throw Error(ERR_BAD_COMBINATION); opVex(x, 0, op, T_0F38 | T_66 | T_W0, 0x13); }
 void vcvtps2ph(const Operand& op, const Xmm& x, uint8 imm) { if (!op.isMEM() && !op.isXMM()) throw Error(ERR_BAD_COMBINATION); opVex(x, 0, op, T_0F3A | T_66 | T_W0, 0x1d, imm); }

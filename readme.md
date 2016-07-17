@@ -143,6 +143,11 @@ vaddpd ymm1, ymm2, [rax+256]{1to4}      --> vaddpd(ymm1, ymm2, ptr_b [rax+256]);
 vaddpd zmm1, zmm2, [rax+256]{1to8}      --> vaddpd(zmm1, zmm2, ptr_b [rax+256]);
 vaddps zmm1, zmm2, [rax+rcx*8+8]{1to16} --> vaddps(zmm1, zmm2, ptr_b [rax+rcx*8+8]);
 vmovsd [rax]{k1}, xmm4                  --> vmovsd (ptr [rax] | k1, xmm4);
+
+vcvtpd2dq xmm16, oword [eax+33]         --> vcvtpd2dq(xmm16, ptr [eax+33]); // default oword(m128)
+vcvtpd2dq xmm21, [eax+32]{1to2}         --> vcvtpd2dq(xmm21, ptr_b [eax+32]);
+vcvtpd2dq xmm0, yword [eax+33]          --> vcvtpd2dq(xmm0, yword [eax+33]); // use yword for m256
+vcvtpd2dq xmm19, [eax+32]{1to4}         --> vcvtpd2dq(xmm19, yword_b [eax+32]); // use yword_b to broadcast
 ```
 Remark
 * k1, ..., k7 are new opmask registers.

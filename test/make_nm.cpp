@@ -27,7 +27,6 @@ const uint64 IMM_1 = 1ULL << 14;
 const uint64 MEM8 = 1ULL << 15;
 const uint64 MEM16 = 1ULL << 16;
 const uint64 MEM32 = 1ULL << 17;
-const uint64 NEG = 1ULL << 18;
 const uint64 ONE = 1ULL << 19;
 const uint64 CL = 1ULL << 20;
 const uint64 MEM_ONLY_DISP = 1ULL << 21;
@@ -109,6 +108,9 @@ const uint64 M_1to4 = 1ULL << 57;
 const uint64 M_1to8 = 1ULL << 58;
 const uint64 M_1to16 = 1ULL << 59;
 const uint64 XMM_ER = 1ULL << 60;
+const uint64 M_xword = 1ULL << 61;
+const uint64 M_yword = 1ULL << 62;
+const uint64 MY_1to4 = 1ULL << 18;
 
 const uint64 NOPARA = 1ULL << (bitEnd - 1);
 
@@ -242,7 +244,19 @@ class Test {
 			}
 #endif
 		case _MEM:
-			return isXbyak_ ? "ptr[eax+ecx+3]" : "[eax+ecx+3]";
+			{
+				return isXbyak_ ? "ptr[eax+ecx+3]" : "[eax+ecx+3]"; // QQQ : disp8N
+/*
+				idx %= 5;
+				switch (idx) {
+				case 0: return isXbyak_ ? "ptr[eax+ecx]" : "[eax+ecx]";
+				case 1:	return isXbyak_ ? "ptr[eax+ecx+1]" : "[eax+ecx+1]";
+				case 2:	return isXbyak_ ? "ptr[eax+ecx+16]" : "[eax+ecx+16]";
+				case 3:	return isXbyak_ ? "ptr[eax+ecx+32]" : "[eax+ecx+32]";
+				case 4:	return isXbyak_ ? "ptr[eax+ecx+48]" : "[eax+ecx+48]";
+				}
+*/
+			}
 		case _MEMe:
 			{
 				static int ccc = 1;
@@ -362,8 +376,6 @@ class Test {
 			return "4";
 		case IMM_2:
 			return isXbyak_ ? "0xda" : "0xda";
-		case NEG:
-			return "-5";
 		case VM32X_32:
 			return isXbyak_ ? "ptr [ebp+4+xmm1*8]" : "[ebp+4+xmm1*8]";
 		case VM32X_64:
@@ -372,10 +384,14 @@ class Test {
 			return isXbyak_ ? "ptr [ymm4]" : "[ymm4]";
 		case VM32Y_64:
 			return isXbyak_ ? "ptr [12345+ymm13*2+r13]" : "[12345+ymm13*2+r13]";
-		case M_1to2: return isXbyak_ ? "ptr_b [eax]" : "[eax]{1to2}";
-		case M_1to4: return isXbyak_ ? "ptr_b [eax]" : "[eax]{1to4}";
-		case M_1to8: return isXbyak_ ? "ptr_b [eax]" : "[eax]{1to8}";
-		case M_1to16: return isXbyak_ ? "ptr_b [eax]" : "[eax]{1to16}";
+		case M_1to2: return isXbyak_ ? "ptr_b [eax+32]" : "[eax+32]{1to2}";
+		case M_1to4: return isXbyak_ ? "ptr_b [eax+32]" : "[eax+32]{1to4}";
+		case M_1to8: return isXbyak_ ? "ptr_b [eax+32]" : "[eax+32]{1to8}";
+		case M_1to16: return isXbyak_ ? "ptr_b [eax+32]" : "[eax+32]{1to16}";
+
+		case M_xword: return isXbyak_ ? "ptr [eax+33]" : "oword [eax+33]";
+		case M_yword: return isXbyak_ ? "yword [eax+33]" : "yword [eax+33]";
+		case MY_1to4: return isXbyak_ ? "yword_b [eax+32]" : "[eax+32]{1to4}";
 		case K:
 			{
 				static const char kTbl[][5] = {
@@ -2318,8 +2334,8 @@ public:
 	{
 #ifdef USE_AVX512
 		putAVX512();
-		return;
-#endif
+#else
+
 #ifdef USE_AVX
 
 		separateFunc();
@@ -2416,6 +2432,8 @@ public:
 #endif // XBYAK64
 
 #endif // USE_AVX
+
+#endif // USE_AVX512
 	}
 #ifdef USE_AVX512
 	void putOpmask()
@@ -2549,6 +2567,9 @@ public:
 				}
 			}
 		}
+		put("vaddpd", XMM, XMM, _MEM);
+		put("vaddpd", YMM, YMM, _MEM);
+		put("vaddpd", ZMM, ZMM, _MEM);
 	}
 	void putCmpK()
 	{
@@ -2590,7 +2611,7 @@ public:
 		put("vcomiss", XMM, XMM_SAE);
 #endif
 	}
-	void putBroadcastSub(int disp)
+	void putBroadcastSub(int idx, int disp)
 	{
 #ifdef XBYAK64
 		const char *a = "rax";
@@ -2598,19 +2619,23 @@ public:
 		const char *a = "eax";
 #endif
 		if (isXbyak_) {
-			printf("vaddpd(zmm0, zmm1, ptr_b[%s+%d]);dump();\n", a, disp);
-			printf("vaddpd(ymm0, ymm1, ptr_b[%s+%d]);dump();\n", a, disp);
-			printf("vaddpd(xmm0, xmm1, ptr_b[%s+%d]);dump();\n", a, disp);
+			printf("vaddpd(zmm%d, zmm1, ptr_b[%s+%d]);dump();\n", idx, a, disp);
+			printf("vaddpd(ymm%d, ymm1, ptr_b[%s+%d]);dump();\n", idx, a, disp);
+			printf("vaddpd(xmm%d, xmm1, ptr_b[%s+%d]);dump();\n", idx, a, disp);
 		} else {
-			printf("vaddpd zmm0, zmm1, [%s+%d]{1to8}\n", a, disp);
-			printf("vaddpd ymm0, ymm1, [%s+%d]{1to4}\n", a, disp);
-			printf("vaddpd xmm0, xmm1, [%s+%d]{1to2}\n", a, disp);
+			printf("vaddpd zmm%d, zmm1, [%s+%d]{1to8}\n", idx, a, disp);
+			printf("vaddpd ymm%d, ymm1, [%s+%d]{1to4}\n", idx, a, disp);
+			printf("vaddpd xmm%d, xmm1, [%s+%d]{1to2}\n", idx, a, disp);
 		}
 	}
 	void putBroadcast()
 	{
 		for (int i = 0; i < 9; i++) {
-			putBroadcastSub(i);
+			putBroadcastSub(0, i);
+#ifdef XBYAK64
+			putBroadcastSub(10, i);
+			putBroadcastSub(20, i);
+#endif
 		}
 		put("vpbroadcastb", XMM_KZ | ZMM_KZ, REG8);
 		put("vpbroadcastw", XMM_KZ | ZMM_KZ, REG16);
@@ -3243,12 +3268,22 @@ public:
 		put("vcvtdq2ps", YMM_KZ, _YMM | M_1to8);
 		put("vcvtdq2ps", ZMM_KZ, _ZMM | M_1to16);
 
-		put("vcvtpd2dq", XMM_KZ, _XMM | _YMM | M_1to4);
+		put("vcvtpd2dq", XMM_KZ, _XMM | _YMM | M_1to2);
 		put("vcvtpd2dq", YMM_KZ, _ZMM | ZMM_ER | M_1to8);
+#endif
+	}
+	void putMin()
+	{
+#ifdef XBYAK64
+		put("vcvtpd2dq", _XMM | _XMM3, _XMM | M_xword | M_1to2);
+		put("vcvtpd2dq", _XMM | _XMM3, _YMM | M_yword | MY_1to4);
 #endif
 	}
 	void putAVX512()
 	{
+#ifdef MIN_TEST
+		putMin();
+#else
 		putOpmask();
 		separateFunc();
 		putCombi();
@@ -3276,6 +3311,7 @@ public:
 		put512_AVX1();
 		separateFunc();
 		put512_cvt();
+#endif
 	}
 #endif
 };

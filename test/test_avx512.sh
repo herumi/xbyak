@@ -16,16 +16,16 @@ else
 endif
 
 set CFLAGS="-Wall -fno-operator-names -I../ $OPT2 -DUSE_AVX512"
-echo "compile make_nm.cpp"
-g++ $CFLAGS make_nm.cpp -o make_nm
+echo "compile make_512.cpp"
+g++ $CFLAGS make_512.cpp -o make_512
 
-./make_nm > a.asm
+./make_512 > a.asm
 echo "asm"
 $EXE -f$OPT3 a.asm -l a.lst
 awk '{if (index($3, "-")) { conti=substr($3, 0, length($3) - 1) } else { conti = conti $3; print conti; conti = "" }} ' < a.lst | $FILTER > ok.lst
 
 echo "xbyak"
-./make_nm jit > nm.cpp
+./make_512 jit > nm.cpp
 echo "compile nm_frame.cpp"
 g++ $CFLAGS -DXBYAK_TEST nm_frame.cpp -o nm_frame -DXBYAK_AVX512
 ./nm_frame | $FILTER > x.lst
