@@ -1165,11 +1165,11 @@ void put()
 			{ 0x51, "sqrtsd", T_0F | T_F2 | T_EVEX | T_EW1 | T_ER_X | T_N8, false, true },
 			{ 0x51, "sqrtss", T_0F | T_F3 | T_EVEX | T_EW0 | T_ER_X | T_N4, false, true },
 
-			{ 0x15, "unpckhpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
-			{ 0x15, "unpckhps", T_0F | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0x15, "unpckhpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_N16 | T_N_VL, false, true },
+			{ 0x15, "unpckhps", T_0F | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL, false, true },
 
-			{ 0x14, "unpcklpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
-			{ 0x14, "unpcklps", T_0F | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0x14, "unpcklpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_N16 | T_N_VL, false, true },
+			{ 0x14, "unpcklps", T_0F | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL, false, true },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];

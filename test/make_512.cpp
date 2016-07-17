@@ -1435,14 +1435,14 @@ public:
 		separateFunc();
 		put_vmov();
 		separateFunc();
-#endif
 		put512_X_XM();
 		separateFunc();
-#if 0
 		put512_X_X_XM();
 		separateFunc();
+#endif
 		put512_X3();
 		separateFunc();
+#if 0
 		put512_X3_I();
 		separateFunc();
 		put512_FMA();
