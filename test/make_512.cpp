@@ -244,7 +244,7 @@ class Test {
 			}
 #endif
 		case _MEM:
-			return isXbyak_ ? "ptr[eax+ecx+64]" : "[eax+ecx+64]";
+			return isXbyak_ ? "ptr[eax+ecx+64]" : "[eax+ecx+64]"; // QQQ
 //			return isXbyak_ ? "ptr[eax+ecx+6]" : "[eax+ecx+6]";
 		case _MEMe:
 			{
