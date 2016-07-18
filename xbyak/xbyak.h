@@ -1853,6 +1853,13 @@ private:
 		// use static_cast to avoid calling unintentional copy constructor on gcc
 		opAVX_X_X_XM(x, op1, cvt ? kind == Operand::XMM ? static_cast<const Operand&>(Xmm(op2.getIdx())) : static_cast<const Operand&>(Ymm(op2.getIdx())) : op2, type, code0, imm8);
 	}
+	void opCvt2(const Xmm& x, const Operand& op, int type, int code)
+	{
+		if (!(x.isXMM() && op.is(Operand::XMM | Operand::YMM | Operand::MEM)) && !(x.isYMM() && op.is(Operand::ZMM | Operand::MEM))) throw Error(ERR_BAD_COMBINATION);
+		Operand::Kind kind = x.isXMM() ? (op.isBit(256) ? Operand::YMM : Operand::XMM) : Operand::ZMM;
+		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
+	}
+
 	const Xmm& cvtIdx0(const Operand& x) const
 	{
 //		assert(!x.isMEM()); // QQQ

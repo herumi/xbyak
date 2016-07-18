@@ -1415,6 +1415,18 @@ public:
 		put("vcvtpd2dq", _XMM | _XMM3, _XMM | M_xword | M_1to2);
 		put("vcvtpd2dq", _XMM | _XMM3, _YMM | M_yword | MY_1to4);
 		put("vcvtpd2dq", YMM | YMM_KZ, ZMM | _MEM | M_1to8);
+
+		put("vcvtpd2ps", _XMM | _XMM3, _XMM | M_xword | M_1to2);
+		put("vcvtpd2ps", _XMM | _XMM3, _YMM | M_yword | MY_1to4);
+		put("vcvtpd2ps", YMM | YMM_KZ, ZMM | _MEM | M_1to8);
+
+		put("vcvtpd2qq", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vcvtpd2qq", YMM_KZ, _YMM | _MEM | M_1to4);
+		put("vcvtpd2qq", ZMM_KZ, _ZMM | _MEM | M_1to8);
+
+		put("vcvtpd2udq", _XMM | _XMM3, _XMM | M_xword | M_1to2);
+		put("vcvtpd2udq", _XMM | _XMM3, _YMM | M_yword | MY_1to4);
+		put("vcvtpd2udq", YMM | YMM_KZ, ZMM | _MEM | M_1to8);
 #endif
 	}
 	void putMin()
@@ -1429,7 +1441,8 @@ public:
 	void putAVX512()
 	{
 #ifdef MIN_TEST
-		putMin();
+//		putMin();
+		put512_cvt();
 #else
 		putOpmask();
 		separateFunc();

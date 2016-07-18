@@ -138,6 +138,7 @@ void putX_XM()
 		{ 0x6F, "vmovdqu16", T_F2 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z  },
 		{ 0x6F, "vmovdqu32", T_F3 | T_0F | T_MUST_EVEX | T_YMM | T_EW0 | T_ER_X | T_ER_Y | T_ER_Z  },
 		{ 0x6F, "vmovdqu64", T_F3 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z  },
+		{ 0x7B, "vcvtpd2qq", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_ER_Z },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -311,6 +312,11 @@ void putBroadcast()
 	puts("void vbroadcasti64x4(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N32, 0x5B); }");
 }
 
+void putCvt()
+{
+	puts("void vcvtpd2udq(const Xmm& x, const Operand& op) { opCvt2(x, op, T_0F | T_YMM | T_MUST_EVEX | T_EW1 | T_B64 | T_ER_Z, 0x79); }");
+}
+
 int main()
 {
 	puts("#ifndef XBYAK_DISABLE_AVX512");
@@ -324,5 +330,6 @@ int main()
 #ifdef XBYAK64
 	putBroadcast();
 #endif
+	putCvt();
 	puts("#endif");
 }
