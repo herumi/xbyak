@@ -378,8 +378,8 @@ class Test {
 		case M_1to8: return isXbyak_ ? "ptr_b [eax+32]" : "[eax+32]{1to8}";
 		case M_1to16: return isXbyak_ ? "ptr_b [eax+32]" : "[eax+32]{1to16}";
 
-		case M_xword: return isXbyak_ ? "ptr [eax+33]" : "oword [eax+33]";
-		case M_yword: return isXbyak_ ? "yword [eax+33]" : "yword [eax+33]";
+		case M_xword: return isXbyak_ ? "ptr [eax+32]" : "oword [eax+32]";
+		case M_yword: return isXbyak_ ? "yword [eax+32]" : "yword [eax+32]";
 		case MY_1to4: return isXbyak_ ? "yword_b [eax+32]" : "[eax+32]{1to4}";
 		case K:
 			{
@@ -1431,7 +1431,6 @@ public:
 #ifdef MIN_TEST
 		putMin();
 #else
-#if 0
 		putOpmask();
 		separateFunc();
 		putCombi();
@@ -1454,16 +1453,13 @@ public:
 		separateFunc();
 		put512_FMA();
 		separateFunc();
-#endif
 		put512_Y_XM();
 		separateFunc();
-#if 0
 		put512_AVX1();
 		separateFunc();
 		put512_cvt();
 		separateFunc();
 		putMisc1();
-#endif // QQQ
 #endif
 	}
 };
