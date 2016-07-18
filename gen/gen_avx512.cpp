@@ -178,29 +178,29 @@ void putX_X_XM_IMM()
 	} tbl[] = {
 		{ 0x03, "valignd", T_MUST_EVEX | T_66 | T_0F3A | T_EW0 | T_YMM | T_N16 | T_N_VL, true },
 		{ 0x03, "valignq", T_MUST_EVEX | T_66 | T_0F3A | T_EW1 | T_YMM | T_N16 | T_N_VL, true },
-		{ 0xDB, "vpandd", T_MUST_EVEX | T_YMM | T_66 | T_0F | T_EW0 | T_B32, false },
-		{ 0xDB, "vpandq", T_MUST_EVEX | T_YMM | T_66 | T_0F | T_EW1 | T_B64, false },
-		{ 0xDF, "vpandnd", T_MUST_EVEX | T_YMM | T_66 | T_0F | T_EW0 | T_B32, false },
-		{ 0xDF, "vpandnq", T_MUST_EVEX | T_YMM | T_66 | T_0F | T_EW1 | T_B64, false },
-		{ 0x3D, "vpmaxsq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
-		{ 0x3F, "vpmaxuq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
-		{ 0x39, "vpminsq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
-		{ 0x3B, "vpminuq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
-		{ 0xE2, "vpsraq", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW1, false },
-		{ 0x46, "vpsravq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
-		{ 0x11, "vpsravw", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1, false },
-		{ 0x12, "vpsllvw", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1, false },
-		{ 0x10, "vpsrlvw", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1, false },
-		{ 0xEB, "vpord", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW0 | T_B32, false },
-		{ 0xEB, "vporq", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
+		{ 0xDB, "vpandd", T_MUST_EVEX | T_YMM | T_66 | T_0F | T_EW0 | T_B32 | T_N16 | T_N_VL, false },
+		{ 0xDB, "vpandq", T_MUST_EVEX | T_YMM | T_66 | T_0F | T_EW1 | T_B64 | T_N16 | T_N_VL, false },
+		{ 0xDF, "vpandnd", T_MUST_EVEX | T_YMM | T_66 | T_0F | T_EW0 | T_B32 | T_N16 | T_N_VL, false },
+		{ 0xDF, "vpandnq", T_MUST_EVEX | T_YMM | T_66 | T_0F | T_EW1 | T_B64 | T_N16 | T_N_VL, false },
+		{ 0x3D, "vpmaxsq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_N16 | T_N_VL, false },
+		{ 0x3F, "vpmaxuq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_N16 | T_N_VL, false },
+		{ 0x39, "vpminsq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_N16 | T_N_VL, false },
+		{ 0x3B, "vpminuq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_N16 | T_N_VL, false },
+		{ 0xE2, "vpsraq", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_N16, false },
+		{ 0x46, "vpsravq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_N16 | T_N_VL, false },
+		{ 0x11, "vpsravw", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N16 | T_N_VL, false },
+		{ 0x12, "vpsllvw", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N16 | T_N_VL, false },
+		{ 0x10, "vpsrlvw", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N16 | T_N_VL, false },
+		{ 0xEB, "vpord", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW0 | T_B32 | T_N16 | T_N_VL, false },
+		{ 0xEB, "vporq", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_N16 | T_N_VL, false },
 
-		{ 0xEF, "vpxord", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW0 | T_B32, false },
-		{ 0xEF, "vpxorq", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
+		{ 0xEF, "vpxord", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW0 | T_B32 | T_N16 | T_N_VL, false },
+		{ 0xEF, "vpxorq", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_N16 | T_N_VL, false },
 
-		{ 0x40, "vpmullq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
+		{ 0x40, "vpmullq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_N16 | T_N_VL, false },
 
-		{ 0x8D, "vpermb", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0, false },
-		{ 0x8D, "vpermw", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1, false },
+		{ 0x8D, "vpermb", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N16 | T_N_VL, false },
+		{ 0x8D, "vpermw", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N16 | T_N_VL, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -218,7 +218,7 @@ void putShift()
 		int idx;
 		int type;
 	} tbl[] = {
-		{ "vpsraq", 0x72, 4, T_0F | T_66 | T_YMM | T_MUST_EVEX |T_EW1 | T_B64 },
+		{ "vpsraq", 0x72, 4, T_0F | T_66 | T_YMM | T_MUST_EVEX |T_EW1 | T_B64 | T_N16 | T_N_VL },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& p = tbl[i];
@@ -236,15 +236,15 @@ void putExtractInsert()
 			int type;
 			bool isZMM;
 		} tbl[] = {
-			{ "vextractf32x4", 0x19, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, false },
-			{ "vextractf64x2", 0x19, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, false },
-			{ "vextractf32x8", 0x1B, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, true },
-			{ "vextractf64x4", 0x1B, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, true },
+			{ "vextractf32x4", 0x19, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM | T_N16, false },
+			{ "vextractf64x2", 0x19, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N16, false },
+			{ "vextractf32x8", 0x1B, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM | T_N32, true },
+			{ "vextractf64x4", 0x1B, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N32, true },
 
-			{ "vextracti32x4", 0x39, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, false },
-			{ "vextracti64x2", 0x39, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, false },
-			{ "vextracti32x8", 0x3B, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, true },
-			{ "vextracti64x4", 0x3B, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, true },
+			{ "vextracti32x4", 0x39, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM | T_N16, false },
+			{ "vextracti64x2", 0x39, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N16, false },
+			{ "vextracti32x8", 0x3B, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM | T_N32, true },
+			{ "vextracti64x4", 0x3B, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N32, true },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
@@ -259,15 +259,15 @@ void putExtractInsert()
 			int type;
 			bool isZMM;
 		} tbl[] = {
-			{ "vinsertf32x4", 0x18, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, false },
-			{ "vinsertf64x2", 0x18, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, false },
-			{ "vinsertf32x8", 0x1A, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, true },
-			{ "vinsertf64x4", 0x1A, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, true },
+			{ "vinsertf32x4", 0x18, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM | T_N16, false },
+			{ "vinsertf64x2", 0x18, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N16, false },
+			{ "vinsertf32x8", 0x1A, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM | T_N32, true },
+			{ "vinsertf64x4", 0x1A, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N32, true },
 
-			{ "vinserti32x4", 0x38, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, false },
-			{ "vinserti64x2", 0x38, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, false },
-			{ "vinserti32x8", 0x3A, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM, true },
-			{ "vinserti64x4", 0x3A, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM, true },
+			{ "vinserti32x4", 0x38, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM | T_N16, false },
+			{ "vinserti64x2", 0x38, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N16, false },
+			{ "vinserti32x8", 0x3A, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_YMM | T_N32, true },
+			{ "vinserti64x4", 0x3A, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N32, true },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];

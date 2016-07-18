@@ -898,13 +898,13 @@ public:
 			{ "vpacksswb", YMM_KZ, _YMM, _YMM | _MEM },
 			{ "vpacksswb", ZMM_KZ, _ZMM, _ZMM | _MEM },
 
-			{ "vpackssdw", XMM_KZ, _XMM, _XMM | M_1to4 },
-			{ "vpackssdw", YMM_KZ, _YMM, _YMM | M_1to8 },
-			{ "vpackssdw", ZMM_KZ, _ZMM, _ZMM | M_1to16 },
+			{ "vpackssdw", XMM_KZ, _XMM, _XMM | M_1to4 | _MEM },
+			{ "vpackssdw", YMM_KZ, _YMM, _YMM | M_1to8 | _MEM },
+			{ "vpackssdw", ZMM_KZ, _ZMM, _ZMM | M_1to16 | _MEM },
 
-			{ "vpackusdw", XMM_KZ, _XMM, _XMM | M_1to4 },
-			{ "vpackusdw", YMM_KZ, _YMM, _YMM | M_1to8 },
-			{ "vpackusdw", ZMM_KZ, _ZMM, _ZMM | M_1to16 },
+			{ "vpackusdw", XMM_KZ, _XMM, _XMM | M_1to4 | _MEM },
+			{ "vpackusdw", YMM_KZ, _YMM, _YMM | M_1to8 | _MEM },
+			{ "vpackusdw", ZMM_KZ, _ZMM, _ZMM | M_1to16 | _MEM },
 
 			{ "vpackuswb", XMM_KZ, _XMM, _XMM | _MEM },
 			{ "vpackuswb", YMM_KZ, _YMM, _YMM | _MEM },
@@ -912,8 +912,8 @@ public:
 
 			{ "vpaddb", XMM_KZ, _XMM, _XMM | _MEM },
 			{ "vpaddw", XMM_KZ, _XMM, _XMM | _MEM },
-			{ "vpaddd", XMM_KZ, _XMM, _XMM | M_1to4 },
-			{ "vpaddq", ZMM_KZ, _ZMM, M_1to8 },
+			{ "vpaddd", XMM_KZ, _XMM, _XMM | M_1to4 | _MEM },
+			{ "vpaddq", ZMM_KZ, _ZMM, M_1to8 | _MEM },
 
 			{ "vpaddsb", XMM_KZ, _XMM, _XMM | _MEM },
 			{ "vpaddsb", ZMM_KZ, _ZMM, _ZMM | _MEM },
@@ -929,8 +929,8 @@ public:
 
 			{ "vpsubb", XMM_KZ, _XMM, _XMM | _MEM },
 			{ "vpsubw", XMM_KZ, _XMM, _XMM | _MEM },
-			{ "vpsubd", XMM_KZ, _XMM, _XMM | M_1to4 },
-			{ "vpsubq", ZMM_KZ, _ZMM, M_1to8 },
+			{ "vpsubd", XMM_KZ, _XMM, _XMM | M_1to4 | _MEM },
+			{ "vpsubq", ZMM_KZ, _ZMM, M_1to8 | _MEM },
 
 			{ "vpsubsb", XMM_KZ, _XMM, _XMM | _MEM },
 			{ "vpsubsb", ZMM_KZ, _ZMM, _ZMM | _MEM },
@@ -944,11 +944,11 @@ public:
 			{ "vpsubusw", XMM_KZ, _XMM, _XMM | MEM },
 			{ "vpsubusw", ZMM_KZ, _ZMM, _ZMM | MEM },
 
-			{ "vpandd", ZMM_KZ, _ZMM, _ZMM | M_1to16 },
-			{ "vpandq", ZMM_KZ, _ZMM, _ZMM | M_1to8 },
+			{ "vpandd", ZMM_KZ, _ZMM, _ZMM | M_1to16 | _MEM },
+			{ "vpandq", ZMM_KZ, _ZMM, _ZMM | M_1to8 | _MEM },
 
-			{ "vpandnd", ZMM_KZ, _ZMM, _ZMM | M_1to16 },
-			{ "vpandnq", ZMM_KZ, _ZMM, _ZMM | M_1to8 },
+			{ "vpandnd", ZMM_KZ, _ZMM, _ZMM | M_1to16 | _MEM },
+			{ "vpandnq", ZMM_KZ, _ZMM, _ZMM | M_1to8 | _MEM },
 
 			{ "vpavgb", ZMM_KZ, _ZMM, _ZMM },
 			{ "vpavgw", ZMM_KZ, _ZMM, _ZMM },
@@ -1422,7 +1422,7 @@ public:
 #ifdef MIN_TEST
 		putMin();
 #else
-#if 0
+#if 1
 		putOpmask();
 		separateFunc();
 		putCombi();
@@ -1439,9 +1439,9 @@ public:
 		separateFunc();
 		put512_X_X_XM();
 		separateFunc();
-#endif
 		put512_X3();
 		separateFunc();
+#endif
 #if 0
 		put512_X3_I();
 		separateFunc();

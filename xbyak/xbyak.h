@@ -1448,11 +1448,16 @@ private:
 			LL = (VL == 512) ? 2 : (VL == 256) ? 1 : 0;
 			if (b) {
 				disp8N = (type & T_B32) ? 4 : 8;
-			} else if (type & (T_N2 | T_N4 | T_N8 | T_N16 | T_N32)) {
-				disp8N = (type & T_N2) ? 2 : (type & T_N4) ? 4 : (type & T_N8) ? 8 : (type & T_N16) ? 16 : 32;
-				if (type & T_N_VL) disp8N *= (VL == 512 ? 4 : VL == 256 ? 2 : 1);
 			} else if (type & T_DUP) {
 				disp8N = VL == 128 ? 8 : VL == 256 ? 32 : 64;
+			} else {
+				if ((type & (T_N2 | T_N4 | T_N8 | T_N16 | T_N32 | T_N_VL)) == 0) {
+					type |= T_N16 | T_N_VL; // default
+				}
+				if (type & (T_N2 | T_N4 | T_N8 | T_N16 | T_N32)) {
+					disp8N = (type & T_N2) ? 2 : (type & T_N4) ? 4 : (type & T_N8) ? 8 : (type & T_N16) ? 16 : 32;
+					if (type & T_N_VL) disp8N *= (VL == 512 ? 4 : VL == 256 ? 2 : 1);
+				}
 			}
 		}
 		bool Vp = !(v ? v->isExtIdx2() : 0);

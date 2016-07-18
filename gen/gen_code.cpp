@@ -1032,11 +1032,11 @@ void put()
 			{ 0x0C, "permilps", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false },
 			{ 0x0D, "permilpd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW1 | T_B64, false, false },
 
-			{ 0x47, "psllvd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false },
-			{ 0x47, "psllvq", T_0F38 | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B64, false, false },
-			{ 0x46, "psravd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false },
-			{ 0x45, "psrlvd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false },
-			{ 0x45, "psrlvq", T_0F38 | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B64, false, false },
+			{ 0x47, "psllvd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL, false, false },
+			{ 0x47, "psllvq", T_0F38 | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_N16 | T_N_VL, false, false },
+			{ 0x46, "psravd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL, false, false },
+			{ 0x45, "psrlvd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL, false, false },
+			{ 0x45, "psrlvq", T_0F38 | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_N16 | T_N_VL, false, false },
 
 			{ 0xC2, "cmppd", T_0F | T_66 | T_YMM, true, true },
 			{ 0xC2, "cmpps", T_0F | T_YMM, true, true },
@@ -1045,26 +1045,26 @@ void put()
 			{ 0x5A, "cvtsd2ss", T_0F | T_F2, false, true },
 			{ 0x5A, "cvtss2sd", T_0F | T_F3, false, true },
 			{ 0x21, "insertps", T_0F3A | T_66 | T_W0 | T_EVEX | T_EW0, true, true },
-			{ 0x63, "packsswb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x6B, "packssdw", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
-			{ 0x67, "packuswb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x2B, "packusdw", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0x63, "packsswb", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0x6B, "packssdw", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL, false, true },
+			{ 0x67, "packuswb", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0x2B, "packusdw", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL, false, true },
 
-			{ 0xFC, "paddb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xFD, "paddw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xFE, "paddd", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
-			{ 0xD4, "paddq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
+			{ 0xFC, "paddb", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0xFD, "paddw", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0xFE, "paddd", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL, false, true },
+			{ 0xD4, "paddq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_N16 | T_N_VL, false, true },
 
-			{ 0xEC, "paddsb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xED, "paddsw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xEC, "paddsb", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0xED, "paddsw", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
 
-			{ 0xDC, "paddusb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xDD, "paddusw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xDC, "paddusb", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0xDD, "paddusw", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
 
 			{ 0x0F, "palignr", T_0F3A | T_66 | T_YMM | T_EVEX, true, true },
 
-			{ 0xDB, "pand", T_0F | T_66 | T_YMM, false, true },
-			{ 0xDF, "pandn", T_0F | T_66 | T_YMM, false, true },
+			{ 0xDB, "pand", T_0F | T_66 | T_YMM | T_N16 | T_N_VL, false, true },
+			{ 0xDF, "pandn", T_0F | T_66 | T_YMM | T_N16 | T_N_VL, false, true },
 
 			{ 0xE0, "pavgb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
 			{ 0xE3, "pavgw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
@@ -1086,63 +1086,63 @@ void put()
 			{ 0x05, "phsubw", T_0F38 | T_66 | T_YMM, false, true },
 			{ 0x06, "phsubd", T_0F38 | T_66 | T_YMM, false, true },
 			{ 0x07, "phsubsw", T_0F38 | T_66 | T_YMM, false, true },
-			{ 0xF5, "pmaddwd", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x04, "pmaddubsw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xF5, "pmaddwd", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0x04, "pmaddubsw", T_0F38 | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
 
-			{ 0x3C, "pmaxsb", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xEE, "pmaxsw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x3D, "pmaxsd", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0x3C, "pmaxsb", T_0F38 | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0xEE, "pmaxsw", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0x3D, "pmaxsd", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL, false, true },
 
-			{ 0xDE, "pmaxub", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x3E, "pmaxuw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x3F, "pmaxud", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0xDE, "pmaxub", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0x3E, "pmaxuw", T_0F38 | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0x3F, "pmaxud", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL, false, true },
 
-			{ 0x38, "pminsb", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xEA, "pminsw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x39, "pminsd", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0x38, "pminsb", T_0F38 | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0xEA, "pminsw", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0x39, "pminsd", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL, false, true },
 
-			{ 0xDA, "pminub", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x3A, "pminuw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x3B, "pminud", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0xDA, "pminub", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0x3A, "pminuw", T_0F38 | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0x3B, "pminud", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL, false, true },
 
-			{ 0xE4, "pmulhuw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x0B, "pmulhrsw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xE5, "pmulhw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xD5, "pmullw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x40, "pmulld", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0xE4, "pmulhuw", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0x0B, "pmulhrsw", T_0F38 | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0xE5, "pmulhw", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0xD5, "pmullw", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0x40, "pmulld", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL, false, true },
 
-			{ 0xF4, "pmuludq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
-			{ 0x28, "pmuldq", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
+			{ 0xF4, "pmuludq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_N16 | T_N_VL, false, true },
+			{ 0x28, "pmuldq", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_N16 | T_N_VL, false, true },
 
 			{ 0xEB, "por", T_0F | T_66 | T_YMM, false, true },
-			{ 0xF6, "psadbw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xF6, "psadbw", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
 
-			{ 0x00, "pshufb", T_0F38 | T_66 | T_YMM | T_EVEX, false, false },
+			{ 0x00, "pshufb", T_0F38 | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, false },
 
 			{ 0x08, "psignb", T_0F38 | T_66 | T_YMM, false, true },
 			{ 0x09, "psignw", T_0F38 | T_66 | T_YMM, false, true },
 			{ 0x0A, "psignd", T_0F38 | T_66 | T_YMM, false, true },
 
-			{ 0xF1, "psllw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xF2, "pslld", T_0F | T_66 | T_YMM | T_EVEX | T_EW0, false, true },
-			{ 0xF3, "psllq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1, false, true },
+			{ 0xF1, "psllw", T_0F | T_66 | T_YMM | T_EVEX | T_N16, false, true },
+			{ 0xF2, "pslld", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_N16, false, true },
+			{ 0xF3, "psllq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_N16, false, true },
 
-			{ 0xE1, "psraw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xE2, "psrad", T_0F | T_66 | T_YMM | T_EVEX | T_EW0, false, true },
-			{ 0xD1, "psrlw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xD2, "psrld", T_0F | T_66 | T_YMM | T_EVEX | T_EW0, false, true },
-			{ 0xD3, "psrlq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1, false, true },
+			{ 0xE1, "psraw", T_0F | T_66 | T_YMM | T_EVEX | T_N16, false, true },
+			{ 0xE2, "psrad", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_N16, false, true },
+			{ 0xD1, "psrlw", T_0F | T_66 | T_YMM | T_EVEX | T_N16, false, true },
+			{ 0xD2, "psrld", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_N16, false, true },
+			{ 0xD3, "psrlq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_N16, false, true },
 
-			{ 0xF8, "psubb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xF9, "psubw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xFA, "psubd", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
-			{ 0xFB, "psubq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
+			{ 0xF8, "psubb", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0xF9, "psubw", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0xFA, "psubd", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL, false, true },
+			{ 0xFB, "psubq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_N16 | T_N_VL, false, true },
 
-			{ 0xE8, "psubsb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xE9, "psubsw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xE8, "psubsb", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0xE9, "psubsw", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
 
-			{ 0xD8, "psubusb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xD9, "psubusw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xD8, "psubusb", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
+			{ 0xD9, "psubusw", T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL, false, true },
 
 			{ 0x68, "punpckhbw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
 			{ 0x69, "punpckhwd", T_0F | T_66 | T_YMM | T_EVEX, false, true },
@@ -1233,9 +1233,9 @@ void put()
 			{ 0x34, "pmovzxwq", T_0F38 | T_66 | T_YMM | T_EVEX, false },
 			{ 0x35, "pmovzxdq", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0, false },
 
-			{ 0x70, "pshufd", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, true },
-			{ 0x70, "pshufhw", T_0F | T_F3 | T_YMM | T_EVEX, true },
-			{ 0x70, "pshuflw", T_0F | T_F2 | T_YMM | T_EVEX, true },
+			{ 0x70, "pshufd", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL, true },
+			{ 0x70, "pshufhw", T_0F | T_F3 | T_YMM | T_EVEX | T_N16 | T_N_VL, true },
+			{ 0x70, "pshuflw", T_0F | T_F2 | T_YMM | T_EVEX | T_N16 | T_N_VL, true },
 
 			{ 0x17, "ptest", T_0F38 | T_66, false },
 			{ 0x53, "rcpps", T_0F | T_YMM, false },
@@ -1472,7 +1472,7 @@ void put()
 
 		printf("void vextractf128(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, false, cvtIdx0(y), op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_W0 | T_YMM, 0x19, imm); }\n");
 		printf("void vextracti128(const Operand& op, const Ymm& y, uint8 imm) { opAVX_X_X_XMcvt(y, false, cvtIdx0(y), op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_W0 | T_YMM, 0x39, imm); }\n");
-		printf("void vextractps(const Operand& op, const Xmm& x, uint8 imm) { if (!(op.isREG(32) || op.isMEM()) || x.isYMM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, false, cvtIdx0(x), op, op.isREG(), Operand::XMM, T_0F3A | T_66 | T_W0 | T_EVEX, 0x17, imm); }\n");
+		printf("void vextractps(const Operand& op, const Xmm& x, uint8 imm) { if (!(op.isREG(32) || op.isMEM()) || x.isYMM()) throw Error(ERR_BAD_COMBINATION); opAVX_X_X_XMcvt(x, false, cvtIdx0(x), op, op.isREG(), Operand::XMM, T_0F3A | T_66 | T_W0 | T_EVEX | T_N4, 0x17, imm); }\n");
 		printf("void vinsertf128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(y1, false, y2, op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_W0 | T_YMM, 0x18, imm); }\n");
 		printf("void vinserti128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(y1, false, y2, op, op.isXMM(), Operand::YMM, T_0F3A | T_66 | T_W0 | T_YMM, 0x38, imm); }\n");
 		printf("void vperm2f128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XM(y1, y2, op, T_0F3A | T_66 | T_W0 | T_YMM, 0x06, imm); }\n");
@@ -1505,22 +1505,22 @@ void put()
 			const char *name;
 			uint8 code;
 			int idx;
-			int ext_type;
+			int type;
 		} tbl[] = {
-			{ "pslldq", 0x73, 7, 0 },
-			{ "psrldq", 0x73, 3, 0 },
-			{ "psllw", 0x71, 6, 0 },
-			{ "pslld", 0x72, 6, T_EW0 | T_B32 },
-			{ "psllq", 0x73, 6, T_EW1 | T_B64 },
-			{ "psraw", 0x71, 4, 0 },
-			{ "psrad", 0x72, 4, T_EW0 | T_B32 },
-			{ "psrlw", 0x71, 2, 0 },
-			{ "psrld", 0x72, 2, T_EW0 | T_B32 },
-			{ "psrlq", 0x73, 2, T_EW1 | T_B64 },
+			{ "pslldq", 0x73, 7, T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL },
+			{ "psrldq", 0x73, 3, T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL  },
+			{ "psllw", 0x71, 6, T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL  },
+			{ "pslld", 0x72, 6, T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL  },
+			{ "psllq", 0x73, 6, T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_N16 | T_N_VL  },
+			{ "psraw", 0x71, 4, T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL },
+			{ "psrad", 0x72, 4, T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL },
+			{ "psrlw", 0x71, 2, T_0F | T_66 | T_YMM | T_EVEX | T_N16 | T_N_VL },
+			{ "psrld", 0x72, 2, T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_N16 | T_N_VL },
+			{ "psrlq", 0x73, 2, T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_N16 | T_N_VL },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			std::string type = type2String(T_0F | T_66 | T_YMM | T_EVEX | p.ext_type);
+			std::string type = type2String(p.type);
 			printf("void v%s(const Xmm& x, const Operand& op, uint8 imm) { opAVX_X_X_XM(x.copyAndSetIdx(%d), x, op, %s, 0x%02X, imm); }\n", p.name, p.idx, type.c_str(), p.code);
 			printf("void v%s(const Xmm& x, uint8 imm) { v%s(x, x, imm); }\n", p.name, p.name);
 		}
