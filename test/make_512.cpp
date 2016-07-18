@@ -1211,14 +1211,14 @@ public:
 			put(p.name, p.x1, p.x2, p.xm, IMM8);
 		}
 #ifdef XBYAK64
-		put("vpextrb", _REG64, _XMM3, IMM8);
-		put("vpextrw", _REG64|MEM, _XMM3, IMM8);
-		put("vpextrd", _REG32, _XMM3, IMM8);
-		put("vpextrq", _REG64, _XMM3, IMM8);
-		put("vpinsrb", _XMM3, _XMM3, _REG32, IMM8);
-		put("vpinsrw", _XMM3, _XMM3, _REG32, IMM8);
-		put("vpinsrd", _XMM3, _XMM3, _REG32, IMM8);
-		put("vpinsrq", _XMM3, _XMM3, _REG64, IMM8);
+		put("vpextrb", _REG64 | _MEM, _XMM3, IMM8);
+		put("vpextrw", _REG64 | _MEM, _XMM3, IMM8);
+		put("vpextrd", _REG32 | _MEM, _XMM3, IMM8);
+		put("vpextrq", _REG64 | _MEM, _XMM3, IMM8);
+		put("vpinsrb", _XMM3, _XMM3, _REG32 | _MEM, IMM8);
+		put("vpinsrw", _XMM3, _XMM3, _REG32 | _MEM, IMM8);
+		put("vpinsrd", _XMM3, _XMM3, _REG32 | _MEM, IMM8);
+		put("vpinsrq", _XMM3, _XMM3, _REG64 | _MEM, IMM8);
 #endif
 	}
 	void put512_FMA()
@@ -1422,7 +1422,7 @@ public:
 #ifdef MIN_TEST
 		putMin();
 #else
-#if 1
+#if 0
 		putOpmask();
 		separateFunc();
 		putCombi();
@@ -1441,12 +1441,12 @@ public:
 		separateFunc();
 		put512_X3();
 		separateFunc();
-#endif
-#if 0
 		put512_X3_I();
 		separateFunc();
+#endif
 		put512_FMA();
 		separateFunc();
+#if 0
 		put512_Y_XM();
 		separateFunc();
 		put512_AVX1();
