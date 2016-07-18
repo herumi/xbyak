@@ -407,6 +407,14 @@ public:
 		kind_ = kind;
 		bit_ = kind == XMM ? 128 : kind == YMM ? 256 : 512;
 	}
+	// swap zero_, mask_, rounding_
+	void swapAttr(Operand& rhs)
+	{
+		int t;
+		t = zero_; zero_ = rhs.zero_; rhs.zero_ = t;
+		t = mask_; mask_ = rhs.mask_; rhs.mask_ = t;
+		t = rounding_; rounding_ = rhs.rounding_; rhs.rounding_ = t;
+	}
 	void setOpmaskIdx(int idx, bool ignore_idx0 = false)
 	{
 		if (!ignore_idx0 && idx == 0) throw Error(ERR_K0_IS_INVALID);
@@ -1853,9 +1861,19 @@ private:
 		// use static_cast to avoid calling unintentional copy constructor on gcc
 		opAVX_X_X_XM(x, op1, cvt ? kind == Operand::XMM ? static_cast<const Operand&>(Xmm(op2.getIdx())) : static_cast<const Operand&>(Ymm(op2.getIdx())) : op2, type, code0, imm8);
 	}
-	void opCvt2(const Xmm& x, const Operand& op, int type, int code)
+	// (x, x/m), (y, x/m256), (z, y/m)
+	void checkCvt1(const Operand& x, const Operand& op) const
+	{
+		if (!op.isMEM() && !(x.is(Operand::XMM | Operand::YMM) && op.isXMM()) && !(x.isZMM() && op.isYMM())) throw Error(ERR_BAD_COMBINATION);
+	}
+	// (x, x/m), (x, y/m256), (y, z/m)
+	void checkCvt2(const Xmm& x, const Operand& op) const
 	{
 		if (!(x.isXMM() && op.is(Operand::XMM | Operand::YMM | Operand::MEM)) && !(x.isYMM() && op.is(Operand::ZMM | Operand::MEM))) throw Error(ERR_BAD_COMBINATION);
+	}
+	void opCvt2(const Xmm& x, const Operand& op, int type, int code)
+	{
+		checkCvt2(x, op);
 		Operand::Kind kind = x.isXMM() ? (op.isBit(256) ? Operand::YMM : Operand::XMM) : Operand::ZMM;
 		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
 	}

@@ -139,6 +139,7 @@ void putX_XM()
 		{ 0x6F, "vmovdqu32", T_F3 | T_0F | T_MUST_EVEX | T_YMM | T_EW0 | T_ER_X | T_ER_Y | T_ER_Z  },
 		{ 0x6F, "vmovdqu64", T_F3 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z  },
 		{ 0x7B, "vcvtpd2qq", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_ER_Z },
+		{ 0x79, "vcvtpd2uqq", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_ER_Z },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];

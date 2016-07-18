@@ -9,7 +9,7 @@ using namespace Xbyak;
 
 const int bitEnd = 64;
 
-const uint64 MMX = 1ULL << 0;
+const uint64 YMM_SAE = 1ULL << 0;
 const uint64 _XMM = 1ULL << 1;
 const uint64 _MEM = 1ULL << 2;
 const uint64 _REG32 = 1ULL << 3;
@@ -178,13 +178,6 @@ class Test {
 			return "st2";
 		}
 		switch (type) {
-		case MMX:
-			{
-				static const char MmxTbl[][4] = {
-					"mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
-				};
-				return MmxTbl[idx];
-			}
 		case _XMM:
 			{
 				static const char tbl[][6] = {
@@ -393,6 +386,8 @@ class Test {
 #ifdef XBYAK64
 		case XMM_SAE:
 			return isXbyak_ ? "xmm25 | T_sae" : "xmm25, {sae}";
+		case YMM_SAE:
+			return isXbyak_ ? "ymm25 | T_sae" : "ymm25, {sae}";
 		case ZMM_SAE:
 			return isXbyak_ ? "zmm25 | T_sae" : "zmm25, {sae}";
 		case XMM_ER:
@@ -410,6 +405,8 @@ class Test {
 #else
 		case XMM_SAE:
 			return isXbyak_ ? "xmm5 | T_sae" : "xmm5, {sae}";
+		case YMM_SAE:
+			return isXbyak_ ? "ymm5 | T_sae" : "ymm5, {sae}";
 		case ZMM_SAE:
 			return isXbyak_ ? "zmm5 | T_sae" : "zmm5, {sae}";
 		case XMM_ER:
@@ -1427,22 +1424,31 @@ public:
 		put("vcvtpd2udq", _XMM | _XMM3, _XMM | M_xword | M_1to2);
 		put("vcvtpd2udq", _XMM | _XMM3, _YMM | M_yword | MY_1to4);
 		put("vcvtpd2udq", YMM | YMM_KZ, ZMM | _MEM | M_1to8);
+
+		put("vcvtpd2uqq", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vcvtpd2uqq", YMM_KZ, _YMM | _MEM | M_1to4);
+		put("vcvtpd2uqq", ZMM_KZ, _ZMM | _MEM | M_1to8);
+
+		put("vcvtph2ps", XMM_KZ, _XMM | _MEM);
+		put("vcvtph2ps", YMM_KZ, _XMM | _MEM);
+		put("vcvtph2ps", ZMM_KZ, _YMM | _MEM | YMM_SAE);
+
+		put("vcvtps2ph", _XMM | _MEM, _XMM, IMM8);
+		put("vcvtps2ph", _XMM | _MEM, _YMM, IMM8);
+		put("vcvtps2ph", _YMM | YMM_KZ | _MEM, _ZMM, IMM8);
+		put("vcvtps2ph", _YMM | YMM_KZ, ZMM_SAE, IMM8);
 #endif
 	}
 	void putMin()
 	{
 #ifdef XBYAK64
-		put("vpcmpeqb", K, _XMM3|_YMM, _MEM);
-		put("vpcmpeqw", K, _XMM3|_YMM, _MEM);
-		put("vpcmpeqd", K, _XMM3|_YMM, _MEM);
-		put("vpcmpeqq", K, _XMM3|_YMM, _MEM);
+		put512_cvt();
 #endif
 	}
 	void putAVX512()
 	{
 #ifdef MIN_TEST
-//		putMin();
-		put512_cvt();
+		putMin();
 #else
 		putOpmask();
 		separateFunc();
