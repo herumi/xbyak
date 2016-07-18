@@ -1280,24 +1280,33 @@ public:
 	}
 	void put512_Y_XM()
 	{
-		const char *tbl[] = {
-			"vpmovsxbw",
-			"vpmovsxbd",
-			"vpmovsxbq",
-			"vpmovsxwd",
-			"vpmovsxwq",
-			"vpmovsxdq",
-			"vpmovzxbw",
-			"vpmovzxbd",
-			"vpmovzxbq",
-			"vpmovzxwd",
-			"vpmovzxwq",
-			"vpmovzxdq",
+		const struct Tbl {
+			const char *name;
+			bool all_xmm; // 2nd param
+		} tbl[] = {
+			{ "vpmovsxbw", false },
+			{ "vpmovsxbd", true },
+			{ "vpmovsxbq", true },
+			{ "vpmovsxwd", false },
+			{ "vpmovsxwq", true },
+			{ "vpmovsxdq", false },
+
+			{ "vpmovzxbw", false },
+			{ "vpmovzxbd", true },
+			{ "vpmovzxbq", true },
+			{ "vpmovzxwd", false },
+			{ "vpmovzxwq", true },
+			{ "vpmovzxdq", false },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-			const char *name = tbl[i];
-			put(name, XMM_KZ, _XMM);
-			put(name, _ZMM, _MEM);
+			const Tbl& p = tbl[i];
+			const char *name = p.name;
+			put(name, XMM_KZ | YMM, _XMM | _MEM);
+			if (p.all_xmm) {
+				put(name, ZMM, _XMM | _MEM);
+			} else {
+				put(name, ZMM, YMM | _MEM);
+			}
 		}
 	}
 	void put512_AVX1()
@@ -1443,12 +1452,12 @@ public:
 		separateFunc();
 		put512_X3_I();
 		separateFunc();
-#endif
 		put512_FMA();
 		separateFunc();
-#if 0
+#endif
 		put512_Y_XM();
 		separateFunc();
+#if 0
 		put512_AVX1();
 		separateFunc();
 		put512_cvt();
