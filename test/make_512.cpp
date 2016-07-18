@@ -70,7 +70,7 @@ const uint64 REG32e = REG32 | REG64;
 const uint64 REG8 = _REG8 | REG8_2|AL;
 const uint64 MEM = _MEM | _MEMe;
 const uint64 MEM64 = 1ULL << 35;
-const uint64 ST0 = 1ULL << 36;
+const uint64 YMM_ER = 1ULL << 36;
 const uint64 STi = 1ULL << 37;
 const uint64 IMM_2 = 1ULL << 38;
 const uint64 IMM = IMM_1 | IMM_2;
@@ -171,9 +171,6 @@ class Test {
 	const char *get(uint64 type) const
 	{
 		int idx = (rand() / 31) & 7;
-		if (type == ST0) {
-			return "st0";
-		}
 		if (type == STi) {
 			return "st2";
 		}
@@ -392,6 +389,8 @@ class Test {
 			return isXbyak_ ? "zmm25 | T_sae" : "zmm25, {sae}";
 		case XMM_ER:
 			return isXbyak_ ? "xmm4 | T_rd_sae" : "xmm4, {rd-sae}";
+		case YMM_ER:
+			return isXbyak_ ? "ymm20 | T_rd_sae" : "ymm20, {rd-sae}";
 		case ZMM_ER:
 			return isXbyak_ ? "zmm20 | T_rd_sae" : "zmm20, {rd-sae}";
 		case XMM_KZ:
@@ -411,6 +410,8 @@ class Test {
 			return isXbyak_ ? "zmm5 | T_sae" : "zmm5, {sae}";
 		case XMM_ER:
 			return isXbyak_ ? "xmm30 | T_rd_sae" : "xmm30, {rd-sae}";
+		case YMM_ER:
+			return isXbyak_ ? "ymm2 | T_rd_sae" : "ymm2, {rd-sae}";
 		case ZMM_ER:
 			return isXbyak_ ? "zmm2 | T_rd_sae" : "zmm2, {rd-sae}";
 		case MEM_K:
@@ -1407,42 +1408,80 @@ public:
 
 		put("vcvtdq2ps", XMM_KZ, _XMM | _MEM | M_1to4);
 		put("vcvtdq2ps", YMM_KZ, _YMM | _MEM | M_1to8);
-		put("vcvtdq2ps", ZMM_KZ, _ZMM | _MEM | M_1to16);
+		put("vcvtdq2ps", ZMM_KZ, _ZMM | _MEM | M_1to16 | ZMM_ER);
 
-		put("vcvtpd2dq", _XMM | _XMM3, _XMM | M_xword | M_1to2);
-		put("vcvtpd2dq", _XMM | _XMM3, _YMM | M_yword | MY_1to4);
-		put("vcvtpd2dq", YMM | YMM_KZ, ZMM | _MEM | M_1to8);
+		put("vcvtpd2dq", XMM_KZ, _XMM | M_xword | M_1to2);
+		put("vcvtpd2dq", XMM_KZ, _YMM | M_yword | MY_1to4);
+		put("vcvtpd2dq", YMM_KZ, ZMM | _MEM | M_1to8 | ZMM_ER);
 
-		put("vcvtpd2ps", _XMM | _XMM3, _XMM | M_xword | M_1to2);
-		put("vcvtpd2ps", _XMM | _XMM3, _YMM | M_yword | MY_1to4);
-		put("vcvtpd2ps", YMM | YMM_KZ, ZMM | _MEM | M_1to8);
+		put("vcvtpd2ps", XMM_KZ, _XMM | M_xword | M_1to2);
+		put("vcvtpd2ps", XMM_KZ, _YMM | M_yword | MY_1to4);
+		put("vcvtpd2ps", YMM_KZ, ZMM | _MEM | M_1to8 | ZMM_ER);
 
 		put("vcvtpd2qq", XMM_KZ, _XMM | _MEM | M_1to2);
 		put("vcvtpd2qq", YMM_KZ, _YMM | _MEM | M_1to4);
-		put("vcvtpd2qq", ZMM_KZ, _ZMM | _MEM | M_1to8);
+		put("vcvtpd2qq", ZMM_KZ, _ZMM | _MEM | M_1to8 | ZMM_ER);
 
-		put("vcvtpd2udq", _XMM | _XMM3, _XMM | M_xword | M_1to2);
-		put("vcvtpd2udq", _XMM | _XMM3, _YMM | M_yword | MY_1to4);
-		put("vcvtpd2udq", YMM | YMM_KZ, ZMM | _MEM | M_1to8);
+		put("vcvtpd2udq", XMM_KZ, _XMM | M_xword | M_1to2);
+		put("vcvtpd2udq", XMM_KZ, _YMM | M_yword | MY_1to4);
+		put("vcvtpd2udq", YMM_KZ, ZMM | _MEM | M_1to8 | ZMM_ER);
 
 		put("vcvtpd2uqq", XMM_KZ, _XMM | _MEM | M_1to2);
 		put("vcvtpd2uqq", YMM_KZ, _YMM | _MEM | M_1to4);
-		put("vcvtpd2uqq", ZMM_KZ, _ZMM | _MEM | M_1to8);
+		put("vcvtpd2uqq", ZMM_KZ, _ZMM | _MEM | M_1to8 | ZMM_ER);
 
 		put("vcvtph2ps", XMM_KZ, _XMM | _MEM);
 		put("vcvtph2ps", YMM_KZ, _XMM | _MEM);
 		put("vcvtph2ps", ZMM_KZ, _YMM | _MEM | YMM_SAE);
 
-		put("vcvtps2ph", _XMM | _MEM, _XMM, IMM8);
-		put("vcvtps2ph", _XMM | _MEM, _YMM, IMM8);
-		put("vcvtps2ph", _YMM | YMM_KZ | _MEM, _ZMM, IMM8);
-		put("vcvtps2ph", _YMM | YMM_KZ, ZMM_SAE, IMM8);
+		put("vcvtps2ph", XMM_KZ | _MEM, _XMM, IMM8);
+		put("vcvtps2ph", XMM_KZ | _MEM, _YMM, IMM8);
+		put("vcvtps2ph", YMM_KZ | _MEM, _ZMM, IMM8);
+		put("vcvtps2ph", YMM_KZ, ZMM_SAE, IMM8);
+
+		put("vcvtps2dq", XMM_KZ, _XMM | _MEM | M_1to4);
+		put("vcvtps2dq", YMM_KZ, _YMM | _MEM | M_1to8);
+		put("vcvtps2dq", ZMM_KZ, _ZMM | _MEM | M_1to16 | ZMM_ER);
+
+		put("vcvtps2udq", XMM_KZ, _XMM | M_1to4);
+		put("vcvtps2udq", YMM_KZ, _YMM | M_1to8);
+		put("vcvtps2udq", ZMM_KZ, _ZMM | _MEM | M_1to16 | ZMM_ER);
+
+		put("vcvtps2qq", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vcvtps2qq", YMM_KZ, _XMM | _MEM | M_1to4);
+		put("vcvtps2qq", ZMM_KZ, _YMM | _MEM | M_1to8 | YMM_ER);
+
+		put("vcvtps2uqq", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vcvtps2uqq", YMM_KZ, _XMM | _MEM | M_1to4);
+		put("vcvtps2uqq", ZMM_KZ, _YMM | _MEM | M_1to8 | YMM_ER);
+
+		put("vcvtps2pd", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vcvtps2pd", YMM_KZ, _XMM | _MEM | M_1to4);
+		put("vcvtps2pd", ZMM_KZ, _YMM | _MEM | M_1to8 | YMM_SAE);
+
+		put("vcvtqq2pd", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vcvtqq2pd", YMM_KZ, _YMM | _MEM | M_1to4);
+		put("vcvtqq2pd", ZMM_KZ, _ZMM | _MEM | M_1to8 | ZMM_ER);
+
+		put("vcvtqq2ps", XMM_KZ, _XMM | M_xword | M_1to2);
+		put("vcvtqq2ps", XMM_KZ, _YMM | M_yword | MY_1to4);
+		put("vcvtqq2ps", YMM_KZ, ZMM | _MEM | M_1to8 | ZMM_ER);
+
+		put("vcvtsd2si", REG32 | REG64, _XMM | _MEM | XMM_ER);
+
+		put("vcvtsd2usi", REG32 | REG64, _XMM | _MEM | XMM_ER);
+
+		put("vcvtsd2ss", XMM_KZ, _XMM, _XMM | _MEM | XMM_ER);
 #endif
 	}
 	void putMin()
 	{
 #ifdef XBYAK64
-		put512_cvt();
+//		put512_cvt();
+		put("vcvtps2ph", XMM_KZ, _XMM, IMM8);
+		put("vcvtps2ph", XMM_KZ, _YMM, IMM8);
+		put("vcvtps2ph", YMM_KZ, _ZMM, IMM8);
+		put("vcvtps2ph", YMM_KZ, ZMM_SAE, IMM8);
 #endif
 	}
 	void putAVX512()
