@@ -543,6 +543,7 @@ struct EvexModifierZero{};
 
 struct Xmm : public Mmx {
 	explicit Xmm(int idx = 0, Kind kind = Operand::XMM, int bit = 128) : Mmx(idx, kind, bit) { }
+	Xmm(Kind kind, int idx) : Mmx(idx, kind, kind == XMM ? 128 : kind == YMM ? 256 : 512) { }
 	Xmm operator|(const EvexModifierRounding& emr) const { Xmm r(*this); r.setRounding(emr.rounding); return r; }
 	Xmm copyAndSetIdx(int idx) const { Xmm ret(*this); ret.setIdx(idx); return ret; }
 	Xmm copyAndSetKind(Operand::Kind kind) const { Xmm ret(*this); ret.setKind(kind); return ret; }
@@ -562,28 +563,9 @@ struct Opmask : public Reg {
 	explicit Opmask(int idx = 0) : Reg(idx, Operand::OPMASK, 64) {}
 };
 
-template<class T>
-T operator|(const T& x, const Opmask& k)
-{
-	if (!x.is(Operand::XMM | Operand::YMM | Operand::ZMM | Operand::OPMASK | Operand::MEM)) throw Error(ERR_BAD_COMBINATION);
-	T r(x);
-	r.setOpmaskIdx(k.getIdx());
-	return r;
-}
-template<class T> T operator|(const T& x, const EvexModifierZero&)
-{
-	if (!x.is(Operand::XMM | Operand::YMM | Operand::ZMM)) throw Error(ERR_BAD_COMBINATION);
-	T r(x);
-	r.setZero();
-	return r;
-}
-template<class T> T operator|(const T& x, const EvexModifierRounding& emr)
-{
-	if (!x.is(Operand::XMM | Operand::YMM | Operand::ZMM)) throw Error(ERR_BAD_COMBINATION);
-	T r(x);
-	r.setRounding(emr.rounding);
-	return r;
-}
+template<class T>T operator|(const T& x, const Opmask& k) { T r(x); r.setOpmaskIdx(k.getIdx()); return r; }
+template<class T>T operator|(const T& x, const EvexModifierZero&) { T r(x); r.setZero(); return r; }
+template<class T>T operator|(const T& x, const EvexModifierRounding& emr) { T r(x); r.setRounding(emr.rounding); return r; }
 
 struct Fpu : public Reg {
 	explicit Fpu(int idx = 0) : Reg(idx, Operand::FPU, 32) { }
@@ -1420,6 +1402,13 @@ private:
 		if (((type & T_ER_X) && r.isXMM()) || ((type & T_ER_Y) && r.isYMM()) || ((type & T_ER_Z) && r.isZMM())) return;
 		throw Error(ERR_ER_IS_INVALID);
 	}
+	// (a, b, c) contains non zero two or three values then err
+	int verifyDuplicate(int a, int b, int c, int err)
+	{
+		int v = a | b | c;
+		if ((a > 0 && a != v) + (b > 0 && b != v) + (c > 0 && c != v) > 0) return Error(err);
+		return v;
+	}
 	enum {
 		T_RN_SAE = 1,
 		T_RD_SAE = 2,
@@ -1442,7 +1431,7 @@ private:
 		bool B = !base.isExtIdx();
 		bool Rp = !reg.isExtIdx2();
 		int LL;
-		int rounding = base.getRounding();
+		int rounding = verifyDuplicate(reg.getRounding(), base.getRounding(), v ? v->getRounding() : 0, ERR_ROUNDING_IS_ALREADY_SET);
 		int disp8N = 1;
 		if (rounding) {
 			if (rounding == T_SAE){
@@ -1469,8 +1458,8 @@ private:
 			}
 		}
 		bool Vp = !(v ? v->isExtIdx2() : 0);
-		bool z = reg.hasZero();
-		if (aaa == 0) aaa = reg.getOpmaskIdx();
+		bool z = reg.hasZero() || base.hasZero() || (v ? v->hasZero() : false);
+		if (aaa == 0) aaa = verifyDuplicate(base.getOpmaskIdx(), reg.getOpmaskIdx(), (v ? v->getOpmaskIdx() : 0), ERR_OPMASK_IS_ALREADY_SET);
 		db(0x62);
 		db((R ? 0x80 : 0) | (X ? 0x40 : 0) | (B ? 0x20 : 0) | (Rp ? 0x10 : 0) | (mm & 3));
 		db((w == 1 ? 0x80 : 0) | ((vvvv & 15) << 3) | 4 | (pp & 3));

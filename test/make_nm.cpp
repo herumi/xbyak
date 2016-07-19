@@ -1954,6 +1954,10 @@ class Test {
 
 			put("vcvtsi2sd", XMM, XMM, REG32e | MEM);
 			put("vcvtsi2sd", XMM, REG32e | MEM);
+#ifdef XBYAK64
+			put("vcvtsi2sd", XMM, XMM, MEM64);
+			put("vcvtsi2sd", XMM, MEM64);
+#endif
 
 			put("vcvtps2pd", XMM | YMM, XMM | MEM);
 			put("vcvtdq2pd", XMM | YMM, XMM | MEM);

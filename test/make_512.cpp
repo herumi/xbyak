@@ -253,9 +253,9 @@ class Test {
 		case MEM16:
 			return "word [esi]";
 		case MEM32:
-			return "dword [ebp*2]";
+			return "dword [eax+64]";
 		case MEM64:
-			return "qword [eax+ecx*8]";
+			return "qword [rax+64]";
 		case MEM_ONLY_DISP:
 			return isXbyak_ ? "ptr[(void*)0x123]" : "[0x123]";
 		case _REG16: // not ax
@@ -1467,21 +1467,91 @@ public:
 		put("vcvtqq2ps", XMM_KZ, _YMM | M_yword | MY_1to4);
 		put("vcvtqq2ps", YMM_KZ, ZMM | _MEM | M_1to8 | ZMM_ER);
 
-		put("vcvtsd2si", REG32 | REG64, _XMM | _MEM | XMM_ER);
+		put("vcvtsd2si", REG32 | REG64, _XMM3 | _MEM | XMM_ER);
 
-		put("vcvtsd2usi", REG32 | REG64, _XMM | _MEM | XMM_ER);
+		put("vcvtsd2usi", REG32 | REG64, _XMM3 | _MEM | XMM_ER);
 
-		put("vcvtsd2ss", XMM_KZ, _XMM, _XMM | _MEM | XMM_ER);
+		put("vcvtsd2ss", XMM_KZ, _XMM3, _XMM3 | _MEM | XMM_ER);
+
+		put("vcvtsi2sd", _XMM3, _XMM3, REG32 | REG64 | MEM32 | MEM64);
+		put("vcvtsi2sd", XMM, XMM_ER, REG64);
+
+		put("vcvtsi2ss", _XMM3, _XMM3, REG32 | REG64 | MEM32 | MEM64);
+		put("vcvtsi2ss", XMM, XMM_ER, REG32 | REG64);
+
+		put("vcvtss2sd", XMM_KZ, _XMM3, _XMM3 | _MEM | XMM_SAE);
+
+		put("vcvtss2si", REG32 | REG64, _XMM3 | _MEM | XMM_ER);
+
+		put("vcvtss2usi", REG32 | REG64, _XMM3 | _MEM | XMM_ER);
+
+		put("vcvtpd2dq", XMM_KZ, _XMM | M_xword | M_1to2);
+		put("vcvtpd2dq", XMM_KZ, _YMM | M_yword | MY_1to4);
+		put("vcvtpd2dq", YMM_KZ, _ZMM | _MEM | M_1to8 | ZMM_ER);
+
+		put("vcvttpd2qq", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vcvttpd2qq", YMM_KZ, _YMM | _MEM | M_1to4);
+		put("vcvttpd2qq", ZMM_KZ, _ZMM | _MEM | M_1to8 | ZMM_SAE);
+
+		put("vcvttpd2udq", XMM_KZ, _XMM | M_xword | M_1to2);
+		put("vcvttpd2udq", XMM_KZ, _YMM | M_yword | MY_1to4);
+		put("vcvttpd2udq", YMM_KZ, ZMM | _MEM | M_1to8 | ZMM_SAE);
+
+		put("vcvttpd2uqq", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vcvttpd2uqq", YMM_KZ, _YMM | _MEM | M_1to4);
+		put("vcvttpd2uqq", ZMM_KZ, _ZMM | _MEM | M_1to8 | ZMM_SAE);
+
+		put("vcvttps2dq", XMM_KZ, _XMM | _MEM | M_1to4);
+		put("vcvttps2dq", YMM_KZ, _YMM | _MEM | M_1to8);
+		put("vcvttps2dq", ZMM_KZ, _ZMM | _MEM | M_1to16 | ZMM_SAE);
+
+		put("vcvttps2udq", XMM_KZ, _XMM | M_1to4);
+		put("vcvttps2udq", YMM_KZ, _YMM | M_1to8);
+		put("vcvttps2udq", ZMM_KZ, _ZMM | _MEM | M_1to16 | ZMM_SAE);
+
+		put("vcvttps2qq", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vcvttps2qq", YMM_KZ, _XMM | _MEM | M_1to4);
+		put("vcvttps2qq", ZMM_KZ, _YMM | _MEM | M_1to8 | YMM_SAE);
+
+		put("vcvttps2uqq", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vcvttps2uqq", YMM_KZ, _XMM | _MEM | M_1to4);
+		put("vcvttps2uqq", ZMM_KZ, _YMM | _MEM | M_1to8 | YMM_SAE);
+
+		put("vcvttsd2si", REG32 | REG64, _XMM3 | _MEM | XMM_SAE);
+
+		put("vcvttsd2usi", REG32 | REG64, _XMM3 | _MEM | XMM_SAE);
+
+		put("vcvttss2si", REG32 | REG64, _XMM3 | _MEM | XMM_SAE);
+
+		put("vcvttss2usi", REG32 | REG64, _XMM3 | _MEM | XMM_SAE);
+
+		put("vcvtudq2pd", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vcvtudq2pd", YMM_KZ, _XMM | _MEM | M_1to4);
+		put("vcvtudq2pd", ZMM_KZ, _YMM | _MEM | M_1to8);
+
+		put("vcvtudq2ps", XMM_KZ, _XMM | _MEM | M_1to4);
+		put("vcvtudq2ps", YMM_KZ, _YMM | _MEM | M_1to8);
+		put("vcvtudq2ps", ZMM_KZ, _ZMM | _MEM | M_1to16 | ZMM_ER);
+
+		put("vcvtuqq2pd", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vcvtuqq2pd", YMM_KZ, _YMM | _MEM | M_1to4);
+		put("vcvtuqq2pd", ZMM_KZ, _ZMM | _MEM | M_1to8 | ZMM_ER);
+
+		put("vcvtuqq2ps", XMM_KZ, _XMM | M_xword | M_1to2);
+		put("vcvtuqq2ps", XMM_KZ, _YMM | M_yword | MY_1to4);
+		put("vcvtuqq2ps", YMM_KZ, ZMM | _MEM | M_1to8 | ZMM_ER);
+
+		put("vcvtusi2sd", _XMM3, _XMM3, REG32 | REG64 | MEM32 | MEM64);
+		put("vcvtusi2sd", XMM, XMM_ER, REG64);
+
+		put("vcvtusi2ss", _XMM3, _XMM3, REG32 | REG64 | MEM32 | MEM64);
+		put("vcvtusi2ss", XMM, XMM_ER, REG32 | REG64);
 #endif
 	}
 	void putMin()
 	{
 #ifdef XBYAK64
 //		put512_cvt();
-		put("vcvtps2ph", XMM_KZ, _XMM, IMM8);
-		put("vcvtps2ph", XMM_KZ, _YMM, IMM8);
-		put("vcvtps2ph", YMM_KZ, _ZMM, IMM8);
-		put("vcvtps2ph", YMM_KZ, ZMM_SAE, IMM8);
 #endif
 	}
 	void putAVX512()
