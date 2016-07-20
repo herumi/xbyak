@@ -18,16 +18,16 @@ const uint64 IMM32 = 1ULL << 5;
 const uint64 IMM8 = 1ULL << 6;
 const uint64 _REG8 = 1ULL << 7;
 const uint64 _REG16 = 1ULL << 8;
-const uint64 NEG8 = 1ULL << 9;
-const uint64 IMM16 = 1ULL << 10;
-const uint64 NEG16 = 1ULL << 11;
+const uint64 XMM_K = 1ULL << 9;
+const uint64 YMM_K = 1ULL << 10;
+const uint64 ZMM_K = 1ULL << 11;
 const uint64 AX = 1ULL << 12;
 const uint64 AL = 1ULL << 13;
 const uint64 IMM_1 = 1ULL << 14;
 const uint64 MEM8 = 1ULL << 15;
 const uint64 MEM16 = 1ULL << 16;
 const uint64 MEM32 = 1ULL << 17;
-const uint64 ONE = 1ULL << 19;
+const uint64 VM32Z = 1ULL << 19;
 const uint64 CL = 1ULL << 20;
 const uint64 MEM_ONLY_DISP = 1ULL << 21;
 const uint64 NEG32 = 1ULL << 23;
@@ -337,32 +337,24 @@ class Test {
 			return "al";
 		case CL:
 			return "cl";
-		case ONE:
-			return "1";
 		case IMM32:
 			return isXbyak_ ? "12345678" : "dword 12345678";
-		case IMM16:
-			return isXbyak_ ? "1000" : "word 1000";
 		case IMM8:
 			return isXbyak_ ? "4" : "byte 4";
-		case NEG8:
-			return isXbyak_ ? "-30" : "byte -30";
-		case NEG16:
-			return isXbyak_ ? "-1000" : "word -1000";
-		case NEG32:
-			return isXbyak_ ? "-100000" : "dword -100000";
 		case IMM_1:
 			return "4";
 		case IMM_2:
 			return isXbyak_ ? "0xda" : "0xda";
 		case VM32X_32:
-			return isXbyak_ ? "ptr [ebp+4+xmm1*8]" : "[ebp+4+xmm1*8]";
+			return isXbyak_ ? "ptr [ebp+64+xmm1*8]" : "[ebp+64+xmm1*8]";
 		case VM32X_64:
-			return isXbyak_ ? "ptr [12345+xmm13*2]" : "[12345+xmm13*2]";
+			return isXbyak_ ? "ptr [rax+64+xmm13*2]" : "[rax+64+xmm13*2]";
 		case VM32Y_32:
 			return isXbyak_ ? "ptr [ymm4]" : "[ymm4]";
 		case VM32Y_64:
-			return isXbyak_ ? "ptr [12345+ymm13*2+r13]" : "[12345+ymm13*2+r13]";
+			return isXbyak_ ? "ptr [64+ymm13*2+r13]" : "[64+ymm13*2+r13]";
+		case VM32Z:
+			return isXbyak_ ? "ptr [64+zmm13*2+rcx]" : "[64+zmm13*2+rcx]";
 		case M_1to2: return isXbyak_ ? "ptr_b [eax+32]" : "[eax+32]{1to2}";
 		case M_1to4: return isXbyak_ ? "ptr_b [eax+32]" : "[eax+32]{1to4}";
 		case M_1to8: return isXbyak_ ? "ptr_b [eax+32]" : "[eax+32]{1to8}";
@@ -417,6 +409,12 @@ class Test {
 		case MEM_K:
 			return isXbyak_ ? "ptr [eax] | k1" : "[eax]{k1}";
 #endif
+		case XMM_K:
+			return isXbyak_ ? "xmm5 | k7" : "xmm5{k7}";
+		case YMM_K:
+			return isXbyak_ ? "ymm5 | k4" : "ymm5{k4}";
+		case ZMM_K:
+			return isXbyak_ ? "zmm5 | k3" : "zmm5{k3}";
 		}
 		return 0;
 	}
@@ -1548,10 +1546,53 @@ public:
 		put("vcvtusi2ss", XMM, XMM_ER, REG32 | REG64);
 #endif
 	}
+	void putGather()
+	{
+#ifdef XBYAK64
+		enum {
+			xx_yy_zz,
+			xx_yx_zy,
+			xx_xy_yz
+		};
+		const struct Tbl {
+			const char *name;
+			int mode;
+		} tbl[] = {
+			{ "vpgatherdd", xx_yy_zz },
+			{ "vpgatherdq", xx_yx_zy },
+			{ "vpgatherqd", xx_xy_yz },
+			{ "vpgatherqq", xx_yy_zz },
+			{ "vgatherdps", xx_yy_zz },
+			{ "vgatherdpd", xx_yx_zy },
+			{ "vgatherqps", xx_xy_yz },
+			{ "vgatherqpd", xx_yy_zz },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			switch (p.mode) {
+			case xx_yy_zz:
+				put(p.name, XMM_K, VM32X);
+				put(p.name, YMM_K, VM32Y);
+				put(p.name, ZMM_K, VM32Z);
+				break;
+			case xx_yx_zy:
+				put(p.name, XMM_K, VM32X);
+				put(p.name, YMM_K, VM32X);
+				put(p.name, ZMM_K, VM32Y);
+				break;
+			case xx_xy_yz:
+				put(p.name, XMM_K, VM32X);
+				put(p.name, XMM_K, VM32Y);
+				put(p.name, YMM_K, VM32Z);
+				break;
+			}
+		}
+#endif
+	}
 	void putMin()
 	{
 #ifdef XBYAK64
-//		put512_cvt();
+		putGather();
 #endif
 	}
 	void putAVX512()
@@ -1588,6 +1629,8 @@ public:
 		put512_cvt();
 		separateFunc();
 		putMisc1();
+		separateFunc();
+		putGather();
 #endif
 	}
 };

@@ -173,4 +173,12 @@ void vcvtss2usi(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()
 void vcvttsd2usi(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_F2 | T_0F | T_MUST_EVEX | T_EW1 | T_N8 | T_SAE_X, 0x78); }
 void vcvttss2usi(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_F3 | T_0F | T_MUST_EVEX | T_EW1 | T_N4 | T_SAE_X, 0x78); }
 #endif
+void vpgatherdd(const Xmm& x, const Address& addr) { opGather2(x, addr, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX | T_N4, 0x90, 0); }
+void vpgatherdq(const Xmm& x, const Address& addr) { opGather2(x, addr, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_N8, 0x90, 1); }
+void vpgatherqd(const Xmm& x, const Address& addr) { opGather2(x, addr, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX | T_N4, 0x91, 2); }
+void vpgatherqq(const Xmm& x, const Address& addr) { opGather2(x, addr, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_N8, 0x91, 0); }
+void vgatherdps(const Xmm& x, const Address& addr) { opGather2(x, addr, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX | T_N4, 0x92, 0); }
+void vgatherdpd(const Xmm& x, const Address& addr) { opGather2(x, addr, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_N8, 0x92, 1); }
+void vgatherqps(const Xmm& x, const Address& addr) { opGather2(x, addr, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX | T_N4, 0x93, 2); }
+void vgatherqpd(const Xmm& x, const Address& addr) { opGather2(x, addr, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_N8, 0x93, 0); }
 #endif

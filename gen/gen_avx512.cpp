@@ -355,6 +355,35 @@ void putCvt()
 	puts("#endif");
 }
 
+void putGather()
+{
+	enum { // same as xbyak.h
+		xx_yy_zz = 0,
+		xx_yx_zy = 1,
+		xx_xy_yz = 2
+	};
+	const struct Tbl {
+		const char *name;
+		int type;
+		uint8 code;
+		int mode;
+	} tbl[] = {
+		{ "vpgatherdd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_N4, 0x90, xx_yy_zz },
+		{ "vpgatherdq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N8, 0x90, xx_yx_zy },
+		{ "vpgatherqd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_N4, 0x91, xx_xy_yz },
+		{ "vpgatherqq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N8, 0x91, xx_yy_zz },
+		{ "vgatherdps", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_N4, 0x92, xx_yy_zz },
+		{ "vgatherdpd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N8, 0x92, xx_yx_zy },
+		{ "vgatherqps", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_N4, 0x93, xx_xy_yz },
+		{ "vgatherqpd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N8, 0x93, xx_yy_zz },
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		const Tbl& p = tbl[i];
+		std::string type = type2String(p.type);
+		printf("void %s(const Xmm& x, const Address& addr) { opGather2(x, addr, %s, 0x%02X, %d); }\n", p.name, type.c_str(), p.code, p.mode);
+	}
+}
+
 int main()
 {
 	puts("#ifndef XBYAK_DISABLE_AVX512");
@@ -369,5 +398,6 @@ int main()
 	putBroadcast();
 #endif
 	putCvt();
+	putGather();
 	puts("#endif");
 }

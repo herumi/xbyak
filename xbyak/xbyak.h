@@ -173,6 +173,7 @@ enum {
 	ERR_ER_IS_INVALID,
 	ERR_INVALID_BROADCAST,
 	ERR_INVALID_OPMASK_WITH_MEMORY,
+	ERR_INVALID_ZERO,
 	ERR_INTERNAL
 };
 
@@ -231,6 +232,7 @@ public:
 			"er(embedded rounding) is invalid",
 			"invalid broadcast",
 			"invalid opmask with memory",
+			"invalid zero",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -663,7 +665,7 @@ public:
 		: scale_(scale)
 		, disp_(0)
 	{
-		if (!r.isREG(i32e) && !r.is(Reg::XMM|Reg::YMM)) throw Error(ERR_BAD_SIZE_OF_REGISTER);
+		if (!r.isREG(i32e) && !r.is(Reg::XMM|Reg::YMM|Reg::ZMM)) throw Error(ERR_BAD_SIZE_OF_REGISTER);
 		if (scale != 1 && scale != 2 && scale != 4 && scale != 8) throw Error(ERR_BAD_SCALE);
 		if (r.getBit() >= 128 || scale != 1) { // xmm/ymm is always index
 			index_ = r;
@@ -671,8 +673,7 @@ public:
 			base_ = r;
 		}
 	}
-	bool isVsib() const { return index_.isBit(128|256); }
-	bool isYMM() const { return index_.isBit(256); }
+	bool isVsib(int bit = 128 | 256 | 512) const { return index_.isBit(bit); }
 	void optimize()
 	{
 		// [reg * 2] => [reg + reg]
@@ -1416,7 +1417,7 @@ private:
 		T_RZ_SAE = 4,
 		T_SAE = 5,
 	};
-	int evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool b = false, int aaa = 0)
+	int evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool b = false, int aaa = 0, int VL = 0)
 	{
 		if (!(type & (T_EVEX | T_MUST_EVEX))) throw Error(ERR_EVEX_IS_INVALID);
 		int w = (type & T_EW1) ? 1 : 0;
@@ -1441,7 +1442,8 @@ private:
 			}
 			b = true;
 		} else {
-			int VL = Max(Max(reg.getBit(), base.getBit()), (v ? v->getBit() : 0));
+			if (v) VL = Max(VL, v->getBit());
+			VL = Max(Max(reg.getBit(), base.getBit()), VL);
 			LL = (VL == 512) ? 2 : (VL == 256) ? 1 : 0;
 			if (b) {
 				disp8N = (type & T_B32) ? 4 : 8;
@@ -1793,7 +1795,8 @@ private:
 					if (!(type & (T_B32 | T_B64))) throw Error(ERR_INVALID_BROADCAST);
 					b = true;
 				}
-				disp8N = evex(r, base, p1, type, code, x, b, aaa);
+				int VL = addr.getRegExp().isVsib() ? addr.getRegExp().getIndex().getBit() : 0;
+				disp8N = evex(r, base, p1, type, code, x, b, aaa, VL);
 			} else {
 				vex(r, base, p1, type, code, x);
 			}
@@ -1888,11 +1891,11 @@ private:
 	}
 	void opGather(const Xmm& x1, const Address& addr, const Xmm& x2, int type, uint8 code, int mode)
 	{
-		if (!addr.getRegExp().isVsib()) throw Error(ERR_BAD_VSIB_ADDRESSING);
+		if (!addr.getRegExp().isVsib(128 | 256)) throw Error(ERR_BAD_VSIB_ADDRESSING);
 		const int y_vx_y = 0;
 		const int y_vy_y = 1;
 //		const int x_vy_x = 2;
-		const bool isAddrYMM = addr.getRegExp().isYMM();
+		const bool isAddrYMM = addr.getRegExp().getIndex().getBit() == 256;
 		if (!x1.isXMM() || isAddrYMM || !x2.isXMM()) {
 			bool isOK = false;
 			if (mode == y_vx_y) {
@@ -1906,6 +1909,32 @@ private:
 		}
 		addr.permitVsib();
 		opAVX_X_X_XM(isAddrYMM ? Ymm(x1.getIdx()) : x1, isAddrYMM ? Ymm(x2.getIdx()) : x2, addr, type | T_YMM, code);
+	}
+	enum {
+		xx_yy_zz = 0,
+		xx_yx_zy = 1,
+		xx_xy_yz = 2
+	};
+	void checkGather2(const Xmm& x, const Address& addr, int mode) const
+	{
+		if (x.hasZero()) throw Error(ERR_INVALID_ZERO);
+		const RegExp& re = addr.getRegExp();
+		if (x.isXMM() && re.isVsib(128)) return;
+		switch (mode) {
+		case xx_yy_zz: if ((x.isYMM() && re.isVsib(256)) || (x.isZMM() && re.isVsib(512))) return;
+			break;
+		case xx_yx_zy: if ((x.isYMM() && re.isVsib(128)) || (x.isZMM() && re.isVsib(256))) return;
+			break;
+		case xx_xy_yz: if ((x.isXMM() && re.isVsib(256)) || (x.isYMM() && re.isVsib(512))) return;
+			break;
+		}
+		throw Error(ERR_BAD_VSIB_ADDRESSING);
+	}
+	void opGather2(const Xmm& x, const Address& addr, int type, uint8 code, int mode)
+	{
+		checkGather2(x, addr, mode);
+		addr.permitVsib();
+		opVex(x, 0, addr, type, code);
 	}
 public:
 	unsigned int getVersion() const { return VERSION; }
