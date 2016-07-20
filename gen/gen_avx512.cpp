@@ -168,6 +168,12 @@ void putX_XM()
 		{ 0x78, "vcvttps2udq", T_0F | T_MUST_EVEX | T_YMM | T_EW0 | T_B32 | T_SAE_Z },
 		{ 0x7A, "vcvtudq2ps", T_F2 | T_0F | T_YMM | T_MUST_EVEX | T_EW0 | T_B32 | T_ER_Z },
 		{ 0x7A, "vcvtuqq2pd", T_F3 | T_0F | T_YMM | T_MUST_EVEX | T_EW1 | T_B64 | T_ER_Z },
+
+		{ 0x88, "vexpandpd", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N8 },
+		{ 0x88, "vexpandps", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 },
+
+		{ 0x89, "vpexpandd", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 },
+		{ 0x89, "vpexpandq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N8 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -195,6 +201,26 @@ void putM_X()
 		const Tbl *p = &tbl[i];
 		std::string type = type2String(p->type);
 		printf("void %s(const Address& addr, const Xmm& x) { opAVX_X_XM_IMM(x, addr, %s, 0x%02X); }\n", p->name, type.c_str(), p->code);
+	}
+}
+
+void putXM_X()
+{
+	const struct Tbl {
+		uint8 code;
+		const char *name;
+		int type;
+	} tbl[] = {
+		{ 0x8A, "vcompresspd", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N8 },
+		{ 0x8A, "vcompressps", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 },
+
+		{ 0x8B, "vpcompressd", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 },
+		{ 0x8B, "vpcompressq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N8 },
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		const Tbl *p = &tbl[i];
+		std::string type = type2String(p->type);
+		printf("void %s(const Operand& op, const Xmm& x) { opAVX_X_XM_IMM(x, op, %s, 0x%02X); }\n", p->name, type.c_str(), p->code);
 	}
 }
 
@@ -418,6 +444,7 @@ int main()
 	putVcmp();
 	putX_XM();
 	putM_X();
+	putXM_X();
 	putX_X_XM_IMM();
 	putShift();
 	putExtractInsert();

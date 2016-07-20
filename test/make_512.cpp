@@ -1668,10 +1668,41 @@ public:
 			put(p.name, K_K, _ZMM, _ZMM | _MEM | bTbl[2]);
 		}
 	}
+	void putCompExp()
+	{
+		{
+			const char *tbl[] = {
+				"vcompresspd",
+				"vcompressps",
+				"vpcompressd",
+				"vpcompressq",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				const char *name = tbl[i];
+				put(name, XMM_KZ | _MEM, _XMM);
+				put(name, YMM_KZ | _MEM, _YMM);
+				put(name, ZMM_KZ | _MEM, _ZMM);
+			}
+		}
+		{
+			const char *tbl[] = {
+				"vexpandpd",
+				"vexpandps",
+				"vpexpandd",
+				"vpexpandq",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				const char *name = tbl[i];
+				put(name, XMM_KZ, _XMM | _MEM);
+				put(name, YMM_KZ, _YMM | _MEM);
+				put(name, ZMM_KZ, _ZMM | _MEM);
+			}
+		}
+	}
 	void putMin()
 	{
 #ifdef XBYAK64
-		putVtest();
+		putCompExp();
 #endif
 	}
 	void putAVX512()
@@ -1716,6 +1747,8 @@ public:
 		putVpcmp();
 		separateFunc();
 		putVtest();
+		separateFunc();
+		putCompExp();
 #endif
 	}
 };
