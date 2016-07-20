@@ -125,6 +125,16 @@ void putVcmp()
 		{ 0x1E, "vpcmpud", T_66 | T_0F3A | T_MUST_EVEX | T_YMM | T_EW0 | T_B32, true },
 		{ 0x1F, "vpcmpq", T_66 | T_0F3A | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, true },
 		{ 0x1E, "vpcmpuq", T_66 | T_0F3A | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, true },
+
+		{ 0x26, "vptestmb", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0, false },
+		{ 0x26, "vptestmw", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1, false },
+		{ 0x27, "vptestmd", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_B32, false },
+		{ 0x27, "vptestmq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
+
+		{ 0x26, "vptestnmb", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0, false },
+		{ 0x26, "vptestnmw", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1, false },
+		{ 0x27, "vptestnmd", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_B32, false },
+		{ 0x27, "vptestnmq", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];

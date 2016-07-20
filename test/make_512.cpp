@@ -1641,10 +1641,37 @@ public:
 			put(p.name, K_K, _ZMM, _ZMM | _MEM | bTbl[2], IMM8);
 		}
 	}
+	void putVtest()
+	{
+		const uint64_t b0Tbl[] = { 0, 0, 0 };
+		const uint64_t b4Tbl[] = { M_1to4, M_1to8, M_1to16 };
+		const uint64_t b2Tbl[] = { M_1to2, M_1to4, M_1to8 };
+		const struct Tbl {
+			const char *name;
+			uint64_t b;
+		} tbl[] = {
+			{ "vptestmb", 0 },
+			{ "vptestmw", 0 },
+			{ "vptestmd", M_1to4 },
+			{ "vptestmq", M_1to2 },
+
+			{ "vptestnmb", 0 },
+			{ "vptestnmw", 0 },
+			{ "vptestnmd", M_1to4 },
+			{ "vptestnmq", M_1to2 },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			const uint64_t *bTbl = p.b == 0 ? b0Tbl : p.b == M_1to4 ? b4Tbl : b2Tbl;
+			put(p.name, K_K, _XMM, _XMM | _MEM | bTbl[0]);
+			put(p.name, K_K, _YMM, _YMM | _MEM | bTbl[1]);
+			put(p.name, K_K, _ZMM, _ZMM | _MEM | bTbl[2]);
+		}
+	}
 	void putMin()
 	{
 #ifdef XBYAK64
-		putVpcmp();
+		putVtest();
 #endif
 	}
 	void putAVX512()
@@ -1687,6 +1714,8 @@ public:
 		putBlend();
 		separateFunc();
 		putVpcmp();
+		separateFunc();
+		putVtest();
 #endif
 	}
 };
