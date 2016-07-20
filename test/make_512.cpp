@@ -28,7 +28,7 @@ const uint64 MEM8 = 1ULL << 15;
 const uint64 MEM16 = 1ULL << 16;
 const uint64 MEM32 = 1ULL << 17;
 const uint64 VM32Z = 1ULL << 19;
-const uint64 CL = 1ULL << 20;
+const uint64 K_K = 1ULL << 20;
 const uint64 MEM_ONLY_DISP = 1ULL << 21;
 const uint64 NEG32 = 1ULL << 23;
 const uint64 _YMM = 1ULL << 24;
@@ -335,8 +335,8 @@ class Test {
 			return "ax";
 		case AL:
 			return "al";
-		case CL:
-			return "cl";
+		case K_K:
+			return isXbyak_ ? "k5 | k3" : "k5{k3}";
 		case IMM32:
 			return isXbyak_ ? "12345678" : "dword 12345678";
 		case IMM8:
@@ -1589,10 +1589,62 @@ public:
 		}
 #endif
 	}
+	void putBlend()
+	{
+		put("vblendmpd", XMM_KZ, _XMM, _XMM | _MEM | M_1to2);
+		put("vblendmpd", YMM_KZ, _YMM, _YMM | _MEM | M_1to4);
+		put("vblendmpd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8);
+
+		put("vblendmps", XMM_KZ, _XMM, _XMM | _MEM | M_1to4);
+		put("vblendmps", YMM_KZ, _YMM, _YMM | _MEM | M_1to8);
+		put("vblendmps", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16);
+
+		put("vpblendmb", XMM_KZ, _XMM, _XMM | _MEM);
+		put("vpblendmb", YMM_KZ, _YMM, _YMM | _MEM);
+		put("vpblendmb", ZMM_KZ, _ZMM, _ZMM | _MEM);
+
+		put("vpblendmb", XMM_KZ, _XMM, _XMM | _MEM);
+		put("vpblendmb", YMM_KZ, _YMM, _YMM | _MEM);
+		put("vpblendmb", ZMM_KZ, _ZMM, _ZMM | _MEM);
+
+		put("vpblendmd", XMM_KZ, _XMM, _XMM | _MEM | M_1to4);
+		put("vpblendmd", YMM_KZ, _YMM, _YMM | _MEM | M_1to8);
+		put("vpblendmd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16);
+
+		put("vpblendmq", XMM_KZ, _XMM, _XMM | _MEM | M_1to2);
+		put("vpblendmq", YMM_KZ, _YMM, _YMM | _MEM | M_1to4);
+		put("vpblendmq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8);
+	}
+	void putVpcmp()
+	{
+		const uint64_t b0Tbl[] = { 0, 0, 0 };
+		const uint64_t b4Tbl[] = { M_1to4, M_1to8, M_1to16 };
+		const uint64_t b2Tbl[] = { M_1to2, M_1to4, M_1to8 };
+		const struct Tbl {
+			const char *name;
+			uint64_t b;
+		} tbl[] = {
+			{ "vpcmpb", 0 },
+			{ "vpcmpub", 0 },
+			{ "vpcmpw", 0 },
+			{ "vpcmpuw", 0 },
+			{ "vpcmpd", M_1to4 },
+			{ "vpcmpud", M_1to4 },
+			{ "vpcmpq", M_1to2 },
+			{ "vpcmpuq", M_1to2 },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			const uint64_t *bTbl = p.b == 0 ? b0Tbl : p.b == M_1to4 ? b4Tbl : b2Tbl;
+			put(p.name, K_K, _XMM, _XMM | _MEM | bTbl[0], IMM8);
+			put(p.name, K_K, _YMM, _YMM | _MEM | bTbl[1], IMM8);
+			put(p.name, K_K, _ZMM, _ZMM | _MEM | bTbl[2], IMM8);
+		}
+	}
 	void putMin()
 	{
 #ifdef XBYAK64
-		putGather();
+		putVpcmp();
 #endif
 	}
 	void putAVX512()
@@ -1631,6 +1683,10 @@ public:
 		putMisc1();
 		separateFunc();
 		putGather();
+		separateFunc();
+		putBlend();
+		separateFunc();
+		putVpcmp();
 #endif
 	}
 };
