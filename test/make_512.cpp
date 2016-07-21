@@ -30,7 +30,7 @@ const uint64 MEM32 = 1ULL << 17;
 const uint64 VM32Z = 1ULL << 19;
 const uint64 K_K = 1ULL << 20;
 const uint64 MEM_ONLY_DISP = 1ULL << 21;
-const uint64 NEG32 = 1ULL << 23;
+//const uint64 QQQ = 1ULL << 23;
 const uint64 _YMM = 1ULL << 24;
 const uint64 VM32X_32 = 1ULL << 39;
 const uint64 VM32X_64 = 1ULL << 40;
@@ -1714,6 +1714,11 @@ public:
 			{ "vpermt2q", M_1to2 },
 			{ "vpermt2ps", M_1to4 },
 			{ "vpermt2pd", M_1to2 },
+
+			{ "vpermi2w", 0 },
+			{ "vpermi2d", M_1to4 },
+			{ "vpermi2q", M_1to2 },
+			{ "vpermi2ps", M_1to4 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
@@ -1723,10 +1728,33 @@ public:
 			put(p.name, ZMM_KZ, _ZMM, _ZMM | _MEM | bTbl[2]);
 		}
 	}
+	void putShuff()
+	{
+		put("vshuff32x4", YMM_KZ, _YMM, _YMM | _MEM | M_1to8, IMM8);
+		put("vshuff32x4", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16, IMM8);
+
+		put("vshuff64x2", YMM_KZ, _YMM, _YMM | _MEM | M_1to4, IMM8);
+		put("vshuff64x2", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8, IMM8);
+
+		put("vshufi32x4", YMM_KZ, _YMM, _YMM | _MEM | M_1to8, IMM8);
+		put("vshufi32x4", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16, IMM8);
+
+		put("vshufi64x2", YMM_KZ, _YMM, _YMM | _MEM | M_1to4, IMM8);
+		put("vshufi64x2", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8, IMM8);
+	}
+	void putMisc2()
+	{
+		put("vpternlogd", XMM_KZ, _XMM, _XMM | _MEM | M_1to4, IMM8);
+		put("vpternlogd", YMM_KZ, _YMM, _YMM | _MEM | M_1to8, IMM8);
+		put("vpternlogd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16, IMM8);
+
+		put("vpternlogq", XMM_KZ, _XMM, _XMM | _MEM | M_1to2, IMM8);
+		put("vpternlogq", YMM_KZ, _YMM, _YMM | _MEM | M_1to4, IMM8);
+		put("vpternlogq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8, IMM8);
+	}
 	void putMin()
 	{
 #ifdef XBYAK64
-		putPerm();
 #endif
 	}
 	void putAVX512()
@@ -1775,6 +1803,10 @@ public:
 		putCompExp();
 		separateFunc();
 		putPerm();
+		separateFunc();
+		putShuff();
+		separateFunc();
+		putMisc2();
 #endif
 	}
 };
