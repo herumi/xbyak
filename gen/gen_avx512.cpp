@@ -461,6 +461,43 @@ void putShuff()
 	puts("void vshufi64x2(const Ymm& y1, const Ymm& y2, const Operand& op, uint8 imm) { opAVX_X_X_XM(y1, y2, op, T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, 0x43, imm); }");
 }
 
+void putMov()
+{
+	puts("void vpmovm2b(const Xmm& x, const Opmask& k) { opVex(x, 0, k, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0, 0x28); }");
+	puts("void vpmovm2w(const Xmm& x, const Opmask& k) { opVex(x, 0, k, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1, 0x28); }");
+	puts("void vpmovm2d(const Xmm& x, const Opmask& k) { opVex(x, 0, k, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0, 0x38); }");
+	puts("void vpmovm2q(const Xmm& x, const Opmask& k) { opVex(x, 0, k, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1, 0x38); }");
+
+	puts("void vpmovb2m(const Opmask& k, const Xmm& x) { opVex(k, 0, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0, 0x29); }");
+	puts("void vpmovw2m(const Opmask& k, const Xmm& x) { opVex(k, 0, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1, 0x29); }");
+	puts("void vpmovd2m(const Opmask& k, const Xmm& x) { opVex(k, 0, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0, 0x39); }");
+	puts("void vpmovq2m(const Opmask& k, const Xmm& x) { opVex(k, 0, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1, 0x39); }");
+
+	puts("void vpmovqb(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N2 | T_N_VL, 0x32, false); }");
+	puts("void vpmovsqb(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N2 | T_N_VL, 0x22, false); }");
+	puts("void vpmovusqb(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N2 | T_N_VL, 0x12, false); }");
+
+	puts("void vpmovqw(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL, 0x34, false); }");
+	puts("void vpmovsqw(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL, 0x24, false); }");
+	puts("void vpmovusqw(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL, 0x14, false); }");
+
+	puts("void vpmovqd(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, 0x35, true); }");
+	puts("void vpmovsqd(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, 0x25, true); }");
+	puts("void vpmovusqd(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, 0x15, true); }");
+
+	puts("void vpmovdb(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL, 0x31, false); }");
+	puts("void vpmovsdb(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL, 0x21, false); }");
+	puts("void vpmovusdb(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL, 0x11, false); }");
+
+	puts("void vpmovdw(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, 0x33, true); }");
+	puts("void vpmovsdw(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, 0x23, true); }");
+	puts("void vpmovusdw(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, 0x13, true); }");
+
+	puts("void vpmovwb(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, 0x30, true); }");
+	puts("void vpmovswb(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, 0x20, true); }");
+	puts("void vpmovuswb(const Operand& op, const Xmm& x) { opVmov(op, x, T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, 0x10, true); }");
+}
+
 int main()
 {
 	puts("#ifndef XBYAK_DISABLE_AVX512");
@@ -478,5 +515,6 @@ int main()
 	putCvt();
 	putGather();
 	putShuff();
+	putMov();
 	puts("#endif");
 }

@@ -1936,6 +1936,19 @@ private:
 		addr.permitVsib();
 		opVex(x, 0, addr, type, code);
 	}
+	/*
+		xx_xy_yz ; mode = true
+		xx_xy_xz ; mode = false
+	*/
+	void opVmov(const Operand& op, const Xmm& x, int type, uint8 code, int mode)
+	{
+		if (mode) {
+			if (!op.isMEM() && !((op.isXMM() && x.isXMM()) || (op.isXMM() && x.isYMM()) || (op.isYMM() && x.isZMM())))  throw Error(ERR_BAD_COMBINATION);
+		} else {
+			if (!op.isMEM() && !op.isXMM()) throw Error(ERR_BAD_COMBINATION);
+		}
+		opVex(x, 0, op, type, code);
+	}
 public:
 	unsigned int getVersion() const { return VERSION; }
 	using CodeArray::db;
