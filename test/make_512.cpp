@@ -1742,16 +1742,6 @@ public:
 		put("vshufi64x2", YMM_KZ, _YMM, _YMM | _MEM | M_1to4, IMM8);
 		put("vshufi64x2", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8, IMM8);
 	}
-	void putMisc2()
-	{
-		put("vpternlogd", XMM_KZ, _XMM, _XMM | _MEM | M_1to4, IMM8);
-		put("vpternlogd", YMM_KZ, _YMM, _YMM | _MEM | M_1to8, IMM8);
-		put("vpternlogd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16, IMM8);
-
-		put("vpternlogq", XMM_KZ, _XMM, _XMM | _MEM | M_1to2, IMM8);
-		put("vpternlogq", YMM_KZ, _YMM, _YMM | _MEM | M_1to4, IMM8);
-		put("vpternlogq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8, IMM8);
-	}
 	void putMov()
 	{
 		put("vpmovm2b", _XMM | _YMM | _ZMM, K);
@@ -1803,10 +1793,98 @@ public:
 		put("vpmovuswb", XMM_KZ | _MEM, _XMM | _YMM);
 		put("vpmovuswb", YMM_KZ | _MEM, _ZMM);
 	}
+	void putMisc2()
+	{
+		put("vpternlogd", XMM_KZ, _XMM, _XMM | _MEM | M_1to4, IMM8);
+		put("vpternlogd", YMM_KZ, _YMM, _YMM | _MEM | M_1to8, IMM8);
+		put("vpternlogd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16, IMM8);
+
+		put("vpternlogq", XMM_KZ, _XMM, _XMM | _MEM | M_1to2, IMM8);
+		put("vpternlogq", YMM_KZ, _YMM, _YMM | _MEM | M_1to4, IMM8);
+		put("vpternlogq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8, IMM8);
+
+		put("vgetexppd", XMM_KZ, _XMM | MEM | M_1to2);
+		put("vgetexppd", YMM_KZ, _YMM | MEM | M_1to4);
+		put("vgetexppd", ZMM_KZ, _ZMM | MEM | M_1to8 | ZMM_SAE);
+
+		put("vgetexpps", XMM_KZ, _XMM | MEM | M_1to4);
+		put("vgetexpps", YMM_KZ, _YMM | MEM | M_1to8);
+		put("vgetexpps", ZMM_KZ, _ZMM | MEM | M_1to16 | ZMM_SAE);
+
+		put("vgetexpsd", XMM_KZ, _XMM, _XMM | _MEM | XMM_SAE);
+		put("vgetexpss", XMM_KZ, _XMM, _XMM | _MEM | XMM_SAE);
+
+		put("vgetmantpd", XMM_KZ, _XMM | _MEM | M_1to2, IMM8);
+		put("vgetmantpd", YMM_KZ, _YMM | _MEM | M_1to4, IMM8);
+		put("vgetmantpd", ZMM_KZ, _ZMM | _MEM | M_1to8, IMM8);
+
+		put("vgetmantps", XMM_KZ, _XMM | _MEM | M_1to4, IMM8);
+		put("vgetmantps", YMM_KZ, _YMM | _MEM | M_1to8, IMM8);
+		put("vgetmantps", ZMM_KZ, _ZMM | _MEM | M_1to16, IMM8);
+
+		put("vgetmantsd", XMM_KZ, _XMM, _XMM | _MEM | XMM_SAE, IMM8);
+		put("vgetmantss", XMM_KZ, _XMM, _XMM | _MEM | XMM_SAE, IMM8);
+
+		put("vfixupimmpd", XMM_KZ, _XMM, _XMM | _MEM | M_1to2, IMM8);
+		put("vfixupimmpd", YMM_KZ, _YMM, _YMM | _MEM | M_1to4, IMM8);
+		put("vfixupimmpd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8, IMM8);
+
+		put("vfixupimmps", XMM_KZ, _XMM, _XMM | _MEM | M_1to4, IMM8);
+		put("vfixupimmps", YMM_KZ, _YMM, _YMM | _MEM | M_1to8, IMM8);
+		put("vfixupimmps", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16, IMM8);
+
+		put("vfixupimmsd", XMM_KZ, _XMM, _XMM | _MEM, IMM8);
+		put("vfixupimmss", XMM_KZ, _XMM, _XMM | _MEM, IMM8);
+
+		put("vrcp14pd", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vrcp14pd", YMM_KZ, _YMM | _MEM | M_1to4);
+		put("vrcp14pd", ZMM_KZ, _ZMM | _MEM | M_1to8);
+
+		put("vrcp14ps", XMM_KZ, _XMM | _MEM | M_1to4);
+		put("vrcp14ps", YMM_KZ, _YMM | _MEM | M_1to8);
+		put("vrcp14ps", ZMM_KZ, _ZMM | _MEM | M_1to16);
+
+		put("vrcp14sd", XMM_KZ, _XMM, _XMM | _MEM);
+
+		put("vrcp14ss", XMM_KZ, _XMM, _XMM | _MEM);
+
+		put("vrsqrt14pd", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vrsqrt14pd", YMM_KZ, _YMM | _MEM | M_1to4);
+		put("vrsqrt14pd", ZMM_KZ, _ZMM | _MEM | M_1to8);
+
+		put("vrsqrt14ps", XMM_KZ, _XMM | _MEM | M_1to4);
+		put("vrsqrt14ps", YMM_KZ, _YMM | _MEM | M_1to8);
+		put("vrsqrt14ps", ZMM_KZ, _ZMM | _MEM | M_1to16);
+
+		put("vrsqrt14sd", XMM_KZ, _XMM, _XMM | _MEM);
+
+		put("vrsqrt14ss", XMM_KZ, _XMM, _XMM | _MEM);
+
+		put("vrndscalepd", XMM_KZ, _XMM | _MEM | M_1to2, IMM8);
+		put("vrndscalepd", YMM_KZ, _YMM | _MEM | M_1to4, IMM8);
+		put("vrndscalepd", ZMM_KZ, _ZMM | _MEM | M_1to8, IMM8);
+
+		put("vrndscaleps", XMM_KZ, _XMM | _MEM | M_1to4, IMM8);
+		put("vrndscaleps", YMM_KZ, _YMM | _MEM | M_1to8, IMM8);
+		put("vrndscaleps", ZMM_KZ, _ZMM | _MEM | M_1to16, IMM8);
+
+		put("vrndscalesd", XMM_KZ, _XMM, _XMM | _MEM, IMM8);
+
+		put("vrndscaless", XMM_KZ, _XMM, _XMM | _MEM, IMM8);
+
+		put("vscalefpd", XMM_KZ, _XMM, _XMM | _MEM | M_1to2);
+		put("vscalefpd", YMM_KZ, _YMM, _YMM | _MEM | M_1to4);
+		put("vscalefpd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8 | ZMM_ER);
+
+		put("vscalefps", XMM_KZ, _XMM, _XMM | _MEM | M_1to4);
+		put("vscalefps", YMM_KZ, _YMM, _YMM | _MEM | M_1to8);
+		put("vscalefps", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16 | ZMM_ER);
+	}
 	void putMin()
 	{
 #ifdef XBYAK64
-		putMov();
+		put("vscalefsd", XMM_KZ, _XMM, _XMM | _MEM | XMM_ER);
+		put("vscalefss", XMM_KZ, _XMM, _XMM | _MEM | XMM_ER);
 #endif
 	}
 	void putAVX512()

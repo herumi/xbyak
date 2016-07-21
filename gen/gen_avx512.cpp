@@ -174,6 +174,8 @@ void putX_XM()
 
 		{ 0x89, "vpexpandd", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 },
 		{ 0x89, "vpexpandq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N8 },
+		{ 0x42, "vgetexppd", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_SAE_Z },
+		{ 0x42, "vgetexpps", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_B32 | T_SAE_Z },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -280,6 +282,30 @@ void putX_X_XM_IMM()
 
 		{ 0x25, "vpternlogd", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, true },
 		{ 0x25, "vpternlogq", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, true },
+
+		{ 0x43, "vgetexpsd", T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_SAE_X | T_N8, false },
+		{ 0x43, "vgetexpss", T_66 | T_0F38 | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N4, false },
+		{ 0x27, "vgetmantsd", T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_SAE_X | T_N8, true },
+		{ 0x27, "vgetmantss", T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N4, true },
+
+		{ 0x54, "vfixupimmpd", T_66 | T_0F3A | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_SAE_Z, true },
+		{ 0x54, "vfixupimmps", T_66 | T_0F3A | T_MUST_EVEX | T_YMM | T_EW0 | T_B32 | T_SAE_Z, true },
+		{ 0x55, "vfixupimmsd", T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_N8, true },
+		{ 0x55, "vfixupimmss", T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_N4, true },
+
+		{ 0x4D, "vrcp14sd", T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_N8, false },
+		{ 0x4D, "vrcp14ss", T_66 | T_0F38 | T_MUST_EVEX | T_EW0 | T_N4, false },
+
+		{ 0x4F, "vrsqrt14sd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N8, false },
+		{ 0x4F, "vrsqrt14ss", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_N4, false },
+
+		{ 0x0B, "vrndscalesd", T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_N8, true },
+		{ 0x0A, "vrndscaless", T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_N4, true },
+
+		{ 0x2C, "vscalefpd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64 | T_ER_Z, false },
+		{ 0x2C, "vscalefps", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32 | T_ER_Z, false },
+		{ 0x2D, "vscalefsd", T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_ER_X | T_N8, false },
+		{ 0x2D, "vscalefss", T_66 | T_0F38 | T_MUST_EVEX | T_EW0 | T_ER_X | T_N4, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -512,6 +538,33 @@ void putMov()
 	}
 }
 
+void putX_XM_IMM()
+{
+	const struct Tbl {
+		uint8 code;
+		const char *name;
+		int type;
+		bool hasIMM;
+	} tbl[] = {
+		{ 0x26, "vgetmantpd", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_B64 | T_SAE_Z, true },
+		{ 0x26, "vgetmantps", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW0 | T_B32 | T_SAE_Z, true },
+		{ 0x4C, "vrcp14pd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
+		{ 0x4C, "vrcp14ps", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, false },
+
+		{ 0x4E, "vrsqrt14pd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
+		{ 0x4E, "vrsqrt14ps", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, false },
+
+		{ 0x09, "vrndscalepd", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, true },
+		{ 0x08, "vrndscaleps", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, true },
+
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		const Tbl *p = &tbl[i];
+		std::string type = type2String(p->type);
+		printf("void %s(const Xmm& x, const Operand& op%s) { opAVX_X_XM_IMM(x, op, %s, 0x%02X%s); }\n"
+			, p->name, p->hasIMM ? ", uint8 imm" : "", type.c_str(), p->code, p->hasIMM ? ", imm" : "");
+	}
+}
 int main()
 {
 	puts("#ifndef XBYAK_DISABLE_AVX512");
@@ -530,5 +583,6 @@ int main()
 	putGather();
 	putShuff();
 	putMov();
+	putX_XM_IMM();
 	puts("#endif");
 }
