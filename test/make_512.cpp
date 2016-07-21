@@ -1699,10 +1699,34 @@ public:
 			}
 		}
 	}
+	void putPerm()
+	{
+		const uint64_t b0Tbl[] = { 0, 0, 0 };
+		const uint64_t b4Tbl[] = { M_1to4, M_1to8, M_1to16 };
+		const uint64_t b2Tbl[] = { M_1to2, M_1to4, M_1to8 };
+		const struct Tbl {
+			const char *name;
+			uint64_t b;
+		} tbl[] = {
+			{ "vpermt2b", 0 },
+			{ "vpermt2w", 0 },
+			{ "vpermt2d", M_1to4 },
+			{ "vpermt2q", M_1to2 },
+			{ "vpermt2ps", M_1to4 },
+			{ "vpermt2pd", M_1to2 },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			const uint64_t *bTbl = p.b == 0 ? b0Tbl : p.b == M_1to4 ? b4Tbl : b2Tbl;
+			put(p.name, XMM_KZ, _XMM, _XMM | _MEM | bTbl[0]);
+			put(p.name, YMM_KZ, _YMM, _YMM | _MEM | bTbl[1]);
+			put(p.name, ZMM_KZ, _ZMM, _ZMM | _MEM | bTbl[2]);
+		}
+	}
 	void putMin()
 	{
 #ifdef XBYAK64
-		putCompExp();
+		putPerm();
 #endif
 	}
 	void putAVX512()
@@ -1749,6 +1773,8 @@ public:
 		putVtest();
 		separateFunc();
 		putCompExp();
+		separateFunc();
+		putPerm();
 #endif
 	}
 };
