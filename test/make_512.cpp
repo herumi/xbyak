@@ -1806,6 +1806,7 @@ public:
 	void putMin()
 	{
 #ifdef XBYAK64
+		putMov();
 #endif
 	}
 	void putAVX512()
