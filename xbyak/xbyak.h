@@ -409,14 +409,7 @@ public:
 		kind_ = kind;
 		bit_ = kind == XMM ? 128 : kind == YMM ? 256 : 512;
 	}
-	// swap zero_, mask_, rounding_
-	void swapAttr(Operand& rhs)
-	{
-		int t;
-		t = zero_; zero_ = rhs.zero_; rhs.zero_ = t;
-		t = mask_; mask_ = rhs.mask_; rhs.mask_ = t;
-		t = rounding_; rounding_ = rhs.rounding_; rhs.rounding_ = t;
-	}
+	void setBit(int bit) { bit_ = bit; }
 	void setOpmaskIdx(int idx, bool ignore_idx0 = false)
 	{
 		if (!ignore_idx0 && idx == 0) throw Error(ERR_K0_IS_INVALID);
@@ -1955,6 +1948,12 @@ private:
 		addr.permitVsib();
 		opVex(x, 0, addr, type, code);
 	}
+	void opClass(const Opmask& k, const Operand& op, int type, uint8 code, uint8 imm)
+	{
+		if (!op.isBit(128|256|512)) throw Error(ERR_BAD_MEM_SIZE);
+		Reg x = k; x.setBit(op.getBit());
+		opVex(x, 0, op, type, code, imm);
+	}
 public:
 	unsigned int getVersion() const { return VERSION; }
 	using CodeArray::db;
@@ -1968,8 +1967,8 @@ public:
 	const Reg32 eax, ecx, edx, ebx, esp, ebp, esi, edi;
 	const Reg16 ax, cx, dx, bx, sp, bp, si, di;
 	const Reg8 al, cl, dl, bl, ah, ch, dh, bh;
-	const AddressFrame ptr, byte, word, dword, qword, yword;
-	const AddressFrame ptr_b, yword_b; // broadcast such as {1to2}, {1to4}, {1to8}, {1to16}, {b}
+	const AddressFrame ptr, byte, word, dword, qword, xword, yword, zword; // xword is same as oword of NASM
+	const AddressFrame ptr_b, xword_b, yword_b, zword_b; // broadcast such as {1to2}, {1to4}, {1to8}, {1to16}, {b}
 	const Fpu st0, st1, st2, st3, st4, st5, st6, st7;
 	const Opmask k0, k1, k2, k3, k4, k5, k6, k7;
 	const EvexModifierRounding T_sae, T_rn_sae, T_rd_sae, T_ru_sae, T_rz_sae; // {sae}, {rn-sae}, {rd-sae}, {ru-sae}, {rz-sae}
@@ -2450,8 +2449,8 @@ public:
 		, eax(Operand::EAX), ecx(Operand::ECX), edx(Operand::EDX), ebx(Operand::EBX), esp(Operand::ESP), ebp(Operand::EBP), esi(Operand::ESI), edi(Operand::EDI)
 		, ax(Operand::AX), cx(Operand::CX), dx(Operand::DX), bx(Operand::BX), sp(Operand::SP), bp(Operand::BP), si(Operand::SI), di(Operand::DI)
 		, al(Operand::AL), cl(Operand::CL), dl(Operand::DL), bl(Operand::BL), ah(Operand::AH), ch(Operand::CH), dh(Operand::DH), bh(Operand::BH)
-		, ptr(0), byte(8), word(16), dword(32), qword(64), yword(256)
-		, ptr_b(0, true), yword_b(256, true)
+		, ptr(0), byte(8), word(16), dword(32), qword(64), xword(128), yword(256), zword(512)
+		, ptr_b(0, true), xword_b(128, true), yword_b(256, true), zword_b(512, true)
 		, st0(0), st1(1), st2(2), st3(3), st4(4), st5(5), st6(6), st7(7)
 		, k0(0), k1(1), k2(2), k3(3), k4(4), k5(5), k6(6), k7(7)
 		, T_sae(T_SAE), T_rn_sae(T_RN_SAE), T_rd_sae(T_RD_SAE), T_ru_sae(T_RU_SAE), T_rz_sae(T_RZ_SAE)

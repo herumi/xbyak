@@ -2049,6 +2049,39 @@ public:
 		put("vpmadd52huq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8);
 #endif
 	}
+	void classSubMem(const char *nm, char x, bool broadcast, int size)
+	{
+		printf("%s ", nm);
+		if (isXbyak_) {
+			printf("(k5|k3, %cword%s [rax+64], 5);dump();\n", x, broadcast ? "_b" : "");
+		} else {
+			if (broadcast) {
+				int d = x == 'x' ? 128 / size : x == 'y' ? 256 / size : 512 / size;
+				printf("k5{k3}, [rax+64]{1to%d}, 5\n", d);
+			} else {
+				if (x == 'x') x = 'o'; // nasm
+				printf("k5{k3}, %cword [rax+64], 5\n", x);
+			}
+		}
+	}
+	void putClassSub(const char *name, int size)
+	{
+		put(name, K_K, _XMM | _YMM | _ZMM, IMM8);
+		for (int i = 0; i < 2; i++) {
+			classSubMem(name, 'x', i == 0, size);
+			classSubMem(name, 'y', i == 0, size);
+			classSubMem(name, 'z', i == 0, size);
+		}
+	}
+	void putClass()
+	{
+#ifdef XBYAK64
+		putClassSub("vfpclasspd", 64);
+		putClassSub("vfpclassps", 32);
+		put("vfpclasssd", K_K, _XMM | _MEM, IMM8);
+		put("vfpclassss", K_K, _XMM | _MEM, IMM8);
+#endif
+	}
 	void putMin()
 	{
 #ifdef XBYAK64
@@ -2110,6 +2143,8 @@ public:
 		putRot();
 		separateFunc();
 		putScatter();
+		separateFunc();
+		putClass();
 #endif
 	}
 };

@@ -135,8 +135,6 @@ void putVcmp()
 		{ 0x26, "vptestnmw", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1, false },
 		{ 0x27, "vptestnmd", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_B32, false },
 		{ 0x27, "vptestnmq", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
-
-//QQQ		{ 0x66, "vfpclassps", T_66 | T_0F3A | T_MUST_EVEX | T_YMM |T_EW0 | T_B32, true },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -663,6 +661,11 @@ void putMisc()
 	puts("void vscatterpf1qps(const Address& addr) { opGatherFetch(addr, zm6, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC7, Operand::ZMM); }");
 	puts("void vscatterpf1dpd(const Address& addr) { opGatherFetch(addr, zm6, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC6, Operand::YMM); }");
 	puts("void vscatterpf1qpd(const Address& addr) { opGatherFetch(addr, zm6, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC7, Operand::ZMM); }");
+
+	puts("void vfpclasspd(const Opmask& k, const Operand& op, uint8 imm) { opClass(k, op, T_66 | T_0F3A | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, 0x66, imm); }");
+	puts("void vfpclassps(const Opmask& k, const Operand& op, uint8 imm) { opClass(k, op, T_66 | T_0F3A | T_MUST_EVEX | T_YMM | T_EW0 | T_B32, 0x66, imm); }");
+	puts("void vfpclasssd(const Opmask& k, const Operand& op, uint8 imm) { opVex(k, 0, op, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_N8, 0x67, imm); }");
+	puts("void vfpclassss(const Opmask& k, const Operand& op, uint8 imm) { opVex(k, 0, op, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_N4, 0x67, imm); }");
 }
 
 int main()
