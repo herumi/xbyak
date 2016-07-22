@@ -862,6 +862,7 @@ public:
 
 		put("vbroadcastf64x2", YMM_KZ | ZMM_KZ, _MEM);
 		put("vbroadcastf64x4", ZMM_KZ, _MEM);
+		put("vbroadcastf32x8", ZMM_KZ, _MEM);
 	}
 	void put512_X_X_XM()
 	{
@@ -1879,12 +1880,55 @@ public:
 		put("vscalefps", XMM_KZ, _XMM, _XMM | _MEM | M_1to4);
 		put("vscalefps", YMM_KZ, _YMM, _YMM | _MEM | M_1to8);
 		put("vscalefps", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16 | ZMM_ER);
+
+		put("vscalefsd", XMM_KZ, _XMM, _XMM | _MEM | XMM_ER);
+		put("vscalefss", XMM_KZ, _XMM, _XMM | _MEM | XMM_ER);
+
+		put("vdbpsadbw", XMM_KZ, _XMM, _XMM | _MEM, IMM8);
+		put("vdbpsadbw", YMM_KZ, _YMM, _YMM | _MEM, IMM8);
+		put("vdbpsadbw", ZMM_KZ, _ZMM, _ZMM | _MEM, IMM8);
+
+		put("vpmultishiftqb", XMM_KZ, _XMM, _XMM | _MEM | M_1to2);
+		put("vpmultishiftqb", YMM_KZ, _YMM, _YMM | _MEM | M_1to4);
+		put("vpmultishiftqb", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8);
+	}
+	void putRot()
+	{
+		put("vprolvd", XMM_KZ, _XMM, _XMM | _MEM | M_1to4);
+		put("vprolvd", YMM_KZ, _YMM, _YMM | _MEM | M_1to8);
+		put("vprolvd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16);
+
+		put("vprolvq", XMM_KZ, _XMM, _XMM | _MEM | M_1to2);
+		put("vprolvq", YMM_KZ, _YMM, _YMM | _MEM | M_1to4);
+		put("vprolvq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8);
+
+		put("vprorvd", XMM_KZ, _XMM, _XMM | _MEM | M_1to4);
+		put("vprorvd", YMM_KZ, _YMM, _YMM | _MEM | M_1to8);
+		put("vprorvd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16);
+
+		put("vprorvq", XMM_KZ, _XMM, _XMM | _MEM | M_1to2);
+		put("vprorvq", YMM_KZ, _YMM, _YMM | _MEM | M_1to4);
+		put("vprorvq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8);
+
+		put("vprold", XMM_KZ, _XMM | _MEM | M_1to4, IMM8);
+		put("vprold", YMM_KZ, _YMM | _MEM | M_1to8, IMM8);
+		put("vprold", ZMM_KZ, _ZMM | _MEM | M_1to16, IMM8);
+
+		put("vprolq", XMM_KZ, _XMM | _MEM | M_1to2, IMM8);
+		put("vprolq", YMM_KZ, _YMM | _MEM | M_1to4, IMM8);
+		put("vprolq", ZMM_KZ, _ZMM | _MEM | M_1to8, IMM8);
+
+		put("vprord", XMM_KZ, _XMM | _MEM | M_1to4, IMM8);
+		put("vprord", YMM_KZ, _YMM | _MEM | M_1to8, IMM8);
+		put("vprord", ZMM_KZ, _ZMM | _MEM | M_1to16, IMM8);
+
+		put("vprorq", XMM_KZ, _XMM | _MEM | M_1to2, IMM8);
+		put("vprorq", YMM_KZ, _YMM | _MEM | M_1to4, IMM8);
+		put("vprorq", ZMM_KZ, _ZMM | _MEM | M_1to8, IMM8);
 	}
 	void putMin()
 	{
 #ifdef XBYAK64
-		put("vscalefsd", XMM_KZ, _XMM, _XMM | _MEM | XMM_ER);
-		put("vscalefss", XMM_KZ, _XMM, _XMM | _MEM | XMM_ER);
 #endif
 	}
 	void putAVX512()
@@ -1939,6 +1983,8 @@ public:
 		putMisc2();
 		separateFunc();
 		putMov();
+		separateFunc();
+		putRot();
 #endif
 	}
 };

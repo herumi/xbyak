@@ -306,6 +306,16 @@ void putX_X_XM_IMM()
 		{ 0x2C, "vscalefps", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32 | T_ER_Z, false },
 		{ 0x2D, "vscalefsd", T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_ER_X | T_N8, false },
 		{ 0x2D, "vscalefss", T_66 | T_0F38 | T_MUST_EVEX | T_EW0 | T_ER_X | T_N4, false },
+
+		{ 0x42, "vdbpsadbw", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW0, true },
+		{ 0x83, "vpmultishiftqb", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
+
+		{ 0x15, "vprolvd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, false },
+		{ 0x15, "vprolvq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
+
+		{ 0x14, "vprorvd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, false },
+		{ 0x14, "vprorvq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
+
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -324,6 +334,10 @@ void putShift()
 		int type;
 	} tbl[] = {
 		{ "vpsraq", 0x72, 4, T_0F | T_66 | T_YMM | T_MUST_EVEX |T_EW1 | T_B64 },
+		{ "vprold", 0x72, 1, T_66 | T_0F | T_YMM | T_MUST_EVEX | T_EW0 | T_B32 },
+		{ "vprolq", 0x72, 1, T_66 | T_0F | T_YMM | T_MUST_EVEX | T_EW1 | T_B64 },
+		{ "vprord", 0x72, 0, T_66 | T_0F | T_YMM | T_MUST_EVEX | T_EW0 | T_B32 },
+		{ "vprorq", 0x72, 0, T_66 | T_0F | T_YMM | T_MUST_EVEX | T_EW1 | T_B64 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& p = tbl[i];
@@ -389,6 +403,7 @@ void putBroadcast()
 	puts("void vbroadcastf32x4(const Ymm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_N16, 0x1A); }");
 	puts("void vbroadcastf64x2(const Ymm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N16, 0x1A); }");
 	puts("void vbroadcastf64x4(const Zmm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N32, 0x1B); }");
+	puts("void vbroadcastf32x8(const Zmm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_N32, 0x1B); }");
 	{
 		const struct Tbl {
 			uint8 code;
@@ -565,6 +580,12 @@ void putX_XM_IMM()
 			, p->name, p->hasIMM ? ", uint8 imm" : "", type.c_str(), p->code, p->hasIMM ? ", imm" : "");
 	}
 }
+
+void putMisc()
+{
+//	puts("void vprold(const Xmm&, const Operand& op, uint8 imm) { op0x72, "vprold", T_66 | T_0F | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, true },
+}
+
 int main()
 {
 	puts("#ifndef XBYAK_DISABLE_AVX512");
@@ -584,5 +605,6 @@ int main()
 	putShuff();
 	putMov();
 	putX_XM_IMM();
+	putMisc();
 	puts("#endif");
 }
