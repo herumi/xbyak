@@ -1833,6 +1833,40 @@ public:
 		put("vpmovuswb", XMM_KZ | _MEM, _XMM | _YMM);
 		put("vpmovuswb", YMM_KZ | _MEM, _ZMM);
 	}
+	void putRot()
+	{
+		put("vprolvd", XMM_KZ, _XMM, _XMM | _MEM | M_1to4);
+		put("vprolvd", YMM_KZ, _YMM, _YMM | _MEM | M_1to8);
+		put("vprolvd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16);
+
+		put("vprolvq", XMM_KZ, _XMM, _XMM | _MEM | M_1to2);
+		put("vprolvq", YMM_KZ, _YMM, _YMM | _MEM | M_1to4);
+		put("vprolvq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8);
+
+		put("vprorvd", XMM_KZ, _XMM, _XMM | _MEM | M_1to4);
+		put("vprorvd", YMM_KZ, _YMM, _YMM | _MEM | M_1to8);
+		put("vprorvd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16);
+
+		put("vprorvq", XMM_KZ, _XMM, _XMM | _MEM | M_1to2);
+		put("vprorvq", YMM_KZ, _YMM, _YMM | _MEM | M_1to4);
+		put("vprorvq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8);
+
+		put("vprold", XMM_KZ, _XMM | _MEM | M_1to4, IMM8);
+		put("vprold", YMM_KZ, _YMM | _MEM | M_1to8, IMM8);
+		put("vprold", ZMM_KZ, _ZMM | _MEM | M_1to16, IMM8);
+
+		put("vprolq", XMM_KZ, _XMM | _MEM | M_1to2, IMM8);
+		put("vprolq", YMM_KZ, _YMM | _MEM | M_1to4, IMM8);
+		put("vprolq", ZMM_KZ, _ZMM | _MEM | M_1to8, IMM8);
+
+		put("vprord", XMM_KZ, _XMM | _MEM | M_1to4, IMM8);
+		put("vprord", YMM_KZ, _YMM | _MEM | M_1to8, IMM8);
+		put("vprord", ZMM_KZ, _ZMM | _MEM | M_1to16, IMM8);
+
+		put("vprorq", XMM_KZ, _XMM | _MEM | M_1to2, IMM8);
+		put("vprorq", YMM_KZ, _YMM | _MEM | M_1to4, IMM8);
+		put("vprorq", ZMM_KZ, _ZMM | _MEM | M_1to8, IMM8);
+	}
 	void putMisc2()
 	{
 		put("vpternlogd", XMM_KZ, _XMM, _XMM | _MEM | M_1to4, IMM8);
@@ -1930,45 +1964,29 @@ public:
 		put("vpmultishiftqb", XMM_KZ, _XMM, _XMM | _MEM | M_1to2);
 		put("vpmultishiftqb", YMM_KZ, _YMM, _YMM | _MEM | M_1to4);
 		put("vpmultishiftqb", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8);
-	}
-	void putRot()
-	{
-		put("vprolvd", XMM_KZ, _XMM, _XMM | _MEM | M_1to4);
-		put("vprolvd", YMM_KZ, _YMM, _YMM | _MEM | M_1to8);
-		put("vprolvd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16);
 
-		put("vprolvq", XMM_KZ, _XMM, _XMM | _MEM | M_1to2);
-		put("vprolvq", YMM_KZ, _YMM, _YMM | _MEM | M_1to4);
-		put("vprolvq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8);
+		put("vpconflictd", XMM_KZ, _XMM | _MEM | M_1to4);
+		put("vpconflictd", YMM_KZ, _YMM | _MEM | M_1to8);
+		put("vpconflictd", ZMM_KZ, _ZMM | _MEM | M_1to16);
 
-		put("vprorvd", XMM_KZ, _XMM, _XMM | _MEM | M_1to4);
-		put("vprorvd", YMM_KZ, _YMM, _YMM | _MEM | M_1to8);
-		put("vprorvd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16);
+		put("vpconflictq", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vpconflictq", YMM_KZ, _YMM | _MEM | M_1to4);
+		put("vpconflictq", ZMM_KZ, _ZMM | _MEM | M_1to8);
 
-		put("vprorvq", XMM_KZ, _XMM, _XMM | _MEM | M_1to2);
-		put("vprorvq", YMM_KZ, _YMM, _YMM | _MEM | M_1to4);
-		put("vprorvq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8);
+		put("vplzcntd", XMM_KZ, _XMM | _MEM | M_1to4);
+		put("vplzcntd", YMM_KZ, _YMM | _MEM | M_1to8);
+		put("vplzcntd", ZMM_KZ, _ZMM | _MEM | M_1to16);
 
-		put("vprold", XMM_KZ, _XMM | _MEM | M_1to4, IMM8);
-		put("vprold", YMM_KZ, _YMM | _MEM | M_1to8, IMM8);
-		put("vprold", ZMM_KZ, _ZMM | _MEM | M_1to16, IMM8);
+		put("vplzcntq", XMM_KZ, _XMM | _MEM | M_1to2);
+		put("vplzcntq", YMM_KZ, _YMM | _MEM | M_1to4);
+		put("vplzcntq", ZMM_KZ, _ZMM | _MEM | M_1to8);
 
-		put("vprolq", XMM_KZ, _XMM | _MEM | M_1to2, IMM8);
-		put("vprolq", YMM_KZ, _YMM | _MEM | M_1to4, IMM8);
-		put("vprolq", ZMM_KZ, _ZMM | _MEM | M_1to8, IMM8);
-
-		put("vprord", XMM_KZ, _XMM | _MEM | M_1to4, IMM8);
-		put("vprord", YMM_KZ, _YMM | _MEM | M_1to8, IMM8);
-		put("vprord", ZMM_KZ, _ZMM | _MEM | M_1to16, IMM8);
-
-		put("vprorq", XMM_KZ, _XMM | _MEM | M_1to2, IMM8);
-		put("vprorq", YMM_KZ, _YMM | _MEM | M_1to4, IMM8);
-		put("vprorq", ZMM_KZ, _ZMM | _MEM | M_1to8, IMM8);
+		put("vpbroadcastmb2q", _XMM | _YMM | _ZMM, K);
+		put("vpbroadcastmw2d", _XMM | _YMM | _ZMM, K);
 	}
 	void putMin()
 	{
 #ifdef XBYAK64
-		putScatter();
 #endif
 	}
 	void putAVX512()
