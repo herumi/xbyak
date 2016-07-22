@@ -1869,6 +1869,7 @@ public:
 	}
 	void putMisc2()
 	{
+#ifdef XBYAK64
 		put("vpternlogd", XMM_KZ, _XMM, _XMM | _MEM | M_1to4, IMM8);
 		put("vpternlogd", YMM_KZ, _YMM, _YMM | _MEM | M_1to8, IMM8);
 		put("vpternlogd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16, IMM8);
@@ -1983,6 +1984,70 @@ public:
 
 		put("vpbroadcastmb2q", _XMM | _YMM | _ZMM, K);
 		put("vpbroadcastmw2d", _XMM | _YMM | _ZMM, K);
+
+		put("vexp2pd", ZMM_KZ, _ZMM | _MEM | M_1to8 | ZMM_SAE);
+		put("vexp2ps", ZMM_KZ, _ZMM | _MEM | M_1to16 | ZMM_SAE);
+
+		put("vrcp28pd", ZMM_KZ, _ZMM | _MEM | M_1to8 | ZMM_SAE);
+		put("vrcp28ps", ZMM_KZ, _ZMM | _MEM | M_1to16 | ZMM_SAE);
+		put("vrcp28sd", XMM_KZ, _XMM, _XMM | _MEM | XMM_SAE);
+		put("vrcp28ss", XMM_KZ, _XMM, _XMM | _MEM | XMM_SAE);
+
+		put("vrsqrt28pd", ZMM_KZ, _ZMM | _MEM | M_1to8 | ZMM_SAE);
+		put("vrsqrt28ps", ZMM_KZ, _ZMM | _MEM | M_1to16 | ZMM_SAE);
+		put("vrsqrt28sd", XMM_KZ, _XMM, _XMM | _MEM | XMM_SAE);
+		put("vrsqrt28ss", XMM_KZ, _XMM, _XMM | _MEM | XMM_SAE);
+
+		put("vgatherpf0dps", VM32Z_K);
+		put("vgatherpf0qps", VM32Z_K);
+		put("vgatherpf0dpd", VM32Y_K);
+		put("vgatherpf0qpd", VM32Z_K);
+
+		put("vgatherpf1dps", VM32Z_K);
+		put("vgatherpf1qps", VM32Z_K);
+		put("vgatherpf1dpd", VM32Y_K);
+		put("vgatherpf1qpd", VM32Z_K);
+
+		put("vscatterpf0dps", VM32Z_K);
+		put("vscatterpf0qps", VM32Z_K);
+		put("vscatterpf0dpd", VM32Y_K);
+		put("vscatterpf0qpd", VM32Z_K);
+
+		put("vscatterpf1dps", VM32Z_K);
+		put("vscatterpf1qps", VM32Z_K);
+		put("vscatterpf1dpd", VM32Y_K);
+		put("vscatterpf1qpd", VM32Z_K);
+
+		put("vrangepd", XMM_KZ, _XMM, _XMM | _MEM | M_1to2, IMM8);
+		put("vrangepd", YMM_KZ, _YMM, _YMM | _MEM | M_1to4, IMM8);
+		put("vrangepd", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8 | ZMM_SAE, IMM8);
+
+		put("vrangeps", XMM_KZ, _XMM, _XMM | _MEM | M_1to4, IMM8);
+		put("vrangeps", YMM_KZ, _YMM, _YMM | _MEM | M_1to8, IMM8);
+		put("vrangeps", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16 | ZMM_SAE, IMM8);
+
+		put("vrangesd", XMM_KZ, _XMM, _XMM | _MEM | XMM_SAE, IMM8);
+		put("vrangess", XMM_KZ, _XMM, _XMM | _MEM | XMM_SAE, IMM8);
+
+		put("vreducepd", XMM_KZ, _XMM | _MEM | M_1to2, IMM8);
+		put("vreducepd", YMM_KZ, _YMM | _MEM | M_1to4, IMM8);
+		put("vreducepd", ZMM_KZ, _ZMM | _MEM | M_1to8 | ZMM_SAE, IMM8);
+
+		put("vreduceps", XMM_KZ, _XMM | _MEM | M_1to4, IMM8);
+		put("vreduceps", YMM_KZ, _YMM | _MEM | M_1to8, IMM8);
+		put("vreduceps", ZMM_KZ, _ZMM | _MEM | M_1to16 | ZMM_SAE, IMM8);
+
+		put("vreducesd", XMM_KZ, _XMM, _XMM | _MEM | XMM_SAE, IMM8);
+		put("vreducess", XMM_KZ, _XMM, _XMM | _MEM | XMM_SAE, IMM8);
+
+		put("vpmadd52luq", XMM_KZ, _XMM, _XMM | _MEM | M_1to2);
+		put("vpmadd52luq", YMM_KZ, _YMM, _YMM | _MEM | M_1to4);
+		put("vpmadd52luq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8);
+
+		put("vpmadd52huq", XMM_KZ, _XMM, _XMM | _MEM | M_1to2);
+		put("vpmadd52huq", YMM_KZ, _YMM, _YMM | _MEM | M_1to4);
+		put("vpmadd52huq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8);
+#endif
 	}
 	void putMin()
 	{

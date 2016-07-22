@@ -135,6 +135,8 @@ void putVcmp()
 		{ 0x26, "vptestnmw", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1, false },
 		{ 0x27, "vptestnmd", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_B32, false },
 		{ 0x27, "vptestnmq", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, false },
+
+//QQQ		{ 0x66, "vfpclassps", T_66 | T_0F3A | T_MUST_EVEX | T_YMM |T_EW0 | T_B32, true },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -183,6 +185,14 @@ void putX_XM()
 		printf("void %s(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, %s, 0x%02X); }\n", p->name, type.c_str(), p->code);
 	}
 	puts("void vpabsq(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_B64 | T_YMM, 0x1F); }");
+
+	puts("void vexp2pd(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_SAE_Z, 0xC8); }");
+	puts("void vexp2ps(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_B32 | T_SAE_Z, 0xC8); }");
+	puts("void vrcp28pd(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_SAE_Z, 0xCA); }");
+	puts("void vrcp28ps(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_B32 | T_SAE_Z, 0xCA); }");
+
+	puts("void vrsqrt28pd(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_SAE_Z, 0xCC); }");
+	puts("void vrsqrt28ps(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_B32 | T_SAE_Z, 0xCC); }");
 }
 
 void putM_X()
@@ -316,6 +326,22 @@ void putX_X_XM_IMM()
 		{ 0x14, "vprorvd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, false },
 		{ 0x14, "vprorvq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
 
+		{ 0xCB, "vrcp28sd", T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_N8 | T_SAE_X, false },
+		{ 0xCB, "vrcp28ss", T_66 | T_0F38 | T_MUST_EVEX | T_EW0 | T_N4 | T_SAE_X, false },
+
+		{ 0xCD, "vrsqrt28sd", T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_N8 | T_SAE_X, false },
+		{ 0xCD, "vrsqrt28ss", T_66 | T_0F38 | T_MUST_EVEX | T_EW0 | T_N4 | T_SAE_X, false },
+
+		{ 0x50, "vrangepd", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_B64 | T_SAE_Z, true },
+		{ 0x50, "vrangeps", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW0 | T_B32 | T_SAE_Z, true },
+		{ 0x51, "vrangesd", T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_SAE_X | T_N8, true },
+		{ 0x51, "vrangess", T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N4, true },
+
+		{ 0x57, "vreducesd", T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_SAE_X | T_N8, true },
+		{ 0x57, "vreducess", T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N4, true },
+
+		{ 0xB4, "vpmadd52luq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
+		{ 0xB5, "vpmadd52huq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -601,6 +627,9 @@ void putX_XM_IMM()
 
 		{ 0x44, "vplzcntd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, false },
 		{ 0x44, "vplzcntq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
+
+		{ 0x56, "vreducepd", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_B64 | T_SAE_Z, true },
+		{ 0x56, "vreduceps", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW0 | T_B32 | T_SAE_Z, true },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -614,6 +643,26 @@ void putMisc()
 {
 	puts("void vpbroadcastmb2q(const Xmm& x, const Opmask& k) { opVex(x, 0, k, T_F3 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, 0x2A); }");
 	puts("void vpbroadcastmw2d(const Xmm& x, const Opmask& k) { opVex(x, 0, k, T_F3 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 0x3A); }");
+
+	puts("void vgatherpf0dps(const Address& addr) { opGatherFetch(addr, zm1, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC6, Operand::ZMM); }");
+	puts("void vgatherpf0qps(const Address& addr) { opGatherFetch(addr, zm1, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC7, Operand::ZMM); }");
+	puts("void vgatherpf0dpd(const Address& addr) { opGatherFetch(addr, zm1, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC6, Operand::YMM); }");
+	puts("void vgatherpf0qpd(const Address& addr) { opGatherFetch(addr, zm1, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC7, Operand::ZMM); }");
+
+	puts("void vgatherpf1dps(const Address& addr) { opGatherFetch(addr, zm2, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC6, Operand::ZMM); }");
+	puts("void vgatherpf1qps(const Address& addr) { opGatherFetch(addr, zm2, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC7, Operand::ZMM); }");
+	puts("void vgatherpf1dpd(const Address& addr) { opGatherFetch(addr, zm2, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC6, Operand::YMM); }");
+	puts("void vgatherpf1qpd(const Address& addr) { opGatherFetch(addr, zm2, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC7, Operand::ZMM); }");
+
+	puts("void vscatterpf0dps(const Address& addr) { opGatherFetch(addr, zm5, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC6, Operand::ZMM); }");
+	puts("void vscatterpf0qps(const Address& addr) { opGatherFetch(addr, zm5, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC7, Operand::ZMM); }");
+	puts("void vscatterpf0dpd(const Address& addr) { opGatherFetch(addr, zm5, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC6, Operand::YMM); }");
+	puts("void vscatterpf0qpd(const Address& addr) { opGatherFetch(addr, zm5, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC7, Operand::ZMM); }");
+
+	puts("void vscatterpf1dps(const Address& addr) { opGatherFetch(addr, zm6, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC6, Operand::ZMM); }");
+	puts("void vscatterpf1qps(const Address& addr) { opGatherFetch(addr, zm6, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC7, Operand::ZMM); }");
+	puts("void vscatterpf1dpd(const Address& addr) { opGatherFetch(addr, zm6, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC6, Operand::YMM); }");
+	puts("void vscatterpf1qpd(const Address& addr) { opGatherFetch(addr, zm6, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC7, Operand::ZMM); }");
 }
 
 int main()

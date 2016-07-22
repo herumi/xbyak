@@ -1948,6 +1948,13 @@ private:
 		}
 		opVex(x, 0, op, type, code);
 	}
+	void opGatherFetch(const Address& addr, const Xmm& x, int type, uint8 code, Operand::Kind kind)
+	{
+		if (addr.hasZero()) throw Error(ERR_INVALID_ZERO);
+		if (addr.getRegExp().getIndex().getKind() != kind) throw Error(ERR_BAD_VSIB_ADDRESSING);
+		addr.permitVsib();
+		opVex(x, 0, addr, type, code);
+	}
 public:
 	unsigned int getVersion() const { return VERSION; }
 	using CodeArray::db;

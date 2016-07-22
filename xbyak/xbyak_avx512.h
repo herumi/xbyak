@@ -114,6 +114,12 @@ void vpexpandq(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T
 void vgetexppd(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_EW1 | T_YMM | T_SAE_Z | T_MUST_EVEX | T_B64, 0x42); }
 void vgetexpps(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_EW0 | T_YMM | T_SAE_Z | T_MUST_EVEX | T_B32, 0x42); }
 void vpabsq(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_B64 | T_YMM, 0x1F); }
+void vexp2pd(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_SAE_Z, 0xC8); }
+void vexp2ps(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_B32 | T_SAE_Z, 0xC8); }
+void vrcp28pd(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_SAE_Z, 0xCA); }
+void vrcp28ps(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_B32 | T_SAE_Z, 0xCA); }
+void vrsqrt28pd(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_SAE_Z, 0xCC); }
+void vrsqrt28ps(const Zmm& z, const Operand& op) { opAVX_X_XM_IMM(z, op, T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_B32 | T_SAE_Z, 0xCC); }
 void vmovdqa32(const Address& addr, const Xmm& x) { opAVX_X_XM_IMM(x, addr, T_66 | T_0F | T_EW0 | T_YMM | T_ER_X | T_ER_Y | T_ER_Z | T_MUST_EVEX, 0x7F); }
 void vmovdqa64(const Address& addr, const Xmm& x) { opAVX_X_XM_IMM(x, addr, T_66 | T_0F | T_EW1 | T_YMM | T_ER_X | T_ER_Y | T_ER_Z | T_MUST_EVEX, 0x7F); }
 void vmovdqu8(const Address& addr, const Xmm& x) { opAVX_X_XM_IMM(x, addr, T_F2 | T_0F | T_EW0 | T_YMM | T_ER_X | T_ER_Y | T_ER_Z | T_MUST_EVEX, 0x7F); }
@@ -189,6 +195,18 @@ void vprolvd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1,
 void vprolvq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0x15); }
 void vprorvd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX | T_B32, 0x14); }
 void vprorvq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0x14); }
+void vrcp28sd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F38 | T_EW1 | T_SAE_X | T_MUST_EVEX | T_N8, 0xCB); }
+void vrcp28ss(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F38 | T_EW0 | T_SAE_X | T_MUST_EVEX | T_N4, 0xCB); }
+void vrsqrt28sd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F38 | T_EW1 | T_SAE_X | T_MUST_EVEX | T_N8, 0xCD); }
+void vrsqrt28ss(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F38 | T_EW0 | T_SAE_X | T_MUST_EVEX | T_N4, 0xCD); }
+void vrangepd(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F3A | T_EW1 | T_YMM | T_SAE_Z | T_MUST_EVEX | T_B64, 0x50, imm); }
+void vrangeps(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F3A | T_EW0 | T_YMM | T_SAE_Z | T_MUST_EVEX | T_B32, 0x50, imm); }
+void vrangesd(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F3A | T_EW1 | T_SAE_X | T_MUST_EVEX | T_N8, 0x51, imm); }
+void vrangess(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F3A | T_EW0 | T_SAE_X | T_MUST_EVEX | T_N4, 0x51, imm); }
+void vreducesd(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F3A | T_EW1 | T_SAE_X | T_MUST_EVEX | T_N8, 0x57, imm); }
+void vreducess(const Xmm& x1, const Xmm& x2, const Operand& op, uint8 imm) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F3A | T_EW0 | T_SAE_X | T_MUST_EVEX | T_N4, 0x57, imm); }
+void vpmadd52luq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0xB4); }
+void vpmadd52huq(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0xB5); }
 void vpsraq(const Xmm& x, const Operand& op, uint8 imm) { opAVX_X_X_XM(Xmm(x.getKind(), 4), x, op, T_66 | T_0F | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0x72, imm); }
 void vprold(const Xmm& x, const Operand& op, uint8 imm) { opAVX_X_X_XM(Xmm(x.getKind(), 1), x, op, T_66 | T_0F | T_EW0 | T_YMM | T_MUST_EVEX | T_B32, 0x72, imm); }
 void vprolq(const Xmm& x, const Operand& op, uint8 imm) { opAVX_X_X_XM(Xmm(x.getKind(), 1), x, op, T_66 | T_0F | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0x72, imm); }
@@ -297,8 +315,26 @@ void vpconflictd(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 |
 void vpconflictq(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0xC4); }
 void vplzcntd(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX | T_B32, 0x44); }
 void vplzcntq(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0x44); }
+void vreducepd(const Xmm& x, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(x, op, T_66 | T_0F3A | T_EW1 | T_YMM | T_SAE_Z | T_MUST_EVEX | T_B64, 0x56, imm); }
+void vreduceps(const Xmm& x, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(x, op, T_66 | T_0F3A | T_EW0 | T_YMM | T_SAE_Z | T_MUST_EVEX | T_B32, 0x56, imm); }
 void vpbroadcastmb2q(const Xmm& x, const Opmask& k) { opVex(x, 0, k, T_F3 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, 0x2A); }
 void vpbroadcastmw2d(const Xmm& x, const Opmask& k) { opVex(x, 0, k, T_F3 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 0x3A); }
+void vgatherpf0dps(const Address& addr) { opGatherFetch(addr, zm1, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC6, Operand::ZMM); }
+void vgatherpf0qps(const Address& addr) { opGatherFetch(addr, zm1, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC7, Operand::ZMM); }
+void vgatherpf0dpd(const Address& addr) { opGatherFetch(addr, zm1, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC6, Operand::YMM); }
+void vgatherpf0qpd(const Address& addr) { opGatherFetch(addr, zm1, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC7, Operand::ZMM); }
+void vgatherpf1dps(const Address& addr) { opGatherFetch(addr, zm2, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC6, Operand::ZMM); }
+void vgatherpf1qps(const Address& addr) { opGatherFetch(addr, zm2, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC7, Operand::ZMM); }
+void vgatherpf1dpd(const Address& addr) { opGatherFetch(addr, zm2, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC6, Operand::YMM); }
+void vgatherpf1qpd(const Address& addr) { opGatherFetch(addr, zm2, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC7, Operand::ZMM); }
+void vscatterpf0dps(const Address& addr) { opGatherFetch(addr, zm5, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC6, Operand::ZMM); }
+void vscatterpf0qps(const Address& addr) { opGatherFetch(addr, zm5, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC7, Operand::ZMM); }
+void vscatterpf0dpd(const Address& addr) { opGatherFetch(addr, zm5, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC6, Operand::YMM); }
+void vscatterpf0qpd(const Address& addr) { opGatherFetch(addr, zm5, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC7, Operand::ZMM); }
+void vscatterpf1dps(const Address& addr) { opGatherFetch(addr, zm6, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC6, Operand::ZMM); }
+void vscatterpf1qps(const Address& addr) { opGatherFetch(addr, zm6, T_66 | T_0F38 | T_EW0 | T_MUST_EVEX | T_N4, 0xC7, Operand::ZMM); }
+void vscatterpf1dpd(const Address& addr) { opGatherFetch(addr, zm6, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC6, Operand::YMM); }
+void vscatterpf1qpd(const Address& addr) { opGatherFetch(addr, zm6, T_66 | T_0F38 | T_EW1 | T_MUST_EVEX | T_N8, 0xC7, Operand::ZMM); }
 void vpscatterdd(const Address& addr, const Xmm& x) { opGather2(x, addr, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX | T_M_K | T_N4, 0xA0, 0); }
 void vpscatterdq(const Address& addr, const Xmm& x) { opGather2(x, addr, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_M_K | T_N8, 0xA0, 1); }
 void vpscatterqd(const Address& addr, const Xmm& x) { opGather2(x, addr, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX | T_M_K | T_N4, 0xA1, 2); }
