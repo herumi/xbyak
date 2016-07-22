@@ -1915,24 +1915,23 @@ private:
 		xx_yx_zy = 1,
 		xx_xy_yz = 2
 	};
-	void checkGather2(const Xmm& x, const Address& addr, int mode) const
+	void checkGather2(const Xmm& x1, const Reg& x2, int mode) const
 	{
-		if (x.hasZero()) throw Error(ERR_INVALID_ZERO);
-		const RegExp& re = addr.getRegExp();
-		if (x.isXMM() && re.isVsib(128)) return;
+		if (x1.isXMM() && x2.isXMM()) return;
 		switch (mode) {
-		case xx_yy_zz: if ((x.isYMM() && re.isVsib(256)) || (x.isZMM() && re.isVsib(512))) return;
+		case xx_yy_zz: if ((x1.isYMM() && x2.isYMM()) || (x1.isZMM() && x2.isZMM())) return;
 			break;
-		case xx_yx_zy: if ((x.isYMM() && re.isVsib(128)) || (x.isZMM() && re.isVsib(256))) return;
+		case xx_yx_zy: if ((x1.isYMM() && x2.isXMM()) || (x1.isZMM() && x2.isYMM())) return;
 			break;
-		case xx_xy_yz: if ((x.isXMM() && re.isVsib(256)) || (x.isYMM() && re.isVsib(512))) return;
+		case xx_xy_yz: if ((x1.isXMM() && x2.isYMM()) || (x1.isYMM() && x2.isZMM())) return;
 			break;
 		}
 		throw Error(ERR_BAD_VSIB_ADDRESSING);
 	}
 	void opGather2(const Xmm& x, const Address& addr, int type, uint8 code, int mode)
 	{
-		checkGather2(x, addr, mode);
+		if (x.hasZero()) throw Error(ERR_INVALID_ZERO);
+		checkGather2(x, addr.getRegExp().getIndex(), mode);
 		addr.permitVsib();
 		opVex(x, 0, addr, type, code);
 	}

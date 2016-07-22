@@ -293,4 +293,12 @@ void vrsqrt14pd(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | 
 void vrsqrt14ps(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX | T_B32, 0x4E); }
 void vrndscalepd(const Xmm& x, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(x, op, T_66 | T_0F3A | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0x09, imm); }
 void vrndscaleps(const Xmm& x, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(x, op, T_66 | T_0F3A | T_EW0 | T_YMM | T_MUST_EVEX | T_B32, 0x08, imm); }
+void vpscatterdd(const Address& addr, const Xmm& x) { opGather2(x, addr, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX | T_M_K | T_N4, 0xA0, 0); }
+void vpscatterdq(const Address& addr, const Xmm& x) { opGather2(x, addr, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_M_K | T_N8, 0xA0, 1); }
+void vpscatterqd(const Address& addr, const Xmm& x) { opGather2(x, addr, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX | T_M_K | T_N4, 0xA1, 2); }
+void vpscatterqq(const Address& addr, const Xmm& x) { opGather2(x, addr, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_M_K | T_N8, 0xA1, 0); }
+void vscatterdps(const Address& addr, const Xmm& x) { opGather2(x, addr, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX | T_M_K | T_N4, 0xA2, 0); }
+void vscatterdpd(const Address& addr, const Xmm& x) { opGather2(x, addr, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_M_K | T_N8, 0xA2, 1); }
+void vscatterqps(const Address& addr, const Xmm& x) { opGather2(x, addr, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX | T_M_K | T_N4, 0xA3, 2); }
+void vscatterqpd(const Address& addr, const Xmm& x) { opGather2(x, addr, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_M_K | T_N8, 0xA3, 0); }
 #endif

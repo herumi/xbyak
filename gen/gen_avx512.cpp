@@ -465,13 +465,13 @@ void putCvt()
 	puts("#endif");
 }
 
+enum { // same as xbyak.h
+	xx_yy_zz = 0,
+	xx_yx_zy = 1,
+	xx_xy_yz = 2,
+};
 void putGather()
 {
-	enum { // same as xbyak.h
-		xx_yy_zz = 0,
-		xx_yx_zy = 1,
-		xx_xy_yz = 2
-	};
 	const struct Tbl {
 		const char *name;
 		int type;
@@ -491,6 +491,30 @@ void putGather()
 		const Tbl& p = tbl[i];
 		std::string type = type2String(p.type);
 		printf("void %s(const Xmm& x, const Address& addr) { opGather2(x, addr, %s, 0x%02X, %d); }\n", p.name, type.c_str(), p.code, p.mode);
+	}
+}
+void putScatter()
+{
+	const struct Tbl {
+		const char *name;
+		int type;
+		uint8 code;
+		int mode; // reverse of gather
+	} tbl[] = {
+		{ "vpscatterdd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_N4 | T_M_K, 0xA0, xx_yy_zz },
+		{ "vpscatterdq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N8 | T_M_K, 0xA0, xx_yx_zy },
+		{ "vpscatterqd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_N4 | T_M_K, 0xA1, xx_xy_yz },
+		{ "vpscatterqq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N8 | T_M_K, 0xA1, xx_yy_zz },
+
+		{ "vscatterdps", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_N4 | T_M_K, 0xA2, xx_yy_zz },
+		{ "vscatterdpd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N8 | T_M_K, 0xA2, xx_yx_zy },
+		{ "vscatterqps", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_N4 | T_M_K, 0xA3, xx_xy_yz },
+		{ "vscatterqpd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N8 | T_M_K, 0xA3, xx_yy_zz },
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		const Tbl& p = tbl[i];
+		std::string type = type2String(p.type);
+		printf("void %s(const Address& addr, const Xmm& x) { opGather2(x, addr, %s, 0x%02X, %d); }\n", p.name, type.c_str(), p.code, p.mode);
 	}
 }
 
@@ -606,5 +630,6 @@ int main()
 	putMov();
 	putX_XM_IMM();
 	putMisc();
+	putScatter();
 	puts("#endif");
 }

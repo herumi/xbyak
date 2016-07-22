@@ -30,12 +30,13 @@ const uint64 MEM32 = 1ULL << 17;
 const uint64 VM32Z = 1ULL << 19;
 const uint64 K_K = 1ULL << 20;
 const uint64 MEM_ONLY_DISP = 1ULL << 21;
-//const uint64 QQQ = 1ULL << 23;
+const uint64 VM32X_K = 1ULL << 23;
 const uint64 _YMM = 1ULL << 24;
 const uint64 VM32X_32 = 1ULL << 39;
 const uint64 VM32X_64 = 1ULL << 40;
 const uint64 VM32Y_32 = 1ULL << 41;
 const uint64 VM32Y_64 = 1ULL << 42;
+const uint64 VM32Z_K = 1ULL << 32;
 #ifdef XBYAK64
 const uint64 _MEMe = 1ULL << 25;
 const uint64 REG32_2 = 1ULL << 26; // r8d, ...
@@ -44,7 +45,6 @@ const uint64 REG8_2 = 1ULL << 28; // r8b, ...
 const uint64 REG8_3 = 1ULL << 29; // spl, ...
 const uint64 _REG64 = 1ULL << 30; // rax, ...
 const uint64 _REG64_2 = 1ULL << 31; // r8, ...
-const uint64 RAX = 1ULL << 32;
 const uint64 _XMM2 = 1ULL << 33;
 const uint64 _YMM2 = 1ULL << 34;
 const uint64 VM32X = VM32X_32 | VM32X_64;
@@ -57,13 +57,12 @@ const uint64 REG8_2 = 0;
 const uint64 REG8_3 = 0;
 const uint64 _REG64 = 0;
 const uint64 _REG64_2 = 0;
-const uint64 RAX = 0;
 const uint64 _XMM2 = 0;
 const uint64 _YMM2 = 0;
 const uint64 VM32X = VM32X_32;
 const uint64 VM32Y = VM32Y_32;
 #endif
-const uint64 REG64 = _REG64 | _REG64_2 | RAX;
+const uint64 REG64 = _REG64 | _REG64_2;
 const uint64 REG32 = _REG32 | REG32_2 | EAX;
 const uint64 REG16 = _REG16 | REG16_2 | AX;
 const uint64 REG32e = REG32 | REG64;
@@ -71,7 +70,7 @@ const uint64 REG8 = _REG8 | REG8_2|AL;
 const uint64 MEM = _MEM | _MEMe;
 const uint64 MEM64 = 1ULL << 35;
 const uint64 YMM_ER = 1ULL << 36;
-const uint64 STi = 1ULL << 37;
+const uint64 VM32Y_K = 1ULL << 37;
 const uint64 IMM_2 = 1ULL << 38;
 const uint64 IMM = IMM_1 | IMM_2;
 const uint64 XMM = _XMM | _XMM2;
@@ -171,9 +170,6 @@ class Test {
 	const char *get(uint64 type) const
 	{
 		int idx = (rand() / 31) & 7;
-		if (type == STi) {
-			return "st2";
-		}
 		switch (type) {
 		case _XMM:
 			{
@@ -326,8 +322,6 @@ class Test {
 				};
 				return Reg8_3Tbl[idx];
 			}
-		case RAX:
-			return "rax";
 #endif
 		case EAX:
 			return "eax";
@@ -353,6 +347,12 @@ class Test {
 			return isXbyak_ ? "ptr [ymm4]" : "[ymm4]";
 		case VM32Y_64:
 			return isXbyak_ ? "ptr [64+ymm13*2+r13]" : "[64+ymm13*2+r13]";
+		case VM32X_K:
+			return isXbyak_ ? "ptr [64+xmm13*2+r13] | k6" : "[64+xmm13*2+r13]{k6}";
+		case VM32Y_K:
+			return isXbyak_ ? "ptr [64+ymm13*2+r13] | k6" : "[64+ymm13*2+r13]{k6}";
+		case VM32Z_K:
+			return isXbyak_ ? "ptr [64+zmm13*2+r13] | k6" : "[64+zmm13*2+r13]{k6}";
 		case VM32Z:
 			return isXbyak_ ? "ptr [64+zmm13*2+rcx]" : "[64+zmm13*2+rcx]";
 		case M_1to2: return isXbyak_ ? "ptr_b [eax+32]" : "[eax+32]{1to2}";
@@ -1547,14 +1547,14 @@ public:
 		put("vcvtusi2ss", XMM, XMM_ER, REG32 | REG64);
 #endif
 	}
+	enum {
+		xx_yy_zz,
+		xx_yx_zy,
+		xx_xy_yz
+	};
 	void putGather()
 	{
 #ifdef XBYAK64
-		enum {
-			xx_yy_zz,
-			xx_yx_zy,
-			xx_xy_yz
-		};
 		const struct Tbl {
 			const char *name;
 			int mode;
@@ -1585,6 +1585,45 @@ public:
 				put(p.name, XMM_K, VM32X);
 				put(p.name, XMM_K, VM32Y);
 				put(p.name, YMM_K, VM32Z);
+				break;
+			}
+		}
+#endif
+	}
+	void putScatter()
+	{
+#ifdef XBYAK64
+		const struct Tbl {
+			const char *name;
+			int mode;
+		} tbl[] = {
+			{ "vpscatterdd", xx_yy_zz },
+			{ "vpscatterdq", xx_xy_yz },
+			{ "vpscatterqd", xx_yx_zy },
+			{ "vpscatterqq", xx_yy_zz },
+
+			{ "vscatterdps", xx_yy_zz },
+			{ "vscatterdpd", xx_xy_yz },
+			{ "vscatterqps", xx_yx_zy },
+			{ "vscatterqpd", xx_yy_zz },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl& p = tbl[i];
+			switch (p.mode) {
+			case xx_yy_zz:
+				put(p.name, VM32X_K, _XMM);
+				put(p.name, VM32Y_K, _YMM);
+				put(p.name, VM32Z_K, _ZMM);
+				break;
+			case xx_yx_zy:
+				put(p.name, VM32X_K, _XMM);
+				put(p.name, VM32Y_K, _XMM);
+				put(p.name, VM32Z_K, _YMM);
+				break;
+			case xx_xy_yz:
+				put(p.name, VM32X_K, _XMM);
+				put(p.name, VM32X_K, _YMM);
+				put(p.name, VM32Y_K, _ZMM);
 				break;
 			}
 		}
@@ -1929,6 +1968,7 @@ public:
 	void putMin()
 	{
 #ifdef XBYAK64
+		putScatter();
 #endif
 	}
 	void putAVX512()
@@ -1985,6 +2025,8 @@ public:
 		putMov();
 		separateFunc();
 		putRot();
+		separateFunc();
+		putScatter();
 #endif
 	}
 };
