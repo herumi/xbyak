@@ -143,18 +143,23 @@ vaddpd xmm1, xmm2, [rax+256]{1to2}      --> vaddpd(xmm1, xmm2, ptr_b [rax+256]);
 vaddpd ymm1, ymm2, [rax+256]{1to4}      --> vaddpd(ymm1, ymm2, ptr_b [rax+256]);
 vaddpd zmm1, zmm2, [rax+256]{1to8}      --> vaddpd(zmm1, zmm2, ptr_b [rax+256]);
 vaddps zmm1, zmm2, [rax+rcx*8+8]{1to16} --> vaddps(zmm1, zmm2, ptr_b [rax+rcx*8+8]);
-vmovsd [rax]{k1}, xmm4                  --> vmovsd (ptr [rax] | k1, xmm4);
+vmovsd [rax]{k1}, xmm4                  --> vmovsd(ptr [rax] | k1, xmm4);
 
 vcvtpd2dq xmm16, oword [eax+33]         --> vcvtpd2dq(xmm16, ptr [eax+33]); // default oword(m128)
 vcvtpd2dq xmm21, [eax+32]{1to2}         --> vcvtpd2dq(xmm21, ptr_b [eax+32]);
 vcvtpd2dq xmm0, yword [eax+33]          --> vcvtpd2dq(xmm0, yword [eax+33]); // use yword for m256
 vcvtpd2dq xmm19, [eax+32]{1to4}         --> vcvtpd2dq(xmm19, yword_b [eax+32]); // use yword_b to broadcast
+
+vfpclassps k5{k3}, zword [rax+64], 5    --> vfpclassps(k5|k3, zword [rax+64], 5); // specify m512
+vfpclasspd k5{k3}, [rax+64]{1to2}, 5    --> vfpclasspd(k5|k3, xword_b [rax+64], 5); // broadcast 64-bit to 128-bit
+vfpclassps k5{k3}, [rax+64]{1to4}, 5    --> vfpclassps(k5|k3, xword_b [rax+64], 5); // broadcast 32-bit to 128-bit
 ```
 Remark
 * k1, ..., k7 are new opmask registers.
 * use `| T_z`, `| T_sae`, `| T_rn_sae`, `| T_rd_sae`, `| T_ru_sae`, `| T_rz_sae` instead of `,{z}`, `,{sae}`, `,{rn-sae}`, `,{rd-sae}`, `,{ru-sae}`, `,{rz-sae}` respectively.
 * `k4 | k3` is different from `k3 | k4`.
-* use `ptr_b`, `yword_b' for broadcast `{1toX}`. X is automatically determined.
+* use `ptr_b` for broadcast `{1toX}`. X is automatically determined.
+* specify xword/yword/zword(_b) for m128/m256/m512.
 
 ### Label
 

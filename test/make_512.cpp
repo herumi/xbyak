@@ -1755,6 +1755,7 @@ public:
 			{ "vpermt2ps", M_1to4 },
 			{ "vpermt2pd", M_1to2 },
 
+			{ "vpermi2b", 0 },
 			{ "vpermi2w", 0 },
 			{ "vpermi2d", M_1to4 },
 			{ "vpermi2q", M_1to2 },
@@ -2085,6 +2086,7 @@ public:
 	void putMin()
 	{
 #ifdef XBYAK64
+		putClass();
 #endif
 	}
 	void putAVX512()

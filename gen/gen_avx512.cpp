@@ -282,6 +282,7 @@ void putX_X_XM_IMM()
 		{ 0x7F, "vpermt2ps", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, false },
 		{ 0x7F, "vpermt2pd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
 
+		{ 0x75, "vpermi2b", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, false },
 		{ 0x75, "vpermi2w", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, false },
 		{ 0x76, "vpermi2d", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, false },
 		{ 0x76, "vpermi2q", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
