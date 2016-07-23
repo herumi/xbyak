@@ -2523,9 +2523,6 @@ public:
 			nop();
 		}
 	}
-#ifndef XBYAK_DISABLE_AVX512
-#include "xbyak_avx512.h"
-#endif
 #endif
 };
 
