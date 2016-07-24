@@ -1819,15 +1819,11 @@ private:
 	}
 	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, int imm8 = NONE)
 	{
-		const Xmm *x2;
-		const Operand *op;
-		if (op2.isNone()) {
+		const Xmm *x2 = static_cast<const Xmm*>(&op1);
+		const Operand *op = &op2;
+		if (op2.isNone()) { // (x1, op1) -> (x1, x1, op1)
 			x2 = &x1;
 			op = &op1;
-		} else {
-			if (!(op1.isXMM() || ((type & T_YMM) && op1.is(Operand::YMM | Operand::ZMM)))) throw Error(ERR_BAD_COMBINATION);
-			x2 = static_cast<const Xmm*>(&op1);
-			op = &op2;
 		}
 		// (x1, x2, op)
 		if (!((x1.isXMM() && x2->isXMM()) || ((type & T_YMM) && ((x1.isYMM() && x2->isYMM()) || (x1.isZMM() && x2->isZMM()))))) throw Error(ERR_BAD_COMBINATION);
