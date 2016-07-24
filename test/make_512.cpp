@@ -2086,7 +2086,7 @@ public:
 	void putMin()
 	{
 #ifdef XBYAK64
-		putClass();
+		put("vextractf32x4", XMM_KZ, _YMM, IMM8);
 #endif
 	}
 	void putAVX512()

@@ -433,7 +433,7 @@ public:
 	// any bit is accetable if bit == 0
 	bool is(int kind, uint32 bit = 0) const
 	{
-		return (kind_ & kind) && (bit == 0 || (bit_ & bit)); // cf. you can set (8|16)
+		return (kind == 0 || (kind_ & kind)) && (bit == 0 || (bit_ & bit)); // cf. you can set (8|16)
 	}
 	bool isBit(uint32 bit) const { return (bit_ & bit) != 0; }
 	uint32 getBit() const { return bit_; }
@@ -1842,10 +1842,16 @@ private:
 	void opAVX_X_X_XMcvt(const Xmm& x1, bool copyAttr, const Operand& op1, const Operand& op2, bool cvt, Operand::Kind kind, int type, int code0, int imm8 = NONE)
 	{
 		Xmm x = x1;
-		if (copyAttr) { x.setOpmaskIdx(op2.getOpmaskIdx(), true); if (op2.hasZero()) x.setZero(); }
+//		if (copyAttr) { x.setOpmaskIdx(op2.getOpmaskIdx(), true); if (op2.hasZero()) x.setZero(); }
 		// use static_cast to avoid calling unintentional copy constructor on gcc
 		opAVX_X_X_XM(x, op1, cvt ? kind == Operand::XMM ? static_cast<const Operand&>(Xmm(op2.getIdx())) : static_cast<const Operand&>(Ymm(op2.getIdx())) : op2, type, code0, imm8);
 	}
+public:
+void vinsertf32x4_2(const Ymm& r1, const Ymm& r2, const Operand& op, uint8 imm)
+{
+//	opAVX_X_X_XMcvt(r1, false, r2, op, op.isXMM(), Operand::YMM, T_66 | T_0F3A | T_EW0 | T_YMM | T_MUST_EVEX | T_N16, 0x18, imm);
+	opVex(r1, &r2, op, T_66 | T_0F3A | T_EW0 | T_YMM | T_MUST_EVEX | T_N16, 0x18, imm);
+}
 	// (x, x/m), (y, x/m256), (z, y/m)
 	void checkCvt1(const Operand& x, const Operand& op) const
 	{

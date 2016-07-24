@@ -393,7 +393,8 @@ void putExtractInsert()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
 			std::string type = type2String(p.type);
-			printf("void %s(const Operand& op, const %s& r, uint8 imm) { opAVX_X_X_XMcvt(r, true, cvtIdx0(r), op, op.isXMM(), Operand::YMM, %s, 0x%2X, imm); }\n", p.name, p.isZMM ? "Zmm" : "Ymm", type.c_str(), p.code);
+			const char *kind = p.isZMM ? "Operand::MEM | Operand::YMM" : "Operand::MEM | Operand::XMM";
+			printf("void %s(const Operand& op, const %s& r, uint8 imm) { if (!op.is(%s)) throw Error(ERR_BAD_COMBINATION); opVex(r, 0, op, %s, 0x%2X, imm); }\n", p.name, p.isZMM ? "Zmm" : "Ymm", kind, type.c_str(), p.code);
 		}
 	}
 	{
@@ -417,7 +418,10 @@ void putExtractInsert()
 			const Tbl& p = tbl[i];
 			std::string type = type2String(p.type);
 			const char *x = p.isZMM ? "Zmm" : "Ymm";
-			printf("void %s(const %s& r1, const %s& r2, const Operand& op, uint8 imm) { opAVX_X_X_XMcvt(r1, false, r2, op, op.isXMM(), Operand::YMM, %s, 0x%2X, imm); }\n", p.name, x, x, type.c_str(), p.code);
+			const char *cond = p.isZMM ? "op.is(Operand::MEM | Operand::YMM)" : "(r1.getKind() == r2.getKind() && op.is(Operand::MEM | Operand::XMM))";
+			printf("void %s(const %s& r1, const %s& r2, const Operand& op, uint8 imm) {"
+				"if (!%s) throw Error(ERR_BAD_COMBINATION); "
+				"opVex(r1, &r2, op, %s, 0x%2X, imm); }\n", p.name, x, x, cond, type.c_str(), p.code);
 		}
 	}
 }
