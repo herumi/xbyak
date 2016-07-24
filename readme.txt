@@ -128,6 +128,8 @@ vfmadd231pd(xmm1, xmm2, xmm3); // xmm1 <- (xmm2 * xmm3) + xmm1
 ・AVX-512
 
 vaddpd zmm2, zmm5, zmm30                --> vaddpd(zmm2, zmm5, zmm30);
+vaddpd xmm30, xmm20, [rax]              --> vaddpd(xmm30, xmm20, ptr [rax]);
+vaddps xmm30, xmm20, [rax]              --> vaddps(xmm30, xmm20, ptr [rax]);
 vaddpd zmm2{k5}, zmm4, zmm2             --> vaddpd(zmm2 | k5, zmm4, zmm2);
 vaddpd zmm2{k5}{z}, zmm4, zmm2          --> vaddpd(zmm2 | k5 | T_z, zmm4, zmm2);
 vaddpd zmm2{k5}{z}, zmm4, zmm2,{rd-sae} --> vaddpd(zmm2 | k5 | T_z, zmm4, zmm2 | T_rd_sae);
@@ -333,6 +335,7 @@ cybozulibは単体テストでのみ利用されていて、xbyak/ディレク�
 -----------------------------------------------------------------------------
 ◎履歴
 
+2016/07/24 ver 5.00 avx-512フルサポート
 2016/06/13 avx-512 opmask命令サポート
 2016/05/05 ver 4.91 AVX-512命令の検出サポート
 2016/03/14 ver 4.901 ready()関数にコメント加筆(thanks to skmp)

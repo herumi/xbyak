@@ -1,5 +1,5 @@
 
-Xbyak 5.00beta ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.00 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -14,7 +14,7 @@ you can use Xbyak's functions at once if xbyak.h is included.
 
 ### Supported Instructions Sets
 
-MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(*partial*)/AVX/AVX2/FMA/VEX-encoded GPR
+MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(*partial*)/AVX/AVX2/FMA/VEX-encoded GPR/AVX-512
 
 ### Supported OS
 
@@ -49,42 +49,10 @@ Linux:
 
 These files are copied into /usr/local/include/xbyak
 
-Break backward compatibility
--------------
-* change the type of Xbyak::Error from enum to a class.
-** get the enum value by cast to int.
-* An (old) Reg32e class will split (new) Reg32e class and (new) RegExp.
-(new) Reg32e class is Reg32 or Reg64.
-(new) RegExp class is to deal with 'Reg32e + Reg32e * scale + disp'.
-Please rename Reg32e as RegExp if you use (old) Reg32e as RegExp.
-
 New Feature
 -------------
 
-* Use MmapAllocator if XBYAK_USE_MMAP_ALLOCATOR.
-Default allocator calls posix_memalign on Linux, then mprotect recudes map count.
-The max value is written in  ```/proc/sys/vm/max_map_count```.
-The max number of instances of ```Xbyak::CodeGenerator``` is limited to the value.
-See ```test/mprotect_test.cpp```.
-Use MmapAllocator if you want to avoid the restriction(This behavior may be default in the feature).
-
-
-* AutoGrow mode is a mode that Xbyak grows memory automatically if necessary.
-Call ready() before calling getCode() to calc address of jmp.
-```
-    struct Code : Xbyak::CodeGenerator {
-      Code()
-        : Xbyak::CodeGenerator(<default memory size>, Xbyak::AutoGrow)
-      {
-         ...
-      }
-    };
-    Code c;
-    c.ready(); // Don't forget to call this function
-```
->Don't use the address returned by getCurr() before calling ready().
->It may be invalid address.
->RESTRICTION : rip addressing is not supported in AutoGrow
+Add support for AVX-512 instruction set.
 
 Syntax
 -------------
@@ -133,6 +101,8 @@ You can omit a destination for almost 3-op mnemonics.
 
 ```
 vaddpd zmm2, zmm5, zmm30                --> vaddpd(zmm2, zmm5, zmm30);
+vaddpd xmm30, xmm20, [rax]              --> vaddpd(xmm30, xmm20, ptr [rax]);
+vaddps xmm30, xmm20, [rax]              --> vaddps(xmm30, xmm20, ptr [rax]);
 vaddpd zmm2{k5}, zmm4, zmm2             --> vaddpd(zmm2 | k5, zmm4, zmm2);
 vaddpd zmm2{k5}{z}, zmm4, zmm2          --> vaddpd(zmm2 | k5 | T_z, zmm4, zmm2);
 vaddpd zmm2{k5}{z}, zmm4, zmm2,{rd-sae} --> vaddpd(zmm2 | k5 | T_z, zmm4, zmm2 | T_rd_sae);
@@ -217,7 +187,7 @@ inLocalLabel() and outLocalLabel() can be nested.
         inLocalLabel();
     }
 
-### New Label class
+### Label class
 
 L() and jxx() functions support a new Label class.
 
@@ -284,6 +254,26 @@ You can make jit code on prepaired memory.
 
 >See *sample/test0.cpp*
 
+AutoGrow
+-------------
+
+Under `AutoGrow` mode, Xbyak extends memory automatically if necessary.
+Call ready() before calling getCode() to calc address of jmp.
+```
+    struct Code : Xbyak::CodeGenerator {
+      Code()
+        : Xbyak::CodeGenerator(<default memory size>, Xbyak::AutoGrow)
+      {
+         ...
+      }
+    };
+    Code c;
+    c.ready(); // Don't forget to call this function
+```
+>Don't use the address returned by getCurr() before calling ready().
+>It may be invalid address.
+>RESTRICTION : rip addressing is not supported in AutoGrow
+
 Macro
 -------------
 
@@ -318,6 +308,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2016/Jun/24 ver 5.00 support avx-512 instruction set
 * 2016/Jun/13 avx-512 add mask instructions
 * 2016/May/05 ver 4.91 add detection of AVX-512 to Xbyak::util::Cpu
 * 2016/Mar/14 ver 4.901 comment to ready() function(thanks to skmp)
