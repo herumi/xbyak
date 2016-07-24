@@ -391,6 +391,9 @@ public:
 	bool isXMM() const { return is(XMM); }
 	bool isYMM() const { return is(YMM); }
 	bool isZMM() const { return is(ZMM); }
+	bool isXMEM() const { return is(XMM | MEM); }
+	bool isYMEM() const { return is(YMM | MEM); }
+	bool isZMEM() const { return is(ZMM | MEM); }
 	bool isOPMASK() const { return is(OPMASK); }
 	bool isREG(int bit = 0) const { return is(REG, bit); }
 	bool isMEM(int bit = 0) const { return is(MEM, bit); }
@@ -1375,6 +1378,7 @@ private:
 		bool r = reg.isExtIdx();
 		bool b = base.isExtIdx();
 		int idx = v ? v->getIdx() : 0;
+		if ((idx | reg.getIdx() | base.getIdx()) >= 16) throw Error(ERR_BAD_COMBINATION);
 		uint32 pp = (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0;
 		uint32 vvvv = (((~idx) & 15) << 3) | (is256 ? 4 : 0) | pp;
 		if (!b && !x && !w && (type & T_0F)) {
@@ -1834,20 +1838,6 @@ private:
 		if (!op3.isMEM() && (x2.getKind() != op3.getKind())) throw Error(ERR_BAD_COMBINATION);
 		opVex(k, &x2, op3, type, code0, imm8);
 	}
-	// if cvt then return pointer to Xmm(idx) (or Ymm(idx)), otherwise return op
-	void opAVX_X_X_XMcvt(const Xmm& x1, bool copyAttr, const Operand& op1, const Operand& op2, bool cvt, Operand::Kind kind, int type, int code0, int imm8 = NONE)
-	{
-		Xmm x = x1;
-//		if (copyAttr) { x.setOpmaskIdx(op2.getOpmaskIdx(), true); if (op2.hasZero()) x.setZero(); }
-		// use static_cast to avoid calling unintentional copy constructor on gcc
-		opAVX_X_X_XM(x, op1, cvt ? kind == Operand::XMM ? static_cast<const Operand&>(Xmm(op2.getIdx())) : static_cast<const Operand&>(Ymm(op2.getIdx())) : op2, type, code0, imm8);
-	}
-public:
-void vinsertf32x4_2(const Ymm& r1, const Ymm& r2, const Operand& op, uint8 imm)
-{
-//	opAVX_X_X_XMcvt(r1, false, r2, op, op.isXMM(), Operand::YMM, T_66 | T_0F3A | T_EW0 | T_YMM | T_MUST_EVEX | T_N16, 0x18, imm);
-	opVex(r1, &r2, op, T_66 | T_0F3A | T_EW0 | T_YMM | T_MUST_EVEX | T_N16, 0x18, imm);
-}
 	// (x, x/m), (y, x/m256), (z, y/m)
 	void checkCvt1(const Operand& x, const Operand& op) const
 	{
@@ -1864,10 +1854,15 @@ void vinsertf32x4_2(const Ymm& r1, const Ymm& r2, const Operand& op, uint8 imm)
 		Operand::Kind kind = x.isXMM() ? (op.isBit(256) ? Operand::YMM : Operand::XMM) : Operand::ZMM;
 		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
 	}
-
+	void opCvt3(const Xmm& x1, const Xmm& x2, const Operand& op, int type, int type64, int type32, uint8 code)
+	{
+		if (!(x1.isXMM() && x2.isXMM() && (op.isREG(i32e) || op.isMEM()))) throw Error(ERR_BAD_SIZE_OF_REGISTER);
+		Xmm x(op.getIdx());
+		const Operand *p = op.isREG() ? &x : &op;
+		opVex(x1, &x2, *p, type | (op.isBit(64) ? type64 : type32), code);
+	}
 	const Xmm& cvtIdx0(const Operand& x) const
 	{
-//		assert(!x.isMEM()); // QQQ
 		return x.isZMM() ? zm0 : x.isYMM() ? ym0 : xm0;
 	}
 	// support (x, x/m, imm), (y, y/m, imm)
