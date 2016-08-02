@@ -676,9 +676,7 @@ int main()
 	putX_X_XM_IMM();
 	putShift();
 	putExtractInsert();
-#ifdef XBYAK64
 	putBroadcast();
-#endif
 	putCvt();
 	putGather();
 	putShuff();
