@@ -1,5 +1,5 @@
 
-Xbyak 5.00 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.01 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -32,7 +32,7 @@ MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(*partial*)/AVX/AVX2/FMA/VEX-encoded GPR/AV
 
 >Note: Xbyak uses and(), or(), xor(), not() functions, so "-fno-operator-names" option is required on gcc.
 Or define XBYAK_NO_OP_NAMES and use and_(), or_(), xor_(), not_() instead of them.
-and_(), or_(), xor_(), not_() are available if XBYAK_NO_OP_NAMES is not defined.
+and_(), or_(), xor_(), not_() are always available.
 
 Install
 -------------
@@ -40,7 +40,6 @@ Install
 The following files are necessary. Please add the path to your compile directories.
 
 * xbyak.h
-* xbyak_bin2hex.h
 * xbyak_mnemonic.h
 
 Linux:
@@ -90,12 +89,17 @@ mov ax, cs        --> mov(ax, cs);
 
 ### AVX
 
-You can omit a destination for almost 3-op mnemonics.
-
     vaddps(xmm1, xmm2, xmm3); // xmm1 <- xmm2 + xmm3
-    vaddps(xmm2, xmm3); // xmm2 <- xmm2 + xmm3
     vaddps(xmm2, xmm3, ptr [rax]); // use ptr to access memory
     vgatherdpd(xmm1, ptr [ebp+123+xmm2*4], xmm3);
+
+*Remark*
+The omitted destination syntax as the following ss disabled.
+```
+    vaddps(xmm2, xmm3); // xmm2 <- xmm2 + xmm3
+``
+define `XBYAK_ENABLE_OMITTED_OPERAND` if you use it for backward compatibility.
+But the newer version will not support it.
 
 ### AVX-512
 
@@ -282,6 +286,8 @@ Macro
 * **XBYAK64** is defined on 64bit.
 * **XBYAK64_WIN** is defined on 64bit Windows(VC)
 * **XBYAK64_GCC** is defined on 64bit gcc, cygwin
+* define **XBYAK_NO_OP_NAMES** on gcc without `-fno-operator-names`
+* define **XBYAK_ENABLE_OMITTED_OPERAND** if you use omitted destination such as `vaddps(xmm2, xmm3);`(duplicated in the future)
 
 Sample
 -------------
@@ -309,6 +315,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2016/Aug/03 ver 5.01 disable omitted operand
 * 2016/Jun/24 ver 5.00 support avx-512 instruction set
 * 2016/Jun/13 avx-512 add mask instructions
 * 2016/May/05 ver 4.91 add detection of AVX-512 to Xbyak::util::Cpu

@@ -103,7 +103,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5000 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5010 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1042,7 +1042,7 @@ public:
 	static inline std::string toStr(int num)
 	{
 		char buf[16];
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
 		_snprintf_s
 #else
 		snprintf
@@ -1411,7 +1411,7 @@ private:
 		T_RD_SAE = 2,
 		T_RU_SAE = 3,
 		T_RZ_SAE = 4,
-		T_SAE = 5,
+		T_SAE = 5
 	};
 	int evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool b = false, int aaa = 0, uint32 VL = 0)
 	{

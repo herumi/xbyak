@@ -1,4 +1,5 @@
 #include <stdio.h>
+#define XBYAK_ENABLE_OMITTED_OPERAND
 #include "xbyak/xbyak.h"
 
 using namespace Xbyak;
