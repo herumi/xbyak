@@ -97,7 +97,7 @@ mov ax, cs        --> mov(ax, cs);
 The omitted destination syntax as the following ss disabled.
 ```
     vaddps(xmm2, xmm3); // xmm2 <- xmm2 + xmm3
-``
+```
 define `XBYAK_ENABLE_OMITTED_OPERAND` if you use it for backward compatibility.
 But the newer version will not support it.
 
