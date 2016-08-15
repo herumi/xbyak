@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "xbyak/xbyak.h"
+#include "xbyak/xbyak_bin2hex.h"
 #include <stdlib.h>
 #include <string.h>
 #include "cybozu/inttype.hpp"

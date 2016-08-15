@@ -31,6 +31,12 @@
 	#undef XBYAK_USE_MMAP_ALLOCATOR
 #endif
 
+#ifdef __GNUC__
+	#define XBYAK_GNUC_PREREQ(major, minor) ((__GNUC__) * 100 + (__GNUC_MINOR__) >= (major) * 100 + (minor))
+#else
+	#define XBYAK_GNUC_PREREQ(major, minor) 0
+#endif
+
 // This covers -std=(gnu|c)++(0x|11|1y), -stdlib=libc++, and modern Microsoft.
 #if ((defined(_MSC_VER) && (_MSC_VER >= 1600)) || defined(_LIBCPP_VERSION) ||\
 	 			 ((__cplusplus >= 201103) || defined(__GXX_EXPERIMENTAL_CXX0X__)))
@@ -38,13 +44,11 @@
 	#define XBYAK_STD_UNORDERED_MAP std::unordered_map
 	#define XBYAK_STD_UNORDERED_MULTIMAP std::unordered_multimap
 
-// Clang/llvm-gcc and ICC-EDG in 'GCC-mode' always claim to be GCC 4.2, using
-// libstdcxx 20070719 (from GCC 4.2.1, the last GPL 2 version).
-// These headers have been expanded/fixed in various forks.
-// In F.S.F. 'real' GCC, issues with the tr headers were resolved in GCC 4.5.
-#elif defined(__GNUC__) && (__GNUC__ >= 4) && ((__GNUC_MINOR__ >= 5) || \
-								 ((__GLIBCXX__ >= 20070719) && (__GNUC_MINOR__ >= 2) && \
-									(defined(__INTEL_COMPILER) || defined(__llvm__))))
+/*
+	Clang/llvm-gcc and ICC-EDG in 'GCC-mode' always claim to be GCC 4.2, using
+	libstdcxx 20070719 (from GCC 4.2.1, the last GPL 2 version).
+*/
+#elif XBYAK_GNUC_PREREQ(4, 5) || (XBYAK_GNUC_PREREQ(4, 2) && __GLIBCXX__ >= 20070719) || defined(__INTEL_COMPILER) || defined(__llvm__)
 	#include <tr1/unordered_map>
 	#define XBYAK_STD_UNORDERED_MAP std::tr1::unordered_map
 	#define XBYAK_STD_UNORDERED_MULTIMAP std::tr1::unordered_multimap
@@ -99,11 +103,9 @@
 
 namespace Xbyak {
 
-#include "xbyak_bin2hex.h"
-
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5010 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5020 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED

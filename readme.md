@@ -1,5 +1,5 @@
 
-Xbyak 5.01 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.02 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -297,12 +297,6 @@ Sample
 * calc.cpp ; assemble and estimate a given polynomial(x86, x64)
 * bf.cpp ; JIT brainfuck(x86, x64)
 
-Remark
--------------
-
-The current version does not support 3D Now!, 80bit FPU load/store and some special mnemonics.
-Please mail to me if necessary.
-
 License
 -------------
 
@@ -315,6 +309,8 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2016/Aug/15 ver 5.02 xbyak does not include xbyak_bin2hex.h
+* 2016/Aug/15 ver 5.011 fix detection of version of gcc 5.4
 * 2016/Aug/03 ver 5.01 disable omitted operand
 * 2016/Jun/24 ver 5.00 support avx-512 instruction set
 * 2016/Jun/13 avx-512 add mask instructions
