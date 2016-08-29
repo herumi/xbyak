@@ -405,5 +405,5 @@ History
 Author
 -------------
 
-MITSUNARI Shigeo(herumi at nifty dot com)
+MITSUNARI Shigeo(herumi@nifty.com)
 
