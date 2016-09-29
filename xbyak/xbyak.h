@@ -998,6 +998,7 @@ inline bool Operand::operator==(const Operand& rhs) const
 
 class AddressFrame {
 	void operator=(const AddressFrame&);
+	AddressFrame(const AddressFrame&);
 public:
 	const uint32 bit_;
 	const bool broadcast_;

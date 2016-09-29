@@ -310,7 +310,7 @@ class Pack {
 	const Xbyak::Reg64 *tbl_[maxTblNum];
 	size_t n_;
 public:
-	Pack() : n_(0) {}
+	Pack() : tbl_(), n_(0) {}
 	Pack(const Xbyak::Reg64 *tbl, size_t n) { init(tbl, n); }
 	Pack(const Pack& rhs)
 		: n_(rhs.n_)

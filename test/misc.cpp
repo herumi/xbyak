@@ -42,26 +42,26 @@ CYBOZU_TEST_AUTO(mov_const)
 				int bit;
 				bool error;
 			} tbl[] = {
-				{ -1, 8, false },
+				{ uint64_t(-1), 8, false },
 				{ 0x12, 8, false },
 				{ 0x80, 8, false },
 				{ 0xff, 8, false },
 				{ 0x100, 8, true },
 
 				{ 1, 16, false },
-				{ -1, 16, false },
+				{ uint64_t(-1), 16, false },
 				{ 0x7fff, 16, false },
 				{ 0xffff, 16, false },
 				{ 0x10000, 16, true },
 
-				{ -1, 32, false },
+				{ uint64_t(-1), 32, false },
 				{ 0x7fffffff, 32, false },
-				{ -0x7fffffff, 32, false },
+				{ uint64_t(-0x7fffffff), 32, false },
 				{ 0xffffffff, 32, false },
 				{ 0x100000000ull, 32, true },
 
 #ifdef XBYAK64
-				{ -1, 64, false },
+				{ uint64_t(-1), 64, false },
 				{ 0x7fffffff, 64, false },
 				{ 0xffffffffffffffffull, 64, false },
 				{ 0x80000000, 64, true },
