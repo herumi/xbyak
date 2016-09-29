@@ -1,5 +1,5 @@
 
-Xbyak 5.02 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.03 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -309,6 +309,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2016/Sep/29 ver 5.03 fix detection ERR_INVALID_OPMASK_WITH_MEMORY(thanks to PVS-Studio)
 * 2016/Aug/15 ver 5.02 xbyak does not include xbyak_bin2hex.h
 * 2016/Aug/15 ver 5.011 fix detection of version of gcc 5.4
 * 2016/Aug/03 ver 5.01 disable omitted operand

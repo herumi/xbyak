@@ -105,7 +105,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5020 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5030 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1830,7 +1830,7 @@ private:
 			bool x = addr.getRegExp().getIndex().isExtIdx();
 			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || addr.isBroadcast() || addr.getOpmaskIdx()) {
 				int aaa = addr.getOpmaskIdx();
-				if (aaa & !(type & T_M_K)) throw Error(ERR_INVALID_OPMASK_WITH_MEMORY);
+				if (aaa && !(type & T_M_K)) throw Error(ERR_INVALID_OPMASK_WITH_MEMORY);
 				bool b = false;
 				if (addr.isBroadcast()) {
 					if (!(type & (T_B32 | T_B64))) throw Error(ERR_INVALID_BROADCAST);
