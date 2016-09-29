@@ -639,7 +639,7 @@ public:
 	enum {
 		es, cs, ss, ds, fs, gs
 	};
-	Segment(int idx) : idx_(idx) { assert(0 <= idx_ && idx_ < 6); }
+	explicit Segment(int idx) : idx_(idx) { assert(0 <= idx_ && idx_ < 6); }
 	int getIdx() const { return idx_; }
 	const char *toString() const
 	{
@@ -882,7 +882,7 @@ public:
 			}
 			putchar('\n');
 			remain -= disp;
-			if (remain <= 0) {
+			if (remain == 0) {
 				break;
 			}
 		}
@@ -1989,12 +1989,6 @@ private:
 		if (addr.getRegExp().getIndex().getKind() != kind) throw Error(ERR_BAD_VSIB_ADDRESSING);
 		addr.permitVsib();
 		opVex(x, 0, addr, type, code);
-	}
-	void opClass(const Opmask& k, const Operand& op, int type, uint8 code, uint8 imm)
-	{
-		if (!op.isBit(128|256|512)) throw Error(ERR_BAD_MEM_SIZE);
-		Reg x = k; x.setBit(op.getBit());
-		opVex(x, 0, op, type, code, imm);
 	}
 public:
 	unsigned int getVersion() const { return VERSION; }

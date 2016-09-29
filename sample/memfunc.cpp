@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <memory.h>
 #define XBYAK_NO_OP_NAMES
 #include <xbyak/xbyak.h>
 
@@ -90,17 +91,8 @@ int main()
 	try {
 		Code code;
 		int (A::*p)(int, int, int, int, int) const = 0;
-#if defined(XBYAK32) && !defined(_WIN32)
-		// avoid breaking strict-aliasing rules for 32bit gcc
-		union {
-			int (A::*p)(int, int, int, int, int) const;
-			const Xbyak::uint8 *code;
-		} u;
-		u.code = code.getCode();
-		p = u.p;
-#else
-		*(void**)&p = code.getCode<void*>();
-#endif
+		const void *addr = code.getCode<void*>();
+		memcpy(&p, &addr, sizeof(void*));
 		for (int i = 0; i < 10; i++) {
 			A a;
 			int t1, t2, t3, t4, t5, x, y;
