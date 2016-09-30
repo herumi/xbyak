@@ -741,7 +741,7 @@ inline RegExp operator-(const RegExp& e, size_t disp)
 }
 
 // 2nd parameter for constructor of CodeArray(maxSize, userPtr, alloc)
-void *const AutoGrow = (void*)1;
+const void *const AutoGrow = (void*)1;
 
 class CodeArray {
 	enum Type {
@@ -1974,7 +1974,7 @@ private:
 		xx_xy_yz ; mode = true
 		xx_xy_xz ; mode = false
 	*/
-	void opVmov(const Operand& op, const Xmm& x, int type, uint8 code, int mode)
+	void opVmov(const Operand& op, const Xmm& x, int type, uint8 code, bool mode)
 	{
 		if (mode) {
 			if (!op.isMEM() && !((op.isXMM() && x.isXMM()) || (op.isXMM() && x.isYMM()) || (op.isYMM() && x.isZMM())))  throw Error(ERR_BAD_COMBINATION);
