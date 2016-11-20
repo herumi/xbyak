@@ -741,7 +741,7 @@ inline RegExp operator-(const RegExp& e, size_t disp)
 }
 
 // 2nd parameter for constructor of CodeArray(maxSize, userPtr, alloc)
-const void *const AutoGrow = (void*)1;
+void *const AutoGrow = (void*)1;
 
 class CodeArray {
 	enum Type {
