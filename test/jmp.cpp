@@ -1025,4 +1025,44 @@ CYBOZU_TEST_AUTO(rip_jmp)
 	int ret = code.getCode<int (*)()>()();
 	CYBOZU_TEST_EQUAL(ret, ret1234() + ret9999());
 }
+
+#ifdef XBYAK64_GCC
+CYBOZU_TEST_AUTO(rip_addr)
+{
+	/*
+		assume |&x - &code| < 2GiB
+	*/
+	static int x = 5;
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			mov(eax, 123);
+			mov(ptr[rip + &x], eax);
+			ret();
+		}
+	} code;
+	code.getCode<void (*)()>()();
+	CYBOZU_TEST_EQUAL(x, 123);
+}
+#endif
+CYBOZU_TEST_AUTO(rip_addr_with_fixed_buf)
+{
+	MIE_ALIGN(4096) static char buf[8192];
+	static char *p = buf + 4096;
+	static int *x0 = (int*)buf;
+	static int *x1 = x0 + 1;
+	struct Code : Xbyak::CodeGenerator {
+		Code() : Xbyak::CodeGenerator(4096, p)
+		{
+			mov(eax, 123);
+			mov(ptr[rip + x0], eax);
+			mov(dword[rip + x1], 456);
+			ret();
+		}
+	} code;
+	Xbyak::CodeArray::protect(p, 4096, true);
+	code.getCode<void (*)()>()();
+	CYBOZU_TEST_EQUAL(*x0, 123);
+	CYBOZU_TEST_EQUAL(*x1, 456);
+}
 #endif

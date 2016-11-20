@@ -1,5 +1,5 @@
 
-Xbyak 5.03 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.10 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -220,6 +220,20 @@ The above jmp opecode jumps label1.
 * srcLabel must be used in L().
 * dstLabel must not be used in L().
 
+### Rip
+```
+Label label;
+mov(eax, ptr [rip + label]); // eax = 4
+...
+
+L(label);
+dd(4);
+```
+```
+int x;
+...
+  mov(eax, ptr[rip + &x]); // throw exception if the difference between &x and current position is larger than 2GiB
+```
 ### Code size
 The default max code size is 4096 bytes. Please set it in constructor of CodeGenerator() if you want to use large size.
 
@@ -309,6 +323,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2016/Nov/20 ver 5.10 add addressing [rip+&var]
 * 2016/Sep/29 ver 5.03 fix detection ERR_INVALID_OPMASK_WITH_MEMORY(thanks to PVS-Studio)
 * 2016/Aug/15 ver 5.02 xbyak does not include xbyak_bin2hex.h
 * 2016/Aug/15 ver 5.011 fix detection of version of gcc 5.4

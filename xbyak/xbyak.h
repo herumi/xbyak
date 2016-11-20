@@ -105,7 +105,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5030 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5100 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -176,6 +176,7 @@ enum {
 	ERR_INVALID_BROADCAST,
 	ERR_INVALID_OPMASK_WITH_MEMORY,
 	ERR_INVALID_ZERO,
+	ERR_INVALID_RIP_IN_AUTO_GROW,
 	ERR_INTERNAL
 };
 
@@ -235,6 +236,7 @@ public:
 			"invalid broadcast",
 			"invalid opmask with memory",
 			"invalid zero",
+			"invalid rip in AutoGrow",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -584,16 +586,21 @@ struct Reg64 : public Reg32e {
 struct RegRip {
 	sint64 disp_;
 	Label* label_;
-	explicit RegRip(sint64 disp = 0, Label* label = 0) : disp_(disp), label_(label) {}
+	bool isAddr_;
+	explicit RegRip(sint64 disp = 0, Label* label = 0, bool isAddr = false) : disp_(disp), label_(label), isAddr_(isAddr) {}
 	friend const RegRip operator+(const RegRip& r, sint64 disp) {
-		return RegRip(r.disp_ + disp, r.label_);
+		return RegRip(r.disp_ + disp, r.label_, r.isAddr_);
 	}
 	friend const RegRip operator-(const RegRip& r, sint64 disp) {
-		return RegRip(r.disp_ - disp, r.label_);
+		return RegRip(r.disp_ - disp, r.label_, r.isAddr_);
 	}
 	friend const RegRip operator+(const RegRip& r, Label& label) {
-		if (r.label_) throw Error(ERR_BAD_ADDRESSING);
+		if (r.label_ || r.isAddr_) throw Error(ERR_BAD_ADDRESSING);
 		return RegRip(r.disp_, &label);
+	}
+	friend const RegRip operator+(const RegRip& r, const void *addr) {
+		if (r.disp_ || r.label_ || r.isAddr_) throw Error(ERR_BAD_ADDRESSING);
+		return RegRip((sint64)addr, 0, true);
 	}
 };
 #endif
@@ -945,7 +952,8 @@ public:
 	enum Mode {
 		M_ModRM,
 		M_64bitDisp,
-		M_rip
+		M_rip,
+		M_ripAddr
 	};
 	Address(uint32 sizeBit, bool broadcast, const RegExp& e)
 		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), permitVsib_(false), broadcast_(broadcast)
@@ -957,7 +965,7 @@ public:
 	explicit Address(size_t disp)
 		: Operand(0, MEM, 64), e_(disp), label_(0), mode_(M_64bitDisp), permitVsib_(false), broadcast_(false){ }
 	Address(uint32 sizeBit, bool broadcast, const RegRip& addr)
-		: Operand(0, MEM, sizeBit), e_(addr.disp_), label_(addr.label_), mode_(M_rip), permitVsib_(false), broadcast_(broadcast) { }
+		: Operand(0, MEM, sizeBit), e_(addr.disp_), label_(addr.label_), mode_(addr.isAddr_ ? M_ripAddr : M_rip), permitVsib_(false), broadcast_(broadcast) { }
 #endif
 	void permitVsib() const { permitVsib_ = true; }
 	const RegExp& getRegExp() const { return e_; }
@@ -1596,12 +1604,17 @@ private:
 	{
 		if (addr.getMode() == Address::M_ModRM) {
 			setSIB(addr.getRegExp(), reg, disp8N);
-		} else if (addr.getMode() == Address::M_rip) {
+		} else if (addr.getMode() == Address::M_rip || addr.getMode() == Address::M_ripAddr) {
 			setModRM(0, reg, 5);
 			if (addr.getLabel()) { // [rip + Label]
 				putL_inner(*addr.getLabel(), true, addr.getDisp() - immSize);
 			} else {
-				dd(inner::VerifyInInt32(addr.getDisp()));
+				size_t disp = addr.getDisp();
+				if (addr.getMode() == Address::M_ripAddr) {
+					if (isAutoGrow()) throw Error(ERR_INVALID_RIP_IN_AUTO_GROW);
+					disp -= (size_t)getCurr() + 4 + immSize;
+				}
+				dd(inner::VerifyInInt32(disp));
 			}
 		}
 	}
