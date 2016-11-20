@@ -1244,7 +1244,7 @@ void put()
 			{ 0x70, "pshufhw", T_0F | T_F3 | T_YMM | T_EVEX, true },
 			{ 0x70, "pshuflw", T_0F | T_F2 | T_YMM | T_EVEX, true },
 
-			{ 0x17, "ptest", T_0F38 | T_66, false },
+			{ 0x17, "ptest", T_0F38 | T_66 | T_YMM, false },
 			{ 0x53, "rcpps", T_0F | T_YMM, false },
 			{ 0x52, "rsqrtps", T_0F | T_YMM, false },
 

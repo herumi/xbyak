@@ -1734,7 +1734,7 @@ class Test {
 			{ "vpmovzxwq", false },
 			{ "vpmovzxdq", false },
 
-			{ "vptest", false },
+			{ "vptest", true },
 			{ "vrcpps", true },
 			{ "vrcpss", false },
 
