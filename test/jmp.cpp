@@ -444,7 +444,7 @@ size_t getValue(const uint8* p)
 {
 	size_t v = 0;
 	for (size_t i = 0; i < sizeof(size_t); i++) {
-		v |= p[i] << (i * 8);
+		v |= size_t(p[i]) << (i * 8);
 	}
 	return v;
 }
@@ -1057,6 +1057,7 @@ CYBOZU_TEST_AUTO(rip_addr_with_fixed_buf)
 			mov(eax, 123);
 			mov(ptr[rip + x0], eax);
 			mov(dword[rip + x1], 456);
+			mov(byte[rip + 1 + x1 + 3], 99);
 			ret();
 		}
 	} code;
@@ -1064,5 +1065,6 @@ CYBOZU_TEST_AUTO(rip_addr_with_fixed_buf)
 	code.getCode<void (*)()>()();
 	CYBOZU_TEST_EQUAL(*x0, 123);
 	CYBOZU_TEST_EQUAL(*x1, 456);
+	CYBOZU_TEST_EQUAL(buf[8], 99);
 }
 #endif

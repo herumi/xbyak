@@ -599,8 +599,8 @@ struct RegRip {
 		return RegRip(r.disp_, &label);
 	}
 	friend const RegRip operator+(const RegRip& r, const void *addr) {
-		if (r.disp_ || r.label_ || r.isAddr_) throw Error(ERR_BAD_ADDRESSING);
-		return RegRip((sint64)addr, 0, true);
+		if (r.label_ || r.isAddr_) throw Error(ERR_BAD_ADDRESSING);
+		return RegRip(r.disp_ + (sint64)addr, 0, true);
 	}
 };
 #endif
