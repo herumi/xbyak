@@ -176,6 +176,8 @@ public:
 	static const Type tAVX512BW = uint64(1) << 41;
 	static const Type tAVX512VL = uint64(1) << 42;
 	static const Type tAVX512VBMI = uint64(1) << 43;
+	static const Type tAVX512_4VNNI = uint64(1) << 44;
+	static const Type tAVX512_4FMAPS = uint64(1) << 45;
 
 	Cpu()
 		: type_(NONE)
@@ -237,6 +239,8 @@ public:
 						if (data[1] & (1U << 30)) type_ |= tAVX512BW;
 						if (data[1] & (1U << 31)) type_ |= tAVX512VL;
 						if (data[2] & (1U << 1)) type_ |= tAVX512VBMI;
+						if (data[3] & (1U << 2)) type_ |= tAVX512_4VNNI;
+						if (data[3] & (1U << 3)) type_ |= tAVX512_4FMAPS;
 					}
 				}
 			}

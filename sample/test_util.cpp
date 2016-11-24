@@ -64,6 +64,8 @@ void putCPUinfo()
 		{ Cpu::tAVX512BW, "avx512bw" },
 		{ Cpu::tAVX512VL, "avx512vl" },
 		{ Cpu::tAVX512VBMI, "avx512vbmi" },
+		{ Cpu::tAVX512_4VNNI, "avx512_4vnni" },
+		{ Cpu::tAVX512_4FMAPS, "avx512_4fmaps" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
