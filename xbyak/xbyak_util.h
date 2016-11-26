@@ -225,10 +225,9 @@ public:
 				if (data[2] & (1U << 28)) type_ |= tAVX;
 				if (data[2] & (1U << 12)) type_ |= tFMA;
 				if (((bv >> 5) & 7) == 7) {
-					getCpuid(7, data);
+					getCpuidEx(7, 0, data);
 					if (data[1] & (1U << 16)) type_ |= tAVX512F;
 					if (type_ & tAVX512F) {
-						getCpuidEx(7, 0, data);
 						if (data[1] & (1U << 17)) type_ |= tAVX512DQ;
 						if (data[1] & (1U << 21)) type_ |= tAVX512IFMA;
 						if (data[1] & (1U << 26)) type_ |= tAVX512PF;
