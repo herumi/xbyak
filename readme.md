@@ -1,5 +1,5 @@
 
-Xbyak 5.30 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.31 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -323,6 +323,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2016/Nov/27 ver 5.31 rename AVX512_4VNNI to AVX512_4VNNIW
 * 2016/Nov/27 ver 5.30 add AVX512_4VNNI, AVX512_4FMAPS instructions(thanks to rsdubtso)
 * 2016/Nov/26 ver 5.20 add detection of AVX512_4VNNI and AVX512_4FMAPS(thanks to rsdubtso)
 * 2016/Nov/20 ver 5.11 lost vptest for ymm(thanks to gregory38)
