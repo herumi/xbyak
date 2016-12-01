@@ -1,5 +1,5 @@
 
-Xbyak 5.31 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.32 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -20,12 +20,12 @@ MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(*partial*)/AVX/AVX2/FMA/VEX-encoded GPR/AV
 
 * Windows Xp, Vista, Windows 7(32bit, 64bit)
 * Linux(32bit, 64bit)
-* Intel Mac ready
+* Intel Mac OSX
 
 ### Supported Compilers
 
-* Visual Studio C++ VC2008 Pro, VC2010, VC2012
-* gcc 4.7
+* Visual Studio C++ VC2012 or later
+* gcc 4.7 or later
 * clang 3.3
 * cygwin gcc 4.5.3
 * icc 7.2
@@ -323,6 +323,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2016/Dec/01 ver 5.32 rename __xgetbv() to _xgetbv() to support clang for Visual Studio(thanks to freiro)
 * 2016/Nov/27 ver 5.31 rename AVX512_4VNNI to AVX512_4VNNIW
 * 2016/Nov/27 ver 5.30 add AVX512_4VNNI, AVX512_4FMAPS instructions(thanks to rsdubtso)
 * 2016/Nov/26 ver 5.20 add detection of AVX512_4VNNI and AVX512_4FMAPS(thanks to rsdubtso)

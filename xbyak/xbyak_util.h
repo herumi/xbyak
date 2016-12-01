@@ -48,10 +48,6 @@
 	#endif
 #endif
 
-#ifdef _MSC_VER
-extern "C" unsigned __int64 __xgetbv(int);
-#endif
-
 namespace Xbyak { namespace util {
 
 /**
@@ -118,7 +114,7 @@ public:
 	static inline uint64 getXfeature()
 	{
 #ifdef _MSC_VER
-		return __xgetbv(0);
+		return _xgetbv(0);
 #else
 		unsigned int eax, edx;
 		// xgetvb is not support on gcc 4.2
