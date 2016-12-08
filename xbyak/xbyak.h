@@ -938,7 +938,7 @@ public:
 	/**
 		get aligned memory pointer
 		@param addr [in] address
-		@param alingedSize [in] power of two
+		@param alignedSize [in] power of two
 		@return aligned addr by alingedSize
 	*/
 	static inline uint8 *getAlignedAddress(uint8 *addr, size_t alignedSize = 16)
@@ -1488,7 +1488,7 @@ private:
 		size_t high = disp64 >> 32;
 		if (high != 0 && high != 0xFFFFFFFF) throw Error(ERR_OFFSET_IS_TOO_BIG);
 #endif
-		uint32_t disp = static_cast<uint32>(disp64);
+		uint32 disp = static_cast<uint32>(disp64);
 		const Reg& base = e.getBase();
 		const Reg& index = e.getIndex();
 		const int baseIdx = base.getIdx();
