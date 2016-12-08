@@ -437,10 +437,10 @@ void putBroadcast(bool only64bit)
 			int type;
 			int reg;
 		} tbl[] = {
-			{ 0x7A, "vpbroadcastb", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_N4, 8 },
-			{ 0x7B, "vpbroadcastw", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_N4, 16 },
-			{ 0x7C, "vpbroadcastd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_N4, 32 },
-			{ 0x7C, "vpbroadcastq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N8, 64},
+			{ 0x7A, "vpbroadcastb", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 8 },
+			{ 0x7B, "vpbroadcastw", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 16 },
+			{ 0x7C, "vpbroadcastd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0, 32 },
+			{ 0x7C, "vpbroadcastq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, 64},
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];

@@ -2089,6 +2089,23 @@ public:
 		put("vextractf32x4", XMM_KZ, _YMM, IMM8);
 #endif
 	}
+	void putDisp8N()
+	{
+		{
+			const int tbl[] = {
+				-129, -128, -127, 0, 1, 64, 65, 127, 128
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				char xs[128], ns[128];
+				int v = tbl[i];
+				CYBOZU_SNPRINTF(xs, sizeof(xs), "xmm0, ptr[eax%+d]", v);
+				CYBOZU_SNPRINTF(ns, sizeof(ns), "xmm0,    [eax%+d]", v);
+				put("vpbroadcastb", xs, ns);
+			}
+		}
+		{
+		}
+	}
 	void putAVX512()
 	{
 #ifdef MIN_TEST
@@ -2147,6 +2164,7 @@ public:
 		putScatter();
 		separateFunc();
 		putClass();
+		putDisp8N();
 #endif
 	}
 };

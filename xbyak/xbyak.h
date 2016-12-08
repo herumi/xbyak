@@ -105,7 +105,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5320 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5330 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1373,13 +1373,14 @@ private:
 		T_B32 = 1 << 21, // m32bcst
 		T_B64 = 1 << 22, // m64bcst
 		T_M_K = 1 << 23, // mem{k}
-		T_N2 = 1 << 24,
-		T_N4 = 1 << 25,
-		T_N8 = 1 << 26,
-		T_N16 = 1 << 27,
-		T_N32 = 1 << 28,
-		T_N_VL = 1 << 29, // N * (1, 2, 4) for VL
-		T_DUP = 1 << 30, // N = (8, 32, 64)
+		T_N1 = 1 << 24,
+		T_N2 = 1 << 25,
+		T_N4 = 1 << 26,
+		T_N8 = 1 << 27,
+		T_N16 = 1 << 28,
+		T_N32 = 1 << 29,
+		T_N_VL = 1 << 30, // N * (1, 2, 4) for VL
+		T_DUP = 1 << 31, // N = (8, 32, 64)
 		T_XXX
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
@@ -1457,11 +1458,11 @@ private:
 			} else if (type & T_DUP) {
 				disp8N = VL == 128 ? 8 : VL == 256 ? 32 : 64;
 			} else {
-				if ((type & (T_N2 | T_N4 | T_N8 | T_N16 | T_N32 | T_N_VL)) == 0) {
+				if ((type & (T_N1 | T_N2 | T_N4 | T_N8 | T_N16 | T_N32 | T_N_VL)) == 0) {
 					type |= T_N16 | T_N_VL; // default
 				}
-				if (type & (T_N2 | T_N4 | T_N8 | T_N16 | T_N32)) {
-					disp8N = (type & T_N2) ? 2 : (type & T_N4) ? 4 : (type & T_N8) ? 8 : (type & T_N16) ? 16 : 32;
+				if (type & (T_N1 | T_N2 | T_N4 | T_N8 | T_N16 | T_N32)) {
+					disp8N = (type & T_N1) ? 1 : (type & T_N2) ? 2 : (type & T_N4) ? 4 : (type & T_N8) ? 8 : (type & T_N16) ? 16 : 32;
 					if (type & T_N_VL) disp8N *= (VL == 512 ? 4 : VL == 256 ? 2 : 1);
 				}
 			}
@@ -1504,8 +1505,8 @@ private:
 				if (inner::IsInDisp8(disp)) {
 					mod = mod01;
 				}
-			} else if (disp8N > 1) {
-				uint32_t t = disp / disp8N;
+			} else {
+				uint32 t = disp / disp8N;
 				if (t * disp8N == disp && inner::IsInDisp8(t)) {
 					disp = t;
 					mod = mod01;

@@ -24,13 +24,14 @@
 		T_B32 = 1 << 21, // m32bcst
 		T_B64 = 1 << 22, // m64bcst
 		T_M_K = 1 << 23, // mem{k}
-		T_N2 = 1 << 24,
-		T_N4 = 1 << 25,
-		T_N8 = 1 << 26,
-		T_N16 = 1 << 27,
-		T_N32 = 1 << 28,
-		T_N_VL = 1 << 29, // N * (1, 2, 4) for VL
-		T_DUP = 1 << 30, // N = (8, 32, 64)
+		T_N1 = 1 << 24,
+		T_N2 = 1 << 25,
+		T_N4 = 1 << 26,
+		T_N8 = 1 << 27,
+		T_N16 = 1 << 28,
+		T_N32 = 1 << 29,
+		T_N_VL = 1 << 30, // N * (1, 2, 4) for VL
+		T_DUP = 1 << 31, // N = (8, 32, 64)
 		T_XXX
 	};
 
@@ -134,6 +135,10 @@ std::string type2String(int type)
 	if (type & T_M_K) {
 		if (!str.empty()) str += " | ";
 		str += "T_M_K";
+	}
+	if (type & T_N1) {
+		if (!str.empty()) str += " | ";
+		str += "T_N1";
 	}
 	if (type & T_N2) {
 		if (!str.empty()) str += " | ";
