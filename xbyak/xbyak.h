@@ -1505,9 +1505,10 @@ private:
 				if (inner::IsInDisp8(disp)) {
 					mod = mod01;
 				}
-			} else {
-				uint32 t = disp / disp8N;
-				if (t * disp8N == disp && inner::IsInDisp8(t)) {
+			} else if (disp8N > 1) {
+				int32_t sdisp = disp;
+				int32_t t = sdisp / disp8N;
+				if (t * disp8N == sdisp && inner::IsInDisp8(t)) {
 					disp = t;
 					mod = mod01;
 				}
