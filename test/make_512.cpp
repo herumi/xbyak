@@ -2104,7 +2104,21 @@ public:
 			}
 		}
 		{
+			const int tbl[] = {
+				-1024, -512 -256, -128, -64, -32, -16, -8, -4, -2, -1,
+				0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				char xs[128], ns[128];
+				int v = tbl[i];
+				CYBOZU_SNPRINTF(xs, sizeof(xs), "zmm0, zmm1, ptr_b[eax%+d]", v);
+				CYBOZU_SNPRINTF(ns, sizeof(ns), "zmm0, zmm1, [eax%+d]{1to16}", v);
+				put("vaddps", xs, ns);
+			}
 		}
+#ifdef XBYAK64
+		put("vfmadd231ps", "zmm8, zmm31, ptr_b[r14+rbp-0x1e4]", "zmm8, zmm31, [r14+rbp-0x1e4]{1to16}");
+#endif
 	}
 	void putAVX512()
 	{

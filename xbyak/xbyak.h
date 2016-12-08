@@ -105,7 +105,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5330 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5340 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1506,8 +1506,9 @@ private:
 					mod = mod01;
 				}
 			} else {
-				uint32 t = disp / disp8N;
-				if (t * disp8N == disp && inner::IsInDisp8(t)) {
+				// disp must be casted to signed
+				uint32 t = static_cast<uint32>(static_cast<int>(disp) / disp8N);
+				if ((disp % disp8N) == 0 && inner::IsInDisp8(t)) {
 					disp = t;
 					mod = mod01;
 				}
