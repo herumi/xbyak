@@ -962,6 +962,74 @@ CYBOZU_TEST_AUTO(doubleDefine)
 	} code;
 }
 
+struct GetAddressCode1 : Xbyak::CodeGenerator {
+	void test()
+	{
+		Xbyak::Label L1, L2, L3;
+		nop();
+	L(L1);
+		const uint8_t *p1 = getCurr();
+		CYBOZU_TEST_EQUAL_POINTER(L1.getAddress(), p1);
+
+		nop();
+		jmp(L2);
+		nop();
+		jmp(L3);
+	L(L2);
+		CYBOZU_TEST_EQUAL_POINTER(L2.getAddress(), getCurr());
+		// L3 is not defined
+		CYBOZU_TEST_EQUAL_POINTER(L3.getAddress(), 0);
+
+		// L3 is set by L1
+		assignL(L3, L1);
+		CYBOZU_TEST_EQUAL_POINTER(L3.getAddress(), p1);
+	}
+};
+
+CYBOZU_TEST_AUTO(getAddress1)
+{
+	GetAddressCode1 c;
+	c.test();
+}
+
+struct GetAddressCode2 : Xbyak::CodeGenerator {
+	Xbyak::Label L1, L2, L3;
+	size_t a1;
+	size_t a3;
+	explicit GetAddressCode2(int size)
+		: Xbyak::CodeGenerator(size, size == 4096 ? 0 : Xbyak::AutoGrow)
+		, a1(0)
+		, a3(0)
+	{
+		nop();
+	L(L1);
+		a1 = getSize();
+		nop();
+		jmp(L2);
+	L(L3);
+		a3 = getSize();
+		nop();
+		assignL(L2, L1);
+	}
+};
+
+CYBOZU_TEST_AUTO(getAddress2)
+{
+	const int sizeTbl[] = {
+		2, 128, // grow
+		4096 // not grow
+	};
+	for (size_t i = 0; i < CYBOZU_NUM_OF_ARRAY(sizeTbl); i++) {
+		int size = sizeTbl[i];
+		GetAddressCode2 c(size);
+		c.ready();
+		const uint8_t *p = c.getCode();
+		CYBOZU_TEST_EQUAL(c.L1.getAddress(), p + c.a1);
+		CYBOZU_TEST_EQUAL(c.L3.getAddress(), p + c.a3);
+		CYBOZU_TEST_EQUAL(c.L2.getAddress(), p + c.a1);
+	}
+}
+
 #ifdef XBYAK64
 CYBOZU_TEST_AUTO(rip)
 {

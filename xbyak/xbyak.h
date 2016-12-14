@@ -1048,6 +1048,7 @@ public:
 	Label& operator=(const Label& rhs);
 	~Label();
 	int getId() const { return id; }
+	const uint8 *getAddress() const;
 
 	// backward compatibility
 	static inline std::string toStr(int num)
@@ -1256,6 +1257,7 @@ public:
 		return false;
 	}
 	bool hasUndefClabel() const { return hasUndefinedLabel_inner(clabelUndefList_); }
+	const uint8 *getCode() const { return base_->getCode(); }
 };
 
 inline Label::Label(const Label& rhs)
@@ -1275,6 +1277,13 @@ inline Label& Label::operator=(const Label& rhs)
 inline Label::~Label()
 {
 	if (id && mgr) mgr->decRefCount(id);
+}
+inline const uint8* Label::getAddress() const
+{
+	if (mgr == 0) return 0;
+	size_t offset;
+	if (!mgr->getOffset(&offset, *this)) return 0;
+	return mgr->getCode() + offset;
 }
 
 class CodeGenerator : public CodeArray {
