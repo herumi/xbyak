@@ -1001,15 +1001,28 @@ struct GetAddressCode2 : Xbyak::CodeGenerator {
 		, a1(0)
 		, a3(0)
 	{
+		bool autoGrow = size != 4096;
 		nop();
 	L(L1);
+		if (autoGrow) {
+			CYBOZU_TEST_EQUAL_POINTER(L1.getAddress(), 0);
+		}
 		a1 = getSize();
 		nop();
 		jmp(L2);
+		if (autoGrow) {
+			CYBOZU_TEST_EQUAL_POINTER(L2.getAddress(), 0);
+		}
 	L(L3);
 		a3 = getSize();
+		if (autoGrow) {
+			CYBOZU_TEST_EQUAL_POINTER(L3.getAddress(), 0);
+		}
 		nop();
 		assignL(L2, L1);
+		if (autoGrow) {
+			CYBOZU_TEST_EQUAL_POINTER(L2.getAddress(), 0);
+		}
 	}
 };
 

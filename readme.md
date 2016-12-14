@@ -1,5 +1,5 @@
 
-Xbyak 5.34 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.40 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -220,6 +220,15 @@ The above jmp opecode jumps label1.
 * srcLabel must be used in L().
 * dstLabel must not be used in L().
 
+Label::getAddress() returns the address specified by the label instance and 0 if not specified.
+```
+// not AutoGrow mode
+Label  label;
+assert(label.getAddress() == 0);
+L(label);
+assert(label.getAddress() == getCurr());
+```
+
 ### Rip
 ```
 Label label;
@@ -323,6 +332,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2016/Dec/14 ver 5.40 add Label::getAddress() method to get the pointer specified by the label
 * 2016/Dec/09 ver 5.34 fix handling of negative offsets when encoding disp8N(thanks to rsdubtso)
 * 2016/Dec/08 ver 5.33 fix encoding of vpbroadcast{b,w,d,q}, vpinsr{b,w}, vpextr{b,w} for disp8N
 * 2016/Dec/01 ver 5.32 rename __xgetbv() to _xgetbv() to support clang for Visual Studio(thanks to freiro)

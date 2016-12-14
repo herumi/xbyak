@@ -105,7 +105,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5340 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5400 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -786,6 +786,7 @@ protected:
 	size_t maxSize_;
 	uint8 *top_;
 	size_t size_;
+	bool isCalledCalcJmpAddress_;
 
 	/*
 		allocate new memory and copy old data to the new area
@@ -805,11 +806,13 @@ protected:
 	*/
 	void calcJmpAddress()
 	{
+		if (isCalledCalcJmpAddress_) return;
 		for (AddrInfoList::const_iterator i = addrInfoList_.begin(), ie = addrInfoList_.end(); i != ie; ++i) {
 			uint64 disp = i->getVal(top_);
 			rewrite(i->codeOffset, disp, i->jmpSize);
 		}
 		if (alloc_->useProtect() && !protect(top_, size_, true)) throw Error(ERR_CANT_PROTECT);
+		isCalledCalcJmpAddress_ = true;
 	}
 public:
 	explicit CodeArray(size_t maxSize, void *userPtr = 0, Allocator *allocator = 0)
@@ -818,6 +821,7 @@ public:
 		, maxSize_(maxSize)
 		, top_(type_ == USER_BUF ? reinterpret_cast<uint8*>(userPtr) : alloc_->alloc((std::max<size_t>)(maxSize, 1)))
 		, size_(0)
+		, isCalledCalcJmpAddress_(false)
 	{
 		if (maxSize_ > 0 && top_ == 0) throw Error(ERR_CANT_ALLOC);
 		if ((type_ == ALLOC_BUF && alloc_->useProtect()) && !protect(top_, maxSize, true)) {
@@ -913,6 +917,7 @@ public:
 		addrInfoList_.push_back(AddrInfo(offset, val, size, mode));
 	}
 	bool isAutoGrow() const { return type_ == AUTO_GROW; }
+	bool isCalledCalcJmpAddress() const { return isCalledCalcJmpAddress_; }
 	/**
 		change exec permission of memory
 		@param addr [in] buffer address
@@ -1258,6 +1263,7 @@ public:
 	}
 	bool hasUndefClabel() const { return hasUndefinedLabel_inner(clabelUndefList_); }
 	const uint8 *getCode() const { return base_->getCode(); }
+	bool isReady() const { return !base_->isAutoGrow() || base_->isCalledCalcJmpAddress(); }
 };
 
 inline Label::Label(const Label& rhs)
@@ -1280,7 +1286,7 @@ inline Label::~Label()
 }
 inline const uint8* Label::getAddress() const
 {
-	if (mgr == 0) return 0;
+	if (mgr == 0 || !mgr->isReady()) return 0;
 	size_t offset;
 	if (!mgr->getOffset(&offset, *this)) return 0;
 	return mgr->getCode() + offset;
