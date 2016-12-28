@@ -254,7 +254,7 @@ public:
 		}
 		setFamily();
 	}
-	void putFamily()
+	void putFamily() const
 	{
 		printf("family=%d, model=%X, stepping=%d, extFamily=%d, extModel=%X\n",
 			family, model, stepping, extFamily, extModel);
