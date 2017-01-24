@@ -588,6 +588,7 @@ void prefetchnta(const Address& addr) { opModM(addr, Reg32(0), 0x0F, 0x18); }
 void prefetcht0(const Address& addr) { opModM(addr, Reg32(1), 0x0F, 0x18); }
 void prefetcht1(const Address& addr) { opModM(addr, Reg32(2), 0x0F, 0x18); }
 void prefetcht2(const Address& addr) { opModM(addr, Reg32(3), 0x0F, 0x18); }
+void prefetchwt1(const Address& addr) { opModM(addr, Reg32(2), 0x0F, 0x18); }
 void psadbw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF6); }
 void pshufb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x00, 0x66, NONE, 0x38); }
 void pshufd(const Mmx& mmx, const Operand& op, uint8 imm8) { opMMX(mmx, op, 0x70, 0x66, imm8); }
