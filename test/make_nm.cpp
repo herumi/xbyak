@@ -611,6 +611,7 @@ class Test {
 		put("prefetcht1", MEM);
 		put("prefetcht2", MEM);
 		put("prefetchnta", MEM);
+		put("prefetchwt1", MEM);
 
 		// SSE2 misc
 		put("maskmovdqu", XMM, XMM);
@@ -1114,6 +1115,7 @@ class Test {
 			put(p, "qword [rax], 1000000");
 			put(p, "rdx, qword [rax]");
 #endif
+			put("mov", EAX, "ptr [eax + ecx * 0]", "[eax + ecx * 0]"); // ignore scale = 0
 		}
 		{
 			const char tbl[][8] = {

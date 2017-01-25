@@ -536,15 +536,17 @@ void put()
 		const struct Tbl {
 			int ext;
 			const char *name;
+			int code;
 		} tbl[] = {
-			{ 1, "t0" },
-			{ 2, "t1" },
-			{ 3, "t2" },
-			{ 0, "nta" },
+			{ 1, "t0", 0x18},
+			{ 2, "t1", 0x18},
+			{ 3, "t2", 0x18},
+			{ 0, "nta", 0x18},
+			{ 2, "wt1", 0x0D},
 		};
 		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void prefetch%s(const Address& addr) { opModM(addr, Reg32(%d), 0x0F, 0x18); }\n", p->name, p->ext);
+			printf("void prefetch%s(const Address& addr) { opModM(addr, Reg32(%d), 0x0F, 0x%02X); }\n", p->name, p->ext, p->code);
 		}
 	}
 	{
