@@ -2,10 +2,10 @@ PREFIX=/usr/local
 INSTALL_DIR=$(PREFIX)/include/xbyak
 
 all:
-	make -C sample
+	$(MAKE) -C sample
 
 clean:
-	make -C sample clean
+	$(MAKE) -C sample clean
 
 install:
 	mkdir -p $(INSTALL_DIR)
