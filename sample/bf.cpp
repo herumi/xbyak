@@ -158,12 +158,12 @@ void dump(const Xbyak::uint8 *code, size_t size)
 		printf("0x%02x,", code[i]); if ((i % 16) == 15) putchar('\n');
 	}
 	puts("\n};");
-#ifdef __linux__
+#ifndef _MSC_VER
 	puts("#include <unistd.h>");
 	puts("#include <sys/mman.h>");
 #endif
 	puts("main()\n{");
-#ifdef __linux__
+#ifndef _MSC_VER
 	puts("\tlong pageSize = sysconf(_SC_PAGESIZE) - 1;");
 	puts("\tmprotect((void*)code, (sizeof(code) + pageSize) & ~pageSize, PROT_READ | PROT_EXEC);");
 #endif
