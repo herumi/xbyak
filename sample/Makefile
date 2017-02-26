@@ -2,12 +2,13 @@ TARGET = test quantize bf toyvm test_util memfunc static_buf jmp_table
 XBYAK_INC=../xbyak/xbyak.h
 
 BOOST_EXIST=$(shell echo "\#include <boost/spirit/core.hpp>" | (gcc -E - 2>/dev/null) | grep "boost/spirit/core.hpp" >/dev/null && echo "1")
+UNAME_M=$(shell uname -m)
 
 ifeq ($(shell uname -s),Darwin)
-	ifeq ($(shell uname -m),x86_64)
+	ifeq ($(UNAME_M),x86_64)
 		BIT=64
 	endif
-	ifeq ($(shell uname -m),i386)
+	ifeq ($(UNAME_M),i386)
 		BIT=32
 	endif
 	ifeq ($(shell sw_vers -productVersion | cut -c1-4 | sed 's/\.//'),105)
@@ -17,7 +18,10 @@ ifeq ($(shell uname -s),Darwin)
 	endif
 else
 	BIT=32
-	ifeq ($(shell uname -m),x86_64)
+	ifeq ($(UNAME_M),x86_64)
+		BIT=64
+	endif
+	ifeq ($(UNAME_M),amd64)
 		BIT=64
 	endif
 endif
