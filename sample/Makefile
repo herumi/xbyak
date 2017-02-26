@@ -17,7 +17,7 @@ ifeq ($(shell uname -s),Darwin)
 	endif
 else
 	BIT=32
-	ifeq ($(shell uname -m),x86_64)
+	ifneq (,$(filter %64,$(shell uname -m)))
 		BIT=64
 	endif
 endif
