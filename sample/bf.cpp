@@ -96,25 +96,24 @@ public:
 				call(pPutchar);
 				pop(eax);
 #elif defined(XBYAK64_WIN)
-				mov(rcx, cur);
+				mov(ecx, cur);
 				sub(rsp, 32);
 				call(pPutchar);
 				add(rsp, 32);
 #else
-				mov(rdi, cur);
+				mov(edi, cur);
 				call(pPutchar);
 #endif
 				break;
 			case ',':
 #if defined(XBYAK32) || defined(XBYAK64_GCC)
 				call(pGetchar);
-				mov(cur, eax);
 #elif defined(XBYAK64_WIN)
 				sub(rsp, 32);
 				call(pGetchar);
 				add(rsp, 32);
-				mov(cur, rax);
 #endif
+				mov(cur, eax);
 				break;
 			case '[':
 				L(toStr(labelNo, B));
