@@ -152,17 +152,28 @@ public:
 
 void dump(const Xbyak::uint8 *code, size_t size)
 {
-	puts("#include <stdio.h>\nstatic int stack[128 * 1024];\nstatic const unsigned char code[] = {");
+	puts("#include <stdio.h>\nstatic int stack[128 * 1024];");
+#ifdef _MSC_VER
+	printf("static __declspec(align(4096)) ");
+#else
+	printf("static __attribute__((aligned(4096)))");
+#endif
+	puts("const unsigned char code[] = {");
 	for (size_t i = 0; i < size; i++) {
 		printf("0x%02x,", code[i]); if ((i % 16) == 15) putchar('\n');
 	}
 	puts("\n};");
-#ifndef _MSC_VER
+#ifdef _MSC_VER
+	puts("#include <windows.h>");
+#else
 	puts("#include <unistd.h>");
 	puts("#include <sys/mman.h>");
 #endif
-	puts("main()\n{");
-#ifndef _MSC_VER
+	puts("int main()\n{");
+#ifdef _MSC_VER
+	puts("\tDWORD oldProtect;");
+	puts("\tVirtualProtect((void*)code, sizeof(code), PAGE_EXECUTE_READWRITE, &oldProtect);");
+#else
 	puts("\tlong pageSize = sysconf(_SC_PAGESIZE) - 1;");
 	puts("\tmprotect((void*)code, (sizeof(code) + pageSize) & ~pageSize, PROT_READ | PROT_EXEC);");
 #endif
