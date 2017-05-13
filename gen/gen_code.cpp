@@ -628,6 +628,7 @@ void put()
 			{ "movsb", 0xA4 },
 			{ "movsw", 0x66, 0xA5 },
 			{ "movsd", 0xA5 },
+			{ "rep", 0xF3 },
 
 			{ "lahf", 0x9F },
 			{ "lock", 0xF0 },
