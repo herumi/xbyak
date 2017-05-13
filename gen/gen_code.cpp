@@ -625,6 +625,9 @@ void put()
 			{ "cpuid", 0x0F, 0xA2 },
 			{ "cwd", 0x66, 0x99 },
 			{ "cwde", 0x98 },
+			{ "movsb", 0xA4 },
+			{ "movsw", 0x66, 0xA5 },
+			{ "movsd", 0xA5 },
 
 			{ "lahf", 0x9F },
 			{ "lock", 0xF0 },
@@ -1710,6 +1713,7 @@ void put64()
 	const GenericTbl tbl[] = {
 		{ "cdqe", 0x48, 0x98 },
 		{ "cqo", 0x48, 0x99 },
+		{ "movsq", 0x48, 0xA5 },
 	};
 	putGeneric(tbl, NUM_OF_ARRAY(tbl));
 

@@ -1,5 +1,5 @@
 
-Xbyak 5.41 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.42 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -332,6 +332,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2017/May/13 ver 5.42 add movs{b,w,d,q}
 * 2017/Jan/26 ver 5.41 add prefetchwt1 and support for scale == 0(thanks to rsdubtso)
 * 2016/Dec/14 ver 5.40 add Label::getAddress() method to get the pointer specified by the label
 * 2016/Dec/09 ver 5.34 fix handling of negative offsets when encoding disp8N(thanks to rsdubtso)
