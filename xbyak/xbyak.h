@@ -841,6 +841,7 @@ public:
 	{
 		size_ = 0;
 		addrInfoList_.clear();
+		isCalledCalcJmpAddress_ = false;
 	}
 	void db(int code)
 	{
