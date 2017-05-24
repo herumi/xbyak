@@ -1,3 +1,7 @@
+#ifdef jnl
+# undef jnl
+#endif
+
 const char *getVersionString() const { return "5.43"; }
 void adc(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x10, 2); }
 void adc(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x10); }
