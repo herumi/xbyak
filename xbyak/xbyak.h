@@ -2372,6 +2372,9 @@ public:
 	}
 #endif
 
+#ifdef XBYAK_UNDEF_JNL
+	#undef jnl
+#endif
 #ifndef XBYAK_DONT_READ_LIST
 #include "xbyak_mnemonic.h"
 	void align(int x = 16)
