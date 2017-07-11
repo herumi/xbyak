@@ -244,7 +244,7 @@ public:
 	}
 };
 
-inline const char *ConvertErrorToString(Error err)
+inline const char *ConvertErrorToString(const Error& err)
 {
 	return err.what();
 }
@@ -749,7 +749,7 @@ inline RegExp operator-(const RegExp& e, size_t disp)
 }
 
 // 2nd parameter for constructor of CodeArray(maxSize, userPtr, alloc)
-void *const AutoGrow = (void*)1;
+void *const AutoGrow = (void*)1; //-V566
 
 class CodeArray {
 	enum Type {
@@ -854,14 +854,14 @@ public:
 		}
 		top_[size_++] = static_cast<uint8>(code);
 	}
-	void db(const uint8 *code, int codeSize)
+	void db(const uint8 *code, size_t codeSize)
 	{
-		for (int i = 0; i < codeSize; i++) db(code[i]);
+		for (size_t i = 0; i < codeSize; i++) db(code[i]);
 	}
-	void db(uint64 code, int codeSize)
+	void db(uint64 code, size_t codeSize)
 	{
 		if (codeSize > 8) throw Error(ERR_BAD_PARAMETER);
-		for (int i = 0; i < codeSize; i++) db(static_cast<uint8>(code >> (i * 8)));
+		for (size_t i = 0; i < codeSize; i++) db(static_cast<uint8>(code >> (i * 8)));
 	}
 	void dw(uint32 code) { db(code, 2); }
 	void dd(uint32 code) { db(code, 4); }
@@ -2382,7 +2382,7 @@ public:
 		if (x == 1) return;
 		if (x < 1 || (x & (x - 1))) throw Error(ERR_BAD_ALIGN);
 		if (isAutoGrow() && x > (int)inner::ALIGN_PAGE_SIZE) fprintf(stderr, "warning:autoGrow mode does not support %d align\n", x);
-		while (size_t(getCurr()) % x) {
+		while (size_t(getCurr()) % size_t(x) > 0) {
 			nop();
 		}
 	}
