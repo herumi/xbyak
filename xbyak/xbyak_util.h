@@ -320,6 +320,7 @@ public:
 	}
 	Pack& operator=(const Pack& rhs)
 	{
+		n_ = rhs.n_;
 		for (size_t i = 0; i < n_; i++) tbl_[i] = rhs.tbl_[i];
 		return *this;
 	}
