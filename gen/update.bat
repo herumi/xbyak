@@ -1,5 +1,5 @@
 @echo off
-set OPT=/EHsc -I../xbyak /W4 -D_CRT_SECURE_NO_WARNINGS
+set OPT=/EHsc -I../ /W4 -D_CRT_SECURE_NO_WARNINGS
 set TARGET=..\\xbyak\\xbyak_mnemonic.h
 set SORT=sortline
 cl gen_code.cpp %OPT%
