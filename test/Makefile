@@ -36,6 +36,7 @@ misc: misc.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) misc.cpp -o $@
 
 test: normalize_prefix jmp bad_address
+	$(MAKE) -C ../gen
 	./test_nm.sh
 	./test_nm.sh Y
 	./test_address.sh
