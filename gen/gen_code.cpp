@@ -1,7 +1,7 @@
 #define XBYAK_DONT_READ_LIST
 #include <stdio.h>
 #include <string.h>
-#include "xbyak.h"
+#include "xbyak/xbyak.h"
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
 using namespace Xbyak;
@@ -277,7 +277,7 @@ void put()
 			{ 0xF4, "pmuludq" },
 			{ 0xFB, "psubq" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x%02X); }\n"
 				, p->name, p->code);
@@ -302,7 +302,7 @@ void put()
 			{ 0xE8, B|W , "psubs" },
 			{ 0xD8, B|W , "psubus" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			static const char modTbl[][4] = {
 				"b", "w", "d", "q"
@@ -329,7 +329,7 @@ void put()
 			{ 0x70, 4, W|D , "psra" },
 			{ 0x70, 2, W|D|Q, "psrl" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			static const char modTbl[][4] = {
 				"b", "w", "d", "q"
@@ -359,7 +359,7 @@ void put()
 			{ 0x70, 0xF3, "pshufhw" },
 			{ 0x70, 0x66, "pshufd" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Mmx& mmx, const Operand& op, uint8 imm8) { opMMX(mmx, op, 0x%02X, 0x%02X, imm8); }\n", p->name, p->code, p->pref);
 		}
@@ -381,7 +381,7 @@ void put()
 			{ 0x10, 0x11, 0xF2, "movsd" },
 			{ 0x10, 0x11, 0x66, "movupd" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(mmxTbl6); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(mmxTbl6); i++) {
 			const MmxTbl6 *p = &mmxTbl6[i];
 			printf("void %s(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x%02X, 0x%02X); }\n", p->name, p->code, p->pref);
 			printf("void %s(const Address& addr, const Xmm& xmm) { ", p->name);
@@ -430,9 +430,9 @@ void put()
 			{ 0x57, PS|PD     , "xor" },
 			//
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			for (int j = 0; j < NUM_OF_ARRAY(sufTbl); j++) {
+			for (size_t j = 0; j < NUM_OF_ARRAY(sufTbl); j++) {
 				if (!(p->mode & (1 << j))) continue;
 				if (p->hasImm) {
 					// don't change uint8 to int because NO is not in byte
@@ -454,7 +454,7 @@ void put()
 			{ 0x12, 0  , "movhlps" },
 			{ 0x16, 0  , "movlhps" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Xmm& reg1, const Xmm& reg2) { ", p->name);
 			if (p->pref) printf("db(0x%02X); ", p->pref);
@@ -499,7 +499,7 @@ void put()
 			{ 0x16, 0xF3, "movshdup" },
 			{ 0x12, 0xF3, "movsldup" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x%02X, 0x%02X, isXMM_XMMorMEM); }\n", p->name, p->code, p->pref);
 		}
@@ -526,7 +526,7 @@ void put()
 			{ 0x2C, 0x66, "cvttpd2pi", "isMMX_XMMorMEM" },
 			{ 0x2C, 0xF2, "cvttsd2si", "isREG32_XMMorMEM" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Operand& reg, const Operand& op) { opGen(reg, op, 0x%02X, 0x%02X, %s); }\n", p->name, p->code, p->pref, p->cond);
 		}
@@ -544,7 +544,7 @@ void put()
 			{ 0, "nta", 0x18},
 			{ 2, "wt1", 0x0D},
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void prefetch%s(const Address& addr) { opModM(addr, Reg32(%d), 0x0F, 0x%02X); }\n", p->name, p->ext, p->code);
 		}
@@ -560,7 +560,7 @@ void put()
 			{ 0x16, 0x66, "movhpd" },
 			{ 0x12, 0x66, "movlpd" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x%02X, 0x%02X); }\n", p->name, p->code, p->pref);
 		}
@@ -603,7 +603,7 @@ void put()
 			{ 15, "g" },
 		};
 		const char *msg = "//-V524"; // disable warning of PVS-Studio
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void cmov%s(const Reg& reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, 0x40 | %d); }%s\n", p->name, p->ext, msg);
 			printf("void j%s(std::string label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }%s\n", p->name, p->ext | 0x70, p->ext | 0x80, 0x0F, msg);
@@ -730,7 +730,7 @@ void put()
 			{ 0x28, 5, "sub" },
 			{ 0x30, 6, "xor_" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x%02X); }\n", p->name, p->code);
 			printf("void %s(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x%02X, %d); }\n", p->name, p->code, p->ext);
@@ -746,7 +746,7 @@ void put()
 			{ 0x48, 1, "dec" },
 			{ 0x40, 0, "inc" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Operand& op) { opIncDec(op, 0x%02X, %d); }\n", p->name, p->code, p->ext);
 		}
@@ -762,7 +762,7 @@ void put()
 			{ 0xb3, 6, "btr" },
 			{ 0xbb, 7, "btc" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Operand& op, const Reg& reg) { opModRM(reg, op, op.isREG(16|32|64) && op.getBit() == reg.getBit(), op.isMEM(), 0x0f, 0x%02X); }\n", p->name, p->code);
 			printf("void %s(const Operand& op, uint8 imm) { opR_ModM(op, 16|32|64, %d, 0x0f, 0xba, NONE, false, 1); db(imm); }\n", p->name, p->ext);
@@ -781,7 +781,7 @@ void put()
 			{ 0xF6, 3, "neg" },
 			{ 0xF6, 2, "not_" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			const std::string name = p->name;
 			printf("void %s(const Operand& op) { opR_ModM(op, 0, %d, 0x%02X); }\n", p->name, p->ext, p->code);
@@ -802,7 +802,7 @@ void put()
 
 			{ "sal", 4 },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Operand& op, int imm) { opShift(op, imm, %d); }\n", p->name, p->ext);
 			printf("void %s(const Operand& op, const Reg8& _cl) { opShift(op, _cl, %d); }\n", p->name, p->ext);
@@ -816,7 +816,7 @@ void put()
 			{ "shld", 0xA4 },
 			{ "shrd", 0xAC },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Operand& op, const Reg& reg, uint8 imm) { opShxd(op, reg, imm, 0x%02X); }\n", p->name, p->code);
 			printf("void %s(const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(op, reg, 0, 0x%02X, &_cl); }\n", p->name, p->code);
@@ -830,7 +830,7 @@ void put()
 			{ "bsf", 0xBC },
 			{ "bsr", 0xBD },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Reg&reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, 0x%02X); }\n", p->name, p->code);
 		}
@@ -844,7 +844,7 @@ void put()
 			{ "tzcnt", 0xBC },
 			{ "lzcnt", 0xBD },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Reg&reg, const Operand& op) { opSp1(reg, op, 0xF3, 0x0F, 0x%02X); }\n", p->name, p->code);
 		}
@@ -871,7 +871,7 @@ void put()
 			{ 0x1d, "pabsw" },
 			{ 0x1e, "pabsd" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x%02X, 0x66, NONE, 0x38); }\n", p->name, p->code);
 		}
@@ -921,7 +921,7 @@ void put()
 			{ 0xdd, "aesenclast" },
 			{ 0xdb, "aesimc" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x%02X, 0x66, isXMM_XMMorMEM, NONE, 0x38); }\n", p->name, p->code);
 		}
@@ -950,7 +950,7 @@ void put()
 			{ 0x44, "pclmulqdq" },
 			{ 0xdf, "aeskeygenassist" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0x%02X, 0x66, isXMM_XMMorMEM, static_cast<uint8>(imm), 0x3A); }\n", p->name, p->code);
 		}
@@ -965,7 +965,7 @@ void put()
 			{ "pclmullqhdq", 0x10 },
 			{ "pclmulhqhdq", 0x11 },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Xmm& xmm, const Operand& op) { pclmulqdq(xmm, op, 0x%02X); }\n", p->name, p->code);
 		}
@@ -983,7 +983,7 @@ void put()
 			{ 0xD9, NONE, 5, "fldcw" },
 //			{ 0x9B, 0xD9, 7, "fstcw" }, // not correct order for fstcw [eax] on 64bit OS
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Address& addr) { opModM(addr, Reg32(%d), 0x%02X, 0x%02X); }\n", p->name, p->ext, p->code1, p->code2);
 		}
@@ -997,7 +997,7 @@ void put()
 			{ 0x2B, "movntpd" },
 			{ 0xE7, "movntdq" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			// cast xmm register to 16bit register to put 0x66
 			printf("void %s(const Address& addr, const Xmm& reg) { opModM(addr, Reg16(reg.getIdx()), 0x0F, 0x%02X); }\n", p->name, p->code);
@@ -1011,7 +1011,7 @@ void put()
 			{ 0xBE, "movsx" },
 			{ 0xB6, "movzx" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Reg& reg, const Operand& op) { opMovxx(reg, op, 0x%02X); }\n", p->name, p->code);
 		}
@@ -1094,7 +1094,7 @@ void put()
 			{ 0x00, 0xD8, 0xDC, 5, "fsubr" },
 			{ 0xDE, 0xDA, 0x00, 5, "fisubr" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Address& addr) { opFpuMem(addr, 0x%02X, 0x%02X, 0x%02X, %d, %d); }\n", p->name, p->m16, p->m32, p->m64, p->ext, p->m64ext);
 		}
@@ -1133,7 +1133,7 @@ void put()
 			{ 0xD8E8, 0xDCE0, "fsubr" },
 			{ 0x0000, 0xDEE0, "fsubrp" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Fpu& reg1, const Fpu& reg2) { opFpuFpu(reg1, reg2, 0x%04X, 0x%04X); }\n", p->name, p->code1, p->code2);
 			// omit st0 version(like nasm)
@@ -1160,7 +1160,7 @@ void put()
 			{ 0xDD, 0xE8, "fucomp" },
 			{ 0xD9, 0xC8, "fxch" },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Fpu& reg) { opFpu(reg, 0x%02X, 0x%02X); }\n", p->name, p->code1, p->code2);
 		}
@@ -1183,7 +1183,7 @@ void put()
 			{ 0x56, "or", true },
 			{ 0x57, "xor", true },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void v%spd(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX | T_ER_Z | T_B64, 0x%02X); }\n", p->name, p->code);
 			printf("void v%sps(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_EW0 | T_YMM | T_EVEX | T_ER_Z | T_B32, 0x%02X); }\n", p->name, p->code);
@@ -1343,7 +1343,7 @@ void put()
 			{ 0x16, "vpermps", T_66 | T_0F38 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32 },
 			{ 0x16, "vpermpd", T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_YMM | T_B64 },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
 			std::string type = type2String(p.type);
 			printf("void %s(const Ymm& y1, const Ymm& y2, const Operand& op) { opAVX_X_X_XM(y1, y2, op, %s, 0x%02X); }\n", p.name, type.c_str(), p.code);
@@ -1359,7 +1359,7 @@ void put()
 			{ 0x00, "vpermq", T_0F3A | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B64 },
 			{ 0x01, "vpermpd", T_0F3A | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B64 },
 		};
-		for (int i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
 			std::string type = type2String(p.type);
 			printf("void %s(const Ymm& y, const Operand& op, uint8 imm) { opAVX_X_XM_IMM(y, op, %s, 0x%02X, imm); }\n", p.name, type.c_str(), p.code);
