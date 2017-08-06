@@ -1,5 +1,5 @@
 
-Xbyak 5.432 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.433 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -14,7 +14,7 @@ you can use Xbyak's functions at once if xbyak.h is included.
 
 ### Supported Instructions Sets
 
-MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(*partial*)/AVX/AVX2/FMA/VEX-encoded GPR/AVX-512
+MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(*partial*)/AVX/AVX2/FMA/VEX-encoded GPR/AVX-512/SHA/MPX
 
 ### Supported OS
 
@@ -333,6 +333,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2017/Aug/06 ver 5.433 add MPX, SHA(Goldmont NI) by @MagurosanTeam
 * 2017/Jul/12 ver 5.432 reduce warnings of PVS studio
 * 2017/Jul/09 ver 5.431 fix hasRex() (no affect) (thanks to drillsar)
 * 2017/May/14 ver 5.43 fix CodeGenerator::resetSize() (thanks to gibbed)
