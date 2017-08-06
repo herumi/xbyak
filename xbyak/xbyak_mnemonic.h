@@ -32,6 +32,15 @@ void blendvps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x14, 0x66, is
 void blsi(const Reg32e& r, const Operand& op) { opGpr(Reg32e(3, r.getBit()), op, r, T_0F38, 0xf3, false); }
 void blsmsk(const Reg32e& r, const Operand& op) { opGpr(Reg32e(2, r.getBit()), op, r, T_0F38, 0xf3, false); }
 void blsr(const Reg32e& r, const Operand& op) { opGpr(Reg32e(1, r.getBit()), op, r, T_0F38, 0xf3, false); }
+void bnd() { db(0xF2); }
+void bndcl(const Mpx& mpx, const Operand& op) { db(0xF3); opModRM(mpx, op, op.isREG(i32e), op.isMEM(), 0x0F, 0x1A); }
+void bndcn(const Mpx& mpx, const Operand& op) { db(0xF2); opModRM(mpx, op, op.isREG(i32e), op.isMEM(), 0x0F, 0x1B); }
+void bndcu(const Mpx& mpx, const Operand& op) { db(0xF2); opModRM(mpx, op, op.isREG(i32e), op.isMEM(), 0x0F, 0x1A); }
+void bndldx(const Mpx& mpx, const Address& addr) { opR_ModM(mpx, addr, 0x1A); }
+void bndmk(const Mpx& mpx, const Address& addr) { opR_ModM(mpx, addr, 0x1B, 0xF3); }
+void bndmov(const Address& addr, const Mpx& mpx) { opR_ModM(mpx, addr, 0x1B, 0x66); }
+void bndmov(const Mpx& mpx, const Operand op) { db(0x66); opModRM(mpx, op, op.isMPX(), op.isMEM(), 0x0F, 0x1A); }
+void bndstx(const Address& op, const Mpx& mpx) { opR_ModM(mpx, addr, 0x1B); }
 void bsf(const Reg&reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, 0xBC); }
 void bsr(const Reg&reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, 0xBD); }
 void bswap(const Reg32e& reg) { opModR(Reg32(1), reg, 0x0F); }
@@ -702,6 +711,13 @@ void setpo(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, 0x90 | 11); }//-V524
 void sets(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, 0x90 | 8); }//-V524
 void setz(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, 0x90 | 4); }//-V524
 void sfence() { db(0x0F); db(0xAE); db(0xF8); }
+void sha1msg1(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xC9, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
+void sha1msg2(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xCA, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
+void sha1nexte(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xC8, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
+void sha1rnds4(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0xCC, 0x66, isXMM_XMMorMEM, static_cast<uint8>(imm), 0x3A); }
+void sha256msg1(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xCC, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
+void sha256msg2(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xCD, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
+void sha256rnds2(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xCB, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
 void shl(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 4); }
 void shl(const Operand& op, int imm) { opShift(op, imm, 4); }
 void shld(const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(op, reg, 0, 0xA4, &_cl); }
