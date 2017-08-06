@@ -1,6 +1,0 @@
-{
-    "files.associations": {
-        "system_error": "cpp",
-        "algorithm": "cpp"
-    }
-}
