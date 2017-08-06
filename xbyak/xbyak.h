@@ -105,7 +105,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5432 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5433 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -162,6 +162,7 @@ enum {
 	ERR_BAD_PNUM,
 	ERR_BAD_TNUM,
 	ERR_BAD_VSIB_ADDRESSING,
+	ERR_BAD_MIB_ADDRESSING, 
 	ERR_CANT_CONVERT,
 	ERR_LABEL_ISNOT_SET_BY_L,
 	ERR_LABEL_IS_ALREADY_SET_BY_L,
@@ -222,6 +223,7 @@ public:
 			"bad pNum",
 			"bad tNum",
 			"bad vsib addressing",
+			"bad mib addressing",
 			"can't convert",
 			"label is not set by L()",
 			"label is already set by L()",
@@ -365,7 +367,8 @@ public:
 		XMM = 1 << 4,
 		YMM = 1 << 5,
 		ZMM = 1 << 6,
-		OPMASK = 1 << 7
+		OPMASK = 1 << 7,
+		MPX = 1 << 8
 	};
 	enum Code {
 #ifdef XBYAK64
@@ -402,6 +405,7 @@ public:
 	bool isREG(int bit = 0) const { return is(REG, bit); }
 	bool isMEM(int bit = 0) const { return is(MEM, bit); }
 	bool isFPU() const { return is(FPU); }
+	bool isMPX() const { return is(MPX); }
 	bool isExt8bit() const { return (idx_ & EXT8BIT) != 0; }
 	bool isExtIdx() const { return (getIdx() & 8) != 0; }
 	bool isExtIdx2() const { return (getIdx() & 16) != 0; }
@@ -486,6 +490,9 @@ public:
 		} else if (isFPU()) {
 			static const char *tbl[8] = { "st0", "st1", "st2", "st3", "st4", "st5", "st6", "st7" };
 			return tbl[idx];
+		} else if (isMPX()) {
+			static const char *tbl[8] = { "bnd0", "bnd1", "bnd2", "bnd3" };
+			return tbl[idx];
 		}
 		throw Error(ERR_INTERNAL);
 	}
@@ -559,6 +566,10 @@ struct Ymm : public Xmm {
 struct Zmm : public Ymm {
 	explicit Zmm(int idx = 0) : Ymm(idx, Operand::ZMM, 512) { }
 	Zmm operator|(const EvexModifierRounding& emr) const { Zmm r(*this); r.setRounding(emr.rounding); return r; }
+};
+
+struct Mpx : public Reg {
+	explicit Mpx(int idx = 0) : Reg(idx, Operand::MPX,128) {}
 };
 
 struct Opmask : public Reg {
@@ -2002,6 +2013,7 @@ private:
 		addr.permitVsib();
 		opVex(x, 0, addr, type, code);
 	}
+
 	/*
 		xx_xy_yz ; mode = true
 		xx_xy_xz ; mode = false
@@ -2039,6 +2051,7 @@ public:
 	const AddressFrame ptr_b, xword_b, yword_b, zword_b; // broadcast such as {1to2}, {1to4}, {1to8}, {1to16}, {b}
 	const Fpu st0, st1, st2, st3, st4, st5, st6, st7;
 	const Opmask k0, k1, k2, k3, k4, k5, k6, k7;
+	const Mpx bnd0, bnd1, bnd2, bnd3;
 	const EvexModifierRounding T_sae, T_rn_sae, T_rd_sae, T_ru_sae, T_rz_sae; // {sae}, {rn-sae}, {rd-sae}, {ru-sae}, {rz-sae}
 	const EvexModifierZero T_z; // {z}
 #ifdef XBYAK64
@@ -2400,6 +2413,7 @@ static const Reg8 al(Operand::AL), cl(Operand::CL), dl(Operand::DL), bl(Operand:
 static const AddressFrame ptr(0), byte(8), word(16), dword(32), qword(64);
 static const Fpu st0(0), st1(1), st2(2), st3(3), st4(4), st5(5), st6(6), st7(7);
 static const Opmask k0(0), k1(1), k2(2), k3(3), k4(4), k5(5), k6(6), k7(7);
+static const Mpx bnd0(0), bnd1(1), bnd2(2), bnd3(3);
 #ifdef XBYAK64
 static const Reg64 rax(Operand::RAX), rcx(Operand::RCX), rdx(Operand::RDX), rbx(Operand::RBX), rsp(Operand::RSP), rbp(Operand::RBP), rsi(Operand::RSI), rdi(Operand::RDI), r8(Operand::R8), r9(Operand::R9), r10(Operand::R10), r11(Operand::R11), r12(Operand::R12), r13(Operand::R13), r14(Operand::R14), r15(Operand::R15);
 static const Reg32 r8d(8), r9d(9), r10d(10), r11d(11), r12d(12), r13d(13), r14d(14), r15d(15);

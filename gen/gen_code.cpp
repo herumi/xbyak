@@ -614,6 +614,31 @@ void put()
 		}
 	}
 	////////////////////////////////////////////////////////////////
+	{ //MPX
+		const struct Tbl {
+			uint8 code;
+			int pref;
+			const char *name;
+		} tbl[] = {
+			{ 0x1A, 0xF3, "bndcl" },
+			{ 0x1A, 0xF2, "bndcu" },
+			{ 0x1B, 0xF2, "bndcn" },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			printf("void %s(const Mpx& mpx, const Operand& op) { db(0x%02X); opModRM(mpx, op, op.isREG(i32e), op.isMEM(), 0x0F, 0x%02X); }\n",
+				p->name, p->pref, p->code);
+		}
+
+		puts("void bndmk(const Mpx& mpx, const Address& addr) { opR_ModM(mpx, addr, 0x1B, 0xF3); }"); 
+		puts("void bndldx(const Mpx& mpx, const Address& addr) { opR_ModM(mpx, addr, 0x1A); }");
+		puts("void bndstx(const Address& op, const Mpx& mpx) { opR_ModM(mpx, addr, 0x1B); }");
+
+		puts("void bndmov(const Mpx& mpx, const Operand op) { db(0x66); opModRM(mpx, op, op.isMPX(), op.isMEM(), 0x0F, 0x1A); }");
+		puts("void bndmov(const Address& addr, const Mpx& mpx) { opR_ModM(mpx, addr, 0x1B, 0x66); }");
+	}
+
+	////////////////////////////////////////////////////////////////
 	{
 		const GenericTbl tbl[] = {
 			{ "cbw", 0x66, 0x98 },
@@ -630,6 +655,7 @@ void put()
 			{ "movsw", 0x66, 0xA5 },
 			{ "movsd", 0xA5 },
 			{ "rep", 0xF3 },
+			{ "bnd", 0xF2 }, /// for MPX
 
 			{ "lahf", 0x9F },
 			{ "lock", 0xF0 },
@@ -920,6 +946,13 @@ void put()
 			{ 0xdc, "aesenc" },
 			{ 0xdd, "aesenclast" },
 			{ 0xdb, "aesimc" },
+			// SHA
+			{ 0xC8, "sha1nexte" },
+			{ 0xC9, "sha1msg1" },
+			{ 0xCA, "sha1msg2" },
+			{ 0xCB, "sha256rnds2" },
+			{ 0xCC, "sha256msg1" },
+			{ 0xCD, "sha256msg2" },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -949,6 +982,8 @@ void put()
 			{ 0x63, "pcmpistri" },
 			{ 0x44, "pclmulqdq" },
 			{ 0xdf, "aeskeygenassist" },
+			// SHA
+			{ 0xCC, "sha1rnds4" },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
