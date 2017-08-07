@@ -46,6 +46,7 @@ void putCPUinfo()
 		{ Cpu::tBMI1, "bmi1" },
 		{ Cpu::tBMI2, "bmi2" },
 		{ Cpu::tLZCNT, "lzcnt" },
+		{ Cpu::tPREFETCHW, "prefetchw" },
 		{ Cpu::tENHANCED_REP, "enh_rep" },
 		{ Cpu::tRDRAND, "rdrand" },
 		{ Cpu::tADX, "adx" },

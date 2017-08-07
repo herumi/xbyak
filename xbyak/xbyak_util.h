@@ -175,6 +175,7 @@ public:
 	static const Type tAVX512_4VNNIW = uint64(1) << 44;
 	static const Type tAVX512_4FMAPS = uint64(1) << 45;
 	static const Type tPREFETCHWT1 = uint64(1) << 46;
+	static const Type tPREFETCHW = uint64(1) << 47;
 
 	Cpu()
 		: type_(NONE)
@@ -198,6 +199,7 @@ public:
 			getCpuid(0x80000001, data);
 			if (data[3] & (1U << 27)) type_ |= tRDTSCP;
 			if (data[2] & (1U << 5)) type_ |= tLZCNT;
+			if (data[2] & (1U << 8)) type_ |= tPREFETCHW;
 		}
 		getCpuid(1, data);
 		if (data[2] & (1U << 0)) type_ |= tSSE3;

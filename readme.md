@@ -333,6 +333,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2017/Aug/08 ver 5.44 add prefetchw(thanks to rsdubtso)
 * 2017/Jul/12 ver 5.432 reduce warnings of PVS studio
 * 2017/Jul/09 ver 5.431 fix hasRex() (no affect) (thanks to drillsar)
 * 2017/May/14 ver 5.43 fix CodeGenerator::resetSize() (thanks to gibbed)
