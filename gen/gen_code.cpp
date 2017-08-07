@@ -543,6 +543,7 @@ void put()
 			{ 3, "t2", 0x18},
 			{ 0, "nta", 0x18},
 			{ 2, "wt1", 0x0D},
+			{ 1, "w", 0x0D},
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
