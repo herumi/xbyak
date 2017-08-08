@@ -15,3 +15,10 @@ uninstall:
 	rm -i $(INSTALL_DIR)/*.h
 	rmdir $(INSTALL_DIR)
 
+update:
+	$(MAKE) -C gen
+
+test:
+	$(MAKE) -C test test
+
+.PHONY: test

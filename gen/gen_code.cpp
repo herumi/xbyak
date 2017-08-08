@@ -49,169 +49,179 @@ void putX_X_XM(bool omitOnly)
 			int type;
 			bool hasIMM;
 			bool enableOmit;
+			int mode; // 1 : sse, 2 : avx, 3 : sse + avx
 		} tbl[] = {
-			{ 0x0D, "blendpd", T_0F3A | T_66 | T_W0 | T_YMM, true, true },
-			{ 0x0C, "blendps", T_0F3A | T_66 | T_W0 | T_YMM, true, true },
-			{ 0x41, "dppd", T_0F3A | T_66 | T_W0, true, true },
-			{ 0x40, "dpps", T_0F3A | T_66 | T_W0 | T_YMM, true, true },
-			{ 0x42, "mpsadbw", T_0F3A | T_66 | T_W0 | T_YMM, true, true },
-			{ 0x0E, "pblendw", T_0F3A | T_66 | T_W0 | T_YMM, true, true },
-			{ 0x02, "pblendd", T_0F3A | T_66 | T_W0 | T_YMM, true, true },
-			{ 0x0B, "roundsd", T_0F3A | T_66 | T_W0, true, true },
-			{ 0x0A, "roundss", T_0F3A | T_66 | T_W0, true, true },
-			{ 0x44, "pclmulqdq", T_0F3A | T_66 | T_W0, true, true },
-			{ 0x0C, "permilps", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false },
-			{ 0x0D, "permilpd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW1 | T_B64, false, false },
+			{ 0x0D, "blendpd", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 3 },
+			{ 0x0C, "blendps", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 3 },
+			{ 0x41, "dppd", T_0F3A | T_66 | T_W0, true, true, 3 },
+			{ 0x40, "dpps", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 3 },
+			{ 0x42, "mpsadbw", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 3 },
+			{ 0x0E, "pblendw", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 3 },
+			{ 0x02, "pblendd", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 2 },
+			{ 0x0B, "roundsd", T_0F3A | T_66 | T_W0, true, true, 3 },
+			{ 0x0A, "roundss", T_0F3A | T_66 | T_W0, true, true, 3 },
+			{ 0x44, "pclmulqdq", T_0F3A | T_66 | T_W0, true, true, 3 },
+			{ 0x0C, "permilps", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false, 2 },
+			{ 0x0D, "permilpd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW1 | T_B64, false, false, 2 },
 
-			{ 0x47, "psllvd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false },
-			{ 0x47, "psllvq", T_0F38 | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B64, false, false },
-			{ 0x46, "psravd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false },
-			{ 0x45, "psrlvd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false },
-			{ 0x45, "psrlvq", T_0F38 | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B64, false, false },
+			{ 0x47, "psllvd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false, 2 },
+			{ 0x47, "psllvq", T_0F38 | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B64, false, false, 2 },
+			{ 0x46, "psravd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false, 2 },
+			{ 0x45, "psrlvd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false, 2 },
+			{ 0x45, "psrlvq", T_0F38 | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B64, false, false, 2 },
 
-			{ 0xC2, "cmppd", T_0F | T_66 | T_YMM, true, true },
-			{ 0xC2, "cmpps", T_0F | T_YMM, true, true },
-			{ 0xC2, "cmpsd", T_0F | T_F2, true, true },
-			{ 0xC2, "cmpss", T_0F | T_F3, true, true },
-			{ 0x5A, "cvtsd2ss", T_0F | T_F2 | T_EVEX | T_EW1 | T_N8 | T_ER_X, false, true },
-			{ 0x5A, "cvtss2sd", T_0F | T_F3 | T_EVEX | T_EW0 | T_N4 | T_SAE_X, false, true },
-			{ 0x21, "insertps", T_0F3A | T_66 | T_W0 | T_EVEX | T_EW0, true, true },
-			{ 0x63, "packsswb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x6B, "packssdw", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
-			{ 0x67, "packuswb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x2B, "packusdw", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0xC2, "cmppd", T_0F | T_66 | T_YMM, true, true, 2 },
+			{ 0xC2, "cmpps", T_0F | T_YMM, true, true, 2 },
+			{ 0xC2, "cmpsd", T_0F | T_F2, true, true, 2 },
+			{ 0xC2, "cmpss", T_0F | T_F3, true, true, 2 },
+			{ 0x5A, "cvtsd2ss", T_0F | T_F2 | T_EVEX | T_EW1 | T_N8 | T_ER_X, false, true, 2 },
+			{ 0x5A, "cvtss2sd", T_0F | T_F3 | T_EVEX | T_EW0 | T_N4 | T_SAE_X, false, true, 2 },
+			{ 0x21, "insertps", T_0F3A | T_66 | T_W0 | T_EVEX | T_EW0, true, true, 2 },
+			{ 0x63, "packsswb", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0x6B, "packssdw", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true, 2 },
+			{ 0x67, "packuswb", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0x2B, "packusdw", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true, 3 },
 
-			{ 0xFC, "paddb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xFD, "paddw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xFE, "paddd", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
-			{ 0xD4, "paddq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
+			{ 0xFC, "paddb", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0xFD, "paddw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0xFE, "paddd", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true, 2 },
+			{ 0xD4, "paddq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true, 2 },
 
-			{ 0xEC, "paddsb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xED, "paddsw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xEC, "paddsb", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0xED, "paddsw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
 
-			{ 0xDC, "paddusb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xDD, "paddusw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xDC, "paddusb", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0xDD, "paddusw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
 
-			{ 0x0F, "palignr", T_0F3A | T_66 | T_YMM | T_EVEX, true, true },
+			{ 0x0F, "palignr", T_0F3A | T_66 | T_YMM | T_EVEX, true, true, 2 },
 
-			{ 0xDB, "pand", T_0F | T_66 | T_YMM, false, true },
-			{ 0xDF, "pandn", T_0F | T_66 | T_YMM, false, true },
+			{ 0xDB, "pand", T_0F | T_66 | T_YMM, false, true, 2 },
+			{ 0xDF, "pandn", T_0F | T_66 | T_YMM, false, true, 2 },
 
-			{ 0xE0, "pavgb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xE3, "pavgw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xE0, "pavgb", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0xE3, "pavgw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
 
-			{ 0x74, "pcmpeqb", T_0F | T_66 | T_YMM, false, true },
-			{ 0x75, "pcmpeqw", T_0F | T_66 | T_YMM, false, true },
-			{ 0x76, "pcmpeqd", T_0F | T_66 | T_YMM, false, true },
-			{ 0x29, "pcmpeqq", T_0F38 | T_66 | T_YMM, false, true },
+			{ 0x74, "pcmpeqb", T_0F | T_66 | T_YMM, false, true, 2 },
+			{ 0x75, "pcmpeqw", T_0F | T_66 | T_YMM, false, true, 2 },
+			{ 0x76, "pcmpeqd", T_0F | T_66 | T_YMM, false, true, 2 },
+			{ 0x29, "pcmpeqq", T_0F38 | T_66 | T_YMM, false, true, 3 },
 
-			{ 0x64, "pcmpgtb", T_0F | T_66 | T_YMM, false, true },
-			{ 0x65, "pcmpgtw", T_0F | T_66 | T_YMM, false, true },
-			{ 0x66, "pcmpgtd", T_0F | T_66 | T_YMM, false, true },
-			{ 0x37, "pcmpgtq", T_0F38 | T_66 | T_YMM, false, true },
+			{ 0x64, "pcmpgtb", T_0F | T_66 | T_YMM, false, true, 2 },
+			{ 0x65, "pcmpgtw", T_0F | T_66 | T_YMM, false, true, 2 },
+			{ 0x66, "pcmpgtd", T_0F | T_66 | T_YMM, false, true, 2 },
+			{ 0x37, "pcmpgtq", T_0F38 | T_66 | T_YMM, false, true, 3 },
 
-			{ 0x01, "phaddw", T_0F38 | T_66 | T_YMM, false, true },
-			{ 0x02, "phaddd", T_0F38 | T_66 | T_YMM, false, true },
-			{ 0x03, "phaddsw", T_0F38 | T_66 | T_YMM, false, true },
+			{ 0x01, "phaddw", T_0F38 | T_66 | T_YMM, false, true, 2 },
+			{ 0x02, "phaddd", T_0F38 | T_66 | T_YMM, false, true, 2 },
+			{ 0x03, "phaddsw", T_0F38 | T_66 | T_YMM, false, true, 2 },
 
-			{ 0x05, "phsubw", T_0F38 | T_66 | T_YMM, false, true },
-			{ 0x06, "phsubd", T_0F38 | T_66 | T_YMM, false, true },
-			{ 0x07, "phsubsw", T_0F38 | T_66 | T_YMM, false, true },
-			{ 0xF5, "pmaddwd", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x04, "pmaddubsw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0x05, "phsubw", T_0F38 | T_66 | T_YMM, false, true, 2 },
+			{ 0x06, "phsubd", T_0F38 | T_66 | T_YMM, false, true, 2 },
+			{ 0x07, "phsubsw", T_0F38 | T_66 | T_YMM, false, true, 2 },
+			{ 0xF5, "pmaddwd", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0x04, "pmaddubsw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true, 2 },
 
-			{ 0x3C, "pmaxsb", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xEE, "pmaxsw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x3D, "pmaxsd", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0x3C, "pmaxsb", T_0F38 | T_66 | T_YMM | T_EVEX, false, true, 3 },
+			{ 0xEE, "pmaxsw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0x3D, "pmaxsd", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true, 3 },
 
-			{ 0xDE, "pmaxub", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x3E, "pmaxuw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x3F, "pmaxud", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0xDE, "pmaxub", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0x3E, "pmaxuw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true, 3 },
+			{ 0x3F, "pmaxud", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true, 3 },
 
-			{ 0x38, "pminsb", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xEA, "pminsw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x39, "pminsd", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0x38, "pminsb", T_0F38 | T_66 | T_YMM | T_EVEX, false, true, 3 },
+			{ 0xEA, "pminsw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0x39, "pminsd", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true, 3 },
 
-			{ 0xDA, "pminub", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x3A, "pminuw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x3B, "pminud", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0xDA, "pminub", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0x3A, "pminuw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true, 3 },
+			{ 0x3B, "pminud", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true, 3 },
 
-			{ 0xE4, "pmulhuw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x0B, "pmulhrsw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xE5, "pmulhw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xD5, "pmullw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x40, "pmulld", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0xE4, "pmulhuw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0x0B, "pmulhrsw", T_0F38 | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0xE5, "pmulhw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0xD5, "pmullw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0x40, "pmulld", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true, 3 },
 
-			{ 0xF4, "pmuludq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
-			{ 0x28, "pmuldq", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
+			{ 0xF4, "pmuludq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true, 2 },
+			{ 0x28, "pmuldq", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true, 3 },
 
-			{ 0xEB, "por", T_0F | T_66 | T_YMM, false, true },
-			{ 0xF6, "psadbw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xEB, "por", T_0F | T_66 | T_YMM, false, true, 2 },
+			{ 0xF6, "psadbw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
 
-			{ 0x00, "pshufb", T_0F38 | T_66 | T_YMM | T_EVEX, false, false },
+			{ 0x00, "pshufb", T_0F38 | T_66 | T_YMM | T_EVEX, false, false, 2 },
 
-			{ 0x08, "psignb", T_0F38 | T_66 | T_YMM, false, true },
-			{ 0x09, "psignw", T_0F38 | T_66 | T_YMM, false, true },
-			{ 0x0A, "psignd", T_0F38 | T_66 | T_YMM, false, true },
+			{ 0x08, "psignb", T_0F38 | T_66 | T_YMM, false, true, 2 },
+			{ 0x09, "psignw", T_0F38 | T_66 | T_YMM, false, true, 2 },
+			{ 0x0A, "psignd", T_0F38 | T_66 | T_YMM, false, true, 2 },
 
-			{ 0xF1, "psllw", T_0F | T_66 | T_YMM | T_EVEX | T_N16, false, true },
-			{ 0xF2, "pslld", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_N16, false, true },
-			{ 0xF3, "psllq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_N16, false, true },
+			{ 0xF1, "psllw", T_0F | T_66 | T_YMM | T_EVEX | T_N16, false, true, 2 },
+			{ 0xF2, "pslld", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_N16, false, true, 2 },
+			{ 0xF3, "psllq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_N16, false, true, 2 },
 
-			{ 0xE1, "psraw", T_0F | T_66 | T_YMM | T_EVEX | T_N16, false, true },
-			{ 0xE2, "psrad", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_N16, false, true },
-			{ 0xD1, "psrlw", T_0F | T_66 | T_YMM | T_EVEX | T_N16, false, true },
-			{ 0xD2, "psrld", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_N16, false, true },
-			{ 0xD3, "psrlq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_N16, false, true },
+			{ 0xE1, "psraw", T_0F | T_66 | T_YMM | T_EVEX | T_N16, false, true, 2 },
+			{ 0xE2, "psrad", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_N16, false, true, 2 },
+			{ 0xD1, "psrlw", T_0F | T_66 | T_YMM | T_EVEX | T_N16, false, true, 2 },
+			{ 0xD2, "psrld", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_N16, false, true, 2 },
+			{ 0xD3, "psrlq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_N16, false, true, 2 },
 
-			{ 0xF8, "psubb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xF9, "psubw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xFA, "psubd", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
-			{ 0xFB, "psubq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
+			{ 0xF8, "psubb", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0xF9, "psubw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0xFA, "psubd", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true, 2 },
+			{ 0xFB, "psubq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true, 2 },
 
-			{ 0xE8, "psubsb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xE9, "psubsw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xE8, "psubsb", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0xE9, "psubsw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
 
-			{ 0xD8, "psubusb", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0xD9, "psubusw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
+			{ 0xD8, "psubusb", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0xD9, "psubusw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
 
-			{ 0x68, "punpckhbw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x69, "punpckhwd", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x6A, "punpckhdq", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
-			{ 0x6D, "punpckhqdq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
+			{ 0x68, "punpckhbw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0x69, "punpckhwd", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0x6A, "punpckhdq", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true, 2 },
+			{ 0x6D, "punpckhqdq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true, 2 },
 
-			{ 0x60, "punpcklbw", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x61, "punpcklwd", T_0F | T_66 | T_YMM | T_EVEX, false, true },
-			{ 0x62, "punpckldq", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
-			{ 0x6C, "punpcklqdq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
+			{ 0x60, "punpcklbw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0x61, "punpcklwd", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0x62, "punpckldq", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true, 2 },
+			{ 0x6C, "punpcklqdq", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true, 2 },
 
-			{ 0xEF, "pxor", T_0F | T_66 | T_YMM, false, true },
+			{ 0xEF, "pxor", T_0F | T_66 | T_YMM, false, true, 2 },
 
-			{ 0x53, "rcpss", T_0F | T_F3, false, true },
-			{ 0x52, "rsqrtss", T_0F | T_F3, false, true },
+			{ 0x53, "rcpss", T_0F | T_F3, false, true, 2 },
+			{ 0x52, "rsqrtss", T_0F | T_F3, false, true, 2 },
 
-			{ 0xC6, "shufpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, true, true },
-			{ 0xC6, "shufps", T_0F | T_YMM | T_EVEX | T_EW0 | T_B32, true, true },
+			{ 0xC6, "shufpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, true, true, 2 },
+			{ 0xC6, "shufps", T_0F | T_YMM | T_EVEX | T_EW0 | T_B32, true, true, 2 },
 
-			{ 0x51, "sqrtsd", T_0F | T_F2 | T_EVEX | T_EW1 | T_ER_X | T_N8, false, true },
-			{ 0x51, "sqrtss", T_0F | T_F3 | T_EVEX | T_EW0 | T_ER_X | T_N4, false, true },
+			{ 0x51, "sqrtsd", T_0F | T_F2 | T_EVEX | T_EW1 | T_ER_X | T_N8, false, true, 2 },
+			{ 0x51, "sqrtss", T_0F | T_F3 | T_EVEX | T_EW0 | T_ER_X | T_N4, false, true, 2 },
 
-			{ 0x15, "unpckhpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
-			{ 0x15, "unpckhps", T_0F | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0x15, "unpckhpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true, 2 },
+			{ 0x15, "unpckhps", T_0F | T_YMM | T_EVEX | T_EW0 | T_B32, false, true, 2 },
 
-			{ 0x14, "unpcklpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true },
-			{ 0x14, "unpcklps", T_0F | T_YMM | T_EVEX | T_EW0 | T_B32, false, true },
+			{ 0x14, "unpcklpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true, 2 },
+			{ 0x14, "unpcklps", T_0F | T_YMM | T_EVEX | T_EW0 | T_B32, false, true, 2 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			std::string type = type2String(p->type);
-			if (!omitOnly) {
-				printf("void v%s(const Xmm& x1, const Xmm& x2, const Operand& op%s) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X%s); }\n"
-				, p->name, p->hasIMM ? ", uint8 imm" : "", type.c_str(), p->code, p->hasIMM ? ", imm" : "");
-			}
-			if (!p->enableOmit) continue;
 			if (omitOnly) {
-				printf("void v%s(const Xmm& x, const Operand& op%s) { v%s(x, x, op%s); }\n", p->name, p->hasIMM ? ", uint8 imm" : "", p->name, p->hasIMM ? ", imm" : "");
+				if (p->enableOmit) {
+					printf("void v%s(const Xmm& x, const Operand& op%s) { v%s(x, x, op%s); }\n", p->name, p->hasIMM ? ", uint8 imm" : "", p->name, p->hasIMM ? ", imm" : "");
+				}
+			} else {
+				if (p->mode & 1) {
+					if (p->hasIMM) {
+						printf("void %s(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0x%02X, 0x66, isXMM_XMMorMEM, static_cast<uint8>(imm), 0x3A); }\n", p->name, p->code);
+					} else {
+						printf("void %s(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x%02X, 0x66, isXMM_XMMorMEM, NONE, 0x38); }\n", p->name, p->code);
+					}
+				}
+				if (p->mode & 2) {
+					printf("void v%s(const Xmm& x1, const Xmm& x2, const Operand& op%s) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X%s); }\n"
+					, p->name, p->hasIMM ? ", uint8 imm" : "", type.c_str(), p->code, p->hasIMM ? ", imm" : "");
+				}
 			}
 		}
 	}
@@ -486,18 +496,6 @@ void put()
 			{ 0x5B, 0x66, "cvtps2dq" },
 			{ 0x5B, 0xF3, "cvttps2dq" },
 			{ 0x5B, NO , "cvtdq2ps" },
-
-			// SSE3
-			{ 0xD0, 0x66, "addsubpd" },
-			{ 0xD0, 0xF2, "addsubps" },
-			{ 0x7C, 0x66, "haddpd" },
-			{ 0x7C, 0xF2, "haddps" },
-			{ 0x7D, 0x66, "hsubpd" },
-			{ 0x7D, 0xF2, "hsubps" },
-
-			{ 0x12, 0xF2, "movddup" },
-			{ 0x16, 0xF3, "movshdup" },
-			{ 0x12, 0xF3, "movsldup" },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -878,84 +876,6 @@ void put()
 		}
 		printf("void palignr(const Mmx& mmx, const Operand& op, int imm) { opMMX(mmx, op, 0x0f, 0x66, static_cast<uint8>(imm), 0x3a); }\n");
 	}
-	// SSE4
-	{
-		const struct Tbl {
-			uint8 code;
-			const char *name;
-		} tbl[] = {
-			// SSE4.1
-			{ 0x15, "blendvpd" },
-			{ 0x14, "blendvps" },
-			{ 0x2B, "packusdw" },
-			{ 0x10, "pblendvb" },
-			{ 0x29, "pcmpeqq" },
-			{ 0x17, "ptest" },
-			{ 0x20, "pmovsxbw" },
-			{ 0x21, "pmovsxbd" },
-			{ 0x22, "pmovsxbq" },
-			{ 0x23, "pmovsxwd" },
-			{ 0x24, "pmovsxwq" },
-			{ 0x25, "pmovsxdq" },
-			{ 0x30, "pmovzxbw" },
-			{ 0x31, "pmovzxbd" },
-			{ 0x32, "pmovzxbq" },
-			{ 0x33, "pmovzxwd" },
-			{ 0x34, "pmovzxwq" },
-			{ 0x35, "pmovzxdq" },
-			{ 0x38, "pminsb" },
-			{ 0x39, "pminsd" },
-			{ 0x3A, "pminuw" },
-			{ 0x3B, "pminud" },
-			{ 0x3C, "pmaxsb" },
-			{ 0x3D, "pmaxsd" },
-			{ 0x3E, "pmaxuw" },
-			{ 0x3F, "pmaxud" },
-			{ 0x28, "pmuldq" },
-			{ 0x40, "pmulld" },
-			{ 0x41, "phminposuw"},
-			// SSE4.2
-			{ 0x37, "pcmpgtq" },
-			{ 0xde, "aesdec" },
-			{ 0xdf, "aesdeclast" },
-			{ 0xdc, "aesenc" },
-			{ 0xdd, "aesenclast" },
-			{ 0xdb, "aesimc" },
-		};
-		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-			const Tbl *p = &tbl[i];
-			printf("void %s(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x%02X, 0x66, isXMM_XMMorMEM, NONE, 0x38); }\n", p->name, p->code);
-		}
-	}
-	{
-		const struct Tbl {
-			uint8 code;
-			const char *name;
-		} tbl[] = {
-			// SSE4.1
-			{ 0x0D, "blendpd" },
-			{ 0x0C, "blendps" },
-			{ 0x41, "dppd" },
-			{ 0x40, "dpps" },
-			{ 0x42, "mpsadbw" },
-			{ 0x0E, "pblendw" },
-			{ 0x08, "roundps" },
-			{ 0x09, "roundpd" },
-			{ 0x0A, "roundss" },
-			{ 0x0B, "roundsd" },
-			// SSE4.2
-			{ 0x60, "pcmpestrm" },
-			{ 0x61, "pcmpestri" },
-			{ 0x62, "pcmpistrm" },
-			{ 0x63, "pcmpistri" },
-			{ 0x44, "pclmulqdq" },
-			{ 0xdf, "aeskeygenassist" },
-		};
-		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-			const Tbl *p = &tbl[i];
-			printf("void %s(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0x%02X, 0x66, isXMM_XMMorMEM, static_cast<uint8>(imm), 0x3A); }\n", p->name, p->code);
-		}
-	}
 	{
 		const struct Tbl {
 			const char *name;
@@ -1202,71 +1122,85 @@ void put()
 			const char *name;
 			int type;
 			bool hasIMM;
+			int mode; // 1 : SSE, 2 : AVX, 3 : SSE + AVX
 		} tbl[] = {
-			{ 0xDF, "aeskeygenassist", T_0F3A | T_66, true },
-			{ 0x09, "roundpd", T_0F3A | T_66 | T_YMM, true },
-			{ 0x08, "roundps", T_0F3A | T_66 | T_YMM, true },
-			{ 0x05, "permilpd", T_0F3A | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, true },
-			{ 0x04, "permilps", T_0F3A | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, true },
-			{ 0x61, "pcmpestri", T_0F3A | T_66, true },
-			{ 0x60, "pcmpestrm", T_0F3A | T_66, true },
-			{ 0x63, "pcmpistri", T_0F3A | T_66, true },
-			{ 0x62, "pcmpistrm", T_0F3A | T_66, true },
-			{ 0x0E, "testps", T_0F38 | T_66 | T_YMM, false },
-			{ 0x0F, "testpd", T_0F38 | T_66 | T_YMM, false },
-			{ 0x2F, "comisd", T_0F | T_66 | T_EVEX | T_EW1 | T_SAE_X | T_N8, false },
-			{ 0x2F, "comiss", T_0F | T_EVEX | T_EW0 | T_SAE_X | T_N4, false },
-			{ 0x5B, "cvtdq2ps", T_0F | T_YMM | T_EVEX | T_EW0 | T_B32 | T_ER_Z, false },
-			{ 0x5B, "cvtps2dq", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_ER_Z, false },
-			{ 0x5B, "cvttps2dq", T_0F | T_F3 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_SAE_Z, false },
-			{ 0x28, "movapd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1, false },
-			{ 0x28, "movaps", T_0F | T_YMM | T_EVEX | T_EW0, false },
-			{ 0x12, "movddup", T_0F | T_F2 | T_YMM | T_EVEX | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z | T_DUP, false },
-			{ 0x6F, "movdqa", T_0F | T_66 | T_YMM, false },
-			{ 0x6F, "movdqu", T_0F | T_F3 | T_YMM, false },
-			{ 0x16, "movshdup", T_0F | T_F3 | T_YMM | T_EVEX | T_EW0, false },
-			{ 0x12, "movsldup", T_0F | T_F3 | T_YMM | T_EVEX | T_EW0, false },
-			{ 0x10, "movupd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1, false },
-			{ 0x10, "movups", T_0F | T_YMM | T_EVEX | T_EW0, false },
+			{ 0x15, "blendvpd", T_0F38 | T_66, false, 1 },
+			{ 0x14, "blendvps", T_0F38 | T_66, false, 1 },
+			{ 0x10, "pblendvb", T_0F38 | T_66, false, 1 },
+			{ 0xDF, "aeskeygenassist", T_0F3A | T_66, true, 3 },
+			{ 0xDB, "aesimc", T_0F38 | T_66 | T_W0, false, 3 },
+			{ 0x09, "roundpd", T_0F3A | T_66 | T_YMM, true, 3 },
+			{ 0x08, "roundps", T_0F3A | T_66 | T_YMM, true, 3 },
+			{ 0x05, "permilpd", T_0F3A | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, true, 2 },
+			{ 0x04, "permilps", T_0F3A | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, true, 2 },
+			{ 0x61, "pcmpestri", T_0F3A | T_66, true, 3 },
+			{ 0x60, "pcmpestrm", T_0F3A | T_66, true, 3 },
+			{ 0x63, "pcmpistri", T_0F3A | T_66, true, 3 },
+			{ 0x62, "pcmpistrm", T_0F3A | T_66, true, 3 },
+			{ 0x0E, "testps", T_0F38 | T_66 | T_YMM, false, 2 },
+			{ 0x0F, "testpd", T_0F38 | T_66 | T_YMM, false, 2 },
+			{ 0x2F, "comisd", T_0F | T_66 | T_EVEX | T_EW1 | T_SAE_X | T_N8, false, 2 },
+			{ 0x2F, "comiss", T_0F | T_EVEX | T_EW0 | T_SAE_X | T_N4, false, 2 },
+			{ 0x5B, "cvtdq2ps", T_0F | T_YMM | T_EVEX | T_EW0 | T_B32 | T_ER_Z, false, 2 },
+			{ 0x5B, "cvtps2dq", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_ER_Z, false, 2 },
+			{ 0x5B, "cvttps2dq", T_0F | T_F3 | T_YMM | T_EVEX | T_EW0 | T_B32 | T_SAE_Z, false, 2 },
+			{ 0x28, "movapd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1, false, 2 },
+			{ 0x28, "movaps", T_0F | T_YMM | T_EVEX | T_EW0, false, 2 },
+			{ 0x12, "movddup", T_0F | T_F2 | T_YMM | T_EVEX | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z | T_DUP, false, 3 },
+			{ 0x6F, "movdqa", T_0F | T_66 | T_YMM, false, 2 },
+			{ 0x6F, "movdqu", T_0F | T_F3 | T_YMM, false, 2 },
+			{ 0x16, "movshdup", T_0F | T_F3 | T_YMM | T_EVEX | T_EW0, false, 3 },
+			{ 0x12, "movsldup", T_0F | T_F3 | T_YMM | T_EVEX | T_EW0, false, 3 },
+			{ 0x10, "movupd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1, false, 2 },
+			{ 0x10, "movups", T_0F | T_YMM | T_EVEX | T_EW0, false, 2 },
 
-			{ 0x1C, "pabsb", T_0F38 | T_66 | T_YMM | T_EVEX, false },
-			{ 0x1D, "pabsw", T_0F38 | T_66 | T_YMM | T_EVEX, false },
-			{ 0x1E, "pabsd", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false },
-			{ 0x41, "phminposuw", T_0F38 | T_66, false },
+			{ 0x1C, "pabsb", T_0F38 | T_66 | T_YMM | T_EVEX, false, 2 },
+			{ 0x1D, "pabsw", T_0F38 | T_66 | T_YMM | T_EVEX, false, 2 },
+			{ 0x1E, "pabsd", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, 2 },
+			{ 0x41, "phminposuw", T_0F38 | T_66, false, 3 },
 
-			{ 0x20, "pmovsxbw", T_0F38 | T_66 | T_YMM | T_EVEX | T_N8 | T_N_VL, false },
-			{ 0x21, "pmovsxbd", T_0F38 | T_66 | T_YMM | T_EVEX | T_N4 | T_N_VL, false },
-			{ 0x22, "pmovsxbq", T_0F38 | T_66 | T_YMM | T_EVEX | T_N2 | T_N_VL, false },
-			{ 0x23, "pmovsxwd", T_0F38 | T_66 | T_YMM | T_EVEX | T_N8 | T_N_VL, false },
-			{ 0x24, "pmovsxwq", T_0F38 | T_66 | T_YMM | T_EVEX | T_N4 | T_N_VL, false },
-			{ 0x25, "pmovsxdq", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_N8 | T_N_VL, false },
+			{ 0x20, "pmovsxbw", T_0F38 | T_66 | T_YMM | T_EVEX | T_N8 | T_N_VL, false, 3 },
+			{ 0x21, "pmovsxbd", T_0F38 | T_66 | T_YMM | T_EVEX | T_N4 | T_N_VL, false, 3 },
+			{ 0x22, "pmovsxbq", T_0F38 | T_66 | T_YMM | T_EVEX | T_N2 | T_N_VL, false, 3 },
+			{ 0x23, "pmovsxwd", T_0F38 | T_66 | T_YMM | T_EVEX | T_N8 | T_N_VL, false, 3 },
+			{ 0x24, "pmovsxwq", T_0F38 | T_66 | T_YMM | T_EVEX | T_N4 | T_N_VL, false, 3 },
+			{ 0x25, "pmovsxdq", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_N8 | T_N_VL, false, 3 },
 
-			{ 0x30, "pmovzxbw", T_0F38 | T_66 | T_YMM | T_EVEX | T_N8 | T_N_VL, false },
-			{ 0x31, "pmovzxbd", T_0F38 | T_66 | T_YMM | T_EVEX | T_N4 | T_N_VL, false },
-			{ 0x32, "pmovzxbq", T_0F38 | T_66 | T_YMM | T_EVEX | T_N2 | T_N_VL, false },
-			{ 0x33, "pmovzxwd", T_0F38 | T_66 | T_YMM | T_EVEX | T_N8 | T_N_VL, false },
-			{ 0x34, "pmovzxwq", T_0F38 | T_66 | T_YMM | T_EVEX | T_N4 | T_N_VL, false },
-			{ 0x35, "pmovzxdq", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_N8 | T_N_VL, false },
+			{ 0x30, "pmovzxbw", T_0F38 | T_66 | T_YMM | T_EVEX | T_N8 | T_N_VL, false, 3 },
+			{ 0x31, "pmovzxbd", T_0F38 | T_66 | T_YMM | T_EVEX | T_N4 | T_N_VL, false, 3 },
+			{ 0x32, "pmovzxbq", T_0F38 | T_66 | T_YMM | T_EVEX | T_N2 | T_N_VL, false, 3 },
+			{ 0x33, "pmovzxwd", T_0F38 | T_66 | T_YMM | T_EVEX | T_N8 | T_N_VL, false, 3 },
+			{ 0x34, "pmovzxwq", T_0F38 | T_66 | T_YMM | T_EVEX | T_N4 | T_N_VL, false, 3 },
+			{ 0x35, "pmovzxdq", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW0 | T_N8 | T_N_VL, false, 3 },
 
-			{ 0x70, "pshufd", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, true },
-			{ 0x70, "pshufhw", T_0F | T_F3 | T_YMM | T_EVEX, true },
-			{ 0x70, "pshuflw", T_0F | T_F2 | T_YMM | T_EVEX, true },
+			{ 0x70, "pshufd", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, true, 2 },
+			{ 0x70, "pshufhw", T_0F | T_F3 | T_YMM | T_EVEX, true, 2 },
+			{ 0x70, "pshuflw", T_0F | T_F2 | T_YMM | T_EVEX, true, 2 },
 
-			{ 0x17, "ptest", T_0F38 | T_66 | T_YMM, false },
-			{ 0x53, "rcpps", T_0F | T_YMM, false },
-			{ 0x52, "rsqrtps", T_0F | T_YMM, false },
+			{ 0x17, "ptest", T_0F38 | T_66 | T_YMM, false, 3 },
+			{ 0x53, "rcpps", T_0F | T_YMM, false, 2 },
+			{ 0x52, "rsqrtps", T_0F | T_YMM, false, 2 },
 
-			{ 0x51, "sqrtpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_ER_Z | T_B64, false },
-			{ 0x51, "sqrtps", T_0F | T_YMM | T_EVEX | T_EW0 | T_ER_Z | T_B32, false },
+			{ 0x51, "sqrtpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_ER_Z | T_B64, false, 2 },
+			{ 0x51, "sqrtps", T_0F | T_YMM | T_EVEX | T_EW0 | T_ER_Z | T_B32, false, 2 },
 
-			{ 0x2E, "ucomisd", T_0F | T_66 | T_EVEX | T_EW1 | T_SAE_X | T_N8, false },
-			{ 0x2E, "ucomiss", T_0F | T_EVEX | T_EW0 | T_SAE_X | T_N4, false },
+			{ 0x2E, "ucomisd", T_0F | T_66 | T_EVEX | T_EW1 | T_SAE_X | T_N8, false, 2 },
+			{ 0x2E, "ucomiss", T_0F | T_EVEX | T_EW0 | T_SAE_X | T_N4, false, 2 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			std::string type = type2String(p->type);
-			printf("void v%s(const Xmm& xm, const Operand& op%s) { opAVX_X_XM_IMM(xm, op, %s, 0x%02X%s); }\n"
-				, p->name, p->hasIMM ? ", uint8 imm" : "", type.c_str(), p->code, p->hasIMM ? ", imm" : "");
+			const char *immS1 = p->hasIMM ? ", uint8 imm" : "";
+			const char *immS2 = p->hasIMM ? ", imm" : ", NONE";
+			uint8 pref = p->type & T_66 ? 0x66 : p->type & T_F2 ? 0xF2 : p->type & T_F3 ? 0xF3 : 0;
+			const char *suf = p->type & T_0F38 ? "0x38" : p->type & T_0F3A ? "0x3A" : "NONE";
+			if (p->mode & 1) {
+				printf("void %s(const Xmm& xmm, const Operand& op%s) { opGen(xmm, op, 0x%02X, 0x%02X, isXMM_XMMorMEM%s, %s); }\n", p->name, immS1, p->code, pref, immS2, suf);
+			}
+			if (p->mode & 2) {
+				printf("void v%s(const Xmm& xm, const Operand& op%s) { opAVX_X_XM_IMM(xm, op, %s, 0x%02X%s); }\n"
+					, p->name, p->hasIMM ? ", uint8 imm" : "", type.c_str(), p->code, p->hasIMM ? ", imm" : "");
+			}
 		}
 	}
 	// (m, x), (m, y)
@@ -1296,24 +1230,31 @@ void put()
 			uint8 code;
 			const char *name;
 			int type;
+			int mode; // 1 : sse, 2 : avx, 3 : sse + avx
 		} tbl[] = {
-			{ 0xD0, "addsubpd", T_0F | T_66 | T_YMM},
-			{ 0xD0, "addsubps", T_0F | T_F2 | T_YMM},
-			{ 0x7C, "haddpd", T_0F | T_66 | T_YMM},
-			{ 0x7C, "haddps", T_0F | T_F2 | T_YMM},
-			{ 0x7D, "hsubpd", T_0F | T_66 | T_YMM},
-			{ 0x7D, "hsubps", T_0F | T_F2 | T_YMM},
+			{ 0xD0, "addsubpd", T_0F | T_66 | T_YMM, 3 },
+			{ 0xD0, "addsubps", T_0F | T_F2 | T_YMM, 3 },
+			{ 0x7C, "haddpd", T_0F | T_66 | T_YMM, 3 },
+			{ 0x7C, "haddps", T_0F | T_F2 | T_YMM, 3 },
+			{ 0x7D, "hsubpd", T_0F | T_66 | T_YMM, 3 },
+			{ 0x7D, "hsubps", T_0F | T_F2 | T_YMM, 3 },
 
-			{ 0xDC, "aesenc", T_0F38 | T_66 | T_W0},
-			{ 0xDD, "aesenclast", T_0F38 | T_66 | T_W0},
-			{ 0xDE, "aesdec", T_0F38 | T_66 | T_W0},
-			{ 0xDF, "aesdeclast", T_0F38 | T_66 | T_W0},
+			{ 0xDC, "aesenc", T_0F38 | T_66 | T_W0, 3 },
+			{ 0xDD, "aesenclast", T_0F38 | T_66 | T_W0, 3 },
+			{ 0xDE, "aesdec", T_0F38 | T_66 | T_W0, 3 },
+			{ 0xDF, "aesdeclast", T_0F38 | T_66 | T_W0, 3 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			std::string type = type2String(p->type);
-			printf("void v%s(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, %s, 0x%02X); }\n"
-				, p->name, type.c_str(), p->code);
+			if (p->mode & 1) {
+				uint8 pref = p->type & T_66 ? 0x66 : p->type & T_F2 ? 0xF2 : p->type & T_F3 ? 0xF3 : 0;
+				printf("void %s(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x%02X, 0x%02X, isXMM_XMMorMEM%s); }\n", p->name, p->code, pref, p->type & T_0F38 ? ", NONE, 0x38" : "");
+			}
+			if (p->mode & 2) {
+				printf("void v%s(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, %s, 0x%02X); }\n"
+					, p->name, type.c_str(), p->code);
+			}
 		}
 	}
 	// vmaskmov
@@ -1463,8 +1404,6 @@ void put()
 	}
 	// FMA others
 	{
-		printf("void vaesimc(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_0F38 | T_66 | T_W0, 0xDB); }\n");
-
 		printf("void vbroadcastf128(const Ymm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, T_0F38 | T_66 | T_W0 | T_YMM, 0x1A); }\n");
 		printf("void vbroadcasti128(const Ymm& y, const Address& addr) { opAVX_X_XM_IMM(y, addr, T_0F38 | T_66 | T_W0 | T_YMM, 0x5A); }\n");
 		printf("void vbroadcastsd(const Ymm& y, const Operand& op) { if (!op.isMEM() && !(y.isYMM() && op.isXMM()) && !(y.isZMM() && op.isXMM())) throw Error(ERR_BAD_COMBINATION); opAVX_X_XM_IMM(y, op, T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW1 | T_N8, 0x19); }\n");
