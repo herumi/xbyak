@@ -112,6 +112,7 @@ const uint64 XMM_ER = 1ULL << 60;
 const uint64 M_xword = 1ULL << 61;
 const uint64 M_yword = 1ULL << 62;
 const uint64 MY_1to4 = 1ULL << 18;
+const uint64 BNDREG = 1ULL << 22;
 
 const uint64 NOPARA = 1ULL << (bitEnd - 1);
 
@@ -402,6 +403,13 @@ class Test {
 			}
 		case K2:
 			return isXbyak_ ? "k3 | k5" : "k3{k5}";
+		case BNDREG:
+			{
+				static const char tbl[][5] = {
+					"bnd0", "bnd1", "bnd2", "bnd3",
+				};
+				return tbl[idx % 4];
+			}
 #ifdef XBYAK64
 		case XMM_SAE:
 			return isXbyak_ ? "xmm25 | T_sae" : "xmm25, {sae}";
@@ -1340,6 +1348,21 @@ class Test {
 		put("sha256rnds2", XMM, XMM|MEM);
 		put("sha256msg1", XMM, XMM|MEM);
 		put("sha256msg2", XMM, XMM|MEM);
+	}
+	void putMPX() const
+	{
+#ifdef XBYAK64
+		const uint64 reg = REG64;
+#else
+		const uint64 reg = REG32;
+#endif
+		put("bndcl", BNDREG, reg|MEM);
+		put("bndcu", BNDREG, reg|MEM);
+		put("bndcn", BNDREG, reg|MEM);
+		put("bndldx", BNDREG, MEM);
+		put("bndmk", BNDREG, MEM);
+		put("bndmov", BNDREG, BNDREG|MEM);
+		put("bndstx", MEM, BNDREG);
 	}
 	void putFpuMem16_32() const
 	{
@@ -2380,6 +2403,7 @@ public:
 		putFpu();
 		putFpuFpu();
 		putCmp();
+		putMPX();
 #endif
 
 #ifdef XBYAK64

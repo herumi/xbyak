@@ -177,6 +177,7 @@ public:
 	static const Type tPREFETCHWT1 = uint64(1) << 46;
 	static const Type tPREFETCHW = uint64(1) << 47;
 	static const Type tSHA = uint64(1) << 48;
+	static const Type tMPX = uint64(1) << 49;
 
 	Cpu()
 		: type_(NONE)
@@ -255,6 +256,7 @@ public:
 			if (data[1] & (1U << 20)) type_ |= tSMAP;
 			if (data[1] & (1U << 4)) type_ |= tHLE;
 			if (data[1] & (1U << 11)) type_ |= tRTM;
+			if (data[1] & (1U << 14)) type_ |= tMPX;
 			if (data[1] & (1U << 29)) type_ |= tSHA;
 			if (data[2] & (1U << 0)) type_ |= tPREFETCHWT1;
 		}

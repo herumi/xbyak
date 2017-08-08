@@ -31,6 +31,10 @@ public:
 int main()
 	try
 {
+	size_t size = sizeof(Xbyak::Operand);
+	if (size != 4) {
+		printf("sizeof Operand %d\n", (int)size);
+	}
 	try {
 		Sample s;
 		s.gen();
