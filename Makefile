@@ -21,4 +21,4 @@ update:
 test:
 	$(MAKE) -C test test
 
-.PHONY: test
+.PHONY: test update

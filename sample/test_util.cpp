@@ -54,6 +54,7 @@ void putCPUinfo()
 		{ Cpu::tSMAP, "smap" },
 		{ Cpu::tHLE, "hle" },
 		{ Cpu::tRTM, "rtm" },
+		{ Cpu::tRTM, "sha" },
 		{ Cpu::tPREFETCHWT1, "prefetchwt1" },
 		{ Cpu::tF16C, "f16c" },
 		{ Cpu::tMOVBE, "movbe" },

@@ -4,9 +4,9 @@ CFLAGS=-I../ -O2 -DXBYAK_NO_OP_NAMES -Wall -Wextra -Wno-missing-field-initialize
 all: $(TARGET)
 sortline: sortline.cpp
 	$(CXX) $(CFLAGS) $< -o $@
-gen_code: gen_code.cpp
+gen_code: gen_code.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) $< -o $@
-gen_avx512: gen_avx512.cpp
+gen_avx512: gen_avx512.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) $< -o $@
 
 $(TARGET): $(BIN)

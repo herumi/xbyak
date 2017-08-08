@@ -1331,6 +1331,16 @@ class Test {
 		put("pinsrq", XMM, REG64|MEM, IMM);
 #endif
 	}
+	void putSHA() const
+	{
+		put("sha1rnds4", XMM, XMM|MEM, IMM);
+		put("sha1nexte", XMM, XMM|MEM);
+		put("sha1msg1", XMM, XMM|MEM);
+		put("sha1msg2", XMM, XMM|MEM);
+		put("sha256rnds2", XMM, XMM|MEM);
+		put("sha256msg1", XMM, XMM|MEM);
+		put("sha256msg2", XMM, XMM|MEM);
+	}
 	void putFpuMem16_32() const
 	{
 		const char tbl[][8] = {
@@ -2319,6 +2329,7 @@ public:
 		putAVX_Y_XM();
 		separateFunc();
 		putFMA();
+		putSHA();
 #endif
 
 #else // USE_AVX

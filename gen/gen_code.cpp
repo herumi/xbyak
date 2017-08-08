@@ -1186,16 +1186,24 @@ void put()
 
 			{ 0x2E, "ucomisd", T_0F | T_66 | T_EVEX | T_EW1 | T_SAE_X | T_N8, false, 2 },
 			{ 0x2E, "ucomiss", T_0F | T_EVEX | T_EW0 | T_SAE_X | T_N4, false, 2 },
+
+			{ 0xCC, "sha1rnds4", T_0F3A, true, 1 },
+			{ 0xC8, "sha1nexte", T_0F38, false, 1 },
+			{ 0xC9, "sha1msg1", T_0F38, false, 1 },
+			{ 0xCA, "sha1msg2", T_0F38, false, 1 },
+			{ 0xCB, "sha256rnds2", T_0F38, false, 1 },
+			{ 0xCC, "sha256msg1", T_0F38, false, 1 },
+			{ 0xCD, "sha256msg2", T_0F38, false, 1 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			std::string type = type2String(p->type);
-			const char *immS1 = p->hasIMM ? ", uint8 imm" : "";
-			const char *immS2 = p->hasIMM ? ", imm" : ", NONE";
-			uint8 pref = p->type & T_66 ? 0x66 : p->type & T_F2 ? 0xF2 : p->type & T_F3 ? 0xF3 : 0;
-			const char *suf = p->type & T_0F38 ? "0x38" : p->type & T_0F3A ? "0x3A" : "NONE";
 			if (p->mode & 1) {
-				printf("void %s(const Xmm& xmm, const Operand& op%s) { opGen(xmm, op, 0x%02X, 0x%02X, isXMM_XMMorMEM%s, %s); }\n", p->name, immS1, p->code, pref, immS2, suf);
+				const char *immS1 = p->hasIMM ? ", uint8 imm" : "";
+				const char *immS2 = p->hasIMM ? ", imm" : ", NONE";
+				const char *pref = p->type & T_66 ? "0x66" : p->type & T_F2 ? "0xF2" : p->type & T_F3 ? "0xF3" : "NONE";
+				const char *suf = p->type & T_0F38 ? "0x38" : p->type & T_0F3A ? "0x3A" : "NONE";
+				printf("void %s(const Xmm& xmm, const Operand& op%s) { opGen(xmm, op, 0x%02X, %s, isXMM_XMMorMEM%s, %s); }\n", p->name, immS1, p->code, pref, immS2, suf);
 			}
 			if (p->mode & 2) {
 				printf("void v%s(const Xmm& xm, const Operand& op%s) { opAVX_X_XM_IMM(xm, op, %s, 0x%02X%s); }\n"
