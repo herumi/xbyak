@@ -346,9 +346,9 @@ public:
 #endif
 
 class Operand {
-	static const uint8 EXT8BIT = 0x40;
-	unsigned int idx_:7; // 0..31, EXT8BIT = 1 if spl/bpl/sil/dil
-	unsigned int kind_:8;
+	static const uint8 EXT8BIT = 0x20;
+	unsigned int idx_:6; // 0..31 + EXT8BIT = 1 if spl/bpl/sil/dil
+	unsigned int kind_:9;
 	unsigned int bit_:10;
 protected:
 	unsigned int zero_:1;
