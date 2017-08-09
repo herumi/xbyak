@@ -407,7 +407,7 @@ public:
 	bool isExt8bit() const { return (idx_ & EXT8BIT) != 0; }
 	bool isExtIdx() const { return (getIdx() & 8) != 0; }
 	bool isExtIdx2() const { return (getIdx() & 16) != 0; }
-	bool hasEvex() const { return isZMM() || isExtIdx2() || hasZero() || getOpmaskIdx() || getRounding(); }
+	bool hasEvex() const { return isZMM() || isExtIdx2() || getOpmaskIdx() || getRounding(); }
 	bool hasRex() const { return isExt8bit() || isREG(64) || isExtIdx(); }
 	bool hasZero() const { return zero_; }
 	int getOpmaskIdx() const { return mask_; }
