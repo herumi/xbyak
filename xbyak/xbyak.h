@@ -1375,38 +1375,41 @@ private:
 		if (rex) db(rex);
 	}
 	enum AVXtype {
-		T_66 = 1 << 0,
-		T_F3 = 1 << 1,
-		T_F2 = 1 << 2,
-		T_0F = 1 << 3,
-		T_0F38 = 1 << 4,
-		T_0F3A = 1 << 5,
-		T_L0 = 1 << 6,
-		T_L1 = 1 << 7,
-		T_W0 = 1 << 8,
-		T_W1 = 1 << 9,
-		T_EW0 = 1 << 10,
-		T_EW1 = 1 << 11,
-		T_YMM = 1 << 12, // support YMM, ZMM
-		T_EVEX = 1 << 13,
-		T_ER_X = 1 << 14, // xmm{er}
-		T_ER_Y = 1 << 15, // ymm{er}
-		T_ER_Z = 1 << 16, // zmm{er}
-		T_SAE_X = 1 << 17, // xmm{sae}
-		T_SAE_Y = 1 << 18, // ymm{sae}
-		T_SAE_Z = 1 << 19, // zmm{sae}
-		T_MUST_EVEX = 1 << 20, // contains T_EVEX
-		T_B32 = 1 << 21, // m32bcst
-		T_B64 = 1 << 22, // m64bcst
-		T_M_K = 1 << 23, // mem{k}
-		T_N1 = 1 << 24,
-		T_N2 = 1 << 25,
-		T_N4 = 1 << 26,
-		T_N8 = 1 << 27,
-		T_N16 = 1 << 28,
-		T_N32 = 1 << 29,
-		T_N_VL = 1 << 30, // N * (1, 2, 4) for VL
-		T_DUP = 1 << 31, // N = (8, 32, 64)
+		// low 3 bit
+		T_N1 = 1,
+		T_N2 = 2,
+		T_N4 = 3,
+		T_N8 = 4,
+		T_N16 = 5,
+		T_N32 = 6,
+		T_NX_MASK = 7,
+		//
+		T_N_VL = 1 << 3, // N * (1, 2, 4) for VL
+		T_DUP = 1 << 4, // N = (8, 32, 64)
+		T_66 = 1 << 5,
+		T_F3 = 1 << 6,
+		T_F2 = 1 << 7,
+		T_0F = 1 << 8,
+		T_0F38 = 1 << 9,
+		T_0F3A = 1 << 10,
+		T_L0 = 1 << 11,
+		T_L1 = 1 << 12,
+		T_W0 = 1 << 13,
+		T_W1 = 1 << 14,
+		T_EW0 = 1 << 15,
+		T_EW1 = 1 << 16,
+		T_YMM = 1 << 17, // support YMM, ZMM
+		T_EVEX = 1 << 18,
+		T_ER_X = 1 << 19, // xmm{er}
+		T_ER_Y = 1 << 20, // ymm{er}
+		T_ER_Z = 1 << 21, // zmm{er}
+		T_SAE_X = 1 << 22, // xmm{sae}
+		T_SAE_Y = 1 << 23, // ymm{sae}
+		T_SAE_Z = 1 << 24, // zmm{sae}
+		T_MUST_EVEX = 1 << 25, // contains T_EVEX
+		T_B32 = 1 << 26, // m32bcst
+		T_B64 = 1 << 27, // m64bcst
+		T_M_K = 1 << 28, // mem{k}
 		T_XXX
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
@@ -1484,11 +1487,12 @@ private:
 			} else if (type & T_DUP) {
 				disp8N = VL == 128 ? 8 : VL == 256 ? 32 : 64;
 			} else {
-				if ((type & (T_N1 | T_N2 | T_N4 | T_N8 | T_N16 | T_N32 | T_N_VL)) == 0) {
+				if ((type & (T_NX_MASK | T_N_VL)) == 0) {
 					type |= T_N16 | T_N_VL; // default
 				}
-				if (type & (T_N1 | T_N2 | T_N4 | T_N8 | T_N16 | T_N32)) {
-					disp8N = (type & T_N1) ? 1 : (type & T_N2) ? 2 : (type & T_N4) ? 4 : (type & T_N8) ? 8 : (type & T_N16) ? 16 : 32;
+				int low = type & T_NX_MASK;
+				if (low > 0) {
+					disp8N = 1 << (low - 1);
 					if (type & T_N_VL) disp8N *= (VL == 512 ? 4 : VL == 256 ? 2 : 1);
 				}
 			}
