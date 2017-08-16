@@ -2390,6 +2390,36 @@ public:
 #ifdef XBYAK_UNDEF_JNL
 	#undef jnl
 #endif
+
+	void nop(int size = 1)
+	{
+		/*
+			AMD and Intel seem to agree on the same sequences for up to 9 bytes:
+			https://support.amd.com/TechDocs/55723_SOG_Fam_17h_Processors_3.00.pdf
+			https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-instruction-set-reference-manual-325383.pdf
+		*/
+		static const uint8_t nopSeq[9][9] = {
+			{0x90},
+			{0x66, 0x90},
+			{0x0F, 0x1F, 0x00},
+			{0x0F, 0x1F, 0x40, 0x00},
+			{0x0F, 0x1F, 0x44, 0x00, 0x00},
+			{0x66, 0x0F, 0x1F, 0x44, 0x00, 0x00},
+			{0x0F, 0x1F, 0x80, 0x00, 0x00, 0x00, 0x00},
+			{0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00},
+			{0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00},
+		};
+		static const int numSeq = sizeof(nopSeq) / sizeof(nopSeq[0]);
+		while (size) {
+			int len = size > numSeq ? numSeq : size;
+			const uint8_t *seq = nopSeq[len - 1];
+			for (int i = 0; i < len; i++) {
+				db(seq[i]);
+			}
+			size -= len;
+		}
+	}
+
 #ifndef XBYAK_DONT_READ_LIST
 #include "xbyak_mnemonic.h"
 	void align(int x = 16)
