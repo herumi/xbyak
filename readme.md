@@ -1,5 +1,5 @@
 
-Xbyak 5.50 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.51 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -333,6 +333,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2017/Aug/17 ver 5.51 add multi-byte nop and align() uses it(thanks to inolen)
 * 2017/Aug/08 ver 5.50 add mpx(thanks to magurosan)
 * 2017/Aug/08 ver 5.45 add sha(thanks to magurosan)
 * 2017/Aug/08 ver 5.44 add prefetchw(thanks to rsdubtso)

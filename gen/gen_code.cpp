@@ -632,7 +632,6 @@ void put()
 
 			{ "lahf", 0x9F },
 			{ "lock", 0xF0 },
-			{ "nop", 0x90 },
 
 			{ "sahf", 0x9E },
 			{ "stc", 0xF9 },

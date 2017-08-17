@@ -105,7 +105,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5500 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5510 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -366,7 +366,7 @@ public:
 		YMM = 1 << 5,
 		ZMM = 1 << 6,
 		OPMASK = 1 << 7,
-		BNDREG = 1 << 8,
+		BNDREG = 1 << 8
 	};
 	enum Code {
 #ifdef XBYAK64
@@ -2391,14 +2391,15 @@ public:
 	#undef jnl
 #endif
 
-	void nop(int size = 1)
+	void nop(size_t size = 1)
 	{
 		/*
+			Intel Architectures Software Developer's Manual Volume 2
+			recommended multi-byte sequence of NOP instruction
 			AMD and Intel seem to agree on the same sequences for up to 9 bytes:
 			https://support.amd.com/TechDocs/55723_SOG_Fam_17h_Processors_3.00.pdf
-			https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-instruction-set-reference-manual-325383.pdf
 		*/
-		static const uint8_t nopSeq[9][9] = {
+		static const uint8 nopTbl[9][9] = {
 			{0x90},
 			{0x66, 0x90},
 			{0x0F, 0x1F, 0x00},
@@ -2409,11 +2410,11 @@ public:
 			{0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00},
 			{0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00},
 		};
-		static const int numSeq = sizeof(nopSeq) / sizeof(nopSeq[0]);
-		while (size) {
-			int len = size > numSeq ? numSeq : size;
-			const uint8_t *seq = nopSeq[len - 1];
-			for (int i = 0; i < len; i++) {
+		const size_t n = sizeof(nopTbl) / sizeof(nopTbl[0]);
+		while (size > 0) {
+			size_t len = (std::min)(n, size);
+			const uint8 *seq = nopTbl[len - 1];
+			for (size_t i = 0; i < len; i++) {
 				db(seq[i]);
 			}
 			size -= len;
@@ -2422,12 +2423,19 @@ public:
 
 #ifndef XBYAK_DONT_READ_LIST
 #include "xbyak_mnemonic.h"
-	void align(int x = 16)
+	/*
+		use single byte nop if useMultiByteNop = false
+	*/
+	void align(size_t x = 16, bool useMultiByteNop = true)
 	{
 		if (x == 1) return;
 		if (x < 1 || (x & (x - 1))) throw Error(ERR_BAD_ALIGN);
-		if (isAutoGrow() && x > (int)inner::ALIGN_PAGE_SIZE) fprintf(stderr, "warning:autoGrow mode does not support %d align\n", x);
-		while (size_t(getCurr()) % size_t(x) > 0) {
+		if (isAutoGrow() && x > inner::ALIGN_PAGE_SIZE) fprintf(stderr, "warning:autoGrow mode does not support %d align\n", (int)x);
+		if (useMultiByteNop) {
+			nop(size_t(getCurr()) % x);
+			return;
+		}
+		while (size_t(getCurr()) % x > 0) {
 			nop();
 		}
 	}
