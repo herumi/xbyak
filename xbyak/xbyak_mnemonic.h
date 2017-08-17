@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "5.50"; }
+const char *getVersionString() const { return "5.51"; }
 void adc(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x10, 2); }
 void adc(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x10); }
 void adcx(const Reg32e& reg, const Operand& op) { opGen(reg, op, 0xF6, 0x66, isREG32_REG32orMEM, NONE, 0x38); }
@@ -497,7 +497,6 @@ void mulss(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x59, 0xF3, isXMM
 void mulx(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opGpr(r1, r2, op, T_F2 | T_0F38, 0xf6, true); }
 void mwait() { db(0x0F); db(0x01); db(0xC9); }
 void neg(const Operand& op) { opR_ModM(op, 0, 3, 0xF6); }
-void nop() { db(0x90); }
 void not_(const Operand& op) { opR_ModM(op, 0, 2, 0xF6); }
 void or_(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x08, 1); }
 void or_(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x08); }
