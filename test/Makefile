@@ -42,6 +42,7 @@ test: normalize_prefix jmp bad_address
 	./test_address.sh
 	./jmp
 	./bad_address
+	./misc
 ifeq ($(BIT),64)
 	./test_address.sh 64
 	./test_nm.sh 64

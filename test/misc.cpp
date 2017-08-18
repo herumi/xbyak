@@ -81,3 +81,25 @@ CYBOZU_TEST_AUTO(mov_const)
 		}
 	} code;
 }
+
+CYBOZU_TEST_AUTO(align)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			const size_t alignSize = 16;
+			for (int padding = 0; padding < 20; padding++) {
+				for (int i = 0; i < padding; i++) {
+					db(1);
+				}
+				align(alignSize);
+				CYBOZU_TEST_EQUAL(size_t(getCurr()) % alignSize, 0u);
+			}
+			align(alignSize);
+			const uint8 *p = getCurr();
+			// do nothing if aligned
+			align(alignSize);
+			CYBOZU_TEST_EQUAL(p, getCurr());
+		}
+	} c;
+}

@@ -105,7 +105,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5510 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5520 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -2391,8 +2391,17 @@ public:
 	#undef jnl
 #endif
 
-	void nop(size_t size = 1)
+	/*
+		use single byte nop if useMultiByteNop = false
+	*/
+	void nop(size_t size = 1, bool useMultiByteNop = true)
 	{
+		if (!useMultiByteNop) {
+			for (size_t i = 0; i < size; i++) {
+				db(0x90);
+			}
+			return;
+		}
 		/*
 			Intel Architectures Software Developer's Manual Volume 2
 			recommended multi-byte sequence of NOP instruction
@@ -2431,12 +2440,9 @@ public:
 		if (x == 1) return;
 		if (x < 1 || (x & (x - 1))) throw Error(ERR_BAD_ALIGN);
 		if (isAutoGrow() && x > inner::ALIGN_PAGE_SIZE) fprintf(stderr, "warning:autoGrow mode does not support %d align\n", (int)x);
-		if (useMultiByteNop) {
-			nop(size_t(getCurr()) % x);
-			return;
-		}
-		while (size_t(getCurr()) % x > 0) {
-			nop();
+		size_t remain = size_t(getCurr()) % x;
+		if (remain) {
+			nop(x - remain, useMultiByteNop);
 		}
 	}
 #endif
