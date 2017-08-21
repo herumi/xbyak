@@ -2423,9 +2423,7 @@ public:
 		while (size > 0) {
 			size_t len = (std::min)(n, size);
 			const uint8 *seq = nopTbl[len - 1];
-			for (size_t i = 0; i < len; i++) {
-				db(seq[i]);
-			}
+			db(seq, len);
 			size -= len;
 		}
 	}
