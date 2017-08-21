@@ -615,6 +615,7 @@ void put()
 	////////////////////////////////////////////////////////////////
 	{
 		const GenericTbl tbl[] = {
+			{ "bnd", 0xf2 }, /* 0xf2 prefix for MPX */
 			{ "cbw", 0x66, 0x98 },
 			{ "cdq", 0x99 },
 			{ "clc", 0xF8 },
