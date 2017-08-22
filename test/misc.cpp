@@ -103,3 +103,31 @@ CYBOZU_TEST_AUTO(align)
 		}
 	} c;
 }
+
+#ifdef XBYAK64
+CYBOZU_TEST_AUTO(vfmaddps)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			v4fmaddps(zmm1, zmm8, ptr [rdx + 64]);
+			v4fmaddss(xmm15, xmm8, ptr [rax + 64]);
+			v4fnmaddps(zmm5 | k5, zmm2, ptr [rcx + 0x80]);
+			v4fnmaddss(xmm31, xmm2, ptr [rsp + 0x80]);
+			vp4dpwssd(zmm23 | k7 | T_z, zmm1, ptr [rax + 64]);
+			vp4dpwssds(zmm10 | k4, zmm3, ptr [rsp + rax * 4 + 64]);
+		}
+	} c;
+	const uint8_t tbl[] = {
+		0x62, 0xf2, 0x3f, 0x48, 0x9a, 0x4a, 0x04,
+		0x62, 0x72, 0x3f, 0x08, 0x9b, 0x78, 0x04,
+		0x62, 0xf2, 0x6f, 0x4d, 0xaa, 0x69, 0x08,
+		0x62, 0x62, 0x6f, 0x08, 0xab, 0x7c, 0x24, 0x08,
+		0x62, 0xe2, 0x77, 0xcf, 0x52, 0x78, 0x04,
+		0x62, 0x72, 0x67, 0x4c, 0x53, 0x54, 0x84, 0x04,
+	};
+	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
+#endif
