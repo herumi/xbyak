@@ -105,7 +105,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5520 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5530 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -177,6 +177,7 @@ enum {
 	ERR_INVALID_OPMASK_WITH_MEMORY,
 	ERR_INVALID_ZERO,
 	ERR_INVALID_RIP_IN_AUTO_GROW,
+	ERR_INVALID_MIB_ADDRESS,
 	ERR_INTERNAL
 };
 
@@ -237,6 +238,7 @@ public:
 			"invalid opmask with memory",
 			"invalid zero",
 			"invalid rip in AutoGrow",
+			"invalid mib address",
 			"internal error",
 		};
 		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
@@ -344,6 +346,9 @@ public:
 	}
 };
 #endif
+
+class Address;
+class Reg;
 
 class Operand {
 	static const uint8 EXT8BIT = 0x20;
@@ -497,6 +502,8 @@ public:
 	bool isEqualIfNotInherited(const Operand& rhs) const { return idx_ == rhs.idx_ && kind_ == rhs.kind_ && bit_ == rhs.bit_ && zero_ == rhs.zero_ && mask_ == rhs.mask_ && rounding_ == rhs.rounding_; }
 	bool operator==(const Operand& rhs) const;
 	bool operator!=(const Operand& rhs) const { return !operator==(rhs); }
+	const Address& getAddress() const;
+	const Reg& getReg() const;
 };
 
 class Label;
@@ -529,6 +536,12 @@ public:
 	Reg64 cvt64() const;
 #endif
 };
+
+inline const Reg& Operand::getReg() const
+{
+	assert(!isMEM());
+	return static_cast<const Reg&>(*this);
+}
 
 struct Reg8 : public Reg {
 	explicit Reg8(int idx = 0, bool ext8bit = false) : Reg(idx, Operand::REG, 8, ext8bit) { }
@@ -689,13 +702,15 @@ public:
 		}
 	}
 	bool isVsib(int bit = 128 | 256 | 512) const { return index_.isBit(bit); }
-	void optimize()
+	RegExp optimize() const
 	{
+		RegExp exp = *this;
 		// [reg * 2] => [reg + reg]
-		if (index_.isBit(i32e) && !base_.getBit() && index_.getBit() && scale_ == 2) {
-			base_ = index_;
-			scale_ = 1;
+		if (index_.isBit(i32e) && !base_.getBit() && scale_ == 2) {
+			exp.base_ = index_;
+			exp.scale_ = 1;
 		}
+		return exp;
 	}
 	bool operator==(const RegExp& rhs) const
 	{
@@ -715,6 +730,11 @@ public:
 	}
 	friend RegExp operator+(const RegExp& a, const RegExp& b);
 	friend RegExp operator-(const RegExp& e, size_t disp);
+	uint8 getRex() const
+	{
+		uint8 rex = index_.getRexX() | base_.getRexB();
+		return rex ? uint8(rex | 0x40) : 0;
+	}
 private:
 	/*
 		[base_ + index_ * scale_ + disp_]
@@ -975,7 +995,6 @@ public:
 		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), permitVsib_(false), broadcast_(broadcast)
 	{
 		e_.verify();
-		e_.optimize();
 	}
 #ifdef XBYAK64
 	explicit Address(size_t disp)
@@ -984,7 +1003,10 @@ public:
 		: Operand(0, MEM, sizeBit), e_(addr.disp_), label_(addr.label_), mode_(addr.isAddr_ ? M_ripAddr : M_rip), permitVsib_(false), broadcast_(broadcast) { }
 #endif
 	void permitVsib() const { permitVsib_ = true; }
-	const RegExp& getRegExp() const { return e_; }
+	RegExp getRegExp(bool optimize = true) const
+	{
+		return optimize ? e_.optimize() : e_;
+	}
 	Mode getMode() const { return mode_; }
 	bool is32bit() const { verify(); return e_.getBase().getBit() == 32 || e_.getIndex().getBit() == 32; }
 	bool isOnlyDisp() const { verify(); return !e_.getBase().getBit() && !e_.getIndex().getBit(); } // for mov eax
@@ -993,9 +1015,7 @@ public:
 	{
 		verify();
 		if (mode_ != M_ModRM) return 0;
-		uint8 rex = e_.getIndex().getRexX() | e_.getBase().getRexB();
-		if (rex) rex |= 0x40;
-		return rex;
+		return getRegExp().getRex();
 	}
 	bool is64bitDisp() const { verify(); return mode_ == M_64bitDisp; } // for moffset
 	bool isBroadcast() const { return broadcast_; }
@@ -1014,9 +1034,15 @@ private:
 	void verify() const { if (e_.isVsib() && !permitVsib_) throw Error(ERR_BAD_VSIB_ADDRESSING); }
 };
 
+inline const Address& Operand::getAddress() const
+{
+	assert(isMEM());
+	return static_cast<const Address&>(*this);
+}
+
 inline bool Operand::operator==(const Operand& rhs) const
 {
-	if (isMEM() && rhs.isMEM()) return static_cast<const Address&>(*this) == static_cast<const Address&>(rhs);
+	if (isMEM() && rhs.isMEM()) return this->getAddress() == rhs.getAddress();
 	return isEqualIfNotInherited(rhs);
 }
 
@@ -1363,12 +1389,12 @@ private:
 		if (p1->isMEM()) std::swap(p1, p2);
 		if (p1->isMEM()) throw Error(ERR_BAD_COMBINATION);
 		if (p2->isMEM()) {
-			const Address& addr = static_cast<const Address&>(*p2);
+			const Address& addr = p2->getAddress();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
-			rex = addr.getRex() | static_cast<const Reg&>(*p1).getRex();
+			rex = addr.getRex() | p1->getReg().getRex();
 		} else {
 			// ModRM(reg, base);
-			rex = static_cast<const Reg&>(op2).getRex(static_cast<const Reg&>(op1));
+			rex = op2.getReg().getRex(op1.getReg());
 		}
 		// except movsx(16bit, 32/64bit)
 		if ((op1.isBit(16) && !op2.isBit(i32e)) || (op2.isBit(16) && !op1.isBit(i32e))) db(0x66);
@@ -1581,6 +1607,17 @@ private:
 		db(code0 | (reg.isBit(8) ? 0 : 1)); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
 		opAddr(addr, reg.getIdx(), immSize);
 	}
+	void opMIB(const Address& addr, const Reg& reg, int code0, int code1)
+	{
+		if (addr.is64bitDisp()) throw Error(ERR_CANT_USE_64BIT_DISP);
+		if (addr.getMode() != Address::M_ModRM) throw Error(ERR_INVALID_MIB_ADDRESS);
+		if (BIT == 64 && addr.is32bit()) db(0x67);
+		const RegExp& regExp = addr.getRegExp(false);
+		uint8 rex = regExp.getRex();
+		if (rex) db(rex);
+		db(code0); db(code1);
+		setSIB(regExp, reg.getIdx());
+	}
 	void makeJmp(uint32 disp, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
 	{
 		const int shortJmpSize = 2;
@@ -1656,9 +1693,9 @@ private:
 		if (isValid && !isValid(reg, op)) throw Error(ERR_BAD_COMBINATION);
 		if (pref != NONE) db(pref);
 		if (op.isMEM()) {
-			opModM(static_cast<const Address&>(op), static_cast<const Reg&>(reg), 0x0F, preCode, code, (imm8 != NONE) ? 1 : 0);
+			opModM(op.getAddress(), reg.getReg(), 0x0F, preCode, code, (imm8 != NONE) ? 1 : 0);
 		} else {
-			opModR(static_cast<const Reg&>(reg), static_cast<const Reg&>(op), 0x0F, preCode, code);
+			opModR(reg.getReg(), op.getReg(), 0x0F, preCode, code);
 		}
 		if (imm8 != NONE) db(imm8);
 	}
@@ -1676,9 +1713,9 @@ private:
 	{
 		if (pref != NONE) db(pref);
 		if (op1.isXMM() && op2.isMEM()) {
-			opModM(static_cast<const Address&>(op2), static_cast<const Reg&>(op1), 0x0F, code);
+			opModM(op2.getAddress(), op1.getReg(), 0x0F, code);
 		} else if (op1.isMEM() && op2.isXMM()) {
-			opModM(static_cast<const Address&>(op1), static_cast<const Reg&>(op2), 0x0F, code | 1);
+			opModM(op1.getAddress(), op2.getReg(), 0x0F, code | 1);
 		} else {
 			throw Error(ERR_BAD_COMBINATION);
 		}
@@ -1687,7 +1724,7 @@ private:
 	{
 		if (hasMMX2 && op.isREG(i32e)) { /* pextrw is special */
 			if (mmx.isXMM()) db(0x66);
-			opModR(static_cast<const Reg&>(op), mmx, 0x0F, 0xC5); db(imm);
+			opModR(op.getReg(), mmx, 0x0F, 0xC5); db(imm);
 		} else {
 			opGen(mmx, op, code, 0x66, isXMM_REG32orMEM, imm, 0x3A);
 		}
@@ -1697,9 +1734,9 @@ private:
 		int opBit = op.getBit();
 		if (disableRex && opBit == 64) opBit = 32;
 		if (op.isREG(bit)) {
-			opModR(Reg(ext, Operand::REG, opBit), static_cast<const Reg&>(op).changeBit(opBit), code0, code1, code2);
+			opModR(Reg(ext, Operand::REG, opBit), op.getReg().changeBit(opBit), code0, code1, code2);
 		} else if (op.isMEM()) {
-			opModM(static_cast<const Address&>(op), Reg(ext, Operand::REG, opBit), code0, code1, code2, immSize);
+			opModM(op.getAddress(), Reg(ext, Operand::REG, opBit), code0, code1, code2, immSize);
 		} else {
 			throw Error(ERR_BAD_COMBINATION);
 		}
@@ -1718,9 +1755,9 @@ private:
 	void opModRM(const Operand& op1, const Operand& op2, bool condR, bool condM, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
 	{
 		if (condR) {
-			opModR(static_cast<const Reg&>(op1), static_cast<const Reg&>(op2), code0, code1, code2);
+			opModR(op1.getReg(), op2.getReg(), code0, code1, code2);
 		} else if (condM) {
-			opModM(static_cast<const Address&>(op2), static_cast<const Reg&>(op1), code0, code1, code2, immSize);
+			opModM(op2.getAddress(), op1.getReg(), code0, code1, code2, immSize);
 		} else {
 			throw Error(ERR_BAD_COMBINATION);
 		}
@@ -1735,7 +1772,7 @@ private:
 	void opRM_RM(const Operand& op1, const Operand& op2, int code)
 	{
 		if (op1.isREG() && op2.isMEM()) {
-			opModM(static_cast<const Address&>(op2), static_cast<const Reg&>(op1), code | 2);
+			opModM(op2.getAddress(), op1.getReg(), code | 2);
 		} else {
 			opModRM(op2, op1, op1.isREG() && op1.getKind() == op2.getKind(), op1.isMEM() && op2.isREG(), code);
 		}
@@ -1768,19 +1805,19 @@ private:
 #endif
 		code = 0xFE;
 		if (op.isREG()) {
-			opModR(Reg(ext, Operand::REG, op.getBit()), static_cast<const Reg&>(op), code);
+			opModR(Reg(ext, Operand::REG, op.getBit()), op.getReg(), code);
 		} else {
-			opModM(static_cast<const Address&>(op), Reg(ext, Operand::REG, op.getBit()), code);
+			opModM(op.getAddress(), Reg(ext, Operand::REG, op.getBit()), code);
 		}
 	}
 	void opPushPop(const Operand& op, int code, int ext, int alt)
 	{
 		if (op.isREG()) {
 			if (op.isBit(16)) db(0x66);
-			if (static_cast<const Reg&>(op).getIdx() >= 8) db(0x41);
+			if (op.getReg().getIdx() >= 8) db(0x41);
 			db(alt | (op.getIdx() & 7));
 		} else if (op.isMEM()) {
-			opModM(static_cast<const Address&>(op), Reg(ext, Operand::REG, op.getBit()), code);
+			opModM(op.getAddress(), Reg(ext, Operand::REG, op.getBit()), code);
 		} else {
 			throw Error(ERR_BAD_COMBINATION);
 		}
@@ -1869,11 +1906,12 @@ private:
 	void opVex(const Reg& r, const Operand *p1, const Operand& op2, int type, int code, int imm8 = NONE)
 	{
 		if (op2.isMEM()) {
-			const Address& addr = static_cast<const Address&>(op2);
-			const Reg& base = addr.getRegExp().getBase();
+			const Address& addr = op2.getAddress();
+			const RegExp& regExp = addr.getRegExp();
+			const Reg& base = regExp.getBase();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			int disp8N = 0;
-			bool x = addr.getRegExp().getIndex().isExtIdx();
+			bool x = regExp.getIndex().isExtIdx();
 			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || addr.isBroadcast() || addr.getOpmaskIdx()) {
 				int aaa = addr.getOpmaskIdx();
 				if (aaa && !(type & T_M_K)) throw Error(ERR_INVALID_OPMASK_WITH_MEMORY);
@@ -1882,14 +1920,14 @@ private:
 					if (!(type & (T_B32 | T_B64))) throw Error(ERR_INVALID_BROADCAST);
 					b = true;
 				}
-				int VL = addr.getRegExp().isVsib() ? addr.getRegExp().getIndex().getBit() : 0;
+				int VL = regExp.isVsib() ? regExp.getIndex().getBit() : 0;
 				disp8N = evex(r, base, p1, type, code, x, b, aaa, VL);
 			} else {
 				vex(r, base, p1, type, code, x);
 			}
 			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0, disp8N);
 		} else {
-			const Reg& base = static_cast<const Reg&>(op2);
+			const Reg& base = op2.getReg();
 			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || base.hasEvex()) {
 				evex(r, base, p1, type, code);
 			} else {
@@ -1971,11 +2009,12 @@ private:
 	}
 	void opGather(const Xmm& x1, const Address& addr, const Xmm& x2, int type, uint8 code, int mode)
 	{
-		if (!addr.getRegExp().isVsib(128 | 256)) throw Error(ERR_BAD_VSIB_ADDRESSING);
+		const RegExp& regExp = addr.getRegExp();
+		if (!regExp.isVsib(128 | 256)) throw Error(ERR_BAD_VSIB_ADDRESSING);
 		const int y_vx_y = 0;
 		const int y_vy_y = 1;
 //		const int x_vy_x = 2;
-		const bool isAddrYMM = addr.getRegExp().getIndex().getBit() == 256;
+		const bool isAddrYMM = regExp.getIndex().getBit() == 256;
 		if (!x1.isXMM() || isAddrYMM || !x2.isXMM()) {
 			bool isOK = false;
 			if (mode == y_vx_y) {
@@ -2174,13 +2213,13 @@ public:
 		const Address *addr = 0;
 		uint8 code = 0;
 		if (reg1.isREG() && reg1.getIdx() == 0 && reg2.isMEM()) { // mov eax|ax|al, [disp]
-			reg = &static_cast<const Reg&>(reg1);
-			addr= &static_cast<const Address&>(reg2);
+			reg = &reg1.getReg();
+			addr= &reg2.getAddress();
 			code = 0xA0;
 		} else
 		if (reg1.isMEM() && reg2.isREG() && reg2.getIdx() == 0) { // mov [disp], eax|ax|al
-			reg = &static_cast<const Reg&>(reg2);
-			addr= &static_cast<const Address&>(reg1);
+			reg = &reg2.getReg();
+			addr= &reg1.getAddress();
 			code = 0xA2;
 		}
 #ifdef XBYAK64
@@ -2207,7 +2246,7 @@ public:
 	void mov(const Operand& op, size_t imm)
 	{
 		if (op.isREG()) {
-			const int size = mov_imm(static_cast<const Reg&>(op), imm);
+			const int size = mov_imm(op.getReg(), imm);
 			db(imm, size);
 		} else if (op.isMEM()) {
 			verifyMemHasSize(op);
@@ -2219,7 +2258,7 @@ public:
 				if (!inner::IsInInt32(imm)) throw Error(ERR_IMM_IS_TOO_BIG);
 				immSize = 4;
 			}
-			opModM(static_cast<const Address&>(op), Reg(0, Operand::REG, op.getBit()), 0xC6, NONE, NONE, immSize);
+			opModM(op.getAddress(), Reg(0, Operand::REG, op.getBit()), 0xC6, NONE, NONE, immSize);
 			db(static_cast<uint32>(imm), immSize);
 		} else {
 			throw Error(ERR_BAD_COMBINATION);
@@ -2303,7 +2342,7 @@ public:
 	}
 	void mov(const Segment& seg, const Operand& op)
 	{
-		opModRM(Reg8(seg.getIdx()), op.isREG(16|i32e) ? static_cast<const Operand&>(static_cast<const Reg&>(op).cvt32()) : op, op.isREG(16|i32e), op.isMEM(), 0x8E);
+		opModRM(Reg8(seg.getIdx()), op.isREG(16|i32e) ? static_cast<const Operand&>(op.getReg().cvt32()) : op, op.isREG(16|i32e), op.isMEM(), 0x8E);
 	}
 #endif
 

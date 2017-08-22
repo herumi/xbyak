@@ -6,6 +6,7 @@ using namespace Xbyak;
 
 #ifdef _MSC_VER
 	#pragma warning(disable : 4245)
+	#pragma warning(disable : 4312)
 #endif
 class Sample : public CodeGenerator {
 	void operator=(const Sample&);

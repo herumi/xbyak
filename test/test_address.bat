@@ -1,5 +1,5 @@
 @echo off
-set FILTER=cat
+set FILTER=grep -v warning
 if /i "%1"=="64" (
 	set OPT2=-DXBYAK64
 	set OPT3=win64

@@ -1363,6 +1363,22 @@ class Test {
 		put("bndmk", BNDREG, MEM);
 		put("bndmov", BNDREG, BNDREG|MEM);
 		put("bndstx", MEM, BNDREG);
+		put("bndstx", "ptr [eax]", "[eax]", BNDREG);
+		put("bndstx", "ptr [eax+5]", "[eax+5]", BNDREG);
+		put("bndstx", "ptr [eax+500]", "[eax+500]", BNDREG);
+		put("bndstx", "ptr [eax+ecx]", "[eax+ecx]", BNDREG);
+		put("bndstx", "ptr [ecx+eax]", "[ecx+eax]", BNDREG);
+		put("bndstx", "ptr [eax+esp]", "[eax+esp]", BNDREG);
+		put("bndstx", "ptr [esp+eax]", "[esp+eax]", BNDREG);
+		put("bndstx", "ptr [eax+ecx*2]", "[eax+ecx*2]", BNDREG);
+		put("bndstx", "ptr [ecx+ecx]", "[ecx+ecx]", BNDREG);
+		put("bndstx", "ptr [ecx*2]", "[ecx*2]", BNDREG);
+		put("bndstx", "ptr [eax+ecx*2+500]", "[eax+ecx*2+500]", BNDREG);
+#ifdef XBYAK64
+		put("bndstx", "ptr [rax+rcx*2]", "[rax+rcx*2]", BNDREG);
+		put("bndstx", "ptr [r9*2]", "[r9*2]", BNDREG);
+		put("bndstx", "ptr [r9*2+r15]", "[r9*2+r15]", BNDREG);
+#endif
 	}
 	void putFpuMem16_32() const
 	{
