@@ -1258,10 +1258,10 @@ void put()
 			{ 0x7D, "hsubpd", T_0F | T_66 | T_YMM, 3 },
 			{ 0x7D, "hsubps", T_0F | T_F2 | T_YMM, 3 },
 
-			{ 0xDC, "aesenc", T_0F38 | T_66 | T_W0, 3 },
-			{ 0xDD, "aesenclast", T_0F38 | T_66 | T_W0, 3 },
-			{ 0xDE, "aesdec", T_0F38 | T_66 | T_W0, 3 },
-			{ 0xDF, "aesdeclast", T_0F38 | T_66 | T_W0, 3 },
+			{ 0xDC, "aesenc", T_0F38 | T_66 | T_YMM | T_EVEX, 3 },
+			{ 0xDD, "aesenclast", T_0F38 | T_66 | T_YMM | T_EVEX, 3 },
+			{ 0xDE, "aesdec", T_0F38 | T_66 | T_YMM | T_EVEX, 3 },
+			{ 0xDF, "aesdeclast", T_0F38 | T_66 | T_YMM | T_EVEX, 3 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];

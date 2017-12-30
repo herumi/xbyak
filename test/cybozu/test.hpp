@@ -86,13 +86,15 @@ public:
 		}
 		fflush(stdout);
 		if (msg.empty()) {
+			int err = ngCount_ + exceptionCount_;
+			int total = okCount_ + err;
 			std::cout << "ctest:name=" << getBaseName(*argv)
 					  << ", module=" << list_.size()
-					  << ", total=" << (okCount_ + ngCount_ + exceptionCount_)
+					  << ", total=" << total
 					  << ", ok=" << okCount_
 					  << ", ng=" << ngCount_
 					  << ", exception=" << exceptionCount_ << std::endl;
-			return 0;
+			return err > 0 ? 1 : 0;
 		} else {
 			std::cout << msg << std::endl;
 			return 1;
@@ -128,6 +130,15 @@ bool isEqual(const T& lhs, const U& rhs)
 	return lhs == rhs;
 }
 
+// avoid warning of comparision of integers of different signs
+inline bool isEqual(size_t lhs, int rhs)
+{
+	return lhs == size_t(rhs);
+}
+inline bool isEqual(int lhs, size_t rhs)
+{
+	return size_t(lhs) == rhs;
+}
 inline bool isEqual(const char *lhs, const char *rhs)
 {
 	return strcmp(lhs, rhs) == 0;
@@ -188,9 +199,9 @@ int main(int argc, char *argv[])
 	@param y [in]
 */
 #define CYBOZU_TEST_EQUAL(x, y) { \
-	bool eq = cybozu::test::isEqual(x, y); \
-	cybozu::test::test(eq, "CYBOZU_TEST_EQUAL", #x ", " #y, __FILE__, __LINE__); \
-	if (!eq) { \
+	bool _cybozu_eq = cybozu::test::isEqual(x, y); \
+	cybozu::test::test(_cybozu_eq, "CYBOZU_TEST_EQUAL", #x ", " #y, __FILE__, __LINE__); \
+	if (!_cybozu_eq) { \
 		std::cout << "ctest:  lhs=" << (x) << std::endl; \
 		std::cout << "ctest:  rhs=" << (y) << std::endl; \
 	} \
@@ -201,20 +212,37 @@ int main(int argc, char *argv[])
 	@param y [in]
 */
 #define CYBOZU_TEST_NEAR(x, y, eps) { \
-	bool isNear = fabs((x) - (y)) < eps; \
-	cybozu::test::test(isNear, "CYBOZU_TEST_NEAR", #x ", " #y, __FILE__, __LINE__); \
-	if (!isNear) { \
+	bool _cybozu_isNear = fabs((x) - (y)) < eps; \
+	cybozu::test::test(_cybozu_isNear, "CYBOZU_TEST_NEAR", #x ", " #y, __FILE__, __LINE__); \
+	if (!_cybozu_isNear) { \
 		std::cout << "ctest:  lhs=" << (x) << std::endl; \
 		std::cout << "ctest:  rhs=" << (y) << std::endl; \
 	} \
 }
 
 #define CYBOZU_TEST_EQUAL_POINTER(x, y) { \
-	bool eq = x == y; \
-	cybozu::test::test(eq, "CYBOZU_TEST_EQUAL_POINTER", #x ", " #y, __FILE__, __LINE__); \
-	if (!eq) { \
+	bool _cybozu_eq = x == y; \
+	cybozu::test::test(_cybozu_eq, "CYBOZU_TEST_EQUAL_POINTER", #x ", " #y, __FILE__, __LINE__); \
+	if (!_cybozu_eq) { \
 		std::cout << "ctest:  lhs=" << static_cast<const void*>(x) << std::endl; \
 		std::cout << "ctest:  rhs=" << static_cast<const void*>(y) << std::endl; \
+	} \
+}
+/**
+	alert if x[] != y[]
+	@param x [in]
+	@param y [in]
+	@param n [in]
+*/
+#define CYBOZU_TEST_EQUAL_ARRAY(x, y, n) { \
+	for (size_t _cybozu_test_i = 0, _cybozu_ie = (size_t)(n); _cybozu_test_i < _cybozu_ie; _cybozu_test_i++) { \
+		bool _cybozu_eq = cybozu::test::isEqual((x)[_cybozu_test_i], (y)[_cybozu_test_i]); \
+		cybozu::test::test(_cybozu_eq, "CYBOZU_TEST_EQUAL_ARRAY", #x ", " #y ", " #n, __FILE__, __LINE__); \
+		if (!_cybozu_eq) { \
+			std::cout << "ctest:  i=" << _cybozu_test_i << std::endl; \
+			std::cout << "ctest:  lhs=" << (x)[_cybozu_test_i] << std::endl; \
+			std::cout << "ctest:  rhs=" << (y)[_cybozu_test_i] << std::endl; \
+		} \
 	} \
 }
 
@@ -229,25 +257,25 @@ int main(int argc, char *argv[])
 */
 #define CYBOZU_TEST_EXCEPTION_MESSAGE(statement, Exception, msg) \
 { \
-	int ret = 0; \
-	std::string errMsg; \
+	int _cybozu_ret = 0; \
+	std::string _cybozu_errMsg; \
 	try { \
 		statement; \
-		ret = 1; \
-	} catch (const Exception& e) { \
-		errMsg = e.what(); \
-		if (errMsg.find(msg) == std::string::npos) { \
-			ret = 2; \
+		_cybozu_ret = 1; \
+	} catch (const Exception& _cybozu_e) { \
+		_cybozu_errMsg = _cybozu_e.what(); \
+		if (_cybozu_errMsg.find(msg) == std::string::npos) { \
+			_cybozu_ret = 2; \
 		} \
 	} catch (...) { \
-		ret = 3; \
+		_cybozu_ret = 3; \
 	} \
-	if (ret) { \
+	if (_cybozu_ret) { \
 		cybozu::test::test(false, "CYBOZU_TEST_EXCEPTION_MESSAGE", #statement ", " #Exception ", " #msg, __FILE__, __LINE__); \
-		if (ret == 1) { \
+		if (_cybozu_ret == 1) { \
 			std::cout << "ctest:  no exception" << std::endl; \
-		} else if (ret == 2) { \
-			std::cout << "ctest:  bad exception msg:" << errMsg << std::endl; \
+		} else if (_cybozu_ret == 2) { \
+			std::cout << "ctest:  bad exception msg:" << _cybozu_errMsg << std::endl; \
 		} else { \
 			std::cout << "ctest:  unexpected exception" << std::endl; \
 		} \
@@ -258,17 +286,17 @@ int main(int argc, char *argv[])
 
 #define CYBOZU_TEST_EXCEPTION(statement, Exception) \
 { \
-	int ret = 0; \
+	int _cybozu_ret = 0; \
 	try { \
 		statement; \
-		ret = 1; \
+		_cybozu_ret = 1; \
 	} catch (const Exception&) { \
 	} catch (...) { \
-		ret = 2; \
+		_cybozu_ret = 2; \
 	} \
-	if (ret) { \
+	if (_cybozu_ret) { \
 		cybozu::test::test(false, "CYBOZU_TEST_EXCEPTION", #statement ", " #Exception, __FILE__, __LINE__); \
-		if (ret == 1) { \
+		if (_cybozu_ret == 1) { \
 			std::cout << "ctest:  no exception" << std::endl; \
 		} else { \
 			std::cout << "ctest:  unexpected exception" << std::endl; \
