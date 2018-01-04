@@ -60,7 +60,7 @@ void putX_X_XM(bool omitOnly)
 			{ 0x02, "pblendd", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 2 },
 			{ 0x0B, "roundsd", T_0F3A | T_66 | T_W0, true, true, 3 },
 			{ 0x0A, "roundss", T_0F3A | T_66 | T_W0, true, true, 3 },
-			{ 0x44, "pclmulqdq", T_0F3A | T_66 | T_W0, true, true, 3 },
+			{ 0x44, "pclmulqdq", T_0F3A | T_66 | T_W0 | T_YMM | T_EVEX, true, true, 3 },
 			{ 0x0C, "permilps", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32, false, false, 2 },
 			{ 0x0D, "permilpd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW1 | T_B64, false, false, 2 },
 
