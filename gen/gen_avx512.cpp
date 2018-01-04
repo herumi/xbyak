@@ -228,6 +228,9 @@ void putXM_X()
 
 		{ 0x8B, "vpcompressd", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 },
 		{ 0x8B, "vpcompressq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N8 },
+
+		{ 0x63, "vcompressb", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N1 },
+		{ 0x63, "vcompressw", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N2 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
