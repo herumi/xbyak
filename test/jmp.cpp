@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
+#define XBYAK_NO_OP_NAMES
 #include <xbyak/xbyak.h>
 #include <cybozu/inttype.hpp>
 #include <cybozu/test.hpp>
@@ -401,7 +402,7 @@ CYBOZU_TEST_AUTO(test5)
 			using namespace Xbyak;
 			inLocalLabel();
 			mov(ecx, count);
-			xor(eax, eax);
+			xor_(eax, eax);
 		L(".lp");
 			for (int i = 0; i < count; i++) {
 				L(Label::toStr(i));
