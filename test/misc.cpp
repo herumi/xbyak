@@ -399,4 +399,31 @@ CYBOZU_TEST_AUTO(vpopcnt)
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
+CYBOZU_TEST_AUTO(vpdpbus)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			vpdpbusd(xmm5|k3|T_z, xmm20, ptr [rax + 0x40]);
+			vpdpbusd(ymm5|k3|T_z, ymm20, ptr [rax + 0x40]);
+			vpdpbusd(zmm5|k3|T_z, zmm20, ptr [rax + 0x40]);
+
+			vpdpbusds(xmm5|k3|T_z, xmm20, ptr [rax + 0x40]);
+			vpdpbusds(ymm5|k3|T_z, ymm20, ptr [rax + 0x40]);
+			vpdpbusds(zmm5|k3|T_z, zmm20, ptr [rax + 0x40]);
+		}
+	} c;
+	const uint8_t tbl[] = {
+		0x62, 0xf2, 0x5d, 0x83, 0x50, 0x68, 0x04,
+		0x62, 0xf2, 0x5d, 0xa3, 0x50, 0x68, 0x02,
+		0x62, 0xf2, 0x5d, 0xc3, 0x50, 0x68, 0x01,
+
+		0x62, 0xf2, 0x5d, 0x83, 0x51, 0x68, 0x04,
+		0x62, 0xf2, 0x5d, 0xa3, 0x51, 0x68, 0x02,
+		0x62, 0xf2, 0x5d, 0xc3, 0x51, 0x68, 0x01,
+	};
+	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
 #endif
