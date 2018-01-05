@@ -203,6 +203,7 @@ void putX_X_XM(bool omitOnly)
 			{ 0x14, "unpcklpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true, 2 },
 			{ 0x14, "unpcklps", T_0F | T_YMM | T_EVEX | T_EW0 | T_B32, false, true, 2 },
 			{ 0xCF, "gf2p8affineinvqb", T_66 | T_0F3A | T_W1 | T_EVEX | T_YMM | T_EW1 | T_SAE_Z | T_B64, true, false, 3 },
+			{ 0xCE, "gf2p8affineqb", T_66 | T_0F3A | T_W1 | T_EVEX | T_YMM | T_EW1 | T_SAE_Z | T_B64, true, false, 3 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
