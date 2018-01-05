@@ -522,7 +522,7 @@ CYBOZU_TEST_AUTO(vpdpbus)
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
-CYBOZU_TEST_AUTO(vexpand)
+CYBOZU_TEST_AUTO(vexpand_vpshufbitqmb)
 {
 	struct Code : Xbyak::CodeGenerator {
 		Code()
@@ -540,6 +540,10 @@ CYBOZU_TEST_AUTO(vexpand)
 			vpexpandw(xmm5|k3|T_z, ptr [rax + 0x40]);
 			vpexpandw(ymm5|k3|T_z, ptr [rax + 0x40]);
 			vpexpandw(zmm5|k3|T_z, ptr [rax + 0x40]);
+
+			vpshufbitqmb(k1|k2, xmm2, ptr [rax + 0x40]);
+			vpshufbitqmb(k1|k2, ymm2, ptr [rax + 0x40]);
+			vpshufbitqmb(k1|k2, zmm2, ptr [rax + 0x40]);
 		}
 	} c;
 	const uint8_t tbl[] = {
@@ -556,6 +560,10 @@ CYBOZU_TEST_AUTO(vexpand)
 		0x62, 0xf2, 0xfd, 0x8b, 0x62, 0x68, 0x20,
 		0x62, 0xf2, 0xfd, 0xab, 0x62, 0x68, 0x20,
 		0x62, 0xf2, 0xfd, 0xcb, 0x62, 0x68, 0x20,
+
+		0x62, 0xf2, 0x6d, 0x0a, 0x8f, 0x48, 0x04,
+		0x62, 0xf2, 0x6d, 0x2a, 0x8f, 0x48, 0x02,
+		0x62, 0xf2, 0x6d, 0x4a, 0x8f, 0x48, 0x01,
 	};
 	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
