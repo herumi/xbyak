@@ -363,8 +363,11 @@ void putX_X_XM_IMM()
 		{ 0x73, "vpshrdvd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_SAE_Z, false },
 		{ 0x73, "vpshrdvq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z, false },
 
-		{ 0x50, "vpdpbusd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_SAE_Z, false },
-		{ 0x51, "vpdpbusds", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_SAE_Z, false },
+		{ 0x50, "vpdpbusd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_B32, false },
+		{ 0x51, "vpdpbusds", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_B32, false },
+
+		{ 0x52, "vpdpwssd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_B32, false },
+		{ 0x53, "vpdpwssds", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_B32, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
