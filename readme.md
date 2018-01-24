@@ -1,5 +1,5 @@
 
-Xbyak 5.60 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.601 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -333,6 +333,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2018/Jan/24 ver 5.601 add xword, yword, etc. into Xbyak::util namespace
 * 2018/Jan/05 ver 5.60 support AVX-512 for Ice lake(319433-030.pdf)
 * 2017/Aug/22 ver 5.53 fix mpx encoding, add bnd() prefix
 * 2017/Aug/18 ver 5.52 fix align (thanks to MerryMage)
