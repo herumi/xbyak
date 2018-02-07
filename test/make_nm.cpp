@@ -2684,7 +2684,7 @@ public:
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const char *name = tbl[i];
-			put(name, MEM, ZMM);
+			put(name, MEM|MEM_K, ZMM|XMM|YMM);
 			put(name, ZMM, MEM);
 		}
 	}

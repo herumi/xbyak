@@ -840,9 +840,9 @@ public:
 			put(p.name, _YMM|YMM_KZ, _YMM|MEM);
 			put(p.name, _ZMM|ZMM_KZ, _ZMM|MEM);
 			if (!p.M_X) continue;
-			put(p.name, MEM, _XMM);
-			put(p.name, MEM, _YMM);
-			put(p.name, MEM, _ZMM);
+			put(p.name, MEM|MEM_K, _XMM);
+			put(p.name, MEM|MEM_K, _YMM);
+			put(p.name, MEM|MEM_K, _ZMM);
 		}
 		put("vsqrtpd", XMM_KZ, M_1to2 | _MEM);
 		put("vsqrtpd", YMM_KZ, M_1to4 | _MEM);

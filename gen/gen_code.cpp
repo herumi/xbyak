@@ -1233,12 +1233,12 @@ void put()
 			const char *name;
 			int type;
 		} tbl[] = {
-			{ 0x29, "movapd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1  },
-			{ 0x29, "movaps", T_0F | T_YMM | T_EVEX | T_EW0  },
+			{ 0x29, "movapd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_M_K },
+			{ 0x29, "movaps", T_0F | T_YMM | T_EVEX | T_EW0 | T_M_K },
 			{ 0x7F, "movdqa", T_0F | T_66 | T_YMM  },
 			{ 0x7F, "movdqu", T_0F | T_F3 | T_YMM  },
-			{ 0x11, "movupd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1  },
-			{ 0x11, "movups", T_0F | T_YMM | T_EVEX | T_EW0  },
+			{ 0x11, "movupd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_M_K },
+			{ 0x11, "movups", T_0F | T_YMM | T_EVEX | T_EW0 | T_M_K },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];

@@ -202,12 +202,12 @@ void putM_X()
 		const char *name;
 		int type;
 	} tbl[] = {
-		{ 0x7F, "vmovdqa32", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW0 | T_ER_X | T_ER_Y | T_ER_Z  },
-		{ 0x7F, "vmovdqa64", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z  },
-		{ 0x7F, "vmovdqu8", T_F2 | T_0F | T_MUST_EVEX | T_YMM | T_EW0 | T_ER_X | T_ER_Y | T_ER_Z  },
-		{ 0x7F, "vmovdqu16", T_F2 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z  },
-		{ 0x7F, "vmovdqu32", T_F3 | T_0F | T_MUST_EVEX | T_YMM | T_EW0 | T_ER_X | T_ER_Y | T_ER_Z  },
-		{ 0x7F, "vmovdqu64", T_F3 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z  },
+		{ 0x7F, "vmovdqa32", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW0 | T_ER_X | T_ER_Y | T_ER_Z | T_M_K },
+		{ 0x7F, "vmovdqa64", T_66 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z | T_M_K },
+		{ 0x7F, "vmovdqu8", T_F2 | T_0F | T_MUST_EVEX | T_YMM | T_EW0 | T_ER_X | T_ER_Y | T_ER_Z | T_M_K },
+		{ 0x7F, "vmovdqu16", T_F2 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z | T_M_K },
+		{ 0x7F, "vmovdqu32", T_F3 | T_0F | T_MUST_EVEX | T_YMM | T_EW0 | T_ER_X | T_ER_Y | T_ER_Z | T_M_K },
+		{ 0x7F, "vmovdqu64", T_F3 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z | T_M_K },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
