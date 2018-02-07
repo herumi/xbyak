@@ -37,6 +37,7 @@ test: normalize_prefix jmp bad_address $(TARGET)
 	$(MAKE) -C ../gen
 	./test_nm.sh
 	./test_nm.sh Y
+	./test_nm.sh avx512
 	./test_address.sh
 	./jmp
 	./bad_address

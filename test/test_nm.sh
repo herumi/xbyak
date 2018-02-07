@@ -19,6 +19,12 @@ else if ($1 == "Y64") then
 	set OPT2="-DUSE_YASM -DXBYAK64"
 	set OPT3=win64
 	set FILTER=./normalize_prefix
+else if ($1 == "avx512") then
+	echo "nasm(64bit) + avx512"
+	set EXE=nasm
+	set OPT2="-DXBYAK64 -DUSE_AVX512"
+	set OPT3=win64
+	set FILTER=./normalize_prefix
 else
 	echo "nasm(32bit)"
 	set EXE=nasm
