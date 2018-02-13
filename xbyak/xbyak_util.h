@@ -84,8 +84,11 @@ class Cpu {
 			displayModel = model;
 		}
 	}
-	static const unsigned int max_number_cache_levels = 10;
-#define value_from_bits(val, base, end) ((val << (sizeof(val)*8-end-1)) >> (sizeof(val)*8-end+base-1))
+	unsigned int value_from_bits(unsigned int val, unsigned int base, unsigned int end)
+	{
+		unsigned int shift = sizeof(val) * 8 - end - 1;
+		return (val << shift) >> (shift + base);
+	}
 	void setCacheHierarchy()
 	{
 		unsigned int cache_type = 42;
@@ -115,12 +118,11 @@ class Cpu {
 		 * - when leaf 4 reports a number of core less than n_cores
 		 *   on socket reported by leaf 11, then it is a correct number
 		 *   of cores not an upperbound */
-#define min_cores(a,b) ((a) < (b)) ? (a) : (b)
 		for (int i = 0; ((cache_type != NO_CACHE) && (data_cache_levels < max_number_cache_levels)); i++) {
 			getCpuidEx(0x4, i, data);
 			cache_type = value_from_bits(data[0], 0, 4);
 			if ((cache_type == DATA_CACHE) || (cache_type == UNIFIED_CACHE)) {
-				int nb_logical_cores = min_cores(value_from_bits(data[0], 14, 25) + 1,
+				int nb_logical_cores = (std::min)(value_from_bits(data[0], 14, 25) + 1,
 								n_cores);
 				data_cache_size[data_cache_levels] =
 					(value_from_bits(data[1], 22, 31) + 1)
@@ -133,9 +135,7 @@ class Cpu {
 				data_cache_levels++;
 			}
 		}
-#undef min_cores
 	}
-#undef value_from_bits
 
 public:
 	int model;
@@ -146,6 +146,7 @@ public:
 	int displayFamily; // family + extFamily
 	int displayModel; // model + extModel
 
+	static const unsigned int max_number_cache_levels = 10;
 	unsigned int data_cache_size[max_number_cache_levels];
 	unsigned int cores_sharing_data_cache[max_number_cache_levels];
 	unsigned int data_cache_levels;
