@@ -96,7 +96,7 @@ class Cpu {
 //		const unsigned int INSTRUCTION_CACHE = 2;
 		const unsigned int UNIFIED_CACHE = 3;
 		unsigned int smt_width = 0;
-		unsigned int n_cores = 0;
+		unsigned int n_cores = (unsigned int) -1;
 		unsigned int data[4];
 
 		/*
