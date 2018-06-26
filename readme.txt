@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.631
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.65
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -343,7 +343,8 @@ cybozulibは単体テストでのみ利用されていて、xbyak/ディレク�
 -----------------------------------------------------------------------------
 ◎履歴
 
-2018/03/06 ver 5.631 Cpu()の中でzero divisionが出ることがあるのを修正
+2018/06/26 ver 5.65 fix push(qword [mem])
+2018/03/07 ver 5.64 Cpu()の中でzero divisionが出ることがあるのを修正
 2018/02/14 ver 5.63 Cpu::setCacheHierarchy()の修正とclang<3.9のためのEvexModifierZero修正(thanks to mgouicem)
 2018/02/13 ver 5.62 Cpu::setCacheHierarchy() by mgouicem and rsdubtso
 2018/02/07 ver 5.61 vmov*がmem{k}{z}形式対応(忘れてた)

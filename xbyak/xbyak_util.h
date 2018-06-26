@@ -128,8 +128,9 @@ class Cpu {
 			if (cacheType == NO_CACHE) break;
 			if (cacheType == DATA_CACHE || cacheType == UNIFIED_CACHE) {
 				unsigned int nb_logical_cores = extractBit(data[0], 14, 25) + 1;
-				if (n_cores != 0) // true only if leaf 0xB is supported and valid
+				if (n_cores != 0) { // true only if leaf 0xB is supported and valid
 					nb_logical_cores = (std::min)(nb_logical_cores, n_cores);
+				}
 				assert(nb_logical_cores != 0);
 				data_cache_size[data_cache_levels] =
 					(extractBit(data[1], 22, 31) + 1)

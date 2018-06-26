@@ -1054,15 +1054,19 @@ class Test {
 			push word 2
 			reduce 2-byte stack, so I can't support it
 		*/
-		const char *p = "push";
-		put(p, REG16);
-		put(p, IMM8); // IMM16 decrease -2 from esp
-		put(p, MEM16);
 
+		put("push", IMM8|IMM32);
+		if (isXbyak_) {
+			puts("push(word, 1000);dump();");
+		} else {
+			puts("push word 1000");
+		}
+
+		put("push", REG16|MEM16);
 		put("pop", REG16|MEM16);
 #ifdef XBYAK64
-		put("push", REG64);
-		put("pop", REG64);
+		put("push", REG64|IMM32|MEM64);
+		put("pop", REG64|MEM64);
 #else
 		put("push", REG32|IMM32|MEM32);
 		put("pop", REG32|MEM32);

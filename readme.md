@@ -1,5 +1,5 @@
 
-Xbyak 5.631 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.65 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -333,7 +333,8 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
-* 2018/Mar/06 ver 5.631 fix zero division in Cpu() on some cpu
+* 2018/Jun/26 ver 5.65 fix push(qword [mem])
+* 2018/Mar/07 ver 5.64 fix zero division in Cpu() on some cpu
 * 2018/Feb/14 ver 5.63 fix Cpu::setCacheHierarchy() and fix EvexModifierZero for clang<3.9(thanks to mgouicem)
 * 2018/Feb/13 ver 5.62 Cpu::setCacheHierarchy() by mgouicem and rsdubtso
 * 2018/Feb/07 ver 5.61 vmov* supports mem{k}{z}(I forgot it)
