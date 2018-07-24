@@ -1,5 +1,5 @@
 
-Xbyak 5.65 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.66 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -333,6 +333,7 @@ The header files under xbyak/ are independent of cybozulib.
 
 History
 -------------
+* 2018/Jul/24 ver 5.66 add CodeArray::PROTECT_RE to mode of protect()
 * 2018/Jun/26 ver 5.65 fix push(qword [mem])
 * 2018/Mar/07 ver 5.64 fix zero division in Cpu() on some cpu
 * 2018/Feb/14 ver 5.63 fix Cpu::setCacheHierarchy() and fix EvexModifierZero for clang<3.9(thanks to mgouicem)

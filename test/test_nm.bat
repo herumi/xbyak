@@ -39,5 +39,5 @@ if /i "%Y%"=="1" (
 make_nm jit > nm.cpp
 cl -I../ -DXBYAK_TEST nm_frame.cpp %OPT% %OPT2%
 nm_frame |%FILTER% > x.lst
-diff x.lst ok.lst
+diff -w x.lst ok.lst
 wc x.lst

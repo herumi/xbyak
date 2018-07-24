@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.65
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.66
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -343,6 +343,7 @@ cybozulibは単体テストでのみ利用されていて、xbyak/ディレク�
 -----------------------------------------------------------------------------
 ◎履歴
 
+2018/07/24 ver 5.66 protect()のmodeにCodeArray::PROTECT_REを追加
 2018/06/26 ver 5.65 fix push(qword [mem])
 2018/03/07 ver 5.64 Cpu()の中でzero divisionが出ることがあるのを修正
 2018/02/14 ver 5.63 Cpu::setCacheHierarchy()の修正とclang<3.9のためのEvexModifierZero修正(thanks to mgouicem)

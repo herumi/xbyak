@@ -105,7 +105,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5650 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5660 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -848,10 +848,15 @@ protected:
 			uint64 disp = i->getVal(top_);
 			rewrite(i->codeOffset, disp, i->jmpSize);
 		}
-		if (alloc_->useProtect() && !protect(top_, size_, true)) throw Error(ERR_CANT_PROTECT);
+		if (alloc_->useProtect() && !protect(top_, size_, PROTECT_RWE)) throw Error(ERR_CANT_PROTECT);
 		isCalledCalcJmpAddress_ = true;
 	}
 public:
+	enum ProtectMode {
+		PROTECT_RW = 0, // read/write
+		PROTECT_RWE = 1, // read/write/exec
+		PROTECT_RE = 2 // read/exec
+	};
 	explicit CodeArray(size_t maxSize, void *userPtr = 0, Allocator *allocator = 0)
 		: type_(userPtr == AutoGrow ? AUTO_GROW : userPtr ? USER_BUF : ALLOC_BUF)
 		, alloc_(allocator ? allocator : (Allocator*)&defaultAllocator_)
@@ -861,7 +866,7 @@ public:
 		, isCalledCalcJmpAddress_(false)
 	{
 		if (maxSize_ > 0 && top_ == 0) throw Error(ERR_CANT_ALLOC);
-		if ((type_ == ALLOC_BUF && alloc_->useProtect()) && !protect(top_, maxSize, true)) {
+		if ((type_ == ALLOC_BUF && alloc_->useProtect()) && !protect(top_, maxSize, PROTECT_RWE)) {
 			alloc_->free(top_);
 			throw Error(ERR_CANT_PROTECT);
 		}
@@ -869,7 +874,7 @@ public:
 	virtual ~CodeArray()
 	{
 		if (isAllocType()) {
-			if (alloc_->useProtect()) protect(top_, maxSize_, false);
+			if (alloc_->useProtect()) protect(top_, maxSize_, PROTECT_RW);
 			alloc_->free(top_);
 		}
 	}
@@ -960,19 +965,36 @@ public:
 		change exec permission of memory
 		@param addr [in] buffer address
 		@param size [in] buffer size
-		@param canExec [in] true(enable to exec), false(disable to exec)
+		@param protectMode [in] mode(RW/RWE/RE)
 		@return true(success), false(failure)
 	*/
-	static inline bool protect(const void *addr, size_t size, bool canExec)
+	static inline bool protect(const void *addr, size_t size, int protectMode)
 	{
-#if defined(_WIN32)
+#if defined(_MSC_VER)
+		const DWORD c_rw = PAGE_READWRITE;
+		const DWORD c_rwe = PAGE_EXECUTE_READWRITE;
+		const DWORD c_re = PAGE_EXECUTE_READ;
+		DWORD mode;
+#else
+		const int c_rw = PROT_READ | PROT_WRITE;
+		const int c_rwe = PROT_READ | PROT_WRITE | PROT_EXEC;
+		const int c_re = PROT_READ | PROT_EXEC;
+		int mode;
+#endif
+		switch (protectMode) {
+		case PROTECT_RW: mode = c_rw; break;
+		case PROTECT_RWE: mode = c_rwe; break;
+		case PROTECT_RE: mode = c_re; break;
+		default:
+			return false;
+		}
+#if defined(_MSC_VER)
 		DWORD oldProtect;
-		return VirtualProtect(const_cast<void*>(addr), size, canExec ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE, &oldProtect) != 0;
+		return VirtualProtect(const_cast<void*>(addr), size, mode, &oldProtect) != 0;
 #elif defined(__GNUC__)
 		size_t pageSize = sysconf(_SC_PAGESIZE);
 		size_t iaddr = reinterpret_cast<size_t>(addr);
 		size_t roundAddr = iaddr & ~(pageSize - static_cast<size_t>(1));
-		int mode = PROT_READ | PROT_WRITE | (canExec ? PROT_EXEC : 0);
 		return mprotect(reinterpret_cast<void*>(roundAddr), size + (iaddr - roundAddr), mode) == 0;
 #else
 		return true;

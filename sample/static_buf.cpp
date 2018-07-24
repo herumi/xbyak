@@ -13,7 +13,6 @@ struct Code : Xbyak::CodeGenerator {
 	{
 		puts("generate");
 		printf("ptr=%p, %p\n", getCode(), buf);
-		Xbyak::CodeArray::protect(buf, sizeof(buf), true);
 #ifdef XBYAK32
 		mov(eax, ptr [esp + 4]);
 		add(eax, ptr [esp + 8]);
@@ -23,6 +22,11 @@ struct Code : Xbyak::CodeGenerator {
 		lea(rax, ptr [rdi + rsi]);
 #endif
 		ret();
+		Xbyak::CodeArray::protect(buf, sizeof(buf), Xbyak::CodeArray::PROTECT_RE);
+	}
+	~Code()
+	{
+		Xbyak::CodeArray::protect(buf, sizeof(buf), Xbyak::CodeArray::PROTECT_RW);
 	}
 } s_code;
 

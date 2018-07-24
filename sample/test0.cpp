@@ -165,15 +165,15 @@ int main()
 			const size_t codeSize = 1024;
 			uint8 buf[codeSize + 16];
 			uint8 *p = CodeArray::getAlignedAddress(buf);
-			CodeArray::protect(p, codeSize, true);
 			Sample s(p, codeSize);
+			CodeArray::protect(p, codeSize, CodeArray::PROTECT_RE);
 			int (*func)(int) = s.getCode<int (*)(int)>();
 			if (Xbyak::CastTo<uint8*>(func) != p) {
 				fprintf(stderr, "internal error %p %p\n", p, Xbyak::CastTo<uint8*>(func));
 				return 1;
 			}
 			printf("0 + ... + %d = %d\n", 100, func(100));
-			CodeArray::protect(p, codeSize, false);
+			CodeArray::protect(p, codeSize, CodeArray::PROTECT_RW);
 		}
 		puts("OK");
 		testReset();

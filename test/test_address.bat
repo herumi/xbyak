@@ -31,7 +31,7 @@ address %1% jit > nm.cpp
 echo cl -I../ -DXBYAK_TEST nm_frame.cpp %OPT% %OPT2%
 cl -I../ -DXBYAK_TEST nm_frame.cpp %OPT% %OPT2%
 nm_frame > x.lst
-diff x.lst ok.lst
+diff -w x.lst ok.lst
 wc x.lst
 
 :end

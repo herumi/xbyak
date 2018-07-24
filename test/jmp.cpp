@@ -1143,10 +1143,11 @@ CYBOZU_TEST_AUTO(rip_addr_with_fixed_buf)
 			ret();
 		}
 	} code;
-	Xbyak::CodeArray::protect(p, 4096, true);
+	Xbyak::CodeArray::protect(p, 4096, Xbyak::CodeArray::PROTECT_RE);
 	code.getCode<void (*)()>()();
 	CYBOZU_TEST_EQUAL(*x0, 123);
 	CYBOZU_TEST_EQUAL(*x1, 456);
 	CYBOZU_TEST_EQUAL(buf[8], 99);
+	Xbyak::CodeArray::protect(p, 4096, Xbyak::CodeArray::PROTECT_RW);
 }
 #endif
