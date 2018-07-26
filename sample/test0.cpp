@@ -162,11 +162,14 @@ int main()
 		{
 			// use memory allocated by user
 			using namespace Xbyak;
-			const size_t codeSize = 1024;
+			const size_t codeSize = 4096;
 			uint8 buf[codeSize + 16];
 			uint8 *p = CodeArray::getAlignedAddress(buf);
 			Sample s(p, codeSize);
-			CodeArray::protect(p, codeSize, CodeArray::PROTECT_RE);
+			if (!CodeArray::protect(p, codeSize, CodeArray::PROTECT_RWE)) {
+				fprintf(stderr, "can't protect\n");
+				return 1;
+			}
 			int (*func)(int) = s.getCode<int (*)(int)>();
 			if (Xbyak::CastTo<uint8*>(func) != p) {
 				fprintf(stderr, "internal error %p %p\n", p, Xbyak::CastTo<uint8*>(func));

@@ -105,7 +105,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5660 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5661 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -970,7 +970,7 @@ public:
 	*/
 	static inline bool protect(const void *addr, size_t size, int protectMode)
 	{
-#if defined(_MSC_VER)
+#if defined(_WIN32)
 		const DWORD c_rw = PAGE_READWRITE;
 		const DWORD c_rwe = PAGE_EXECUTE_READWRITE;
 		const DWORD c_re = PAGE_EXECUTE_READ;
@@ -988,7 +988,7 @@ public:
 		default:
 			return false;
 		}
-#if defined(_MSC_VER)
+#if defined(_WIN32)
 		DWORD oldProtect;
 		return VirtualProtect(const_cast<void*>(addr), size, mode, &oldProtect) != 0;
 #elif defined(__GNUC__)
