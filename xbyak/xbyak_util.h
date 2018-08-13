@@ -139,7 +139,7 @@ class Cpu {
 					* (data[2] + 1);
 				if (cacheType == DATA_CACHE && smt_width == 0) smt_width = nb_logical_cores;
 				assert(smt_width != 0);
-				cores_sharing_data_cache[data_cache_levels] = nb_logical_cores / smt_width;
+				cores_sharing_data_cache[data_cache_levels] = (std::max)(nb_logical_cores / smt_width, 1u);
 				data_cache_levels++;
 			}
 		}
