@@ -122,8 +122,11 @@ void cmpordsd(const Xmm& x, const Operand& op) { cmpsd(x, op, 7); }
 void cmpordss(const Xmm& x, const Operand& op) { cmpss(x, op, 7); }
 void cmppd(const Xmm& xmm, const Operand& op, uint8 imm8) { opGen(xmm, op, 0xC2, 0x66, isXMM_XMMorMEM, imm8); }
 void cmpps(const Xmm& xmm, const Operand& op, uint8 imm8) { opGen(xmm, op, 0xC2, 0x100, isXMM_XMMorMEM, imm8); }
+void cmpsb() { db(0xA6); }
+void cmpsd() { db(0xA7); }
 void cmpsd(const Xmm& xmm, const Operand& op, uint8 imm8) { opGen(xmm, op, 0xC2, 0xF2, isXMM_XMMorMEM, imm8); }
 void cmpss(const Xmm& xmm, const Operand& op, uint8 imm8) { opGen(xmm, op, 0xC2, 0xF3, isXMM_XMMorMEM, imm8); }
+void cmpsw() { db(0x66); db(0xA7); }
 void cmpunordpd(const Xmm& x, const Operand& op) { cmppd(x, op, 3); }
 void cmpunordps(const Xmm& x, const Operand& op) { cmpps(x, op, 3); }
 void cmpunordsd(const Xmm& x, const Operand& op) { cmpsd(x, op, 3); }
@@ -683,6 +686,9 @@ void sar(const Operand& op, int imm) { opShift(op, imm, 7); }
 void sarx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opGpr(r1, op, r2, T_F3 | T_0F38, 0xf7, false); }
 void sbb(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x18, 3); }
 void sbb(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x18); }
+void scasb() { db(0xAE); }
+void scasd() { db(0xAF); }
+void scasw() { db(0x66); db(0xAF); }
 void seta(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, 0x90 | 7); }//-V524
 void setae(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, 0x90 | 3); }//-V524
 void setb(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, 0x90 | 2); }//-V524
@@ -742,6 +748,9 @@ void stc() { db(0xF9); }
 void std() { db(0xFD); }
 void sti() { db(0xFB); }
 void stmxcsr(const Address& addr) { opModM(addr, Reg32(3), 0x0F, 0xAE); }
+void stosb() { db(0xAA); }
+void stosd() { db(0xAB); }
+void stosw() { db(0x66); db(0xAB); }
 void sub(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x28, 5); }
 void sub(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x28); }
 void subpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x5C, 0x66, isXMM_XMMorMEM); }
@@ -1544,7 +1553,10 @@ void jrcxz(std::string label) { opJmp(label, T_SHORT, 0xe3, 0, 0); }
 void jrcxz(const Label& label) { opJmp(label, T_SHORT, 0xe3, 0, 0); }
 void cdqe() { db(0x48); db(0x98); }
 void cqo() { db(0x48); db(0x99); }
+void cmpsq() { db(0x48); db(0xA7); }
 void movsq() { db(0x48); db(0xA5); }
+void scasq() { db(0x48); db(0xAF); }
+void stosq() { db(0x48); db(0xAB); }
 void cmpxchg16b(const Address& addr) { opModM(addr, Reg64(1), 0x0F, 0xC7); }
 void movq(const Reg64& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR(mmx, reg, 0x0F, 0x7E); }
 void movq(const Mmx& mmx, const Reg64& reg) { if (mmx.isXMM()) db(0x66); opModR(mmx, reg, 0x0F, 0x6E); }

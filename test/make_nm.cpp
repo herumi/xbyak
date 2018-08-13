@@ -458,6 +458,10 @@ class Test {
 #ifdef XBYAK64
 			"cdqe",
 			"cqo",
+			"cmpsq",
+			"movsq",
+			"scasq",
+			"stosq",
 #else
 			"aaa",
 			"aad",
@@ -486,6 +490,18 @@ class Test {
 
 			"lahf",
 //			"lock",
+			"cmpsb",
+			"cmpsw",
+			"cmpsd",
+			"movsb",
+			"movsw",
+			"movsd",
+			"scasb",
+			"scasw",
+			"scasd",
+			"stosb",
+			"stosw",
+			"stosd",
 			"nop",
 
 			"sahf",
