@@ -335,11 +335,6 @@ http://opensource.org/licenses/BSD-3-Clause
 sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 いただきました。
 
-test/cybozu/以下のファイルはcybozulib(https://github.com/herumi/cybozulib/)
-の一部を使っています。cybozulibはBSD-3-Clauseライセンスです。
-cybozulibは単体テストでのみ利用されていて、xbyak/ディレクトリ以下のヘッダ
-ファイルはcybozulibとは独立に利用できます。
-
 -----------------------------------------------------------------------------
 ◎履歴
 

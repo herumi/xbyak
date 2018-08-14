@@ -327,10 +327,6 @@ License
 modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
-The files under test/cybozu/ are copied from cybozulib(https://github.com/herumi/cybozulib/),
-which is licensed by BSD-3-Clause and are used for only tests.
-The header files under xbyak/ are independent of cybozulib.
-
 History
 -------------
 * 2018/Aug/14 ver 5.67 remove mutable in Address ; fix setCacheHierarchy for cloud vm
