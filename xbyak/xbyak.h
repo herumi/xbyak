@@ -105,7 +105,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5661 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5670 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1021,46 +1021,43 @@ public:
 		M_ripAddr
 	};
 	Address(uint32 sizeBit, bool broadcast, const RegExp& e)
-		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), permitVsib_(false), broadcast_(broadcast)
+		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), broadcast_(broadcast)
 	{
 		e_.verify();
 	}
 #ifdef XBYAK64
 	explicit Address(size_t disp)
-		: Operand(0, MEM, 64), e_(disp), label_(0), mode_(M_64bitDisp), permitVsib_(false), broadcast_(false){ }
+		: Operand(0, MEM, 64), e_(disp), label_(0), mode_(M_64bitDisp), broadcast_(false){ }
 	Address(uint32 sizeBit, bool broadcast, const RegRip& addr)
-		: Operand(0, MEM, sizeBit), e_(addr.disp_), label_(addr.label_), mode_(addr.isAddr_ ? M_ripAddr : M_rip), permitVsib_(false), broadcast_(broadcast) { }
+		: Operand(0, MEM, sizeBit), e_(addr.disp_), label_(addr.label_), mode_(addr.isAddr_ ? M_ripAddr : M_rip), broadcast_(broadcast) { }
 #endif
-	void permitVsib() const { permitVsib_ = true; }
 	RegExp getRegExp(bool optimize = true) const
 	{
 		return optimize ? e_.optimize() : e_;
 	}
 	Mode getMode() const { return mode_; }
-	bool is32bit() const { verify(); return e_.getBase().getBit() == 32 || e_.getIndex().getBit() == 32; }
-	bool isOnlyDisp() const { verify(); return !e_.getBase().getBit() && !e_.getIndex().getBit(); } // for mov eax
-	size_t getDisp() const { verify(); return e_.getDisp(); }
+	bool is32bit() const { return e_.getBase().getBit() == 32 || e_.getIndex().getBit() == 32; }
+	bool isOnlyDisp() const { return !e_.getBase().getBit() && !e_.getIndex().getBit(); } // for mov eax
+	size_t getDisp() const { return e_.getDisp(); }
 	uint8 getRex() const
 	{
-		verify();
 		if (mode_ != M_ModRM) return 0;
 		return getRegExp().getRex();
 	}
-	bool is64bitDisp() const { verify(); return mode_ == M_64bitDisp; } // for moffset
+	bool is64bitDisp() const { return mode_ == M_64bitDisp; } // for moffset
 	bool isBroadcast() const { return broadcast_; }
 	const Label* getLabel() const { return label_; }
 	bool operator==(const Address& rhs) const
 	{
-		return getBit() == rhs.getBit() && e_ == rhs.e_ && label_ == rhs.label_ && mode_ == rhs.mode_ && permitVsib_ == rhs.permitVsib_ && broadcast_ == rhs.broadcast_;
+		return getBit() == rhs.getBit() && e_ == rhs.e_ && label_ == rhs.label_ && mode_ == rhs.mode_ && broadcast_ == rhs.broadcast_;
 	}
 	bool operator!=(const Address& rhs) const { return !operator==(rhs); }
+	bool isVsib() const { return e_.isVsib(); }
 private:
 	RegExp e_;
 	const Label* label_;
 	Mode mode_;
-	mutable bool permitVsib_;
 	bool broadcast_;
-	void verify() const { if (e_.isVsib() && !permitVsib_) throw Error(ERR_BAD_VSIB_ADDRESSING); }
 };
 
 inline const Address& Operand::getAddress() const
@@ -1465,6 +1462,7 @@ private:
 		T_B32 = 1 << 26, // m32bcst
 		T_B64 = 1 << 27, // m64bcst
 		T_M_K = 1 << 28, // mem{k}
+		T_VSIB = 1 << 29,
 		T_XXX
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
@@ -1691,8 +1689,9 @@ private:
 	// reg is reg field of ModRM
 	// immSize is the size for immediate value
 	// disp8N = 0(normal), disp8N = 1(force disp32), disp8N = {2, 4, 8} ; compressed displacement
-	void opAddr(const Address &addr, int reg, int immSize = 0, int disp8N = 0)
+	void opAddr(const Address &addr, int reg, int immSize = 0, int disp8N = 0, bool permitVisb = false)
 	{
+		if (!permitVisb && addr.isVsib()) throw Error(ERR_BAD_VSIB_ADDRESSING);
 		if (addr.getMode() == Address::M_ModRM) {
 			setSIB(addr.getRegExp(), reg, disp8N);
 		} else if (addr.getMode() == Address::M_rip || addr.getMode() == Address::M_ripAddr) {
@@ -1952,7 +1951,7 @@ private:
 			} else {
 				vex(r, base, p1, type, code, x);
 			}
-			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0, disp8N);
+			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0, disp8N, (type & T_VSIB) != 0);
 		} else {
 			const Reg& base = op2.getReg();
 			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || base.hasEvex()) {
@@ -2053,8 +2052,7 @@ private:
 			}
 			if (!isOK) throw Error(ERR_BAD_VSIB_ADDRESSING);
 		}
-		addr.permitVsib();
-		opAVX_X_X_XM(isAddrYMM ? Ymm(x1.getIdx()) : x1, isAddrYMM ? Ymm(x2.getIdx()) : x2, addr, type | T_YMM, code);
+		opAVX_X_X_XM(isAddrYMM ? Ymm(x1.getIdx()) : x1, isAddrYMM ? Ymm(x2.getIdx()) : x2, addr, type, code);
 	}
 	enum {
 		xx_yy_zz = 0,
@@ -2078,7 +2076,6 @@ private:
 	{
 		if (x.hasZero()) throw Error(ERR_INVALID_ZERO);
 		checkGather2(x, addr.getRegExp().getIndex(), mode);
-		addr.permitVsib();
 		opVex(x, 0, addr, type, code);
 	}
 	/*
@@ -2098,7 +2095,6 @@ private:
 	{
 		if (addr.hasZero()) throw Error(ERR_INVALID_ZERO);
 		if (addr.getRegExp().getIndex().getKind() != kind) throw Error(ERR_BAD_VSIB_ADDRESSING);
-		addr.permitVsib();
 		opVex(x, 0, addr, type, code);
 	}
 public:

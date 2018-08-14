@@ -1652,7 +1652,7 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			printf("void %s(const Xmm& x1, const Address& addr, const Xmm& x2) { opGather(x1, addr, x2, T_0F38 | T_66 | T_W%d, 0x%x, %d); }\n", p.name, p.w, p.code, p.mode);
+			printf("void %s(const Xmm& x1, const Address& addr, const Xmm& x2) { opGather(x1, addr, x2, T_0F38 | T_66 | T_YMM | T_VSIB | T_W%d, 0x%x, %d); }\n", p.name, p.w, p.code, p.mode);
 		}
 	}
 }
