@@ -1935,9 +1935,10 @@ private:
 			const Address& addr = op2.getAddress();
 			const RegExp& regExp = addr.getRegExp();
 			const Reg& base = regExp.getBase();
+			const Reg& index = regExp.getIndex();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			int disp8N = 0;
-			bool x = regExp.getIndex().isExtIdx();
+			bool x = index.isExtIdx();
 			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || addr.isBroadcast() || addr.getOpmaskIdx()) {
 				int aaa = addr.getOpmaskIdx();
 				if (aaa && !(type & T_M_K)) throw Error(ERR_INVALID_OPMASK_WITH_MEMORY);
@@ -1946,9 +1947,8 @@ private:
 					if (!(type & (T_B32 | T_B64))) throw Error(ERR_INVALID_BROADCAST);
 					b = true;
 				}
-				int VL = regExp.isVsib() ? regExp.getIndex().getBit() : 0;
-				bool Hi16Vidx = regExp.getIndex().getIdx() >= 16;
-				disp8N = evex(r, base, p1, type, code, x, b, aaa, VL, Hi16Vidx);
+				int VL = regExp.isVsib() ? index.getBit() : 0;
+				disp8N = evex(r, base, p1, type, code, x, b, aaa, VL, index.isExtIdx2());
 			} else {
 				vex(r, base, p1, type, code, x);
 			}
