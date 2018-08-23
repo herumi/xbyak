@@ -352,7 +352,8 @@ class Test {
 		case VM32Y_K:
 			return isXbyak_ ? "ptr [64+ymm13*2+r13] | k6" : "[64+ymm13*2+r13]{k6}";
 		case VM32Z_K:
-			return isXbyak_ ? "ptr [64+zmm13*2+r13] | k6" : "[64+zmm13*2+r13]{k6}";
+			if (idx & 1) return isXbyak_ ? "ptr [64+zmm10*8+r9] | k6" : "[64+zmm10*8+r9]{k6}";
+			return isXbyak_ ? "ptr [64+zmm30*2+r13] | k6" : "[64+zmm30*2+r13]{k6}";
 		case VM32Z:
 			return isXbyak_ ? "ptr [64+zmm13*2+rcx]" : "[64+zmm13*2+rcx]";
 		case M_1to2: return isXbyak_ ? "ptr_b [eax+32]" : "[eax+32]{1to2}";

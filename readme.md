@@ -1,5 +1,5 @@
 
-Xbyak 5.67 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+Xbyak 5.68 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 =============
 
 Abstract
@@ -329,6 +329,7 @@ http://opensource.org/licenses/BSD-3-Clause
 
 History
 -------------
+* 2018/Aug/24 ver 5.68 fix wrong VSIB encoding with vector index >= 16(thanks to petercaday)
 * 2018/Aug/14 ver 5.67 remove mutable in Address ; fix setCacheHierarchy for cloud vm
 * 2018/Jul/26 ver 5.661 support mingw64
 * 2018/Jul/24 ver 5.66 add CodeArray::PROTECT_RE to mode of protect()

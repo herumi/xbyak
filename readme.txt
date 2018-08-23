@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.67
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.68
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -338,6 +338,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2018/08/24 ver 5.68 indexが16以上のVSIBエンコーディングのバグ修正(thanks to petercaday)
 2018/08/14 ver 5.67 Addressクラス内のmutableを削除 ; fix setCacheHierarchy for cloud vm
 2018/07/26 ver 5.661 mingw64対応
 2018/07/24 ver 5.66 protect()のmodeにCodeArray::PROTECT_REを追加

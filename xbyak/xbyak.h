@@ -105,7 +105,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5670 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5680 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1500,7 +1500,7 @@ private:
 		if ((a > 0 && a != v) + (b > 0 && b != v) + (c > 0 && c != v) > 0) return Error(err);
 		return v;
 	}
-	int evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool b = false, int aaa = 0, uint32 VL = 0)
+	int evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool b = false, int aaa = 0, uint32 VL = 0, bool Hi16Vidx = false)
 	{
 		if (!(type & (T_EVEX | T_MUST_EVEX))) throw Error(ERR_EVEX_IS_INVALID);
 		int w = (type & T_EW1) ? 1 : 0;
@@ -1543,7 +1543,7 @@ private:
 				}
 			}
 		}
-		bool Vp = !(v ? v->isExtIdx2() : 0);
+		bool Vp = !((v ? v->isExtIdx2() : 0) | Hi16Vidx);
 		bool z = reg.hasZero() || base.hasZero() || (v ? v->hasZero() : false);
 		if (aaa == 0) aaa = verifyDuplicate(base.getOpmaskIdx(), reg.getOpmaskIdx(), (v ? v->getOpmaskIdx() : 0), ERR_OPMASK_IS_ALREADY_SET);
 		db(0x62);
@@ -1947,7 +1947,8 @@ private:
 					b = true;
 				}
 				int VL = regExp.isVsib() ? regExp.getIndex().getBit() : 0;
-				disp8N = evex(r, base, p1, type, code, x, b, aaa, VL);
+				bool Hi16Vidx = regExp.getIndex().getIdx() >= 16;
+				disp8N = evex(r, base, p1, type, code, x, b, aaa, VL, Hi16Vidx);
 			} else {
 				vex(r, base, p1, type, code, x);
 			}
