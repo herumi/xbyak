@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.68
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.70
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -309,6 +309,41 @@ bool CodeArray::protect(const void *addr, size_t size, bool canExec);
 */
 uint8 *CodeArray::getAlignedAddress(uint8 *addr, size_t alignedSize = ALIGN_SIZE);
 
+・read/execモード
+デフォルトのCodeGeneratorはコンストラクト時にJIT用の領域をread/write/execモードに設定して利用します。
+コード生成時はread/writeでコード実行時にはread/execにしたい場合、次のようにしてください。
+
+struct Code : Xbyak::CodeGenerator {
+    Code()
+        : Xbyak::CodeGenerator(4096, Xbyak::DontUseProtect) // JIT領域をread/writeのままコード生成
+    {
+        mov(eax, 123);
+        ret();
+    }
+};
+
+Code c;
+c.setProtectModeRE(); // read/execモードに変更
+// JIT領域を実行
+
+AutoGrowの場合はreadyの代わりにreadyRE()を読んでください。
+
+struct Code : Xbyak::CodeGenerator {
+    Code()
+        : Xbyak::CodeGenerator(4096, Xbyak::AutoGrow) // JIT領域をread/writeのままコード生成
+    {
+        mov(eax, 123);
+        ret();
+    }
+};
+
+Code c;
+c.readyRE(); // read/exeモードに変更
+// JIT領域を実行
+
+setProtectModeRW()を呼ぶと領域が元のread/execモードに戻ります。
+
+
 その他詳細は各種サンプルを参照してください。
 -----------------------------------------------------------------------------
 ◎マクロ
@@ -338,6 +373,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2018/08/27 ver 5.70 read/exec設定のためのsetProtectMode()とDontUseProtectの追加
 2018/08/24 ver 5.68 indexが16以上のVSIBエンコーディングのバグ修正(thanks to petercaday)
 2018/08/14 ver 5.67 Addressクラス内のmutableを削除 ; fix setCacheHierarchy for cloud vm
 2018/07/26 ver 5.661 mingw64対応

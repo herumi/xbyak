@@ -1,107 +1,121 @@
 
-Xbyak 5.68 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
-=============
+# Xbyak 5.70 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
-Abstract
--------------
+## Abstract
 
 This is a header file which enables dynamically to assemble x86(IA32), x64(AMD64, x86-64) mnemonic.
 
-Feature
--------------
-header file only
-you can use Xbyak's functions at once if xbyak.h is included.
+## Feature
+* header file only
+* Intel/MASM like syntax
+* fully support AVX-512
 
-### Supported Instructions Sets
+**Note**: Xbyak uses and(), or(), xor(), not() functions, so `-fno-operator-names` option is necessary for gcc/clang.
 
-MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(*partial*)/AVX/AVX2/FMA/VEX-encoded GPR/AVX-512
+Or define `XBYAK_NO_OP_NAMES` before including `xbyak.h` and use and_(), or_(), xor_(), not_() instead of them.
+
+and_(), or_(), xor_(), not_() are always available.
+
+`XBYAK_NO_OP_NAMES` will be defined in the feature version.
 
 ### Supported OS
 
-* Windows Xp, Vista, Windows 7(32bit, 64bit)
+* Windows Xp, Vista, Windows 7, Windows 10(32bit, 64bit)
 * Linux(32bit, 64bit)
-* Intel Mac OSX
+* Intel macOS
 
 ### Supported Compilers
 
-* Visual Studio C++ VC2012 or later
-* gcc 4.7 or later
-* clang 3.3
-* cygwin gcc 4.5.3
-* icc 7.2
+Almost C++03 or later compilers for x86/x64 such as Visual Studio, g++, clang++, Intel C++ compiler and g++ on mingw/cygwin.
 
->Note: Xbyak uses and(), or(), xor(), not() functions, so "-fno-operator-names" option is required on gcc.
-Or define XBYAK_NO_OP_NAMES and use and_(), or_(), xor_(), not_() instead of them.
-and_(), or_(), xor_(), not_() are always available.
+## Install
 
-Install
--------------
-
-The following files are necessary. Please add the path to your compile directories.
+The following files are necessary. Please add the path to your compile directory.
 
 * xbyak.h
 * xbyak_mnemonic.h
+* xbyak_util.h
 
 Linux:
+```
+make install
+```
 
-    make install
+These files are copied into `/usr/local/include/xbyak`.
 
-These files are copied into /usr/local/include/xbyak
+## How to use it
 
-New Feature
--------------
+Inherit `Xbyak::CodeGenerator` class and make the class method.
+```
+#define XBYAK_NO_OP_NAMES
+#include <xbyak/xbyak.h>
 
-Add support for AVX-512 instruction set.
+struct Code : Xbyak::CodeGenerator {
+    Code(int x)
+    {
+        mov(eax, x);
+        ret();
+    }
+};
+```
+Make an instance of the class and get the function
+pointer by calling `getCode()` and call it.
+```
+Code c(5);
+int (*f)() = c.getCode<int (*)()>();
+printf("ret=%d\n", f()); // ret = 5
+```
 
-Syntax
--------------
-
-Make Xbyak::CodeGenerator and make the class method and get the function
-pointer by calling cgetCode() and casting the return value.
-
-    NASM              Xbyak
-    mov eax, ebx  --> mov(eax, ebx);
-    inc ecx           inc(ecx);
-    ret           --> ret();
-
-### Addressing
-
-    (ptr|dword|word|byte) [base + index * (1|2|4|8) + displacement]
-                          [rip + 32bit disp] ; x64 only
-
-    NASM                   Xbyak
-    mov eax, [ebx+ecx] --> mov (eax, ptr[ebx+ecx]);
-    test byte [esp], 4 --> test (byte [esp], 4);
-
-
-How to use Selector(Segment Register)
-
->Note: Segment class is not derived from Operand.
+## Syntax
+Similar to MASM/NASM syntax with parentheses.
 
 ```
-mov eax, [fs:eax] --> putSeg(fs); mov(eax, ptr [eax]);
+NASM              Xbyak
+mov eax, ebx  --> mov(eax, ebx);
+inc ecx           inc(ecx);
+ret           --> ret();
+```
+
+## Addressing
+Use `qword`, `dword`, `word` and `byte` if it is necessary to specify the size of memory,
+otherwise use `ptr`.
+
+```
+(ptr|qword|dword|word|byte) [base + index * (1|2|4|8) + displacement]
+                            [rip + 32bit disp] ; x64 only
+
+NASM                   Xbyak
+mov eax, [ebx+ecx] --> mov(eax, ptr [ebx+ecx]);
+mov al, [ebx+ecx]  --> mov(al, ptr [ebx + ecx]);
+test byte [esp], 4 --> test(byte [esp], 4);
+inc qword [rax]    --> inc(qword [rax]);
+```
+**Note**: `qword`, ... are member variables, then don't use `dword` as unsigned int type.
+
+### How to use Selector (Segment Register)
+```
+mov eax, [fs:eax] --> putSeg(fs);
+                      mov(eax, ptr [eax]);
 mov ax, cs        --> mov(ax, cs);
 ```
+**Note**: Segment class is not derived from `Operand`.
 
->you can use ptr for almost memory access unless you specify the size of memory.
+## AVX
 
->dword, word and byte are member variables, then don't use dword as unsigned int, for example.
-
-### AVX
-
-    vaddps(xmm1, xmm2, xmm3); // xmm1 <- xmm2 + xmm3
-    vaddps(xmm2, xmm3, ptr [rax]); // use ptr to access memory
-    vgatherdpd(xmm1, ptr [ebp+123+xmm2*4], xmm3);
-
-*Remark*
-The omitted destination syntax as the following ss disabled.
 ```
-    vaddps(xmm2, xmm3); // xmm2 <- xmm2 + xmm3
+vaddps(xmm1, xmm2, xmm3); // xmm1 <- xmm2 + xmm3
+vaddps(xmm2, xmm3, ptr [rax]); // use ptr to access memory
+vgatherdpd(xmm1, ptr [ebp + 256 + xmm2*4], xmm3);
 ```
-define `XBYAK_ENABLE_OMITTED_OPERAND` if you use it for backward compatibility.
+
+**Note**:
+If `XBYAK_ENABLE_OMITTED_OPERAND` is defined, then you can use two operand version for backward compatibility.
 But the newer version will not support it.
+```
+vaddps(xmm2, xmm3); // xmm2 <- xmm2 + xmm3
+```
 
-### AVX-512
+## AVX-512
 
 ```
 vaddpd zmm2, zmm5, zmm30                --> vaddpd(zmm2, zmm5, zmm30);
@@ -130,97 +144,121 @@ vfpclassps k5{k3}, zword [rax+64], 5    --> vfpclassps(k5|k3, zword [rax+64], 5)
 vfpclasspd k5{k3}, [rax+64]{1to2}, 5    --> vfpclasspd(k5|k3, xword_b [rax+64], 5); // broadcast 64-bit to 128-bit
 vfpclassps k5{k3}, [rax+64]{1to4}, 5    --> vfpclassps(k5|k3, yword_b [rax+64], 5); // broadcast 64-bit to 256-bit
 ```
-Remark
-* k1, ..., k7 are new opmask registers.
+### Remark
+* `k1`, ..., `k7` are opmask registers.
 * use `| T_z`, `| T_sae`, `| T_rn_sae`, `| T_rd_sae`, `| T_ru_sae`, `| T_rz_sae` instead of `,{z}`, `,{sae}`, `,{rn-sae}`, `,{rd-sae}`, `,{ru-sae}`, `,{rz-sae}` respectively.
 * `k4 | k3` is different from `k3 | k4`.
 * use `ptr_b` for broadcast `{1toX}`. X is automatically determined.
-* specify xword/yword/zword(_b) for m128/m256/m512 if necessary.
+* specify `xword`/`yword`/`zword(_b)` for m128/m256/m512 if necessary.
 
-### Label
+## Label
+Two kinds of Label are supported. (String literal and Label class).
 
-    L("L1");
-      jmp ("L1");
+### String literal
+```
+L("L1");
+  jmp("L1");
 
-      jmp ("L2");
-      ...
-      a few mnemonics(8-bit displacement jmp)
-      ...
-    L("L2");
+  jmp("L2");
+  ...
+  a few mnemonics (8-bit displacement jmp)
+  ...
+L("L2");
 
-      jmp ("L3", T_NEAR);
-      ...
-      a lot of mnemonics(32-bit displacement jmp)
-      ...
-    L("L3");
+  jmp("L3", T_NEAR);
+  ...
+  a lot of mnemonics (32-bit displacement jmp)
+  ...
+L("L3");
+```
 
->Call hasUndefinedLabel() to verify your code has no undefined label.
-> you can use a label for immediate value of mov like as mov (eax, "L2");
+* Call `hasUndefinedLabel()` to verify your code has no undefined label.
+* you can use a label for immediate value of mov like as `mov(eax, "L2")`.
 
-#### 1. support @@, @f, @b like MASM
+### Support `@@`, `@f`, `@b` like MASM
 
-    L("@@"); // <A>
-      jmp("@b"); // jmp to <A>
-      jmp("@f"); // jmp to <B>
-    L("@@"); // <B>
-      jmp("@b"); // jmp to <B>
-      mov(eax, "@b");
-      jmp(eax); // jmp to <B>
+```
+L("@@"); // <A>
+  jmp("@b"); // jmp to <A>
+  jmp("@f"); // jmp to <B>
+L("@@"); // <B>
+  jmp("@b"); // jmp to <B>
+  mov(eax, "@b");
+  jmp(eax); // jmp to <B>
+```
 
-#### 2. localization of label by calling inLocalLabel(), outLocallabel().
+### Local label
 
-labels begining of period between inLocalLabel() and outLocalLabel()
-are dealed with local label.
-inLocalLabel() and outLocalLabel() can be nested.
+Label symbols beginning with a period between `inLocalLabel()` and `outLocalLabel()`
+are treated as a local label.
+`inLocalLabel()` and `outLocalLabel()` can be nested.
 
-    void func1()
-    {
-        inLocalLabel();
-      L(".lp"); // <A> ; local label
-        ...
-        jmp(".lp"); // jmpt to <A>
-      L("aaa"); // global label
-        outLocalLabel();
-    }
+```
+void func1()
+{
+    inLocalLabel();
+  L(".lp"); // <A> ; local label
+    ...
+    jmp(".lp"); // jmp to <A>
+  L("aaa"); // global label <C>
+    outLocalLabel();
 
-    void func2()
-    {
-        inLocalLabel();
-      L(".lp"); // <B> ; local label
-        func1();
-        jmp(".lp"); // jmp to <B>
-        inLocalLabel();
-    }
+    inLocalLabel();
+  L(".lp"); // <B> ; local label
+    func1();
+    jmp(".lp"); // jmp to <B>
+    inLocalLabel();
+    jmp("aaa"); // jmp to <C>
+}
+```
 
 ### Label class
 
-L() and jxx() functions support a new Label class.
+`L()` and `jxx()` support Label class.
 
-      Label label1, label2;
-    L(label1);
-      ...
-      jmp(label1);
-      ...
-      jmp(label2);
-      ...
-    L(label2);
+```
+  Xbyak::Label label1, label2;
+L(label1);
+  ...
+  jmp(label1);
+  ...
+  jmp(label2);
+  ...
+L(label2);
+```
 
-Moreover, assignL(dstLabel, srcLabel) method binds dstLabel with srcLabel.
+Use `putL` for jmp table
+```
+    Label labelTbl, L0, L1, L2;
+    mov(rax, labelTbl);
+    // rdx is an index of jump table
+    jmp(ptr [rax + rdx * sizeof(void*)]);
+L(labelTbl);
+    putL(L0);
+    putL(L1);
+    putL(L2);
+L(L0);
+    ....
+L(L1);
+    ....
+```
 
-      Label label1, label2;
-    L(label1);
-      ...
-      jmp(label2);
-      ...
-      assignL(label2, label1); // label2 <= label1
+`assignL(dstLabel, srcLabel)` binds dstLabel with srcLabel.
 
-The above jmp opecode jumps label1.
+```
+  Xbyak::Label label1, label2;
+L(label1);
+  ...
+  jmp(label2); // jump to label1 by assignL
+  ...
+  assignL(label2, label1); // label2 <- label1
+```
 
-* Restriction:
-* srcLabel must be used in L().
-* dstLabel must not be used in L().
+**Note**:
+* srcLabel must be used in `L()`.
+* dstLabel must not be used in `L()`.
 
-Label::getAddress() returns the address specified by the label instance and 0 if not specified.
+`Label::getAddress()` returns the address specified by the label instance and 0 if not specified.
 ```
 // not AutoGrow mode
 Label  label;
@@ -229,7 +267,7 @@ L(label);
 assert(label.getAddress() == getCurr());
 ```
 
-### Rip
+### Rip ; relative addressing
 ```
 Label label;
 mov(eax, ptr [rip + label]); // eax = 4
@@ -243,67 +281,94 @@ int x;
 ...
   mov(eax, ptr[rip + &x]); // throw exception if the difference between &x and current position is larger than 2GiB
 ```
-### Code size
-The default max code size is 4096 bytes. Please set it in constructor of CodeGenerator() if you want to use large size.
 
-    class Quantize : public Xbyak::CodeGenerator {
-    public:
-      Quantize()
-        : CodeGenerator(8192)
-      {
-      }
-      ...
-    };
+## Code size
+The default max code size is 4096 bytes.
+Specify the size in constructor of `CodeGenerator()` if necessary.
 
-### use user allocated memory
+```
+class Quantize : public Xbyak::CodeGenerator {
+public:
+  Quantize()
+    : CodeGenerator(8192)
+  {
+  }
+  ...
+};
+```
+
+## User allocated memory
 
 You can make jit code on prepaired memory.
 
-    class Sample : public Xbyak::CodeGenerator {
-    public:
-        Sample(void *userPtr, size_t size)
-            : Xbyak::CodeGenerator(size, userPtr)
-        {
-            ...
-        }
-    };
+Call `setProtectModeRE` yourself to change memory mode if using the prepaired memory.
 
-    const size_t codeSize = 1024;
-    uint8 buf[codeSize + 16];
-
-    // get 16-byte aligned address
-    uint8 *p = Xbyak::CodeArray::getAlignedAddress(buf);
-
-    // append executable attribute to the memory
-    Xbyak::CodeArray::protect(p, codeSize, true);
-
-    // construct your jit code on the memory
-    Sample s(p, codeSize);
-
->See *sample/test0.cpp*
-
-AutoGrow
--------------
-
-Under `AutoGrow` mode, Xbyak extends memory automatically if necessary.
-Call ready() before calling getCode() to calc address of jmp.
 ```
-    struct Code : Xbyak::CodeGenerator {
-      Code()
-        : Xbyak::CodeGenerator(<default memory size>, Xbyak::AutoGrow)
-      {
-         ...
-      }
-    };
+uint8_t alignas(4096) buf[8192]; // C++11 or later
+
+struct Code : Xbyak::CodeGenerator {
+    Code() : Xbyak::CodeGenerator(sizeof(buf), buf)
+    {
+        mov(rax, 123);
+        ret();
+    }
+};
+
+int main()
+{
     Code c;
-    c.ready(); // Don't forget to call this function
+    c.setProtectModeRE(); // set memory to Read/Exec
+    printf("%d\n", c.getCode<int(*)()>()());
+}
 ```
->Don't use the address returned by getCurr() before calling ready().
->It may be invalid address.
->RESTRICTION : rip addressing is not supported in AutoGrow
 
-Macro
--------------
+**Note**: See [sample/test0.cpp](sample/test0.cpp).
+
+### AutoGrow
+
+The memory region for jit is automatically extended if necessary when `AutoGrow` is specified in a constructor of `CodeGenerator`.
+
+Call `ready()` or `readyRE()` before calling `getCode()` to fix jump address.
+```
+struct Code : Xbyak::CodeGenerator {
+  Code()
+    : Xbyak::CodeGenerator(<default memory size>, Xbyak::AutoGrow)
+  {
+     ...
+  }
+};
+Code c;
+// generate code for jit
+c.ready(); // mode = Read/Write/Exec
+```
+
+**Note**:
+* Don't use the address returned by `getCurr()` before calling `ready()` because it may be invalid address.
+
+### Read/Exec mode
+Xbyak set Read/Write/Exec mode to memory to run jit code.
+If you want to use Read/Exec mode for security, then specify DontUseProtect for `CodeGenerator` and
+call `setProtectModeRE()` after generating jit code.
+
+```
+struct Code : Xbyak::CodeGenerator {
+    Code()
+        : Xbyak::CodeGenerator(4096, Xbyak::DontUseProtect)
+    {
+        mov(eax, 123);
+        ret();
+    }
+};
+
+Code c;
+c.setProtectModeRE();
+...
+
+```
+Call `readyRE()` instead of `ready()` when using `AutoGrow` mode.
+See [test/protect-re.cpp](test/protect-re.cpp).
+
+## Macro
 
 * **XBYAK32** is defined on 32bit.
 * **XBYAK64** is defined on 64bit.
@@ -313,22 +378,20 @@ Macro
 * define **XBYAK_ENABLE_OMITTED_OPERAND** if you use omitted destination such as `vaddps(xmm2, xmm3);`(duplicated in the future)
 * define **XBYAK_UNDEF_JNL** if Bessel function jnl is defined as macro
 
-Sample
--------------
+## Sample
 
-* test0.cpp ; tiny sample of Xbyak(x86, x64)
-* quantize.cpp ; JIT optimized quantization by fast division(x86 only)
-* calc.cpp ; assemble and estimate a given polynomial(x86, x64)
-* bf.cpp ; JIT brainfuck(x86, x64)
+* [test0.cpp](sample/test0.cpp) ; tiny sample (x86, x64)
+* [quantize.cpp](sample/quantize.cpp) ; JIT optimized quantization by fast division (x86 only)
+* [calc.cpp](sample/calc.cpp) ; assemble and estimate a given polynomial (x86, x64)
+* [bf.cpp](sample/bf.cpp) ; JIT brainfuck (x86, x64)
 
-License
--------------
+## License
 
 modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
-History
--------------
+## History
+* 2018/Aug/27 ver 5.70 support setProtectMode() and DontUseProtect for read/exec setting
 * 2018/Aug/24 ver 5.68 fix wrong VSIB encoding with vector index >= 16(thanks to petercaday)
 * 2018/Aug/14 ver 5.67 remove mutable in Address ; fix setCacheHierarchy for cloud vm
 * 2018/Jul/26 ver 5.661 support mingw64
@@ -393,8 +456,7 @@ History
 * 2013/Jul/30 ver 4.20 [break backward compatibility] split Reg32e class into RegExp(base+index*scale+disp) and Reg32e(means Reg32 or Reg64)
 * 2013/Jul/04 ver 4.10 [break backward compatibility] change the type of Xbyak::Error from enum to a class
 * 2013/Jun/21 ver 4.02 add putL(LABEL) function to put the address of the label
-* 2013/Jun/21 ver 4.01 vpsllw, vpslld, vpsllq, vpsraw, vpsrad, vpsrlw, vpsrld, vpsrlq support (ymm, ymm, xmm).
-                       support vpbroadcastb, vpbroadcastw, vpbroadcastd, vpbroadcastq(thanks to Gabest).
+* 2013/Jun/21 ver 4.01 vpsllw, vpslld, vpsllq, vpsraw, vpsrad, vpsrlw, vpsrld, vpsrlq support (ymm, ymm, xmm). support vpbroadcastb, vpbroadcastw, vpbroadcastd, vpbroadcastq(thanks to Gabest).
 * 2013/May/30 ver 4.00 support AVX2, VEX-encoded GPR-instructions
 * 2013/Mar/27 ver 3.80 support mov(reg, "label");
 * 2013/Mar/13 ver 3.76 add cqo(), jcxz(), jecxz(), jrcxz()
@@ -454,8 +516,6 @@ History
 * 2007/Jan/21 fix the bug to create address like [disp] select smaller representation for mov (eax|ax|al, [disp])
 * 2007/Jan/4  first version
 
-Author
--------------
-
+## Author
 MITSUNARI Shigeo(herumi@nifty.com)
 
