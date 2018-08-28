@@ -375,7 +375,7 @@ See [protect-re.cpp](sample/protect-re.cpp).
 * **XBYAK64_WIN** is defined on 64bit Windows(VC)
 * **XBYAK64_GCC** is defined on 64bit gcc, cygwin
 * define **XBYAK_NO_OP_NAMES** on gcc without `-fno-operator-names`
-* define **XBYAK_ENABLE_OMITTED_OPERAND** if you use omitted destination such as `vaddps(xmm2, xmm3);`(duplicated in the future)
+* define **XBYAK_ENABLE_OMITTED_OPERAND** if you use omitted destination such as `vaddps(xmm2, xmm3);`(deprecated in the future)
 * define **XBYAK_UNDEF_JNL** if Bessel function jnl is defined as macro
 
 ## Sample
