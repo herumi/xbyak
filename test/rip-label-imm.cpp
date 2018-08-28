@@ -40,8 +40,8 @@ struct Code : Xbyak::CodeGenerator {
 		cmpss(xmm0, ptr[rip + label], 0);
 		test(dword[rip + label], 33);
 		bt(dword[rip + label ], 3);
-		vblendpd(xmm0, dword[rip + label], 3);
-		vpalignr(xmm0, qword[rip + label], 4);
+		vblendpd(xmm0, xmm0, dword[rip + label], 3);
+		vpalignr(xmm0, xmm0, qword[rip + label], 4);
 		vextractf128(dword[rip + label], ymm3, 12);
 		vperm2i128(ymm0, ymm1, qword[rip + label], 13);
 		vcvtps2ph(ptr[rip + label], xmm2, 44);

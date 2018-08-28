@@ -987,6 +987,52 @@ struct GetAddressCode1 : Xbyak::CodeGenerator {
 	}
 };
 
+struct CodeLabelTable : Xbyak::CodeGenerator {
+	static const int ret0 = 3;
+	static const int ret1 = 5;
+	static const int ret2 = 8;
+	CodeLabelTable()
+	{
+		using namespace Xbyak;
+#ifdef XBYAK64_WIN
+		const Reg64& p0 = rcx;
+		const Reg64& a = rax;
+#elif defined (XBYAK64_GCC)
+		const Reg64& p0 = rdi;
+		const Reg64& a = rax;
+#else
+		const Reg32& p0 = edx;
+		const Reg32& a = eax;
+		mov(edx, ptr [esp + 4]);
+#endif
+		Label labelTbl, L0, L1, L2;
+		mov(a, labelTbl);
+		jmp(ptr [a + p0 * sizeof(void*)]);
+	L(labelTbl);
+		putL(L0);
+		putL(L1);
+		putL(L2);
+	L(L0);
+		mov(a, ret0);
+		ret();
+	L(L1);
+		mov(a, ret1);
+		ret();
+	L(L2);
+		mov(a, ret2);
+		ret();
+	}
+};
+
+CYBOZU_TEST_AUTO(LabelTable)
+{
+	CodeLabelTable c;
+	int (*f)(int) = c.getCode<int (*)(int)>();
+	CYBOZU_TEST_EQUAL(f(0), c.ret0);
+	CYBOZU_TEST_EQUAL(f(1), c.ret1);
+	CYBOZU_TEST_EQUAL(f(2), c.ret2);
+}
+
 CYBOZU_TEST_AUTO(getAddress1)
 {
 	GetAddressCode1 c;
@@ -1143,11 +1189,11 @@ CYBOZU_TEST_AUTO(rip_addr_with_fixed_buf)
 			ret();
 		}
 	} code;
-	Xbyak::CodeArray::protect(p, 4096, Xbyak::CodeArray::PROTECT_RE);
+	code.setProtectModeRE();
 	code.getCode<void (*)()>()();
 	CYBOZU_TEST_EQUAL(*x0, 123);
 	CYBOZU_TEST_EQUAL(*x1, 456);
 	CYBOZU_TEST_EQUAL(buf[8], 99);
-	Xbyak::CodeArray::protect(p, 4096, Xbyak::CodeArray::PROTECT_RW);
+	code.setProtectModeRW();
 }
 #endif
