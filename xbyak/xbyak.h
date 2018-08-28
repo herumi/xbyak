@@ -995,6 +995,9 @@ public:
 		size_t pageSize = sysconf(_SC_PAGESIZE);
 		size_t iaddr = reinterpret_cast<size_t>(addr);
 		size_t roundAddr = iaddr & ~(pageSize - static_cast<size_t>(1));
+#ifndef NDEBUG
+		if (pageSize != 4096) fprintf(stderr, "large page(%zd) is used. not tested enough.\n", pageSize);
+#endif
 		return mprotect(reinterpret_cast<void*>(roundAddr), size + (iaddr - roundAddr), mode) == 0;
 #else
 		return true;
