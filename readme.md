@@ -366,7 +366,7 @@ c.setProtectModeRE();
 
 ```
 Call `readyRE()` instead of `ready()` when using `AutoGrow` mode.
-See [test/protect-re.cpp](test/protect-re.cpp).
+See [protect-re.cpp](sample/protect-re.cpp).
 
 ## Macro
 
