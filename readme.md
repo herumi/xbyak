@@ -347,13 +347,13 @@ c.ready(); // mode = Read/Write/Exec
 
 ### Read/Exec mode
 Xbyak set Read/Write/Exec mode to memory to run jit code.
-If you want to use Read/Exec mode for security, then specify DontUseProtect for `CodeGenerator` and
+If you want to use Read/Exec mode for security, then specify `DontSetProtectRWE` for `CodeGenerator` and
 call `setProtectModeRE()` after generating jit code.
 
 ```
 struct Code : Xbyak::CodeGenerator {
     Code()
-        : Xbyak::CodeGenerator(4096, Xbyak::DontUseProtect)
+        : Xbyak::CodeGenerator(4096, Xbyak::DontSetProtectRWE)
     {
         mov(eax, 123);
         ret();
