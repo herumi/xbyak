@@ -105,7 +105,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5700 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5710 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -2162,6 +2162,7 @@ public:
 #endif
 	void L(const std::string& label) { labelMgr_.defineSlabel(label); }
 	void L(const Label& label) { labelMgr_.defineClabel(label); }
+	Label L() { Label label; L(label); return label; }
 	void inLocalLabel() { labelMgr_.enterLocal(); }
 	void outLocalLabel() { labelMgr_.leaveLocal(); }
 	/*

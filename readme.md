@@ -1,5 +1,5 @@
 
-# Xbyak 5.70 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.71 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -246,13 +246,14 @@ L(L1);
 `assignL(dstLabel, srcLabel)` binds dstLabel with srcLabel.
 
 ```
-  Xbyak::Label label1, label2;
-L(label1);
+  Label label2;
+  Label label1 = L(); // make label1 ; same to Label label1; L(label1);
   ...
-  jmp(label2); // jump to label1 by assignL
+  jmp(label2); // label2 is not determined here
   ...
   assignL(label2, label1); // label2 <- label1
 ```
+The `jmp` in the above code jumps to label1 assigned by `assignL`.
 
 **Note**:
 * srcLabel must be used in `L()`.
@@ -391,6 +392,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2018/Sep/04 ver 5.71 L() returns a new label instance
 * 2018/Aug/27 ver 5.70 support setProtectMode() and DontUseProtect for read/exec setting
 * 2018/Aug/24 ver 5.68 fix wrong VSIB encoding with vector index >= 16(thanks to petercaday)
 * 2018/Aug/14 ver 5.67 remove mutable in Address ; fix setCacheHierarchy for cloud vm

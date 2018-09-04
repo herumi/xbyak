@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.70
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.71
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -245,8 +245,8 @@ void func2()
 
 更にラベルの割り当てを行うassignL(dstLabel, srcLabel)という命令も追加されました。
 
-      Label label1, label2;
-    L(label1);
+      Label label2;
+    Label label1 = L(); // Label label1; L(label1);と同じ意味
       ...
       jmp(label2);
       ...
@@ -373,6 +373,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2018/08/27 ver 5.71 新しいlabelインスタンスを返すL()を追加
 2018/08/27 ver 5.70 read/exec設定のためのsetProtectMode()とDontUseProtectの追加
 2018/08/24 ver 5.68 indexが16以上のVSIBエンコーディングのバグ修正(thanks to petercaday)
 2018/08/14 ver 5.67 Addressクラス内のmutableを削除 ; fix setCacheHierarchy for cloud vm

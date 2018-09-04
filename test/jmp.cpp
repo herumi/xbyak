@@ -889,6 +889,34 @@ CYBOZU_TEST_AUTO(testNewLabel)
 	}
 }
 
+CYBOZU_TEST_AUTO(returnLabel)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			xor_(eax, eax);
+		Label L1 = L();
+			test(eax, eax);
+			Label exit;
+			jnz(exit);
+			inc(eax); // 1
+			Label L2;
+			call(L2);
+			jmp(L1);
+		L(L2);
+			inc(eax); // 2
+			ret();
+		L(exit);
+			inc(eax); // 3
+			ret();
+		}
+	};
+	Code code;
+	int (*f)() = code.getCode<int (*)()>();
+	int r = f();
+	CYBOZU_TEST_EQUAL(r, 3);
+}
+
 CYBOZU_TEST_AUTO(testAssign)
 {
 	struct Code : Xbyak::CodeGenerator {
