@@ -76,7 +76,7 @@ void putX_X_XM(bool omitOnly)
 			{ 0xC2, "cmpss", T_0F | T_F3, true, true, 2 },
 			{ 0x5A, "cvtsd2ss", T_0F | T_F2 | T_EVEX | T_EW1 | T_N8 | T_ER_X, false, true, 2 },
 			{ 0x5A, "cvtss2sd", T_0F | T_F3 | T_EVEX | T_EW0 | T_N4 | T_SAE_X, false, true, 2 },
-			{ 0x21, "insertps", T_0F3A | T_66 | T_W0 | T_EVEX | T_EW0, true, true, 2 },
+			{ 0x21, "insertps", T_0F3A | T_66 | T_W0 | T_EVEX | T_EW0 | T_N4, true, true, 2 },
 			{ 0x63, "packsswb", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
 			{ 0x6B, "packssdw", T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32, false, true, 2 },
 			{ 0x67, "packuswb", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },

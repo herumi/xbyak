@@ -1176,7 +1176,7 @@ public:
 			uint64_t xm;
 		} tbl[] = {
 #ifdef XBYAK64
-			{ "vinsertps", _XMM, _XMM, _XMM3 | _MEM },
+			{ "vinsertps", _XMM3, _XMM, _XMM3 | _MEM },
 
 			{ "vshufpd", XMM_KZ, _XMM, M_1to2 | _MEM },
 			{ "vshufpd", ZMM_KZ, _ZMM, M_1to8 | _MEM },
