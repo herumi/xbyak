@@ -1491,16 +1491,16 @@ void put()
 			int idx;
 			int type;
 		} tbl[] = {
-			{ "pslldq", 0x73, 7, T_0F | T_66 | T_YMM | T_EVEX  },
-			{ "psrldq", 0x73, 3, T_0F | T_66 | T_YMM | T_EVEX   },
-			{ "psllw", 0x71, 6, T_0F | T_66 | T_YMM | T_EVEX   },
-			{ "pslld", 0x72, 6, T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32   },
-			{ "psllq", 0x73, 6, T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64   },
-			{ "psraw", 0x71, 4, T_0F | T_66 | T_YMM | T_EVEX  },
-			{ "psrad", 0x72, 4, T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32  },
-			{ "psrlw", 0x71, 2, T_0F | T_66 | T_YMM | T_EVEX  },
-			{ "psrld", 0x72, 2, T_0F | T_66 | T_YMM | T_EVEX | T_EW0 | T_B32  },
-			{ "psrlq", 0x73, 2, T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64  },
+			{ "pslldq", 0x73, 7, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX },
+			{ "psrldq", 0x73, 3, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX },
+			{ "psllw", 0x71, 6, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX },
+			{ "pslld", 0x72, 6, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX | T_EW0 | T_B32 },
+			{ "psllq", 0x73, 6, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX | T_EW1 | T_B64 },
+			{ "psraw", 0x71, 4, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX },
+			{ "psrad", 0x72, 4, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX | T_EW0 | T_B32 },
+			{ "psrlw", 0x71, 2, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX },
+			{ "psrld", 0x72, 2, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX | T_EW0 | T_B32 },
+			{ "psrlq", 0x73, 2, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX | T_EW1 | T_B64 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];

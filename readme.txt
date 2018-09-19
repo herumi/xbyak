@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.72
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.73
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -373,6 +373,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2018/09/19 ver 5.73 vpslld, vpslldq, vpsllwなどの(reg, mem, imm8)に対するevexエンコーディング修整
 2018/09/19 ver 5.72 fix the encoding of vinsertps for disp8N(Thanks to petercaday)
 2018/08/27 ver 5.71 新しいlabelインスタンスを返すL()を追加
 2018/08/27 ver 5.70 read/exec設定のためのsetProtectMode()とDontUseProtectの追加

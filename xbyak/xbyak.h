@@ -105,7 +105,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5720 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5730 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1476,6 +1476,7 @@ private:
 		T_B64 = 1 << 27, // m64bcst
 		T_M_K = 1 << 28, // mem{k}
 		T_VSIB = 1 << 29,
+		T_MEM_EVEX = 1 << 30, // use evex if mem
 		T_XXX
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
@@ -1952,7 +1953,7 @@ private:
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			int disp8N = 0;
 			bool x = index.isExtIdx();
-			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || addr.isBroadcast() || addr.getOpmaskIdx()) {
+			if ((type & (T_MUST_EVEX|T_MEM_EVEX)) || r.hasEvex() || (p1 && p1->hasEvex()) || addr.isBroadcast() || addr.getOpmaskIdx()) {
 				int aaa = addr.getOpmaskIdx();
 				if (aaa && !(type & T_M_K)) throw Error(ERR_INVALID_OPMASK_WITH_MEMORY);
 				bool b = false;

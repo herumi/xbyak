@@ -73,7 +73,6 @@ const uint64 YMM_ER = 1ULL << 36;
 const uint64 VM32Y_K = 1ULL << 37;
 const uint64 IMM_2 = 1ULL << 38;
 const uint64 IMM = IMM_1 | IMM_2;
-const uint64 XMM = _XMM | _XMM2;
 const uint64 YMM = _YMM | _YMM2;
 const uint64 K = 1ULL << 43;
 const uint64 _ZMM = 1ULL << 44;
@@ -90,7 +89,10 @@ const uint64 ZMM_SAE = 1ULL << 48;
 const uint64 ZMM_ER = 1ULL << 49;
 #ifdef XBYAK64
 const uint64 _XMM3 = 1ULL << 50;
+#else
+const uint64 _XMM3 = 0;
 #endif
+const uint64 XMM = _XMM | _XMM2 | _XMM3;
 const uint64 XMM_SAE = 1ULL << 51;
 #ifdef XBYAK64
 const uint64 XMM_KZ = 1ULL << 52;
@@ -608,7 +610,7 @@ public:
 			};
 			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 				const Tbl *p = &tbl[i];
-				put(p->name, K, _XMM, _XMM | MEM, IMM8);
+				put(p->name, K, XMM, _XMM | MEM, IMM8);
 				if (!p->supportYMM) continue;
 				put(p->name, K, _YMM, _YMM | MEM, IMM8);
 				put(p->name, K, _ZMM, _ZMM | MEM, IMM8);
@@ -627,10 +629,10 @@ public:
 			};
 			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 				const Tbl *p = &tbl[i];
-				put(p->name, XMM | _XMM3, XMM_SAE | XMM | MEM);
+				put(p->name, XMM, XMM_SAE | XMM | MEM);
 			}
 		}
-		put("vcomiss", _XMM3, XMM | MEM);
+		put("vcomiss", XMM, _XMM3 | MEM);
 		put("vcomiss", XMM, XMM_SAE);
 #endif
 	}
@@ -674,10 +676,10 @@ public:
 				"vpbroadcastq",
 			};
 			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-				put(tbl[i], XMM_KZ | ZMM_KZ, _XMM | _MEM);
+				put(tbl[i], XMM_KZ | ZMM_KZ, XMM | _MEM);
 			}
 		}
-		put("vbroadcasti32x2", XMM_KZ | YMM_KZ | ZMM_KZ, _XMM | _MEM);
+		put("vbroadcasti32x2", XMM_KZ | YMM_KZ | ZMM_KZ, XMM | _MEM);
 		put("vbroadcasti32x4", YMM_KZ | ZMM_KZ, _MEM);
 		put("vbroadcasti64x2", YMM_KZ | ZMM_KZ, _MEM);
 		put("vbroadcasti32x8", ZMM_KZ, _MEM);
@@ -685,14 +687,14 @@ public:
 	}
 	void putMisc1()
 	{
-		put("vmaskmovps", XMM, XMM, MEM);
+		put("vmaskmovps", _XMM, _XMM, MEM);
 		put("vmaskmovps", YMM, YMM, MEM);
 
 		put("vmaskmovpd", YMM, YMM, MEM);
-		put("vmaskmovpd", XMM, XMM, MEM);
+		put("vmaskmovpd", _XMM, _XMM, MEM);
 
-		put("vmaskmovps", MEM, XMM, XMM);
-		put("vmaskmovpd", MEM, XMM, XMM);
+		put("vmaskmovps", MEM, _XMM, _XMM);
+		put("vmaskmovpd", MEM, _XMM, _XMM);
 
 		put("vbroadcastf128", YMM, MEM);
 		put("vbroadcasti128", YMM, MEM);
@@ -711,8 +713,8 @@ public:
 			}
 		}
 
-		put("vinsertf128", YMM, YMM, XMM | MEM, IMM8);
-		put("vinserti128", YMM, YMM, XMM | MEM, IMM8);
+		put("vinsertf128", YMM, YMM, _XMM | _XMM2 | MEM, IMM8);
+		put("vinserti128", YMM, YMM, _XMM | _XMM2  | MEM, IMM8);
 		put("vperm2f128", YMM, YMM, YMM | MEM, IMM8);
 		put("vperm2i128", YMM, YMM, YMM | MEM, IMM8);
 
@@ -722,9 +724,9 @@ public:
 			};
 			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 				const char *name = tbl[i];
-				put(name, XMM, XMM, MEM);
+				put(name, _XMM, _XMM, MEM);
 				put(name, YMM, YMM, MEM);
-				put(name, MEM, XMM, XMM);
+				put(name, MEM, _XMM, _XMM);
 				put(name, MEM, YMM, YMM);
 			}
 		}
@@ -761,29 +763,29 @@ public:
 			put(name, MEM, ZMM);
 			put(name, ZMM, MEM);
 #ifdef XBYAK64
-			put(name, MEM, _XMM3);
-			put(name, _XMM3, MEM);
+			put(name, MEM, XMM);
+			put(name, XMM, MEM);
 #endif
 		}
 	}
 	void put_vmov()
 	{
 #ifdef XBYAK64
-		put("vmovd", _XMM3, MEM|REG32);
-		put("vmovd", MEM|REG32, _XMM3);
-		put("vmovq", _XMM3, MEM|REG64|XMM);
-		put("vmovq", MEM|REG64|XMM, _XMM3);
-		put("vmovhlps", _XMM3, _XMM3, _XMM3);
-		put("vmovlhps", _XMM3, _XMM3, _XMM3);
-		put("vmovntdqa", _XMM3|_YMM3|ZMM, MEM);
-		put("vmovntdq", MEM, _XMM3 | _YMM3 | ZMM);
-		put("vmovntpd", MEM, _XMM3 | _YMM3 | ZMM);
-		put("vmovntps", MEM, _XMM3 | _YMM3 | ZMM);
+		put("vmovd", XMM, MEM|REG32);
+		put("vmovd", MEM|REG32, XMM);
+		put("vmovq", XMM, MEM|REG64|XMM);
+		put("vmovq", MEM|REG64|XMM, XMM);
+		put("vmovhlps", XMM, _XMM3, _XMM3);
+		put("vmovlhps", XMM, _XMM3, _XMM3);
+		put("vmovntdqa", XMM|_YMM3|ZMM, MEM);
+		put("vmovntdq", MEM, XMM | _YMM3 | ZMM);
+		put("vmovntpd", MEM, XMM | _YMM3 | ZMM);
+		put("vmovntps", MEM, XMM | _YMM3 | ZMM);
 
-		put("vmovsd", XMM_KZ, _XMM3, _XMM3);
+		put("vmovsd", XMM_KZ, XMM, _XMM3);
 		put("vmovsd", XMM_KZ, MEM);
 		put("vmovsd", MEM_K, XMM);
-		put("vmovss", XMM_KZ, _XMM3, _XMM3);
+		put("vmovss", XMM_KZ, XMM, _XMM3);
 		put("vmovss", XMM_KZ, MEM);
 		put("vmovss", MEM_K, XMM);
 
@@ -798,7 +800,7 @@ public:
 			};
 			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 				const char *name = tbl[i];
-				put(name, XMM_KZ, _XMM, _XMM | MEM, IMM);
+				put(name, XMM_KZ, XMM, _XMM | MEM, IMM);
 				put(name, _YMM3, _YMM3, _YMM3 | _MEM, IMM);
 				put(name, _ZMM, _ZMM, _ZMM | _MEM, IMM);
 			}
@@ -811,7 +813,7 @@ public:
 				"vmovlps",
 			};
 			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-				put(tbl[i], _XMM3, _XMM3, MEM);
+				put(tbl[i], XMM, _XMM3, MEM);
 				put(tbl[i], MEM, _XMM3);
 			}
 		}
@@ -837,11 +839,11 @@ public:
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			put(p.name, _XMM|XMM_KZ, _XMM|MEM);
+			put(p.name, XMM|XMM_KZ, _XMM|MEM);
 			put(p.name, _YMM|YMM_KZ, _YMM|MEM);
 			put(p.name, _ZMM|ZMM_KZ, _ZMM|MEM);
 			if (!p.M_X) continue;
-			put(p.name, MEM|MEM_K, _XMM);
+			put(p.name, MEM|MEM_K, XMM);
 			put(p.name, MEM|MEM_K, _YMM);
 			put(p.name, MEM|MEM_K, _ZMM);
 		}
@@ -858,7 +860,7 @@ public:
 		put("vpabsd", ZMM_KZ, M_1to16 | _MEM);
 		put("vpabsq", ZMM_KZ, M_1to8 | _MEM);
 
-		put("vbroadcastf32x2", YMM_KZ | ZMM_KZ, _XMM | _MEM);
+		put("vbroadcastf32x2", YMM_KZ | ZMM_KZ, XMM | _MEM);
 		put("vbroadcastf32x4", YMM_KZ | ZMM_KZ, _MEM);
 
 		put("vbroadcastf64x2", YMM_KZ | ZMM_KZ, _MEM);
@@ -880,7 +882,7 @@ public:
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			put(p.name, XMM_KZ, _XMM, _XMM|p.mem);
+			put(p.name, XMM_KZ, XMM, _XMM|p.mem);
 		}
 	}
 	void put512_X3()
@@ -892,54 +894,54 @@ public:
 			uint64_t x2;
 			uint64_t xm;
 		} tbl[] = {
-			{ "vpacksswb", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpacksswb", XMM_KZ, XMM, _XMM | _MEM },
 			{ "vpacksswb", YMM_KZ, _YMM, _YMM | _MEM },
 			{ "vpacksswb", ZMM_KZ, _ZMM, _ZMM | _MEM },
 
-			{ "vpackssdw", XMM_KZ, _XMM, _XMM | M_1to4 | _MEM },
+			{ "vpackssdw", XMM_KZ, XMM, _XMM | M_1to4 | _MEM },
 			{ "vpackssdw", YMM_KZ, _YMM, _YMM | M_1to8 | _MEM },
 			{ "vpackssdw", ZMM_KZ, _ZMM, _ZMM | M_1to16 | _MEM },
 
-			{ "vpackusdw", XMM_KZ, _XMM, _XMM | M_1to4 | _MEM },
+			{ "vpackusdw", XMM_KZ, XMM, _XMM | M_1to4 | _MEM },
 			{ "vpackusdw", YMM_KZ, _YMM, _YMM | M_1to8 | _MEM },
 			{ "vpackusdw", ZMM_KZ, _ZMM, _ZMM | M_1to16 | _MEM },
 
-			{ "vpackuswb", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpackuswb", XMM_KZ, XMM, _XMM | _MEM },
 			{ "vpackuswb", YMM_KZ, _YMM, _YMM | _MEM },
 			{ "vpackuswb", ZMM_KZ, _ZMM, _ZMM | _MEM },
 
-			{ "vpaddb", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpaddb", XMM_KZ, XMM, _XMM | _MEM },
 			{ "vpaddw", XMM_KZ, _XMM, _XMM | _MEM },
 			{ "vpaddd", XMM_KZ, _XMM, _XMM | M_1to4 | _MEM },
 			{ "vpaddq", ZMM_KZ, _ZMM, M_1to8 | _MEM },
 
-			{ "vpaddsb", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpaddsb", XMM_KZ, XMM, _XMM | _MEM },
 			{ "vpaddsb", ZMM_KZ, _ZMM, _ZMM | _MEM },
 
-			{ "vpaddsw", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpaddsw", XMM_KZ, XMM, _XMM | _MEM },
 			{ "vpaddsw", ZMM_KZ, _ZMM, _ZMM | _MEM },
 
-			{ "vpaddusb", XMM_KZ, _XMM, _XMM | MEM },
+			{ "vpaddusb", XMM_KZ, XMM, _XMM | MEM },
 			{ "vpaddusb", ZMM_KZ, _ZMM, _ZMM | MEM },
 
-			{ "vpaddusw", XMM_KZ, _XMM, _XMM | MEM },
+			{ "vpaddusw", XMM_KZ, XMM, _XMM | MEM },
 			{ "vpaddusw", ZMM_KZ, _ZMM, _ZMM | MEM },
 
-			{ "vpsubb", XMM_KZ, _XMM, _XMM | _MEM },
-			{ "vpsubw", XMM_KZ, _XMM, _XMM | _MEM },
-			{ "vpsubd", XMM_KZ, _XMM, _XMM | M_1to4 | _MEM },
+			{ "vpsubb", XMM_KZ, XMM, _XMM | _MEM },
+			{ "vpsubw", XMM_KZ, XMM, _XMM | _MEM },
+			{ "vpsubd", XMM_KZ, XMM, _XMM | M_1to4 | _MEM },
 			{ "vpsubq", ZMM_KZ, _ZMM, M_1to8 | _MEM },
 
-			{ "vpsubsb", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpsubsb", XMM_KZ, XMM, _XMM | _MEM },
 			{ "vpsubsb", ZMM_KZ, _ZMM, _ZMM | _MEM },
 
-			{ "vpsubsw", XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpsubsw", XMM_KZ, XMM, _XMM | _MEM },
 			{ "vpsubsw", ZMM_KZ, _ZMM, _ZMM | _MEM },
 
-			{ "vpsubusb", XMM_KZ, _XMM, _XMM | MEM },
+			{ "vpsubusb", XMM_KZ, XMM, _XMM | MEM },
 			{ "vpsubusb", ZMM_KZ, _ZMM, _ZMM | MEM },
 
-			{ "vpsubusw", XMM_KZ, _XMM, _XMM | MEM },
+			{ "vpsubusw", XMM_KZ, XMM, _XMM | MEM },
 			{ "vpsubusw", ZMM_KZ, _ZMM, _ZMM | MEM },
 
 			{ "vpandd", ZMM_KZ, _ZMM, _ZMM | M_1to16 | _MEM },
@@ -984,137 +986,137 @@ public:
 			{ "vpminud", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to16 },
 			{ "vpminuq", ZMM_KZ, _ZMM, _ZMM | _MEM | M_1to8 },
 
-			{ "vpslldq", _XMM3, _XMM3 | _MEM, IMM8 },
+			{ "vpslldq", XMM, _XMM3 | _MEM, IMM8 },
 			{ "vpslldq", _YMM3, _YMM3 | _MEM, IMM8 },
 			{ "vpslldq", _ZMM, _ZMM | _MEM, IMM8 },
 
-			{ "vpsrldq", _XMM3, _XMM3 | _MEM, IMM8 },
+			{ "vpsrldq", XMM, _XMM3 | _MEM, IMM8 },
 			{ "vpsrldq", _YMM3, _YMM3 | _MEM, IMM8 },
 			{ "vpsrldq", _ZMM, _ZMM | _MEM, IMM8 },
 
-			{ "vpsraw", XMM_KZ, _XMM | _MEM, IMM8 },
+			{ "vpsraw", XMM_KZ, XMM | _MEM, IMM8 },
 			{ "vpsraw", ZMM_KZ, _ZMM | _MEM, IMM8 },
 
-			{ "vpsrad", XMM_KZ, _XMM | M_1to4 | _MEM, IMM8 },
+			{ "vpsrad", XMM_KZ, XMM | M_1to4 | _MEM, IMM8 },
 			{ "vpsrad", ZMM_KZ, _ZMM | M_1to16 | _MEM, IMM8 },
 
 			{ "vpsraq", XMM, XMM, IMM8 },
-			{ "vpsraq", XMM_KZ, _XMM | M_1to2 | _MEM, IMM8 },
+			{ "vpsraq", XMM_KZ, XMM | M_1to2 | _MEM, IMM8 },
 			{ "vpsraq", ZMM_KZ, _ZMM | M_1to8 | _MEM, IMM8 },
 
-			{ "vpsllw", _XMM3, _XMM3 | _MEM, IMM8 },
-			{ "vpslld", _XMM3, _XMM3 | _MEM | M_1to4, IMM8 },
-			{ "vpsllq", _XMM3, _XMM3 | _MEM | M_1to2, IMM8 },
+			{ "vpsllw", XMM, _XMM3 | _MEM, IMM8 },
+			{ "vpslld", XMM, _XMM3 | _MEM | M_1to4, IMM8 },
+			{ "vpsllq", XMM, _XMM3 | _MEM | M_1to2, IMM8 },
 
-			{ "vpsrlw", XMM_KZ, _XMM | _MEM, IMM8 },
+			{ "vpsrlw", XMM_KZ, XMM | _MEM, IMM8 },
 			{ "vpsrlw", ZMM_KZ, _ZMM | _MEM, IMM8 },
 
-			{ "vpsrld", XMM_KZ, _XMM | M_1to4 | _MEM, IMM8 },
+			{ "vpsrld", XMM_KZ, XMM | M_1to4 | _MEM, IMM8 },
 			{ "vpsrld", ZMM_KZ, _ZMM | M_1to16 | _MEM, IMM8 },
 
-			{ "vpsrlq", _XMM3, _XMM3 | _MEM | M_1to2, IMM8 },
+			{ "vpsrlq", XMM, _XMM3 | _MEM | M_1to2, IMM8 },
 			{ "vpsrlq", _ZMM, _ZMM | _MEM | M_1to8, IMM8 },
 
-			{ "vpsravw", XMM_KZ | _XMM, _XMM, _XMM | _MEM },
+			{ "vpsravw", XMM_KZ | XMM, _XMM, _XMM | _MEM },
 			{ "vpsravw", _ZMM, _ZMM, _MEM },
 
-			{ "vpsravd", XMM_KZ | _XMM, _XMM, _XMM | _MEM },
+			{ "vpsravd", XMM_KZ | XMM, _XMM, _XMM | _MEM },
 			{ "vpsravd", _ZMM, _ZMM, M_1to16 | _MEM },
 
-			{ "vpsravq", XMM_KZ | _XMM, _XMM, _XMM | _MEM },
+			{ "vpsravq", XMM_KZ | XMM, _XMM, _XMM | _MEM },
 			{ "vpsravq", _ZMM, _ZMM, M_1to8 | _MEM },
 
-			{ "vpsllvw", XMM_KZ | _XMM, _XMM, _XMM | _MEM },
+			{ "vpsllvw", XMM_KZ | XMM, _XMM, _XMM | _MEM },
 			{ "vpsllvw", _ZMM, _ZMM, _MEM },
 
-			{ "vpsllvd", XMM_KZ | _XMM, _XMM, _XMM | _MEM },
+			{ "vpsllvd", XMM_KZ | XMM, _XMM, _XMM | _MEM },
 			{ "vpsllvd", _ZMM, _ZMM, M_1to16 | _MEM },
 
-			{ "vpsllvq", XMM_KZ | _XMM, _XMM, _XMM | _MEM },
+			{ "vpsllvq", XMM_KZ | XMM, _XMM, _XMM | _MEM },
 			{ "vpsllvq", _ZMM, _ZMM, M_1to8 | _MEM },
 
-			{ "vpsrlvw", XMM_KZ | _XMM, _XMM, _XMM | _MEM },
+			{ "vpsrlvw", XMM_KZ | XMM, _XMM, _XMM | _MEM },
 			{ "vpsrlvw", _ZMM, _ZMM, _MEM },
 
-			{ "vpsrlvd", XMM_KZ | _XMM, _XMM, _XMM | _MEM },
+			{ "vpsrlvd", XMM_KZ | XMM, _XMM, _XMM | _MEM },
 			{ "vpsrlvd", _ZMM, _ZMM, M_1to16 | _MEM },
 
-			{ "vpsrlvq", XMM_KZ | _XMM, _XMM, _XMM | _MEM },
+			{ "vpsrlvq", XMM_KZ | XMM, _XMM, _XMM | _MEM },
 			{ "vpsrlvq", _ZMM, _ZMM, M_1to8 | _MEM },
 
-			{ "vpshufb", _XMM | XMM_KZ, _XMM, _XMM | _MEM },
+			{ "vpshufb", XMM | XMM_KZ, _XMM, _XMM | _MEM },
 			{ "vpshufb", ZMM_KZ, _ZMM, _MEM },
 
-			{ "vpshufhw", _XMM | XMM_KZ, _XMM | _MEM, IMM8 },
+			{ "vpshufhw", XMM | XMM_KZ, _XMM | _MEM, IMM8 },
 			{ "vpshufhw", ZMM_KZ, _MEM, IMM8 },
 
-			{ "vpshuflw", _XMM | XMM_KZ, _XMM | _MEM, IMM8 },
+			{ "vpshuflw", XMM | XMM_KZ, _XMM | _MEM, IMM8 },
 			{ "vpshuflw", ZMM_KZ, _MEM, IMM8 },
 
-			{ "vpshufd", _XMM | XMM_KZ, _XMM | M_1to4 | _MEM, IMM8 },
+			{ "vpshufd", XMM | XMM_KZ, _XMM | M_1to4 | _MEM, IMM8 },
 			{ "vpshufd", _ZMM | ZMM_KZ, _ZMM | M_1to16 | _MEM, IMM8 },
 
-			{ "vpord", _XMM | XMM_KZ, _XMM, _XMM | M_1to4 | _MEM },
+			{ "vpord", XMM | XMM_KZ, _XMM, _XMM | M_1to4 | _MEM },
 			{ "vpord", _ZMM | ZMM_KZ, _ZMM, M_1to16 | _MEM },
 
-			{ "vporq", _XMM | XMM_KZ, _XMM, _XMM | M_1to2 | _MEM },
+			{ "vporq", XMM | XMM_KZ, _XMM, _XMM | M_1to2 | _MEM },
 			{ "vporq", _ZMM | ZMM_KZ, _ZMM, M_1to8 | _MEM },
 
-			{ "vpxord", _XMM | XMM_KZ, _XMM, _XMM | M_1to4 | _MEM },
+			{ "vpxord", XMM | XMM_KZ, _XMM, _XMM | M_1to4 | _MEM },
 			{ "vpxord", _ZMM | ZMM_KZ, _ZMM, M_1to16 | _MEM },
 
-			{ "vpxorq", _XMM | XMM_KZ, _XMM, _XMM | M_1to2 | _MEM },
+			{ "vpxorq", XMM | XMM_KZ, _XMM, _XMM | M_1to2 | _MEM },
 			{ "vpxorq", _ZMM | ZMM_KZ, _ZMM, M_1to8 | _MEM },
 
-			{ "vpsadbw", _XMM3, _XMM, _XMM | _MEM },
+			{ "vpsadbw", XMM, _XMM, _XMM | _MEM },
 			{ "vpsadbw", _ZMM, _ZMM, _MEM },
 
-			{ "vpmuldq", _XMM3, _XMM, _XMM | M_1to2 | _MEM },
+			{ "vpmuldq", XMM, _XMM, _XMM | M_1to2 | _MEM },
 			{ "vpmuldq", ZMM_KZ, _ZMM, M_1to8 | _MEM },
 
-			{ "vpmulhrsw", _XMM3, _XMM, _XMM | _MEM },
+			{ "vpmulhrsw", XMM, _XMM, _XMM | _MEM },
 			{ "vpmulhrsw", ZMM_KZ, _ZMM, _MEM },
 
-			{ "vpmulhuw", _XMM3, _XMM, _XMM | _MEM },
+			{ "vpmulhuw", XMM, _XMM, _XMM | _MEM },
 			{ "vpmulhuw", ZMM_KZ, _ZMM, _MEM },
 
-			{ "vpmulhw", _XMM3, _XMM, _XMM | _MEM },
+			{ "vpmulhw", XMM, _XMM, _XMM | _MEM },
 			{ "vpmulhw", ZMM_KZ, _ZMM, _MEM },
 
-			{ "vpmullw", _XMM3, _XMM, _XMM | _MEM },
+			{ "vpmullw", XMM, _XMM, _XMM | _MEM },
 			{ "vpmullw", ZMM_KZ, _ZMM, _MEM },
 
-			{ "vpmulld", _XMM3, _XMM, M_1to4 | _MEM },
+			{ "vpmulld", XMM, _XMM, M_1to4 | _MEM },
 			{ "vpmulld", ZMM_KZ, _ZMM, M_1to16 | _MEM },
 
-			{ "vpmullq", _XMM3, _XMM, M_1to2 | _MEM },
+			{ "vpmullq", XMM, _XMM, M_1to2 | _MEM },
 			{ "vpmullq", ZMM_KZ, _ZMM, M_1to8 | _MEM },
 
-			{ "vpmuludq", _XMM3, _XMM, M_1to2 | _MEM },
+			{ "vpmuludq", XMM, _XMM, M_1to2 | _MEM },
 			{ "vpmuludq", ZMM_KZ, _ZMM, M_1to8 | _MEM },
 
-			{ "vpunpckhbw", _XMM3, _XMM, _XMM | _MEM },
+			{ "vpunpckhbw", XMM, _XMM, _XMM | _MEM },
 			{ "vpunpckhbw", _ZMM, _ZMM, _MEM },
 
-			{ "vpunpckhwd", _XMM3, _XMM, _XMM | _MEM },
+			{ "vpunpckhwd", XMM, _XMM, _XMM | _MEM },
 			{ "vpunpckhwd", _ZMM, _ZMM, _MEM },
 
-			{ "vpunpckhdq", _XMM3, _XMM, M_1to4 | _MEM },
+			{ "vpunpckhdq", XMM, _XMM, M_1to4 | _MEM },
 			{ "vpunpckhdq", _ZMM, _ZMM, M_1to16 | _MEM },
 
-			{ "vpunpckhqdq", _XMM3, _XMM, M_1to2 | _MEM },
+			{ "vpunpckhqdq", XMM, _XMM, M_1to2 | _MEM },
 			{ "vpunpckhqdq", _ZMM, _ZMM, M_1to8 | _MEM },
 
-			{ "vpunpcklbw", _XMM3, _XMM, _XMM | _MEM },
+			{ "vpunpcklbw", XMM, _XMM, _XMM | _MEM },
 			{ "vpunpcklbw", _ZMM, _ZMM, _MEM },
 
-			{ "vpunpcklwd", _XMM3, _XMM, _XMM | _MEM },
+			{ "vpunpcklwd", XMM, _XMM, _XMM | _MEM },
 			{ "vpunpcklwd", _ZMM, _ZMM, _MEM },
 
-			{ "vpunpckldq", _XMM3, _XMM, M_1to4 | _MEM },
+			{ "vpunpckldq", XMM, _XMM, M_1to4 | _MEM },
 			{ "vpunpckldq", _ZMM, _ZMM, M_1to16 | _MEM },
 
-			{ "vpunpcklqdq", _XMM3, _XMM, M_1to2 | _MEM },
+			{ "vpunpcklqdq", XMM, _XMM, M_1to2 | _MEM },
 			{ "vpunpcklqdq", _ZMM, _ZMM, M_1to8 | _MEM },
 
 			{ "vextractf32x4", _XMM | XMM_KZ | _MEM, _YMM | _ZMM, IMM8 },
@@ -1127,7 +1129,7 @@ public:
 			{ "vextracti32x8", _YMM | YMM_KZ | _MEM, _ZMM, IMM8 },
 			{ "vextracti64x4", _YMM | YMM_KZ | _MEM, _ZMM, IMM8 },
 
-			{ "vextractps", REG32 | _MEM, _XMM3, IMM8 },
+			{ "vextractps", REG32 | _MEM, XMM, IMM8 },
 
 			{ "vpermb", XMM_KZ, _XMM, _XMM | _MEM },
 			{ "vpermb", ZMM_KZ, _ZMM, _ZMM | _MEM },
@@ -1176,7 +1178,7 @@ public:
 			uint64_t xm;
 		} tbl[] = {
 #ifdef XBYAK64
-			{ "vinsertps", _XMM3, _XMM, _XMM3 | _MEM },
+			{ "vinsertps", XMM, _XMM, _XMM3 | _MEM },
 
 			{ "vshufpd", XMM_KZ, _XMM, M_1to2 | _MEM },
 			{ "vshufpd", ZMM_KZ, _ZMM, M_1to8 | _MEM },
@@ -1209,14 +1211,14 @@ public:
 			put(p.name, p.x1, p.x2, p.xm, IMM8);
 		}
 #ifdef XBYAK64
-		put("vpextrb", _REG64 | _MEM, _XMM3, IMM8);
-		put("vpextrw", _REG64 | _MEM, _XMM3, IMM8);
-		put("vpextrd", _REG32 | _MEM, _XMM3, IMM8);
-		put("vpextrq", _REG64 | _MEM, _XMM3, IMM8);
-		put("vpinsrb", _XMM3, _XMM3, _REG32 | _MEM, IMM8);
-		put("vpinsrw", _XMM3, _XMM3, _REG32 | _MEM, IMM8);
-		put("vpinsrd", _XMM3, _XMM3, _REG32 | _MEM, IMM8);
-		put("vpinsrq", _XMM3, _XMM3, _REG64 | _MEM, IMM8);
+		put("vpextrb", _REG64 | _MEM, XMM, IMM8);
+		put("vpextrw", _REG64 | _MEM, XMM, IMM8);
+		put("vpextrd", _REG32 | _MEM, XMM, IMM8);
+		put("vpextrq", _REG64 | _MEM, XMM, IMM8);
+		put("vpinsrb", XMM, _XMM3, _REG32 | _MEM, IMM8);
+		put("vpinsrw", XMM, _XMM3, _REG32 | _MEM, IMM8);
+		put("vpinsrd", XMM, _XMM3, _REG32 | _MEM, IMM8);
+		put("vpinsrq", XMM, _XMM3, _REG64 | _MEM, IMM8);
 #endif
 	}
 	void put512_FMA()
@@ -1346,7 +1348,7 @@ public:
 				} else if (suf == "ps") {
 					mem = M_1to4;
 				}
-				put(p, _XMM3 | XMM_KZ, _XMM, mem | _MEM);
+				put(p, XMM | XMM_KZ, _XMM, mem | _MEM);
 				if (!sufTbl[j].supportYMM) continue;
 				mem = 0;
 				if (suf == "pd") {
@@ -1467,23 +1469,23 @@ public:
 		put("vcvtqq2ps", XMM_KZ, _YMM | M_yword | MY_1to4);
 		put("vcvtqq2ps", YMM_KZ, ZMM | _MEM | M_1to8 | ZMM_ER);
 
-		put("vcvtsd2si", REG32 | REG64, _XMM3 | _MEM | XMM_ER);
+		put("vcvtsd2si", REG32 | REG64, XMM | _MEM | XMM_ER);
 
-		put("vcvtsd2usi", REG32 | REG64, _XMM3 | _MEM | XMM_ER);
+		put("vcvtsd2usi", REG32 | REG64, XMM | _MEM | XMM_ER);
 
-		put("vcvtsd2ss", XMM_KZ, _XMM3, _XMM3 | _MEM | XMM_ER);
+		put("vcvtsd2ss", XMM_KZ, XMM, _XMM3 | _MEM | XMM_ER);
 
-		put("vcvtsi2sd", _XMM3, _XMM3, REG32 | REG64 | MEM32 | MEM64);
+		put("vcvtsi2sd", XMM, _XMM3, REG32 | REG64 | MEM32 | MEM64);
 		put("vcvtsi2sd", XMM, XMM_ER, REG64);
 
-		put("vcvtsi2ss", _XMM3, _XMM3, REG32 | REG64 | MEM32 | MEM64);
+		put("vcvtsi2ss", XMM, _XMM3, REG32 | REG64 | MEM32 | MEM64);
 		put("vcvtsi2ss", XMM, XMM_ER, REG32 | REG64);
 
-		put("vcvtss2sd", XMM_KZ, _XMM3, _XMM3 | _MEM | XMM_SAE);
+		put("vcvtss2sd", XMM_KZ, XMM, _XMM3 | _MEM | XMM_SAE);
 
-		put("vcvtss2si", REG32 | REG64, _XMM3 | _MEM | XMM_ER);
+		put("vcvtss2si", REG32 | REG64, XMM | _MEM | XMM_ER);
 
-		put("vcvtss2usi", REG32 | REG64, _XMM3 | _MEM | XMM_ER);
+		put("vcvtss2usi", REG32 | REG64, XMM | _MEM | XMM_ER);
 
 		put("vcvtpd2dq", XMM_KZ, _XMM | M_xword | M_1to2);
 		put("vcvtpd2dq", XMM_KZ, _YMM | M_yword | MY_1to4);
@@ -1517,13 +1519,13 @@ public:
 		put("vcvttps2uqq", YMM_KZ, _XMM | _MEM | M_1to4);
 		put("vcvttps2uqq", ZMM_KZ, _YMM | _MEM | M_1to8 | YMM_SAE);
 
-		put("vcvttsd2si", REG32 | REG64, _XMM3 | _MEM | XMM_SAE);
+		put("vcvttsd2si", REG32 | REG64, XMM | _MEM | XMM_SAE);
 
-		put("vcvttsd2usi", REG32 | REG64, _XMM3 | _MEM | XMM_SAE);
+		put("vcvttsd2usi", REG32 | REG64, XMM | _MEM | XMM_SAE);
 
-		put("vcvttss2si", REG32 | REG64, _XMM3 | _MEM | XMM_SAE);
+		put("vcvttss2si", REG32 | REG64, XMM | _MEM | XMM_SAE);
 
-		put("vcvttss2usi", REG32 | REG64, _XMM3 | _MEM | XMM_SAE);
+		put("vcvttss2usi", REG32 | REG64, XMM | _MEM | XMM_SAE);
 
 		put("vcvtudq2pd", XMM_KZ, _XMM | _MEM | M_1to2);
 		put("vcvtudq2pd", YMM_KZ, _XMM | _MEM | M_1to4);
@@ -1541,10 +1543,10 @@ public:
 		put("vcvtuqq2ps", XMM_KZ, _YMM | M_yword | MY_1to4);
 		put("vcvtuqq2ps", YMM_KZ, ZMM | _MEM | M_1to8 | ZMM_ER);
 
-		put("vcvtusi2sd", _XMM3, _XMM3, REG32 | REG64 | MEM32 | MEM64);
+		put("vcvtusi2sd", XMM, _XMM3, REG32 | REG64 | MEM32 | MEM64);
 		put("vcvtusi2sd", XMM, XMM_ER, REG64);
 
-		put("vcvtusi2ss", _XMM3, _XMM3, REG32 | REG64 | MEM32 | MEM64);
+		put("vcvtusi2ss", XMM, _XMM3, REG32 | REG64 | MEM32 | MEM64);
 		put("vcvtusi2ss", XMM, XMM_ER, REG32 | REG64);
 #endif
 	}

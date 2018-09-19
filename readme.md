@@ -1,5 +1,5 @@
 
-# Xbyak 5.72 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.73 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -392,6 +392,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2018/Sep/19 ver 5.73 fix evex encoding of vpslld, vpslldq, vpsllw, etc for (reg, mem, imm8)
 * 2018/Sep/19 ver 5.72 fix the encoding of vinsertps for disp8N(Thanks to petercaday)
 * 2018/Sep/04 ver 5.71 L() returns a new label instance
 * 2018/Aug/27 ver 5.70 support setProtectMode() and DontUseProtect for read/exec setting
