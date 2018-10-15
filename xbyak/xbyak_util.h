@@ -416,7 +416,7 @@ const int UseRCX = 1 << 6;
 const int UseRDX = 1 << 7;
 
 class Pack {
-	static const size_t maxTblNum = 10;
+	static const size_t maxTblNum = 15;
 	const Xbyak::Reg64 *tbl_[maxTblNum];
 	size_t n_;
 public:
@@ -476,7 +476,7 @@ public:
 	const Xbyak::Reg64& operator[](size_t n) const
 	{
 		if (n >= n_) {
-			fprintf(stderr, "ERR Pack bad n=%d\n", (int)n);
+			fprintf(stderr, "ERR Pack bad n=%d(%d)\n", (int)n, (int)n_);
 			throw Error(ERR_BAD_PARAMETER);
 		}
 		return *tbl_[n];
@@ -518,6 +518,7 @@ class StackFrame {
 	static const int rcxPos = 3;
 	static const int rdxPos = 2;
 #endif
+	static const int maxRegNum = 14; // maxRegNum = 16 - rsp - rax
 	Xbyak::CodeGenerator *code_;
 	int pNum_;
 	int tNum_;
@@ -527,7 +528,7 @@ class StackFrame {
 	int P_;
 	bool makeEpilog_;
 	Xbyak::Reg64 pTbl_[4];
-	Xbyak::Reg64 tTbl_[10];
+	Xbyak::Reg64 tTbl_[maxRegNum];
 	Pack p_;
 	Pack t_;
 	StackFrame(const StackFrame&);
@@ -539,7 +540,7 @@ public:
 		make stack frame
 		@param sf [in] this
 		@param pNum [in] num of function parameter(0 <= pNum <= 4)
-		@param tNum [in] num of temporary register(0 <= tNum <= 10, with UseRCX, UseRDX)
+		@param tNum [in] num of temporary register(0 <= tNum, with UseRCX, UseRDX) #{pNum + tNum [+rcx] + [rdx]} <= 14
 		@param stackSizeByte [in] local stack size
 		@param makeEpilog [in] automatically call close() if true
 
@@ -566,7 +567,7 @@ public:
 		using namespace Xbyak;
 		if (pNum < 0 || pNum > 4) throw Error(ERR_BAD_PNUM);
 		const int allRegNum = pNum + tNum_ + (useRcx_ ? 1 : 0) + (useRdx_ ? 1 : 0);
-		if (allRegNum < pNum || allRegNum > 14) throw Error(ERR_BAD_TNUM);
+		if (tNum_ < 0 || allRegNum > maxRegNum) throw Error(ERR_BAD_TNUM);
 		const Reg64& _rsp = code->rsp;
 		saveNum_ = (std::max)(0, allRegNum - noSaveNum);
 		const int *tbl = getOrderTbl() + noSaveNum;
@@ -631,7 +632,7 @@ private:
 	}
 	int getRegIdx(int& pos) const
 	{
-		assert(pos < 14);
+		assert(pos < maxRegNum);
 		using namespace Xbyak;
 		const int *tbl = getOrderTbl();
 		int r = tbl[pos++];

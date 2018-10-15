@@ -129,6 +129,55 @@ struct Code : public Xbyak::CodeGenerator {
 		add(rax, sf.p[2]);
 		add(rax, sf.p[3]);
 	}
+
+	/*
+		int64_t f(const int64_t a[13]) { return sum-of-a[]; }
+	*/
+	void gen13()
+	{
+		StackFrame sf(this, 1, 13);
+		for (int i = 0; i < 13; i++) {
+			mov(sf.t[i], ptr[sf.p[0] + i * 8]);
+		}
+		mov(rax, sf.t[0]);
+		for (int i = 1; i < 13; i++) {
+			add(rax, sf.t[i]);
+		}
+	}
+	/*
+		same as gen13
+	*/
+	void gen14()
+	{
+		StackFrame sf(this, 1, 11 | UseRCX | UseRDX);
+		Pack t = sf.t;
+		t.append(rcx);
+		t.append(rdx);
+		for (int i = 0; i < 13; i++) {
+			mov(t[i], ptr[sf.p[0] + i * 8]);
+		}
+		mov(rax, t[0]);
+		for (int i = 1; i < 13; i++) {
+			add(rax, t[i]);
+		}
+	}
+	/*
+		return (1 << 15) - 1;
+	*/
+	void gen15()
+	{
+		StackFrame sf(this, 0, 14, 8);
+		Pack t = sf.t;
+		t.append(rax);
+		for (int i = 0; i < 15; i++) {
+			mov(t[i], 1 << i);
+		}
+		mov(qword[rsp], 0);
+		for (int i = 0; i < 15; i++) {
+			add(ptr[rsp], t[i]);
+		}
+		mov(rax, ptr[rsp]);
+	}
 };
 
 struct Code2 : Xbyak::CodeGenerator {
@@ -158,6 +207,7 @@ struct Code2 : Xbyak::CodeGenerator {
 		mov(rax, rsp);
 	}
 };
+
 
 static int errNum = 0;
 void check(int x, int y)
@@ -282,6 +332,20 @@ void testPartial()
 	int (*f12)(int, int, int, int) = code.getCurr<int (*)(int, int, int, int)>();
 	code.gen12();
 	check(24, f12(3, 5, 7, 9));
+
+	{
+		int64_t tbl[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
+		int64_t (*f13)(const int64_t*) = code.getCurr<int64_t (*)(const int64_t*)>();
+		code.gen13();
+		check(91, f13(tbl));
+
+		int64_t (*f14)(const int64_t*) = code.getCurr<int64_t (*)(const int64_t*)>();
+		code.gen14();
+		check(91, f14(tbl));
+	}
+	int (*f15)() = code.getCurr<int (*)()>();
+	code.gen15();
+	check((1 << 15) - 1, f15());
 }
 
 void put(const Xbyak::util::Pack& p)
