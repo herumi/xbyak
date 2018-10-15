@@ -373,6 +373,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2018/10/15 util::StackFrameでmovの代わりにpush/popを使う
 2018/09/19 ver 5.73 vpslld, vpslldq, vpsllwなどの(reg, mem, imm8)に対するevexエンコーディング修整
 2018/09/19 ver 5.72 fix the encoding of vinsertps for disp8N(Thanks to petercaday)
 2018/08/27 ver 5.71 新しいlabelインスタンスを返すL()を追加

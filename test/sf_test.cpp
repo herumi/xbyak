@@ -152,6 +152,11 @@ struct Code2 : Xbyak::CodeGenerator {
 			add(rax, sf.p[i]);
 		}
 	}
+	void gen2(int pNum, int tNum, int stackSizeByte)
+	{
+		StackFrame sf(this, pNum, tNum, stackSizeByte);
+		mov(rax, rsp);
+	}
 };
 
 static int errNum = 0;
@@ -212,6 +217,15 @@ void testAll()
 					const Xbyak::uint8 *f = code.getCurr();
 					code.gen(pNum, tNum | opt, stackSize);
 					verify(f, pNum);
+					/*
+						check rsp is 16-byte aligned if stackSize > 0
+					*/
+					if (stackSize > 0) {
+						Code2 c2;
+						c2.gen2(pNum, tNum | opt, stackSize);
+						uint64_t addr = c2.getCode<uint64_t (*)()>()();
+						check(addr % 16, 0);
+					}
 				}
 			}
 		}
