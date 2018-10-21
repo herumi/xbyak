@@ -1,5 +1,5 @@
 
-# Xbyak 5.73 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.74 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -392,6 +392,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2018/Oct/21 ver 5.74 support RegRip +/- int. Xbyak::CastTo is removed
 * 2018/Oct/15 util::AddressFrame uses push/pop instead of mov
 * 2018/Sep/19 ver 5.73 fix evex encoding of vpslld, vpslldq, vpsllw, etc for (reg, mem, imm8)
 * 2018/Sep/19 ver 5.72 fix the encoding of vinsertps for disp8N(Thanks to petercaday)
