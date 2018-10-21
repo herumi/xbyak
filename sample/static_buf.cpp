@@ -32,7 +32,7 @@ struct Code : Xbyak::CodeGenerator {
 
 inline int add(int a, int b)
 {
-	return Xbyak::CastTo<int (*)(int,int)>(buf)(a, b);
+	return reinterpret_cast<int (*)(int, int)>(buf)(a, b);
 }
 
 int main()

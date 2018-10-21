@@ -275,11 +275,6 @@ inline void AlignedFree(void *p)
 #endif
 }
 
-template<class To, class From>
-inline const To CastTo(From p) throw()
-{
-	return (const To)(size_t)(p);
-}
 namespace inner {
 
 static const size_t ALIGN_PAGE_SIZE = 4096;
@@ -925,10 +920,10 @@ public:
 	void dq(uint64 code) { db(code, 8); }
 	const uint8 *getCode() const { return top_; }
 	template<class F>
-	const F getCode() const { return CastTo<F>(top_); }
+	const F getCode() const { return reinterpret_cast<F>(top_); }
 	const uint8 *getCurr() const { return &top_[size_]; }
 	template<class F>
-	const F getCurr() const { return CastTo<F>(&top_[size_]); }
+	const F getCurr() const { return reinterpret_cast<F>(&top_[size_]); }
 	size_t getSize() const { return size_; }
 	void setSize(size_t size)
 	{
@@ -2200,7 +2195,7 @@ public:
 	// call(function pointer)
 #ifdef XBYAK_VARIADIC_TEMPLATE
 	template<class Ret, class... Params>
-	void call(Ret(*func)(Params...)) { call(CastTo<const void*>(func)); }
+	void call(Ret(*func)(Params...)) { call(reinterpret_cast<const void*>(func)); }
 #endif
 	void call(const void *addr) { opJmpAbs(addr, T_NEAR, 0, 0xE8); }
 

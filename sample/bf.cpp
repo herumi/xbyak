@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
 		Brainfuck bf(ifs);
 		if (mode == 0) {
 			static int stack[128 * 1024];
-			bf.getCode<void (*)(void*, void*, int *)>()(Xbyak::CastTo<void*>(putchar), Xbyak::CastTo<void*>(getchar), stack);
+			bf.getCode<void (*)(const void*, const void*, int *)>()(reinterpret_cast<const void*>(putchar), reinterpret_cast<const void*>(getchar), stack);
 		} else {
 			dump(bf.getCode(), bf.getSize());
 		}

@@ -222,19 +222,19 @@ void verify(const Xbyak::uint8 *f, int pNum)
 {
 	switch (pNum) {
 	case 0:
-		check(1, Xbyak::CastTo<int (*)()>(f)());
+		check(1, reinterpret_cast<int (*)()>(f)());
 		return;
 	case 1:
-		check(11, Xbyak::CastTo<int (*)(int)>(f)(10));
+		check(11, reinterpret_cast<int (*)(int)>(f)(10));
 		return;
 	case 2:
-		check(111, Xbyak::CastTo<int (*)(int, int)>(f)(10, 100));
+		check(111, reinterpret_cast<int (*)(int, int)>(f)(10, 100));
 		return;
 	case 3:
-		check(1111, Xbyak::CastTo<int (*)(int, int, int)>(f)(10, 100, 1000));
+		check(1111, reinterpret_cast<int (*)(int, int, int)>(f)(10, 100, 1000));
 		return;
 	case 4:
-		check(11111, Xbyak::CastTo<int (*)(int, int, int, int)>(f)(10, 100, 1000, 10000));
+		check(11111, reinterpret_cast<int (*)(int, int, int, int)>(f)(10, 100, 1000, 10000));
 		return;
 	default:
 		printf("ERR pNum=%d\n", pNum);

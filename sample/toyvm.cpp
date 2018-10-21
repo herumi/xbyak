@@ -204,7 +204,7 @@ public:
 					push(reg[r]);
 					push('A' + r);
 					push((int)str);
-					call(Xbyak::CastTo<void*>(printf));
+					call(reinterpret_cast<const void*>(printf));
 					add(esp, 4 * 4);
 					pop(ecx);
 					pop(edx);

@@ -77,7 +77,7 @@ public:
 #ifdef XBYAK_VARIADIC_TEMPLATE
 		call(atoi);
 #else
-		call(Xbyak::CastTo<void*>(atoi));
+		call(reinterpret_cast<const void*>(atoi));
 #endif
 		add(esp, 4);
 #endif
@@ -96,7 +96,7 @@ public:
 		mov(rax, (size_t)atoi);
 		jmp(rax);
 #else
-		jmp(Xbyak::CastTo<void*>(atoi));
+		jmp(reinterpret_cast<const void*>(atoi));
 #endif
 	}
 	int (*get() const)(const char *) { return getCode<int (*)(const char *)>(); }
@@ -171,8 +171,9 @@ int main()
 				return 1;
 			}
 			int (*func)(int) = s.getCode<int (*)(int)>();
-			if (Xbyak::CastTo<uint8*>(func) != p) {
-				fprintf(stderr, "internal error %p %p\n", p, Xbyak::CastTo<uint8*>(func));
+			const uint8 *funcp = reinterpret_cast<const uint8*>(func);
+			if (funcp != p) {
+				fprintf(stderr, "internal error %p %p\n", p, funcp);
 				return 1;
 			}
 			printf("0 + ... + %d = %d\n", 100, func(100));
