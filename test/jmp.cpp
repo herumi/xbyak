@@ -1016,9 +1016,9 @@ struct GetAddressCode1 : Xbyak::CodeGenerator {
 };
 
 struct CodeLabelTable : Xbyak::CodeGenerator {
-	static const int ret0 = 3;
-	static const int ret1 = 5;
-	static const int ret2 = 8;
+	enum { ret0 = 3 };
+	enum { ret1 = 5 };
+	enum { ret2 = 8 };
 	CodeLabelTable()
 	{
 		using namespace Xbyak;
@@ -1225,3 +1225,48 @@ CYBOZU_TEST_AUTO(rip_addr_with_fixed_buf)
 	code.setProtectModeRW();
 }
 #endif
+
+struct ReleaseTestCode : Xbyak::CodeGenerator {
+	ReleaseTestCode(Label& L1, Label& L2, Label& L3)
+	{
+		L(L1);
+		jmp(L1);
+		L(L2);
+		jmp(L3); // not assigned
+	}
+};
+
+/*
+	code must unlink label if code is destroyed
+*/
+CYBOZU_TEST_AUTO(release_label_after_code)
+{
+	puts("---");
+	{
+		Label L1, L2, L3, L4, L5;
+		{
+			ReleaseTestCode code(L1, L2, L3);
+			CYBOZU_TEST_ASSERT(L1.getId() > 0);
+			CYBOZU_TEST_ASSERT(L1.getAddress() != 0);
+			CYBOZU_TEST_ASSERT(L2.getId() > 0);
+			CYBOZU_TEST_ASSERT(L2.getAddress() != 0);
+			CYBOZU_TEST_ASSERT(L3.getId() > 0);
+			CYBOZU_TEST_ASSERT(L3.getAddress() == 0); // L3 is not assigned
+			code.assignL(L4, L1);
+			L5 = L1;
+			printf("id=%d %d %d %d %d\n", L1.getId(), L2.getId(), L3.getId(), L4.getId(), L5.getId());
+		}
+		puts("code is released");
+		CYBOZU_TEST_ASSERT(L1.getId() == 0);
+		CYBOZU_TEST_ASSERT(L1.getAddress() == 0);
+		CYBOZU_TEST_ASSERT(L2.getId() == 0);
+		CYBOZU_TEST_ASSERT(L2.getAddress() == 0);
+//		CYBOZU_TEST_ASSERT(L3.getId() == 0); // L3 is not assigned so not cleared
+		CYBOZU_TEST_ASSERT(L3.getAddress() == 0);
+		CYBOZU_TEST_ASSERT(L4.getId() == 0);
+		CYBOZU_TEST_ASSERT(L4.getAddress() == 0);
+		CYBOZU_TEST_ASSERT(L5.getId() == 0);
+		CYBOZU_TEST_ASSERT(L5.getAddress() == 0);
+		printf("id=%d %d %d %d %d\n", L1.getId(), L2.getId(), L3.getId(), L4.getId(), L5.getId());
+	}
+}

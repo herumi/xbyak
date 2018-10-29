@@ -40,6 +40,8 @@
 // This covers -std=(gnu|c)++(0x|11|1y), -stdlib=libc++, and modern Microsoft.
 #if ((defined(_MSC_VER) && (_MSC_VER >= 1600)) || defined(_LIBCPP_VERSION) ||\
 	 			 ((__cplusplus >= 201103) || defined(__GXX_EXPERIMENTAL_CXX0X__)))
+	#include <unordered_set>
+	#define XBYAK_STD_UNORDERED_SET std::unordered_set
 	#include <unordered_map>
 	#define XBYAK_STD_UNORDERED_MAP std::unordered_map
 	#define XBYAK_STD_UNORDERED_MULTIMAP std::unordered_multimap
@@ -49,16 +51,22 @@
 	libstdcxx 20070719 (from GCC 4.2.1, the last GPL 2 version).
 */
 #elif XBYAK_GNUC_PREREQ(4, 5) || (XBYAK_GNUC_PREREQ(4, 2) && __GLIBCXX__ >= 20070719) || defined(__INTEL_COMPILER) || defined(__llvm__)
+	#include <tr1/unordered_set>
+	#define XBYAK_STD_UNORDERED_SET std::tr1::unordered_set
 	#include <tr1/unordered_map>
 	#define XBYAK_STD_UNORDERED_MAP std::tr1::unordered_map
 	#define XBYAK_STD_UNORDERED_MULTIMAP std::tr1::unordered_multimap
 
 #elif defined(_MSC_VER) && (_MSC_VER >= 1500) && (_MSC_VER < 1600)
+	#include <unordered_set>
+	#define XBYAK_STD_UNORDERED_SET std::tr1::unordered_set
 	#include <unordered_map>
 	#define XBYAK_STD_UNORDERED_MAP std::tr1::unordered_map
 	#define XBYAK_STD_UNORDERED_MULTIMAP std::tr1::unordered_multimap
 
 #else
+	#include <set>
+	#define XBYAK_STD_UNORDERED_SET std::set
 	#include <map>
 	#define XBYAK_STD_UNORDERED_MAP std::map
 	#define XBYAK_STD_UNORDERED_MULTIMAP std::multimap
@@ -105,7 +113,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5740 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5750 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1129,6 +1137,7 @@ public:
 	Label(const Label& rhs);
 	Label& operator=(const Label& rhs);
 	~Label();
+	void clear() { mgr = 0; id = 0; }
 	int getId() const { return id; }
 	const uint8 *getAddress() const;
 
@@ -1167,6 +1176,7 @@ class LabelManager {
 	};
 	typedef XBYAK_STD_UNORDERED_MAP<int, ClabelVal> ClabelDefList;
 	typedef XBYAK_STD_UNORDERED_MULTIMAP<int, const JmpLabel> ClabelUndefList;
+	typedef XBYAK_STD_UNORDERED_SET<Label*> LabelPtrList;
 
 	CodeArray *base_;
 	// global : stateList_.front(), local : stateList_.back()
@@ -1174,6 +1184,7 @@ class LabelManager {
 	mutable int labelId_;
 	ClabelDefList clabelDefList_;
 	ClabelUndefList clabelUndefList_;
+	LabelPtrList labelPtrList_;
 
 	int getId(const Label& label) const
 	{
@@ -1222,9 +1233,14 @@ class LabelManager {
 		return true;
 	}
 	friend class Label;
-	void incRefCount(int id) { clabelDefList_[id].refCount++; }
-	void decRefCount(int id)
+	void incRefCount(int id, Label *label)
 	{
+		clabelDefList_[id].refCount++;
+		labelPtrList_.insert(label);
+	}
+	void decRefCount(int id, Label *label)
+	{
+		labelPtrList_.erase(label);
 		ClabelDefList::iterator i = clabelDefList_.find(id);
 		if (i == clabelDefList_.end()) return;
 		if (i->second.refCount == 1) {
@@ -1243,10 +1259,22 @@ class LabelManager {
 #endif
 		return !list.empty();
 	}
+	// detach all labels linked to LabelManager
+	void resetLabelPtrList()
+	{
+		for (LabelPtrList::iterator i = labelPtrList_.begin(), ie = labelPtrList_.end(); i != ie; ++i) {
+			(*i)->clear();
+		}
+		labelPtrList_.clear();
+	}
 public:
 	LabelManager()
 	{
 		reset();
+	}
+	~LabelManager()
+	{
+		resetLabelPtrList();
 	}
 	void reset()
 	{
@@ -1257,6 +1285,7 @@ public:
 		stateList_.push_back(SlabelState());
 		clabelDefList_.clear();
 		clabelUndefList_.clear();
+		resetLabelPtrList();
 	}
 	void enterLocal()
 	{
@@ -1289,10 +1318,11 @@ public:
 		SlabelState& st = *label.c_str() == '.' ? stateList_.back() : stateList_.front();
 		define_inner(st.defList, st.undefList, label, base_->getSize());
 	}
-	void defineClabel(const Label& label)
+	void defineClabel(Label& label)
 	{
 		define_inner(clabelDefList_, clabelUndefList_, getId(label), base_->getSize());
 		label.mgr = this;
+		labelPtrList_.insert(&label);
 	}
 	void assign(Label& dst, const Label& src)
 	{
@@ -1300,6 +1330,7 @@ public:
 		if (i == clabelDefList_.end()) throw Error(ERR_LABEL_ISNOT_SET_BY_L);
 		define_inner(clabelDefList_, clabelUndefList_, dst.id, i->second.offset);
 		dst.mgr = this;
+		labelPtrList_.insert(&dst);
 	}
 	bool getOffset(size_t *offset, std::string& label) const
 	{
@@ -1347,19 +1378,19 @@ inline Label::Label(const Label& rhs)
 {
 	id = rhs.id;
 	mgr = rhs.mgr;
-	if (mgr) mgr->incRefCount(id);
+	if (mgr) mgr->incRefCount(id, this);
 }
 inline Label& Label::operator=(const Label& rhs)
 {
 	if (id) throw Error(ERR_LABEL_IS_ALREADY_SET_BY_L);
 	id = rhs.id;
 	mgr = rhs.mgr;
-	if (mgr) mgr->incRefCount(id);
+	if (mgr) mgr->incRefCount(id, this);
 	return *this;
 }
 inline Label::~Label()
 {
-	if (id && mgr) mgr->decRefCount(id);
+	if (id && mgr) mgr->decRefCount(id, this);
 }
 inline const uint8* Label::getAddress() const
 {
@@ -2163,7 +2194,7 @@ public:
 	const Segment es, cs, ss, ds, fs, gs;
 #endif
 	void L(const std::string& label) { labelMgr_.defineSlabel(label); }
-	void L(const Label& label) { labelMgr_.defineClabel(label); }
+	void L(Label& label) { labelMgr_.defineClabel(label); }
 	Label L() { Label label; L(label); return label; }
 	void inLocalLabel() { labelMgr_.enterLocal(); }
 	void outLocalLabel() { labelMgr_.leaveLocal(); }

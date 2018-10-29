@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.74
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.75
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -373,6 +373,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2018/10/29 LabelManagerのデストラクタでLabelから参照を切り離す
 2018/10/21 RegRip +/intの形をサポート Xbyak::CastToを削除
 2018/10/15 util::StackFrameでmovの代わりにpush/popを使う
 2018/09/19 ver 5.73 vpslld, vpslldq, vpsllwなどの(reg, mem, imm8)に対するevexエンコーディング修整
