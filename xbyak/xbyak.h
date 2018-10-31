@@ -113,7 +113,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5750 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5751 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -283,6 +283,11 @@ inline void AlignedFree(void *p)
 #endif
 }
 
+template<class To, class From>
+inline const To CastTo(From p) throw()
+{
+	return (const To)(size_t)(p);
+}
 namespace inner {
 
 static const size_t ALIGN_PAGE_SIZE = 4096;
