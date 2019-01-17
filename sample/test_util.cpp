@@ -104,9 +104,12 @@ void putCPUinfo()
 		Core i7-3930K        6           2D
 	*/
 	cpu.putFamily();
+	if (!cpu.has(Cpu::tINTEL)) return;
 	for (unsigned int i = 0; i < cpu.getDataCacheLevels(); i++) {
 		printf("cache level=%u data cache size=%u cores sharing data cache=%u\n", i, cpu.getDataCacheSize(i), cpu.getCoresSharingDataCache(i));
 	}
+	printf("SmtLevel =%u\n", cpu.getNumCores(Xbyak::util::SmtLevel));
+	printf("CoreLevel=%u\n", cpu.getNumCores(Xbyak::util::CoreLevel));
 }
 
 int main()

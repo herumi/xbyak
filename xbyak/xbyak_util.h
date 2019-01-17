@@ -50,16 +50,21 @@
 
 namespace Xbyak { namespace util {
 
-typedef enum intel_cpu_topology_level {
-   smt_level = 1,
-   core_level = 2
-}intel_cpu_topology_level_t;
+typedef enum {
+   SmtLevel = 1,
+   CoreLevel = 2
+} IntelCpuTopologyLevel;
 
 /**
 	CPU detection class
 */
 class Cpu {
 	uint64 type_;
+	//system topology
+	bool x2APIC_supported_;
+	static const size_t maxTopologyLevels = 2;
+	unsigned int numCores_[maxTopologyLevels];
+
 	unsigned int get32bitAsBE(const char *x) const
 	{
 		return x[0] | (x[1] << 8) | (x[2] << 16) | (x[3] << 24);
@@ -108,21 +113,24 @@ class Cpu {
 
 				leaf 0xB can be zeroed-out by a hypervisor
 			*/
-			x2APIC_supported = true;
-			for (size_t i = 0; i < maxTopologyLevels; i++) {
+			x2APIC_supported_ = true;
+			for (unsigned int i = 0; i < maxTopologyLevels; i++) {
 				getCpuidEx(0xB, i, data);
-				intel_cpu_topology_level_t level_type =
-					(intel_cpu_topology_level_t)extractBit(data[2], 8, 15);
-				if (level_type == smt_level || level_type == core_level)
-					n_cores[level_type - 1] = extractBit(data[1], 0, 15);
+				IntelCpuTopologyLevel level = (IntelCpuTopologyLevel)extractBit(data[2], 8, 15);
+				if (level == SmtLevel || level == CoreLevel) {
+					numCores_[level - 1] = extractBit(data[1], 0, 15);
+				}
 			}
-			if (n_cores[smt_level - 1] != 0)
-				n_cores[core_level - 1] /= n_cores[smt_level - 1];
+			if (numCores_[SmtLevel - 1] != 0) {
+				numCores_[CoreLevel - 1] /= numCores_[SmtLevel - 1];
+			}
 		} else {
-			/* Failed to deremine num of cores without x2APIC support.
-			   TODO: USE initial APIC ID to determine ncores. */
-			n_cores[smt_level - 1] = 0;
-			n_cores[core_level - 1] = 0;
+			/*
+				Failed to deremine num of cores without x2APIC support.
+				TODO: USE initial APIC ID to determine ncores.
+			*/
+			numCores_[SmtLevel - 1] = 0;
+			numCores_[CoreLevel - 1] = 0;
 		}
 
 	}
@@ -137,9 +145,9 @@ class Cpu {
 		unsigned int logical_cores = 0;
 		unsigned int data[4];
 
-		if (x2APIC_supported) {
-			smt_width = n_cores[0];
-			logical_cores = n_cores[1];
+		if (x2APIC_supported_) {
+			smt_width = numCores_[0];
+			logical_cores = numCores_[1];
 		}
 
 		/*
@@ -147,7 +155,7 @@ class Cpu {
 			the first level of data cache is not shared (which is the
 			case for every existing architecture) and use this to
 			determine the SMT width for arch not supporting leaf 11.
-			when leaf 4 reports a number of core less than n_cores
+			when leaf 4 reports a number of core less than numCores_
 			on socket reported by leaf 11, then it is a correct number
 			of cores not an upperbound.
 		*/
@@ -157,8 +165,9 @@ class Cpu {
 			if (cacheType == NO_CACHE) break;
 			if (cacheType == DATA_CACHE || cacheType == UNIFIED_CACHE) {
 				unsigned int actual_logical_cores = extractBit(data[0], 14, 25) + 1;
-				if (logical_cores != 0) // true only if leaf 0xB is supported and valid
+				if (logical_cores != 0) { // true only if leaf 0xB is supported and valid
 					actual_logical_cores = (std::min)(actual_logical_cores, logical_cores);
+				}
 				assert(actual_logical_cores != 0);
 				data_cache_size[data_cache_levels] =
 					(extractBit(data[1], 22, 31) + 1)
@@ -173,10 +182,6 @@ class Cpu {
 		}
 	}
 
-	//system topology
-	bool x2APIC_supported;
-	static const unsigned int maxTopologyLevels = 2;
-	unsigned int n_cores[maxTopologyLevels];
 public:
 	int model;
 	int family;
@@ -192,12 +197,10 @@ public:
 	unsigned int cores_sharing_data_cache[maxNumberCacheLevels];
 	unsigned int data_cache_levels;
 
-
-	unsigned int getNumCores(intel_cpu_topology_level_t topology_level) {
-		if (topology_level != smt_level
-			&& topology_level != core_level) throw Error(ERR_BAD_PARAMETER);
-		if (!x2APIC_supported) throw Error(ERR_x2APIC_NOT_SUPPORTED_CANT_GET_NCORES);
-		return n_cores[topology_level - 1];
+	unsigned int getNumCores(IntelCpuTopologyLevel level) {
+		if (level != SmtLevel && level != CoreLevel) throw Error(ERR_BAD_PARAMETER);
+		if (!x2APIC_supported_) throw Error(ERR_X2APIC_IS_NOT_SUPPORTED);
+		return numCores_[level - 1];
 	}
 
 	unsigned int getDataCacheLevels() const { return data_cache_levels; }
@@ -311,7 +314,8 @@ public:
 
 	Cpu()
 		: type_(NONE)
-		, x2APIC_supported(false)
+		, x2APIC_supported_(false)
+		, numCores_()
 		, data_cache_levels(0)
 	{
 		unsigned int data[4];
