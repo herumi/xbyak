@@ -65,6 +65,11 @@ class Cpu {
 	static const size_t maxTopologyLevels = 2;
 	unsigned int numCores_[maxTopologyLevels];
 
+	static const unsigned int maxNumberCacheLevels = 10;
+	unsigned int dataCacheSize_[maxNumberCacheLevels];
+	unsigned int coresSharignDataCache_[maxNumberCacheLevels];
+	unsigned int dataCacheLevels_;
+
 	unsigned int get32bitAsBE(const char *x) const
 	{
 		return x[0] | (x[1] << 8) | (x[2] << 16) | (x[3] << 24);
@@ -159,7 +164,7 @@ class Cpu {
 			on socket reported by leaf 11, then it is a correct number
 			of cores not an upperbound.
 		*/
-		for (int i = 0; data_cache_levels < maxNumberCacheLevels; i++) {
+		for (int i = 0; dataCacheLevels_ < maxNumberCacheLevels; i++) {
 			getCpuidEx(0x4, i, data);
 			unsigned int cacheType = extractBit(data[0], 0, 4);
 			if (cacheType == NO_CACHE) break;
@@ -169,15 +174,15 @@ class Cpu {
 					actual_logical_cores = (std::min)(actual_logical_cores, logical_cores);
 				}
 				assert(actual_logical_cores != 0);
-				data_cache_size[data_cache_levels] =
+				dataCacheSize_[dataCacheLevels_] =
 					(extractBit(data[1], 22, 31) + 1)
 					* (extractBit(data[1], 12, 21) + 1)
 					* (extractBit(data[1], 0, 11) + 1)
 					* (data[2] + 1);
 				if (cacheType == DATA_CACHE && smt_width == 0) smt_width = actual_logical_cores;
 				assert(smt_width != 0);
-				cores_sharing_data_cache[data_cache_levels] = (std::max)(actual_logical_cores / smt_width, 1u);
-				data_cache_levels++;
+				coresSharignDataCache_[dataCacheLevels_] = (std::max)(actual_logical_cores / smt_width, 1u);
+				dataCacheLevels_++;
 			}
 		}
 	}
@@ -191,28 +196,22 @@ public:
 	int displayFamily; // family + extFamily
 	int displayModel; // model + extModel
 
-	// may I move these members into private?
-	static const unsigned int maxNumberCacheLevels = 10;
-	unsigned int data_cache_size[maxNumberCacheLevels];
-	unsigned int cores_sharing_data_cache[maxNumberCacheLevels];
-	unsigned int data_cache_levels;
-
 	unsigned int getNumCores(IntelCpuTopologyLevel level) {
 		if (level != SmtLevel && level != CoreLevel) throw Error(ERR_BAD_PARAMETER);
 		if (!x2APIC_supported_) throw Error(ERR_X2APIC_IS_NOT_SUPPORTED);
 		return numCores_[level - 1];
 	}
 
-	unsigned int getDataCacheLevels() const { return data_cache_levels; }
+	unsigned int getDataCacheLevels() const { return dataCacheLevels_; }
 	unsigned int getCoresSharingDataCache(unsigned int i) const
 	{
-		if (i >= data_cache_levels) throw  Error(ERR_BAD_PARAMETER);
-		return cores_sharing_data_cache[i];
+		if (i >= dataCacheLevels_) throw  Error(ERR_BAD_PARAMETER);
+		return coresSharignDataCache_[i];
 	}
 	unsigned int getDataCacheSize(unsigned int i) const
 	{
-		if (i >= data_cache_levels) throw  Error(ERR_BAD_PARAMETER);
-		return data_cache_size[i];
+		if (i >= dataCacheLevels_) throw  Error(ERR_BAD_PARAMETER);
+		return dataCacheSize_[i];
 	}
 
 	/*
@@ -316,7 +315,9 @@ public:
 		: type_(NONE)
 		, x2APIC_supported_(false)
 		, numCores_()
-		, data_cache_levels(0)
+		, dataCacheSize_()
+		, coresSharignDataCache_()
+		, dataCacheLevels_(0)
 	{
 		unsigned int data[4];
 		const unsigned int& EAX = data[0];
