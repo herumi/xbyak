@@ -1,5 +1,5 @@
 
-# Xbyak 5.751 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.76 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -392,6 +392,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2019/Jan/17 ver 5.76 add Cpu::getNumCores() by shelleygoel
 * 2018/Oct/31 ver 5.751 recover Xbyak::CastTo for compatibility
 * 2018/Oct/29 ver 5.75 unlink LabelManager from Label when msg is destroyed
 * 2018/Oct/21 ver 5.74 support RegRip +/- int. Xbyak::CastTo is removed
