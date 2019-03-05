@@ -132,9 +132,6 @@ class Cpu {
 					numCores_[level - 1] = extractBit(data[1], 0, 15);
 				}
 			}
-			if (numCores_[SmtLevel - 1] != 0) {
-				numCores_[CoreLevel - 1] /= numCores_[SmtLevel - 1];
-			}
 		} else {
 			/*
 				Failed to deremine num of cores without x2APIC support.
@@ -205,7 +202,9 @@ public:
 	unsigned int getNumCores(IntelCpuTopologyLevel level) {
 		if (level != SmtLevel && level != CoreLevel) throw Error(ERR_BAD_PARAMETER);
 		if (!x2APIC_supported_) throw Error(ERR_X2APIC_IS_NOT_SUPPORTED);
-		return numCores_[level - 1];
+ 		return (level == CoreLevel)
+			? numCores_[level - 1] / numCores_[SmtLevel - 1]
+			: numCores_[level - 1];
 	}
 
 	unsigned int getDataCacheLevels() const { return dataCacheLevels_; }
