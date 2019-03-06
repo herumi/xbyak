@@ -200,11 +200,12 @@ public:
 	int displayModel; // model + extModel
 
 	unsigned int getNumCores(IntelCpuTopologyLevel level) {
-		if (level != SmtLevel && level != CoreLevel) throw Error(ERR_BAD_PARAMETER);
 		if (!x2APIC_supported_) throw Error(ERR_X2APIC_IS_NOT_SUPPORTED);
- 		return (level == CoreLevel)
-			? numCores_[level - 1] / numCores_[SmtLevel - 1]
-			: numCores_[level - 1];
+		switch (level) {
+		case SmtLevel: return numCores_[level - 1];
+		case CoreLevel: return numCores_[level - 1] / numCores_[SmtLevel - 1];
+		default: throw Error(ERR_X2APIC_IS_NOT_SUPPORTED);
+		}
 	}
 
 	unsigned int getDataCacheLevels() const { return dataCacheLevels_; }
