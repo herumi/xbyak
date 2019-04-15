@@ -1,5 +1,5 @@
 
-# Xbyak 5.77 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.78 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -392,6 +392,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2019/Apr/15 ver 5.78 rewrite Reg::changeBit() (thanks to MerryMage)
 * 2019/Mar/06 ver 5.77 fix number of cores that share LLC cache by densamoilov
 * 2019/Jan/17 ver 5.76 add Cpu::getNumCores() by shelleygoel
 * 2018/Oct/31 ver 5.751 recover Xbyak::CastTo for compatibility

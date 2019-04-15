@@ -1,4 +1,4 @@
-TARGET = make_nm normalize_prefix jmp address bad_address misc
+TARGET = make_nm normalize_prefix jmp address bad_address misc cvt_test cvt_test32
 XBYAK_INC=../xbyak/xbyak.h
 BIT=32
 ifeq ($(shell uname -m),x86_64)
@@ -32,6 +32,10 @@ bad_address: bad_address.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) bad_address.cpp -o $@
 misc: misc.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) misc.cpp -o $@
+cvt_test: cvt_test.cpp ../xbyak/xbyak.h
+	$(CXX) $(CFLAGS) $< -o $@
+cvt_test32: cvt_test.cpp ../xbyak/xbyak.h
+	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK32
 
 test: normalize_prefix jmp bad_address $(TARGET)
 	$(MAKE) -C ../gen
@@ -42,6 +46,8 @@ test: normalize_prefix jmp bad_address $(TARGET)
 	./jmp
 	./bad_address
 	./misc
+	./cvt_test
+	./cvt_test32
 ifeq ($(BIT),64)
 	./test_address.sh 64
 	./test_nm.sh 64

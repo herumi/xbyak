@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
+#define XBYAK_NO_OP_NAMES
 #include <xbyak/xbyak.h>
 #include <cybozu/inttype.hpp>
 #include <cybozu/test.hpp>
