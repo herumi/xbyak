@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.78
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.79
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -373,6 +373,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2019/04/27 ver 5.79 vcmppd/vcmppsのptr_b対応忘れ(thanks to jkopinsky)
 2019/04/15 ver 5.78 Reg::changeBit()のリファクタリング(thanks to MerryMage)
 2019/03/06 ver 5.77 LLCキャッシュを共有数CPU数の修整(by densamoilov)
 2019/01/17 ver 5.76 Cpu::getNumCores()追加(by shelleygoel)

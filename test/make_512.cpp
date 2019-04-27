@@ -615,6 +615,13 @@ public:
 				put(p->name, K, _YMM, _YMM | MEM, IMM8);
 				put(p->name, K, _ZMM, _ZMM | MEM, IMM8);
 			}
+			put("vcmppd", K, XMM, M_1to2, IMM8);
+			put("vcmppd", K, YMM, M_1to4, IMM8);
+			put("vcmppd", K, ZMM, M_1to8, IMM8);
+
+			put("vcmpps", K, XMM, M_1to4, IMM8);
+			put("vcmpps", K, YMM, M_1to8, IMM8);
+			put("vcmpps", K, ZMM, M_1to16, IMM8);
 		}
 		put("vcmppd", K2, ZMM, ZMM_SAE, IMM);
 #ifdef XBYAK64
