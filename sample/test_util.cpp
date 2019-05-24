@@ -78,6 +78,8 @@ void putCPUinfo()
 		{ Cpu::tAVX512_VNNI, "avx512_vnni" },
 		{ Cpu::tAVX512_BITALG, "avx512_bitalg" },
 		{ Cpu::tAVX512_VPOPCNTDQ, "avx512_vpopcntdq" },
+		{ Cpu::tAVX512_BF16, "avx512_bf16" },
+		{ Cpu::tAVX512_VP2INTERSECT, "avx512_vp2intersect" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);

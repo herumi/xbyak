@@ -113,7 +113,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5790 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5800 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -551,6 +551,7 @@ inline void Operand::setBit(int bit)
 		idx_ = idx;
 		kind_ = kind;
 		bit_ = bit;
+		if (bit >= 128) return; // keep mask_ and rounding_
 		mask_ = 0;
 		rounding_ = 0;
 		return;

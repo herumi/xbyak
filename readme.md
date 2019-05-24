@@ -1,5 +1,5 @@
 
-# Xbyak 5.79 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.80 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -392,6 +392,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2019/May/26 ver 5.80 support vcvtne2ps2bf16, vcvtneps2bf16, vdpbf16ps
 * 2019/Apr/27 ver 5.79 vcmppd/vcmpps supports ptr_b(thanks to jkopinsky)
 * 2019/Apr/15 ver 5.78 rewrite Reg::changeBit() (thanks to MerryMage)
 * 2019/Mar/06 ver 5.77 fix number of cores that share LLC cache by densamoilov

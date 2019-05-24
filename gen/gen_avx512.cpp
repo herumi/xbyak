@@ -368,6 +368,9 @@ void putX_X_XM_IMM()
 
 		{ 0x52, "vpdpwssd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_B32, false },
 		{ 0x53, "vpdpwssds", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_B32, false },
+
+		{ 0x72, "vcvtne2ps2bf16", T_F2 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_B32, false },
+		{ 0x52, "vdpbf16ps", T_F3 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_B32, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -711,6 +714,8 @@ void putMisc()
 	puts("void vfpclassss(const Opmask& k, const Operand& op, uint8 imm) { if (!op.isXMEM()) throw Error(ERR_BAD_MEM_SIZE); opVex(k, 0, op, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_N4, 0x67, imm); }");
 
 	puts("void vpshufbitqmb(const Opmask& k, const Xmm& x, const Operand& op) { opVex(k, &x, op, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX, 0x8F); }");
+	puts("void vcvtneps2bf16(const Xmm& x, const Operand& op) { int xBit = x.getBit(); int opBit = op.getBit(); if (xBit == 256 && opBit == 0) opBit = 512; if (!(xBit == 128 && (opBit == 128 || opBit == 256)) && !(xBit == 256 && opBit == 512)) throw Error(ERR_BAD_COMBINATION); Xmm t = x; t.setBit(opBit); opAVX_X_XM_IMM(t, op, T_F3 | T_0F38 | T_EW0 | T_YMM | T_SAE_Z | T_MUST_EVEX | T_B32, 0x72); }");
+
 }
 
 void putV4FMA()

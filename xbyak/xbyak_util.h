@@ -331,6 +331,8 @@ public:
 	static const Type tAVX512_VNNI = uint64(1) << 54;
 	static const Type tAVX512_BITALG = uint64(1) << 55;
 	static const Type tAVX512_VPOPCNTDQ = uint64(1) << 56;
+	static const Type tAVX512_BF16 = uint64(1) << 57;
+	static const Type tAVX512_VP2INTERSECT = uint64(1) << 58;
 
 	Cpu()
 		: type_(NONE)
@@ -410,6 +412,8 @@ public:
 						if (ECX & (1U << 14)) type_ |= tAVX512_VPOPCNTDQ;
 						if (EDX & (1U << 2)) type_ |= tAVX512_4VNNIW;
 						if (EDX & (1U << 3)) type_ |= tAVX512_4FMAPS;
+						if (EAX & (1U << 5)) type_ |= tAVX512_BF16;
+						if (EDX & (1U << 8)) type_ |= tAVX512_VP2INTERSECT;
 					}
 				}
 			}
