@@ -373,6 +373,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2019/05/27 support vp2intersectd, vp2intersectq (not tested)
 2019/05/26 ver 5.80 support vcvtne2ps2bf16, vcvtneps2bf16, vdpbf16ps
 2019/04/27 ver 5.79 vcmppd/vcmppsのptr_b対応忘れ(thanks to jkopinsky)
 2019/04/15 ver 5.78 Reg::changeBit()のリファクタリング(thanks to MerryMage)
