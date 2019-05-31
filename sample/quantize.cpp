@@ -5,12 +5,12 @@
 	This program generates a quantization routine by using fast division algorithm in run-time.
 
 	time(sec)
-	quality  1(low) 10     50   100(high)
+	quality  1(high) 10     50   100(low)
 	VC2005   8.0     8.0   8.0  8.0
 	Xbyak    1.6     0.8   0.5  0.5
 
 
-; generated code at q = 100
+; generated code at q = 1
     push        esi
     push        edi
     mov         edi,dword ptr [esp+0Ch]
