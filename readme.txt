@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.80
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.802
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -373,6 +373,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2019/08/01 ver 5.802 AVX512_BF16判定修正 (thanks to vpirogov)
 2019/05/27 support vp2intersectd, vp2intersectq (not tested)
 2019/05/26 ver 5.80 support vcvtne2ps2bf16, vcvtneps2bf16, vdpbf16ps
 2019/04/27 ver 5.79 vcmppd/vcmppsのptr_b対応忘れ(thanks to jkopinsky)

@@ -414,7 +414,7 @@ public:
 						if (EDX & (1U << 3)) type_ |= tAVX512_4FMAPS;
 						if (EDX & (1U << 8)) type_ |= tAVX512_VP2INTERSECT;
 					}
-					// EAS=07H, ECX=1
+					// EAX=07H, ECX=1
 					getCpuidEx(7, 1, data);
 					if (type_ & tAVX512F) {
 						if (EAX & (1U << 5)) type_ |= tAVX512_BF16;
