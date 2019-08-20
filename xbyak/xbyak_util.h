@@ -54,6 +54,20 @@
 #endif
 #endif
 
+#ifdef XBYAK_USE_VTUNE
+	// -I /opt/intel/vtune_amplifier/include/ -L /opt/intel/vtune_amplifier/lib64 -ljitprofiling -ldl
+	#include <jitprofiling.h>
+	#ifdef _MSC_VER
+		#pragma comment(lib, "libittnotify.lib")
+	#endif
+	#ifdef __linux__
+		#include <dlfcn.h>
+	#endif
+#endif
+#ifdef __linux__
+	#define XBYAK_USE_PERF
+#endif
+
 namespace Xbyak { namespace util {
 
 typedef enum {
@@ -729,6 +743,126 @@ private:
 	}
 };
 #endif
+
+class Profiler {
+	int mode_;
+	const char *suffix_;
+	const void *startAddr_;
+#ifdef XBYAK_USE_PERF
+	FILE *fp_;
+#endif
+public:
+	enum {
+		None = 0,
+		Perf = 1,
+		VTune = 2
+	};
+	Profiler()
+		: mode_(None)
+		, suffix_(0)
+		, startAddr_(0)
+#ifdef XBYAK_USE_PERF
+		, fp_(0)
+#endif
+	{
+	}
+	// append suffix to funcName
+	void setNameSuffix(const char *suffix)
+	{
+		suffix_ = suffix;
+	}
+	void setStartAddr(const void *startAddr)
+	{
+		startAddr_ = startAddr;
+	}
+	void init(int mode)
+	{
+		mode_ = None;
+		switch (mode) {
+		default:
+		case None:
+			return;
+		case Perf:
+#ifdef XBYAK_USE_PERF
+			close();
+			{
+				const int pid = getpid();
+				char name[128];
+				snprintf(name, sizeof(name), "/tmp/perf-%d.map", pid);
+				fp_ = fopen(name, "wb");
+				if (fp_ == 0) {
+					fprintf(stderr, "can't open %s\n", name);
+					return;
+				}
+			}
+			mode_ = Perf;
+#endif
+			return;
+		case VTune:
+#ifdef XBYAK_USE_VTUNE
+			dlopen("dummy", RTLD_LAZY); // force to load dlopen to enable jit profiling
+			if (iJIT_IsProfilingActive() != iJIT_SAMPLING_ON) {
+				fprintf(stderr, "VTune profiling is not active\n");
+				return;
+			}
+			mode_ = VTune;
+#endif
+			return;
+		}
+	}
+	~Profiler()
+	{
+		close();
+	}
+	void close()
+	{
+#ifdef XBYAK_USE_PERF
+		if (fp_ == 0) return;
+		fclose(fp_);
+		fp_ = 0;
+#endif
+	}
+	void set(const char *funcName, const void *startAddr, size_t funcSize) const
+	{
+		if (mode_ == None) return;
+#if !defined(XBYAK_USE_PERF) && !defined(XBYAK_USE_VTUNE)
+		(void)funcName;
+		(void)startAddr;
+		(void)funcSize;
+#endif
+#ifdef XBYAK_USE_PERF
+		if (mode_ == Perf) {
+			if (fp_ == 0) return;
+			fprintf(fp_, "%llx %zx %s%s\n", (long long)startAddr, funcSize, funcName, suffix_);
+		}
+#endif
+#ifdef XBYAK_USE_VTUNE
+		if (mode_ != VTune) return;
+		char className[] = "";
+		char fileName[] = "";
+		iJIT_Method_Load jmethod = {};
+		jmethod.method_id = iJIT_GetNewMethodID();
+		jmethod.class_file_name = className;
+		jmethod.source_file_name = fileName;
+		jmethod.method_load_address = const_cast<void*>(startAddr);
+		jmethod.method_size = funcSize;
+		jmethod.line_number_size = 0;
+		char buf[128];
+		snprintf(buf, sizeof(buf), "%s%s", funcName, suffix_);
+		jmethod.method_name = buf;
+		iJIT_NotifyEvent(iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED, (void*)&jmethod);
+#endif
+	}
+	/*
+		for continuous set
+		funcSize = endAddr - <previous set endAddr>
+	*/
+	void set(const char *funcName, const void *endAddr)
+	{
+		set(funcName, startAddr_, (size_t)endAddr - (size_t)startAddr_);
+		startAddr_ = endAddr;
+	}
+};
 
 } } // end of util
 #endif

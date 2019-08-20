@@ -85,9 +85,13 @@ jmp_table:
 	$(CXX) $(CFLAGS) jmp_table.cpp -o $@ -m32
 jmp_table64:
 	$(CXX) $(CFLAGS) jmp_table.cpp -o $@ -m64
+profiler: profiler.cpp ../xbyak/xbyak_util.h
+	$(CXX) $(CFLAGS) profiler.cpp -o $@
+profiler-vtune: profiler.cpp ../xbyak/xbyak_util.h
+	$(CXX) $(CFLAGS) profiler.cpp -o $@ -DXBYAK_USE_VTUNE -I /opt/intel/vtune_amplifier/include/ -L /opt/intel/vtune_amplifier/lib64 -ljitprofiling -ldl
 
 clean:
-	rm -rf *.o $(TARGET) *.exe
+	rm -rf *.o $(TARGET) *.exe profiler profiler-vtune
 
 test : test0.cpp $(XBYAK_INC)
 test64: test0.cpp $(XBYAK_INC)
