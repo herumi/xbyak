@@ -460,6 +460,8 @@ class Test {
 			"cqo",
 			"cmpsq",
 			"movsq",
+			"popfq",
+			"pushfq",
 			"scasq",
 			"stosq",
 			"syscall",

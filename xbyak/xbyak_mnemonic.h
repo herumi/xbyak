@@ -1559,6 +1559,8 @@ void jrcxz(const Label& label) { opJmp(label, T_SHORT, 0xe3, 0, 0); }
 void cdqe() { db(0x48); db(0x98); }
 void cqo() { db(0x48); db(0x99); }
 void cmpsq() { db(0x48); db(0xA7); }
+void popfq() { db(0x9D); }
+void pushfq() { db(0x9C); }
 void movsq() { db(0x48); db(0xA5); }
 void scasq() { db(0x48); db(0xAF); }
 void stosq() { db(0x48); db(0xAB); }
