@@ -789,7 +789,7 @@ public:
 				const int pid = getpid();
 				char name[128];
 				snprintf(name, sizeof(name), "/tmp/perf-%d.map", pid);
-				fp_ = fopen(name, "wb");
+				fp_ = fopen(name, "a+");
 				if (fp_ == 0) {
 					fprintf(stderr, "can't open %s\n", name);
 					return;
@@ -834,6 +834,7 @@ public:
 		if (mode_ == Perf) {
 			if (fp_ == 0) return;
 			fprintf(fp_, "%llx %zx %s%s\n", (long long)startAddr, funcSize, funcName, suffix_);
+			fflush(fp_);
 		}
 #endif
 #ifdef XBYAK_USE_VTUNE
