@@ -651,6 +651,8 @@ void put()
 			{ "stc", 0xF9 },
 			{ "std", 0xFD },
 			{ "sti", 0xFB },
+			{ "sysenter", 0x0F, 0x34 },
+			{ "sysexit", 0x0F, 0x35 },
 
 			{ "emms", 0x0F, 0x77 },
 			{ "pause", 0xF3, 0x90 },
@@ -1696,6 +1698,8 @@ void put64()
 		{ "movsq", 0x48, 0xA5 },
 		{ "scasq", 0x48, 0xAF },
 		{ "stosq", 0x48, 0xAB },
+		{ "syscall", 0x0F, 0x05 },
+		{ "sysret", 0x0F, 0x07 },
 	};
 	putGeneric(tbl, NUM_OF_ARRAY(tbl));
 

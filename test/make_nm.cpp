@@ -462,6 +462,8 @@ class Test {
 			"movsq",
 			"scasq",
 			"stosq",
+			"syscall",
+			"sysret",
 #else
 			"aaa",
 			"aad",
@@ -508,6 +510,8 @@ class Test {
 			"stc",
 			"std",
 			"sti",
+			"sysenter",
+			"sysexit",
 
 			"emms",
 			"pause",
