@@ -439,6 +439,9 @@ void ldmxcsr(const Address& addr) { opModM(addr, Reg32(2), 0x0F, 0xAE); }
 void lea(const Reg& reg, const Address& addr) { if (!reg.isBit(16 | i32e)) throw Error(ERR_BAD_SIZE_OF_REGISTER); opModM(addr, reg, 0x8D); }
 void lfence() { db(0x0F); db(0xAE); db(0xE8); }
 void lock() { db(0xF0); }
+void lodsb() { db(0xAC); }
+void lodsd() { db(0xAD); }
+void lodsw() { db(0x66); db(0xAD); }
 void lzcnt(const Reg&reg, const Operand& op) { opSp1(reg, op, 0xF3, 0x0F, 0xBD); }
 void maskmovdqu(const Xmm& reg1, const Xmm& reg2) { db(0x66);  opModR(reg1, reg2, 0x0F, 0xF7); }
 void maskmovq(const Mmx& reg1, const Mmx& reg2) { if (!reg1.isMMX() || !reg2.isMMX()) throw Error(ERR_BAD_COMBINATION); opModR(reg1, reg2, 0x0F, 0xF7); }
@@ -514,6 +517,9 @@ void or_(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x08, 1); }
 void or_(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x08); }
 void orpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x56, 0x66, isXMM_XMMorMEM); }
 void orps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x56, 0x100, isXMM_XMMorMEM); }
+void outsb() { db(0x6E); }
+void outsd() { db(0x6F); }
+void outsw() { db(0x66); db(0x6F); }
 void pabsb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x1C, 0x66, NONE, 0x38); }
 void pabsd(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x1E, 0x66, NONE, 0x38); }
 void pabsw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x1D, 0x66, NONE, 0x38); }
@@ -1563,6 +1569,7 @@ void cqo() { db(0x48); db(0x99); }
 void cmpsq() { db(0x48); db(0xA7); }
 void popfq() { db(0x9D); }
 void pushfq() { db(0x9C); }
+void lodsq() { db(0x48); db(0xAD); }
 void movsq() { db(0x48); db(0xA5); }
 void scasq() { db(0x48); db(0xAF); }
 void stosq() { db(0x48); db(0xAB); }
