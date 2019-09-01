@@ -58,6 +58,7 @@ void cdq() { db(0x99); }
 void clc() { db(0xF8); }
 void cld() { db(0xFC); }
 void clflush(const Address& addr) { opModM(addr, Reg32(7), 0x0F, 0xAE); }
+void clflushopt(const Address& addr) { db(0x66); opModM(addr, Reg32(7), 0x0F, 0xAE); }
 void cli() { db(0xFA); }
 void cmc() { db(0xF5); }
 void cmova(const Reg& reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, 0x40 | 7); }//-V524
@@ -240,6 +241,7 @@ void fld(const Address& addr) { opFpuMem(addr, 0x00, 0xD9, 0xDD, 0, 0); }
 void fld(const Fpu& reg) { opFpu(reg, 0xD9, 0xC0); }
 void fld1() { db(0xD9); db(0xE8); }
 void fldcw(const Address& addr) { opModM(addr, Reg32(5), 0xD9, 0x100); }
+void fldenv(const Address& addr) { opModM(addr, Reg32(4), 0xD9, 0x100); }
 void fldl2e() { db(0xD9); db(0xEA); }
 void fldl2t() { db(0xD9); db(0xE9); }
 void fldlg2() { db(0xD9); db(0xEC); }
@@ -254,6 +256,7 @@ void fmulp(const Fpu& reg1) { opFpuFpu(reg1, st0, 0x0000, 0xDEC8); }
 void fmulp(const Fpu& reg1, const Fpu& reg2) { opFpuFpu(reg1, reg2, 0x0000, 0xDEC8); }
 void fninit() { db(0xDB); db(0xE3); }
 void fnop() { db(0xD9); db(0xD0); }
+void fnstcw(const Address& addr) { opModM(addr, Reg32(7), 0xD9, 0x100); }
 void fpatan() { db(0xD9); db(0xF3); }
 void fprem() { db(0xD9); db(0xF8); }
 void fprem1() { db(0xD9); db(0xF5); }
@@ -265,7 +268,7 @@ void fsincos() { db(0xD9); db(0xFB); }
 void fsqrt() { db(0xD9); db(0xFA); }
 void fst(const Address& addr) { opFpuMem(addr, 0x00, 0xD9, 0xDD, 2, 0); }
 void fst(const Fpu& reg) { opFpu(reg, 0xDD, 0xD0); }
-void fstcw(const Address& addr) { db(0x9B); opModM(addr, Reg32(7), 0xD9, NONE); }
+void fstcw(const Address& addr) { db(0x9B); opModM(addr, Reg32(7), 0xD9, 0x100); }
 void fstp(const Address& addr) { opFpuMem(addr, 0x00, 0xD9, 0xDD, 3, 0); }
 void fstp(const Fpu& reg) { opFpu(reg, 0xDD, 0xD8); }
 void fsub(const Address& addr) { opFpuMem(addr, 0x00, 0xD8, 0xDC, 4, 0); }

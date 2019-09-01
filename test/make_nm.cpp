@@ -586,8 +586,12 @@ class Test {
 
 		put("bswap", REG32e);
 		put("lea", REG32e|REG16, MEM);
+		put("clflush", MEM);
+		put("clflushopt", MEM);
 		put("fldcw", MEM);
+		put("fldenv", MEM);
 		put("fstcw", MEM);
+		put("fnstcw", MEM);
 	}
 	void putJmp() const
 	{
@@ -2447,7 +2451,6 @@ public:
 		putFpuMem32_64();
 		separateFunc();
 		putFpuMem16_32_64();
-		put("clflush", MEM); // current nasm is ok
 		putFpu();
 		putFpuFpu();
 		putCmp();

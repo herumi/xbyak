@@ -910,18 +910,23 @@ void put()
 			int code2;
 			uint8 ext;
 			const char *name;
+			uint8 prefix;
 		} tbl[] = {
-			{ 0x0F, 0xAE, 2, "ldmxcsr" },
-			{ 0x0F, 0xAE, 3, "stmxcsr" },
-			{ 0x0F, 0xAE, 7, "clflush" }, // 0x80 is bug of nasm ?
-			{ 0xD9, NONE, 5, "fldcw" },
-//			{ 0x9B, 0xD9, 7, "fstcw" }, // not correct order for fstcw [eax] on 64bit OS
+			{ 0x0F, 0xAE, 2, "ldmxcsr", 0 },
+			{ 0x0F, 0xAE, 3, "stmxcsr", 0 },
+			{ 0x0F, 0xAE, 7, "clflush", 0 },
+			{ 0x0F, 0xAE, 7, "clflushopt", 0x66 },
+			{ 0xD9, NONE, 5, "fldcw", 0 },
+			{ 0xD9, NONE, 4, "fldenv", 0 },
+			{ 0xD9, NONE, 7, "fstcw", 0x9B },
+			{ 0xD9, NONE, 7, "fnstcw", 0 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Address& addr) { opModM(addr, Reg32(%d), 0x%02X, 0x%02X); }\n", p->name, p->ext, p->code1, p->code2);
+			printf("void %s(const Address& addr) { ", p->name);
+			if (p->prefix) printf("db(0x%02X); ", p->prefix);
+			printf("opModM(addr, Reg32(%d), 0x%02X, 0x%02X); }\n", p->ext, p->code1, p->code2);
 		}
-		printf("void fstcw(const Address& addr) { db(0x9B); opModM(addr, Reg32(7), 0xD9, NONE); }\n");
 	}
 	{
 		const struct Tbl {
