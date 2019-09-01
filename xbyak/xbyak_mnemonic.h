@@ -311,6 +311,8 @@ void idiv(const Operand& op) { opR_ModM(op, 0, 7, 0xF6); }
 void imul(const Operand& op) { opR_ModM(op, 0, 5, 0xF6); }
 void inc(const Operand& op) { opIncDec(op, 0x40, 0); }
 void insertps(const Xmm& xmm, const Operand& op, uint8 imm) { opGen(xmm, op, 0x21, 0x66, isXMM_XMMorMEM, imm, 0x3A); }
+void int3() { db(0xCC); }
+void int_(uint8 x) { db(0xCD); db(x); }
 void ja(const Label& label, LabelType type = T_AUTO) { opJmp(label, type, 0x77, 0x87, 0x0F); }//-V524
 void ja(const char *label, LabelType type = T_AUTO) { ja(std::string(label), type); }//-V524
 void ja(const void *addr) { opJmpAbs(addr, T_NEAR, 0x77, 0x87, 0x0F); }//-V524
@@ -1589,6 +1591,7 @@ void aam() { db(0xD4); db(0x0A); }
 void aas() { db(0x3F); }
 void daa() { db(0x27); }
 void das() { db(0x2F); }
+void into() { db(0xCE); }
 void popad() { db(0x61); }
 void popfd() { db(0x9D); }
 void pusha() { db(0x60); }

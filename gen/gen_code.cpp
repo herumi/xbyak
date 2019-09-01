@@ -633,6 +633,7 @@ void put()
 			{ "cmpsb", 0xA6 },
 			{ "cmpsw", 0x66, 0xA7 },
 			{ "cmpsd", 0xA7 },
+			{ "int3", 0xCC },
 			{ "scasb", 0xAE },
 			{ "scasw", 0x66, 0xAF },
 			{ "scasd", 0xAF },
@@ -728,6 +729,7 @@ void put()
 			{ "fyl2xp1", 0xD9, 0xF9 },
 		};
 		putGeneric(tbl, NUM_OF_ARRAY(tbl));
+		puts("void int_(uint8 x) { db(0xCD); db(x); }");
 	}
 	{
 		const struct Tbl {
@@ -1676,6 +1678,7 @@ void put32()
 		{ "aas", 0x3F },
 		{ "daa", 0x27 },
 		{ "das", 0x2F },
+		{ "into", 0xCE },
 		{ "popad", 0x61 },
 		{ "popfd", 0x9D },
 		{ "pusha", 0x60 },

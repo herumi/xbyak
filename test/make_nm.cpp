@@ -473,6 +473,7 @@ class Test {
 			"aas",
 			"daa",
 			"das",
+			"into",
 			"popad",
 			"popfd",
 			"pusha",
@@ -497,6 +498,7 @@ class Test {
 			"cmpsb",
 			"cmpsw",
 			"cmpsd",
+			"int3",
 			"movsb",
 			"movsw",
 			"movsd",
@@ -598,6 +600,7 @@ class Test {
 		put("fldenv", MEM);
 		put("fstcw", MEM);
 		put("fnstcw", MEM);
+		put(isXbyak_ ? "int_" : "int", IMM8);
 	}
 	void putJmp() const
 	{
