@@ -2185,6 +2185,28 @@ private:
 		if (addr.getRegExp().getIndex().getKind() != kind) throw Error(ERR_BAD_VSIB_ADDRESSING);
 		opVex(x, 0, addr, type, code);
 	}
+	void opInOut(const Reg& a, const Reg& d, uint8 code)
+	{
+		if (a.getIdx() == Operand::AL && d.getIdx() == Operand::DX && d.getBit() == 16) {
+			switch (a.getBit()) {
+			case 8: db(code); return;
+			case 16: db(0x66); db(code + 1); return;
+			case 32: db(code + 1); return;
+			}
+		}
+		throw Error(ERR_BAD_COMBINATION);
+	}
+	void opInOut(const Reg& a, uint8 code, uint8 v)
+	{
+		if (a.getIdx() == Operand::AL) {
+			switch (a.getBit()) {
+			case 8: db(code); db(v); return;
+			case 16: db(0x66); db(code + 1); db(v); return;
+			case 32: db(code + 1); db(v); return;
+			}
+		}
+		throw Error(ERR_BAD_COMBINATION);
+	}
 public:
 	unsigned int getVersion() const { return VERSION; }
 	using CodeArray::db;

@@ -609,6 +609,14 @@ class Test {
 		put("fstcw", MEM);
 		put("fnstcw", MEM);
 		put(isXbyak_ ? "int_" : "int", IMM8);
+		put(isXbyak_ ? "in_" : "in", AL|AX|EAX, IMM8);
+		puts(isXbyak_ ? "in_(al, dx); dump();" : "in al, dx");
+		puts(isXbyak_ ? "in_(ax, dx); dump();" : "in ax, dx");
+		puts(isXbyak_ ? "in_(eax, dx); dump();" : "in eax, dx");
+		put(isXbyak_ ? "out_" : "out", IMM8, AL|AX|EAX);
+		puts(isXbyak_ ? "out_(dx, al); dump();" : "out dx, al");
+		puts(isXbyak_ ? "out_(dx, ax); dump();" : "out dx, ax");
+		puts(isXbyak_ ? "out_(dx, eax); dump();" : "out dx, eax");
 	}
 	void putJmp() const
 	{

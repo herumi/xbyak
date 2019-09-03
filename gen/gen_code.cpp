@@ -965,6 +965,12 @@ void put()
 			printf("void %s(const Reg& reg, const Operand& op) { opMovxx(reg, op, 0x%02X); }\n", p->name, p->code);
 		}
 	}
+	{ // in/out
+		puts("void in_(const Reg& a, uint8 v) { opInOut(a, 0xE4, v); }");
+		puts("void in_(const Reg& a, const Reg& d) { opInOut(a, d, 0xEC); }");
+		puts("void out_(uint8 v, const Reg& a) { opInOut(a, 0xE6, v); }");
+		puts("void out_(const Reg& d, const Reg& a) { opInOut(a, d, 0xEE); }");
+	}
 	// mpx
 	{
 		puts("void bndcl(const BoundsReg& bnd, const Operand& op) { db(0xF3); opR_ModM(op, i32e, bnd.getIdx(), 0x0F, 0x1A, NONE, !op.isMEM()); }");

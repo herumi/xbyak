@@ -309,6 +309,8 @@ void hsubpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x7D, 0x66, isXM
 void hsubps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x7D, 0xF2, isXMM_XMMorMEM); }
 void idiv(const Operand& op) { opR_ModM(op, 0, 7, 0xF6); }
 void imul(const Operand& op) { opR_ModM(op, 0, 5, 0xF6); }
+void in_(const Reg& a, const Reg& d) { opInOut(a, d, 0xEC); }
+void in_(const Reg& a, uint8 v) { opInOut(a, 0xE4, v); }
 void inc(const Operand& op) { opIncDec(op, 0x40, 0); }
 void insertps(const Xmm& xmm, const Operand& op, uint8 imm) { opGen(xmm, op, 0x21, 0x66, isXMM_XMMorMEM, imm, 0x3A); }
 void int3() { db(0xCC); }
@@ -517,6 +519,8 @@ void or_(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x08, 1); }
 void or_(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x08); }
 void orpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x56, 0x66, isXMM_XMMorMEM); }
 void orps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x56, 0x100, isXMM_XMMorMEM); }
+void out_(const Reg& d, const Reg& a) { opInOut(a, d, 0xEE); }
+void out_(uint8 v, const Reg& a) { opInOut(a, 0xE6, v); }
 void outsb() { db(0x6E); }
 void outsd() { db(0x6F); }
 void outsw() { db(0x66); db(0x6F); }
