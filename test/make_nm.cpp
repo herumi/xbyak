@@ -501,6 +501,7 @@ class Test {
 			"cmpsw",
 			"cmpsd",
 			"int3",
+			"leave",
 			"lodsb",
 			"lodsw",
 			"lodsd",
@@ -604,6 +605,7 @@ class Test {
 		put("lea", REG32e|REG16, MEM);
 		put("clflush", MEM);
 		put("clflushopt", MEM);
+		put("enter", IMM, IMM);
 		put("fldcw", MEM);
 		put("fldenv", MEM);
 		put("fstcw", MEM);

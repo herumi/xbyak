@@ -638,6 +638,7 @@ void put()
 			{ "scasw", 0x66, 0xAF },
 			{ "scasd", 0xAF },
 			{ "movsb", 0xA4 },
+			{ "leave", 0xC9 },
 			{ "lodsb", 0xAC },
 			{ "lodsw", 0x66, 0xAD },
 			{ "lodsd", 0xAD },
@@ -735,6 +736,7 @@ void put()
 			{ "fyl2xp1", 0xD9, 0xF9 },
 		};
 		putGeneric(tbl, NUM_OF_ARRAY(tbl));
+		puts("void enter(uint16 x, uint8 y) { db(0xC8); dw(x); db(y); }");
 		puts("void int_(uint8 x) { db(0xCD); db(x); }");
 	}
 	{
