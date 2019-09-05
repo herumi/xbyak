@@ -446,6 +446,15 @@ void lock() { db(0xF0); }
 void lodsb() { db(0xAC); }
 void lodsd() { db(0xAD); }
 void lodsw() { db(0x66); db(0xAD); }
+void loop(const Label& label) { opJmp(label, T_SHORT, 0xE2, 0, 0); }
+void loop(const char *label) { loop(std::string(label)); }
+void loop(std::string label) { opJmp(label, T_SHORT, 0xE2, 0, 0); }
+void loope(const Label& label) { opJmp(label, T_SHORT, 0xE1, 0, 0); }
+void loope(const char *label) { loope(std::string(label)); }
+void loope(std::string label) { opJmp(label, T_SHORT, 0xE1, 0, 0); }
+void loopne(const Label& label) { opJmp(label, T_SHORT, 0xE0, 0, 0); }
+void loopne(const char *label) { loopne(std::string(label)); }
+void loopne(std::string label) { opJmp(label, T_SHORT, 0xE0, 0, 0); }
 void lzcnt(const Reg&reg, const Operand& op) { opSp1(reg, op, 0xF3, 0x0F, 0xBD); }
 void maskmovdqu(const Xmm& reg1, const Xmm& reg2) { db(0x66);  opModR(reg1, reg2, 0x0F, 0xF7); }
 void maskmovq(const Mmx& reg1, const Mmx& reg2) { if (!reg1.isMMX() || !reg2.isMMX()) throw Error(ERR_BAD_COMBINATION); opModR(reg1, reg2, 0x0F, 0xF7); }

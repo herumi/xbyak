@@ -616,6 +616,22 @@ void put()
 			printf("void set%s(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, 0x90 | %d); }%s\n", p->name, p->ext, msg);
 		}
 	}
+	{
+		const struct Tbl {
+			const char *name;
+			uint8 code;
+		} tbl[] = {
+			{ "loop", 0xE2 },
+			{ "loope", 0xE1 },
+			{ "loopne", 0xE0 },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			printf("void %s(std::string label) { opJmp(label, T_SHORT, 0x%02X, 0, 0); }\n", p->name, p->code);
+			printf("void %s(const Label& label) { opJmp(label, T_SHORT, 0x%02X, 0, 0); }\n", p->name, p->code);
+			printf("void %s(const char *label) { %s(std::string(label)); }\n", p->name, p->name);
+		}
+	}
 	////////////////////////////////////////////////////////////////
 	{
 		const GenericTbl tbl[] = {

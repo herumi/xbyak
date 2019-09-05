@@ -205,6 +205,41 @@ CYBOZU_TEST_AUTO(testJmpCx)
 	}
 }
 
+CYBOZU_TEST_AUTO(loop)
+{
+	const uint8 ok[] = {
+		// lp:
+		0x31, 0xC0, // xor eax, eax
+		0xE2, 0xFC, // loop lp
+		0xE0, 0xFA, // loopne lp
+		0xE1, 0xF8, // loope lp
+	};
+	struct Code : CodeGenerator {
+		Code(bool useLabel)
+		{
+			if (useLabel) {
+				Xbyak::Label lp = L();
+				xor_(eax, eax);
+				loop(lp);
+				loopne(lp);
+				loope(lp);
+			} else {
+				L("@@");
+				xor_(eax, eax);
+				loop("@b");
+				loopne("@b");
+				loope("@b");
+			}
+		}
+	};
+	Code code1(false);
+	CYBOZU_TEST_EQUAL(code1.getSize(), sizeof(ok));
+	CYBOZU_TEST_EQUAL_ARRAY(code1.getCode(), ok, sizeof(ok));
+	Code code2(true);
+	CYBOZU_TEST_EQUAL(code2.getSize(), sizeof(ok));
+	CYBOZU_TEST_EQUAL_ARRAY(code2.getCode(), ok, sizeof(ok));
+}
+
 #ifdef _MSC_VER
 	#pragma warning(disable : 4310)
 #endif
