@@ -667,6 +667,10 @@ void put()
 			{ "stosw", 0x66, 0xAB },
 			{ "stosd", 0xAB },
 			{ "rep", 0xF3 },
+			{ "repe", 0xF3 },
+			{ "repz", 0xF3 },
+			{ "repne", 0xF2 },
+			{ "repnz", 0xF2 },
 
 			{ "lahf", 0x9F },
 			{ "lock", 0xF0 },
