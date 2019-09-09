@@ -710,7 +710,8 @@ void put()
 			{ "fabs", 0xD9, 0xE1 },
 			{ "faddp", 0xDE, 0xC1 },
 			{ "fchs", 0xD9, 0xE0 },
-
+			{ "fclex", 0x9B, 0xDB, 0xE2 },
+			{ "fnclex", 0xDB, 0xE2 },
 			{ "fcom", 0xD8, 0xD1 },
 			{ "fcomp", 0xD8, 0xD9 },
 			{ "fcompp", 0xDE, 0xD9 },
@@ -944,10 +945,20 @@ void put()
 			{ 0x0F, 0xAE, 3, "stmxcsr", 0 },
 			{ 0x0F, 0xAE, 7, "clflush", 0 },
 			{ 0x0F, 0xAE, 7, "clflushopt", 0x66 },
+			{ 0xDF, NONE, 4, "fbld", 0 },
+			{ 0xDF, NONE, 6, "fbstp", 0 },
 			{ 0xD9, NONE, 5, "fldcw", 0 },
 			{ 0xD9, NONE, 4, "fldenv", 0 },
+			{ 0xDD, NONE, 4, "frstor", 0 },
+			{ 0xDD, NONE, 6, "fsave", 0x9B },
+			{ 0xDD, NONE, 6, "fnsave", 0 },
 			{ 0xD9, NONE, 7, "fstcw", 0x9B },
 			{ 0xD9, NONE, 7, "fnstcw", 0 },
+			{ 0xD9, NONE, 6, "fstenv", 0x9B },
+			{ 0xD9, NONE, 6, "fnstenv", 0 },
+			{ 0xDD, NONE, 7, "fstsw", 0x9B },
+			{ 0xDD, NONE, 7, "fnstsw", 0 },
+			{ 0x0F, 0xAE, 1, "fxrstor", 0 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -955,6 +966,8 @@ void put()
 			if (p->prefix) printf("db(0x%02X); ", p->prefix);
 			printf("opModM(addr, Reg32(%d), 0x%02X, 0x%02X); }\n", p->ext, p->code1, p->code2);
 		}
+		puts("void fstsw(const Reg16& r) { if (r.getIdx() != Operand::AX) throw Error(ERR_BAD_PARAMETER); db(0x9B); db(0xDF); db(0xE0); }");
+		puts("void fnstsw(const Reg16& r) { if (r.getIdx() != Operand::AX) throw Error(ERR_BAD_PARAMETER); db(0xDF); db(0xE0); }");
 	}
 	{
 		const struct Tbl {
@@ -1740,6 +1753,7 @@ void put64()
 	putGeneric(tbl, NUM_OF_ARRAY(tbl));
 
 	puts("void cmpxchg16b(const Address& addr) { opModM(addr, Reg64(1), 0x0F, 0xC7); }");
+	puts("void fxrstor64(const Address& addr) { opModM(addr, Reg64(1), 0x0F, 0xAE); }");
 	puts("void movq(const Reg64& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR(mmx, reg, 0x0F, 0x7E); }");
 	puts("void movq(const Mmx& mmx, const Reg64& reg) { if (mmx.isXMM()) db(0x66); opModR(mmx, reg, 0x0F, 0x6E); }");
 	puts("void movsxd(const Reg64& reg, const Operand& op) { if (!op.isBit(32)) throw Error(ERR_BAD_COMBINATION); opModRM(reg, op, op.isREG(), op.isMEM(), 0x63); }");

@@ -557,6 +557,8 @@ class Test {
 			"fabs",
 			"faddp",
 			"fchs",
+			"fclex",
+			"fnclex",
 			"fcom",
 			"fcomp",
 			"fcompp",
@@ -600,16 +602,35 @@ class Test {
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			put(tbl[i]);
 		}
+		{
+			const char memTbl[][16] = {
+				"clflush",
+				"clflushopt",
+				"fbld",
+				"fbstp",
+				"fldcw",
+				"fldenv",
+				"frstor",
+				"fsave",
+				"fnsave",
+				"fstcw",
+				"fnstcw",
+				"fstenv",
+				"fnstenv",
+				"fstsw",
+				"fnstsw",
+				"fxrstor",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(memTbl); i++) {
+				put(memTbl[i], MEM);
+			}
+			put("fstsw", AX);
+			put("fnstsw", AX);
+		}
 
 		put("bswap", REG32e);
 		put("lea", REG32e|REG16, MEM);
-		put("clflush", MEM);
-		put("clflushopt", MEM);
 		put("enter", IMM, IMM);
-		put("fldcw", MEM);
-		put("fldenv", MEM);
-		put("fstcw", MEM);
-		put("fnstcw", MEM);
 		put(isXbyak_ ? "int_" : "int", IMM8);
 		put(isXbyak_ ? "in_" : "in", AL|AX|EAX, IMM8);
 		puts(isXbyak_ ? "in_(al, dx); dump();" : "in al, dx");
@@ -1207,6 +1228,7 @@ class Test {
 		put("cmpxchg8b", MEM);
 #ifdef XBYAK64
 		put("cmpxchg16b", MEM);
+		put("fxrstor64", MEM);
 #endif
 		{
 			const char tbl[][8] = {

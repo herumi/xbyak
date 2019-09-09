@@ -27,7 +27,7 @@ bmake -f Makefile.win all
 echo cl -I../ make_nm.cpp %OPT% %OPT2% /EHs
 cl -I../ make_nm.cpp %OPT% %OPT2% /EHs
 make_nm > a.asm
-rm a.lst
+rm -rf a.lst
 echo %EXE% -f %OPT3% -l a.lst a.asm
 %EXE% -f %OPT3% -l a.lst a.asm
 rem connect "?????-" and "??"
