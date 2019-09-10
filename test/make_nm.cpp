@@ -1173,6 +1173,30 @@ class Test {
 			put("mov", REG64, tbl[i].a, tbl[i].b);
 		}
 	}
+	void putLoadSeg() const
+	{
+		const struct Tbl {
+			const char *name;
+			bool support64Bit;
+		} tbl[] = {
+#ifdef XBYAK32
+			{ "lds", false },
+			{ "les", false },
+#endif
+			{ "lss", true },
+			{ "lfs", true },
+			{ "lgs", true },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			put(p->name, REG16|REG32, MEM);
+#ifdef XBYAK64
+			if (p->support64Bit) {
+				put(p->name, REG64, MEM);
+			}
+#endif
+		}
+	}
 	// only nasm
 	void putMovImm64() const
 	{
@@ -2476,6 +2500,7 @@ public:
 		putPushPop();
 		putTest();
 		separateFunc();
+		putLoadSeg();
 		putEtc();
 		putShift();
 		putShxd();

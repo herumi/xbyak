@@ -1714,6 +1714,14 @@ private:
 		db(code0 | (reg.isBit(8) ? 0 : 1)); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
 		opAddr(addr, reg.getIdx(), immSize);
 	}
+	void opLoadSeg(const Address& addr, const Reg& reg, int code0, int code1 = NONE)
+	{
+		if (addr.is64bitDisp()) throw Error(ERR_CANT_USE_64BIT_DISP);
+		if (reg.isBit(8)) throw Error(ERR_BAD_SIZE_OF_REGISTER);
+		rex(addr, reg);
+		db(code0); if (code1 != NONE) db(code1);
+		opAddr(addr, reg.getIdx());
+	}
 	void opMIB(const Address& addr, const Reg& reg, int code0, int code1)
 	{
 		if (addr.is64bitDisp()) throw Error(ERR_CANT_USE_64BIT_DISP);

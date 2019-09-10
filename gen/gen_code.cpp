@@ -231,6 +231,18 @@ void putX_X_XM(bool omitOnly)
 	}
 }
 
+void putMemOp(const char *name, uint8 prefix, uint8 ext, uint8 code1, int code2, int bit = 32)
+{
+	printf("void %s(const Address& addr) { ", name);
+	if (prefix) printf("db(0x%02X); ", prefix);
+	printf("opModM(addr, Reg%d(%d), 0x%02X, 0x%02X); }\n", bit, ext, code1, code2);
+}
+
+void putLoadSeg(const char *name, uint8 code1, int code2 = NONE)
+{
+	printf("void %s(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, 0x%02X, 0x%02X); }\n", name, code1, code2);
+}
+
 void put()
 {
 	const int NO = CodeGenerator::NONE;
@@ -759,6 +771,9 @@ void put()
 		putGeneric(tbl, NUM_OF_ARRAY(tbl));
 		puts("void enter(uint16 x, uint8 y) { db(0xC8); dw(x); db(y); }");
 		puts("void int_(uint8 x) { db(0xCD); db(x); }");
+		putLoadSeg("lss", 0x0F, 0xB2);
+		putLoadSeg("lfs", 0x0F, 0xB4);
+		putLoadSeg("lgs", 0x0F, 0xB5);
 	}
 	{
 		const struct Tbl {
@@ -966,9 +981,7 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Address& addr) { ", p->name);
-			if (p->prefix) printf("db(0x%02X); ", p->prefix);
-			printf("opModM(addr, Reg32(%d), 0x%02X, 0x%02X); }\n", p->ext, p->code1, p->code2);
+			putMemOp(p->name, p->prefix, p->ext, p->code1, p->code2);
 		}
 		puts("void fstsw(const Reg16& r) { if (r.getIdx() != Operand::AX) throw Error(ERR_BAD_PARAMETER); db(0x9B); db(0xDF); db(0xE0); }");
 		puts("void fnstsw(const Reg16& r) { if (r.getIdx() != Operand::AX) throw Error(ERR_BAD_PARAMETER); db(0xDF); db(0xE0); }");
@@ -1734,6 +1747,8 @@ void put32()
 		{ "popa", 0x61 },
 	};
 	putGeneric(tbl, NUM_OF_ARRAY(tbl));
+	putLoadSeg("lds", 0xC5, NONE);
+	putLoadSeg("les", 0xC4, NONE);
 }
 
 void put64()
@@ -1756,8 +1771,8 @@ void put64()
 	};
 	putGeneric(tbl, NUM_OF_ARRAY(tbl));
 
-	puts("void cmpxchg16b(const Address& addr) { opModM(addr, Reg64(1), 0x0F, 0xC7); }");
-	puts("void fxrstor64(const Address& addr) { opModM(addr, Reg64(1), 0x0F, 0xAE); }");
+	putMemOp("cmpxchg16b", 0, 1, 0x0F, 0xC7, 64);
+	putMemOp("fxrstor64", 0, 1, 0x0F, 0xAE, 64);
 	puts("void movq(const Reg64& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR(mmx, reg, 0x0F, 0x7E); }");
 	puts("void movq(const Mmx& mmx, const Reg64& reg) { if (mmx.isXMM()) db(0x66); opModR(mmx, reg, 0x0F, 0x6E); }");
 	puts("void movsxd(const Reg64& reg, const Operand& op) { if (!op.isBit(32)) throw Error(ERR_BAD_COMBINATION); opModRM(reg, op, op.isREG(), op.isMEM(), 0x63); }");
