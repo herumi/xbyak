@@ -1,5 +1,5 @@
 
-# Xbyak 5.802 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.81 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -392,6 +392,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2019/Sep/14 ver 5.81 support some generic mnemonics.
 * 2019/Aug/01 ver 5.802 fix detection of AVX512_BF16 (thanks to vpirogov)
 * 2019/May/27 support vp2intersectd, vp2intersectq (not tested)
 * 2019/May/26 ver 5.80 support vcvtne2ps2bf16, vcvtneps2bf16, vdpbf16ps
