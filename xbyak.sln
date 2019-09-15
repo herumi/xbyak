@@ -1,17 +1,18 @@
-þ½Ž¿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bf", "sample\bf.vcproj", "{654BD79B-59D3-4B10-BBAA-158BAB272828}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2016
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bf", "sample\bf.vcxproj", "{654BD79B-59D3-4B10-BBAA-158BAB272828}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "calc", "sample\calc.vcproj", "{5FDDFAA6-B947-491D-A17E-BBD863846579}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "calc", "sample\calc.vcxproj", "{5FDDFAA6-B947-491D-A17E-BBD863846579}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "quantize", "sample\quantize.vcproj", "{D06753BF-E1F3-4578-9B18-08673327F77C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "quantize", "sample\quantize.vcxproj", "{D06753BF-E1F3-4578-9B18-08673327F77C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test0", "sample\test0.vcproj", "{1CDE4D2A-BE3A-4B9B-B28F-524A23084A8E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test0", "sample\test0.vcxproj", "{1CDE4D2A-BE3A-4B9B-B28F-524A23084A8E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "toyvm", "sample\toyvm.vcproj", "{2E41C7AF-39FF-454C-B081-37445378DCB3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "toyvm", "sample\toyvm.vcxproj", "{2E41C7AF-39FF-454C-B081-37445378DCB3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_util", "sample\test_util.vcproj", "{CFC9B272-FDA1-4C87-B4EF-CDCA9B57F4DD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_util", "sample\test_util.vcxproj", "{CFC9B272-FDA1-4C87-B4EF-CDCA9B57F4DD}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "calc2", "sample\calc2.vcproj", "{8EC11C7F-1B5C-4787-8940-B9B3AAF1D204}"
 EndProject
@@ -82,5 +83,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DAE0012B-DDCC-4614-9110-D52E351B2A80}
 	EndGlobalSection
 EndGlobal
