@@ -14,7 +14,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "toyvm", "sample\toyvm.vcxpr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_util", "sample\test_util.vcxproj", "{CFC9B272-FDA1-4C87-B4EF-CDCA9B57F4DD}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "calc2", "sample\calc2.vcproj", "{8EC11C7F-1B5C-4787-8940-B9B3AAF1D204}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "calc2", "sample\calc2.vcxproj", "{8EC11C7F-1B5C-4787-8940-B9B3AAF1D204}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
