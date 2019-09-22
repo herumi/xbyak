@@ -767,6 +767,11 @@ void put()
 			{ "fxtract", 0xD9, 0xF4 },
 			{ "fyl2x", 0xD9, 0xF1 },
 			{ "fyl2xp1", 0xD9, 0xF9 },
+
+			// AMD Zen
+			{ "monitorx", 0x0F, 0x01, 0xFA },
+			{ "mwaitx", 0x0F, 0x01, 0xFB },			
+			{ "clzero", 0x0F, 0x01, 0xFC },
 		};
 		putGeneric(tbl, NUM_OF_ARRAY(tbl));
 		puts("void enter(uint16 x, uint8 y) { db(0xC8); dw(x); db(y); }");
