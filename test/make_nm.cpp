@@ -598,6 +598,10 @@ class Test {
 			"fxtract",
 			"fyl2x",
 			"fyl2xp1",
+
+			"monitorx",
+			"mwaitx",
+			"clzero",
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			put(tbl[i]);
