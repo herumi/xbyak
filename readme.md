@@ -1,5 +1,5 @@
 
-# Xbyak 5.82 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.83 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -392,6 +392,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2019/Oct/12 ver 5.83 exit(1) was removed
 * 2019/Sep/23 ver 5.82 support monitorx, mwaitx, clzero (thanks to @MagurosanTeam)
 * 2019/Sep/14 ver 5.81 support some generic mnemonics.
 * 2019/Aug/01 ver 5.802 fix detection of AVX512_BF16 (thanks to vpirogov)

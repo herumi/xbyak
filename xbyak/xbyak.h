@@ -113,7 +113,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5820 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5830 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -187,7 +187,7 @@ enum {
 	ERR_INVALID_RIP_IN_AUTO_GROW,
 	ERR_INVALID_MIB_ADDRESS,
 	ERR_X2APIC_IS_NOT_SUPPORTED,
-	ERR_INTERNAL, // last err
+	ERR_INTERNAL // Put it at last.
 };
 
 class Error : public std::exception {
@@ -196,8 +196,7 @@ public:
 	explicit Error(int err) : err_(err)
 	{
 		if (err_ < 0 || err_ > ERR_INTERNAL) {
-			fprintf(stderr, "bad err=%d in Xbyak::Error\n", err_);
-			exit(1);
+			err_ = ERR_INTERNAL;
 		}
 	}
 	operator int() const { return err_; }
@@ -248,10 +247,11 @@ public:
 			"invalid zero",
 			"invalid rip in AutoGrow",
 			"invalid mib address",
-			"internal error",
-			"x2APIC is not supported"
+			"x2APIC is not supported",
+			"internal error"
 		};
-		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
+		assert(err_ <= ERR_INTERNAL);
+		assert(ERR_INTERNAL + 1 == sizeof(errTbl) / sizeof(*errTbl));
 		return errTbl[err_];
 	}
 };
