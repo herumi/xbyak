@@ -1,5 +1,5 @@
 
-# Xbyak 5.83 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.84 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -10,13 +10,10 @@ This is a header file which enables dynamically to assemble x86(IA32), x64(AMD64
 * Intel/MASM like syntax
 * fully support AVX-512
 
-**Note**: Xbyak uses and(), or(), xor(), not() functions, so `-fno-operator-names` option is necessary for gcc/clang.
-
-Or define `XBYAK_NO_OP_NAMES` before including `xbyak.h` and use and_(), or_(), xor_(), not_() instead of them.
-
-and_(), or_(), xor_(), not_() are always available.
-
-`XBYAK_NO_OP_NAMES` will be defined in the feature version.
+**Note**:
+The default setting has changed: `XBYAK_NO_OP_NAMES` is defined unless `XBYAK_USE_OP_NAMES` is defined.
+Use `and_()`, `or_(), ... instead of `and()`, `or()`.
+If you want to use `and()`, `or()`,... then specify `-DXBYAK_USE_OP_NAMES -fno-operator-names` option to gcc/clang.
 
 ### Supported OS
 
@@ -47,7 +44,6 @@ These files are copied into `/usr/local/include/xbyak`.
 
 Inherit `Xbyak::CodeGenerator` class and make the class method.
 ```
-#define XBYAK_NO_OP_NAMES
 #include <xbyak/xbyak.h>
 
 struct Code : Xbyak::CodeGenerator {
@@ -375,7 +371,7 @@ See [protect-re.cpp](sample/protect-re.cpp).
 * **XBYAK64** is defined on 64bit.
 * **XBYAK64_WIN** is defined on 64bit Windows(VC)
 * **XBYAK64_GCC** is defined on 64bit gcc, cygwin
-* define **XBYAK_NO_OP_NAMES** on gcc without `-fno-operator-names`
+* define **XBYAK_USE_OP_NAMES** on gcc with `-fno-operator-names` if you want to use `and()`, ....
 * define **XBYAK_ENABLE_OMITTED_OPERAND** if you use omitted destination such as `vaddps(xmm2, xmm3);`(deprecated in the future)
 * define **XBYAK_UNDEF_JNL** if Bessel function jnl is defined as macro
 
@@ -392,6 +388,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2019/Nov/29 ver 5.84 [changed] XBYAK_NO_OP_NAMES is defined unless XBYAK_USE_OP_NAMES is defined
 * 2019/Oct/12 ver 5.83 exit(1) was removed
 * 2019/Sep/23 ver 5.82 support monitorx, mwaitx, clzero (thanks to @MagurosanTeam)
 * 2019/Sep/14 ver 5.81 support some generic mnemonics.
