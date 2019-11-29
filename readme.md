@@ -3,7 +3,7 @@
 
 ## Abstract
 
-This is a header file which enables dynamically to assemble x86(IA32), x64(AMD64, x86-64) mnemonic.
+Xbyak is a C++ header library that enables dynamically to assemble x86(IA32), x64(AMD64, x86-64) mnemonic.
 
 ## Feature
 * header file only
@@ -54,6 +54,15 @@ struct Code : Xbyak::CodeGenerator {
     }
 };
 ```
+Or you can pass the instance of CodeGenerator without inheriting.
+```
+void genCode(Xbyak::CodeGenerator& code, int x) {
+    using namespace Xbyak::util;
+    code.mov(eax, x);
+    code.ret();
+}
+```
+
 Make an instance of the class and get the function
 pointer by calling `getCode()` and call it.
 ```
