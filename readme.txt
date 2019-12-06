@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.84
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.85
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -373,7 +373,8 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
-2019/12/29 ver 5.84 [変更] XBYAK_USE_OP_NAMESが定義されていない限りXBYAK_NO_OP_NAMESが定義されるように変更
+2019/12/07 ver 5.85 mmapにMAP_JITフラグを追加(macOS mojave以上)
+2019/11/29 ver 5.84 [変更] XBYAK_USE_OP_NAMESが定義されていない限りXBYAK_NO_OP_NAMESが定義されるように変更
 2019/10/12 ver 5.83 exit(1)の除去
 2019/09/23 ver 5.82 monitorx, mwaitx, clzero対応 (thanks to MagurosanTeam)
 2019/09/14 ver 5.81 いくつかの一般命令をサポート

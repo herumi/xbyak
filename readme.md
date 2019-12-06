@@ -1,5 +1,5 @@
 
-# Xbyak 5.84 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.85 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -397,6 +397,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2019/Dec/07 ver 5.85 append MAP_JIT flag to mmap for macOS mojave or later
 * 2019/Nov/29 ver 5.84 [changed] XBYAK_NO_OP_NAMES is defined unless XBYAK_USE_OP_NAMES is defined
 * 2019/Oct/12 ver 5.83 exit(1) was removed
 * 2019/Sep/23 ver 5.82 support monitorx, mwaitx, clzero (thanks to @MagurosanTeam)
