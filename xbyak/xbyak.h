@@ -83,6 +83,10 @@
 	#include <sys/mman.h>
 	#include <stdlib.h>
 #endif
+#if defined(__APPLE__) && defined(MAP_JIT)
+	#define XBYAK_USE_MAP_JIT
+	#include <sys/sysctl.h>
+#endif
 #if !defined(_MSC_VER) || (_MSC_VER >= 1600)
 	#include <stdint.h>
 #endif
@@ -328,6 +332,29 @@ struct Allocator {
 };
 
 #ifdef XBYAK_USE_MMAP_ALLOCATOR
+#ifdef XBYAK_USE_MAP_JIT
+namespace util {
+
+inline int getMacOsVersionPure()
+{
+	char buf[64];
+	size_t size = sizeof(buf);
+	int err = sysctlbyname("kern.osrelease", buf, &size, NULL, 0);
+	if (err != 0) return 0;
+	char *endp;
+	int major = strtol(buf, &endp, 10);
+	if (*endp != '.') return 0;
+	return major;
+}
+
+inline int getMacOsVersion()
+{
+	static const int version = getMacOsVersionPure();
+	return version;
+}
+
+} // util
+#endif
 class MmapAllocator : Allocator {
 	typedef XBYAK_STD_UNORDERED_MAP<uintptr_t, size_t> SizeList;
 	SizeList sizeList_;
@@ -336,8 +363,10 @@ public:
 	{
 		const size_t alignedSizeM1 = inner::ALIGN_PAGE_SIZE - 1;
 		size = (size + alignedSizeM1) & ~alignedSizeM1;
-#if defined(__APPLE__) && defined(MAP_JIT)
-		const int mode = MAP_PRIVATE | MAP_ANONYMOUS | MAP_JIT;
+#if defined(XBYAK_USE_MAP_JIT)
+		int mode = MAP_PRIVATE | MAP_ANONYMOUS;
+		const int mojaveVersion = 18;
+		if (util::getMacOsVersion() >= mojaveVersion) mode |= MAP_JIT;
 #elif defined(MAP_ANONYMOUS)
 		const int mode = MAP_PRIVATE | MAP_ANONYMOUS;
 #elif defined(MAP_ANON)
