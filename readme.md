@@ -1,5 +1,5 @@
 
-# Xbyak 5.85 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.86 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -11,9 +11,8 @@ Xbyak is a C++ header library that enables dynamically to assemble x86(IA32), x6
 * fully support AVX-512
 
 **Note**:
-The default setting has changed: `XBYAK_NO_OP_NAMES` is defined unless `XBYAK_USE_OP_NAMES` is defined.
-Use `and_()`, `or_(), ... instead of `and()`, `or()`.
-If you want to use `and()`, `or()`,... then specify `-DXBYAK_USE_OP_NAMES -fno-operator-names` option to gcc/clang.
+Use `and_()`, `or_()`, ... instead of `and()`, `or()`.
+If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 ### Supported OS
 
@@ -397,6 +396,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2019/Dec/13 ver 5.86 [changed] revert to the behavior before v5.84 if -fno-operator-names is defined (and() is available)
 * 2019/Dec/07 ver 5.85 append MAP_JIT flag to mmap for macOS mojave or later
 * 2019/Nov/29 ver 5.84 [changed] XBYAK_NO_OP_NAMES is defined unless XBYAK_USE_OP_NAMES is defined
 * 2019/Oct/12 ver 5.83 exit(1) was removed

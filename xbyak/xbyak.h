@@ -9,13 +9,8 @@
 	@note modified new BSD license
 	http://opensource.org/licenses/BSD-3-Clause
 */
-#if !defined(XBYAK_USE_OP_NAMES) && !defined(XBYAK_NO_OP_NAMES)
+#if (not +0) && !defined(XBYAK_NO_OP_NAMES) // trick to detect whether 'not' is operator or not
 	#define XBYAK_NO_OP_NAMES
-#endif
-#ifndef XBYAK_NO_OP_NAMES
-	#if not +0 // trick to detect whether 'not' is operator or not
-		#error "use -fno-operator-names option if you want to use and(), or(), xor(), not() as function names, Or define XBYAK_NO_OP_NAMES and use and_(), or_(), xor_(), not_()."
-	#endif
 #endif
 
 #include <stdio.h> // for debug print
@@ -120,7 +115,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5850 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5860 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
