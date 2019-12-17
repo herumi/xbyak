@@ -1784,13 +1784,13 @@ private:
 			makeJmp(inner::VerifyInInt32(offset - size_), type, shortCode, longCode, longPref);
 		} else {
 			int jmpSize = 0;
-			if (type == T_NEAR) {
+			if (type == T_SHORT) {
+				jmpSize = 1;
+				db(shortCode); db(0);
+			} else {
 				jmpSize = 4;
 				if (longPref) db(longPref);
 				db(longCode); dd(0);
-			} else {
-				jmpSize = 1;
-				db(shortCode); db(0);
 			}
 			JmpLabel jmp(size_, jmpSize, inner::LasIs);
 			labelMgr_.addUndefinedLabel(label, jmp);
