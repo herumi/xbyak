@@ -1305,3 +1305,76 @@ CYBOZU_TEST_AUTO(release_label_after_code)
 		printf("id=%d %d %d %d %d\n", L1.getId(), L2.getId(), L3.getId(), L4.getId(), L5.getId());
 	}
 }
+
+struct JmpTypeCode : Xbyak::CodeGenerator {
+	void nops()
+	{
+		for (int i = 0; i < 130; i++) {
+			nop();
+		}
+	}
+	// return jmp code size
+	size_t gen(bool pre, bool large, Xbyak::CodeGenerator::LabelType type)
+	{
+		Label label;
+		if (pre) {
+			L(label);
+			if (large) nops();
+			size_t pos = getSize();
+			jmp(label, type);
+			return getSize() - pos;
+		} else {
+			size_t pos = getSize();
+			jmp(label, type);
+			size_t size = getSize() - pos;
+			if (large) nops();
+			L(label);
+			return size;
+		}
+	}
+};
+
+CYBOZU_TEST_AUTO(setDefaultJmpNEAR)
+{
+	const Xbyak::CodeGenerator::LabelType T_SHORT = Xbyak::CodeGenerator::T_SHORT;
+	const Xbyak::CodeGenerator::LabelType T_NEAR = Xbyak::CodeGenerator::T_NEAR;
+	const Xbyak::CodeGenerator::LabelType T_AUTO = Xbyak::CodeGenerator::T_AUTO;
+	const struct {
+		bool pre;
+		bool large;
+		Xbyak::CodeGenerator::LabelType type;
+		size_t expect1; // 0 means exception
+		size_t expect2;
+	} tbl[] = {
+		{ false, false, T_SHORT, 2, 2 },
+		{ false, false, T_NEAR, 5, 5 },
+		{ false, true, T_SHORT, 0, 0 },
+		{ false, true, T_NEAR, 5, 5 },
+
+		{ true, false, T_SHORT, 2, 2 },
+		{ true, false, T_NEAR, 5, 5 },
+		{ true, true, T_SHORT, 0, 0 },
+		{ true, true, T_NEAR, 5, 5 },
+
+		{ false, false, T_AUTO, 2, 5 },
+		{ false, true, T_AUTO, 0, 5 },
+		{ true, false, T_AUTO, 2, 2 },
+		{ true, true, T_AUTO, 5, 5 },
+	};
+	JmpTypeCode code1, code2;
+	code2.setDefaultJmpNEAR(true);
+	for (size_t i = 0; i < CYBOZU_NUM_OF_ARRAY(tbl); i++) {
+		if (tbl[i].expect1) {
+			size_t size = code1.gen(tbl[i].pre, tbl[i].large, tbl[i].type);
+			CYBOZU_TEST_EQUAL(size, tbl[i].expect1);
+		} else {
+			CYBOZU_TEST_EXCEPTION(code1.gen(tbl[i].pre, tbl[i].large, tbl[i].type), std::exception);
+		}
+		if (tbl[i].expect2) {
+			size_t size = code2.gen(tbl[i].pre, tbl[i].large, tbl[i].type);
+			CYBOZU_TEST_EQUAL(size, tbl[i].expect2);
+		} else {
+			CYBOZU_TEST_EXCEPTION(code2.gen(tbl[i].pre, tbl[i].large, tbl[i].type), std::exception);
+		}
+	}
+}

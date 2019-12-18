@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.86
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.87
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -371,6 +371,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2019/12/19 ver 5.87 未定義ラベルへのjmp命令のデフォルト挙動をT_NEARにするsetDefaultJmpNEAR()を追加
 2019/12/13 ver 5.86 [変更] -fno-operator-namesが指定されたときは5.84以前の挙動に戻す
 2019/12/07 ver 5.85 mmapにMAP_JITフラグを追加(macOS mojave以上)
 2019/11/29 ver 5.84 [変更] XBYAK_USE_OP_NAMESが定義されていない限りXBYAK_NO_OP_NAMESが定義されるように変更

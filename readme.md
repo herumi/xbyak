@@ -1,5 +1,5 @@
 
-# Xbyak 5.86 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.87 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -216,6 +216,32 @@ void func1()
 }
 ```
 
+### short and long jump
+Xbyak deals with jump mnemonics of an undefined label as short jump if no type is specified.
+So if the size between jmp and label is larger than 127 byte, then xbyak will cause an error.
+
+```
+jmp("short-jmp"); // short jmp
+// small code
+L("short-jmp");
+
+jmp("long-jmp");
+// long code
+L("long-jmp"); // throw exception
+```
+Then specify T_NEAR for jmp.
+```
+jmp("long-jmp", T_NEAR); // long jmp
+// long code
+L("long-jmp");
+```
+Or call `setDefaultJmpNEAR(true);` once, then the default type is set to T_NEAR.
+```
+jmp("long-jmp"); // long jmp
+// long code
+L("long-jmp");
+```
+
 ### Label class
 
 `L()` and `jxx()` support Label class.
@@ -396,6 +422,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2019/Dec/19 ver 5.87 add setDefaultJmpNEAR(), which deals with `jmp` of an undefined label as T_NEAR if no type is specified.
 * 2019/Dec/13 ver 5.86 [changed] revert to the behavior before v5.84 if -fno-operator-names is defined (and() is available)
 * 2019/Dec/07 ver 5.85 append MAP_JIT flag to mmap for macOS mojave or later
 * 2019/Nov/29 ver 5.84 [changed] XBYAK_NO_OP_NAMES is defined unless XBYAK_USE_OP_NAMES is defined
