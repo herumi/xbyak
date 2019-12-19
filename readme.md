@@ -1,5 +1,5 @@
 
-# Xbyak 5.87 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.88 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -422,6 +422,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2019/Dec/20 ver 5.88 fix compile error on Windows
 * 2019/Dec/19 ver 5.87 add setDefaultJmpNEAR(), which deals with `jmp` of an undefined label as T_NEAR if no type is specified.
 * 2019/Dec/13 ver 5.86 [changed] revert to the behavior before v5.84 if -fno-operator-names is defined (and() is available)
 * 2019/Dec/07 ver 5.85 append MAP_JIT flag to mmap for macOS mojave or later

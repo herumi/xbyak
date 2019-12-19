@@ -371,6 +371,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2019/12/20 ver 5.88 Windowsでのコンパイルエラー修正
 2019/12/19 ver 5.87 未定義ラベルへのjmp命令のデフォルト挙動をT_NEARにするsetDefaultJmpNEAR()を追加
 2019/12/13 ver 5.86 [変更] -fno-operator-namesが指定されたときは5.84以前の挙動に戻す
 2019/12/07 ver 5.85 mmapにMAP_JITフラグを追加(macOS mojave以上)

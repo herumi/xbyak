@@ -115,7 +115,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5870 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5880 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -2317,7 +2317,7 @@ public:
 	void putL(const Label& label) { putL_inner(label); }
 
 	// set default type of `jmp` of undefined label to T_NEAR
-	void setDefaultJmpNEAR(bool near) { isDefaultJmpNEAR_ = near; }
+	void setDefaultJmpNEAR(bool isNear) { isDefaultJmpNEAR_ = isNear; }
 	void jmp(const Operand& op) { opR_ModM(op, BIT, 4, 0xFF, NONE, NONE, true); }
 	void jmp(std::string label, LabelType type = T_AUTO) { opJmp(label, type, 0xEB, 0xE9, 0); }
 	void jmp(const char *label, LabelType type = T_AUTO) { jmp(std::string(label), type); }
