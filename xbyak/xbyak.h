@@ -115,7 +115,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5880 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5890 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -550,7 +550,7 @@ inline void Operand::setBit(int bit)
 {
 	if (bit != 8 && bit != 16 && bit != 32 && bit != 64 && bit != 128 && bit != 256 && bit != 512) goto ERR;
 	if (isBit(bit)) return;
-	if (is(MEM)) {
+	if (is(MEM | OPMASK)) {
 		bit_ = bit;
 		return;
 	}
