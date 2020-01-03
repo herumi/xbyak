@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/herumi/xbyak.png)](https://travis-ci.org/herumi/xbyak)
 
 # Xbyak 5.89 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
