@@ -37,7 +37,7 @@ cvt_test: cvt_test.cpp ../xbyak/xbyak.h
 cvt_test32: cvt_test.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK32
 
-test: normalize_prefix jmp bad_address $(TARGET)
+test_nm: normalize_prefix jmp bad_address $(TARGET)
 	$(MAKE) -C ../gen
 	./test_nm.sh
 	./test_nm.sh Y
@@ -69,6 +69,12 @@ test_avx512: normalize_prefix
 ifeq ($(BIT),64)
 	./test_avx512.sh 64
 endif
+
+test:
+	$(MAKE) test_nm
+	$(MAKE) test_avx
+	$(MAKE) test_avx512
+
 clean:
 	rm -rf *.o $(TARGET) lib_run nm.cpp nm_frame make_512
 

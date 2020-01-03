@@ -20,7 +20,6 @@ echo "compile nm_frame.cpp"
 g++ $CFLAGS -DXBYAK_TEST nm_frame.cpp -o nm_frame
 ./nm_frame > x.lst
 diff ok.lst x.lst && echo "ok"
-wc x.lst
 
 }
 

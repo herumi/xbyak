@@ -29,5 +29,4 @@ echo "xbyak"
 echo "compile nm_frame.cpp"
 g++ $CFLAGS -DXBYAK_TEST nm_frame.cpp -o nm_frame -DXBYAK_AVX512
 ./nm_frame | $FILTER > x.lst
-diff ok.lst x.lst && echo "ok"
-exit 0
+diff -B ok.lst x.lst && echo "ok"

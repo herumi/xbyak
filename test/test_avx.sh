@@ -33,12 +33,11 @@ g++ $CFLAGS make_nm.cpp -o make_nm
 ./make_nm > a.asm
 echo "asm"
 $EXE -f$OPT3 a.asm -l a.lst
-awk '{if (index($3, "-")) { conti=substr($3, 0, length($3) - 1) } else { conti = conti $3; print conti; conti = "" }} ' < a.lst | $FILTER > ok.lst
+awk '{if (index($3, "-")) { conti=substr($3, 0, length($3) - 1) } else { conti = conti $3; print conti; conti = "" }} ' < a.lst | $FILTER | grep -v "1+1" > ok.lst
 
 echo "xbyak"
 ./make_nm jit > nm.cpp
 echo "compile nm_frame.cpp"
 g++ $CFLAGS -DXBYAK_TEST nm_frame.cpp -o nm_frame
 ./nm_frame | $FILTER > x.lst
-diff ok.lst x.lst && echo "ok"
-exit 0
+diff -B ok.lst x.lst && echo "ok"

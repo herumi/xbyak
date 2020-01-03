@@ -574,9 +574,9 @@ public:
 				for (size_t k = 0; k < N; k++) {
 #ifdef XBYAK64
 					for (int kIdx = 0; kIdx < 8; kIdx++) {
+						put_vaddpd(xTbl[i], xTbl[j], xTbl[k], kIdx);
+						put_vaddpd(yTbl[i], yTbl[j], yTbl[k], kIdx);
 						for (int z = 0; z < 2; z++) {
-							put_vaddpd(xTbl[i], xTbl[j], xTbl[k], kIdx, z == 1);
-							put_vaddpd(yTbl[i], yTbl[j], yTbl[k], kIdx, z == 1);
 							for (int sae = 0; sae < 5; sae++) {
 								put_vaddpd(zTbl[i], zTbl[j], zTbl[k], kIdx, z == 1, sae);
 							}
