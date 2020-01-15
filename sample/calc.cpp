@@ -155,9 +155,9 @@ struct Grammar : public boost::spirit::classic::grammar<Grammar> {
 
 void put(const std::vector<double>& x)
 {
-	printf("%f", x[0]);
-	for (size_t i = 1, n = x.size(); i < n; i++) {
-		printf(", %f", x[i]);
+	for (size_t i = 0, n = x.size(); i < n; i++) {
+		if (i > 0) printf(", ");
+		printf("%f", x[i]);
 	}
 }
 
