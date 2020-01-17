@@ -146,6 +146,11 @@ class Cpu {
 					numCores_[level - 1] = extractBit(data[1], 0, 15);
 				}
 			}
+			/*
+				Fallback values in case a hypervisor has 0xB leaf zeroed-out.
+			*/
+			numCores_[SmtLevel - 1] = std::max(1u, numCores_[SmtLevel - 1]);
+			numCores_[CoreLevel - 1] = std::max(numCores_[SmtLevel - 1], numCores_[CoreLevel - 1]);
 		} else {
 			/*
 				Failed to deremine num of cores without x2APIC support.
