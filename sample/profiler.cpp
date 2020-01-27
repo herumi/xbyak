@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#define XBYAK_NO_OP_NAMES
 #include <xbyak/xbyak_util.h>
 
 const int N = 3000000;
@@ -70,9 +69,6 @@ int main(int argc, char *argv[])
 	Xbyak::util::Profiler prof;
 	printf("mode=%d\n", mode);
 	prof.init(mode);
-	/*
-		func name must have three characters
-	*/
 	prof.set("f", (const void*)f, c.getSize());
 	prof.set("g", (const void*)g, c2.getSize());
 

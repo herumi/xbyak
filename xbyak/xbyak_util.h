@@ -1,5 +1,6 @@
 #ifndef XBYAK_XBYAK_UTIL_H_
 #define XBYAK_XBYAK_UTIL_H_
+#include <string.h>
 
 /**
 	utility class and functions for Xbyak
@@ -759,7 +760,7 @@ public:
 	};
 	Profiler()
 		: mode_(None)
-		, suffix_(0)
+		, suffix_("")
 		, startAddr_(0)
 #ifdef XBYAK_USE_PERF
 		, fp_(0)
@@ -833,7 +834,16 @@ public:
 #ifdef XBYAK_USE_PERF
 		if (mode_ == Perf) {
 			if (fp_ == 0) return;
-			fprintf(fp_, "%llx %zx %s%s\n", (long long)startAddr, funcSize, funcName, suffix_);
+			fprintf(fp_, "%llx %zx %s%s", (long long)startAddr, funcSize, funcName, suffix_);
+			/*
+				perf does not recognize the function name which is less than 3,
+				so append '_' at the end of the name if necessary
+			*/
+			size_t n = strlen(funcName) + strlen(suffix_);
+			for (size_t i = n; i < 3; i++) {
+				fprintf(fp_, "_");
+			}
+			fprintf(fp_, "\n");
 			fflush(fp_);
 		}
 #endif
