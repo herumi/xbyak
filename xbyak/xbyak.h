@@ -115,7 +115,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5890 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5891 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -2254,7 +2254,7 @@ public:
 	const Zmm zmm0, zmm1, zmm2, zmm3, zmm4, zmm5, zmm6, zmm7;
 	const Xmm &xm0, &xm1, &xm2, &xm3, &xm4, &xm5, &xm6, &xm7;
 	const Ymm &ym0, &ym1, &ym2, &ym3, &ym4, &ym5, &ym6, &ym7;
-	const Ymm &zm0, &zm1, &zm2, &zm3, &zm4, &zm5, &zm6, &zm7;
+	const Zmm &zm0, &zm1, &zm2, &zm3, &zm4, &zm5, &zm6, &zm7;
 	const Reg32 eax, ecx, edx, ebx, esp, ebp, esi, edi;
 	const Reg16 ax, cx, dx, bx, sp, bp, si, di;
 	const Reg8 al, cl, dl, bl, ah, ch, dh, bh;
