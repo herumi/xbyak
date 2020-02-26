@@ -1,5 +1,4 @@
 #include <stdio.h>
-#define XBYAK_NO_OP_NAMES
 #include "xbyak/xbyak.h"
 #include "xbyak/xbyak_bin2hex.h"
 #include <stdlib.h>
@@ -897,7 +896,7 @@ class Test {
 			for (size_t j = 0; j < NUM_OF_ARRAY(sufTbl); j++) {
 				if (!(p->mode & (1 << j))) continue;
 				char buf[16];
-				sprintf(buf, "%s%s", p->name, sufTbl[j].name);
+				snprintf(buf, sizeof(buf), "%s%s", p->name, sufTbl[j].name);
 				if (p->hasImm) {
 					put(buf, XMM, XMM|MEM, IMM);
 				} else {
@@ -984,7 +983,9 @@ class Test {
 	}
 	void putCmov() const
 	{
-		const char tbl[][4] = {
+		const struct {
+			const char *s;
+		} tbl[] = {
 			"o",
 			"no",
 			"b",
@@ -1017,12 +1018,12 @@ class Test {
 			"g",
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-			char buf[16];
-			sprintf(buf, "cmov%s", tbl[i]);
+			char buf[32];
+			snprintf(buf, sizeof(buf), "cmov%s", tbl[i].s);
 			put(buf, REG16, REG16|MEM);
 			put(buf, REG32, REG32|MEM);
 			put(buf, REG64, REG64|MEM);
-			sprintf(buf, "set%s", tbl[i]);
+			snprintf(buf, sizeof(buf), "set%s", tbl[i].s);
 			put(buf, REG8|REG8_3|MEM);
 		}
 	}
