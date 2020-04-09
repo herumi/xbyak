@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/herumi/xbyak.png)](https://travis-ci.org/herumi/xbyak)
 
-# Xbyak 5.891 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.90 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -423,6 +423,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2020/Apr/09 ver 5.90 kmov{b,d,w,q} throws exception for an unsupported register
 * 2020/Feb/26 ver 5.891 fix typo of type
 * 2020/Jan/03 ver 5.89 fix error of vfpclasspd
 * 2019/Dec/20 ver 5.88 fix compile error on Windows

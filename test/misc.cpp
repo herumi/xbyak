@@ -104,6 +104,24 @@ CYBOZU_TEST_AUTO(align)
 		}
 	} c;
 }
+CYBOZU_TEST_AUTO(kmask)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			CYBOZU_TEST_EXCEPTION(kmovb(k1, ax), std::exception);
+			CYBOZU_TEST_EXCEPTION(kmovw(k1, ax), std::exception);
+			CYBOZU_TEST_EXCEPTION(kmovd(k1, ax), std::exception);
+			CYBOZU_TEST_EXCEPTION(kmovq(k1, eax), std::exception);
+#ifdef XBYAK64
+			CYBOZU_TEST_EXCEPTION(kmovb(k1, rax), std::exception);
+			CYBOZU_TEST_EXCEPTION(kmovw(k1, rax), std::exception);
+			CYBOZU_TEST_EXCEPTION(kmovd(k1, rax), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(kmovq(k1, rax));
+#endif
+		}
+	} c;
+}
 
 #ifdef XBYAK64
 CYBOZU_TEST_AUTO(vfmaddps)
