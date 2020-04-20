@@ -115,7 +115,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5900 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5910 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -464,9 +464,8 @@ public:
 	}
 	// err if MMX/FPU/OPMASK/BNDREG
 	void setBit(int bit);
-	void setOpmaskIdx(int idx, bool ignore_idx0 = false)
+	void setOpmaskIdx(int idx, bool /*ignore_idx0*/ = true)
 	{
-		if (!ignore_idx0 && idx == 0) throw Error(ERR_K0_IS_INVALID);
 		if (mask_) throw Error(ERR_OPMASK_IS_ALREADY_SET);
 		mask_ = idx;
 	}
@@ -1662,6 +1661,7 @@ private:
 		bool Vp = !((v ? v->isExtIdx2() : 0) | Hi16Vidx);
 		bool z = reg.hasZero() || base.hasZero() || (v ? v->hasZero() : false);
 		if (aaa == 0) aaa = verifyDuplicate(base.getOpmaskIdx(), reg.getOpmaskIdx(), (v ? v->getOpmaskIdx() : 0), ERR_OPMASK_IS_ALREADY_SET);
+		if (aaa == 0) z = 0; // clear T_z if mask is not set
 		db(0x62);
 		db((R ? 0x80 : 0) | (X ? 0x40 : 0) | (B ? 0x20 : 0) | (Rp ? 0x10 : 0) | (mm & 3));
 		db((w == 1 ? 0x80 : 0) | ((vvvv & 15) << 3) | 4 | (pp & 3));

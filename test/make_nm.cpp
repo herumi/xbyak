@@ -2628,7 +2628,7 @@ public:
 			printf("vaddpd(%s%s%s, %s, %s%s); dump();\n", r1, pk, pz, r2, r3, saeTblXbyak[sae]);
 		} else {
 			if (kIdx) CYBOZU_SNPRINTF(pk, sizeof(pk), "{k%d}", kIdx);
-			if (z) pz = "{z}";
+			if (z && kIdx) pz = "{z}";
 			printf("vaddpd %s%s%s, %s, %s%s\n", r1, pk, pz, r2, r3, saeTblNASM[sae]);
 		}
 	}

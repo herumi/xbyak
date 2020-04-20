@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/herumi/xbyak.png)](https://travis-ci.org/herumi/xbyak)
 
-# Xbyak 5.90 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.91 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -151,6 +151,8 @@ vfpclassps k5{k3}, [rax+64]{1to4}, 5    --> vfpclassps(k5|k3, yword_b [rax+64], 
 ```
 ### Remark
 * `k1`, ..., `k7` are opmask registers.
+  - `k0` is dealt as no mask.
+  - e.g. `vmovaps(zmm0|k0, ptr[rax]);` and `vmovaps(zmm0|T_z, ptr[rax]);` are same to `vmovaps(zmm0, ptr[rax]);`.
 * use `| T_z`, `| T_sae`, `| T_rn_sae`, `| T_rd_sae`, `| T_ru_sae`, `| T_rz_sae` instead of `,{z}`, `,{sae}`, `,{rn-sae}`, `,{rd-sae}`, `,{ru-sae}`, `,{rz-sae}` respectively.
 * `k4 | k3` is different from `k3 | k4`.
 * use `ptr_b` for broadcast `{1toX}`. X is automatically determined.
@@ -423,6 +425,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2020/Apr/20 ver 5.91 accept mask register k0 (it means no mask)
 * 2020/Apr/09 ver 5.90 kmov{b,d,w,q} throws exception for an unsupported register
 * 2020/Feb/26 ver 5.891 fix typo of type
 * 2020/Jan/03 ver 5.89 fix error of vfpclasspd

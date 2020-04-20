@@ -119,6 +119,18 @@ CYBOZU_TEST_AUTO(kmask)
 			CYBOZU_TEST_EXCEPTION(kmovd(k1, rax), std::exception);
 			CYBOZU_TEST_NO_EXCEPTION(kmovq(k1, rax));
 #endif
+			CYBOZU_TEST_NO_EXCEPTION(vmovaps(xm0|k0, ptr[eax]));
+			checkT_z();
+		}
+		void checkT_z()
+		{
+			const uint8_t *p1 = getCurr();
+			vmovaps(zm0, ptr[eax]);
+			const uint8_t *p2 = getCurr();
+			vmovaps(zm0|T_z, ptr[eax]);
+			const uint8_t *end = getCurr();
+			CYBOZU_TEST_EQUAL(p2 - p1, end - p2);
+			CYBOZU_TEST_EQUAL_ARRAY(p1, p2, end - p2);
 		}
 	} c;
 }
