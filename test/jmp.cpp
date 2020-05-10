@@ -428,6 +428,7 @@ CYBOZU_TEST_AUTO(test4)
 	}
 }
 
+#ifndef __APPLE__
 CYBOZU_TEST_AUTO(test5)
 {
 	struct Test5 : Xbyak::CodeGenerator {
@@ -475,6 +476,7 @@ CYBOZU_TEST_AUTO(test5)
 	gm.assign((const char*)gc.getCode(), gc.getSize());
 	CYBOZU_TEST_EQUAL(fm, gm);
 }
+#endif
 
 size_t getValue(const uint8* p)
 {
@@ -1217,11 +1219,11 @@ CYBOZU_TEST_AUTO(rip_jmp)
 	CYBOZU_TEST_EQUAL(ret, ret1234() + ret9999());
 }
 
-#ifdef XBYAK64_GCC
+#if 0
 CYBOZU_TEST_AUTO(rip_addr)
 {
 	/*
-		assume |&x - &code| < 2GiB
+		we can't assume |&x - &code| < 2GiB anymore
 	*/
 	static int x = 5;
 	struct Code : Xbyak::CodeGenerator {
@@ -1236,6 +1238,8 @@ CYBOZU_TEST_AUTO(rip_addr)
 	CYBOZU_TEST_EQUAL(x, 123);
 }
 #endif
+
+#ifndef __APPLE__
 CYBOZU_TEST_AUTO(rip_addr_with_fixed_buf)
 {
 	MIE_ALIGN(4096) static char buf[8192];
@@ -1259,6 +1263,7 @@ CYBOZU_TEST_AUTO(rip_addr_with_fixed_buf)
 	CYBOZU_TEST_EQUAL(buf[8], 99);
 	code.setProtectModeRW();
 }
+#endif
 #endif
 
 struct ReleaseTestCode : Xbyak::CodeGenerator {
