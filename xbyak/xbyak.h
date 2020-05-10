@@ -24,7 +24,9 @@
 
 // #define XBYAK_DISABLE_AVX512
 
-//#define XBYAK_USE_MMAP_ALLOCATOR
+#if !defined(XBYAK_USE_MMAP_ALLOCATOR) && !defined(XBYAK_DONT_USE_MMAP_ALLOCATOR)
+	#define XBYAK_USE_MMAP_ALLOCATOR
+#endif
 #if !defined(__GNUC__) || defined(__MINGW32__)
 	#undef XBYAK_USE_MMAP_ALLOCATOR
 #endif
@@ -115,7 +117,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5910 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5911 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED

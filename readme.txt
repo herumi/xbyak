@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.91
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.911
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -35,6 +35,7 @@ xbyak_mnemonic.h
 Linuxではmake installで/usr/local/include/xbyakにコピーされます。
 -----------------------------------------------------------------------------
 ◎下位互換性の破れ
+* XBYAK_USE_MMAP_ALLOCATORがデフォルトで有効になりました。従来の方式にする場合はXBYAK_DONT_USE_MMAP_ALLOCATORを定義してください。
 * Xbyak::Errorの型をenumからclassに変更
 ** 従来のenumの値をとるにはintにキャストしてください。
 * (古い)Reg32eクラスを(新しい)Reg32eとRegExpに分ける。
@@ -52,7 +53,6 @@ map countの最大値は/proc/sys/vm/max_map_countに書かれています。
 デフォルトでは3万個ほどのXbyak::CodeGeneratorインスタンスを生成するとエラーになります。
 test/mprotect_test.cppで確認できます。
 これを避けるためにはmmapを使うMmapAllocatorを使ってください。
-将来この挙動がデフォルトになるかもしれません。
 
 
 AutoGrowモード追加
@@ -371,6 +371,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2020/05/10 ver 5.911 Linux/macOSでXBYAK_USE_MMAP_ALLOCATORがデフォルト有効になる
 2020/04/20 ver 5.91 マスクレジスタk0を受け入れる(マスクをしない)
 2020/04/09 ver 5.90 kmov{b,w,d,q}がサポートされないレジスタを受けると例外を投げる
 2020/02/26 ver 5.891 zm0のtype修正
