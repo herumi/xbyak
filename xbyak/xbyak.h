@@ -80,9 +80,12 @@
 	#include <sys/mman.h>
 	#include <stdlib.h>
 #endif
-#if defined(__APPLE__) && defined(MAP_JIT)
+#if defined(__APPLE__) && !defined(XBYAK_DONT_USE_MAP_JIT)
 	#define XBYAK_USE_MAP_JIT
 	#include <sys/sysctl.h>
+	#ifndef MAP_JIT
+		#define MAP_JIT 0x800
+	#endif
 #endif
 #if !defined(_MSC_VER) || (_MSC_VER >= 1600)
 	#include <stdint.h>
