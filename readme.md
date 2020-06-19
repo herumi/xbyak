@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/herumi/xbyak.png)](https://travis-ci.org/herumi/xbyak)
 
-# Xbyak 5.911 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.912 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -428,6 +428,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2020/Jun/19 ver 5.912 define MAP_JIT on macOS regardless of Xcode version (Thanks to rsdubtso)
 * 2020/May/10 ver 5.911 XBYAK_USE_MMAP_ALLOCATOR is defined unless XBYAK_DONT_USE_MMAP_ALLOCATOR is defined.
 * 2020/Apr/20 ver 5.91 accept mask register k0 (it means no mask)
 * 2020/Apr/09 ver 5.90 kmov{b,d,w,q} throws exception for an unsupported register
