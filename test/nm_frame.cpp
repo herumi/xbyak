@@ -31,7 +31,8 @@ public:
 
 int main()
 {
-	CYBOZU_TEST_EQUAL(sizeof(Xbyak::Operand), 4u);
+	// the size of Operand exceeds 32 bit.
+	CYBOZU_TEST_EQUAL(sizeof(Xbyak::Operand), 8u);
 	Sample s;
 	s.gen();
 	ErrorSample es;
