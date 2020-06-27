@@ -1,5 +1,5 @@
 TARGET=../xbyak/xbyak_mnemonic.h
-BIN=sortline gen_code gen_avx512 gen_amx
+BIN=sortline gen_code gen_avx512
 CFLAGS=-I../ -O2 -DXBYAK_NO_OP_NAMES -Wall -Wextra -Wno-missing-field-initializers
 all: $(TARGET)
 sortline: sortline.cpp
@@ -7,8 +7,6 @@ sortline: sortline.cpp
 gen_code: gen_code.cpp ../xbyak/xbyak.h avx_type.hpp
 	$(CXX) $(CFLAGS) $< -o $@
 gen_avx512: gen_avx512.cpp ../xbyak/xbyak.h avx_type.hpp
-	$(CXX) $(CFLAGS) $< -o $@
-gen_amx: gen_amx.cpp ../xbyak/xbyak.h avx_type.hpp
 	$(CXX) $(CFLAGS) $< -o $@
 
 $(TARGET): $(BIN)
@@ -21,7 +19,6 @@ $(TARGET): $(BIN)
 	./gen_avx512 | ./sortline >> $@
 	echo "#ifdef XBYAK64" >> $@
 	./gen_avx512 64 | ./sortline >> $@
-	./gen_amx | ./sortline >> $@
 	echo "#endif" >> $@
 	echo "#endif" >> $@
 

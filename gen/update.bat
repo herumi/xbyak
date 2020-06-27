@@ -13,7 +13,5 @@ echo #ifndef XBYAK_DISABLE_AVX512>> %TARGET%
 gen_avx512 | %SORT% >> %TARGET%
 echo #ifdef XBYAK64>> %TARGET%
 gen_avx512 64 | %SORT% >> %TARGET%
-cl gen_amx.cpp %OPT%
-gen_amx | %SORT% >> %TARGET%
 echo #endif>> %TARGET%
 echo #endif>> %TARGET%
