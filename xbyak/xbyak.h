@@ -398,7 +398,7 @@ class Operand {
 	static const uint8 EXT8BIT = 0x20;
 	unsigned int idx_:6; // 0..31 + EXT8BIT = 1 if spl/bpl/sil/dil
 	unsigned int kind_:10;
-	unsigned int bit_:10;
+	unsigned int bit_:14;
 protected:
 	unsigned int zero_:1;
 	unsigned int mask_:3;
