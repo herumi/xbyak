@@ -1595,7 +1595,6 @@ private:
 		T_M_K = 1 << 28, // mem{k}
 		T_VSIB = 1 << 29,
 		T_MEM_EVEX = 1 << 30, // use evex if mem
-		T_TMM = 1 << 31,
 		T_XXX
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
@@ -2263,18 +2262,10 @@ private:
 		}
 		throw Error(ERR_BAD_COMBINATION);
 	}
-	void opAMX(const Tmm& t1, const Operand& op1, const Operand& op2, int type, int code0, int imm8 = NONE)
+	void opAMX(const Tmm& t1, const Tmm& t2, const Operand& op, int type, int code0, int imm8 = NONE)
 	{
-		const Reg *t2 = static_cast<const Reg*>(&op1);
-		const Operand *op = &op2;
-		if (op2.isNone()) { // <i>(t1, op1) -> <i>(t1, t1, op1)
-			t2 = &t1;
-			op = &op1;
-		}
-		// <i>(t1, t2, op)
-		if (!((type & T_TMM) && (t1.isTMM() && t2->isTMM()))) throw Error(ERR_BAD_COMBINATION);
-
-		opVex(t1, t2, *op, type, code0, imm8);
+		if (!t1.isTMM() || !t2.isTMM()) throw Error(ERR_BAD_COMBINATION);
+		opVex(t1, &t2, op, type, code0, imm8);
 	}
 public:
 	unsigned int getVersion() const { return VERSION; }
