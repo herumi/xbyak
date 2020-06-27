@@ -2321,7 +2321,6 @@ public:
 	const Zmm &zm8, &zm9, &zm10, &zm11, &zm12, &zm13, &zm14, &zm15;
 	const Zmm &zm16, &zm17, &zm18, &zm19, &zm20, &zm21, &zm22, &zm23;
 	const Zmm &zm24, &zm25, &zm26, &zm27, &zm28, &zm29, &zm30, &zm31;
-	const Tmm &tm0, &tm1, &tm2, &tm3, &tm4, &tm5, &tm6, &tm7;
 	const RegRip rip;
 #endif
 #ifndef XBYAK_DISABLE_SEGMENT
@@ -2605,7 +2604,6 @@ public:
 		, zm8(zmm8), zm9(zmm9), zm10(zmm10), zm11(zmm11), zm12(zmm12), zm13(zmm13), zm14(zmm14), zm15(zmm15)
 		, zm16(zmm16), zm17(zmm17), zm18(zmm18), zm19(zmm19), zm20(zmm20), zm21(zmm21), zm22(zmm22), zm23(zmm23)
 		, zm24(zmm24), zm25(zmm25), zm26(zmm26), zm27(zmm27), zm28(zmm28), zm29(zmm29), zm30(zmm30), zm31(zmm31)
-		, tm0(tmm0), tm1(tmm1), tm2(tmm2), tm3(tmm3), tm4(tmm4), tm5(tmm5), tm6(tmm6), tm7(tmm7)
 		, rip()
 #endif
 #ifndef XBYAK_DISABLE_SEGMENT

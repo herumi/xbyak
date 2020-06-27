@@ -13,13 +13,13 @@ using namespace Xbyak;
 
 void putAMX_TILE()
 {
-    puts("void ldtilecfg(const Address& addr) { opAMX(tm0, tm0, addr, T_0F38 | T_W0 | T_TMM, 0x49); }");
-    puts("void sttilecfg(const Address& addr) { opAMX(tm0, tm0, addr, T_66 | T_0F38 | T_W0 | T_TMM, 0x49); }");
-    puts("void tileloadd(const Tmm& tm, const Operand& op) { opAMX(tm, tm0, op, T_F2 | T_0F38 | T_W0 | T_TMM, 0x4b); }");
-    puts("void tileloaddt1(const Tmm& tm, const Operand& op) { opAMX(tm, tm0, op, T_66 | T_0F38 | T_W0 | T_TMM, 0x4b); }");
+    puts("void ldtilecfg(const Address& addr) { opAMX(tmm0, tmm0, addr, T_0F38 | T_W0 | T_TMM, 0x49); }");
+    puts("void sttilecfg(const Address& addr) { opAMX(tmm0, tmm0, addr, T_66 | T_0F38 | T_W0 | T_TMM, 0x49); }");
+    puts("void tileloadd(const Tmm& tm, const Operand& op) { opAMX(tm, tmm0, op, T_F2 | T_0F38 | T_W0 | T_TMM, 0x4b); }");
+    puts("void tileloaddt1(const Tmm& tm, const Operand& op) { opAMX(tm, tmm0, op, T_66 | T_0F38 | T_W0 | T_TMM, 0x4b); }");
     puts("void tilerelease() { db(0xc4); db(0xe2); db(0x78); db(0x49); db(0xc0); }");
-    puts("void tilestored(const Operand& op, const Tmm& tm) { opAMX(tm, tm0, op, T_F3 | T_0F38 | T_W0 | T_TMM, 0x4b); }");
-    puts("void tilezero(const Tmm& Tmm) { opAMX(Tmm, tm0, tm0, T_F2 | T_0F38 | T_W0 | T_TMM, 0x49); }");
+    puts("void tilestored(const Operand& op, const Tmm& tm) { opAMX(tm, tmm0, op, T_F3 | T_0F38 | T_W0 | T_TMM, 0x4b); }");
+    puts("void tilezero(const Tmm& Tmm) { opAMX(Tmm, tmm0, tmm0, T_F2 | T_0F38 | T_W0 | T_TMM, 0x49); }");
 }
 void putAMX_INT8()
 {
