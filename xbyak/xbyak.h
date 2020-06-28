@@ -1501,7 +1501,7 @@ private:
 	CodeGenerator operator=(const CodeGenerator&); // don't call
 #ifdef XBYAK64
 	enum { i32e = 32 | 64, BIT = 64 };
-	static const size_t dummyAddr = (size_t(0x11223344) << 32) | 55667788;
+	static const uint64 dummyAddr = uint64(0x1122334455667788ull);
 	typedef Reg64 NativeReg;
 #else
 	enum { i32e = 32, BIT = 32 };
@@ -1696,9 +1696,9 @@ private:
 	}
 	void setSIB(const RegExp& e, int reg, int disp8N = 0)
 	{
-		size_t disp64 = e.getDisp();
+		uint64 disp64 = e.getDisp();
 #ifdef XBYAK64
-		size_t high = disp64 >> 32;
+		uint64 high = disp64 >> 32;
 		if (high != 0 && high != 0xFFFFFFFF) throw Error(ERR_OFFSET_IS_TOO_BIG);
 #endif
 		uint32 disp = static_cast<uint32>(disp64);
@@ -2001,12 +2001,12 @@ private:
 	/*
 		mov(r, imm) = db(imm, mov_imm(r, imm))
 	*/
-	int mov_imm(const Reg& reg, size_t imm)
+	int mov_imm(const Reg& reg, uint64 imm)
 	{
 		int bit = reg.getBit();
 		const int idx = reg.getIdx();
 		int code = 0xB0 | ((bit == 8 ? 0 : 1) << 3);
-		if (bit == 64 && (imm & ~size_t(0xffffffffu)) == 0) {
+		if (bit == 64 && (imm & ~uint64(0xffffffffu)) == 0) {
 			rex(Reg32(idx));
 			bit = 32;
 		} else {
@@ -2451,7 +2451,7 @@ public:
 			opRM_RM(reg1, reg2, 0x88);
 		}
 	}
-	void mov(const Operand& op, size_t imm)
+	void mov(const Operand& op, uint64 imm)
 	{
 		if (op.isREG()) {
 			const int size = mov_imm(op.getReg(), imm);
