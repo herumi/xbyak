@@ -797,6 +797,10 @@ CYBOZU_TEST_AUTO(tileloadd)
 		{
 			tileloadd(tmm1, ptr[r8]);
 		}
+		void notSupported2()
+		{
+			tileloadd(tmm1, ptr[r8*2]);
+		}
 	} c;
 	const uint8_t tbl[] = {
 		0xC4, 0x82, 0x7B, 0x4B, 0x0C, 0x00,
@@ -809,5 +813,6 @@ CYBOZU_TEST_AUTO(tileloadd)
 
 	// current version does not support this sibmem format
 	CYBOZU_TEST_EXCEPTION(c.notSupported(), std::exception);
+	CYBOZU_TEST_EXCEPTION(c.notSupported2(), std::exception);
 }
 #endif

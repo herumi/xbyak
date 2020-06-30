@@ -2269,8 +2269,9 @@ private:
 #ifdef XBYAK64
 	void opAMX(const Tmm& t1, const Address& addr, int type, int code0)
 	{
-		// addressing without index such as ptr[r8]
-		if (addr.getRegExp().getIndex().getBit() == 0) throw Error(ERR_NOT_SUPPORTED);
+		// require both base and index
+		const RegExp exp = addr.getRegExp(false);
+		if (exp.getBase().getBit() == 0 || exp.getIndex().getBit() == 0) throw Error(ERR_NOT_SUPPORTED);
 		opVex(t1, &tmm0, addr, type, code0);
 	}
 #endif
