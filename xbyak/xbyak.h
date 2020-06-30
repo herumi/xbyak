@@ -194,6 +194,7 @@ enum {
 	ERR_INVALID_RIP_IN_AUTO_GROW,
 	ERR_INVALID_MIB_ADDRESS,
 	ERR_X2APIC_IS_NOT_SUPPORTED,
+	ERR_NOT_SUPPORTED,
 	ERR_INTERNAL // Put it at last.
 };
 
@@ -255,6 +256,7 @@ public:
 			"invalid rip in AutoGrow",
 			"invalid mib address",
 			"x2APIC is not supported",
+			"not supported",
 			"internal error"
 		};
 		assert(err_ <= ERR_INTERNAL);
@@ -682,9 +684,11 @@ struct Zmm : public Ymm {
 	Zmm operator|(const EvexModifierRounding& emr) const { Zmm r(*this); r.setRounding(emr.rounding); return r; }
 };
 
+#ifdef XBYAK64
 struct Tmm : public Reg {
 	explicit Tmm(int idx = 0, Kind kind = Operand::TMM, int bit = 8192) : Reg(idx, kind, bit) { }
 };
+#endif
 
 struct Opmask : public Reg {
 	explicit Opmask(int idx = 0) : Reg(idx, Operand::OPMASK, 64) {}
@@ -2262,11 +2266,14 @@ private:
 		}
 		throw Error(ERR_BAD_COMBINATION);
 	}
-	void opAMX(const Tmm& t1, const Tmm& t2, const Operand& op, int type, int code0, int imm8 = NONE)
+#ifdef XBYAK64
+	void opAMX(const Tmm& t1, const Address& addr, int type, int code0)
 	{
-		if (!t1.isTMM() || !t2.isTMM()) throw Error(ERR_BAD_COMBINATION);
-		opVex(t1, &t2, op, type, code0, imm8);
+		// addressing without index such as ptr[r8]
+		if (addr.getRegExp().getIndex().getBit() == 0) throw Error(ERR_NOT_SUPPORTED);
+		opVex(t1, &tmm0, addr, type, code0);
 	}
+#endif
 public:
 	unsigned int getVersion() const { return VERSION; }
 	using CodeArray::db;
