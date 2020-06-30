@@ -1793,10 +1793,35 @@ void put64()
 	puts("void vmovq(const Reg64& r, const Xmm& x) { opAVX_X_X_XM(x, xm0, Xmm(r.getIdx()), T_66 | T_0F | T_W1 | T_EVEX | T_EW1, 0x7E); }");
 }
 
+void putAMX_TILE()
+{
+	puts("void ldtilecfg(const Address& addr) { opVex(tmm0, &tmm0, addr, T_0F38 | T_W0, 0x49); }");
+	puts("void sttilecfg(const Address& addr) { opVex(tmm0, &tmm0, addr, T_66 | T_0F38 | T_W0, 0x49); }");
+	puts("void tileloadd(const Tmm& tm, const Address& addr) { opAMX(tm, addr, T_F2 | T_0F38 | T_W0, 0x4b); }");
+	puts("void tileloaddt1(const Tmm& tm, const Address& addr) { opAMX(tm, addr, T_66 | T_0F38 | T_W0, 0x4b); }");
+	puts("void tilerelease() { db(0xc4); db(0xe2); db(0x78); db(0x49); db(0xc0); }");
+	puts("void tilestored(const Address& addr, const Tmm& tm) { opVex(tm, &tmm0, addr, T_F3 | T_0F38 | T_W0, 0x4b); }");
+	puts("void tilezero(const Tmm& Tmm) { opVex(Tmm, &tmm0, tmm0, T_F2 | T_0F38 | T_W0, 0x49); }");
+}
+void putAMX_INT8()
+{
+	puts("void tdpbssd(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, T_F2 | T_0F38 | T_W0, 0x5e); }");
+	puts("void tdpbsud(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, T_F3 | T_0F38 | T_W0, 0x5e); }");
+	puts("void tdpbusd(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, T_66 | T_0F38 | T_W0, 0x5e); }");
+	puts("void tdpbuud(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, T_0F38 | T_W0, 0x5e); }");
+}
+void putAMX_BF16()
+{
+	puts("void tdpbf16ps(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, T_F3 | T_0F38 | T_W0, 0x5c); }");
+}
+
 void putFixed()
 {
 	puts("#ifdef XBYAK64");
 	put64();
+	putAMX_TILE();
+	putAMX_INT8();
+	putAMX_BF16();
 	puts("#else");
 	put32();
 	puts("#endif");
