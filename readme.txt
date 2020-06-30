@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.912
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.920
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -371,6 +371,8 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2020/06/30 ver 5.92 Intel AMX命令サポート (Thanks to nshustrov)
+2020/06/19 ver 5.913 32ビット環境でXBYAK64を定義したときのmov(r64, imm64)を修正
 2020/06/19 ver 5.912 macOSの古いXcodeでもMAP_JITを有効にする(Thanks to rsdubtso)
 2020/05/10 ver 5.911 Linux/macOSでXBYAK_USE_MMAP_ALLOCATORがデフォルト有効になる
 2020/04/20 ver 5.91 マスクレジスタk0を受け入れる(マスクをしない)
