@@ -3,6 +3,7 @@
 #include <string>
 #define XBYAK_NO_OP_NAMES
 #include <xbyak/xbyak.h>
+#include <xbyak/xbyak_error.h>
 #include <cybozu/inttype.hpp>
 #include <cybozu/test.hpp>
 
@@ -32,6 +33,75 @@ CYBOZU_TEST_AUTO(compOperand)
 	CYBOZU_TEST_ASSERT(dword[eax] != ptr[eax]);
 	CYBOZU_TEST_ASSERT(ptr[eax] != ptr[eax+3]);
 }
+
+#ifdef XBYAK_NOEXCEPT
+CYBOZU_TEST_AUTO(outOfMemory)
+{
+	// Custom memory allocator that does not allocate anything
+	struct EmptyAllocator : public Xbyak::Allocator {
+		uint8 *alloc(size_t size) { (void) size; return (uint8 *) 0; }
+	};
+
+	static EmptyAllocator empty_allocator;
+
+	struct Code : Xbyak::CodeGenerator {
+		Code() : Xbyak::CodeGenerator(4096, 0, &empty_allocator) 
+		{
+			CYBOZU_TEST_EXCEPTION(mov(eax, 123), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(mov(ebx, 123), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(L("l"), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(add(eax, ebx), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(jmp("l"), Xbyak::Error);
+		}
+	} code;
+}
+
+CYBOZU_TEST_AUTO(mmapFail)
+{
+	// Custom memory allocator that makes mmap fail
+	struct MmapAllocator : public Xbyak::Allocator {
+		uint8 *alloc(size_t size)
+		{
+			const size_t alignedSizeM1 = inner::ALIGN_PAGE_SIZE - 1;
+			size = (size + alignedSizeM1) & ~alignedSizeM1;
+	#if defined(XBYAK_USE_MAP_JIT)
+			int mode = MAP_PRIVATE | MAP_ANONYMOUS;
+			const int mojaveVersion = 18;
+			if (util::getMacOsVersion() >= mojaveVersion) mode |= MAP_JIT;
+	#elif defined(MAP_ANONYMOUS)
+			const int mode = MAP_PRIVATE | MAP_ANONYMOUS;
+	#elif defined(MAP_ANON)
+			const int mode = MAP_PRIVATE | MAP_ANON;
+	#else
+			#error "not supported"
+	#endif
+			// void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, mode, -1, 0);
+			(void) mode;
+			void *p = MAP_FAILED;
+			if (p == MAP_FAILED) {
+				XBYAK_SET_STATUS(ERR_CANT_ALLOC);
+				return 0;
+			}
+			assert(p);
+			return (uint8*)p;
+		}
+	};
+
+	static MmapAllocator mmap_allocator;
+
+	struct Code : Xbyak::CodeGenerator {
+		Code() : Xbyak::CodeGenerator(4096, 0, &mmap_allocator) 
+		{
+			CYBOZU_TEST_EXCEPTION(mov(eax, 123), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(mov(ebx, 123), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(L("l"), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(add(eax, ebx), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(jmp("l"), Xbyak::Error);
+		}
+	} code;
+}
+
+#endif
 
 CYBOZU_TEST_AUTO(mov_const)
 {

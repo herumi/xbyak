@@ -18,6 +18,8 @@
 	#include <stdint.h>
 #endif
 
+#include "xbyak/xbyak_error.h"
+
 namespace cybozu { namespace test {
 
 class AutoRun {
@@ -261,6 +263,7 @@ int main(int argc, char *argv[])
 	std::string _cybozu_errMsg; \
 	try { \
 		statement; \
+        if (XBYAK_GET_STATUS == Xbyak::ERR_NONE) \
 		_cybozu_ret = 1; \
 	} catch (const Exception& _cybozu_e) { \
 		_cybozu_errMsg = _cybozu_e.what(); \
@@ -289,6 +292,7 @@ int main(int argc, char *argv[])
 	int _cybozu_ret = 0; \
 	try { \
 		statement; \
+        if (XBYAK_GET_STATUS == Xbyak::ERR_NONE) \
 		_cybozu_ret = 1; \
 	} catch (const Exception&) { \
 	} catch (...) { \
