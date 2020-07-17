@@ -39,7 +39,7 @@
 	#endif
 #else
 	#ifndef __GNUC_PREREQ
-    	#define __GNUC_PREREQ(major, minor) ((((__GNUC__) << 16) + (__GNUC_MINOR__)) >= (((major) << 16) + (minor)))
+		#define __GNUC_PREREQ(major, minor) ((((__GNUC__) << 16) + (__GNUC_MINOR__)) >= (((major) << 16) + (minor)))
 	#endif
 	#if __GNUC_PREREQ(4, 3) && !defined(__APPLE__)
 		#include <cpuid.h>
@@ -68,6 +68,8 @@
 #ifdef __linux__
 	#define XBYAK_USE_PERF
 #endif
+
+#include "xbyak_error.h"
 
 namespace Xbyak { namespace util {
 
@@ -220,23 +222,32 @@ public:
 	int displayModel; // model + extModel
 
 	unsigned int getNumCores(IntelCpuTopologyLevel level) {
-		if (!x2APIC_supported_) throw Error(ERR_X2APIC_IS_NOT_SUPPORTED);
+		if (!x2APIC_supported_) {
+			XBYAK_SET_STATUS(ERR_X2APIC_IS_NOT_SUPPORTED);
+			return 0;
+		}
 		switch (level) {
 		case SmtLevel: return numCores_[level - 1];
 		case CoreLevel: return numCores_[level - 1] / numCores_[SmtLevel - 1];
-		default: throw Error(ERR_X2APIC_IS_NOT_SUPPORTED);
+		default: XBYAK_SET_STATUS(ERR_X2APIC_IS_NOT_SUPPORTED); return 0;
 		}
 	}
 
 	unsigned int getDataCacheLevels() const { return dataCacheLevels_; }
 	unsigned int getCoresSharingDataCache(unsigned int i) const
 	{
-		if (i >= dataCacheLevels_) throw  Error(ERR_BAD_PARAMETER);
+		if (i >= dataCacheLevels_) {
+			XBYAK_SET_STATUS(ERR_BAD_PARAMETER);
+			return 0;
+		}
 		return coresSharignDataCache_[i];
 	}
 	unsigned int getDataCacheSize(unsigned int i) const
 	{
-		if (i >= dataCacheLevels_) throw  Error(ERR_BAD_PARAMETER);
+		if (i >= dataCacheLevels_) {
+			XBYAK_SET_STATUS(ERR_BAD_PARAMETER);
+			return 0;
+		}
 		return dataCacheSize_[i];
 	}
 
@@ -564,7 +575,10 @@ public:
 	{
 		if (n_ == maxTblNum) {
 			fprintf(stderr, "ERR Pack::can't append\n");
-			throw Error(ERR_BAD_PARAMETER);
+			{
+				XBYAK_SET_STATUS(ERR_BAD_PARAMETER);
+				return *this;
+			}
 		}
 		tbl_[n_++] = &t;
 		return *this;
@@ -573,7 +587,10 @@ public:
 	{
 		if (n > maxTblNum) {
 			fprintf(stderr, "ERR Pack::init bad n=%d\n", (int)n);
-			throw Error(ERR_BAD_PARAMETER);
+			{
+				XBYAK_SET_STATUS(ERR_BAD_PARAMETER);
+				return;
+			}
 		}
 		n_ = n;
 		for (size_t i = 0; i < n; i++) {
@@ -584,7 +601,10 @@ public:
 	{
 		if (n >= n_) {
 			fprintf(stderr, "ERR Pack bad n=%d(%d)\n", (int)n, (int)n_);
-			throw Error(ERR_BAD_PARAMETER);
+			{
+				XBYAK_SET_STATUS(ERR_BAD_PARAMETER);
+				return *tbl_[ERR_BAD_PARAMETER];
+			}
 		}
 		return *tbl_[n];
 	}
@@ -597,7 +617,10 @@ public:
 		if (num == size_t(-1)) num = n_ - pos;
 		if (pos + num > n_) {
 			fprintf(stderr, "ERR Pack::sub bad pos=%d, num=%d\n", (int)pos, (int)num);
-			throw Error(ERR_BAD_PARAMETER);
+			{
+				XBYAK_SET_STATUS(ERR_BAD_PARAMETER);
+				return Pack();
+			}
 		}
 		Pack pack;
 		pack.n_ = num;
@@ -672,9 +695,15 @@ public:
 		, t(t_)
 	{
 		using namespace Xbyak;
-		if (pNum < 0 || pNum > 4) throw Error(ERR_BAD_PNUM);
+		if (pNum < 0 || pNum > 4) {
+			XBYAK_SET_STATUS(ERR_BAD_PNUM);
+			return;
+		}
 		const int allRegNum = pNum + tNum_ + (useRcx_ ? 1 : 0) + (useRdx_ ? 1 : 0);
-		if (tNum_ < 0 || allRegNum > maxRegNum) throw Error(ERR_BAD_TNUM);
+		if (tNum_ < 0 || allRegNum > maxRegNum) {
+			XBYAK_SET_STATUS(ERR_BAD_TNUM);
+			return;
+		}
 		const Reg64& _rsp = code->rsp;
 		saveNum_ = (std::max)(0, allRegNum - noSaveNum);
 		const int *tbl = getOrderTbl() + noSaveNum;

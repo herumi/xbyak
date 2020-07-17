@@ -76,10 +76,10 @@ void putOpmask(bool only64bit)
 			printf("void %sd(const Opmask& r1, const Opmask& r2, uint8 imm) { opVex(r1, 0, r2, T_66 | T_0F3A | T_W0, 0x%02X, imm); }\n", p.name, p.code + 1);
 		}
 	}
-	puts("void kmovw(const Opmask& k, const Operand& op) { if (!op.isMEM() && !op.isOPMASK()) throw Error(ERR_BAD_COMBINATION); opVex(k, 0, op, T_L0 | T_0F | T_W0, 0x90); }");
-	puts("void kmovq(const Opmask& k, const Operand& op) { if (!op.isMEM() && !op.isOPMASK()) throw Error(ERR_BAD_COMBINATION); opVex(k, 0, op, T_L0 | T_0F | T_W1, 0x90); }");
-	puts("void kmovb(const Opmask& k, const Operand& op) { if (!op.isMEM() && !op.isOPMASK()) throw Error(ERR_BAD_COMBINATION); opVex(k, 0, op, T_L0 | T_0F | T_66 | T_W0, 0x90); }");
-	puts("void kmovd(const Opmask& k, const Operand& op) { if (!op.isMEM() && !op.isOPMASK()) throw Error(ERR_BAD_COMBINATION); opVex(k, 0, op, T_L0 | T_0F | T_66 | T_W1, 0x90); }");
+	puts("void kmovw(const Opmask& k, const Operand& op) { if (!op.isMEM() && !op.isOPMASK()) XBYAK_SET_STATUS(ERR_BAD_COMBINATION); opVex(k, 0, op, T_L0 | T_0F | T_W0, 0x90); }");
+	puts("void kmovq(const Opmask& k, const Operand& op) { if (!op.isMEM() && !op.isOPMASK()) XBYAK_SET_STATUS(ERR_BAD_COMBINATION); opVex(k, 0, op, T_L0 | T_0F | T_W1, 0x90); }");
+	puts("void kmovb(const Opmask& k, const Operand& op) { if (!op.isMEM() && !op.isOPMASK()) XBYAK_SET_STATUS(ERR_BAD_COMBINATION); opVex(k, 0, op, T_L0 | T_0F | T_66 | T_W0, 0x90); }");
+	puts("void kmovd(const Opmask& k, const Operand& op) { if (!op.isMEM() && !op.isOPMASK()) XBYAK_SET_STATUS(ERR_BAD_COMBINATION); opVex(k, 0, op, T_L0 | T_0F | T_66 | T_W1, 0x90); }");
 
 	puts("void kmovw(const Address& addr, const Opmask& k) { opVex(k, 0, addr, T_L0 | T_0F | T_W0, 0x91); }");
 	puts("void kmovq(const Address& addr, const Opmask& k) { opVex(k, 0, addr, T_L0 | T_0F | T_W1, 0x91); }");
@@ -424,7 +424,7 @@ void putExtractInsert()
 			const Tbl& p = tbl[i];
 			std::string type = type2String(p.type);
 			const char *kind = p.isZMM ? "Operand::MEM | Operand::YMM" : "Operand::MEM | Operand::XMM";
-			printf("void %s(const Operand& op, const %s& r, uint8 imm) { if (!op.is(%s)) throw Error(ERR_BAD_COMBINATION); opVex(r, 0, op, %s, 0x%2X, imm); }\n", p.name, p.isZMM ? "Zmm" : "Ymm", kind, type.c_str(), p.code);
+			printf("void %s(const Operand& op, const %s& r, uint8 imm) { if (!op.is(%s)) XBYAK_SET_STATUS(ERR_BAD_COMBINATION); opVex(r, 0, op, %s, 0x%2X, imm); }\n", p.name, p.isZMM ? "Zmm" : "Ymm", kind, type.c_str(), p.code);
 		}
 	}
 	{
@@ -450,7 +450,7 @@ void putExtractInsert()
 			const char *x = p.isZMM ? "Zmm" : "Ymm";
 			const char *cond = p.isZMM ? "op.is(Operand::MEM | Operand::YMM)" : "(r1.getKind() == r2.getKind() && op.is(Operand::MEM | Operand::XMM))";
 			printf("void %s(const %s& r1, const %s& r2, const Operand& op, uint8 imm) {"
-				"if (!%s) throw Error(ERR_BAD_COMBINATION); "
+				"if (!%s) XBYAK_SET_STATUS(ERR_BAD_COMBINATION); "
 				"opVex(r1, &r2, op, %s, 0x%2X, imm); }\n", p.name, x, x, cond, type.c_str(), p.code);
 		}
 	}
@@ -708,16 +708,16 @@ void putMisc()
 		}
 	}
 
-	puts("void vfpclasspd(const Opmask& k, const Operand& op, uint8 imm) { if (!op.isBit(128|256|512)) throw Error(ERR_BAD_MEM_SIZE); opVex(k.changeBit(op.getBit()), 0, op, T_66 | T_0F3A | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, 0x66, imm); }");
-	puts("void vfpclassps(const Opmask& k, const Operand& op, uint8 imm) { if (!op.isBit(128|256|512)) throw Error(ERR_BAD_MEM_SIZE); opVex(k.changeBit(op.getBit()), 0, op, T_66 | T_0F3A | T_MUST_EVEX | T_YMM | T_EW0 | T_B32, 0x66, imm); }");
-	puts("void vfpclasssd(const Opmask& k, const Operand& op, uint8 imm) { if (!op.isXMEM()) throw Error(ERR_BAD_MEM_SIZE); opVex(k, 0, op, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_N8, 0x67, imm); }");
-	puts("void vfpclassss(const Opmask& k, const Operand& op, uint8 imm) { if (!op.isXMEM()) throw Error(ERR_BAD_MEM_SIZE); opVex(k, 0, op, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_N4, 0x67, imm); }");
+	puts("void vfpclasspd(const Opmask& k, const Operand& op, uint8 imm) { if (!op.isBit(128|256|512)) XBYAK_SET_STATUS(ERR_BAD_MEM_SIZE); opVex(k.changeBit(op.getBit()), 0, op, T_66 | T_0F3A | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, 0x66, imm); }");
+	puts("void vfpclassps(const Opmask& k, const Operand& op, uint8 imm) { if (!op.isBit(128|256|512)) XBYAK_SET_STATUS(ERR_BAD_MEM_SIZE); opVex(k.changeBit(op.getBit()), 0, op, T_66 | T_0F3A | T_MUST_EVEX | T_YMM | T_EW0 | T_B32, 0x66, imm); }");
+	puts("void vfpclasssd(const Opmask& k, const Operand& op, uint8 imm) { if (!op.isXMEM()) XBYAK_SET_STATUS(ERR_BAD_MEM_SIZE); opVex(k, 0, op, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_N8, 0x67, imm); }");
+	puts("void vfpclassss(const Opmask& k, const Operand& op, uint8 imm) { if (!op.isXMEM()) XBYAK_SET_STATUS(ERR_BAD_MEM_SIZE); opVex(k, 0, op, T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_N4, 0x67, imm); }");
 
 	puts("void vpshufbitqmb(const Opmask& k, const Xmm& x, const Operand& op) { opVex(k, &x, op, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX, 0x8F); }");
 	puts("void vcvtneps2bf16(const Xmm& x, const Operand& op) { opCvt2(x, op, T_F3 | T_0F38 | T_EW0 | T_YMM | T_SAE_Z | T_MUST_EVEX | T_B32, 0x72); }");
 
-	puts("void vp2intersectd(const Opmask& k, const Xmm& x, const Operand& op) { if (k.getOpmaskIdx() != 0) throw Error(ERR_OPMASK_IS_ALREADY_SET); opAVX_K_X_XM(k, x, op, T_F2 | T_0F38 | T_YMM | T_EVEX | T_EW0 | T_B32, 0x68); }");
-	puts("void vp2intersectq(const Opmask& k, const Xmm& x, const Operand& op) { if (k.getOpmaskIdx() != 0) throw Error(ERR_OPMASK_IS_ALREADY_SET); opAVX_K_X_XM(k, x, op, T_F2 | T_0F38 | T_YMM | T_EVEX | T_EW1 | T_B64, 0x68); }");
+	puts("void vp2intersectd(const Opmask& k, const Xmm& x, const Operand& op) { if (k.getOpmaskIdx() != 0) XBYAK_SET_STATUS(ERR_OPMASK_IS_ALREADY_SET); opAVX_K_X_XM(k, x, op, T_F2 | T_0F38 | T_YMM | T_EVEX | T_EW0 | T_B32, 0x68); }");
+	puts("void vp2intersectq(const Opmask& k, const Xmm& x, const Operand& op) { if (k.getOpmaskIdx() != 0) XBYAK_SET_STATUS(ERR_OPMASK_IS_ALREADY_SET); opAVX_K_X_XM(k, x, op, T_F2 | T_0F38 | T_YMM | T_EVEX | T_EW1 | T_B64, 0x68); }");
 }
 
 void putV4FMA()
