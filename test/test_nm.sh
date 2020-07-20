@@ -25,6 +25,11 @@ else if ($1 == "avx512") then
 	set OPT2="-DXBYAK64 -DUSE_AVX512"
 	set OPT3=win64
 	set FILTER=./normalize_prefix
+else if ($1 == "noexcept") then
+	echo "nasm(32bit) without exception"
+	set EXE=nasm
+	set OPT2="-DXBYAK32 -DXBYAK_NOEXCEPTION"
+	set OPT3=win32
 else
 	echo "nasm(32bit)"
 	set EXE=nasm
@@ -33,7 +38,7 @@ else
 endif
 
 set CFLAGS="-Wall -fno-operator-names -I../ $OPT2"
-echo "compile make_nm.cpp"
+echo "compile make_nm.cpp with $CFLAGS"
 g++ $CFLAGS make_nm.cpp -o make_nm
 
 ./make_nm > a.asm
