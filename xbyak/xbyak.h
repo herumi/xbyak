@@ -258,7 +258,7 @@ inline const char *ConvertErrorToString(int err)
 #ifdef XBYAK_NOEXCEPTION
 namespace local {
 
-XBYAK_TLS int l_err = 0;
+static XBYAK_TLS int l_err = 0;
 inline void SetError(int err) { if (err) l_err = err; } // keep the first err code
 
 } // local
