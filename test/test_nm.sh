@@ -28,7 +28,7 @@ else if ($1 == "avx512") then
 else if ($1 == "noexcept") then
 	echo "nasm(32bit) without exception"
 	set EXE=nasm
-	set OPT2="-DXBYAK32 -DXBYAK_NOEXCEPTION"
+	set OPT2="-DXBYAK32 -DXBYAK_NO_EXCEPTION"
 	set OPT3=win32
 else
 	echo "nasm(32bit)"

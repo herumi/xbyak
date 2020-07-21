@@ -255,7 +255,7 @@ inline const char *ConvertErrorToString(int err)
 	return err <= ERR_INTERNAL ? errTbl[err] : "unknown err";
 }
 
-#ifdef XBYAK_NOEXCEPTION
+#ifdef XBYAK_NO_EXCEPTION
 namespace local {
 
 static XBYAK_TLS int l_err = 0;

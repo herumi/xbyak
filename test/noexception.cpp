@@ -1,4 +1,4 @@
-#define XBYAK_NOEXCEPTION
+#define XBYAK_NO_EXCEPTION
 #include <xbyak/xbyak.h>
 
 using namespace Xbyak;

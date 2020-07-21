@@ -22,7 +22,7 @@ class ErrorSample : public CodeGenerator {
 public:
 	void gen()
 	{
-#ifndef XBYAK_NOEXCEPTION
+#ifndef XBYAK_NO_EXCEPTION
 		CYBOZU_TEST_EXCEPTION(mov(ptr[eax],1), std::exception);
 		CYBOZU_TEST_EXCEPTION(test(ptr[eax],1), std::exception);
 		CYBOZU_TEST_EXCEPTION(adc(ptr[eax],1), std::exception);
