@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.920
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.93
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -29,7 +29,6 @@ and, orなどを使いたい場合は-fno-operator-namesをgcc/clangに指定し
 ◎準備
 xbyak.h
 xbyak_bin2hex.h
-xbyak_mnemonic.h
 これらを同一のパスに入れてインクルードパスに追加してください。
 
 Linuxではmake installで/usr/local/include/xbyakにコピーされます。
@@ -44,6 +43,12 @@ Linuxではmake installで/usr/local/include/xbyakにコピーされます。
 
 -----------------------------------------------------------------------------
 ◎新機能
+
+例外なしモード追加
+XBYAK_NO_EXCEPTIONを定義してコンパイルするとgcc/clangで-fno-exceptionsオプションでコンパイルできます。
+エラーは例外の代わりに`Xbyak::GetError()`で通達されます。
+この値が0でなければ何か問題が発生しています。
+この値は自動的に変更されないので`Xbyak::ClearError()`でリセットしてください。
 
 MmapAllocator追加
 これはUnix系OSでのみの仕様です。XBYAK_USE_MMAP_ALLOCATORを使うと利用できます。
@@ -371,6 +376,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2020/07/21 ver 5.93 例外なしモード追加
 2020/06/30 ver 5.92 Intel AMX命令サポート (Thanks to nshustrov)
 2020/06/19 ver 5.913 32ビット環境でXBYAK64を定義したときのmov(r64, imm64)を修正
 2020/06/19 ver 5.912 macOSの古いXcodeでもMAP_JITを有効にする(Thanks to rsdubtso)

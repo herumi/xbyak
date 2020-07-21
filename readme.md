@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/herumi/xbyak.png)](https://travis-ci.org/herumi/xbyak)
 
-# Xbyak 5.92 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.93 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -16,6 +16,7 @@ Use `and_()`, `or_()`, ... instead of `and()`, `or()`.
 If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 ### News
+- support exception-less mode see. [Exception-less mode](#exception-less-mode)
 - `XBYAK_USE_MMAP_ALLOCATOR` will be defined on Linux/macOS unless `XBYAK_DONT_USE_MMAP_ALLOCATOR` is defined.
 
 ### Supported OS
@@ -405,15 +406,21 @@ c.setProtectModeRE();
 Call `readyRE()` instead of `ready()` when using `AutoGrow` mode.
 See [protect-re.cpp](sample/protect-re.cpp).
 
+## Exception-less mode
+If `XBYAK_NO_EXCEPTION` is defined, then gcc/clang can compile xbyak with `-fno-exceptions`.
+In stead of throwing an exception, `Xbyak::GetError()` returns non-zero value (e.g. `ERR_BAD_ADDRESSING`) if there is something wrong.
+The status will not be changed automatically, then you should reset it by `Xbyak::ClearError()`.
+
 ## Macro
 
 * **XBYAK32** is defined on 32bit.
 * **XBYAK64** is defined on 64bit.
-* **XBYAK64_WIN** is defined on 64bit Windows(VC)
-* **XBYAK64_GCC** is defined on 64bit gcc, cygwin
+* **XBYAK64_WIN** is defined on 64bit Windows(VC).
+* **XBYAK64_GCC** is defined on 64bit gcc, cygwin.
 * define **XBYAK_USE_OP_NAMES** on gcc with `-fno-operator-names` if you want to use `and()`, ....
-* define **XBYAK_ENABLE_OMITTED_OPERAND** if you use omitted destination such as `vaddps(xmm2, xmm3);`(deprecated in the future)
-* define **XBYAK_UNDEF_JNL** if Bessel function jnl is defined as macro
+* define **XBYAK_ENABLE_OMITTED_OPERAND** if you use omitted destination such as `vaddps(xmm2, xmm3);`(deprecated in the future).
+* define **XBYAK_UNDEF_JNL** if Bessel function jnl is defined as macro.
+* define **XBYAK_NO_EXCEPTION** for a compiler option `-fno-exceptions`.
 
 ## Sample
 
@@ -428,6 +435,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2020/Jul/21 ver 5.93 support exception-less mode
 * 2020/Jun/30 ver 5.92 support Intel AMX instruction set (Thanks to nshustrov)
 * 2020/Jun/22 ver 5.913 fix mov(r64, imm64) on 32-bit env with XBYAK64
 * 2020/Jun/19 ver 5.912 define MAP_JIT on macOS regardless of Xcode version (Thanks to rsdubtso)
