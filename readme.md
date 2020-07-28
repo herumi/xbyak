@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/herumi/xbyak.png)](https://travis-ci.org/herumi/xbyak)
 
-# Xbyak 5.93 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.94 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -16,6 +16,7 @@ Use `and_()`, `or_()`, ... instead of `and()`, `or()`.
 If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 ### News
+- (Windows) `#include <winsock2.h>` has been removed from xbyak.h, so add it explicitly if you need it.
 - support exception-less mode see. [Exception-less mode](#exception-less-mode)
 - `XBYAK_USE_MMAP_ALLOCATOR` will be defined on Linux/macOS unless `XBYAK_DONT_USE_MMAP_ALLOCATOR` is defined.
 
@@ -435,6 +436,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2020/Jul/28 ver 5.94 remove #include <winsock2.h> (only windows)
 * 2020/Jul/21 ver 5.93 support exception-less mode
 * 2020/Jun/30 ver 5.92 support Intel AMX instruction set (Thanks to nshustrov)
 * 2020/Jun/22 ver 5.913 fix mov(r64, imm64) on 32-bit env with XBYAK64
