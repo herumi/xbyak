@@ -72,6 +72,9 @@
 	#define XBYAK_STD_UNORDERED_MULTIMAP std::multimap
 #endif
 #ifdef _WIN32
+	#ifndef WIN32_LEAN_AND_MEAN
+		#define WIN32_LEAN_AND_MEAN
+	#endif
 	#include <windows.h>
 	#include <malloc.h>
 	#define XBYAK_TLS __declspec(thread)
@@ -121,7 +124,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5930 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5940 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
