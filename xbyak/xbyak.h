@@ -124,7 +124,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5940 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5941 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1408,6 +1408,7 @@ public:
 		clabelDefList_.clear();
 		clabelUndefList_.clear();
 		resetLabelPtrList();
+		ClearError();
 	}
 	void enterLocal()
 	{

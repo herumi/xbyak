@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.94
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.941
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -50,6 +50,7 @@ XBYAK_NO_EXCEPTIONを定義してコンパイルするとgcc/clangで-fno-except
 エラーは例外の代わりに`Xbyak::GetError()`で通達されます。
 この値が0でなければ何か問題が発生しています。
 この値は自動的に変更されないので`Xbyak::ClearError()`でリセットしてください。
+`CodeGenerator::reset()`は`ClearError()`を呼びます。
 
 MmapAllocator追加
 これはUnix系OSでのみの仕様です。XBYAK_USE_MMAP_ALLOCATORを使うと利用できます。
@@ -377,6 +378,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2020/08/04 ver 5.941 `CodeGenerator::reset()`が`ClearError()`を呼ぶように変更
 2020/07/28 ver 5.94 #include <winsock2.h>の削除 (only windows)
 2020/07/21 ver 5.93 例外なしモード追加
 2020/06/30 ver 5.92 Intel AMX命令サポート (Thanks to nshustrov)

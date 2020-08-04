@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/herumi/xbyak.png)](https://travis-ci.org/herumi/xbyak)
 
-# Xbyak 5.94 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.941 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -411,6 +411,7 @@ See [protect-re.cpp](sample/protect-re.cpp).
 If `XBYAK_NO_EXCEPTION` is defined, then gcc/clang can compile xbyak with `-fno-exceptions`.
 In stead of throwing an exception, `Xbyak::GetError()` returns non-zero value (e.g. `ERR_BAD_ADDRESSING`) if there is something wrong.
 The status will not be changed automatically, then you should reset it by `Xbyak::ClearError()`.
+`CodeGenerator::reset()` calls `ClearError()`.
 
 ## Macro
 
@@ -436,6 +437,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2020/Aug/04 ver 5.941 `CodeGenerator::reset()` calls `ClearError()`.
 * 2020/Jul/28 ver 5.94 remove #include <winsock2.h> (only windows)
 * 2020/Jul/21 ver 5.93 support exception-less mode
 * 2020/Jun/30 ver 5.92 support Intel AMX instruction set (Thanks to nshustrov)
