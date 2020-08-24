@@ -1145,6 +1145,33 @@ class Test {
 		put("pop", REG32|MEM32);
 #endif
 	}
+	void putPushPop8_16() const
+	{
+		const struct {
+			int b;
+			uint32_t v;
+		} tbl[] = {
+			{ 8, 0x7f },
+			{ 8, 0x80 },
+			{ 8, 0xff },
+			{ 8, 0x100 },
+			{ 8, 0x12345 },
+			{ 16, 0x7fff },
+			{ 16, 0x8000 },
+			{ 16, 0xffff },
+			{ 16, 0x10000 },
+			{ 16, 0x12345 },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const char *b = tbl[i].b == 8 ? "byte" : "word";
+			uint32_t v = tbl[i].v;
+			if (isXbyak_) {
+				printf("push(%s, 0x%x);dump();\n", b, v);
+			} else {
+				printf("push %s 0x%x\n", b, v);
+			}
+		}
+	}
 	void putTest() const
 	{
 		const char *p = "test";
@@ -2496,6 +2523,7 @@ public:
 		separateFunc();
 		putSSE4_2();
 		putSeg(); // same behavior as yasm for mov rax, cx
+		putPushPop8_16();
 #else
 		putSIMPLE();
 		putReg1();

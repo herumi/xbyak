@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/herumi/xbyak.png)](https://travis-ci.org/herumi/xbyak)
 
-# Xbyak 5.941 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.95 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -16,6 +16,7 @@ Use `and_()`, `or_()`, ... instead of `and()`, `or()`.
 If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 ### News
+- (break backward compatibility) `push(byte, imm)` (resp. `push(word, imm)`) forces to cast `imm` to 8(resp. 16) bit.
 - (Windows) `#include <winsock2.h>` has been removed from xbyak.h, so add it explicitly if you need it.
 - support exception-less mode see. [Exception-less mode](#exception-less-mode)
 - `XBYAK_USE_MMAP_ALLOCATOR` will be defined on Linux/macOS unless `XBYAK_DONT_USE_MMAP_ALLOCATOR` is defined.

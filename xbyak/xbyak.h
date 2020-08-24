@@ -126,7 +126,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x5941 /* 0xABCD = A.BC(D) */
+	VERSION = 0x5950 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -2433,9 +2433,9 @@ public:
 	void pop(const Operand& op) { opPushPop(op, 0x8F, 0, 0x58); }
 	void push(const AddressFrame& af, uint32 imm)
 	{
-		if (af.bit_ == 8 && inner::IsInDisp8(imm)) {
+		if (af.bit_ == 8) {
 			db(0x6A); db(imm);
-		} else if (af.bit_ == 16 && isInDisp16(imm)) {
+		} else if (af.bit_ == 16) {
 			db(0x66); db(0x68); dw(imm);
 		} else {
 			db(0x68); dd(imm);

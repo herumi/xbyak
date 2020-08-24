@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.941
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.95
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -34,6 +34,7 @@ xbyak_bin2hex.h
 Linuxではmake installで/usr/local/include/xbyakにコピーされます。
 -----------------------------------------------------------------------------
 ◎下位互換性の破れ
+* push byte, immまたはpush word, immが下位8bit, 16bitにキャストした値を使うように変更。
 * (Windows) `<winsock2.h>`をincludeしなくなったので必要なら明示的にincludeしてください。
 * XBYAK_USE_MMAP_ALLOCATORがデフォルトで有効になりました。従来の方式にする場合はXBYAK_DONT_USE_MMAP_ALLOCATORを定義してください。
 * Xbyak::Errorの型をenumからclassに変更
