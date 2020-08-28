@@ -114,6 +114,12 @@
 	#define XBYAK_VARIADIC_TEMPLATE
 #endif
 
+#if (__cplusplus >= 201402L) || (_MSC_VER >= 1910) // Visual Studio 2017 version 15.0
+	#define XBYAK_CONSTEXPR constexpr // require c++14 or later
+#else
+	#define XBYAK_CONSTEXPR
+#endif
+
 #ifdef _MSC_VER
 	#pragma warning(push)
 	#pragma warning(disable : 4514) /* remove inline function */
@@ -466,8 +472,8 @@ public:
 		AX = 0, CX, DX, BX, SP, BP, SI, DI,
 		AL = 0, CL, DL, BL, AH, CH, DH, BH
 	};
-	Operand() : idx_(0), kind_(0), bit_(0), zero_(0), mask_(0), rounding_(0) { }
-	Operand(int idx, Kind kind, int bit, bool ext8bit = 0)
+	XBYAK_CONSTEXPR Operand() : idx_(0), kind_(0), bit_(0), zero_(0), mask_(0), rounding_(0) { }
+	XBYAK_CONSTEXPR Operand(int idx, Kind kind, int bit, bool ext8bit = 0)
 		: idx_(static_cast<uint8>(idx | (ext8bit ? EXT8BIT : 0)))
 		, kind_(kind)
 		, bit_(bit)
@@ -475,30 +481,30 @@ public:
 	{
 		assert((bit_ & (bit_ - 1)) == 0); // bit must be power of two
 	}
-	Kind getKind() const { return static_cast<Kind>(kind_); }
-	int getIdx() const { return idx_ & (EXT8BIT - 1); }
-	bool isNone() const { return kind_ == 0; }
-	bool isMMX() const { return is(MMX); }
-	bool isXMM() const { return is(XMM); }
-	bool isYMM() const { return is(YMM); }
-	bool isZMM() const { return is(ZMM); }
-	bool isTMM() const { return is(TMM); }
-	bool isXMEM() const { return is(XMM | MEM); }
-	bool isYMEM() const { return is(YMM | MEM); }
-	bool isZMEM() const { return is(ZMM | MEM); }
-	bool isOPMASK() const { return is(OPMASK); }
-	bool isBNDREG() const { return is(BNDREG); }
-	bool isREG(int bit = 0) const { return is(REG, bit); }
-	bool isMEM(int bit = 0) const { return is(MEM, bit); }
-	bool isFPU() const { return is(FPU); }
-	bool isExt8bit() const { return (idx_ & EXT8BIT) != 0; }
-	bool isExtIdx() const { return (getIdx() & 8) != 0; }
-	bool isExtIdx2() const { return (getIdx() & 16) != 0; }
-	bool hasEvex() const { return isZMM() || isExtIdx2() || getOpmaskIdx() || getRounding(); }
-	bool hasRex() const { return isExt8bit() || isREG(64) || isExtIdx(); }
-	bool hasZero() const { return zero_; }
-	int getOpmaskIdx() const { return mask_; }
-	int getRounding() const { return rounding_; }
+	XBYAK_CONSTEXPR Kind getKind() const { return static_cast<Kind>(kind_); }
+	XBYAK_CONSTEXPR int getIdx() const { return idx_ & (EXT8BIT - 1); }
+	XBYAK_CONSTEXPR bool isNone() const { return kind_ == 0; }
+	XBYAK_CONSTEXPR bool isMMX() const { return is(MMX); }
+	XBYAK_CONSTEXPR bool isXMM() const { return is(XMM); }
+	XBYAK_CONSTEXPR bool isYMM() const { return is(YMM); }
+	XBYAK_CONSTEXPR bool isZMM() const { return is(ZMM); }
+	XBYAK_CONSTEXPR bool isTMM() const { return is(TMM); }
+	XBYAK_CONSTEXPR bool isXMEM() const { return is(XMM | MEM); }
+	XBYAK_CONSTEXPR bool isYMEM() const { return is(YMM | MEM); }
+	XBYAK_CONSTEXPR bool isZMEM() const { return is(ZMM | MEM); }
+	XBYAK_CONSTEXPR bool isOPMASK() const { return is(OPMASK); }
+	XBYAK_CONSTEXPR bool isBNDREG() const { return is(BNDREG); }
+	XBYAK_CONSTEXPR bool isREG(int bit = 0) const { return is(REG, bit); }
+	XBYAK_CONSTEXPR bool isMEM(int bit = 0) const { return is(MEM, bit); }
+	XBYAK_CONSTEXPR bool isFPU() const { return is(FPU); }
+	XBYAK_CONSTEXPR bool isExt8bit() const { return (idx_ & EXT8BIT) != 0; }
+	XBYAK_CONSTEXPR bool isExtIdx() const { return (getIdx() & 8) != 0; }
+	XBYAK_CONSTEXPR bool isExtIdx2() const { return (getIdx() & 16) != 0; }
+	XBYAK_CONSTEXPR bool hasEvex() const { return isZMM() || isExtIdx2() || getOpmaskIdx() || getRounding(); }
+	XBYAK_CONSTEXPR bool hasRex() const { return isExt8bit() || isREG(64) || isExtIdx(); }
+	XBYAK_CONSTEXPR bool hasZero() const { return zero_; }
+	XBYAK_CONSTEXPR int getOpmaskIdx() const { return mask_; }
+	XBYAK_CONSTEXPR int getRounding() const { return rounding_; }
 	void setKind(Kind kind)
 	{
 		if ((kind & (XMM|YMM|ZMM|TMM)) == 0) return;
@@ -527,12 +533,12 @@ public:
 		return AH <= idx && idx <= BH;
 	}
 	// any bit is accetable if bit == 0
-	bool is(int kind, uint32 bit = 0) const
+	XBYAK_CONSTEXPR bool is(int kind, uint32 bit = 0) const
 	{
 		return (kind == 0 || (kind_ & kind)) && (bit == 0 || (bit_ & bit)); // cf. you can set (8|16)
 	}
-	bool isBit(uint32 bit) const { return (bit_ & bit) != 0; }
-	uint32 getBit() const { return bit_; }
+	XBYAK_CONSTEXPR bool isBit(uint32 bit) const { return (bit_ & bit) != 0; }
+	XBYAK_CONSTEXPR uint32 getBit() const { return bit_; }
 	const char *toString() const
 	{
 		const int idx = getIdx();
@@ -647,8 +653,8 @@ struct Reg64;
 #endif
 class Reg : public Operand {
 public:
-	Reg() { }
-	Reg(int idx, Kind kind, int bit = 0, bool ext8bit = false) : Operand(idx, kind, bit, ext8bit) { }
+	XBYAK_CONSTEXPR Reg() { }
+	XBYAK_CONSTEXPR Reg(int idx, Kind kind, int bit = 0, bool ext8bit = false) : Operand(idx, kind, bit, ext8bit) { }
 	// convert to Reg8/Reg16/Reg32/Reg64/XMM/YMM/ZMM
 	Reg changeBit(int bit) const { Reg r(*this); r.setBit(bit); return r; }
 	uint8 getRexW() const { return isREG(64) ? 8 : 0; }
@@ -676,15 +682,15 @@ inline const Reg& Operand::getReg() const
 }
 
 struct Reg8 : public Reg {
-	explicit Reg8(int idx = 0, bool ext8bit = false) : Reg(idx, Operand::REG, 8, ext8bit) { }
+	explicit XBYAK_CONSTEXPR Reg8(int idx = 0, bool ext8bit = false) : Reg(idx, Operand::REG, 8, ext8bit) { }
 };
 
 struct Reg16 : public Reg {
-	explicit Reg16(int idx = 0) : Reg(idx, Operand::REG, 16) { }
+	explicit XBYAK_CONSTEXPR Reg16(int idx = 0) : Reg(idx, Operand::REG, 16) { }
 };
 
 struct Mmx : public Reg {
-	explicit Mmx(int idx = 0, Kind kind = Operand::MMX, int bit = 64) : Reg(idx, kind, bit) { }
+	explicit XBYAK_CONSTEXPR Mmx(int idx = 0, Kind kind = Operand::MMX, int bit = 64) : Reg(idx, kind, bit) { }
 };
 
 struct EvexModifierRounding {
@@ -695,41 +701,41 @@ struct EvexModifierRounding {
 		T_RZ_SAE = 4,
 		T_SAE = 5
 	};
-	explicit EvexModifierRounding(int rounding) : rounding(rounding) {}
+	explicit XBYAK_CONSTEXPR EvexModifierRounding(int rounding) : rounding(rounding) {}
 	int rounding;
 };
-struct EvexModifierZero{EvexModifierZero() {}};
+struct EvexModifierZero{ XBYAK_CONSTEXPR EvexModifierZero() {}};
 
 struct Xmm : public Mmx {
-	explicit Xmm(int idx = 0, Kind kind = Operand::XMM, int bit = 128) : Mmx(idx, kind, bit) { }
-	Xmm(Kind kind, int idx) : Mmx(idx, kind, kind == XMM ? 128 : kind == YMM ? 256 : 512) { }
+	explicit XBYAK_CONSTEXPR Xmm(int idx = 0, Kind kind = Operand::XMM, int bit = 128) : Mmx(idx, kind, bit) { }
+	XBYAK_CONSTEXPR Xmm(Kind kind, int idx) : Mmx(idx, kind, kind == XMM ? 128 : kind == YMM ? 256 : 512) { }
 	Xmm operator|(const EvexModifierRounding& emr) const { Xmm r(*this); r.setRounding(emr.rounding); return r; }
 	Xmm copyAndSetIdx(int idx) const { Xmm ret(*this); ret.setIdx(idx); return ret; }
 	Xmm copyAndSetKind(Operand::Kind kind) const { Xmm ret(*this); ret.setKind(kind); return ret; }
 };
 
 struct Ymm : public Xmm {
-	explicit Ymm(int idx = 0, Kind kind = Operand::YMM, int bit = 256) : Xmm(idx, kind, bit) { }
+	explicit XBYAK_CONSTEXPR Ymm(int idx = 0, Kind kind = Operand::YMM, int bit = 256) : Xmm(idx, kind, bit) { }
 	Ymm operator|(const EvexModifierRounding& emr) const { Ymm r(*this); r.setRounding(emr.rounding); return r; }
 };
 
 struct Zmm : public Ymm {
-	explicit Zmm(int idx = 0) : Ymm(idx, Operand::ZMM, 512) { }
+	explicit XBYAK_CONSTEXPR Zmm(int idx = 0) : Ymm(idx, Operand::ZMM, 512) { }
 	Zmm operator|(const EvexModifierRounding& emr) const { Zmm r(*this); r.setRounding(emr.rounding); return r; }
 };
 
 #ifdef XBYAK64
 struct Tmm : public Reg {
-	explicit Tmm(int idx = 0, Kind kind = Operand::TMM, int bit = 8192) : Reg(idx, kind, bit) { }
+	explicit XBYAK_CONSTEXPR Tmm(int idx = 0, Kind kind = Operand::TMM, int bit = 8192) : Reg(idx, kind, bit) { }
 };
 #endif
 
 struct Opmask : public Reg {
-	explicit Opmask(int idx = 0) : Reg(idx, Operand::OPMASK, 64) {}
+	explicit XBYAK_CONSTEXPR Opmask(int idx = 0) : Reg(idx, Operand::OPMASK, 64) {}
 };
 
 struct BoundsReg : public Reg {
-	explicit BoundsReg(int idx = 0) : Reg(idx, Operand::BNDREG, 128) {}
+	explicit XBYAK_CONSTEXPR BoundsReg(int idx = 0) : Reg(idx, Operand::BNDREG, 128) {}
 };
 
 template<class T>T operator|(const T& x, const Opmask& k) { T r(x); r.setOpmaskIdx(k.getIdx()); return r; }
@@ -737,24 +743,24 @@ template<class T>T operator|(const T& x, const EvexModifierZero&) { T r(x); r.se
 template<class T>T operator|(const T& x, const EvexModifierRounding& emr) { T r(x); r.setRounding(emr.rounding); return r; }
 
 struct Fpu : public Reg {
-	explicit Fpu(int idx = 0) : Reg(idx, Operand::FPU, 32) { }
+	explicit XBYAK_CONSTEXPR Fpu(int idx = 0) : Reg(idx, Operand::FPU, 32) { }
 };
 
 struct Reg32e : public Reg {
-	explicit Reg32e(int idx, int bit) : Reg(idx, Operand::REG, bit) {}
+	explicit XBYAK_CONSTEXPR Reg32e(int idx, int bit) : Reg(idx, Operand::REG, bit) {}
 };
 struct Reg32 : public Reg32e {
-	explicit Reg32(int idx = 0) : Reg32e(idx, 32) {}
+	explicit XBYAK_CONSTEXPR Reg32(int idx = 0) : Reg32e(idx, 32) {}
 };
 #ifdef XBYAK64
 struct Reg64 : public Reg32e {
-	explicit Reg64(int idx = 0) : Reg32e(idx, 64) {}
+	explicit XBYAK_CONSTEXPR Reg64(int idx = 0) : Reg32e(idx, 64) {}
 };
 struct RegRip {
 	sint64 disp_;
 	const Label* label_;
 	bool isAddr_;
-	explicit RegRip(sint64 disp = 0, const Label* label = 0, bool isAddr = false) : disp_(disp), label_(label), isAddr_(isAddr) {}
+	explicit XBYAK_CONSTEXPR RegRip(sint64 disp = 0, const Label* label = 0, bool isAddr = false) : disp_(disp), label_(label), isAddr_(isAddr) {}
 	friend const RegRip operator+(const RegRip& r, int disp) {
 		return RegRip(r.disp_ + disp, r.label_, r.isAddr_);
 	}
@@ -808,7 +814,7 @@ public:
 	enum {
 		es, cs, ss, ds, fs, gs
 	};
-	explicit Segment(int idx) : idx_(idx) { assert(0 <= idx_ && idx_ < 6); }
+	explicit XBYAK_CONSTEXPR Segment(int idx) : idx_(idx) { assert(0 <= idx_ && idx_ < 6); }
 	int getIdx() const { return idx_; }
 	const char *toString() const
 	{
@@ -827,8 +833,8 @@ public:
 #else
 	enum { i32e = 32 };
 #endif
-	RegExp(size_t disp = 0) : scale_(0), disp_(disp) { }
-	RegExp(const Reg& r, int scale = 1)
+	XBYAK_CONSTEXPR RegExp(size_t disp = 0) : scale_(0), disp_(disp) { }
+	XBYAK_CONSTEXPR RegExp(const Reg& r, int scale = 1)
 		: scale_(scale)
 		, disp_(0)
 	{
@@ -860,7 +866,7 @@ public:
 	const Reg& getIndex() const { return index_; }
 	int getScale() const { return scale_; }
 	size_t getDisp() const { return disp_; }
-	void verify() const
+	XBYAK_CONSTEXPR void verify() const
 	{
 		if (base_.getBit() >= 128) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
 		if (index_.getBit() && index_.getBit() <= 64) {
@@ -1166,15 +1172,15 @@ public:
 		M_rip,
 		M_ripAddr
 	};
-	Address(uint32 sizeBit, bool broadcast, const RegExp& e)
+	XBYAK_CONSTEXPR Address(uint32 sizeBit, bool broadcast, const RegExp& e)
 		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), broadcast_(broadcast)
 	{
 		e_.verify();
 	}
 #ifdef XBYAK64
-	explicit Address(size_t disp)
+	explicit XBYAK_CONSTEXPR Address(size_t disp)
 		: Operand(0, MEM, 64), e_(disp), label_(0), mode_(M_64bitDisp), broadcast_(false){ }
-	Address(uint32 sizeBit, bool broadcast, const RegRip& addr)
+	XBYAK_CONSTEXPR Address(uint32 sizeBit, bool broadcast, const RegRip& addr)
 		: Operand(0, MEM, sizeBit), e_(addr.disp_), label_(addr.label_), mode_(addr.isAddr_ ? M_ripAddr : M_rip), broadcast_(broadcast) { }
 #endif
 	RegExp getRegExp(bool optimize = true) const
@@ -1224,7 +1230,7 @@ class AddressFrame {
 public:
 	const uint32 bit_;
 	const bool broadcast_;
-	explicit AddressFrame(uint32 bit, bool broadcast = false) : bit_(bit), broadcast_(broadcast) { }
+	explicit XBYAK_CONSTEXPR AddressFrame(uint32 bit, bool broadcast = false) : bit_(bit), broadcast_(broadcast) { }
 	Address operator[](const RegExp& e) const
 	{
 		return Address(bit_, broadcast_, e);
@@ -2741,39 +2747,39 @@ inline void CodeGenerator::mov(const NativeReg& reg, const char *label) // can't
 }
 
 namespace util {
-static const Mmx mm0(0), mm1(1), mm2(2), mm3(3), mm4(4), mm5(5), mm6(6), mm7(7);
-static const Xmm xmm0(0), xmm1(1), xmm2(2), xmm3(3), xmm4(4), xmm5(5), xmm6(6), xmm7(7);
-static const Ymm ymm0(0), ymm1(1), ymm2(2), ymm3(3), ymm4(4), ymm5(5), ymm6(6), ymm7(7);
-static const Zmm zmm0(0), zmm1(1), zmm2(2), zmm3(3), zmm4(4), zmm5(5), zmm6(6), zmm7(7);
-static const Reg32 eax(Operand::EAX), ecx(Operand::ECX), edx(Operand::EDX), ebx(Operand::EBX), esp(Operand::ESP), ebp(Operand::EBP), esi(Operand::ESI), edi(Operand::EDI);
-static const Reg16 ax(Operand::AX), cx(Operand::CX), dx(Operand::DX), bx(Operand::BX), sp(Operand::SP), bp(Operand::BP), si(Operand::SI), di(Operand::DI);
-static const Reg8 al(Operand::AL), cl(Operand::CL), dl(Operand::DL), bl(Operand::BL), ah(Operand::AH), ch(Operand::CH), dh(Operand::DH), bh(Operand::BH);
-static const AddressFrame ptr(0), byte(8), word(16), dword(32), qword(64), xword(128), yword(256), zword(512);
-static const AddressFrame ptr_b(0, true), xword_b(128, true), yword_b(256, true), zword_b(512, true);
-static const Fpu st0(0), st1(1), st2(2), st3(3), st4(4), st5(5), st6(6), st7(7);
-static const Opmask k0(0), k1(1), k2(2), k3(3), k4(4), k5(5), k6(6), k7(7);
-static const BoundsReg bnd0(0), bnd1(1), bnd2(2), bnd3(3);
-static const EvexModifierRounding T_sae(EvexModifierRounding::T_SAE), T_rn_sae(EvexModifierRounding::T_RN_SAE), T_rd_sae(EvexModifierRounding::T_RD_SAE), T_ru_sae(EvexModifierRounding::T_RU_SAE), T_rz_sae(EvexModifierRounding::T_RZ_SAE);
-static const EvexModifierZero T_z;
+static const XBYAK_CONSTEXPR Mmx mm0(0), mm1(1), mm2(2), mm3(3), mm4(4), mm5(5), mm6(6), mm7(7);
+static const XBYAK_CONSTEXPR Xmm xmm0(0), xmm1(1), xmm2(2), xmm3(3), xmm4(4), xmm5(5), xmm6(6), xmm7(7);
+static const XBYAK_CONSTEXPR Ymm ymm0(0), ymm1(1), ymm2(2), ymm3(3), ymm4(4), ymm5(5), ymm6(6), ymm7(7);
+static const XBYAK_CONSTEXPR Zmm zmm0(0), zmm1(1), zmm2(2), zmm3(3), zmm4(4), zmm5(5), zmm6(6), zmm7(7);
+static const XBYAK_CONSTEXPR Reg32 eax(Operand::EAX), ecx(Operand::ECX), edx(Operand::EDX), ebx(Operand::EBX), esp(Operand::ESP), ebp(Operand::EBP), esi(Operand::ESI), edi(Operand::EDI);
+static const XBYAK_CONSTEXPR Reg16 ax(Operand::AX), cx(Operand::CX), dx(Operand::DX), bx(Operand::BX), sp(Operand::SP), bp(Operand::BP), si(Operand::SI), di(Operand::DI);
+static const XBYAK_CONSTEXPR Reg8 al(Operand::AL), cl(Operand::CL), dl(Operand::DL), bl(Operand::BL), ah(Operand::AH), ch(Operand::CH), dh(Operand::DH), bh(Operand::BH);
+static const XBYAK_CONSTEXPR AddressFrame ptr(0), byte(8), word(16), dword(32), qword(64), xword(128), yword(256), zword(512);
+static const XBYAK_CONSTEXPR AddressFrame ptr_b(0, true), xword_b(128, true), yword_b(256, true), zword_b(512, true);
+static const XBYAK_CONSTEXPR Fpu st0(0), st1(1), st2(2), st3(3), st4(4), st5(5), st6(6), st7(7);
+static const XBYAK_CONSTEXPR Opmask k0(0), k1(1), k2(2), k3(3), k4(4), k5(5), k6(6), k7(7);
+static const XBYAK_CONSTEXPR BoundsReg bnd0(0), bnd1(1), bnd2(2), bnd3(3);
+static const XBYAK_CONSTEXPR EvexModifierRounding T_sae(EvexModifierRounding::T_SAE), T_rn_sae(EvexModifierRounding::T_RN_SAE), T_rd_sae(EvexModifierRounding::T_RD_SAE), T_ru_sae(EvexModifierRounding::T_RU_SAE), T_rz_sae(EvexModifierRounding::T_RZ_SAE);
+static const XBYAK_CONSTEXPR EvexModifierZero T_z;
 #ifdef XBYAK64
-static const Reg64 rax(Operand::RAX), rcx(Operand::RCX), rdx(Operand::RDX), rbx(Operand::RBX), rsp(Operand::RSP), rbp(Operand::RBP), rsi(Operand::RSI), rdi(Operand::RDI), r8(Operand::R8), r9(Operand::R9), r10(Operand::R10), r11(Operand::R11), r12(Operand::R12), r13(Operand::R13), r14(Operand::R14), r15(Operand::R15);
-static const Reg32 r8d(8), r9d(9), r10d(10), r11d(11), r12d(12), r13d(13), r14d(14), r15d(15);
-static const Reg16 r8w(8), r9w(9), r10w(10), r11w(11), r12w(12), r13w(13), r14w(14), r15w(15);
-static const Reg8 r8b(8), r9b(9), r10b(10), r11b(11), r12b(12), r13b(13), r14b(14), r15b(15), spl(Operand::SPL, true), bpl(Operand::BPL, true), sil(Operand::SIL, true), dil(Operand::DIL, true);
-static const Xmm xmm8(8), xmm9(9), xmm10(10), xmm11(11), xmm12(12), xmm13(13), xmm14(14), xmm15(15);
-static const Xmm xmm16(16), xmm17(17), xmm18(18), xmm19(19), xmm20(20), xmm21(21), xmm22(22), xmm23(23);
-static const Xmm xmm24(24), xmm25(25), xmm26(26), xmm27(27), xmm28(28), xmm29(29), xmm30(30), xmm31(31);
-static const Ymm ymm8(8), ymm9(9), ymm10(10), ymm11(11), ymm12(12), ymm13(13), ymm14(14), ymm15(15);
-static const Ymm ymm16(16), ymm17(17), ymm18(18), ymm19(19), ymm20(20), ymm21(21), ymm22(22), ymm23(23);
-static const Ymm ymm24(24), ymm25(25), ymm26(26), ymm27(27), ymm28(28), ymm29(29), ymm30(30), ymm31(31);
-static const Zmm zmm8(8), zmm9(9), zmm10(10), zmm11(11), zmm12(12), zmm13(13), zmm14(14), zmm15(15);
-static const Zmm zmm16(16), zmm17(17), zmm18(18), zmm19(19), zmm20(20), zmm21(21), zmm22(22), zmm23(23);
-static const Zmm zmm24(24), zmm25(25), zmm26(26), zmm27(27), zmm28(28), zmm29(29), zmm30(30), zmm31(31);
-static const Tmm tmm0(0), tmm1(1), tmm2(2), tmm3(3), tmm4(4), tmm5(5), tmm6(6), tmm7(7);
-static const RegRip rip;
+static const XBYAK_CONSTEXPR Reg64 rax(Operand::RAX), rcx(Operand::RCX), rdx(Operand::RDX), rbx(Operand::RBX), rsp(Operand::RSP), rbp(Operand::RBP), rsi(Operand::RSI), rdi(Operand::RDI), r8(Operand::R8), r9(Operand::R9), r10(Operand::R10), r11(Operand::R11), r12(Operand::R12), r13(Operand::R13), r14(Operand::R14), r15(Operand::R15);
+static const XBYAK_CONSTEXPR Reg32 r8d(8), r9d(9), r10d(10), r11d(11), r12d(12), r13d(13), r14d(14), r15d(15);
+static const XBYAK_CONSTEXPR Reg16 r8w(8), r9w(9), r10w(10), r11w(11), r12w(12), r13w(13), r14w(14), r15w(15);
+static const XBYAK_CONSTEXPR Reg8 r8b(8), r9b(9), r10b(10), r11b(11), r12b(12), r13b(13), r14b(14), r15b(15), spl(Operand::SPL, true), bpl(Operand::BPL, true), sil(Operand::SIL, true), dil(Operand::DIL, true);
+static const XBYAK_CONSTEXPR Xmm xmm8(8), xmm9(9), xmm10(10), xmm11(11), xmm12(12), xmm13(13), xmm14(14), xmm15(15);
+static const XBYAK_CONSTEXPR Xmm xmm16(16), xmm17(17), xmm18(18), xmm19(19), xmm20(20), xmm21(21), xmm22(22), xmm23(23);
+static const XBYAK_CONSTEXPR Xmm xmm24(24), xmm25(25), xmm26(26), xmm27(27), xmm28(28), xmm29(29), xmm30(30), xmm31(31);
+static const XBYAK_CONSTEXPR Ymm ymm8(8), ymm9(9), ymm10(10), ymm11(11), ymm12(12), ymm13(13), ymm14(14), ymm15(15);
+static const XBYAK_CONSTEXPR Ymm ymm16(16), ymm17(17), ymm18(18), ymm19(19), ymm20(20), ymm21(21), ymm22(22), ymm23(23);
+static const XBYAK_CONSTEXPR Ymm ymm24(24), ymm25(25), ymm26(26), ymm27(27), ymm28(28), ymm29(29), ymm30(30), ymm31(31);
+static const XBYAK_CONSTEXPR Zmm zmm8(8), zmm9(9), zmm10(10), zmm11(11), zmm12(12), zmm13(13), zmm14(14), zmm15(15);
+static const XBYAK_CONSTEXPR Zmm zmm16(16), zmm17(17), zmm18(18), zmm19(19), zmm20(20), zmm21(21), zmm22(22), zmm23(23);
+static const XBYAK_CONSTEXPR Zmm zmm24(24), zmm25(25), zmm26(26), zmm27(27), zmm28(28), zmm29(29), zmm30(30), zmm31(31);
+static const XBYAK_CONSTEXPR Zmm tmm0(0), tmm1(1), tmm2(2), tmm3(3), tmm4(4), tmm5(5), tmm6(6), tmm7(7);
+static const XBYAK_CONSTEXPR RegRip rip;
 #endif
 #ifndef XBYAK_DISABLE_SEGMENT
-static const Segment es(Segment::es), cs(Segment::cs), ss(Segment::ss), ds(Segment::ds), fs(Segment::fs), gs(Segment::gs);
+static const XBYAK_CONSTEXPR Segment es(Segment::es), cs(Segment::cs), ss(Segment::ss), ds(Segment::ds), fs(Segment::fs), gs(Segment::gs);
 #endif
 } // util
 
