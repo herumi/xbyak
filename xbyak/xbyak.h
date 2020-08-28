@@ -112,6 +112,9 @@
 	#undef XBYAK_TLS
 	#define XBYAK_TLS thread_local
 	#define XBYAK_VARIADIC_TEMPLATE
+	#define XBYAK_NOEXCEPT noexcept
+#else
+	#define XBYAK_NOEXCEPT throw()
 #endif
 
 #if (__cplusplus >= 201402L) || (_MSC_VER >= 1910) // Visual Studio 2017 version 15.0
@@ -290,7 +293,7 @@ public:
 		}
 	}
 	operator int() const { return err_; }
-	const char *what() const throw()
+	const char *what() const XBYAK_NOEXCEPT
 	{
 		return ConvertErrorToString(err_);
 	}
@@ -335,7 +338,7 @@ inline void AlignedFree(void *p)
 }
 
 template<class To, class From>
-inline const To CastTo(From p) throw()
+inline const To CastTo(From p) XBYAK_NOEXCEPT
 {
 	return (const To)(size_t)(p);
 }
