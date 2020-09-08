@@ -1,5 +1,16 @@
 #ifndef XBYAK_XBYAK_UTIL_H_
 #define XBYAK_XBYAK_UTIL_H_
+
+#ifdef XBYAK_ONLY_CLASS_CPU
+#include <stdint.h>
+#include <stdlib.h>
+#include <algorithm>
+#include <assert.h>
+#ifndef XBYAK_THROW
+	#define XBYAK_THROW(x) ;
+	#define XBYAK_THROW_RET(x, y) return y;
+#endif
+#else
 #include <string.h>
 
 /**
@@ -9,6 +20,7 @@
 	@note this header is UNDER CONSTRUCTION!
 */
 #include "xbyak.h"
+#endif // XBYAK_ONLY_CLASS_CPU
 
 #if defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_X64)
 	#define XBYAK_INTEL_CPU_SPECIFIC
@@ -469,9 +481,11 @@ public:
 	}
 	void putFamily() const
 	{
+#ifndef XBYAK_ONLY_CLASS_CPU
 		printf("family=%d, model=%X, stepping=%d, extFamily=%d, extModel=%X\n",
 			family, model, stepping, extFamily, extModel);
 		printf("display:family=%X, model=%X\n", displayFamily, displayModel);
+#endif
 	}
 	bool has(Type type) const
 	{
@@ -479,6 +493,7 @@ public:
 	}
 };
 
+#ifndef XBYAK_ONLY_CLASS_CPU
 class Clock {
 public:
 	static inline uint64_t getRdtsc()
@@ -880,6 +895,8 @@ public:
 		startAddr_ = endAddr;
 	}
 };
+#endif // XBYAK_ONLY_CLASS_CPU
 
 } } // end of util
+
 #endif
