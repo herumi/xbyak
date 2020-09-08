@@ -117,7 +117,7 @@ CYBOZU_TEST_AUTO(test1)
 		int offset;
 		bool isBack;
 		bool isShort;
-		uint8 result[6];
+		uint8_t result[6];
 		int size;
 	} tbl[] = {
 		{ 0, true, true, { 0xeb, 0xfe }, 2 },
@@ -133,7 +133,7 @@ CYBOZU_TEST_AUTO(test1)
 		const Tbl *p = &tbl[i];
 		for (int k = 0; k < 2; k++) {
 			TestJmp jmp(p->offset, p->isBack, p->isShort, k == 0);
-			const uint8 *q = (const uint8*)jmp.getCode();
+			const uint8_t *q = (const uint8_t*)jmp.getCode();
 			if (p->isBack) q += p->offset; /* skip nop */
 			for (int j = 0; j < p->size; j++) {
 				CYBOZU_TEST_EQUAL(q[j], p->result[j]);
@@ -207,7 +207,7 @@ CYBOZU_TEST_AUTO(testJmpCx)
 
 CYBOZU_TEST_AUTO(loop)
 {
-	const uint8 ok[] = {
+	const uint8_t ok[] = {
 		// lp:
 		0x31, 0xC0, // xor eax, eax
 		0xE2, 0xFC, // loop lp
@@ -372,11 +372,11 @@ CYBOZU_TEST_AUTO(test3)
 }
 #endif
 
-Xbyak::uint8 bufL[4096 * 32];
-Xbyak::uint8 bufS[4096 * 2];
+uint8_t bufL[4096 * 32];
+uint8_t bufS[4096 * 2];
 
 struct MyAllocator : Xbyak::Allocator {
-	Xbyak::uint8 *alloc(size_t size)
+	uint8_t *alloc(size_t size)
 	{
 		if (size < sizeof(bufS)) {
 			printf("test use bufS(%d)\n", (int)size);
@@ -389,7 +389,7 @@ struct MyAllocator : Xbyak::Allocator {
 		fprintf(stderr, "no memory %d\n", (int)size);
 		exit(1);
 	}
-	void free(Xbyak::uint8 *)
+	void free(uint8_t *)
 	{
 	}
 } myAlloc;
@@ -478,7 +478,7 @@ CYBOZU_TEST_AUTO(test5)
 }
 #endif
 
-size_t getValue(const uint8* p)
+size_t getValue(const uint8_t* p)
 {
 	size_t v = 0;
 	for (size_t i = 0; i < sizeof(size_t); i++) {
@@ -487,7 +487,7 @@ size_t getValue(const uint8* p)
 	return v;
 }
 
-void checkAddr(const uint8 *p, size_t offset, size_t expect)
+void checkAddr(const uint8_t *p, size_t offset, size_t expect)
 {
 	size_t v = getValue(p + offset);
 	CYBOZU_TEST_EQUAL(v, size_t(p) + expect);
@@ -535,7 +535,7 @@ CYBOZU_TEST_AUTO(MovLabel)
 
 	const struct {
 		int pos;
-		uint8 ok;
+		uint8_t ok;
 	} tbl[] = {
 #ifdef XBYAK32
 		{ 0x00, 0x90 },
@@ -569,11 +569,11 @@ CYBOZU_TEST_AUTO(MovLabel)
 			const bool useNewLabel = k == 0;
 			MovLabelCode code(grow, useNewLabel);
 			if (grow) code.ready();
-			const uint8* const p = code.getCode();
+			const uint8_t* const p = code.getCode();
 			for (size_t i = 0; i < CYBOZU_NUM_OF_ARRAY(tbl); i++) {
 				int pos = tbl[i].pos;
-				uint8 x = p[pos];
-				uint8 ok = tbl[i].ok;
+				uint8_t x = p[pos];
+				uint8_t ok = tbl[i].ok;
 				CYBOZU_TEST_EQUAL(x, ok);
 			}
 #ifdef XBYAK32

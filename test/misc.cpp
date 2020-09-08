@@ -97,7 +97,7 @@ CYBOZU_TEST_AUTO(align)
 				CYBOZU_TEST_EQUAL(size_t(getCurr()) % alignSize, 0u);
 			}
 			align(alignSize);
-			const uint8 *p = getCurr();
+			const uint8_t *p = getCurr();
 			// do nothing if aligned
 			align(alignSize);
 			CYBOZU_TEST_EQUAL(p, getCurr());
