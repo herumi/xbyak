@@ -273,7 +273,7 @@ inline int& GetErrorRef() {
 }
 
 inline void SetError(int err) {
-	if (!err) return; // keep the first err code
+	if (local::GetErrorRef()) return; // keep the first err code
 	local::GetErrorRef() = err;
 }
 
