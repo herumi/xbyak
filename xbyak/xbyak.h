@@ -108,7 +108,7 @@
 	#endif
 #endif
 
-#if (__cplusplus >= 201103) || (_MSC_VER >= 1800)
+#if (__cplusplus >= 201103) || (defined(_MSC_VER) && _MSC_VER >= 1800)
 	#undef XBYAK_TLS
 	#define XBYAK_TLS thread_local
 	#define XBYAK_VARIADIC_TEMPLATE
@@ -117,7 +117,7 @@
 	#define XBYAK_NOEXCEPT throw()
 #endif
 
-#if (__cplusplus >= 201402L) || (_MSC_VER >= 1910) // Visual Studio 2017 version 15.0
+#if (__cplusplus >= 201402L) || (defined(_MSC_VER) && _MSC_VER >= 1910) // Visual Studio 2017 version 15.0
 	#define XBYAK_CONSTEXPR constexpr // require c++14 or later
 #else
 	#define XBYAK_CONSTEXPR
