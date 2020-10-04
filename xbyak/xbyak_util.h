@@ -389,19 +389,35 @@ public:
 		if (ECX == get32bitAsBE(amd)) {
 			type_ |= tAMD;
 			getCpuid(0x80000001, data);
-			if (EDX & (1U << 31)) type_ |= t3DN;
-			if (EDX & (1U << 15)) type_ |= tCMOV;
-			if (EDX & (1U << 30)) type_ |= tE3DN;
-			if (EDX & (1U << 22)) type_ |= tMMX2;
-			if (EDX & (1U << 27)) type_ |= tRDTSCP;
+			if (EDX & (1U << 31)) {
+				type_ |= t3DN;
+				// 3DNow! implies support for PREFETCHW on AMD
+				type_ |= tPREFETCHW;
+			}
+
+			if (EDX & (1U << 29)) {
+				// Long mode implies support for PREFETCHW on AMD
+				type_ |= tPREFETCHW;
+			}
 		}
 		if (ECX == get32bitAsBE(intel)) {
 			type_ |= tINTEL;
+		}
+
+		// Extended flags information
+		getCpuid(0x80000000, data);
+		if (EAX >= 0x80000001) {
 			getCpuid(0x80000001, data);
+
+			if (EDX & (1U << 31)) type_ |= t3DN;
+			if (EDX & (1U << 30)) type_ |= tE3DN;
 			if (EDX & (1U << 27)) type_ |= tRDTSCP;
+			if (EDX & (1U << 22)) type_ |= tMMX2;
+			if (EDX & (1U << 15)) type_ |= tCMOV;
 			if (ECX & (1U << 5)) type_ |= tLZCNT;
 			if (ECX & (1U << 8)) type_ |= tPREFETCHW;
 		}
+
 		getCpuid(1, data);
 		if (ECX & (1U << 0)) type_ |= tSSE3;
 		if (ECX & (1U << 9)) type_ |= tSSSE3;
