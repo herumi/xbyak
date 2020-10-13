@@ -1539,6 +1539,8 @@ inline const uint8_t* Label::getAddress() const
 	return mgr->getCode() + offset;
 }
 
+typedef enum preferred_encoding_t_ { VEX, DEFAULT } preferred_encoding_t;
+
 class CodeGenerator : public CodeArray {
 public:
 	enum LabelType {
@@ -1648,6 +1650,7 @@ private:
 		T_M_K = 1 << 28, // mem{k}
 		T_VSIB = 1 << 29,
 		T_MEM_EVEX = 1 << 30, // use evex if mem
+		T_PREF_EVEX = 1 << 31, // generate EVEX if preferred_encoding = DEFAULT for AVX512
 		T_XXX
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
@@ -1687,7 +1690,7 @@ private:
 	}
 	int evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool b = false, int aaa = 0, uint32_t VL = 0, bool Hi16Vidx = false)
 	{
-		if (!(type & (T_EVEX | T_MUST_EVEX))) XBYAK_THROW_RET(ERR_EVEX_IS_INVALID, 0)
+		if (!(type & (T_EVEX | T_MUST_EVEX | T_PREF_EVEX))) XBYAK_THROW_RET(ERR_EVEX_IS_INVALID, 0)
 		int w = (type & T_EW1) ? 1 : 0;
 		uint32_t mm = (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0;
 		uint32_t pp = (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0;
@@ -2124,8 +2127,15 @@ private:
 	{
 		db(code1); db(code2 | reg.getIdx());
 	}
-	void opVex(const Reg& r, const Operand *p1, const Operand& op2, int type, int code, int imm8 = NONE)
+	void opVex(const Reg& r, const Operand *p1, const Operand& op2, int type, int code, int imm8 = NONE, preferred_encoding_t encoding_ = DEFAULT)
 	{
+#ifdef XBYAK_DISABLE_AVX512
+		preferred_encoding_t encoding = VEX;
+#else
+		preferred_encoding_t encoding = encoding_;
+#endif
+		if ((encoding == VEX) && ((type & T_MUST_EVEX) || (r.hasEvex() || p1->hasEvex() || op2.hasEvex()))) XBYAK_THROW(ERR_BAD_COMBINATION);
+
 		if (op2.isMEM()) {
 			const Address& addr = op2.getAddress();
 			const RegExp& regExp = addr.getRegExp();
@@ -2134,7 +2144,7 @@ private:
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			int disp8N = 0;
 			bool x = index.isExtIdx();
-			if ((type & (T_MUST_EVEX|T_MEM_EVEX)) || r.hasEvex() || (p1 && p1->hasEvex()) || addr.isBroadcast() || addr.getOpmaskIdx()) {
+			if ((encoding == DEFAULT) && ((type & (T_MUST_EVEX | T_PREF_EVEX | T_MEM_EVEX)) || r.hasEvex() || (p1 && p1->hasEvex()) || addr.isBroadcast() || addr.getOpmaskIdx())) {
 				int aaa = addr.getOpmaskIdx();
 				if (aaa && !(type & T_M_K)) XBYAK_THROW(ERR_INVALID_OPMASK_WITH_MEMORY)
 				bool b = false;
@@ -2150,7 +2160,7 @@ private:
 			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0, disp8N, (type & T_VSIB) != 0);
 		} else {
 			const Reg& base = op2.getReg();
-			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || base.hasEvex()) {
+			if ((encoding == DEFAULT) && ((type & (T_MUST_EVEX | T_PREF_EVEX)) || r.hasEvex() || (p1 && p1->hasEvex()) || base.hasEvex())) {
 				evex(r, base, p1, type, code);
 			} else {
 				vex(r, base, p1, type, code);
@@ -2171,7 +2181,7 @@ private:
 		type |= (bit == 64) ? T_W1 : T_W0;
 		opVex(r, p1, *p2, type, code, imm8);
 	}
-	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, int imm8 = NONE)
+	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, int imm8 = NONE, preferred_encoding_t encoding = DEFAULT)
 	{
 		const Xmm *x2 = static_cast<const Xmm*>(&op1);
 		const Operand *op = &op2;
@@ -2181,7 +2191,7 @@ private:
 		}
 		// (x1, x2, op)
 		if (!((x1.isXMM() && x2->isXMM()) || ((type & T_YMM) && ((x1.isYMM() && x2->isYMM()) || (x1.isZMM() && x2->isZMM()))))) XBYAK_THROW(ERR_BAD_COMBINATION)
-		opVex(x1, x2, *op, type, code0, imm8);
+		opVex(x1, x2, *op, type, code0, imm8, encoding);
 	}
 	void opAVX_K_X_XM(const Opmask& k, const Xmm& x2, const Operand& op3, int type, int code0, int imm8 = NONE)
 	{
