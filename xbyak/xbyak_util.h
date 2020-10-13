@@ -442,7 +442,11 @@ public:
 			if ((bv & 6) == 6) {
 				if (ECX & (1U << 28)) type_ |= tAVX;
 				if (ECX & (1U << 12)) type_ |= tFMA;
-				if (((bv >> 5) & 7) == 7) {
+				// do *not* check AVX-512 state on macOS because it has on-demand AVX-512 support
+			#if !defined(__APPLE__)
+				if (((bv >> 5) & 7) == 7)
+			#endif
+				{
 					getCpuidEx(7, 0, data);
 					if (EBX & (1U << 16)) type_ |= tAVX512F;
 					if (type_ & tAVX512F) {
