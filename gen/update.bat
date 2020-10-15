@@ -15,3 +15,9 @@ echo #ifdef XBYAK64>> %TARGET%
 gen_avx512 64 | %SORT% >> %TARGET%
 echo #endif>> %TARGET%
 echo #endif>> %TARGET%
+cl gen_vnni.cpp %OPT%
+echo #ifdef XBYAK_DISABLE_AVX512>> %TARGET%
+gen_vnni vexOnly | %SORT% >> %TARGET%
+echo #else>> %TARGET%
+gen_vnni | %SORT% >> %TARGET%
+echo #endif>> %TARGET%
