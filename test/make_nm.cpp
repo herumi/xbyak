@@ -643,6 +643,7 @@ class Test {
 		puts(isXbyak_ ? "out_(dx, al); dump();" : "out dx, al");
 		puts(isXbyak_ ? "out_(dx, ax); dump();" : "out dx, ax");
 		puts(isXbyak_ ? "out_(dx, eax); dump();" : "out dx, eax");
+		puts(isXbyak_ ? "lea(eax, ptr[edi + 4 * eax]); dump();" : "lea eax, [edi + 4 * eax]");
 	}
 	void putJmp() const
 	{
