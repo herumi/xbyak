@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/herumi/xbyak.png)](https://travis-ci.org/herumi/xbyak)
 
-# Xbyak 5.97 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.98 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -438,6 +438,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2020/Oct/17 ver 5.98 support the form of [scale * reg]
 * 2020/Sep/08 ver 5.97 replace uint32 with uint32_t etc.
 * 2020/Aug/28 ver 5.95 some constructors of register classes support constexpr if C++14 or later
 * 2020/Aug/04 ver 5.941 `CodeGenerator::reset()` calls `ClearError()`.
