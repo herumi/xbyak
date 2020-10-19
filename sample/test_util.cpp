@@ -80,6 +80,10 @@ void putCPUinfo()
 		{ Cpu::tAVX512_VPOPCNTDQ, "avx512_vpopcntdq" },
 		{ Cpu::tAVX512_BF16, "avx512_bf16" },
 		{ Cpu::tAVX512_VP2INTERSECT, "avx512_vp2intersect" },
+		{ Cpu::tAMX_TILE, "amx(tile)" },
+		{ Cpu::tAMX_INT8, "amx(int8)" },
+		{ Cpu::tAMX_BF16, "amx(bf16)" },
+		{ Cpu::tAVX_VNNI, "avx_vnni" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
