@@ -2308,15 +2308,14 @@ private:
 		if (encoding == DefaultEncoding) {
 			encoding = EvexEncoding;
 		}
-#ifdef XBYAK_DISABLE_AVX512
-		if (encoding == EvexEncoding) XBYAK_THROW(ERR_EVEX_IS_INVALID)
-#endif
 		if (encoding == EvexEncoding) {
+#ifdef XBYAK_DISABLE_AVX512
+			XBYAK_THROW(ERR_EVEX_IS_INVALID)
+#endif
 			type |= T_MUST_EVEX;
 		}
 		opAVX_X_X_XM(x1, x2, op, type, code0);
 	}
-
 	void opInOut(const Reg& a, const Reg& d, uint8_t code)
 	{
 		if (a.getIdx() == Operand::AL && d.getIdx() == Operand::DX && d.getBit() == 16) {
