@@ -821,7 +821,9 @@ CYBOZU_TEST_AUTO(vnni)
 	struct Code : Xbyak::CodeGenerator {
 		Code()
 		{
-			vpdpbusd(xm0, xm1, xm2); // EVEX
+			// default encoding is EVEX
+			vpdpbusd(xm0, xm1, xm2);
+			vpdpbusd(xm0, xm1, xm2, EvexEncoding); // EVEX
 			vpdpbusd(xm0, xm1, xm2, VexEncoding); // VEX
 		}
 		void badVex()
@@ -830,6 +832,7 @@ CYBOZU_TEST_AUTO(vnni)
 		}
 	} c;
 	const uint8_t tbl[] = {
+		0x62, 0xF2, 0x75, 0x08, 0x50, 0xC2,
 		0x62, 0xF2, 0x75, 0x08, 0x50, 0xC2,
 		0xC4, 0xE2, 0x71, 0x50, 0xC2,
 	};

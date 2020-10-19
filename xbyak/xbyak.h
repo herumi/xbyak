@@ -2306,12 +2306,11 @@ private:
 	void opVnni(const Xmm& x1, const Xmm& x2, const Operand& op, int type, int code0, PreferredEncoding encoding)
 	{
 		if (encoding == DefaultEncoding) {
-#ifdef XBYAK_DISABLE_AVX512
-			encoding = VexEncoding;
-#else
 			encoding = EvexEncoding;
-#endif
 		}
+#ifdef XBYAK_DISABLE_AVX512
+		if (encoding == EvexEncoding) XBYAK_THROW(ERR_EVEX_IS_INVALID)
+#endif
 		if (encoding == EvexEncoding) {
 			type |= T_MUST_EVEX;
 		}
