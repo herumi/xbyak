@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/herumi/xbyak.png)](https://travis-ci.org/herumi/xbyak)
 
-# Xbyak 5.98 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.99 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -16,6 +16,7 @@ Use `and_()`, `or_()`, ... instead of `and()`, `or()`.
 If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 ### News
+- vnni instructions such as vpdpbusd supports vex encoding.
 - (break backward compatibility) `push(byte, imm)` (resp. `push(word, imm)`) forces to cast `imm` to 8(resp. 16) bit.
 - (Windows) `#include <winsock2.h>` has been removed from xbyak.h, so add it explicitly if you need it.
 - support exception-less mode see. [Exception-less mode](#exception-less-mode)
@@ -154,6 +155,10 @@ vcvtpd2dq xmm19, [eax+32]{1to4}         --> vcvtpd2dq(xmm19, yword_b [eax+32]); 
 vfpclassps k5{k3}, zword [rax+64], 5    --> vfpclassps(k5|k3, zword [rax+64], 5); // specify m512
 vfpclasspd k5{k3}, [rax+64]{1to2}, 5    --> vfpclasspd(k5|k3, xword_b [rax+64], 5); // broadcast 64-bit to 128-bit
 vfpclassps k5{k3}, [rax+64]{1to4}, 5    --> vfpclassps(k5|k3, yword_b [rax+64], 5); // broadcast 64-bit to 256-bit
+
+vpdpbusd(xm0, xm1, xm2); // default encoding is EVEX
+vpdpbusd(xm0, xm1, xm2, EvexEncoding); // same as the above
+vpdpbusd(xm0, xm1, xm2, VexEncoding); // VEX encoding
 ```
 ### Remark
 * `k1`, ..., `k7` are opmask registers.
@@ -438,6 +443,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2020/Oct/19 ver 5.99 support VNNI instructions(Thanks to akharito)
 * 2020/Oct/17 ver 5.98 support the form of [scale * reg]
 * 2020/Sep/08 ver 5.97 replace uint32 with uint32_t etc.
 * 2020/Aug/28 ver 5.95 some constructors of register classes support constexpr if C++14 or later

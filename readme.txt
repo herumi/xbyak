@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.98
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 5.99
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -163,6 +163,9 @@ vfpclassps k5{k3}, zword [rax+64], 5    --> vfpclassps(k5|k3, zword [rax+64], 5)
 vfpclasspd k5{k3}, [rax+64]{1to2}, 5    --> vfpclasspd(k5|k3, xword_b [rax+64], 5); // broadcast 64-bit to 128-bit
 vfpclassps k5{k3}, [rax+64]{1to4}, 5    --> vfpclassps(k5|k3, xword_b [rax+64], 5); // broadcast 64-bit to 256-bit
 
+vpdpbusd(xm0, xm1, xm2); // default encoding is EVEX
+vpdpbusd(xm0, xm1, xm2, EvexEncoding); // same as the above
+vpdpbusd(xm0, xm1, xm2, VexEncoding); // VEX encoding
 
 注意
 * k1, ..., k7 は新しいopmaskレジスタです。
@@ -379,6 +382,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2020/10/19 ver 5.99 VNNI命令サポート(Thanks to akharito)
 2020/10/17 ver 5.98 [scale * reg]のサポート
 2020/09/08 ver 5.97 uint32などをuint32_tに置換
 2020/08/28 ver 5.95 レジスタクラスのコンストラクタがconstexprに対応(C++14以降)
