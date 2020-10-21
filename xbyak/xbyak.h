@@ -413,16 +413,16 @@ public:
 	{
 		const size_t alignedSizeM1 = inner::ALIGN_PAGE_SIZE - 1;
 		size = (size + alignedSizeM1) & ~alignedSizeM1;
-#if defined(XBYAK_USE_MAP_JIT)
+#if defined(MAP_ANONYMOUS)
 		int mode = MAP_PRIVATE | MAP_ANONYMOUS;
-		const int mojaveVersion = 18;
-		if (util::getMacOsVersion() >= mojaveVersion) mode |= MAP_JIT;
-#elif defined(MAP_ANONYMOUS)
-		const int mode = MAP_PRIVATE | MAP_ANONYMOUS;
 #elif defined(MAP_ANON)
-		const int mode = MAP_PRIVATE | MAP_ANON;
+		int mode = MAP_PRIVATE | MAP_ANON;
 #else
 		#error "not supported"
+#endif
+#if defined(XBYAK_USE_MAP_JIT)
+		const int mojaveVersion = 18;
+		if (util::getMacOsVersion() >= mojaveVersion) mode |= MAP_JIT;
 #endif
 		void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, mode, -1, 0);
 		if (p == MAP_FAILED) XBYAK_THROW_RET(ERR_CANT_ALLOC, 0)
