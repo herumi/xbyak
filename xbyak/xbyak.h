@@ -117,8 +117,11 @@
 	#define XBYAK_NOEXCEPT throw()
 #endif
 
-#if (__cplusplus >= 201402L) || (defined(_MSC_VER) && _MSC_VER >= 1910) // Visual Studio 2017 version 15.0
-	#define XBYAK_CONSTEXPR constexpr // require c++14 or later
+// require c++14 or later
+// Visual Studio 2017 version 15.0 or later
+// g++-6 or later
+#if ((__cplusplus >= 201402L) && !(!defined(__clang__) && defined(__GNUC__) && (__GNUC__ <= 5))) || (defined(_MSC_VER) && _MSC_VER >= 1910)
+	#define XBYAK_CONSTEXPR constexpr
 #else
 	#define XBYAK_CONSTEXPR
 #endif
