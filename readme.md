@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/herumi/xbyak.png)](https://travis-ci.org/herumi/xbyak)
 
-# Xbyak 5.99 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.991 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -443,6 +443,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2020/Nov/16 ver 5.991 disable constexpr for gcc-5 with -std=c++-14
 * 2020/Oct/19 ver 5.99 support VNNI instructions(Thanks to akharito)
 * 2020/Oct/17 ver 5.98 support the form of [scale * reg]
 * 2020/Sep/08 ver 5.97 replace uint32 with uint32_t etc.
