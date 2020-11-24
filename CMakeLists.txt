@@ -6,7 +6,7 @@ file(GLOB headers xbyak/*.h)
 
 if (DEFINED CMAKE_VERSION AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.0.2)
 	include(GNUInstallDirs)
-	add_library(${PROJECT_NAME} INTERFACE ${headers})
+	add_library(${PROJECT_NAME} INTERFACE)
 	add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 	
 	target_include_directories(
