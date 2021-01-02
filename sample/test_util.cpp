@@ -1,12 +1,13 @@
 #include <stdio.h>
-#define XBYAK_NO_OP_NAMES
 #include "xbyak/xbyak_util.h"
 
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
 struct PopCountTest : public Xbyak::CodeGenerator {
 	PopCountTest(int n)
+		: Xbyak::CodeGenerator(4096, Xbyak::DontSetProtectRWE)
 	{
+ret();
 		mov(eax, n);
 		popcnt(eax, eax);
 		ret();
@@ -92,12 +93,16 @@ void putCPUinfo()
 	if (cpu.has(Cpu::tPOPCNT)) {
 		const int n = 0x12345678; // bitcount = 13
 		const int ok = 13;
-		int r = PopCountTest(n).getCode<int (*)()>()();
+		PopCountTest code(n);
+		code.setProtectModeRE();
+		int (*f)() = code.getCode<int (*)()>();
+		int r = f();
 		if (r == ok) {
 			puts("popcnt ok");
 		} else {
 			printf("popcnt ng %d %d\n", r, ok);
 		}
+		code.setProtectModeRW();
 	}
 	/*
 		                displayFamily displayModel
