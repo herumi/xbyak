@@ -6,6 +6,9 @@
 
 Xbyak is a C++ header library that enables dynamically to assemble x86(IA32), x64(AMD64, x86-64) mnemonic.
 
+The pronunciation of Xbyak is `kəi-bja-k`.
+It is named from a Japanese word [開闢](https://translate.google.com/?hl=ja&sl=ja&tl=en&text=%E9%96%8B%E9%97%A2&op=translate), which means the beginning of the world.
+
 ## Feature
 * header file only
 * Intel/MASM like syntax
