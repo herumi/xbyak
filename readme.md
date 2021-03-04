@@ -1,4 +1,4 @@
-[![Build Status](https://api.travis-ci.com/herumi/xbyak.svg?branch=master)](https://travis-ci.com/github/herumi/xbyak)
+[![Build Status](https://github.com/herumi/xbyak/actions/workflows/main.yml/badge.svg)](https://github.com/herumi/xbyak/actions/workflows/main.yml)
 
 # Xbyak 5.991 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
