@@ -347,9 +347,9 @@ public:
 
 ## User allocated memory
 
-You can make jit code on prepaired memory.
+You can make jit code on prepared memory.
 
-Call `setProtectModeRE` yourself to change memory mode if using the prepaired memory.
+Call `setProtectModeRE` yourself to change memory mode if using the prepared memory.
 
 ```
 uint8_t alignas(4096) buf[8192]; // C++11 or later
