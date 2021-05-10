@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "5.991"; }
+const char *getVersionString() const { return "5.992"; }
 void adc(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x10, 2); }
 void adc(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x10); }
 void adcx(const Reg32e& reg, const Operand& op) { opGen(reg, op, 0xF6, 0x66, isREG32_REG32orMEM, NONE, 0x38); }
@@ -172,6 +172,8 @@ void divss(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x5E, 0xF3, isXMM
 void dppd(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0x41, 0x66, isXMM_XMMorMEM, static_cast<uint8_t>(imm), 0x3A); }
 void dpps(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0x40, 0x66, isXMM_XMMorMEM, static_cast<uint8_t>(imm), 0x3A); }
 void emms() { db(0x0F); db(0x77); }
+void endbr32() { db(0xF3); db(0x0F); db(0x1E); db(0xFB); }
+void endbr64() { db(0xF3); db(0x0F); db(0x1E); db(0xFA); }
 void enter(uint16_t x, uint8_t y) { db(0xC8); dw(x); db(y); }
 void extractps(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x17, imm); }
 void f2xm1() { db(0xD9); db(0xF0); }

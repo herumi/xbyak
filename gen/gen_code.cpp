@@ -26,6 +26,7 @@ struct GenericTbl {
 	uint8_t code1;
 	uint8_t code2;
 	uint8_t code3;
+	uint8_t code4;
 };
 
 void putGeneric(const GenericTbl *p, size_t n)
@@ -34,6 +35,7 @@ void putGeneric(const GenericTbl *p, size_t n)
 		printf("void %s() { db(0x%02X); ", p->name, p->code1);
 		if (p->code2) printf("db(0x%02X); ", p->code2);
 		if (p->code3) printf("db(0x%02X); ", p->code3);
+		if (p->code4) printf("db(0x%02X); ", p->code4);
 		printf("}\n");
 		p++;
 	}
@@ -661,6 +663,8 @@ void put()
 			{ "cmpsb", 0xA6 },
 			{ "cmpsw", 0x66, 0xA7 },
 			{ "cmpsd", 0xA7 },
+			{ "endbr32", 0xF3, 0x0F, 0x1E, 0xFB },
+			{ "endbr64", 0xF3, 0x0F, 0x1E, 0xFA },
 			{ "int3", 0xCC },
 			{ "scasb", 0xAE },
 			{ "scasw", 0x66, 0xAF },
