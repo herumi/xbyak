@@ -2261,7 +2261,11 @@ private:
 			}
 			if (!isOK) XBYAK_THROW(ERR_BAD_VSIB_ADDRESSING)
 		}
-		opAVX_X_X_XM(isAddrYMM ? Ymm(x1.getIdx()) : x1, isAddrYMM ? Ymm(x2.getIdx()) : x2, addr, type, code);
+		int i1 = x1.getIdx();
+		int i2 = regExp.getIndex().getIdx();
+		int i3 = x2.getIdx();
+		if (i1 == i2 || i1 == i3 || i2 == i3) XBYAK_THROW(ERR_BAD_COMBINATION);
+		opAVX_X_X_XM(isAddrYMM ? Ymm(i1) : x1, isAddrYMM ? Ymm(i3) : x2, addr, type, code);
 	}
 	enum {
 		xx_yy_zz = 0,
