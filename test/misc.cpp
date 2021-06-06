@@ -135,6 +135,29 @@ CYBOZU_TEST_AUTO(kmask)
 	} c;
 }
 
+CYBOZU_TEST_AUTO(gather)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			CYBOZU_TEST_NO_EXCEPTION(vgatherdpd(xmm1, ptr[eax+xmm2], xmm3));
+			CYBOZU_TEST_EXCEPTION(vgatherdpd(xmm1, ptr[eax+xmm1], xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vgatherdpd(xmm1, ptr[eax+xmm2], xmm1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vgatherdpd(xmm2, ptr[eax+xmm1], xmm1), std::exception);
+
+			CYBOZU_TEST_NO_EXCEPTION(vgatherdpd(xmm1|k2, ptr[eax+xmm2]));
+			CYBOZU_TEST_EXCEPTION(vgatherdpd(xmm1, ptr[eax+xmm2]), std::exception);
+			CYBOZU_TEST_EXCEPTION(vgatherdpd(xmm1|k2, ptr[eax+xmm1]), std::exception);
+
+			CYBOZU_TEST_NO_EXCEPTION(vpscatterdd(ptr[eax+xmm2]|k2, xmm1));
+			CYBOZU_TEST_NO_EXCEPTION(vpscatterdd(ptr[eax+xmm2], xmm1|k2));
+			CYBOZU_TEST_NO_EXCEPTION(vpscatterdd(ptr[eax+xmm2]|k3, xmm2));
+
+			CYBOZU_TEST_EXCEPTION(vpscatterdd(ptr[eax+xmm2], xmm1), std::exception);
+		}
+	} c;
+}
+
 #ifdef XBYAK64
 CYBOZU_TEST_AUTO(vfmaddps)
 {
