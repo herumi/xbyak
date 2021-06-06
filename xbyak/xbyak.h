@@ -209,6 +209,7 @@ enum {
 	ERR_INVALID_MIB_ADDRESS,
 	ERR_X2APIC_IS_NOT_SUPPORTED,
 	ERR_NOT_SUPPORTED,
+	ERR_SAME_REGS_ARE_INVALID,
 	ERR_INTERNAL // Put it at last.
 };
 
@@ -261,6 +262,7 @@ inline const char *ConvertErrorToString(int err)
 		"invalid mib address",
 		"x2APIC is not supported",
 		"not supported",
+		"same regs are invalid",
 		"internal error"
 	};
 	assert(ERR_INTERNAL + 1 == sizeof(errTbl) / sizeof(*errTbl));
@@ -2264,7 +2266,7 @@ private:
 		int i1 = x1.getIdx();
 		int i2 = regExp.getIndex().getIdx();
 		int i3 = x2.getIdx();
-		if (i1 == i2 || i1 == i3 || i2 == i3) XBYAK_THROW(ERR_BAD_COMBINATION);
+		if (i1 == i2 || i1 == i3 || i2 == i3) XBYAK_THROW(ERR_SAME_REGS_ARE_INVALID);
 		opAVX_X_X_XM(isAddrYMM ? Ymm(i1) : x1, isAddrYMM ? Ymm(i3) : x2, addr, type, code);
 	}
 	enum {
@@ -2288,7 +2290,12 @@ private:
 	void opGather2(const Xmm& x, const Address& addr, int type, uint8_t code, int mode)
 	{
 		if (x.hasZero()) XBYAK_THROW(ERR_INVALID_ZERO)
-		checkGather2(x, addr.getRegExp().getIndex(), mode);
+		const RegExp& regExp = addr.getRegExp();
+		checkGather2(x, regExp.getIndex(), mode);
+		int maskIdx = x.getOpmaskIdx();
+		if ((type & T_M_K) && addr.getOpmaskIdx()) maskIdx = addr.getOpmaskIdx();
+		if (maskIdx == 0) XBYAK_THROW(ERR_K0_IS_INVALID);
+		if (!(type & T_M_K) && x.getIdx() == regExp.getIndex().getIdx()) XBYAK_THROW(ERR_SAME_REGS_ARE_INVALID);
 		opVex(x, 0, addr, type, code);
 	}
 	/*
