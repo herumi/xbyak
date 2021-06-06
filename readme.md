@@ -1,6 +1,6 @@
 [![Build Status](https://github.com/herumi/xbyak/actions/workflows/main.yml/badge.svg)](https://github.com/herumi/xbyak/actions/workflows/main.yml)
 
-# Xbyak 5.992 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.993 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -446,6 +446,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2021/Jun/06 ver 5.993 strict check of gather/scatter register combination
 * 2021/May/09 ver 5.992 support endbr32 and endbr64
 * 2020/Nov/16 ver 5.991 disable constexpr for gcc-5 with -std=c++-14
 * 2020/Oct/19 ver 5.99 support VNNI instructions(Thanks to akharito)
