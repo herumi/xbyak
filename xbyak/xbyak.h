@@ -79,6 +79,7 @@
 	#include <malloc.h>
 	#define XBYAK_TLS __declspec(thread)
 #elif defined(__GNUC__)
+	#include <syscall.h>
 	#include <unistd.h>
 	#include <sys/mman.h>
 	#include <stdlib.h>
@@ -413,11 +414,26 @@ inline int getMacOsVersion()
 class MmapAllocator : Allocator {
 	typedef XBYAK_STD_UNORDERED_MAP<uintptr_t, size_t> SizeList;
 	SizeList sizeList_;
+
+	static int memfd_fd()
+	{
+#ifdef __NR_memfd_create
+#ifdef MFD_CLOEXEC
+		int flags = MFD_CLOEXEC;
+#else
+		int flags = 0;
+#endif
+		return syscall(__NR_memfd_create, "xbyak", flags);
+#else
+		return -1;
+#endif
+	}
 public:
 	uint8_t *alloc(size_t size)
 	{
 		const size_t alignedSizeM1 = inner::ALIGN_PAGE_SIZE - 1;
 		size = (size + alignedSizeM1) & ~alignedSizeM1;
+		int fd = memfd_fd();
 #if defined(MAP_ANONYMOUS)
 		int mode = MAP_PRIVATE | MAP_ANONYMOUS;
 #elif defined(MAP_ANON)
@@ -429,7 +445,12 @@ public:
 		const int mojaveVersion = 18;
 		if (util::getMacOsVersion() >= mojaveVersion) mode |= MAP_JIT;
 #endif
-		void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, mode, -1, 0);
+		if (fd != -1) {
+			mode = MAP_SHARED;
+			if (ftruncate(fd, size) != 0) XBYAK_THROW_RET(ERR_CANT_ALLOC, 0)
+		}
+		void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, mode, fd, 0);
+		if (fd != -1) close(fd);
 		if (p == MAP_FAILED) XBYAK_THROW_RET(ERR_CANT_ALLOC, 0)
 		assert(p);
 		sizeList_[(uintptr_t)p] = size;
