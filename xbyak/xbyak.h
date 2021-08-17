@@ -96,7 +96,7 @@
 #endif
 
 #if !defined(MFD_CLOEXEC) // defined only linux 3.17 or later
-	#undef XBYAK_MEMFD_CREATE
+	#undef XBYAK_USE_MEMFD
 #endif
 
 #if defined(_WIN64) || defined(__MINGW64__) || (defined(__CYGWIN__) && defined(__x86_64__))
@@ -434,7 +434,7 @@ public:
 		if (util::getMacOsVersion() >= mojaveVersion) mode |= MAP_JIT;
 #endif
 		int fd = -1;
-#if defined(XBYAK_MEMFD_CREATE) && XBYAK_MEMFD_CREATE == 1
+#if defined(XBYAK_USE_MEMFD)
 		fd = memfd_create("xbyak", MFD_CLOEXEC);
 		if (fd != -1) {
 			mode = MAP_SHARED;
@@ -442,7 +442,7 @@ public:
 		}
 #endif
 		void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, mode, fd, 0);
-#if defined(XBYAK_MEMFD_CREATE) && XBYAK_MEMFD_CREATE == 1
+#if defined(XBYAK_USE_MEMFD)
 		if (fd != -1) close(fd);
 #endif
 		if (p == MAP_FAILED) XBYAK_THROW_RET(ERR_CANT_ALLOC, 0)

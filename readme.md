@@ -432,6 +432,7 @@ The status will not be changed automatically, then you should reset it by `Xbyak
 * define **XBYAK_ENABLE_OMITTED_OPERAND** if you use omitted destination such as `vaddps(xmm2, xmm3);`(deprecated in the future).
 * define **XBYAK_UNDEF_JNL** if Bessel function jnl is defined as macro.
 * define **XBYAK_NO_EXCEPTION** for a compiler option `-fno-exceptions`.
+* define **XBYAK_USE_MEMFD** on Linux then /proc/self/maps shows the area used by xbyak.
 
 ## Sample
 
@@ -446,6 +447,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2021/Aug/15 ver 5.995 add a label to /proc/self/maps if XBYAK_USE_MEMFD is defined on Linux
 * 2021/Jun/17 ver 5.994 add alias of vcmpXX{ps,pd,ss,sd} with mask register
 * 2021/Jun/06 ver 5.993 strict check of gather/scatter register combination
 * 2021/May/09 ver 5.992 support endbr32 and endbr64
