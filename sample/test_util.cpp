@@ -35,8 +35,6 @@ void putCPUinfo()
 		{ Cpu::tPOPCNT, "popcnt" },
 		{ Cpu::t3DN, "3dn" },
 		{ Cpu::tE3DN, "e3dn" },
-		{ Cpu::tSSE4a, "sse4a" },
-		{ Cpu::tSSE5, "sse5" },
 		{ Cpu::tAESNI, "aesni" },
 		{ Cpu::tRDTSCP, "rdtscp" },
 		{ Cpu::tOSXSAVE, "osxsave(xgetvb)" },
