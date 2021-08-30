@@ -367,7 +367,8 @@ public:
 	static const Type tAMX_INT8 = uint64_t(1) << 60;
 	static const Type tAMX_BF16 = uint64_t(1) << 61;
 	static const Type tAVX_VNNI = uint64_t(1) << 62;
-	// 11, 18, 63
+	static const Type tAVX512_FP16 = uint64_t(1) << 11;
+	// 18, 63
 
 	Cpu()
 		: type_(NONE)
@@ -468,6 +469,7 @@ public:
 						if (EDX & (1U << 2)) type_ |= tAVX512_4VNNIW;
 						if (EDX & (1U << 3)) type_ |= tAVX512_4FMAPS;
 						if (EDX & (1U << 8)) type_ |= tAVX512_VP2INTERSECT;
+						if ((type_ & tAVX512BW) && (EDX & (1U << 23))) type_ |= tAVX512_FP16;
 					}
 				}
 			}

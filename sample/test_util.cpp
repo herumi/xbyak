@@ -83,6 +83,7 @@ void putCPUinfo()
 		{ Cpu::tAMX_INT8, "amx(int8)" },
 		{ Cpu::tAMX_BF16, "amx(bf16)" },
 		{ Cpu::tAVX_VNNI, "avx_vnni" },
+		{ Cpu::tAVX512_FP16, "avx512_fp16" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
