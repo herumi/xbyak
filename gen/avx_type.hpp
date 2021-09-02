@@ -38,6 +38,7 @@
 		T_M_K = 1 << 28, // mem{k}
 		T_VSIB = 1 << 29,
 		T_MEM_EVEX = 1 << 30, // use evex if mem
+		T_FP16 = 1 << 31,
 		T_XXX
 	};
 
@@ -76,11 +77,19 @@ std::string type2String(int type)
 	}
 	if (type & T_0F) {
 		if (!str.empty()) str += " | ";
-		str += "T_0F";
+		if (type & T_FP16) {
+			str += "T_MAP5";
+		} else {
+			str += "T_0F";
+		}
 	}
 	if (type & T_0F38) {
 		if (!str.empty()) str += " | ";
-		str += "T_0F38";
+		if (type & T_FP16) {
+			str += "T_MAP6";
+		} else {
+			str += "T_0F38";
+		}
 	}
 	if (type & T_0F3A) {
 		if (!str.empty()) str += " | ";
