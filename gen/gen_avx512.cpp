@@ -741,6 +741,31 @@ void putV4FMA()
 	puts("void vp4dpwssds(const Zmm& z1, const Zmm& z2, const Address& addr) { opAVX_X_X_XM(z1, z2, addr, T_0F38 | T_F2 | T_EW0 | T_YMM | T_MUST_EVEX | T_N16, 0x53); }");
 }
 
+void putFP16_1()
+{
+	const struct Tbl {
+		uint8_t code;
+		const char *name;
+	} tbl[] = {
+		{ 0x58, "add" },
+		{ 0x5C, "sub" },
+		{ 0x59, "mul" },
+		{ 0x5E, "div" },
+		{ 0x5F, "max" },
+		{ 0x5D, "min" },
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		const Tbl *p = &tbl[i];
+		printf("void v%sph(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_MAP5 | T_EW0 | T_YMM | T_MUST_EVEX | T_ER_Z | T_B32, 0x%02X); }\n", p->name, p->code);
+		printf("void v%ssh(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_MAP5 | T_F3 | T_EW0 | T_MUST_EVEX | T_ER_Z | T_N2, 0x%02X); }\n", p->name, p->code);
+	}
+}
+
+void putFP16()
+{
+	putFP16_1();
+}
+
 int main(int argc, char *[])
 {
 	bool only64bit = argc == 2;
@@ -765,4 +790,5 @@ int main(int argc, char *[])
 	putMisc();
 	putScatter();
 	putV4FMA();
+	putFP16();
 }
