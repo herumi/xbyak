@@ -1675,6 +1675,7 @@ private:
 		T_MUST_EVEX = 1 << 25, // contains T_EVEX
 		T_B32 = 1 << 26, // m32bcst
 		T_B64 = 1 << 27, // m64bcst
+		T_B16 = T_B32 | T_B64, // m16bcst (Be careful)
 		T_M_K = 1 << 28, // mem{k}
 		T_VSIB = 1 << 29,
 		T_MEM_EVEX = 1 << 30, // use evex if mem
@@ -1748,7 +1749,7 @@ private:
 			VL = (std::max)((std::max)(reg.getBit(), base.getBit()), VL);
 			LL = (VL == 512) ? 2 : (VL == 256) ? 1 : 0;
 			if (b) {
-				disp8N = (type & T_B32) ? 4 : 8;
+				disp8N = ((type & T_B16) == T_B16) ? 2 : (type & T_B32) ? 4 : 8;
 			} else if (type & T_DUP) {
 				disp8N = VL == 128 ? 8 : VL == 256 ? 32 : 64;
 			} else {
