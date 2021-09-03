@@ -1,6 +1,6 @@
 [![Build Status](https://github.com/herumi/xbyak/actions/workflows/main.yml/badge.svg)](https://github.com/herumi/xbyak/actions/workflows/main.yml)
 
-# Xbyak 5.995 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.996 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -447,6 +447,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2021/Sep/03 ver 5.996 fix v{add,sub,mul,div,max,min}{sd,ss} to support T_rd_sae.
 * 2021/Aug/15 ver 5.995 add a label to /proc/self/maps if XBYAK_USE_MEMFD is defined on Linux
 * 2021/Jun/17 ver 5.994 add alias of vcmpXX{ps,pd,ss,sd} with mask register
 * 2021/Jun/06 ver 5.993 strict check of gather/scatter register combination
