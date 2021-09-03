@@ -1366,6 +1366,8 @@ public:
 				put(p, _ZMM, _ZMM, mem | _MEM);
 			}
 		}
+		put("vaddss", XMM, _XMM, XMM_ER);
+		put("vaddsd", XMM, _XMM, XMM_ER);
 #endif
 	}
 	void putAVX1()
