@@ -108,6 +108,7 @@ void putVcmp()
 		{ 0xC2, "vcmpsd", T_0F | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_F2 | T_N8, true },
 		{ 0xC2, "vcmpss", T_0F | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_F3 | T_N4, true },
 		{ 0xC2, "vcmpph", T_0F3A | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_YMM | T_B32, true },
+		{ 0xC2, "vcmpsh", T_0F3A | T_MUST_EVEX | T_EW0 | T_SAE_X, true },
 
 		{ 0x74, "vpcmpeqb", T_66 | T_0F | T_MUST_EVEX | T_YMM, false },
 		{ 0x75, "vpcmpeqw", T_66 | T_0F | T_MUST_EVEX | T_YMM, false },
@@ -758,7 +759,7 @@ void putFP16_1()
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
 		printf("void v%sph(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_MAP5 | T_EW0 | T_YMM | T_MUST_EVEX | T_ER_Z | T_B16, 0x%02X); }\n", p->name, p->code);
-		printf("void v%ssh(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_MAP5 | T_F3 | T_EW0 | T_MUST_EVEX | T_ER_Z | T_N2, 0x%02X); }\n", p->name, p->code);
+		printf("void v%ssh(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_MAP5 | T_F3 | T_EW0 | T_MUST_EVEX | T_ER_X | T_N2, 0x%02X); }\n", p->name, p->code);
 	}
 }
 
