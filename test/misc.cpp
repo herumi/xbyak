@@ -866,7 +866,7 @@ CYBOZU_TEST_AUTO(vnni)
 	CYBOZU_TEST_EXCEPTION(c.badVex(), std::exception);
 }
 
-CYBOZU_TEST_AUTO(vaddph)
+CYBOZU_TEST_AUTO(fp16)
 {
 	struct Code : Xbyak::CodeGenerator {
 		Code()
@@ -875,6 +875,10 @@ CYBOZU_TEST_AUTO(vaddph)
 			vaddph(ymm0, ymm1, ptr[rax+64]);
 			vaddph(xmm0, xmm1, ptr[rax+64]);
 			vaddsh(xmm0, xmm15, ptr[rax+64]);
+
+			vcmpph(k1, xm15, ptr[rax+64], 1);
+			vcmpph(k2, ym15, ptr[rax+64], 2);
+			vcmpph(k3, zm15, ptr[rax+64], 3);
 		}
 	} c;
 	const uint8_t tbl[] = {
@@ -882,6 +886,10 @@ CYBOZU_TEST_AUTO(vaddph)
 		0x62, 0xF5, 0x74, 0x28, 0x58, 0x40, 0x02,
 		0x62, 0xF5, 0x74, 0x08, 0x58, 0x40, 0x04,
 		0x62, 0xF5, 0x06, 0x08, 0x58, 0x40, 0x20,
+
+		0x62, 0xF3, 0x04, 0x08, 0xC2, 0x48, 0x04, 0x01,
+		0x62, 0xF3, 0x04, 0x28, 0xC2, 0x50, 0x02, 0x02,
+		0x62, 0xF3, 0x04, 0x48, 0xC2, 0x58, 0x01, 0x03,
 	};
 	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
 	CYBOZU_TEST_EQUAL(c.getSize(), n);

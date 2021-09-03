@@ -107,6 +107,7 @@ void putVcmp()
 		{ 0xC2, "vcmpps", T_0F | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_YMM | T_B32, true },
 		{ 0xC2, "vcmpsd", T_0F | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_F2 | T_N8, true },
 		{ 0xC2, "vcmpss", T_0F | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_F3 | T_N4, true },
+		{ 0xC2, "vcmpph", T_0F3A | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_YMM | T_B32, true },
 
 		{ 0x74, "vpcmpeqb", T_66 | T_0F | T_MUST_EVEX | T_YMM, false },
 		{ 0x75, "vpcmpeqw", T_66 | T_0F | T_MUST_EVEX | T_YMM, false },
