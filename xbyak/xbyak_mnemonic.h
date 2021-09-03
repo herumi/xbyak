@@ -1873,7 +1873,7 @@ void vcmppd(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opA
 void vcmpph(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opAVX_K_X_XM(k, x, op, T_0F3A | T_EW0 | T_YMM | T_SAE_Z | T_MUST_EVEX | T_B16, 0xC2, imm); }
 void vcmpps(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opAVX_K_X_XM(k, x, op, T_0F | T_EW0 | T_YMM | T_SAE_Z | T_MUST_EVEX | T_B32, 0xC2, imm); }
 void vcmpsd(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opAVX_K_X_XM(k, x, op, T_N8 | T_F2 | T_0F | T_EW1 | T_SAE_Z | T_MUST_EVEX, 0xC2, imm); }
-void vcmpsh(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opAVX_K_X_XM(k, x, op, T_0F3A | T_EW0 | T_SAE_X | T_MUST_EVEX, 0xC2, imm); }
+void vcmpsh(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opAVX_K_X_XM(k, x, op, T_0F3A | T_EW0 | T_SAE_X | T_MUST_EVEX | T_B16, 0xC2, imm); }
 void vcmpss(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opAVX_K_X_XM(k, x, op, T_N4 | T_F3 | T_0F | T_EW0 | T_SAE_Z | T_MUST_EVEX, 0xC2, imm); }
 void vcmptrue_uspd(const Opmask& k, const Xmm& x, const Operand& op) { vcmppd(k, x, op, 31); }
 void vcmptrue_usps(const Opmask& k, const Xmm& x, const Operand& op) { vcmpps(k, x, op, 31); }
