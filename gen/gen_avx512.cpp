@@ -764,9 +764,56 @@ void putFP16_1()
 	}
 }
 
+void putFP16_FMA()
+{
+	const struct Tbl {
+		uint8_t code;
+		const char *name;
+		bool isPH;
+	} tbl[] = {
+		{ 0x06, "vfmaddsub", true },
+/*
+		{ 0x, "vfmadd", false },
+		{ 0x06, "vfmaddsub", true },
+		{ 0x07, "vfmsubadd", true },
+		{ 0x0A, "vfmsub", true },
+		{ 0x0B, "vfmsub", false },
+		{ 0x0C, "vfnmadd", true },
+		{ 0x0D, "vfnmadd", false },
+		{ 0x0E, "vfnmsub", true },
+		{ 0x0F, "vfnmsub", false },
+*/
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		for (int k = 0; k < 3; k++) {
+			const struct Ord {
+				const char *str;
+				uint8_t code;
+			} ord[] = {
+				{ "132", 0x90 },
+				{ "213", 0xA0 },
+				{ "231", 0xB0 },
+			};
+			int t = T_66 | T_MAP6 | T_EW0 | T_MUST_EVEX;
+			const char *suf = 0;
+			if (tbl[i].isPH) {
+				t |= T_ER_Z | T_YMM | T_B16;
+				suf = "ph";
+			} else {
+				t |= T_ER_X | T_N2;
+				suf = "sh";
+			}
+			std::string type = type2String(t);
+			printf("void %s%s%s(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X); }\n"
+				, tbl[i].name, ord[k].str, suf, type.c_str(), tbl[i].code | ord[k].code);
+		}
+	}
+}
+
 void putFP16()
 {
 	putFP16_1();
+	putFP16_FMA();
 }
 
 int main(int argc, char *[])

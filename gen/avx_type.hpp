@@ -40,6 +40,8 @@
 		T_VSIB = 1 << 29,
 		T_MEM_EVEX = 1 << 30, // use evex if mem
 		T_FP16 = 1 << 31,
+		T_MAP5 = T_FP16 | T_0F,
+		T_MAP6 = T_FP16 | T_0F38,
 		T_XXX
 	};
 
