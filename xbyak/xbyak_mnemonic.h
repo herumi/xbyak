@@ -1891,6 +1891,7 @@ void vcmpunordpd(const Opmask& k, const Xmm& x, const Operand& op) { vcmppd(k, x
 void vcmpunordps(const Opmask& k, const Xmm& x, const Operand& op) { vcmpps(k, x, op, 3); }
 void vcmpunordsd(const Opmask& k, const Xmm& x, const Operand& op) { vcmpsd(k, x, op, 3); }
 void vcmpunordss(const Opmask& k, const Xmm& x, const Operand& op) { vcmpss(k, x, op, 3); }
+void vcomish(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_MAP5 | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N2, 0x2F); }
 void vcompressb(const Operand& op, const Xmm& x) { opAVX_X_XM_IMM(x, op, T_N1 | T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX, 0x63); }
 void vcompresspd(const Operand& op, const Xmm& x) { opAVX_X_XM_IMM(x, op, T_N8 | T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX, 0x8A); }
 void vcompressps(const Operand& op, const Xmm& x) { opAVX_X_XM_IMM(x, op, T_N4 | T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX, 0x8A); }
