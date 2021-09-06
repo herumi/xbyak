@@ -815,6 +815,7 @@ void putFP16_FMA2()
 		bool isPH;
 	} tbl[] = {
 		{ 0x56, "maddc", true },
+		{ 0xD6, "mulc", true },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		for (int j = 0; j < 2; j++) {
