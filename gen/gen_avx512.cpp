@@ -773,13 +773,14 @@ void putFP16_FMA()
 	} tbl[] = {
 		{ 0x06, "vfmaddsub", true },
 		{ 0x07, "vfmsubadd", true },
-/*
-		{ 0x, "vfmadd", false },
+		{ 0x08, "vfmadd", true },
+		{ 0x0C, "vfnmadd", true },
 		{ 0x0A, "vfmsub", true },
+		{ 0x0E, "vfnmsub", true },
+/*
 		{ 0x0B, "vfmsub", false },
 		{ 0x0C, "vfnmadd", true },
 		{ 0x0D, "vfnmadd", false },
-		{ 0x0E, "vfnmsub", true },
 		{ 0x0F, "vfnmsub", false },
 */
 	};
