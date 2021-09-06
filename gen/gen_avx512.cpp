@@ -772,10 +772,9 @@ void putFP16_FMA()
 		bool isPH;
 	} tbl[] = {
 		{ 0x06, "vfmaddsub", true },
+		{ 0x07, "vfmsubadd", true },
 /*
 		{ 0x, "vfmadd", false },
-		{ 0x06, "vfmaddsub", true },
-		{ 0x07, "vfmsubadd", true },
 		{ 0x0A, "vfmsub", true },
 		{ 0x0B, "vfmsub", false },
 		{ 0x0C, "vfnmadd", true },
