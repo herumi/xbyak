@@ -777,12 +777,10 @@ void putFP16_FMA()
 		{ 0x0C, "vfnmadd", true },
 		{ 0x0A, "vfmsub", true },
 		{ 0x0E, "vfnmsub", true },
-/*
-		{ 0x0B, "vfmsub", false },
-		{ 0x0C, "vfnmadd", true },
+		{ 0x09, "vfmadd", false },
 		{ 0x0D, "vfnmadd", false },
+		{ 0x0B, "vfmsub", false },
 		{ 0x0F, "vfnmsub", false },
-*/
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		for (int k = 0; k < 3; k++) {
