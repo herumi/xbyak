@@ -331,6 +331,8 @@ void putX_X_XM_IMM()
 		{ 0x4D, "vrcp14sd", T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_N8, false },
 		{ 0x4D, "vrcp14ss", T_66 | T_0F38 | T_MUST_EVEX | T_EW0 | T_N4, false },
 
+		{ 0x4D, "vrcpsh", T_66 | T_MAP6 | T_MUST_EVEX | T_EW0 | T_N2, false },
+
 		{ 0x4F, "vrsqrt14sd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N8, false },
 		{ 0x4F, "vrsqrt14ss", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_N4, false },
 
@@ -651,6 +653,8 @@ void putX_XM_IMM()
 		{ 0x26, "vgetmantps", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW0 | T_B32 | T_SAE_Z, true },
 		{ 0x4C, "vrcp14pd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
 		{ 0x4C, "vrcp14ps", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, false },
+
+		{ 0x4C, "vrcpph", T_66 | T_MAP6 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16, false },
 
 		{ 0x4E, "vrsqrt14pd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
 		{ 0x4E, "vrsqrt14ps", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, false },
