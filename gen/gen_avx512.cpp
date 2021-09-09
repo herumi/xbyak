@@ -671,6 +671,7 @@ void putX_XM_IMM()
 
 		{ 0x09, "vrndscalepd", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, true },
 		{ 0x08, "vrndscaleps", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, true },
+		{ 0x08, "vrndscaleph", T_0F3A | T_YMM | T_MUST_EVEX | T_EW0 | T_B16 | T_SAE_Z, true },
 
 		{ 0xC4, "vpconflictd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, false },
 		{ 0xC4, "vpconflictq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
