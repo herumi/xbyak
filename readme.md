@@ -1,6 +1,6 @@
 [![Build Status](https://github.com/herumi/xbyak/actions/workflows/main.yml/badge.svg)](https://github.com/herumi/xbyak/actions/workflows/main.yml)
 
-# Xbyak 5.996 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 5.997 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
