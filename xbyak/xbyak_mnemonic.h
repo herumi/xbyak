@@ -2195,6 +2195,7 @@ void vrndscalepd(const Xmm& x, const Operand& op, uint8_t imm) { opAVX_X_XM_IMM(
 void vrndscaleph(const Xmm& x, const Operand& op, uint8_t imm) { opAVX_X_XM_IMM(x, op, T_0F3A | T_EW0 | T_YMM | T_SAE_Z | T_MUST_EVEX | T_B16, 0x08, imm); }
 void vrndscaleps(const Xmm& x, const Operand& op, uint8_t imm) { opAVX_X_XM_IMM(x, op, T_66 | T_0F3A | T_EW0 | T_YMM | T_MUST_EVEX | T_B32, 0x08, imm); }
 void vrndscalesd(const Xmm& x1, const Xmm& x2, const Operand& op, uint8_t imm) { opAVX_X_X_XM(x1, x2, op, T_N8 | T_66 | T_0F3A | T_EW1 | T_MUST_EVEX, 0x0B, imm); }
+void vrndscalesh(const Xmm& x1, const Xmm& x2, const Operand& op, uint8_t imm) { opAVX_X_X_XM(x1, x2, op, T_N2 | T_0F3A | T_EW0 | T_SAE_X | T_MUST_EVEX, 0x0A, imm); }
 void vrndscaless(const Xmm& x1, const Xmm& x2, const Operand& op, uint8_t imm) { opAVX_X_X_XM(x1, x2, op, T_N4 | T_66 | T_0F3A | T_EW0 | T_MUST_EVEX, 0x0A, imm); }
 void vrsqrt14pd(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_EW1 | T_YMM | T_MUST_EVEX | T_B64, 0x4E); }
 void vrsqrt14ps(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_EW0 | T_YMM | T_MUST_EVEX | T_B32, 0x4E); }

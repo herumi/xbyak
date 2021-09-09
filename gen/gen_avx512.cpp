@@ -341,6 +341,7 @@ void putX_X_XM_IMM()
 
 		{ 0x0B, "vrndscalesd", T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_N8, true },
 		{ 0x0A, "vrndscaless", T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_N4, true },
+		{ 0x0A, "vrndscalesh", T_0F3A | T_MUST_EVEX | T_EW0 | T_N2 | T_SAE_X, true },
 
 		{ 0x2C, "vscalefpd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64 | T_ER_Z, false },
 		{ 0x2C, "vscalefps", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32 | T_ER_Z, false },
