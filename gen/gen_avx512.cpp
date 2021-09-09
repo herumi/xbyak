@@ -347,6 +347,8 @@ void putX_X_XM_IMM()
 		{ 0x2D, "vscalefsd", T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_ER_X | T_N8, false },
 		{ 0x2D, "vscalefss", T_66 | T_0F38 | T_MUST_EVEX | T_EW0 | T_ER_X | T_N4, false },
 
+		{ 0x2C, "vscalefph", T_66 | T_MAP6 | T_YMM | T_MUST_EVEX | T_EW0 | T_B16 | T_ER_Z, false },
+
 		{ 0x42, "vdbpsadbw", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW0, true },
 		{ 0x83, "vpmultishiftqb", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
 
