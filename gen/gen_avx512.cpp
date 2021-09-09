@@ -372,6 +372,7 @@ void putX_X_XM_IMM()
 
 		{ 0x57, "vreducesd", T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_SAE_X | T_N8, true },
 		{ 0x57, "vreducess", T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N4, true },
+		{ 0x57, "vreducesh", T_0F3A | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N2, true },
 
 		{ 0xB4, "vpmadd52luq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
 		{ 0xB5, "vpmadd52huq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
