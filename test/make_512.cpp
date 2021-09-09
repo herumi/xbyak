@@ -1951,14 +1951,16 @@ public:
 		put("vrndscalepd", XMM_KZ, _XMM | _MEM | M_1to2, IMM8);
 		put("vrndscalepd", YMM_KZ, _YMM | _MEM | M_1to4, IMM8);
 		put("vrndscalepd", ZMM_KZ, _ZMM | _MEM | M_1to8, IMM8);
+		put("vrndscalepd", ZMM_KZ, _ZMM | ZMM_SAE, IMM8);
 
 		put("vrndscaleps", XMM_KZ, _XMM | _MEM | M_1to4, IMM8);
 		put("vrndscaleps", YMM_KZ, _YMM | _MEM | M_1to8, IMM8);
 		put("vrndscaleps", ZMM_KZ, _ZMM | _MEM | M_1to16, IMM8);
+		put("vrndscaleps", ZMM_KZ, _ZMM | ZMM_SAE, IMM8);
 
-		put("vrndscalesd", XMM_KZ, _XMM, _XMM | _MEM, IMM8);
+		put("vrndscalesd", XMM_KZ, _XMM, _XMM | _MEM | XMM_SAE, IMM8);
 
-		put("vrndscaless", XMM_KZ, _XMM, _XMM | _MEM, IMM8);
+		put("vrndscaless", XMM_KZ, _XMM, _XMM | _MEM | XMM_SAE, IMM8);
 
 		put("vscalefpd", XMM_KZ, _XMM, _XMM | _MEM | M_1to2);
 		put("vscalefpd", YMM_KZ, _YMM, _YMM | _MEM | M_1to4);

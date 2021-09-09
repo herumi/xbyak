@@ -339,8 +339,8 @@ void putX_X_XM_IMM()
 		{ 0x4F, "vrsqrtsh", T_66 | T_MAP6 | T_MUST_EVEX | T_EW0 | T_N2, false },
 		{ 0x51, "vsqrtsh", T_F3 | T_MAP5 | T_MUST_EVEX | T_EW0 | T_ER_X | T_N2, false },
 
-		{ 0x0B, "vrndscalesd", T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_N8, true },
-		{ 0x0A, "vrndscaless", T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_N4, true },
+		{ 0x0B, "vrndscalesd", T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_N8 | T_SAE_X, true },
+		{ 0x0A, "vrndscaless", T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_N4 | T_SAE_X, true },
 		{ 0x0A, "vrndscalesh", T_0F3A | T_MUST_EVEX | T_EW0 | T_N2 | T_SAE_X, true },
 
 		{ 0x2C, "vscalefpd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64 | T_ER_Z, false },
@@ -670,8 +670,8 @@ void putX_XM_IMM()
 		{ 0x4E, "vrsqrtph", T_66 | T_MAP6 | T_YMM | T_MUST_EVEX | T_EW0 | T_B16, false },
 		{ 0x51, "vsqrtph", T_MAP5| T_YMM | T_MUST_EVEX  | T_EW0 | T_ER_Z | T_B16, false },
 
-		{ 0x09, "vrndscalepd", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, true },
-		{ 0x08, "vrndscaleps", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, true },
+		{ 0x09, "vrndscalepd", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_B64 | T_SAE_Z, true },
+		{ 0x08, "vrndscaleps", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW0 | T_B32 | T_SAE_Z, true },
 		{ 0x08, "vrndscaleph", T_0F3A | T_YMM | T_MUST_EVEX | T_EW0 | T_B16 | T_SAE_Z, true },
 
 		{ 0xC4, "vpconflictd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, false },
