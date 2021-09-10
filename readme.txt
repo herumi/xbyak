@@ -382,6 +382,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2021/09/09 ver 5.997 vrndscale*を{sae}をサポートするよう修正
 2021/09/03 ver 5.996 v{add,sub,mul,div,max,min}{sd,ss}をT_rd_saeなどをサポートするよう修正
 2021/08/15 ver 5.995 Linux上でXBYAK_USE_MEMFDが定義されたなら/proc/self/mapsにラベル追加
 2021/06/17 ver 5.994 マスクレジスタ用のvcmpXX{ps,pd,ss,sd}のalias追加
