@@ -321,6 +321,7 @@ void putX_X_XM_IMM()
 
 		{ 0x43, "vgetexpsd", T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_SAE_X | T_N8, false },
 		{ 0x43, "vgetexpss", T_66 | T_0F38 | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N4, false },
+		{ 0x43, "vgetexpsh", T_66 | T_MAP6 | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N2, false },
 		{ 0x27, "vgetmantsd", T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_SAE_X | T_N8, true },
 		{ 0x27, "vgetmantss", T_66 | T_0F3A | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N4, true },
 
