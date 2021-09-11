@@ -200,6 +200,8 @@ void putX_XM()
 		{ 0x42, "vgetexppd", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_B64 | T_SAE_Z },
 		{ 0x42, "vgetexpps", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_B32 | T_SAE_Z },
 		{ 0x42, "vgetexpph", T_66 | T_MAP6 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_SAE_Z },
+
+		{ 0x10, "vmovsh", T_F3 | T_MAP5 | T_MUST_EVEX | T_EW0 | T_N2 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -230,6 +232,7 @@ void putM_X()
 		{ 0x7F, "vmovdqu16", T_F2 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z | T_M_K },
 		{ 0x7F, "vmovdqu32", T_F3 | T_0F | T_MUST_EVEX | T_YMM | T_EW0 | T_ER_X | T_ER_Y | T_ER_Z | T_M_K },
 		{ 0x7F, "vmovdqu64", T_F3 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z | T_M_K },
+		{ 0x11, "vmovsh", T_F3 | T_MAP5 | T_MUST_EVEX | T_EW0 | T_N2 | T_M_K },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -864,11 +867,21 @@ void putFP16_FMA2()
 	}
 }
 
+void putFP16_2()
+{
+	{
+		int t = T_F3 | T_MAP5 | T_MUST_EVEX | T_EW0;
+		std::string type = type2String(t);
+		printf("void vmovsh(const Xmm& x1, const Xmm& x2, const Xmm& x3) { opAVX_X_X_XM(x1, x2, x3, %s, 0x10); }\n", type.c_str());
+	}
+}
+
 void putFP16()
 {
 	putFP16_1();
 	putFP16_FMA();
 	putFP16_FMA2();
+	putFP16_2();
 }
 
 int main(int argc, char *[])
