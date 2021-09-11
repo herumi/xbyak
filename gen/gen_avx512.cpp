@@ -231,6 +231,7 @@ void putM_X()
 		{ 0x7F, "vmovdqu32", T_F3 | T_0F | T_MUST_EVEX | T_YMM | T_EW0 | T_ER_X | T_ER_Y | T_ER_Z | T_M_K },
 		{ 0x7F, "vmovdqu64", T_F3 | T_0F | T_MUST_EVEX | T_YMM | T_EW1 | T_ER_X | T_ER_Y | T_ER_Z | T_M_K },
 		{ 0x11, "vmovsh", T_F3 | T_MAP5 | T_MUST_EVEX | T_EW0 | T_N2 | T_M_K },
+		{ 0x7E, "vmovw", T_66 | T_MAP5 | T_MUST_EVEX | T_N2 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -872,6 +873,12 @@ void putFP16_2()
 		std::string type = type2String(t);
 		printf("void vmovsh(const Xmm& x, const Address& addr) { opAVX_X_X_XM(x, xm0, addr, %s, 0x10); }\n", type.c_str());
 		printf("void vmovsh(const Xmm& x1, const Xmm& x2, const Xmm& x3) { opAVX_X_X_XM(x1, x2, x3, %s, 0x10); }\n", type.c_str());
+	}
+	{
+		int t = T_66 | T_MAP5 | T_MUST_EVEX | T_N2;
+		std::string type = type2String(t);
+		printf("void vmovw(const Xmm& x, const Operand& op) { if (!op.isREG(32|64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_X_XM(x, xm0, op, %s, 0x6E); }\n", type.c_str());
+		printf("void vmovw(const Reg32e& r, const Xmm& x) { opAVX_X_X_XM(x, xm0, r, %s, 0x7E); }\n", type.c_str());
 	}
 }
 
