@@ -1071,6 +1071,9 @@ CYBOZU_TEST_AUTO(vaddph)
 			vcvtsh2ss(xmm1|k1|T_z|T_sae, xmm2, xmm3);
 			vcvtsh2ss(xmm1, xmm2, ptr [rax+0x40]);
 
+			vcvtss2sh(xmm1|k1|T_z|T_rd_sae, xmm2, xmm3);
+			vcvtss2sh(xmm1, xmm2, ptr [rax+0x40]);
+
 
 		}
 	} c;
@@ -1318,6 +1321,10 @@ CYBOZU_TEST_AUTO(vaddph)
 		// vcvtsh2ss
 		0x62, 0xf6, 0x6c, 0x99, 0x13, 0xcb,
 		0x62, 0xf6, 0x6c, 0x08, 0x13, 0x48, 0x20,
+
+		// vcvtss2sh
+		0x62, 0xf5, 0x6c, 0xb9, 0x1d, 0xcb,
+		0x62, 0xf5, 0x6c, 0x08, 0x1d, 0x48, 0x10,
 	};
 	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
