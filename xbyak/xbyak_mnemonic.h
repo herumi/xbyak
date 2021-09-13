@@ -1906,6 +1906,7 @@ void vcvtph2pd(const Xmm& x, const Operand& op) { if (!op.isXMM() && !op.isMEM()
 void vcvtph2psx(const Xmm& x, const Operand& op) { checkCvt1(x, op); opVex(x, 0, op, T_N8 | T_N_VL | T_66 | T_MAP6 | T_EW0 | T_YMM | T_SAE_Y | T_MUST_EVEX | T_B16, 0x13); }
 void vcvtph2qq(const Xmm& x, const Operand& op) { if (!op.isXMM() && !op.isMEM()) XBYAK_THROW(ERR_BAD_MEM_SIZE) opVex(x, 0, op, T_N4 | T_N_VL | T_66 | T_MAP5 | T_EW0 | T_YMM | T_ER_X | T_MUST_EVEX | T_B16, 0x7B); }
 void vcvtph2udq(const Xmm& x, const Operand& op) { checkCvt1(x, op); opVex(x, 0, op, T_N8 | T_N_VL | T_MAP5 | T_EW0 | T_YMM | T_ER_Y | T_MUST_EVEX | T_B16, 0x79); }
+void vcvtph2uqq(const Xmm& x, const Operand& op) { if (!op.isXMM() && !op.isMEM()) XBYAK_THROW(ERR_BAD_MEM_SIZE) opVex(x, 0, op, T_N4 | T_N_VL | T_66 | T_MAP5 | T_EW0 | T_YMM | T_ER_X | T_MUST_EVEX | T_B16, 0x79); }
 void vcvtps2qq(const Xmm& x, const Operand& op) { checkCvt1(x, op); opVex(x, 0, op, T_N8 | T_N_VL | T_66 | T_0F | T_EW0 | T_YMM | T_ER_Y | T_MUST_EVEX | T_B32, 0x7B); }
 void vcvtps2udq(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_0F | T_EW0 | T_YMM | T_ER_Z | T_MUST_EVEX | T_B32, 0x79); }
 void vcvtps2uqq(const Xmm& x, const Operand& op) { checkCvt1(x, op); opVex(x, 0, op, T_N8 | T_N_VL | T_66 | T_0F | T_EW0 | T_YMM | T_ER_Y | T_MUST_EVEX | T_B32, 0x79); }
