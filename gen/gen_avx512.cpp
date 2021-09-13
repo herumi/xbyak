@@ -567,6 +567,7 @@ void putCvt()
 		{ 0x7A, "vcvtudq2ph", T_F2 | T_MAP5 | T_MUST_EVEX | T_EW0 | T_B32 | T_ER_Z | T_N16 | T_N_VL, 4 },
 
 		{ 0x5A, "vcvtpd2ph", T_66 | T_MAP5 | T_MUST_EVEX | T_EW1 | T_B64 | T_ER_Z | T_N16 | T_N_VL, 5 },
+		{ 0x5B, "vcvtqq2ph", T_MAP5 | T_MUST_EVEX | T_EW1 | T_B64 | T_ER_Z | T_N16 | T_N_VL, 5 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& p = tbl[i];
