@@ -565,6 +565,8 @@ void putCvt()
 		{ 0x5B, "vcvtdq2ph", T_MAP5 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32 | T_ER_Z | T_N16 | T_N_VL, 4 },
 		{ 0x1D, "vcvtps2phx", T_66 | T_MAP5 | T_MUST_EVEX | T_EW0 | T_B32 | T_ER_Z | T_N16 | T_N_VL, 4 },
 		{ 0x7A, "vcvtudq2ph", T_F2 | T_MAP5 | T_MUST_EVEX | T_EW0 | T_B32 | T_ER_Z | T_N16 | T_N_VL, 4 },
+
+		{ 0x5A, "vcvtpd2ph", T_66 | T_MAP5 | T_MUST_EVEX | T_EW1 | T_B64 | T_ER_Z | T_N16 | T_N_VL, 5 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& p = tbl[i];
@@ -584,6 +586,9 @@ void putCvt()
 			break;
 		case 4:
 			printf("void %s(const Xmm& x, const Operand& op) { checkCvt4(x, op); opCvt(x, op, %s, 0x%02X); }\n", p.name, type.c_str(), p.code);
+			break;
+		case 5:
+			printf("void %s(const Xmm& x, const Operand& op) { opCvt5(x, op, %s, 0x%02X); }\n", p.name, type.c_str(), p.code);
 			break;
 		}
 	}
