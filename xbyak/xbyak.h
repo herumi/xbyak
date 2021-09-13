@@ -2233,11 +2233,15 @@ private:
 	{
 		if (!(x.isXMM() && op.is(Operand::XMM | Operand::YMM | Operand::MEM)) && !(x.isYMM() && op.is(Operand::ZMM | Operand::MEM))) XBYAK_THROW(ERR_BAD_COMBINATION)
 	}
+	void opCvt(const Xmm& x, const Operand& op, int type, int code)
+	{
+		Operand::Kind kind = x.isXMM() ? (op.isBit(256) ? Operand::YMM : Operand::XMM) : Operand::ZMM;
+		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
+	}
 	void opCvt2(const Xmm& x, const Operand& op, int type, int code)
 	{
 		checkCvt2(x, op);
-		Operand::Kind kind = x.isXMM() ? (op.isBit(256) ? Operand::YMM : Operand::XMM) : Operand::ZMM;
-		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
+		opCvt(x, op, type, code);
 	}
 	void opCvt3(const Xmm& x1, const Xmm& x2, const Operand& op, int type, int type64, int type32, uint8_t code)
 	{
@@ -2245,6 +2249,11 @@ private:
 		Xmm x(op.getIdx());
 		const Operand *p = op.isREG() ? &x : &op;
 		opVex(x1, &x2, *p, type | (op.isBit(64) ? type64 : type32), code);
+	}
+	// (x, x/y/xword/yword), (y, z/m)
+	void checkCvt4(const Xmm& x, const Operand& op) const
+	{
+		if (!(x.isXMM() && op.is(Operand::XMM | Operand::YMM | Operand::MEM) && op.isBit(128|256)) && !(x.isYMM() && op.is(Operand::ZMM | Operand::MEM))) XBYAK_THROW(ERR_BAD_COMBINATION)
 	}
 	const Xmm& cvtIdx0(const Operand& x) const
 	{

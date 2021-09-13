@@ -561,6 +561,8 @@ void putCvt()
 		{ 0x7B, "vcvtph2qq", T_66 | T_MAP5 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_N4 | T_N_VL | T_ER_X, 3 },
 		{ 0x79, "vcvtph2uqq", T_66 | T_MAP5 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_N4 | T_N_VL | T_ER_X, 3 },
 		{ 0x78, "vcvttph2uqq", T_66 | T_MAP5 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_N4 | T_N_VL | T_SAE_X, 3 },
+
+		{ 0x5B, "vcvtdq2ph", T_MAP5 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32 | T_ER_Z | T_N16 | T_N_VL, 4 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& p = tbl[i];
@@ -577,6 +579,9 @@ void putCvt()
 			break;
 		case 3:
 			printf("void %s(const Xmm& x, const Operand& op) { if (!op.isXMM() && !op.isMEM()) XBYAK_THROW(ERR_BAD_MEM_SIZE) opVex(x, 0, op, %s, 0x%02X); }\n", p.name, type.c_str(), p.code);
+			break;
+		case 4:
+			printf("void %s(const Xmm& x, const Operand& op) { checkCvt4(x, op); opCvt(x, op, %s, 0x%02X); }\n", p.name, type.c_str(), p.code);
 			break;
 		}
 	}
