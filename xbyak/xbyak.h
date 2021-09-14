@@ -1652,9 +1652,10 @@ private:
 		//
 		T_N_VL = 1 << 3, // N * (1, 2, 4) for VL
 		T_DUP = 1 << 4, // N = (8, 32, 64)
-		T_66 = 1 << 5,
-		T_F3 = 1 << 6,
-		T_F2 = 1 << 7,
+		T_66 = 1 << 5, // pp = 1
+		T_F3 = 1 << 6, // pp = 2
+		T_F2 = T_66 | T_F3, // pp = 3
+		// 1 << 7, not used
 		T_0F = 1 << 8,
 		T_0F38 = 1 << 9,
 		T_0F3A = 1 << 10,
@@ -1684,6 +1685,8 @@ private:
 		T_MAP6 = T_FP16 | T_0F38,
 		T_XXX
 	};
+	// T_66 = 1, T_F3 = 2, T_F2 = 3
+	uint32_t getPP(int type) const { return (type >> 5) & 3; }
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
 	{
 		int w = (type & T_W1) ? 1 : 0;
@@ -1692,7 +1695,7 @@ private:
 		bool b = base.isExtIdx();
 		int idx = v ? v->getIdx() : 0;
 		if ((idx | reg.getIdx() | base.getIdx()) >= 16) XBYAK_THROW(ERR_BAD_COMBINATION)
-		uint32_t pp = (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0;
+		uint32_t pp = getPP(type);
 		uint32_t vvvv = (((~idx) & 15) << 3) | (is256 ? 4 : 0) | pp;
 		if (!b && !x && !w && (type & T_0F)) {
 			db(0xC5); db((r ? 0 : 0x80) | vvvv);
@@ -1725,8 +1728,7 @@ private:
 		int w = (type & T_EW1) ? 1 : 0;
 		uint32_t mmm = (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0;
 		if (type & T_FP16) mmm |= 4;
-		uint32_t pp = (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0;
-
+		uint32_t pp = getPP(type);
 		int idx = v ? v->getIdx() : 0;
 		uint32_t vvvv = ~idx;
 

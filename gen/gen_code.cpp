@@ -1303,7 +1303,8 @@ void put()
 			if (p->mode & 1) {
 				const char *immS1 = p->hasIMM ? ", uint8_t imm" : "";
 				const char *immS2 = p->hasIMM ? ", imm" : ", NONE";
-				const char *pref = p->type & T_66 ? "0x66" : p->type & T_F2 ? "0xF2" : p->type & T_F3 ? "0xF3" : "NONE";
+				const char *prefTbl[5] = { "NONE", "0x66", "0xF3", "0xF2" };
+				const char *pref = prefTbl[getPP(p->type)];
 				const char *suf = p->type & T_0F38 ? "0x38" : p->type & T_0F3A ? "0x3A" : "NONE";
 				printf("void %s(const Xmm& xmm, const Operand& op%s) { opGen(xmm, op, 0x%02X, %s, isXMM_XMMorMEM%s, %s); }\n", p->name, immS1, p->code, pref, immS2, suf);
 			}
@@ -1354,11 +1355,12 @@ void put()
 			{ 0xDE, "aesdec", T_0F38 | T_66 | T_YMM | T_EVEX, 3 },
 			{ 0xDF, "aesdeclast", T_0F38 | T_66 | T_YMM | T_EVEX, 3 },
 		};
+		const uint8_t ppTbl[] = { 0, 0x66, 0xf3, 0xf2 };
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			std::string type = type2String(p->type);
 			if (p->mode & 1) {
-				uint8_t pref = p->type & T_66 ? 0x66 : p->type & T_F2 ? 0xF2 : p->type & T_F3 ? 0xF3 : 0;
+				uint8_t pref = ppTbl[getPP(p->type)];
 				printf("void %s(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x%02X, 0x%02X, isXMM_XMMorMEM%s); }\n", p->name, p->code, pref, p->type & T_0F38 ? ", NONE, 0x38" : "");
 			}
 			if (p->mode & 2) {
