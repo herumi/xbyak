@@ -15,7 +15,7 @@
 		T_66 = 1 << 5, // pp = 1
 		T_F3 = 1 << 6, // pp = 2
 		T_F2 = T_66 | T_F3, // pp = 3
-		// 1 << 7, not used
+		T_ER_R = 1 << 7, // reg{er}
 		T_0F = 1 << 8,
 		T_0F38 = 1 << 9,
 		T_0F3A = 1 << 10,
@@ -142,6 +142,10 @@ std::string type2String(int type)
 	if (type & T_ER_Z) {
 		if (!str.empty()) str += " | ";
 		str += "T_ER_Z";
+	}
+	if (type & T_ER_R) {
+		if (!str.empty()) str += " | ";
+		str += "T_ER_R";
 	}
 	if (type & T_SAE_X) {
 		if (!str.empty()) str += " | ";

@@ -580,6 +580,8 @@ void putCvt()
 		{ 0x5A, "vcvtpd2ph", T_66 | T_MAP5 | T_MUST_EVEX | T_EW1 | T_B64 | T_ER_Z | T_N16 | T_N_VL, 5 },
 		{ 0x5B, "vcvtqq2ph", T_MAP5 | T_MUST_EVEX | T_EW1 | T_B64 | T_ER_Z | T_N16 | T_N_VL, 5 },
 		{ 0x7A, "vcvtuqq2ph", T_F2 | T_MAP5 | T_MUST_EVEX | T_EW1 | T_B64 | T_ER_Z | T_N16 | T_N_VL, 5 },
+
+		{ 0x2A, "vcvtsi2sh", T_F3 | T_MAP5 | T_MUST_EVEX | T_ER_R | T_M_K, 6 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& p = tbl[i];
@@ -602,6 +604,9 @@ void putCvt()
 			break;
 		case 5:
 			printf("void %s(const Xmm& x, const Operand& op) { opCvt5(x, op, %s, 0x%02X); }\n", p.name, type.c_str(), p.code);
+			break;
+		case 6:
+			printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { if (!(x1.isXMM() && x2.isXMM() && op.isBit(32|64))) XBYAK_THROW(ERR_BAD_COMBINATION) int type = (%s) | (op.isBit(32) ? (T_EW0 | T_N4) : (T_EW1 | T_N8)); opVex(x1, &x2, op, type, 0x%02X); }\n", p.name, type.c_str(), p.code);
 			break;
 		}
 	}

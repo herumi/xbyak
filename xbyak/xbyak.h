@@ -1655,7 +1655,7 @@ private:
 		T_66 = 1 << 5, // pp = 1
 		T_F3 = 1 << 6, // pp = 2
 		T_F2 = T_66 | T_F3, // pp = 3
-		// 1 << 7, not used
+		T_ER_R = 1 << 7, // reg{er}
 		T_0F = 1 << 8,
 		T_0F38 = 1 << 9,
 		T_0F3A = 1 << 10,
@@ -1712,6 +1712,7 @@ private:
 	}
 	void verifyER(const Reg& r, int type) const
 	{
+		if ((type & T_ER_R) && r.isREG(32|64)) return;
 		if (((type & T_ER_X) && r.isXMM()) || ((type & T_ER_Y) && r.isYMM()) || ((type & T_ER_Z) && r.isZMM())) return;
 		XBYAK_THROW(ERR_ER_IS_INVALID)
 	}
