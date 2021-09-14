@@ -1,6 +1,6 @@
 [![Build Status](https://github.com/herumi/xbyak/actions/workflows/main.yml/badge.svg)](https://github.com/herumi/xbyak/actions/workflows/main.yml)
 
-# Xbyak 5.997 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 6.00 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -447,6 +447,7 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2021/Sep/14 ver 6.00 fully support AVX512-FP16
 * 2021/Sep/09 ver 5.997 fix vrndscale* to support {sae}
 * 2021/Sep/03 ver 5.996 fix v{add,sub,mul,div,max,min}{sd,ss} to support T_rd_sae.
 * 2021/Aug/15 ver 5.995 add a label to /proc/self/maps if XBYAK_USE_MEMFD is defined on Linux
