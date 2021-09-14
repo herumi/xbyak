@@ -1950,6 +1950,7 @@ void vcvtuqq2pd(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_F3 | 
 void vcvtuqq2ph(const Xmm& x, const Operand& op) { opCvt5(x, op, T_N16 | T_N_VL | T_F2 | T_MAP5 | T_EW1 | T_ER_Z | T_MUST_EVEX | T_B64, 0x7A); }
 void vcvtuqq2ps(const Xmm& x, const Operand& op) { opCvt2(x, op, T_F2 | T_0F | T_EW1 | T_YMM | T_ER_Z | T_MUST_EVEX | T_B64, 0x7A); }
 void vcvtusi2sd(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, T_F2 | T_0F | T_MUST_EVEX, T_W1 | T_EW1 | T_ER_X | T_N8, T_W0 | T_EW0 | T_N4, 0x7B); }
+void vcvtusi2sh(const Xmm& x1, const Xmm& x2, const Operand& op) { if (!(x1.isXMM() && x2.isXMM() && op.isBit(32|64))) XBYAK_THROW(ERR_BAD_COMBINATION) int type = (T_F3 | T_MAP5 | T_ER_R | T_MUST_EVEX | T_M_K) | (op.isBit(32) ? (T_EW0 | T_N4) : (T_EW1 | T_N8)); opVex(x1, &x2, op, type, 0x7B); }
 void vcvtusi2ss(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, T_F3 | T_0F | T_MUST_EVEX | T_ER_X, T_W1 | T_EW1 | T_N8, T_W0 | T_EW0 | T_N4, 0x7B); }
 void vcvtuw2ph(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_F2 | T_MAP5 | T_EW0 | T_YMM | T_ER_Z | T_MUST_EVEX | T_B16, 0x7D); }
 void vcvtw2ph(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_F3 | T_MAP5 | T_EW0 | T_YMM | T_ER_Z | T_MUST_EVEX | T_B16, 0x7D); }
