@@ -571,6 +571,7 @@ void putCvt()
 		{ 0x7B, "vcvtph2qq", T_66 | T_MAP5 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_N4 | T_N_VL | T_ER_X, 3 },
 		{ 0x79, "vcvtph2uqq", T_66 | T_MAP5 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_N4 | T_N_VL | T_ER_X, 3 },
 		{ 0x78, "vcvttph2uqq", T_66 | T_MAP5 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_N4 | T_N_VL | T_SAE_X, 3 },
+		{ 0x7A, "vcvttph2qq", T_66 | T_MAP5 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_N4 | T_N_VL | T_SAE_X, 3 },
 
 		{ 0x5B, "vcvtdq2ph", T_MAP5 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32 | T_ER_Z | T_N16 | T_N_VL, 4 },
 		{ 0x1D, "vcvtps2phx", T_66 | T_MAP5 | T_MUST_EVEX | T_EW0 | T_B32 | T_ER_Z | T_N16 | T_N_VL, 4 },
