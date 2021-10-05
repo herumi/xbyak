@@ -623,7 +623,7 @@ public:
 			tbl_[i] = tbl[i];
 		}
 	}
-	Xbyak::Reg64 operator[](size_t n) const
+	const Xbyak::Reg64& operator[](size_t n) const
 	{
 		if (n >= n_) {
 			fprintf(stderr, "ERR Pack bad n=%d(%d)\n", (int)n, (int)n_);
