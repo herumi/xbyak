@@ -27,15 +27,15 @@ import('pkgconfig').generate(
 
 if meson.version().version_compare('>=0.50.0')
 	cmake = import('cmake')
-	
+
 	cmake.write_basic_package_version_file(
 		name: meson.project_name(),
 		version: meson.project_version()
 	)
-	
+
 	cmake_conf = configuration_data()
 	cmake_conf.set('TARGET_NAME', meson.project_name() + '::' + meson.project_name())
-	
+
 	cmake.configure_package_config_file(
 		name: meson.project_name(),
 		input: 'cmake'/'meson-config.cmake.in',
