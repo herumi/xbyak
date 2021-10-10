@@ -35,6 +35,7 @@ if meson.version().version_compare('>=0.50.0')
 	
 	cmake_conf = configuration_data()
 	cmake_conf.set('TARGET_NAME', meson.project_name() + '::' + meson.project_name())
+	cmake_conf.set('ABSOLUTE_INCLUDE_DIR', get_option('prefix')/get_option('includedir'))
 	
 	cmake.configure_package_config_file(
 		name: meson.project_name(),
