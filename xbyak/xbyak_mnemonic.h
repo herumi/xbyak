@@ -333,6 +333,7 @@ void inc(const Operand& op) { opIncDec(op, 0x40, 0); }
 void insertps(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen(xmm, op, 0x21, 0x66, isXMM_XMMorMEM, imm, 0x3A); }
 void int3() { db(0xCC); }
 void int_(uint8_t x) { db(0xCD); db(x); }
+void hlt() { db(0xF4); }
 void ja(const Label& label, LabelType type = T_AUTO) { opJmp(label, type, 0x77, 0x87, 0x0F); }//-V524
 void ja(const char *label, LabelType type = T_AUTO) { ja(std::string(label), type); }//-V524
 void ja(const void *addr) { opJmpAbs(addr, T_NEAR, 0x77, 0x87, 0x0F); }//-V524
