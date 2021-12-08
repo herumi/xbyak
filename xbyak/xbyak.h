@@ -2480,6 +2480,12 @@ public:
 	void jmp(const Label& label, LabelType type = T_AUTO) { opJmp(label, type, 0xEB, 0xE9, 0); }
 	void jmp(const void *addr, LabelType type = T_AUTO) { opJmpAbs(addr, type, 0xEB, 0xE9); }
 
+	void jmpf(const Operand& op) { opR_ModM(op, BIT, 5, 0xFF, NONE, NONE, true); }
+	void jmpf(std::string label, LabelType type = T_AUTO) { opJmp(label, type, 0, 0xEA, 0); }
+	void jmpf(const char *label, LabelType type = T_AUTO) { jmpf(std::string(label), type); }
+	void jmpf(const Label& label, LabelType type = T_AUTO) { opJmp(label, type, 0, 0xEA, 0); }
+	void jmpf(const void *addr, LabelType type = T_AUTO) { opJmpAbs(addr, type, 0, 0xEA); }
+
 	void call(const Operand& op) { opR_ModM(op, 16 | i32e, 2, 0xFF, NONE, NONE, true); }
 	// call(string label), not const std::string&
 	void call(std::string label) { opJmp(label, T_NEAR, 0, 0xE8, 0); }
@@ -2491,6 +2497,18 @@ public:
 	void call(Ret(*func)(Params...)) { call(reinterpret_cast<const void*>(func)); }
 #endif
 	void call(const void *addr) { opJmpAbs(addr, T_NEAR, 0, 0xE8); }
+
+	void callf(const Operand& op) { opR_ModM(op, 16 | i32e, 3, 0xFF, NONE, NONE, true); }
+	// callf(string label), not const std::string&
+	void callf(std::string label) { opJmp(label, T_NEAR, 0, 0x9A, 0); }
+	void callf(const char *label) { callf(std::string(label)); }
+	void callf(const Label& label) { opJmp(label, T_NEAR, 0, 0x9A, 0); }
+	// callf(function pointer)
+#ifdef XBYAK_VARIADIC_TEMPLATE
+	template<class Ret, class... Params>
+	void callf(Ret(*func)(Params...)) { callf(reinterpret_cast<const void*>(func)); }
+#endif
+	void callf(const void *addr) { opJmpAbs(addr, T_NEAR, 0, 0x9A); }
 
 	void test(const Operand& op, const Reg& reg)
 	{
