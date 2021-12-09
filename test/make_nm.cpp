@@ -512,6 +512,7 @@ class Test {
 			"cmpsb",
 			"cmpsw",
 			"cmpsd",
+			"hlt",
 			"int3",
 			"leave",
 			"lodsb",
