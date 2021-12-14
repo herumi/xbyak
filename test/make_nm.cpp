@@ -1276,6 +1276,9 @@ class Test {
 			const char *p = "ret";
 			put(p);
 			put(p, IMM);
+			p = "retf";
+			put(p);
+			put(p, IMM);
 			p = "mov";
 			put(p, EAX|REG32|MEM|MEM_ONLY_DISP, REG32|EAX);
 			put(p, REG64|MEM|MEM_ONLY_DISP, REG64|RAX);

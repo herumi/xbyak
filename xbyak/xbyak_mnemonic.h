@@ -720,6 +720,7 @@ void repne() { db(0xF2); }
 void repnz() { db(0xF2); }
 void repz() { db(0xF3); }
 void ret(int imm = 0) { if (imm) { db(0xC2); dw(imm); } else { db(0xC3); } }
+void retf(int imm = 0) { if (imm) { db(0xCA); dw(imm); } else { db(0xCB); } }
 void rol(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 0); }
 void rol(const Operand& op, int imm) { opShift(op, imm, 0); }
 void ror(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 1); }
