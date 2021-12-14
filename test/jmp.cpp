@@ -1384,17 +1384,17 @@ CYBOZU_TEST_AUTO(setDefaultJmpNEAR)
 	}
 }
 
-CYBOZU_TEST_AUTO(farJmp)
+CYBOZU_TEST_AUTO(ambiguousFarJmp)
 {
 	struct Code : Xbyak::CodeGenerator {
-		Code()
-		{
 #ifdef XBYAK32
-			jmp(ptr[eax], T_FAR);
+		void genJmp() { jmp(ptr[eax], T_FAR); }
+		void genCall() { call(ptr[eax], T_FAR); }
 #else
-			jmp(ptr[rax], T_FAR);
+		void genJmp() { jmp(ptr[rax], T_FAR); }
+		void genCall() { call(ptr[rax], T_FAR); }
 #endif
-		}
-	};
-	CYBOZU_TEST_EXCEPTION(Code code, std::exception);
+	} code;
+	CYBOZU_TEST_EXCEPTION(code.genJmp(), std::exception);
+	CYBOZU_TEST_EXCEPTION(code.genCall(), std::exception);
 }

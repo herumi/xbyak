@@ -347,6 +347,7 @@ jmp(word[eax], T_FAR);  // jmp m16:16(FF /5)
 jmp(dword[rax], T_FAR); // jmp m16:32(FF /5)
 jmp(qword[rax], T_FAR); // jmp m16:64(REX.W FF /5)
 ```
+The same applies to `call`.
 
 ## Code size
 The default max code size is 4096 bytes.
