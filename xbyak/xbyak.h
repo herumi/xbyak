@@ -1574,6 +1574,7 @@ public:
 	enum LabelType {
 		T_SHORT,
 		T_NEAR,
+		T_FAR, // far jump
 		T_AUTO // T_SHORT if possible
 	};
 private:
@@ -1887,6 +1888,7 @@ private:
 	template<class T>
 	void opJmp(T& label, LabelType type, uint8_t shortCode, uint8_t longCode, uint8_t longPref)
 	{
+		if (type == T_FAR) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory(); /* avoid splitting code of jmp */
 		size_t offset = 0;
 		if (labelMgr_.getOffset(&offset, label)) { /* label exists */
@@ -1907,6 +1909,7 @@ private:
 	}
 	void opJmpAbs(const void *addr, LabelType type, uint8_t shortCode, uint8_t longCode, uint8_t longPref = 0)
 	{
+		if (type == T_FAR) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		if (isAutoGrow()) {
 			if (!isNEAR(type)) XBYAK_THROW(ERR_ONLY_T_NEAR_IS_SUPPORTED_IN_AUTO_GROW)
 			if (size_ + 16 >= maxSize_) growMemory();
@@ -2474,7 +2477,16 @@ public:
 
 	// set default type of `jmp` of undefined label to T_NEAR
 	void setDefaultJmpNEAR(bool isNear) { isDefaultJmpNEAR_ = isNear; }
-	void jmp(const Operand& op) { opR_ModM(op, BIT, 4, 0xFF, NONE, NONE, true); }
+	void jmp(const Operand& op, LabelType type = T_AUTO)
+	{
+		if (type == T_FAR) {
+			const int bit = (BIT == 32) ? (16|32) : (16|32|64);
+			if (!op.isMEM(bit)) XBYAK_THROW(ERR_NOT_SUPPORTED)
+			opR_ModM(op, BIT, 5, 0xFF, NONE, NONE, false);
+		} else {
+			opR_ModM(op, BIT, 4, 0xFF, NONE, NONE, true);
+		}
+	}
 	void jmp(std::string label, LabelType type = T_AUTO) { opJmp(label, type, 0xEB, 0xE9, 0); }
 	void jmp(const char *label, LabelType type = T_AUTO) { jmp(std::string(label), type); }
 	void jmp(const Label& label, LabelType type = T_AUTO) { opJmp(label, type, 0xEB, 0xE9, 0); }
