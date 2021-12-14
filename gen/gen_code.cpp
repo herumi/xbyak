@@ -665,6 +665,7 @@ void put()
 			{ "cmpsd", 0xA7 },
 			{ "endbr32", 0xF3, 0x0F, 0x1E, 0xFB },
 			{ "endbr64", 0xF3, 0x0F, 0x1E, 0xFA },
+			{ "hlt", 0xF4 },
 			{ "int3", 0xCC },
 			{ "scasb", 0xAE },
 			{ "scasw", 0x66, 0xAF },
@@ -1044,6 +1045,7 @@ void put()
 		puts("void lea(const Reg& reg, const Address& addr) { if (!reg.isBit(16 | i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opModM(addr, reg, 0x8D); }");
 		puts("void bswap(const Reg32e& reg) { opModR(Reg32(1), reg, 0x0F); }");
 		puts("void ret(int imm = 0) { if (imm) { db(0xC2); dw(imm); } else { db(0xC3); } }");
+		puts("void retf(int imm = 0) { if (imm) { db(0xCA); dw(imm); } else { db(0xCB); } }");
 
 		puts("void xadd(const Operand& op, const Reg& reg) { opModRM(reg, op, (op.isREG() && reg.isREG() && op.getBit() == reg.getBit()), op.isMEM(), 0x0F, 0xC0 | (reg.isBit(8) ? 0 : 1)); }");
 		puts("void cmpxchg(const Operand& op, const Reg& reg) { opModRM(reg, op, (op.isREG() && reg.isREG() && op.getBit() == reg.getBit()), op.isMEM(), 0x0F, 0xB0 | (reg.isBit(8) ? 0 : 1)); }");

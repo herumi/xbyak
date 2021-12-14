@@ -142,7 +142,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x6000 /* 0xABCD = A.BC(D) */
+	VERSION = 0x6010 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1574,6 +1574,7 @@ public:
 	enum LabelType {
 		T_SHORT,
 		T_NEAR,
+		T_FAR, // far jump
 		T_AUTO // T_SHORT if possible
 	};
 private:
@@ -1887,6 +1888,7 @@ private:
 	template<class T>
 	void opJmp(T& label, LabelType type, uint8_t shortCode, uint8_t longCode, uint8_t longPref)
 	{
+		if (type == T_FAR) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory(); /* avoid splitting code of jmp */
 		size_t offset = 0;
 		if (labelMgr_.getOffset(&offset, label)) { /* label exists */
@@ -1907,6 +1909,7 @@ private:
 	}
 	void opJmpAbs(const void *addr, LabelType type, uint8_t shortCode, uint8_t longCode, uint8_t longPref = 0)
 	{
+		if (type == T_FAR) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		if (isAutoGrow()) {
 			if (!isNEAR(type)) XBYAK_THROW(ERR_ONLY_T_NEAR_IS_SUPPORTED_IN_AUTO_GROW)
 			if (size_ + 16 >= maxSize_) growMemory();
@@ -1918,6 +1921,16 @@ private:
 			makeJmp(inner::VerifyInInt32(reinterpret_cast<const uint8_t*>(addr) - getCurr()), type, shortCode, longCode, longPref);
 		}
 
+	}
+	void opJmpOp(const Operand& op, LabelType type, int ext)
+	{
+		const int bit = 16|i32e;
+		if (type == T_FAR) {
+			if (!op.isMEM(bit)) XBYAK_THROW(ERR_NOT_SUPPORTED)
+			opR_ModM(op, bit, ext + 1, 0xFF, NONE, NONE, false);
+		} else {
+			opR_ModM(op, bit, ext, 0xFF, NONE, NONE, true);
+		}
 	}
 	// reg is reg field of ModRM
 	// immSize is the size for immediate value
@@ -2474,13 +2487,13 @@ public:
 
 	// set default type of `jmp` of undefined label to T_NEAR
 	void setDefaultJmpNEAR(bool isNear) { isDefaultJmpNEAR_ = isNear; }
-	void jmp(const Operand& op) { opR_ModM(op, BIT, 4, 0xFF, NONE, NONE, true); }
+	void jmp(const Operand& op, LabelType type = T_AUTO) { opJmpOp(op, type, 4); }
 	void jmp(std::string label, LabelType type = T_AUTO) { opJmp(label, type, 0xEB, 0xE9, 0); }
 	void jmp(const char *label, LabelType type = T_AUTO) { jmp(std::string(label), type); }
 	void jmp(const Label& label, LabelType type = T_AUTO) { opJmp(label, type, 0xEB, 0xE9, 0); }
 	void jmp(const void *addr, LabelType type = T_AUTO) { opJmpAbs(addr, type, 0xEB, 0xE9); }
 
-	void call(const Operand& op) { opR_ModM(op, 16 | i32e, 2, 0xFF, NONE, NONE, true); }
+	void call(const Operand& op, LabelType type = T_AUTO) { opJmpOp(op, type, 2); }
 	// call(string label), not const std::string&
 	void call(std::string label) { opJmp(label, T_NEAR, 0, 0xE8, 0); }
 	void call(const char *label) { call(std::string(label)); }
