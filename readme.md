@@ -19,7 +19,7 @@ Use `and_()`, `or_()`, ... instead of `and()`, `or()`.
 If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 ### News
-- add `jmp(mem)`, `call(mem)` `retf` for far absolute indirect jump.
+- add `jmp(mem, T_FAR)`, `call(mem, T_FAR)` `retf()` for far absolute indirect jump.
 - vnni instructions such as vpdpbusd supports vex encoding.
 - (break backward compatibility) `push(byte, imm)` (resp. `push(word, imm)`) forces to cast `imm` to 8(resp. 16) bit.
 - (Windows) `#include <winsock2.h>` has been removed from xbyak.h, so add it explicitly if you need it.
@@ -343,7 +343,7 @@ jmp(dword[eax], T_FAR); // jmp m16:32(FF /5)
 
 ### 64 bit mode
 ```
-jmp(word[eax], T_FAR);  // jmp m16:16(FF /5)
+jmp(word[rax], T_FAR);  // jmp m16:16(FF /5)
 jmp(dword[rax], T_FAR); // jmp m16:32(FF /5)
 jmp(qword[rax], T_FAR); // jmp m16:64(REX.W FF /5)
 ```
