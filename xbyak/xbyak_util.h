@@ -513,7 +513,7 @@ public:
 	}
 	bool has(Type type) const
 	{
-		return (type & type_) != 0;
+		return (type & type_) == type;
 	}
 };
 
