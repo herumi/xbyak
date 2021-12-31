@@ -7,7 +7,6 @@ struct PopCountTest : public Xbyak::CodeGenerator {
 	PopCountTest(int n)
 		: Xbyak::CodeGenerator(4096, Xbyak::DontSetProtectRWE)
 	{
-ret();
 		mov(eax, n);
 		popcnt(eax, eax);
 		ret();
