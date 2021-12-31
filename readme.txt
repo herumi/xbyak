@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 6.00
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 6.01
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -275,6 +275,24 @@ Label label;
 assert(label.getAddress(), 0);
 L(label);
 assert(label.getAddress(), getCurr());
+```
+
+4. farジャンプ
+
+`jmp(mem, T_FAR)`, `call(mem, T_FAR)`, `retf()`をサポートします。
+サイズを明示するために`ptr`の代わりに`word|dword|qword`を利用してください。
+
+32bit
+```
+jmp(word[eax], T_FAR);  // jmp m16:16(FF /5)
+jmp(dword[eax], T_FAR); // jmp m16:32(FF /5)
+```
+
+64bit
+```
+jmp(word[rax], T_FAR);  // jmp m16:16(FF /5)
+jmp(dword[rax], T_FAR); // jmp m16:32(FF /5)
+jmp(qword[rax], T_FAR); // jmp m16:64(REX.W FF /5)
 ```
 
 ・Xbyak::CodeGenerator()コンストラクタインタフェース

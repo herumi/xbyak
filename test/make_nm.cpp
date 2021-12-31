@@ -512,6 +512,7 @@ class Test {
 			"cmpsb",
 			"cmpsw",
 			"cmpsd",
+			"hlt",
 			"int3",
 			"leave",
 			"lodsb",
@@ -698,6 +699,24 @@ class Test {
 			puts("pshufb xmm14, [rel label0]");
 		}
 #endif
+#endif
+	}
+	void putFarJmp() const
+	{
+#ifdef XBYAK64
+		put("jmp", "word[rax],T_FAR", "far word [rax]");
+		put("jmp", "dword[rax],T_FAR", "far dword [rax]");
+		put("jmp", "qword[rax],T_FAR", "far qword [rax]");
+
+		put("call", "word[rax],T_FAR", "far word [rax]");
+		put("call", "dword[rax],T_FAR", "far dword [rax]");
+		put("call", "qword[rax],T_FAR", "far qword [rax]");
+#else
+		put("jmp", "dword[eax],T_FAR", "far dword [eax]");
+		put("jmp", "word[eax],T_FAR", "far word [eax]");
+
+		put("call", "dword[eax],T_FAR", "far dword [eax]");
+		put("call", "word[eax],T_FAR", "far word [eax]");
 #endif
 	}
 	void putMMX1() const
@@ -1255,6 +1274,9 @@ class Test {
 	{
 		{
 			const char *p = "ret";
+			put(p);
+			put(p, IMM);
+			p = "retf";
 			put(p);
 			put(p, IMM);
 			p = "mov";
@@ -2529,6 +2551,7 @@ public:
 #else // USE_AVX
 
 		putJmp();
+		putFarJmp();
 
 #ifdef USE_YASM
 
