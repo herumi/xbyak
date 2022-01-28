@@ -142,7 +142,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x6010 /* 0xABCD = A.BC(D) */
+	VERSION = 0x6020 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1786,9 +1786,15 @@ private:
 	{
 		uint64_t disp64 = e.getDisp();
 #ifdef XBYAK64
+#ifdef XBYAK_OLD_DISP_CHECK
+		// treat 0xffffffff as 0xffffffffffffffff
+		uint64_t high = disp64 >> 32;
+		if (high != 0 && high != 0xFFFFFFFF) XBYAK_THROW(ERR_OFFSET_IS_TOO_BIG)
+#else
 		// displacement should be a signed 32-bit value, so also check sign bit
 		uint64_t high = disp64 >> 31;
 		if (high != 0 && high != 0x1FFFFFFFF) XBYAK_THROW(ERR_OFFSET_IS_TOO_BIG)
+#endif
 #endif
 		uint32_t disp = static_cast<uint32_t>(disp64);
 		const Reg& base = e.getBase();

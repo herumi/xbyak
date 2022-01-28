@@ -93,7 +93,7 @@ void genAddress(bool isJIT, const char regTbl[][5], size_t regTblNum)
 					}
 					if (isFirst) {
 						if (isJIT) printf("(void*)");
-						printf("0x%08X", disp);
+						printf("%d", disp);
 					} else {
 						if (disp >= 0) {
 							putchar('+');

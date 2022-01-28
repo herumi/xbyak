@@ -1,6 +1,6 @@
 [![Build Status](https://github.com/herumi/xbyak/actions/workflows/main.yml/badge.svg)](https://github.com/herumi/xbyak/actions/workflows/main.yml)
 
-# Xbyak 6.01 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+#lXbyak 6.02 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -19,6 +19,8 @@ Use `and_()`, `or_()`, ... instead of `and()`, `or()`.
 If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 ### News
+- strictly check address offset disp32 in a signed 32-bit integer. e.g., `ptr[(void*)0xffffffff]` causes an error.
+  - define `XBYAK_OLD_DISP_CHECK` if you need an old check, but the option will be remoevd.
 - add `jmp(mem, T_FAR)`, `call(mem, T_FAR)` `retf()` for far absolute indirect jump.
 - vnni instructions such as vpdpbusd supports vex encoding.
 - (break backward compatibility) `push(byte, imm)` (resp. `push(word, imm)`) forces to cast `imm` to 8(resp. 16) bit.
@@ -452,6 +454,7 @@ The status will not be changed automatically, then you should reset it by `Xbyak
 * define **XBYAK_UNDEF_JNL** if Bessel function jnl is defined as macro.
 * define **XBYAK_NO_EXCEPTION** for a compiler option `-fno-exceptions`.
 * define **XBYAK_USE_MEMFD** on Linux then /proc/self/maps shows the area used by xbyak.
+* define **XBYAK_OLD_DISP_CHECK** if the old disp check is necessary (deprecated in the future).
 
 ## Sample
 

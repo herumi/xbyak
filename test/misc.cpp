@@ -79,6 +79,17 @@ CYBOZU_TEST_AUTO(mov_const)
 					CYBOZU_TEST_NO_EXCEPTION(mov(af[eax], v));
 				}
 			}
+#ifdef XBYAK64
+			CYBOZU_TEST_NO_EXCEPTION(mov(rax, ptr[(void*)0x7fffffff]));
+			CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0x17fffffff]), Xbyak::Error);
+#ifdef XBYAK_OLD_DISP_CHECK
+			CYBOZU_TEST_NO_EXCEPTION(mov(rax, ptr[(void*)0x80000000]));
+			CYBOZU_TEST_NO_EXCEPTION(mov(rax, ptr[(void*)0xffffffff]));
+#else
+			CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0x80000000]), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0xffffffff]), Xbyak::Error);
+#endif
+#endif
 		}
 	} code;
 }
