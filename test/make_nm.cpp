@@ -1269,6 +1269,10 @@ class Test {
 		put("mov", REG64, "0x12345678", "0x12345678");
 		put("mov", REG64, "0xffffffff12345678LL", "0xffffffff12345678");
 		put("mov", REG32e|REG16|REG8|RAX|EAX|AX|AL, IMM);
+
+		put("mov", EAX, "ptr[(void*)-1]", "[-1]");
+		put("mov", EAX, "ptr[(void*)0x7fffffff]", "[0x7fffffff]");
+		put("mov", EAX, "ptr[(void*)0xffffffffffffffff]", "[0xffffffffffffffff]");
 	}
 	void putEtc() const
 	{
