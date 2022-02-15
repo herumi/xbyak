@@ -95,7 +95,7 @@ test:
 	$(MAKE) test_avx512
 
 clean:
-	$(RM) *.asm *.lst *.obj *.o $(TARGET) lib_run nm.cpp nm_frame make_512
+	$(RM) a.asm *.lst *.obj *.o $(TARGET) lib_run nm.cpp nm_frame make_512
 
 lib_run: lib_test.cpp lib_run.cpp lib.h
 	$(CXX) $(CFLAGS) lib_run.cpp lib_test.cpp -o lib_run
