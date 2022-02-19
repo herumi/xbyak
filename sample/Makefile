@@ -51,7 +51,7 @@ all: $(TARGET)
 
 CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith #-pedantic
 
-CFLAGS=-g -O2 -fomit-frame-pointer -Wall -I../ $(CFLAGS_WARN)
+CFLAGS=-g -O2 -fomit-frame-pointer -Wall -I../ $(CFLAGS_WARN) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
 
 test:
 	$(CXX) $(CFLAGS) test0.cpp -o $@ -m32
