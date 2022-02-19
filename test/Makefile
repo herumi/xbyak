@@ -22,7 +22,7 @@ all: $(TARGET)
 
 CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith
 
-CFLAGS=-O2 -fomit-frame-pointer -Wall -fno-operator-names -I../ -I./ $(CFLAGS_WARN) #-std=c++0x
+CFLAGS=-O2 -fomit-frame-pointer -Wall -fno-operator-names -I../ -I./ $(CFLAGS_WARN) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) #-std=c++0x
 make_nm:
 	$(CXX) $(CFLAGS) make_nm.cpp -o $@
 normalize_prefix: normalize_prefix.cpp ../xbyak/xbyak.h
@@ -95,7 +95,7 @@ test:
 	$(MAKE) test_avx512
 
 clean:
-	rm -rf *.o $(TARGET) lib_run nm.cpp nm_frame make_512
+	$(RM) a.asm *.lst *.obj *.o $(TARGET) lib_run nm.cpp nm_frame make_512
 
 lib_run: lib_test.cpp lib_run.cpp lib.h
 	$(CXX) $(CFLAGS) lib_run.cpp lib_test.cpp -o lib_run
