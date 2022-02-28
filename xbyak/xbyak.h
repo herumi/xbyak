@@ -383,6 +383,11 @@ enum LabelMode {
 	custom allocator
 */
 struct Allocator {
+	// Name of the memory region. Currently only used with XBYAK_USE_MEMFD.
+	const std::string name_;
+	Allocator() : name_("xbyak") {}
+	explicit Allocator(const char *name) : name_(name) {}
+	explicit Allocator(const std::string &name) : name_(name) {}
 	virtual uint8_t *alloc(size_t size) { return reinterpret_cast<uint8_t*>(AlignedMalloc(size, inner::ALIGN_PAGE_SIZE)); }
 	virtual void free(uint8_t *p) { AlignedFree(p); }
 	virtual ~Allocator() {}
@@ -414,10 +419,15 @@ inline int getMacOsVersion()
 
 } // util
 #endif
-class MmapAllocator : Allocator {
+class MmapAllocator : public Allocator {
+	// Name of the memory region. Currently only used with XBYAK_USE_MEMFD.
+	const std::string name_;
 	typedef XBYAK_STD_UNORDERED_MAP<uintptr_t, size_t> SizeList;
 	SizeList sizeList_;
 public:
+	MmapAllocator() : Allocator() {}
+	explicit MmapAllocator(const char *name) : Allocator(name) {}
+	explicit MmapAllocator(const std::string &name) : Allocator(name) {}
 	uint8_t *alloc(size_t size)
 	{
 		const size_t alignedSizeM1 = inner::ALIGN_PAGE_SIZE - 1;
@@ -435,7 +445,7 @@ public:
 #endif
 		int fd = -1;
 #if defined(XBYAK_USE_MEMFD)
-		fd = memfd_create("xbyak", MFD_CLOEXEC);
+		fd = memfd_create(name_.c_str(), MFD_CLOEXEC);
 		if (fd != -1) {
 			mode = MAP_SHARED;
 			if (ftruncate(fd, size) != 0) XBYAK_THROW_RET(ERR_CANT_ALLOC, 0)
@@ -1029,9 +1039,10 @@ public:
 		PROTECT_RWE = 1, // read/write/exec
 		PROTECT_RE = 2 // read/exec
 	};
-	explicit CodeArray(size_t maxSize, void *userPtr = 0, Allocator *allocator = 0)
+	explicit CodeArray(size_t maxSize, void *userPtr = 0, Allocator *allocator = 0, const char *defaultAllocatorName = "xbyak")
 		: type_(userPtr == AutoGrow ? AUTO_GROW : (userPtr == 0 || userPtr == DontSetProtectRWE) ? ALLOC_BUF : USER_BUF)
-		, alloc_(allocator ? allocator : (Allocator*)&defaultAllocator_)
+		, defaultAllocator_(defaultAllocatorName)
+		, alloc_(allocator ? allocator : &defaultAllocator_)
 		, maxSize_(maxSize)
 		, top_(type_ == USER_BUF ? reinterpret_cast<uint8_t*>(userPtr) : alloc_->alloc((std::max<size_t>)(maxSize, 1)))
 		, size_(0)
@@ -2698,8 +2709,8 @@ public:
 
 	enum { NONE = 256 };
 	// constructor
-	CodeGenerator(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0, Allocator *allocator = 0)
-		: CodeArray(maxSize, userPtr, allocator)
+	CodeGenerator(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0, Allocator *allocator = 0, const char *defaultAllocatorName = "xbyak")
+		: CodeArray(maxSize, userPtr, allocator, defaultAllocatorName)
 		, mm0(0), mm1(1), mm2(2), mm3(3), mm4(4), mm5(5), mm6(6), mm7(7)
 		, xmm0(0), xmm1(1), xmm2(2), xmm3(3), xmm4(4), xmm5(5), xmm6(6), xmm7(7)
 		, ymm0(0), ymm1(1), ymm2(2), ymm3(3), ymm4(4), ymm5(5), ymm6(6), ymm7(7)
