@@ -414,10 +414,14 @@ inline int getMacOsVersion()
 
 } // util
 #endif
-class MmapAllocator : Allocator {
+class MmapAllocator : public Allocator {
+	// Name of the memory region. Currently only used with XBYAK_USE_MEMFD.
+	const std::string name_;
 	typedef XBYAK_STD_UNORDERED_MAP<uintptr_t, size_t> SizeList;
 	SizeList sizeList_;
 public:
+	MmapAllocator() : name_("xbyak") {}
+	MmapAllocator(const std::string &name) : name_(name) {}
 	uint8_t *alloc(size_t size)
 	{
 		const size_t alignedSizeM1 = inner::ALIGN_PAGE_SIZE - 1;
@@ -435,7 +439,7 @@ public:
 #endif
 		int fd = -1;
 #if defined(XBYAK_USE_MEMFD)
-		fd = memfd_create("xbyak", MFD_CLOEXEC);
+		fd = memfd_create(name_.c_str(), MFD_CLOEXEC);
 		if (fd != -1) {
 			mode = MAP_SHARED;
 			if (ftruncate(fd, size) != 0) XBYAK_THROW_RET(ERR_CANT_ALLOC, 0)
