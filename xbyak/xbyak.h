@@ -383,6 +383,7 @@ enum LabelMode {
 	custom allocator
 */
 struct Allocator {
+	explicit Allocator(const std::string& = "") {} // same interface with MmapAllocator
 	virtual uint8_t *alloc(size_t size) { return reinterpret_cast<uint8_t*>(AlignedMalloc(size, inner::ALIGN_PAGE_SIZE)); }
 	virtual void free(uint8_t *p) { AlignedFree(p); }
 	virtual ~Allocator() {}
@@ -414,10 +415,12 @@ inline int getMacOsVersion()
 
 } // util
 #endif
-class MmapAllocator : Allocator {
+class MmapAllocator : public Allocator {
+	const std::string name_; // only used with XBYAK_USE_MEMFD
 	typedef XBYAK_STD_UNORDERED_MAP<uintptr_t, size_t> SizeList;
 	SizeList sizeList_;
 public:
+	explicit MmapAllocator(const std::string& name = "xbyak") : name_(name) {}
 	uint8_t *alloc(size_t size)
 	{
 		const size_t alignedSizeM1 = inner::ALIGN_PAGE_SIZE - 1;
@@ -435,7 +438,7 @@ public:
 #endif
 		int fd = -1;
 #if defined(XBYAK_USE_MEMFD)
-		fd = memfd_create("xbyak", MFD_CLOEXEC);
+		fd = memfd_create(name_.c_str(), MFD_CLOEXEC);
 		if (fd != -1) {
 			mode = MAP_SHARED;
 			if (ftruncate(fd, size) != 0) XBYAK_THROW_RET(ERR_CANT_ALLOC, 0)
@@ -459,6 +462,8 @@ public:
 		sizeList_.erase(i);
 	}
 };
+#else
+typedef Allocator MmapAllocator;
 #endif
 
 class Address;
