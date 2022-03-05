@@ -383,6 +383,7 @@ enum LabelMode {
 	custom allocator
 */
 struct Allocator {
+	explicit Allocator(const std::string& = "") {} // same interface with MmapAllocator
 	virtual uint8_t *alloc(size_t size) { return reinterpret_cast<uint8_t*>(AlignedMalloc(size, inner::ALIGN_PAGE_SIZE)); }
 	virtual void free(uint8_t *p) { AlignedFree(p); }
 	virtual ~Allocator() {}
@@ -461,6 +462,8 @@ public:
 		sizeList_.erase(i);
 	}
 };
+#else
+typedef Allocator MmapAllocator;
 #endif
 
 class Address;
