@@ -28,7 +28,11 @@ CYBOZU_TEST_AUTO(badSSE)
 	struct Code : Xbyak::CodeGenerator {
 		Code()
 		{
-			CYBOZU_TEST_EXCEPTION(paddd(xm16, xm3), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(paddd(xm16, xm1), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(pslld(xm16, 1), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(movapd(xm16, xm1), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(movhpd(xm16, ptr[eax]), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(pextrb(eax, xm16, 1), Xbyak::Error);
 		}
 	} code;
 }
