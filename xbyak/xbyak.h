@@ -142,7 +142,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x6020 /* 0xABCD = A.BC(D) */
+	VERSION = 0x6030 /* 0xABCD = A.BC(D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -383,6 +383,7 @@ enum LabelMode {
 	custom allocator
 */
 struct Allocator {
+	explicit Allocator(const std::string& = "") {} // same interface with MmapAllocator
 	virtual uint8_t *alloc(size_t size) { return reinterpret_cast<uint8_t*>(AlignedMalloc(size, inner::ALIGN_PAGE_SIZE)); }
 	virtual void free(uint8_t *p) { AlignedFree(p); }
 	virtual ~Allocator() {}
@@ -414,10 +415,12 @@ inline int getMacOsVersion()
 
 } // util
 #endif
-class MmapAllocator : Allocator {
+class MmapAllocator : public Allocator {
+	const std::string name_; // only used with XBYAK_USE_MEMFD
 	typedef XBYAK_STD_UNORDERED_MAP<uintptr_t, size_t> SizeList;
 	SizeList sizeList_;
 public:
+	explicit MmapAllocator(const std::string& name = "xbyak") : name_(name) {}
 	uint8_t *alloc(size_t size)
 	{
 		const size_t alignedSizeM1 = inner::ALIGN_PAGE_SIZE - 1;
@@ -435,7 +438,7 @@ public:
 #endif
 		int fd = -1;
 #if defined(XBYAK_USE_MEMFD)
-		fd = memfd_create("xbyak", MFD_CLOEXEC);
+		fd = memfd_create(name_.c_str(), MFD_CLOEXEC);
 		if (fd != -1) {
 			mode = MAP_SHARED;
 			if (ftruncate(fd, size) != 0) XBYAK_THROW_RET(ERR_CANT_ALLOC, 0)
@@ -459,6 +462,8 @@ public:
 		sizeList_.erase(i);
 	}
 };
+#else
+typedef Allocator MmapAllocator;
 #endif
 
 class Address;
@@ -1623,6 +1628,11 @@ private:
 	{
 		return op1.isREG(i32e) && ((op2.isREG(i32e) && op1.getBit() == op2.getBit()) || op2.isMEM());
 	}
+	static inline bool isValidSSE(const Operand& op1)
+	{
+		// SSE instructions do not support XMM16 - XMM31
+		return !(op1.isXMM() && op1.getIdx() >= 16);
+	}
 	void rex(const Operand& op1, const Operand& op2 = Operand())
 	{
 		uint8_t rex = 0;
@@ -1965,6 +1975,7 @@ private:
 	void opGen(const Operand& reg, const Operand& op, int code, int pref, bool isValid(const Operand&, const Operand&), int imm8 = NONE, int preCode = NONE)
 	{
 		if (isValid && !isValid(reg, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (!isValidSSE(reg) || !isValidSSE(op)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		if (pref != NONE) db(pref);
 		if (op.isMEM()) {
 			opModM(op.getAddress(), reg.getReg(), 0x0F, preCode, code, (imm8 != NONE) ? 1 : 0);
@@ -1975,6 +1986,7 @@ private:
 	}
 	void opMMX_IMM(const Mmx& mmx, int imm8, int code, int ext)
 	{
+		if (!isValidSSE(mmx)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		if (mmx.isXMM()) db(0x66);
 		opModR(Reg32(ext), mmx, 0x0F, code);
 		db(imm8);
@@ -1985,6 +1997,7 @@ private:
 	}
 	void opMovXMM(const Operand& op1, const Operand& op2, int code, int pref)
 	{
+		if (!isValidSSE(op1) || !isValidSSE(op2)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		if (pref != NONE) db(pref);
 		if (op1.isXMM() && op2.isMEM()) {
 			opModM(op2.getAddress(), op1.getReg(), 0x0F, code);
@@ -1996,6 +2009,7 @@ private:
 	}
 	void opExt(const Operand& op, const Mmx& mmx, int code, int imm, bool hasMMX2 = false)
 	{
+		if (!isValidSSE(op) || !isValidSSE(mmx)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		if (hasMMX2 && op.isREG(i32e)) { /* pextrw is special */
 			if (mmx.isXMM()) db(0x66);
 			opModR(op.getReg(), mmx, 0x0F, 0xC5); db(imm);
