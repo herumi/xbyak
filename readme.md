@@ -1,6 +1,6 @@
 [![Build Status](https://github.com/herumi/xbyak/actions/workflows/main.yml/badge.svg)](https://github.com/herumi/xbyak/actions/workflows/main.yml)
 
-#lXbyak 6.02 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+#lXbyak 6.03 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -19,6 +19,7 @@ Use `and_()`, `or_()`, ... instead of `and()`, `or()`.
 If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 ### News
+- MmapAllocator supports memfd with user-defined strings. see sample/memfd.cpp
 - strictly check address offset disp32 in a signed 32-bit integer. e.g., `ptr[(void*)0xffffffff]` causes an error.
   - define `XBYAK_OLD_DISP_CHECK` if you need an old check, but the option will be remoevd.
 - add `jmp(mem, T_FAR)`, `call(mem, T_FAR)` `retf()` for far absolute indirect jump.
@@ -469,6 +470,8 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2022/Jan/28 ver 6.02 strict check the range of 32-bit dispacement
+* 2021/Dec/14 ver 6.01 support T_FAR jump/call and retf
 * 2021/Sep/14 ver 6.00 fully support AVX512-FP16
 * 2021/Sep/09 ver 5.997 fix vrndscale* to support {sae}
 * 2021/Sep/03 ver 5.996 fix v{add,sub,mul,div,max,min}{sd,ss} to support T_rd_sae.
