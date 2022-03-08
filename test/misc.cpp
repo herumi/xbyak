@@ -23,6 +23,16 @@ CYBOZU_TEST_AUTO(setSize)
 	} code;
 }
 
+CYBOZU_TEST_AUTO(badSSE)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			CYBOZU_TEST_EXCEPTION(paddd(xm16, xm3), Xbyak::Error);
+		}
+	} code;
+}
+
 CYBOZU_TEST_AUTO(compOperand)
 {
 	using namespace Xbyak::util;

@@ -1631,7 +1631,7 @@ private:
 	static inline bool isValidXMM(const Operand& op1)
 	{
 		// SSE instructions do not support XMM16 - XMM31
-		return op1.isXMM() ? op1.getIdx() <= 15 : true;
+		return !(op1.isXMM() && op1.getIdx() >= 16);
 	}
 	void rex(const Operand& op1, const Operand& op2 = Operand())
 	{
