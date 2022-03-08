@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/herumi/xbyak/actions/workflows/main.yml/badge.svg)](https://github.com/herumi/xbyak/actions/workflows/main.yml)
+![Build Status](https://github.com/herumi/xbyak/actions/workflows/main.yml/badge.svg)](https://github.com/herumi/xbyak/actions/workflows/main.yml)
 
 #lXbyak 6.03 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
