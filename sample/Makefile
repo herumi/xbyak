@@ -37,6 +37,7 @@ endif
 
 ifneq ($(OS),mac)
 TARGET += static_buf64
+TARGET += memfd
 endif
 
 
@@ -95,6 +96,8 @@ jmp_table:
 	$(CXX) $(CFLAGS) jmp_table.cpp -o $@ -m32
 jmp_table64:
 	$(CXX) $(CFLAGS) jmp_table.cpp -o $@ -m64
+memfd:
+	$(CXX) $(CFLAGS) memfd.cpp -o $@ -m64
 profiler: profiler.cpp ../xbyak/xbyak_util.h
 	$(CXX) $(CFLAGS) profiler.cpp -o $@
 profiler-vtune: profiler.cpp ../xbyak/xbyak_util.h
@@ -121,3 +124,4 @@ test_util : test_util.cpp $(XBYAK_INC) ../xbyak/xbyak_util.h
 test_util2 : test_util.cpp $(XBYAK_INC) ../xbyak/xbyak_util.h
 jmp_table: jmp_table.cpp $(XBYAK_INC)
 jmp_table64: jmp_table.cpp $(XBYAK_INC)
+memfd: memfd.cpp $(XBYAK_INC)
