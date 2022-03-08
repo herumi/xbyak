@@ -1,4 +1,5 @@
 /*
+	a sample to use MmapAllocator with an user-defined name
 	cat /proc/`psidof ./memfd`/maps
 
 7fca70b44000-7fca70b4a000 rw-p 00000000 00:00 0
@@ -9,6 +10,7 @@
 */
 #define XBYAK_USE_MEMFD
 #include <xbyak/xbyak.h>
+#include <fstream>
 
 class Code : Xbyak::MmapAllocator, public Xbyak::CodeGenerator {
 public:
@@ -23,9 +25,15 @@ public:
 
 int main()
 {
-    Code c1("abc", 123);
-    Code c2("xyz", 456);
+    Code c1("Xbyak::abc", 123);
+    Code c2("Xbyak::xyz", 456);
     printf("c1 %d\n", c1.getCode<int (*)()>()());
     printf("c2 %d\n", c2.getCode<int (*)()>()());
-    getchar();
+	std::ifstream ifs("/proc/self/maps", std::ios::binary);
+	if (ifs) {
+		std::string line;
+		while (std::getline(ifs, line)) {
+			printf("%s\n", line.c_str());
+		}
+	}
 }
