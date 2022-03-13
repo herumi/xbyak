@@ -23,6 +23,7 @@ CYBOZU_TEST_AUTO(setSize)
 	} code;
 }
 
+#ifdef XBYAK64
 CYBOZU_TEST_AUTO(badSSE)
 {
 	struct Code : Xbyak::CodeGenerator {
@@ -36,6 +37,7 @@ CYBOZU_TEST_AUTO(badSSE)
 		}
 	} code;
 }
+#endif
 
 CYBOZU_TEST_AUTO(compOperand)
 {
