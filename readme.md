@@ -19,6 +19,7 @@ Use `and_()`, `or_()`, ... instead of `and()`, `or()`.
 If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 ### News
+- WAITPKG instructions (tpause, umonitor, umwait) are supported.
 - MmapAllocator supports memfd with user-defined strings. see sample/memfd.cpp
 - strictly check address offset disp32 in a signed 32-bit integer. e.g., `ptr[(void*)0xffffffff]` causes an error.
   - define `XBYAK_OLD_DISP_CHECK` if you need an old check, but the option will be remoevd.
