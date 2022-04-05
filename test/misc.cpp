@@ -1898,12 +1898,22 @@ CYBOZU_TEST_AUTO(misc)
 		{
 			tpause(eax);
 			tpause(ebx);
+#ifdef XBYAK32
+			umonitor(cx);
+			umonitor(ecx);
+#else
+			umonitor(ecx);
+			umonitor(rcx);
+#endif
 		}
 	} c;
 	const uint8_t tbl[] = {
 		// tpause
 		0x66, 0x0f, 0xae, 0xf0,
 		0x66, 0x0f, 0xae, 0xf3,
+		// umonitor
+		0x67, 0xf3, 0x0f, 0xae, 0xf1,
+		0xf3, 0x0f, 0xae, 0xf1,
 	};
 	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
