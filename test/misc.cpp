@@ -102,8 +102,8 @@ CYBOZU_TEST_AUTO(mov_const)
 			CYBOZU_TEST_NO_EXCEPTION(mov(rax, ptr[(void*)0x80000000]));
 			CYBOZU_TEST_NO_EXCEPTION(mov(rax, ptr[(void*)0xffffffff]));
 #else
-			CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0x80000000]), Xbyak::Error);
-			CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0xffffffff]), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0x80000000ull]), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0xffffffffull]), Xbyak::Error);
 #endif
 #endif
 		}
@@ -1890,3 +1890,37 @@ CYBOZU_TEST_AUTO(vaddph)
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
 #endif
+
+CYBOZU_TEST_AUTO(waitpkg)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			tpause(eax);
+			tpause(ebx);
+#ifdef XBYAK32
+			umonitor(cx);
+			umonitor(ecx);
+#else
+			umonitor(ecx);
+			umonitor(rcx);
+#endif
+			umwait(eax);
+			umwait(ebx);
+		}
+	} c;
+	const uint8_t tbl[] = {
+		// tpause
+		0x66, 0x0f, 0xae, 0xf0,
+		0x66, 0x0f, 0xae, 0xf3,
+		// umonitor
+		0x67, 0xf3, 0x0f, 0xae, 0xf1,
+		0xf3, 0x0f, 0xae, 0xf1,
+		// tpause
+		0xf2, 0x0f, 0xae, 0xf0,
+		0xf2, 0x0f, 0xae, 0xf3,
+	};
+	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}

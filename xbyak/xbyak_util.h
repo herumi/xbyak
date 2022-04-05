@@ -311,6 +311,7 @@ public:
 	static const Type tSSE42 = 1 << 8;
 	static const Type tPOPCNT = 1 << 9;
 	static const Type tAESNI = 1 << 10;
+	static const Type tAVX512_FP16 = 1 << 11;
 	static const Type tOSXSAVE = 1 << 12;
 	static const Type tPCLMULQDQ = 1 << 13;
 	static const Type tAVX = 1 << 14;
@@ -318,6 +319,7 @@ public:
 
 	static const Type t3DN = 1 << 16;
 	static const Type tE3DN = 1 << 17;
+	static const Type tWAITPKG = 1 << 18;
 	static const Type tRDTSCP = 1 << 19;
 	static const Type tAVX2 = 1 << 20;
 	static const Type tBMI1 = 1 << 21; // andn, bextr, blsi, blsmsk, blsr, tzcnt
@@ -366,7 +368,6 @@ public:
 	static const Type tAMX_INT8 = uint64_t(1) << 60;
 	static const Type tAMX_BF16 = uint64_t(1) << 61;
 	static const Type tAVX_VNNI = uint64_t(1) << 62;
-	static const Type tAVX512_FP16 = uint64_t(1) << 11;
 	// 18, 63
 
 	Cpu()
@@ -488,6 +489,7 @@ public:
 			if (EBX & (1U << 14)) type_ |= tMPX;
 			if (EBX & (1U << 29)) type_ |= tSHA;
 			if (ECX & (1U << 0)) type_ |= tPREFETCHWT1;
+			if (ECX & (1U << 5)) type_ |= tWAITPKG;
 			if (EDX & (1U << 24)) type_ |= tAMX_TILE;
 			if (EDX & (1U << 25)) type_ |= tAMX_INT8;
 			if (EDX & (1U << 22)) type_ |= tAMX_BF16;

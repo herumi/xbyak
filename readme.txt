@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 6.03
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 6.04
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -400,6 +400,8 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2022/04/05 ver 6.04 tpause, umonitor, umwaitを追加
+2022/03/08 ver 6.03 MmapAllocatorがmemfd用のユーザ定義文字列をサポート
 2022/01/28 ver 6.02 dispacementの32bit範囲チェックの厳密化
 2021/12/14 ver 6.01 T_FAR jump/callとretfをサポート
 2021/09/14 ver 6.00 AVX512-FP16を完全サポート
