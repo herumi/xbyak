@@ -1519,6 +1519,7 @@ class Test {
 		put("pextrq", REG64|MEM, XMM, IMM);
 		put("pinsrq", XMM, REG64|MEM, IMM);
 #endif
+
 	}
 	void putSHA() const
 	{

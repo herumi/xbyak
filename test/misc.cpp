@@ -1890,3 +1890,22 @@ CYBOZU_TEST_AUTO(vaddph)
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
 #endif
+
+CYBOZU_TEST_AUTO(misc)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			tpause(eax);
+			tpause(ebx);
+		}
+	} c;
+	const uint8_t tbl[] = {
+		// tpause
+		0x66, 0x0f, 0xae, 0xf0,
+		0x66, 0x0f, 0xae, 0xf3,
+	};
+	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
