@@ -1,6 +1,6 @@
 [![Build Status](https://github.com/herumi/xbyak/actions/workflows/main.yml/badge.svg)](https://github.com/herumi/xbyak/actions/workflows/main.yml)
 
-# Xbyak 6.03 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak 6.04 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
 
 ## Abstract
 
@@ -470,6 +470,8 @@ modified new BSD License
 http://opensource.org/licenses/BSD-3-Clause
 
 ## History
+* 2022/Apr/05 ver 6.04 add tpause, umonitor, umwait
+* 2022/Mar/08 ver 6.03 MmapAllocator supports memfd with user-defined strings.
 * 2022/Jan/28 ver 6.02 strict check the range of 32-bit dispacement
 * 2021/Dec/14 ver 6.01 support T_FAR jump/call and retf
 * 2021/Sep/14 ver 6.00 fully support AVX512-FP16
