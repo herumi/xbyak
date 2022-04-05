@@ -1891,7 +1891,7 @@ CYBOZU_TEST_AUTO(vaddph)
 }
 #endif
 
-CYBOZU_TEST_AUTO(misc)
+CYBOZU_TEST_AUTO(waitpkg)
 {
 	struct Code : Xbyak::CodeGenerator {
 		Code()
@@ -1905,6 +1905,8 @@ CYBOZU_TEST_AUTO(misc)
 			umonitor(ecx);
 			umonitor(rcx);
 #endif
+			umwait(eax);
+			umwait(ebx);
 		}
 	} c;
 	const uint8_t tbl[] = {
@@ -1914,6 +1916,9 @@ CYBOZU_TEST_AUTO(misc)
 		// umonitor
 		0x67, 0xf3, 0x0f, 0xae, 0xf1,
 		0xf3, 0x0f, 0xae, 0xf1,
+		// tpause
+		0xf2, 0x0f, 0xae, 0xf0,
+		0xf2, 0x0f, 0xae, 0xf3,
 	};
 	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
