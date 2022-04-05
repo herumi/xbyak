@@ -102,8 +102,8 @@ CYBOZU_TEST_AUTO(mov_const)
 			CYBOZU_TEST_NO_EXCEPTION(mov(rax, ptr[(void*)0x80000000]));
 			CYBOZU_TEST_NO_EXCEPTION(mov(rax, ptr[(void*)0xffffffff]));
 #else
-			CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0x80000000]), Xbyak::Error);
-			CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0xffffffff]), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0x80000000ull]), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0xffffffffull]), Xbyak::Error);
 #endif
 #endif
 		}
