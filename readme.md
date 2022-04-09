@@ -1,5 +1,5 @@
 
-# Xbyak ![Badge Version] [![Badge Build]][Build Status]
+# Xbyak ![Badge Version] [![Badge License]][License] [![Badge Build]][Build Status]
 
 *A C++ JIT assembler for `x86 (IA32)` , `x64(AMD64,x86-64)`*
 
@@ -45,12 +45,6 @@ Almost C++03 or later compilers for x86/x64 such as Visual Studio, g++, clang++,
 
 ## [How to use it](Documentation/Usage.md)
 
-
-## License
-
-modified new BSD License
-http://opensource.org/licenses/BSD-3-Clause
-
 ## [History](Documentation/Changelog.md)
 
 ## Author
@@ -62,7 +56,10 @@ MITSUNARI Shigeo(herumi@nifty.com)
 
 <!----------------------------------------------------------------------------->
 
+[Badge License]: https://img.shields.io/badge/License-BSD_3--Clause-blue.svg
 [Badge Version]: https://img.shields.io/badge/Version_6.04-00B2FF
 [Badge Build]: https://github.com/herumi/xbyak/actions/workflows/main.yml/badge.svg
 
 [Build Status]: https://github.com/herumi/xbyak/actions/workflows/main.yml
+
+[License]: COPYRIGHT
