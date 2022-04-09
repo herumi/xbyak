@@ -71,7 +71,8 @@ Almost C++03 or later compilers for x86/x64 such as Visual Studio, g++, clang++,
 
 ## Author
 
-MITSUNARI Shigeo(herumi@nifty.com)
+#### 光成滋生 Mitsunari Shigeo
+ **[Github]** | **[Website]** | [herumi@nifty.com](mailto:herumi@nifty.com)
 
 <!----------------------------------------------------------------------------->
 
@@ -86,3 +87,6 @@ MITSUNARI Shigeo(herumi@nifty.com)
 [Usage]: Documentation/Usage.md
 
 [Build Status]: https://github.com/herumi/xbyak/actions/workflows/main.yml
+
+[Website]: http://herumi.in.coocan.jp/
+[Github]: https://github.com/herumi
