@@ -60,9 +60,6 @@ Almost C++03 or later compilers for x86/x64 such as Visual Studio, g++, clang++,
 ## Author
 MITSUNARI Shigeo(herumi@nifty.com)
 
-## Sponsors welcome
-[GitHub Sponsor](https://github.com/sponsors/herumi)
-
 
 <!----------------------------------------------------------------------------->
 
