@@ -1,6 +1,7 @@
-[![Build Status](https://github.com/herumi/xbyak/actions/workflows/main.yml/badge.svg)](https://github.com/herumi/xbyak/actions/workflows/main.yml)
 
-# Xbyak 6.04 ; JIT assembler for x86(IA32), x64(AMD64, x86-64) by C++
+# Xbyak ![Badge Version] [![Badge Build]][Build Status]
+
+*A C++ JIT assembler for `x86 (IA32)` , `x64(AMD64,x86-64)`*
 
 ## Abstract
 
@@ -57,3 +58,11 @@ MITSUNARI Shigeo(herumi@nifty.com)
 
 ## Sponsors welcome
 [GitHub Sponsor](https://github.com/sponsors/herumi)
+
+
+<!----------------------------------------------------------------------------->
+
+[Badge Version]: https://img.shields.io/badge/Version_6.04-00B2FF
+[Badge Build]: https://github.com/herumi/xbyak/actions/workflows/main.yml/badge.svg
+
+[Build Status]: https://github.com/herumi/xbyak/actions/workflows/main.yml
