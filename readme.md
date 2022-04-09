@@ -3,6 +3,22 @@
 
 *A C++ JIT assembler for `x86 (IA32)` , `x64(AMD64,x86-64)`*
 
+<br>
+
+---
+
+<div align = 'center'>
+
+**⸢ [Install] ⸥**  
+**⸢ [Usage] ⸥**  
+**⸢ [Changelog] ⸥**
+
+</div>
+
+---
+
+<br>
+
 ## Abstract
 
 Xbyak is a C++ header library that enables dynamically to assemble x86(IA32), x64(AMD64, x86-64) mnemonic.
@@ -41,12 +57,6 @@ If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 Almost C++03 or later compilers for x86/x64 such as Visual Studio, g++, clang++, Intel C++ compiler and g++ on mingw/cygwin.
 
-## [Install](Documentation/Install.md)
-
-## [How to use it](Documentation/Usage.md)
-
-## [History](Documentation/Changelog.md)
-
 ## Author
 MITSUNARI Shigeo(herumi@nifty.com)
 
@@ -60,6 +70,10 @@ MITSUNARI Shigeo(herumi@nifty.com)
 [Badge Version]: https://img.shields.io/badge/Version_6.04-00B2FF
 [Badge Build]: https://github.com/herumi/xbyak/actions/workflows/main.yml/badge.svg
 
-[Build Status]: https://github.com/herumi/xbyak/actions/workflows/main.yml
-
 [License]: COPYRIGHT
+
+[Changelog]: Documentation/Changelog.md
+[Install]: Documentation/Install.md
+[Usage]: Documentation/Usage.md
+
+[Build Status]: https://github.com/herumi/xbyak/actions/workflows/main.yml
