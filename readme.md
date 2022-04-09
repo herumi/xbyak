@@ -57,9 +57,9 @@ If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 ### Supported OS
 
-* Windows Xp, Vista, Windows 7, Windows 10(32bit, 64bit)
-* Linux(32bit, 64bit)
-* Intel macOS
+- **Windows** ( `Xp` , `Vista` , `7` , `10` *32 / 64 bit* )
+- **MacOS** ( *Intel* )
+- **Linux** ( *32 / 64 bit* )
 
 <br>
 
