@@ -1,7 +1,7 @@
 
-# Xbyak 6.0.4 ; ?[![Badge Build]][Build Status]
+# Xbyak 6.04 [![Badge Build]][Build Status]
 
-*A C++ assembler for x86 (IA32), x64 (AMD64, x86-64)*
+*A C++ JIT assembler for x86 (IA32), x64 (AMD64, x86-64)*
 
 ## Menu
 
@@ -51,13 +51,12 @@ Almost C++03 or later compilers for x86/x64 such as Visual Studio, g++, clang++,
 
 ## License
 
-modified new BSD License
-http://opensource.org/licenses/BSD-3-Clause
+[BSD-3-Clause License](http://opensource.org/licenses/BSD-3-Clause)
 
 ## Author
 
 #### 光成滋生 Mitsunari Shigeo
- [GitHub](https//github.com/herumi | [Website (Japanese)](http://herumi.in.coocan.jp/) | [herumi@nifty.com](mailto:herumi@nifty.com)
+ [GitHub](https//github.com/herumi) | [Website (Japanese)](http://herumi.in.coocan.jp/) | [herumi@nifty.com](mailto:herumi@nifty.com)
 
 ## Sponsors welcome
 [GitHub Sponsor](https://github.com/sponsors/herumi)
