@@ -56,7 +56,7 @@ Almost C++03 or later compilers for x86/x64 such as Visual Studio, g++, clang++,
 ## Author
 
 #### 光成滋生 Mitsunari Shigeo
- [GitHub](https//github.com/herumi) | [Website (Japanese)](http://herumi.in.coocan.jp/) | [herumi@nifty.com](mailto:herumi@nifty.com)
+ [GitHub](https://github.com/herumi) | [Website (Japanese)](http://herumi.in.coocan.jp/) | [herumi@nifty.com](mailto:herumi@nifty.com)
 
 ## Sponsors welcome
 [GitHub Sponsor](https://github.com/sponsors/herumi)
