@@ -1,4 +1,4 @@
-## Install
+# Install
 
 The following files are necessary. Please add the path to your compile directory.
 

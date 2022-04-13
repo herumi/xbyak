@@ -1,3 +1,5 @@
+# Usage
+
 Inherit `Xbyak::CodeGenerator` class and make the class method.
 ```
 #include <xbyak/xbyak.h>

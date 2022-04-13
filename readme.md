@@ -1,23 +1,13 @@
 
-# Xbyak ![Badge Version] [![Badge License]][License] [![Badge Build]][Build Status]
+# Xbyak 6.0.4 ; ?[![Badge Build]][Build Status]
 
-*A C++ JIT assembler for `x86 (IA32)` , `x64(AMD64,x86-64)`*
+*A C++ assembler for x86 (IA32), x64 (AMD64, x86-64)*
 
-<br>
+## Menu
 
----
-
-<div align = 'center'>
-
-**⸢ [Install] ⸥**  
-**⸢ [Usage] ⸥**  
-**⸢ [Changelog] ⸥**
-
-</div>
-
----
-
-<br>
+- [Install]
+- [Usage]
+- [Changelog]
 
 ## Abstract
 
@@ -26,19 +16,15 @@ Xbyak is a C++ header library that enables dynamically to assemble x86(IA32), x6
 The pronunciation of Xbyak is `kəi-bja-k`.
 It is named from a Japanese word [開闢](https://translate.google.com/?hl=ja&sl=ja&tl=en&text=%E9%96%8B%E9%97%A2&op=translate), which means the beginning of the world.
 
-<br>
-
 ## Feature
 
-* header file only
-* Intel/MASM like syntax
-* fully support AVX-512
+- header file only
+- Intel/MASM like syntax
+- fully support AVX-512
 
 **Note**:
 Use `and_()`, `or_()`, ... instead of `and()`, `or()`.
 If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
-
-<br>
 
 ### News
 
@@ -53,40 +39,37 @@ If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 - support exception-less mode see. [Exception-less mode](#exception-less-mode)
 - `XBYAK_USE_MMAP_ALLOCATOR` will be defined on Linux/macOS unless `XBYAK_DONT_USE_MMAP_ALLOCATOR` is defined.
 
-<br>
-
 ### Supported OS
 
-- **Windows** ( `Xp` , `Vista` , `7` , `10` *32 / 64 bit* )
-- **MacOS** ( *Intel* )
-- **Linux** ( *32 / 64 bit* )
-
-<br>
+- Windows (Xp, Vista, 7, 10, 11) (32 / 64 bit)
+- Linux (32 / 64 bit)
+- macOS (Intel CPU)
 
 ### Supported Compilers
 
 Almost C++03 or later compilers for x86/x64 such as Visual Studio, g++, clang++, Intel C++ compiler and g++ on mingw/cygwin.
 
-<br>
+## License
+
+modified new BSD License
+http://opensource.org/licenses/BSD-3-Clause
 
 ## Author
 
 #### 光成滋生 Mitsunari Shigeo
- **[Github]** | **[Website]** | [herumi@nifty.com](mailto:herumi@nifty.com)
+ [GitHub](https//github.com/herumi | [Website (Japanese)](http://herumi.in.coocan.jp/) | [herumi@nifty.com](mailto:herumi@nifty.com)
+
+## Sponsors welcome
+[GitHub Sponsor](https://github.com/sponsors/herumi)
 
 <!----------------------------------------------------------------------------->
 
-[Badge License]: https://img.shields.io/badge/License-BSD_3--Clause-blue.svg
-[Badge Version]: https://img.shields.io/badge/Version_6.04-00B2FF
 [Badge Build]: https://github.com/herumi/xbyak/actions/workflows/main.yml/badge.svg
+[Build Status]: https://github.com/herumi/xbyak/actions/workflows/main.yml
 
 [License]: COPYRIGHT
 
-[Changelog]: Documentation/Changelog.md
-[Install]: Documentation/Install.md
-[Usage]: Documentation/Usage.md
+[Changelog]: doc/changelog.md
+[Install]: doc/install.md
+[Usage]: doc/usage.md
 
-[Build Status]: https://github.com/herumi/xbyak/actions/workflows/main.yml
-
-[Website]: http://herumi.in.coocan.jp/
-[Github]: https://github.com/herumi
