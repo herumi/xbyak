@@ -26,8 +26,8 @@
 #endif
 
 #ifdef XBYAK_INTEL_CPU_SPECIFIC
-#ifdef _MSC_VER
-	#if (_MSC_VER < 1400) && defined(XBYAK32)
+#ifdef _WIN32
+	#if defined(_MSC_VER) && (_MSC_VER < 1400) && defined(XBYAK32)
 		static inline __declspec(naked) void __cpuid(int[4], int)
 		{
 			__asm {
@@ -257,7 +257,7 @@ public:
 	static inline void getCpuid(unsigned int eaxIn, unsigned int data[4])
 	{
 #ifdef XBYAK_INTEL_CPU_SPECIFIC
-	#ifdef _MSC_VER
+	#ifdef _WIN32
 		__cpuid(reinterpret_cast<int*>(data), eaxIn);
 	#else
 		__cpuid(eaxIn, data[0], data[1], data[2], data[3]);
