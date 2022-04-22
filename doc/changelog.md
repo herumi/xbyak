@@ -1,5 +1,6 @@
 # History
 
+* 2022/Apr/22 ver 6.041 consider Android and mingw
 * 2022/Apr/05 ver 6.04 add tpause, umonitor, umwait
 * 2022/Mar/08 ver 6.03 MmapAllocator supports memfd with user-defined strings.
 * 2022/Jan/28 ver 6.02 strict check the range of 32-bit dispacement
