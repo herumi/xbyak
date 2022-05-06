@@ -368,7 +368,7 @@ public:
 	static const Type tAMX_INT8 = uint64_t(1) << 60;
 	static const Type tAMX_BF16 = uint64_t(1) << 61;
 	static const Type tAVX_VNNI = uint64_t(1) << 62;
-	// 18, 63
+	// 63
 
 	Cpu()
 		: type_(NONE)
