@@ -1924,3 +1924,24 @@ CYBOZU_TEST_AUTO(waitpkg)
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
+
+CYBOZU_TEST_AUTO(misc)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			cldemote(ptr[eax+esi*4+0x12]);
+#ifdef XBYAK64
+			cldemote(ptr[rax+rdi*8+0x123]);
+#endif
+		}
+	} c;
+	const uint8_t tbl[] = {
+		// cldemote
+		0x67, 0x0f, 0x1c, 0x44, 0xb0, 0x12,
+		0x0f, 0x1c, 0x84, 0xf8, 0x23, 0x01, 0x00, 0x00
+	};
+	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
