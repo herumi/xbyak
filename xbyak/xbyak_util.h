@@ -428,6 +428,7 @@ public:
 	static const Type tAMX_INT8;
 	static const Type tAMX_BF16;
 	static const Type tAVX_VNNI;
+	static const Type tCLFLUSHOPT;
 
 	CpuT()
 		: type_(NONE)
@@ -543,6 +544,7 @@ public:
 			if (EBX & (1U << 18)) type_ |= tRDSEED;
 			if (EBX & (1U << 19)) type_ |= tADX;
 			if (EBX & (1U << 20)) type_ |= tSMAP;
+			if (EBX & (1U << 23)) type_ |= tCLFLUSHOPT;
 			if (EBX & (1U << 4)) type_ |= tHLE;
 			if (EBX & (1U << 11)) type_ |= tRTM;
 			if (EBX & (1U << 14)) type_ |= tMPX;
@@ -647,6 +649,7 @@ template<int dummy> const Type CpuT<dummy>::tAMX_TILE = uint64_t(1) << 59;
 template<int dummy> const Type CpuT<dummy>::tAMX_INT8 = uint64_t(1) << 60;
 template<int dummy> const Type CpuT<dummy>::tAMX_BF16 = uint64_t(1) << 61;
 template<int dummy> const Type CpuT<dummy>::tAVX_VNNI = uint64_t(1) << 62;
+template<int dummy> const Type CpuT<dummy>::tCLFLUSHOPT = Type(1) << 63;
 
 } // local
 
