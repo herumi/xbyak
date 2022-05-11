@@ -85,6 +85,7 @@ void putCPUinfo()
 		{ Cpu::tAVX512_FP16, "avx512_fp16" },
 		{ Cpu::tWAITPKG, "waitpkg" },
 		{ Cpu::tCLFLUSHOPT, "clflushopt" },
+		{ Cpu::tCLDEMOTE, "cldemote" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);

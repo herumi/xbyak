@@ -429,6 +429,7 @@ public:
 	static const Type tAMX_BF16;
 	static const Type tAVX_VNNI;
 	static const Type tCLFLUSHOPT;
+	static const Type tCLDEMOTE;
 
 	CpuT()
 		: type_(NONE)
@@ -551,6 +552,7 @@ public:
 			if (EBX & (1U << 29)) type_ |= tSHA;
 			if (ECX & (1U << 0)) type_ |= tPREFETCHWT1;
 			if (ECX & (1U << 5)) type_ |= tWAITPKG;
+			if (ECX & (1U << 25)) type_ |= tCLDEMOTE;
 			if (EDX & (1U << 24)) type_ |= tAMX_TILE;
 			if (EDX & (1U << 25)) type_ |= tAMX_INT8;
 			if (EDX & (1U << 22)) type_ |= tAMX_BF16;
@@ -650,6 +652,7 @@ template<int dummy> const Type CpuT<dummy>::tAMX_INT8 = uint64_t(1) << 60;
 template<int dummy> const Type CpuT<dummy>::tAMX_BF16 = uint64_t(1) << 61;
 template<int dummy> const Type CpuT<dummy>::tAVX_VNNI = uint64_t(1) << 62;
 template<int dummy> const Type CpuT<dummy>::tCLFLUSHOPT = Type(1) << 63;
+template<int dummy> const Type CpuT<dummy>::tCLDEMOTE = Type(1) << 64;
 
 } // local
 
