@@ -60,6 +60,7 @@ void cld() { db(0xFC); }
 void clflush(const Address& addr) { opModM(addr, Reg32(7), 0x0F, 0xAE); }
 void clflushopt(const Address& addr) { db(0x66); opModM(addr, Reg32(7), 0x0F, 0xAE); }
 void cli() { db(0xFA); }
+void clwb(const Address& addr) { db(0x66); opMIB(addr, esi, 0x0F, 0xAE); }
 void clzero() { db(0x0F); db(0x01); db(0xFC); }
 void cmc() { db(0xF5); }
 void cmova(const Reg& reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, 0x40 | 7); }//-V524
