@@ -1924,3 +1924,46 @@ CYBOZU_TEST_AUTO(waitpkg)
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
+
+CYBOZU_TEST_AUTO(misc)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			cldemote(ptr[eax+esi*4+0x12]);
+			movdiri(ptr[edx+esi*2+4], eax);
+			movdir64b(eax, ptr[edx]);
+#ifdef XBYAK64
+			cldemote(ptr[rax+rdi*8+0x123]);
+			movdiri(ptr[rax+r12], r9);
+			movdiri(ptr[rax+r12*2+4], r9d);
+			movdir64b(r10, ptr[r8]);
+#endif
+		}
+	} c;
+	const uint8_t tbl[] = {
+#ifdef XBYAK64
+		0x67,
+#endif
+		0x0f, 0x1c, 0x44, 0xb0, 0x12, // cldemote
+#ifdef XBYAK64
+		0x67,
+#endif
+		0x0f, 0x38, 0xf9, 0x44, 0x72, 0x04, // movdiri
+
+		0x66,
+#ifdef XBYAK64
+		0x67,
+#endif
+		0x0f, 0x38, 0xf8, 0x02, // movdir64b
+#ifdef XBYAK64
+		0x0f, 0x1c, 0x84, 0xf8, 0x23, 0x01, 0x00, 0x00, // cldemote
+		0x4e, 0x0f, 0x38, 0xf9, 0x0c, 0x20, // movdiri
+		0x46, 0x0f, 0x38, 0xf9, 0x4c, 0x60, 0x04, // movdiri
+		0x66, 0x45, 0x0f, 0x38, 0xf8, 0x10, // movdir64b
+#endif
+	};
+	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}

@@ -637,6 +637,7 @@ class Test {
 				"fstsw",
 				"fnstsw",
 				"fxrstor",
+				"clwb",
 			};
 			for (size_t i = 0; i < NUM_OF_ARRAY(memTbl); i++) {
 				put(memTbl[i], MEM);

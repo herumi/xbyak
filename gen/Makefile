@@ -30,7 +30,7 @@ VER=$(shell head -n 1 ../xbyak/xbyak_mnemonic.h|grep -o "[0-9.]*")
 	sed -i -e "s/version: '[0-9.]*',/version: '$(VER)',/" $@
 
 ../readme.md: $(TARGET)
-	sed -l 2 -i -e "s/Xbyak [0-9.]*/Xbyak $(VER)/" $@
+	sed -l 2 -i -e "s/# Xbyak [0-9.]*/# Xbyak $(VER)/" $@
 
 ../readme.txt: $(TARGET)
 	sed -l 2 -i -e "s/Xbyak [0-9.]*/Xbyak $(VER)/" $@

@@ -84,6 +84,10 @@ void putCPUinfo()
 		{ Cpu::tAVX_VNNI, "avx_vnni" },
 		{ Cpu::tAVX512_FP16, "avx512_fp16" },
 		{ Cpu::tWAITPKG, "waitpkg" },
+		{ Cpu::tCLFLUSHOPT, "clflushopt" },
+		{ Cpu::tCLDEMOTE, "cldemote" },
+		{ Cpu::tMOVDIRI, "movdiri" },
+		{ Cpu::tMOVDIR64B, "movdir64b" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
