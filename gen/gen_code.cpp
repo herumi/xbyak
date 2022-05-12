@@ -1052,6 +1052,7 @@ void put()
 		puts("void movbe(const Reg& reg, const Address& addr) { opModM(addr, reg, 0x0F, 0x38, 0xF0); }");
 		puts("void movbe(const Address& addr, const Reg& reg) { opModM(addr, reg, 0x0F, 0x38, 0xF1); }");
 		puts("void movdiri(const Address& addr, const Reg32e& reg) { opModM(addr, reg, 0x0F, 0x38, 0xF9); }");
+		puts("void movdir64b(const Reg& reg, const Address& addr) { db(0x66); opModM(addr, reg.cvt32(), 0x0F, 0x38, 0xF8); }");
 		puts("void adcx(const Reg32e& reg, const Operand& op) { opGen(reg, op, 0xF6, 0x66, isREG32_REG32orMEM, NONE, 0x38); }");
 		puts("void adox(const Reg32e& reg, const Operand& op) { opGen(reg, op, 0xF6, 0xF3, isREG32_REG32orMEM, NONE, 0x38); }");
 		puts("void cmpxchg8b(const Address& addr) { opModM(addr, Reg32(1), 0x0F, 0xC7); }");

@@ -503,6 +503,7 @@ void movd(const Mmx& mmx, const Address& addr) { if (mmx.isXMM()) db(0x66); opMo
 void movd(const Mmx& mmx, const Reg32& reg) { if (mmx.isXMM()) db(0x66); opModR(mmx, reg, 0x0F, 0x6E); }
 void movd(const Reg32& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR(mmx, reg, 0x0F, 0x7E); }
 void movddup(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x12, 0xF2, isXMM_XMMorMEM, NONE, NONE); }
+void movdir64b(const Reg& reg, const Address& addr) { db(0x66); opModM(addr, reg.cvt32(), 0x0F, 0x38, 0xF8); }
 void movdiri(const Address& addr, const Reg32e& reg) { opModM(addr, reg, 0x0F, 0x38, 0xF9); }
 void movdq2q(const Mmx& mmx, const Xmm& xmm) { db(0xF2); opModR(mmx, xmm, 0x0F, 0xD6); }
 void movdqa(const Address& addr, const Xmm& xmm) { db(0x66); opModM(addr, xmm, 0x0F, 0x7F); }
