@@ -93,7 +93,7 @@ class Type {
 	uint64_t L;
 	uint64_t H;
 public:
-	Type(uint64_t L = 0, uint64_t H = 0) : L(L), H(H) { printf("L=%lx H=%lx\n", L, H); }
+	Type(uint64_t L = 0, uint64_t H = 0) : L(L), H(H) { }
 	Type& operator&=(const Type& rhs)
 	{
 		L &= rhs.L;
