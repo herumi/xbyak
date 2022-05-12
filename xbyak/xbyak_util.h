@@ -412,6 +412,7 @@ public:
 	static const Type tCLFLUSHOPT;
 	static const Type tCLDEMOTE;
 	static const Type tMOVDIRI;
+	static const Type tMOVDIR64B;
 
 	CpuT()
 		: type_(NONE)
@@ -536,6 +537,7 @@ public:
 			if (ECX & (1U << 5)) type_ |= tWAITPKG;
 			if (ECX & (1U << 25)) type_ |= tCLDEMOTE;
 			if (ECX & (1U << 27)) type_ |= tMOVDIRI;
+			if (ECX & (1U << 28)) type_ |= tMOVDIR64B;
 			if (EDX & (1U << 24)) type_ |= tAMX_TILE;
 			if (EDX & (1U << 25)) type_ |= tAMX_INT8;
 			if (EDX & (1U << 22)) type_ |= tAMX_BF16;
@@ -637,6 +639,7 @@ template<int dummy> const Type CpuT<dummy>::tAVX_VNNI = uint64_t(1) << 62;
 template<int dummy> const Type CpuT<dummy>::tCLFLUSHOPT = uint64_t(1) << 63;
 template<int dummy> const Type CpuT<dummy>::tCLDEMOTE = Type(0, 1 << 0);
 template<int dummy> const Type CpuT<dummy>::tMOVDIRI = Type(0, 1 << 1);
+template<int dummy> const Type CpuT<dummy>::tMOVDIR64B = Type(0, 1 << 2);
 
 } // local
 
