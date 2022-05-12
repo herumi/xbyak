@@ -93,27 +93,7 @@ class Type {
 	uint64_t L;
 	uint64_t H;
 public:
-	Type(uint64_t L = 0) : L(L), H(0) {}
-	Type& operator<<=(size_t n)
-	{
-		assert(n < 128);
-		if (n < 64) {
-			H <<= n;
-			if (n > 0) H |= L >> (64 - n);
-			L <<= n;
-		} else {
-			n -= 64;
-			H = L << n;
-			L = 0;
-		}
-		return *this;
-	}
-	Type operator<<(size_t n) const
-	{
-		Type t = *this;
-		t <<= n;
-		return t;
-	}
+	Type(uint64_t L = 0, uint64_t H = 0) : L(L), H(H) { printf("L=%lx H=%lx\n", L, H); }
 	Type& operator&=(const Type& rhs)
 	{
 		L &= rhs.L;
@@ -138,6 +118,7 @@ public:
 		t |= rhs;
 		return t;
 	}
+	// without explicit because backward compatilibity
 	operator bool() const { return (H | L) != 0; }
 	uint64_t getL() const { return L; }
 	uint64_t getH() const { return H; }
@@ -653,9 +634,9 @@ template<int dummy> const Type CpuT<dummy>::tAMX_TILE = uint64_t(1) << 59;
 template<int dummy> const Type CpuT<dummy>::tAMX_INT8 = uint64_t(1) << 60;
 template<int dummy> const Type CpuT<dummy>::tAMX_BF16 = uint64_t(1) << 61;
 template<int dummy> const Type CpuT<dummy>::tAVX_VNNI = uint64_t(1) << 62;
-template<int dummy> const Type CpuT<dummy>::tCLFLUSHOPT = Type(1) << 63;
-template<int dummy> const Type CpuT<dummy>::tCLDEMOTE = Type(1) << 64;
-template<int dummy> const Type CpuT<dummy>::tMOVDIRI = Type(1) << 65;
+template<int dummy> const Type CpuT<dummy>::tCLFLUSHOPT = uint64_t(1) << 63;
+template<int dummy> const Type CpuT<dummy>::tCLDEMOTE = Type(0, 1 << 0);
+template<int dummy> const Type CpuT<dummy>::tMOVDIRI = Type(0, 1 << 1);
 
 } // local
 
