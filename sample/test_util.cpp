@@ -86,8 +86,8 @@ void putCPUinfo()
 		{ Cpu::tWAITPKG, "waitpkg" },
 		{ Cpu::tCLFLUSHOPT, "clflushopt" },
 		{ Cpu::tCLDEMOTE, "cldemote" },
-		{ Cpu::tMOVDIRI, "movidiri" },
-		{ Cpu::tMOVDIR64B, "movidir64b" },
+		{ Cpu::tMOVDIRI, "movdiri" },
+		{ Cpu::tMOVDIR64B, "movdir64b" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
