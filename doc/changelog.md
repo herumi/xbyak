@@ -1,5 +1,6 @@
 # History
 
+* 2022/Mar/13 ver 6.051 fix compile error when XBYAK_NO_EXCEPTION is defined
 * 2022/Mar/12 ver 6.05 add movdiri, movdir64b, clwb, cldemote
 * 2022/Apr/22 ver 6.041 consider Android and mingw
 * 2022/Apr/05 ver 6.04 add tpause, umonitor, umwait
