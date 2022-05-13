@@ -10,3 +10,4 @@ jobs:
     - run: sudo apt update
     - run: sudo apt install nasm yasm g++-multilib tcsh
     - run: make test
+    - run: make -C sample CXXFLAGS="-DXBYAK_NO_EXCEPTION"

@@ -293,10 +293,10 @@ inline void SetError(int err) {
 inline void ClearError() {
 	local::GetErrorRef() = 0;
 }
-inline int GetError() { return local::GetErrorRef(); }
+inline int GetError() { return Xbyak::local::GetErrorRef(); }
 
-#define XBYAK_THROW(err) { local::SetError(err); return; }
-#define XBYAK_THROW_RET(err, r) { local::SetError(err); return r; }
+#define XBYAK_THROW(err) { Xbyak::local::SetError(err); return; }
+#define XBYAK_THROW_RET(err, r) { Xbyak::local::SetError(err); return r; }
 
 #else
 class Error : public std::exception {
