@@ -1,5 +1,5 @@
 
-# Xbyak 6.05 [![Badge Build]][Build Status]
+# Xbyak 6.051 [![Badge Build]][Build Status]
 
 *A C++ JIT assembler for x86 (IA32), x64 (AMD64, x86-64)*
 
@@ -28,6 +28,7 @@ If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 ### News
 
+- add movdiri, movdir64b, clwb, cldemote
 - WAITPKG instructions (tpause, umonitor, umwait) are supported.
 - MmapAllocator supports memfd with user-defined strings. see sample/memfd.cpp
 - strictly check address offset disp32 in a signed 32-bit integer. e.g., `ptr[(void*)0xffffffff]` causes an error.
