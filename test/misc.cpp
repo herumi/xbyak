@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
-#define XBYAK_NO_OP_NAMES
 #include <xbyak/xbyak.h>
+#include <xbyak/xbyak_util.h>
 #include <cybozu/inttype.hpp>
 #include <cybozu/test.hpp>
 
@@ -1966,4 +1966,12 @@ CYBOZU_TEST_AUTO(misc)
 	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
+
+CYBOZU_TEST_AUTO(cpu)
+{
+	// https://github.com/herumi/xbyak/issues/148
+	using namespace Xbyak::util;
+	Cpu cpu;
+	CYBOZU_TEST_EQUAL(cpu.has(Cpu::tINTEL) && cpu.has(Cpu::tAMD), cpu.has(Cpu::tINTEL | Cpu::tAMD));
 }
