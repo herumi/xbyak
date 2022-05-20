@@ -118,6 +118,8 @@ public:
 		t |= rhs;
 		return t;
 	}
+	bool operator==(const Type& rhs) const { return H == rhs.H && L == rhs.L; }
+	bool operator!=(const Type& rhs) const { return !operator==(rhs); }
 	// without explicit because backward compatilibity
 	operator bool() const { return (H | L) != 0; }
 	uint64_t getL() const { return L; }
@@ -179,7 +181,7 @@ private:
 	}
 	void setNumCores()
 	{
-		if ((type_ & tINTEL) == 0) return;
+		if (!has(tINTEL)) return;
 
 		unsigned int data[4] = {};
 
@@ -217,7 +219,7 @@ private:
 	}
 	void setCacheHierarchy()
 	{
-		if ((type_ & tINTEL) == 0) return;
+		if (!has(tINTEL)) return;
 		const unsigned int NO_CACHE = 0;
 		const unsigned int DATA_CACHE = 1;
 //		const unsigned int INSTRUCTION_CACHE = 2;
@@ -561,7 +563,7 @@ public:
 		printf("display:family=%X, model=%X\n", displayFamily, displayModel);
 #endif
 	}
-	bool has(Type type) const
+	bool has(const Type& type) const
 	{
 		return (type & type_) == type;
 	}
