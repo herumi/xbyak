@@ -415,6 +415,7 @@ public:
 	static const Type tCLDEMOTE;
 	static const Type tMOVDIRI;
 	static const Type tMOVDIR64B;
+	static const Type tCLZERO;
 
 	CpuT()
 		: type_(NONE)
@@ -453,7 +454,8 @@ public:
 
 		// Extended flags information
 		getCpuid(0x80000000, data);
-		if (EAX >= 0x80000001) {
+		const unsigned int maxExtendedNum = EAX;
+		if (maxExtendedNum >= 0x80000001) {
 			getCpuid(0x80000001, data);
 
 			if (EDX & (1U << 31)) type_ |= t3DN;
@@ -463,6 +465,11 @@ public:
 			if (EDX & (1U << 15)) type_ |= tCMOV;
 			if (ECX & (1U << 5)) type_ |= tLZCNT;
 			if (ECX & (1U << 8)) type_ |= tPREFETCHW;
+		}
+
+		if (maxExtendedNum >= 0x80000008) {
+			getCpuid(0x80000008, data);
+			if (EBX & (1U << 0)) type_ |= tCLZERO;
 		}
 
 		getCpuid(1, data);
@@ -642,6 +649,7 @@ template<int dummy> const Type CpuT<dummy>::tCLFLUSHOPT = uint64_t(1) << 63;
 template<int dummy> const Type CpuT<dummy>::tCLDEMOTE = Type(0, 1 << 0);
 template<int dummy> const Type CpuT<dummy>::tMOVDIRI = Type(0, 1 << 1);
 template<int dummy> const Type CpuT<dummy>::tMOVDIR64B = Type(0, 1 << 2);
+template<int dummy> const Type CpuT<dummy>::tCLZERO = Type(0, 1 << 3);
 
 } // local
 
