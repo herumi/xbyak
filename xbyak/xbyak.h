@@ -418,9 +418,18 @@ inline int getMacOsVersion()
 } // util
 #endif
 class MmapAllocator : public Allocator {
+	struct Allocation {
+		size_t size;
+#if defined(XBYAK_USE_MEMFD)
+		// fd_ is only used with XBYAK_USE_MEMFD. We keep the file open
+		// during the lifetime of each allocation in order to support
+		// checkpoint/restore by unprivileged users.
+		int fd;
+#endif
+	};
 	const std::string name_; // only used with XBYAK_USE_MEMFD
-	typedef XBYAK_STD_UNORDERED_MAP<uintptr_t, size_t> SizeList;
-	SizeList sizeList_;
+	typedef XBYAK_STD_UNORDERED_MAP<uintptr_t, Allocation> AllocationList;
+	AllocationList allocList_;
 public:
 	explicit MmapAllocator(const std::string& name = "xbyak") : name_(name) {}
 	uint8_t *alloc(size_t size)
@@ -443,25 +452,35 @@ public:
 		fd = memfd_create(name_.c_str(), MFD_CLOEXEC);
 		if (fd != -1) {
 			mode = MAP_SHARED;
-			if (ftruncate(fd, size) != 0) XBYAK_THROW_RET(ERR_CANT_ALLOC, 0)
+			if (ftruncate(fd, size) != 0) {
+				close(fd);
+				XBYAK_THROW_RET(ERR_CANT_ALLOC, 0)
+			}
 		}
 #endif
 		void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, mode, fd, 0);
-#if defined(XBYAK_USE_MEMFD)
-		if (fd != -1) close(fd);
-#endif
-		if (p == MAP_FAILED) XBYAK_THROW_RET(ERR_CANT_ALLOC, 0)
+		if (p == MAP_FAILED) {
+			if (fd != -1) close(fd);
+			XBYAK_THROW_RET(ERR_CANT_ALLOC, 0)
+		}
 		assert(p);
-		sizeList_[(uintptr_t)p] = size;
+		Allocation &alloc = allocList_[(uintptr_t)p];
+		alloc.size = size;
+#if defined(XBYAK_USE_MEMFD)
+		alloc.fd = fd;
+#endif
 		return (uint8_t*)p;
 	}
 	void free(uint8_t *p)
 	{
 		if (p == 0) return;
-		SizeList::iterator i = sizeList_.find((uintptr_t)p);
-		if (i == sizeList_.end()) XBYAK_THROW(ERR_BAD_PARAMETER)
-		if (munmap((void*)i->first, i->second) < 0) XBYAK_THROW(ERR_MUNMAP)
-		sizeList_.erase(i);
+		AllocationList::iterator i = allocList_.find((uintptr_t)p);
+		if (i == allocList_.end()) XBYAK_THROW(ERR_BAD_PARAMETER)
+		if (munmap((void*)i->first, i->second.size) < 0) XBYAK_THROW(ERR_MUNMAP)
+#if defined(XBYAK_USE_MEMFD)
+		if (i->second.fd != -1) close(i->second.fd);
+#endif
+		allocList_.erase(i);
 	}
 };
 #else
