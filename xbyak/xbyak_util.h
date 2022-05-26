@@ -649,7 +649,7 @@ template<int dummy> const Type CpuT<dummy>::tCLFLUSHOPT = uint64_t(1) << 63;
 template<int dummy> const Type CpuT<dummy>::tCLDEMOTE = Type(0, 1 << 0);
 template<int dummy> const Type CpuT<dummy>::tMOVDIRI = Type(0, 1 << 1);
 template<int dummy> const Type CpuT<dummy>::tMOVDIR64B = Type(0, 1 << 2);
-template<int dummy> const Type CpuT<dummy>::tCLZERO = Type(0, 1 << 3);
+template<int dummy> const Type CpuT<dummy>::tCLZERO = Type(0, 1 << 3); // AMD Zen
 
 } // local
 
