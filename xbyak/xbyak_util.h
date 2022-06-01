@@ -127,24 +127,24 @@ private:
 	//system topology
 	bool x2APIC_supported_;
 	static const size_t maxTopologyLevels = 2;
-	unsigned int numCores_[maxTopologyLevels];
+	uint32_t numCores_[maxTopologyLevels];
 
-	static const unsigned int maxNumberCacheLevels = 10;
-	unsigned int dataCacheSize_[maxNumberCacheLevels];
-	unsigned int coresSharignDataCache_[maxNumberCacheLevels];
-	unsigned int dataCacheLevels_;
+	static const uint32_t maxNumberCacheLevels = 10;
+	uint32_t dataCacheSize_[maxNumberCacheLevels];
+	uint32_t coresSharignDataCache_[maxNumberCacheLevels];
+	uint32_t dataCacheLevels_;
 
-	unsigned int get32bitAsBE(const char *x) const
+	uint32_t get32bitAsBE(const char *x) const
 	{
 		return x[0] | (x[1] << 8) | (x[2] << 16) | (x[3] << 24);
 	}
-	unsigned int mask(int n) const
+	uint32_t mask(int n) const
 	{
 		return (1U << n) - 1;
 	}
 	void setFamily()
 	{
-		unsigned int data[4] = {};
+		uint32_t data[4] = {};
 		getCpuid(1, data);
 		stepping = data[0] & mask(4);
 		model = (data[0] >> 4) & mask(4);
@@ -163,7 +163,7 @@ private:
 			displayModel = model;
 		}
 	}
-	unsigned int extractBit(unsigned int val, unsigned int base, unsigned int end)
+	uint32_t extractBit(uint32_t val, uint32_t base, uint32_t end)
 	{
 		return (val >> base) & ((1u << (end - base)) - 1);
 	}
@@ -171,7 +171,7 @@ private:
 	{
 		if (!has(tINTEL)) return;
 
-		unsigned int data[4] = {};
+		uint32_t data[4] = {};
 
 		 /* CAUTION: These numbers are configuration as shipped by Intel. */
 		getCpuidEx(0x0, 0, data);
@@ -183,7 +183,7 @@ private:
 				leaf 0xB can be zeroed-out by a hypervisor
 			*/
 			x2APIC_supported_ = true;
-			for (unsigned int i = 0; i < maxTopologyLevels; i++) {
+			for (uint32_t i = 0; i < maxTopologyLevels; i++) {
 				getCpuidEx(0xB, i, data);
 				IntelCpuTopologyLevel level = (IntelCpuTopologyLevel)extractBit(data[2], 8, 15);
 				if (level == SmtLevel || level == CoreLevel) {
@@ -208,13 +208,13 @@ private:
 	void setCacheHierarchy()
 	{
 		if (!has(tINTEL)) return;
-		const unsigned int NO_CACHE = 0;
-		const unsigned int DATA_CACHE = 1;
-//		const unsigned int INSTRUCTION_CACHE = 2;
-		const unsigned int UNIFIED_CACHE = 3;
-		unsigned int smt_width = 0;
-		unsigned int logical_cores = 0;
-		unsigned int data[4] = {};
+		const uint32_t NO_CACHE = 0;
+		const uint32_t DATA_CACHE = 1;
+//		const uint32_t INSTRUCTION_CACHE = 2;
+		const uint32_t UNIFIED_CACHE = 3;
+		uint32_t smt_width = 0;
+		uint32_t logical_cores = 0;
+		uint32_t data[4] = {};
 
 		if (x2APIC_supported_) {
 			smt_width = numCores_[0];
@@ -232,10 +232,10 @@ private:
 		*/
 		for (int i = 0; dataCacheLevels_ < maxNumberCacheLevels; i++) {
 			getCpuidEx(0x4, i, data);
-			unsigned int cacheType = extractBit(data[0], 0, 4);
+			uint32_t cacheType = extractBit(data[0], 0, 4);
 			if (cacheType == NO_CACHE) break;
 			if (cacheType == DATA_CACHE || cacheType == UNIFIED_CACHE) {
-				unsigned int actual_logical_cores = extractBit(data[0], 14, 25) + 1;
+				uint32_t actual_logical_cores = extractBit(data[0], 14, 25) + 1;
 				if (logical_cores != 0) { // true only if leaf 0xB is supported and valid
 					actual_logical_cores = (std::min)(actual_logical_cores, logical_cores);
 				}
@@ -262,7 +262,7 @@ public:
 	int displayFamily; // family + extFamily
 	int displayModel; // model + extModel
 
-	unsigned int getNumCores(IntelCpuTopologyLevel level) const {
+	uint32_t getNumCores(IntelCpuTopologyLevel level) const {
 		if (!x2APIC_supported_) XBYAK_THROW_RET(ERR_X2APIC_IS_NOT_SUPPORTED, 0)
 		switch (level) {
 		case SmtLevel: return numCores_[level - 1];
@@ -271,13 +271,13 @@ public:
 		}
 	}
 
-	unsigned int getDataCacheLevels() const { return dataCacheLevels_; }
-	unsigned int getCoresSharingDataCache(unsigned int i) const
+	uint32_t getDataCacheLevels() const { return dataCacheLevels_; }
+	uint32_t getCoresSharingDataCache(uint32_t i) const
 	{
 		if (i >= dataCacheLevels_) XBYAK_THROW_RET(ERR_BAD_PARAMETER, 0)
 		return coresSharignDataCache_[i];
 	}
-	unsigned int getDataCacheSize(unsigned int i) const
+	uint32_t getDataCacheSize(uint32_t i) const
 	{
 		if (i >= dataCacheLevels_) XBYAK_THROW_RET(ERR_BAD_PARAMETER, 0)
 		return dataCacheSize_[i];
@@ -286,7 +286,7 @@ public:
 	/*
 		data[] = { eax, ebx, ecx, edx }
 	*/
-	static inline void getCpuid(unsigned int eaxIn, unsigned int data[4])
+	static inline void getCpuid(uint32_t eaxIn, uint32_t data[4])
 	{
 #ifdef XBYAK_INTEL_CPU_SPECIFIC
 	#ifdef _WIN32
@@ -299,7 +299,7 @@ public:
 		(void)data;
 #endif
 	}
-	static inline void getCpuidEx(unsigned int eaxIn, unsigned int ecxIn, unsigned int data[4])
+	static inline void getCpuidEx(uint32_t eaxIn, uint32_t ecxIn, uint32_t data[4])
 	{
 #ifdef XBYAK_INTEL_CPU_SPECIFIC
 	#ifdef _MSC_VER
@@ -319,7 +319,7 @@ public:
 	#ifdef _MSC_VER
 		return _xgetbv(0);
 	#else
-		unsigned int eax, edx;
+		uint32_t eax, edx;
 		// xgetvb is not support on gcc 4.2
 //		__asm__ volatile("xgetbv" : "=a"(eax), "=d"(edx) : "c"(0));
 		__asm__ volatile(".byte 0x0f, 0x01, 0xd0" : "=a"(eax), "=d"(edx) : "c"(0));
@@ -410,13 +410,13 @@ public:
 		, coresSharignDataCache_()
 		, dataCacheLevels_(0)
 	{
-		unsigned int data[4] = {};
-		const unsigned int& EAX = data[0];
-		const unsigned int& EBX = data[1];
-		const unsigned int& ECX = data[2];
-		const unsigned int& EDX = data[3];
+		uint32_t data[4] = {};
+		const uint32_t& EAX = data[0];
+		const uint32_t& EBX = data[1];
+		const uint32_t& ECX = data[2];
+		const uint32_t& EDX = data[3];
 		getCpuid(0, data);
-		const unsigned int maxNum = EAX;
+		const uint32_t maxNum = EAX;
 		static const char intel[] = "ntel";
 		static const char amd[] = "cAMD";
 		if (ECX == get32bitAsBE(amd)) {
@@ -439,7 +439,7 @@ public:
 
 		// Extended flags information
 		getCpuid(0x80000000, data);
-		const unsigned int maxExtendedNum = EAX;
+		const uint32_t maxExtendedNum = EAX;
 		if (maxExtendedNum >= 0x80000001) {
 			getCpuid(0x80000001, data);
 
@@ -570,7 +570,7 @@ public:
 	#ifdef _MSC_VER
 		return __rdtsc();
 	#else
-		unsigned int eax, edx;
+		uint32_t eax, edx;
 		__asm__ volatile("rdtsc" : "=a"(eax), "=d"(edx));
 		return ((uint64_t)edx << 32) | eax;
 	#endif
