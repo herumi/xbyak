@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 6.052
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 6.06
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -400,6 +400,9 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2022/06/01 ver 6.06 Cpu::TypeクラスのリファクタリングとXBYAK_USE_MEMFDが定義されたときのMmapAllocatorの改善
+2022/05/20 ver 6.052 Cpu::operator==()を正しく定義
+2022/05/13 ver 6.051 XYBAK_NO_EXCEPTIONを定義したときのCpuクラスのコンパイルエラー修正
 2022/05/12 ver 6.05 movdiri, movdir64b, clwb, cldemoteを追加
 2022/04/05 ver 6.04 tpause, umonitor, umwaitを追加
 2022/03/08 ver 6.03 MmapAllocatorがmemfd用のユーザ定義文字列をサポート
