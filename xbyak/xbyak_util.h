@@ -96,45 +96,6 @@ struct TypeT {
 template<uint64_t L1, uint64_t H1, uint64_t L2, uint64_t H2>
 TypeT<L1 | L2, H1 | H2> operator|(TypeT<L1, H1>, TypeT<L2, H2>) { return TypeT<L1 | L2, H1 | H2>(); }
 
-class Type {
-	uint64_t L;
-	uint64_t H;
-public:
-	Type(uint64_t L = 0, uint64_t H = 0) : L(L), H(H) { }
-	template<uint64_t L_, uint64_t H_>
-	Type(TypeT<L_, H_>) : L(L_), H(H_) {}
-	Type& operator&=(const Type& rhs)
-	{
-		L &= rhs.L;
-		H &= rhs.H;
-		return *this;
-	}
-	Type& operator|=(const Type& rhs)
-	{
-		L |= rhs.L;
-		H |= rhs.H;
-		return *this;
-	}
-	Type operator&(const Type& rhs) const
-	{
-		Type t = *this;
-		t &= rhs;
-		return t;
-	}
-	Type operator|(const Type& rhs) const
-	{
-		Type t = *this;
-		t |= rhs;
-		return t;
-	}
-	bool operator==(const Type& rhs) const { return H == rhs.H && L == rhs.L; }
-	bool operator!=(const Type& rhs) const { return !operator==(rhs); }
-	// without explicit because backward compatilibity
-	operator bool() const { return (H | L) != 0; }
-	uint64_t getL() const { return L; }
-	uint64_t getH() const { return H; }
-};
-
 } // local
 
 /**
@@ -143,7 +104,24 @@ public:
 */
 class Cpu {
 public:
-	typedef local::Type Type;
+	class Type {
+		uint64_t L;
+		uint64_t H;
+	public:
+		Type(uint64_t L = 0, uint64_t H = 0) : L(L), H(H) { }
+		template<uint64_t L_, uint64_t H_>
+		Type(local::TypeT<L_, H_>) : L(L_), H(H_) {}
+		Type& operator&=(const Type& rhs) { L &= rhs.L; H &= rhs.H; return *this; }
+		Type& operator|=(const Type& rhs) { L |= rhs.L; H |= rhs.H; return *this; }
+		Type operator&(const Type& rhs) const { Type t = *this; t &= rhs; return t; }
+		Type operator|(const Type& rhs) const { Type t = *this; t |= rhs; return t; }
+		bool operator==(const Type& rhs) const { return H == rhs.H && L == rhs.L; }
+		bool operator!=(const Type& rhs) const { return !operator==(rhs); }
+		// without explicit because backward compatilibity
+		operator bool() const { return (H | L) != 0; }
+		uint64_t getL() const { return L; }
+		uint64_t getH() const { return H; }
+	};
 private:
 	Type type_;
 	//system topology
