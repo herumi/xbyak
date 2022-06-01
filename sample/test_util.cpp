@@ -13,7 +13,7 @@ struct PopCountTest : public Xbyak::CodeGenerator {
 	}
 };
 
-void putCPUinfo()
+void putCPUinfo(bool onlyCpuidFeature)
 {
 	using namespace Xbyak::util;
 	Cpu cpu;
@@ -88,11 +88,13 @@ void putCPUinfo()
 		{ Cpu::tCLDEMOTE, "cldemote" },
 		{ Cpu::tMOVDIRI, "movdiri" },
 		{ Cpu::tMOVDIR64B, "movdir64b" },
+		{ Cpu::tCLZERO, "clzero" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
 	}
 	printf("\n");
+	if (onlyCpuidFeature) return;
 	if (cpu.has(Cpu::tPOPCNT)) {
 		const int n = 0x12345678; // bitcount = 13
 		const int ok = 13;
@@ -126,12 +128,15 @@ void putCPUinfo()
 	printf("CoreLevel=%u\n", cpu.getNumCores(Xbyak::util::CoreLevel));
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+	bool onlyCpuidFeature = argc == 2 && strcmp(argv[1], "-cpuid") == 0;
+	if (!onlyCpuidFeature) {
 #ifdef XBYAK32
-	puts("32bit");
+		puts("32bit");
 #else
-	puts("64bit");
+		puts("64bit");
 #endif
-	putCPUinfo();
+	}
+	putCPUinfo(onlyCpuidFeature);
 }
