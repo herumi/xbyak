@@ -252,7 +252,7 @@ void put()
 		char buf[16];
 		unsigned int v = VERSION;
 		if (v & 0xF) {
-			snprintf(buf, sizeof(buf), "%d.%02X%x", v >> 12, (v >> 4) & 0xFF, v & 0xF);
+			snprintf(buf, sizeof(buf), "%d.%02X.%x", v >> 12, (v >> 4) & 0xFF, v & 0xF);
 		} else {
 			snprintf(buf, sizeof(buf), "%d.%02X", v >> 12, (v >> 4) & 0xFF);
 		}
