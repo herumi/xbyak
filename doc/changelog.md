@@ -1,5 +1,6 @@
 # History
 
+* 2022/Jun/06 ver 6.60 change the version format to avoid it going backward
 * 2022/Jun/01 ver 6.06 refactor Cpu::Type class and improve MmapAllocator when XBYAK_USE_MEMFD is defined.
 * 2022/Mar/20 ver 6.052 add Cpu::operator==()
 * 2022/Mar/13 ver 6.051 fix compile error when XBYAK_NO_EXCEPTION is defined
