@@ -330,80 +330,88 @@ public:
 #endif
 	}
 
-	static const local::TypeT<0> NONE;
-	static const local::TypeT<1 << 0> tMMX;
-	static const local::TypeT<1 << 1> tMMX2;
-	static const local::TypeT<1 << 2> tCMOV;
-	static const local::TypeT<1 << 3> tSSE;
-	static const local::TypeT<1 << 4> tSSE2;
-	static const local::TypeT<1 << 5> tSSE3;
-	static const local::TypeT<1 << 6> tSSSE3;
-	static const local::TypeT<1 << 7> tSSE41;
-	static const local::TypeT<1 << 8> tSSE42;
-	static const local::TypeT<1 << 9> tPOPCNT;
-	static const local::TypeT<1 << 10> tAESNI;
-	static const local::TypeT<1 << 11> tAVX512_FP16;
-	static const local::TypeT<1 << 12> tOSXSAVE;
-	static const local::TypeT<1 << 13> tPCLMULQDQ;
-	static const local::TypeT<1 << 14> tAVX;
-	static const local::TypeT<1 << 15> tFMA;
-	static const local::TypeT<1 << 16> t3DN;
-	static const local::TypeT<1 << 17> tE3DN;
-	static const local::TypeT<1 << 18> tWAITPKG;
-	static const local::TypeT<1 << 19> tRDTSCP;
-	static const local::TypeT<1 << 20> tAVX2;
-	static const local::TypeT<1 << 21> tBMI1; // andn, bextr, blsi, blsmsk, blsr, tzcnt
-	static const local::TypeT<1 << 22> tBMI2; // bzhi, mulx, pdep, pext, rorx, sarx, shlx, shrx
-	static const local::TypeT<1 << 23> tLZCNT;
-	static const local::TypeT<1 << 24> tINTEL;
-	static const local::TypeT<1 << 25> tAMD;
-	static const local::TypeT<1 << 26> tENHANCED_REP; // enhanced rep movsb/stosb
-	static const local::TypeT<1 << 27> tRDRAND;
-	static const local::TypeT<1 << 28> tADX; // adcx, adox
-	static const local::TypeT<1 << 29> tRDSEED; // rdseed
-	static const local::TypeT<1 << 30> tSMAP; // stac
-	static const local::TypeT<uint64_t(1) << 31> tHLE; // xacquire, xrelease, xtest
-	static const local::TypeT<uint64_t(1) << 32> tRTM; // xbegin, xend, xabort
-	static const local::TypeT<uint64_t(1) << 33> tF16C; // vcvtph2ps, vcvtps2ph
-	static const local::TypeT<uint64_t(1) << 34> tMOVBE; // mobve
-	static const local::TypeT<uint64_t(1) << 35> tAVX512F;
-	static const local::TypeT<uint64_t(1) << 36> tAVX512DQ;
-	static const local::TypeT<uint64_t(1) << 37> tAVX512_IFMA;
-	static const local::TypeT<uint64_t(1) << 37> tAVX512IFMA;// = tAVX512_IFMA;
-	static const local::TypeT<uint64_t(1) << 38> tAVX512PF;
-	static const local::TypeT<uint64_t(1) << 39> tAVX512ER;
-	static const local::TypeT<uint64_t(1) << 40> tAVX512CD;
-	static const local::TypeT<uint64_t(1) << 41> tAVX512BW;
-	static const local::TypeT<uint64_t(1) << 42> tAVX512VL;
-	static const local::TypeT<uint64_t(1) << 43> tAVX512_VBMI;
-	static const local::TypeT<uint64_t(1) << 43> tAVX512VBMI; // = tAVX512_VBMI; // changed by Intel's manual
-	static const local::TypeT<uint64_t(1) << 44> tAVX512_4VNNIW;
-	static const local::TypeT<uint64_t(1) << 45> tAVX512_4FMAPS;
-	static const local::TypeT<uint64_t(1) << 46> tPREFETCHWT1;
-	static const local::TypeT<uint64_t(1) << 47> tPREFETCHW;
-	static const local::TypeT<uint64_t(1) << 48> tSHA;
-	static const local::TypeT<uint64_t(1) << 49> tMPX;
-	static const local::TypeT<uint64_t(1) << 50> tAVX512_VBMI2;
-	static const local::TypeT<uint64_t(1) << 51> tGFNI;
-	static const local::TypeT<uint64_t(1) << 52> tVAES;
-	static const local::TypeT<uint64_t(1) << 53> tVPCLMULQDQ;
-	static const local::TypeT<uint64_t(1) << 54> tAVX512_VNNI;
-	static const local::TypeT<uint64_t(1) << 55> tAVX512_BITALG;
-	static const local::TypeT<uint64_t(1) << 56> tAVX512_VPOPCNTDQ;
-	static const local::TypeT<uint64_t(1) << 57> tAVX512_BF16;
-	static const local::TypeT<uint64_t(1) << 58> tAVX512_VP2INTERSECT;
-	static const local::TypeT<uint64_t(1) << 59> tAMX_TILE;
-	static const local::TypeT<uint64_t(1) << 60> tAMX_INT8;
-	static const local::TypeT<uint64_t(1) << 61> tAMX_BF16;
-	static const local::TypeT<uint64_t(1) << 62> tAVX_VNNI;
-	static const local::TypeT<uint64_t(1) << 63> tCLFLUSHOPT;
-	static const local::TypeT<0, 1 << 0> tCLDEMOTE;
-	static const local::TypeT<0, 1 << 1> tMOVDIRI;
-	static const local::TypeT<0, 1 << 2> tMOVDIR64B;
-	static const local::TypeT<0, 1 << 3> tCLZERO; // AMD Zen
+#define XBYAK_SPLIT_ID(id) ((0 <= id && id < 64) ? (1ull << (id % 64)) : 0), (id >= 64 ? (1ull << (id % 64)) : 0)
+#if (__cplusplus >= 201103) || (defined(_MSC_VER) && (_MSC_VER >= 1700)) /* VS2012 */
+	#define XBYAK_DEFINE_TYPE(id, NAME) static const constexpr local::TypeT<XBYAK_SPLIT_ID(id)> NAME{}
+#else
+	#define XBYAK_DEFINE_TYPE(id, NAME) static const local::TypeT<XBYAK_SPLIT_ID(id)> NAME
+#endif
+	XBYAK_DEFINE_TYPE(0, tMMX);
+	XBYAK_DEFINE_TYPE(1, tMMX2);
+	XBYAK_DEFINE_TYPE(2, tCMOV);
+	XBYAK_DEFINE_TYPE(3, tSSE);
+	XBYAK_DEFINE_TYPE(4, tSSE2);
+	XBYAK_DEFINE_TYPE(5, tSSE3);
+	XBYAK_DEFINE_TYPE(6, tSSSE3);
+	XBYAK_DEFINE_TYPE(7, tSSE41);
+	XBYAK_DEFINE_TYPE(8, tSSE42);
+	XBYAK_DEFINE_TYPE(9, tPOPCNT);
+	XBYAK_DEFINE_TYPE(10, tAESNI);
+	XBYAK_DEFINE_TYPE(11, tAVX512_FP16);
+	XBYAK_DEFINE_TYPE(12, tOSXSAVE);
+	XBYAK_DEFINE_TYPE(13, tPCLMULQDQ);
+	XBYAK_DEFINE_TYPE(14, tAVX);
+	XBYAK_DEFINE_TYPE(15, tFMA);
+	XBYAK_DEFINE_TYPE(16, t3DN);
+	XBYAK_DEFINE_TYPE(17, tE3DN);
+	XBYAK_DEFINE_TYPE(18, tWAITPKG);
+	XBYAK_DEFINE_TYPE(19, tRDTSCP);
+	XBYAK_DEFINE_TYPE(20, tAVX2);
+	XBYAK_DEFINE_TYPE(21, tBMI1); // andn, bextr, blsi, blsmsk, blsr, tzcnt
+	XBYAK_DEFINE_TYPE(22, tBMI2); // bzhi, mulx, pdep, pext, rorx, sarx, shlx, shrx
+	XBYAK_DEFINE_TYPE(23, tLZCNT);
+	XBYAK_DEFINE_TYPE(24, tINTEL);
+	XBYAK_DEFINE_TYPE(25, tAMD);
+	XBYAK_DEFINE_TYPE(26, tENHANCED_REP); // enhanced rep movsb/stosb
+	XBYAK_DEFINE_TYPE(27, tRDRAND);
+	XBYAK_DEFINE_TYPE(28, tADX); // adcx, adox
+	XBYAK_DEFINE_TYPE(29, tRDSEED); // rdseed
+	XBYAK_DEFINE_TYPE(30, tSMAP); // stac
+	XBYAK_DEFINE_TYPE(31, tHLE); // xacquire, xrelease, xtest
+	XBYAK_DEFINE_TYPE(32, tRTM); // xbegin, xend, xabort
+	XBYAK_DEFINE_TYPE(33, tF16C); // vcvtph2ps, vcvtps2ph
+	XBYAK_DEFINE_TYPE(34, tMOVBE); // mobve
+	XBYAK_DEFINE_TYPE(35, tAVX512F);
+	XBYAK_DEFINE_TYPE(36, tAVX512DQ);
+	XBYAK_DEFINE_TYPE(37, tAVX512_IFMA);
+	XBYAK_DEFINE_TYPE(37, tAVX512IFMA);// = tAVX512_IFMA;
+	XBYAK_DEFINE_TYPE(38, tAVX512PF);
+	XBYAK_DEFINE_TYPE(39, tAVX512ER);
+	XBYAK_DEFINE_TYPE(40, tAVX512CD);
+	XBYAK_DEFINE_TYPE(41, tAVX512BW);
+	XBYAK_DEFINE_TYPE(42, tAVX512VL);
+	XBYAK_DEFINE_TYPE(43, tAVX512_VBMI);
+	XBYAK_DEFINE_TYPE(43, tAVX512VBMI); // = tAVX512_VBMI; // changed by Intel's manual
+	XBYAK_DEFINE_TYPE(44, tAVX512_4VNNIW);
+	XBYAK_DEFINE_TYPE(45, tAVX512_4FMAPS);
+	XBYAK_DEFINE_TYPE(46, tPREFETCHWT1);
+	XBYAK_DEFINE_TYPE(47, tPREFETCHW);
+	XBYAK_DEFINE_TYPE(48, tSHA);
+	XBYAK_DEFINE_TYPE(49, tMPX);
+	XBYAK_DEFINE_TYPE(50, tAVX512_VBMI2);
+	XBYAK_DEFINE_TYPE(51, tGFNI);
+	XBYAK_DEFINE_TYPE(52, tVAES);
+	XBYAK_DEFINE_TYPE(53, tVPCLMULQDQ);
+	XBYAK_DEFINE_TYPE(54, tAVX512_VNNI);
+	XBYAK_DEFINE_TYPE(55, tAVX512_BITALG);
+	XBYAK_DEFINE_TYPE(56, tAVX512_VPOPCNTDQ);
+	XBYAK_DEFINE_TYPE(57, tAVX512_BF16);
+	XBYAK_DEFINE_TYPE(58, tAVX512_VP2INTERSECT);
+	XBYAK_DEFINE_TYPE(59, tAMX_TILE);
+	XBYAK_DEFINE_TYPE(60, tAMX_INT8);
+	XBYAK_DEFINE_TYPE(61, tAMX_BF16);
+	XBYAK_DEFINE_TYPE(62, tAVX_VNNI);
+	XBYAK_DEFINE_TYPE(63, tCLFLUSHOPT);
+	XBYAK_DEFINE_TYPE(64, tCLDEMOTE);
+	XBYAK_DEFINE_TYPE(65, tMOVDIRI);
+	XBYAK_DEFINE_TYPE(66, tMOVDIR64B);
+	XBYAK_DEFINE_TYPE(67, tCLZERO); // AMD Zen
+
+#undef XBYAK_SPLIT_ID
+#undef XBYAK_DEFINE_TYPE
 
 	Cpu()
-		: type_(NONE)
+		: type_()
 		, x2APIC_supported_(false)
 		, numCores_()
 		, dataCacheSize_()
