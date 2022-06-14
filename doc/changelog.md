@@ -1,5 +1,6 @@
 # History
 
+* 2022/Jun/15 ver 6.60.1 fix link error of Xbyak::util::Cpu on Visual Studio with /O0 option
 * 2022/Jun/06 ver 6.60 change the version format to avoid it going backward
 * 2022/Jun/01 ver 6.06 refactor Cpu::Type class and improve MmapAllocator when XBYAK_USE_MEMFD is defined.
 * 2022/Mar/20 ver 6.052 add Cpu::operator==()
