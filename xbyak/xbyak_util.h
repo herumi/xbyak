@@ -506,9 +506,6 @@ public:
 						if (EBX & (1U << 31)) type_ |= tAVX512VL;
 						if (ECX & (1U << 1)) type_ |= tAVX512_VBMI;
 						if (ECX & (1U << 6)) type_ |= tAVX512_VBMI2;
-						if (ECX & (1U << 8)) type_ |= tGFNI;
-						if (ECX & (1U << 9)) type_ |= tVAES;
-						if (ECX & (1U << 10)) type_ |= tVPCLMULQDQ;
 						if (ECX & (1U << 11)) type_ |= tAVX512_VNNI;
 						if (ECX & (1U << 12)) type_ |= tAVX512_BITALG;
 						if (ECX & (1U << 14)) type_ |= tAVX512_VPOPCNTDQ;
@@ -537,6 +534,9 @@ public:
 			if (EBX & (1U << 29)) type_ |= tSHA;
 			if (ECX & (1U << 0)) type_ |= tPREFETCHWT1;
 			if (ECX & (1U << 5)) type_ |= tWAITPKG;
+			if (ECX & (1U << 8)) type_ |= tGFNI;
+			if (ECX & (1U << 9)) type_ |= tVAES;
+			if (ECX & (1U << 10)) type_ |= tVPCLMULQDQ;
 			if (ECX & (1U << 25)) type_ |= tCLDEMOTE;
 			if (ECX & (1U << 27)) type_ |= tMOVDIRI;
 			if (ECX & (1U << 28)) type_ |= tMOVDIR64B;
