@@ -1317,6 +1317,7 @@ class Test {
 				put(p, REG64, REG16|REG8|MEM8|MEM16);
 				put(p, REG32, REG16|REG8|MEM8|MEM16);
 				put(p, REG16, REG8|MEM8);
+				put(p, "eax, ah");
 			}
 		}
 #ifdef XBYAK64

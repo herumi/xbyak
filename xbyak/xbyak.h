@@ -2187,9 +2187,6 @@ private:
 	{
 		if (op.isBit(32)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		int w = op.isBit(16);
-#ifdef XBYAK64
-		if (op.isHigh8bit()) XBYAK_THROW(ERR_BAD_COMBINATION)
-#endif
 		bool cond = reg.isREG() && (reg.getBit() > op.getBit());
 		opModRM(reg, op, cond && op.isREG(), cond && op.isMEM(), 0x0F, code | w);
 	}
