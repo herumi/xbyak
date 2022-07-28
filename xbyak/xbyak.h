@@ -77,7 +77,11 @@
 	#endif
 	#include <windows.h>
 	#include <malloc.h>
-	#define XBYAK_TLS __declspec(thread)
+	#ifdef _MSC_VER
+		#define XBYAK_TLS __declspec(thread)
+	#else
+		#define XBYAK_TLS __thread
+	#endif
 #elif defined(__GNUC__)
 	#include <unistd.h>
 	#include <sys/mman.h>
