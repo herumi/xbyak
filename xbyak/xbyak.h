@@ -77,7 +77,11 @@
 	#endif
 	#include <windows.h>
 	#include <malloc.h>
-	#define XBYAK_TLS __declspec(thread)
+	#ifdef _MSC_VER
+		#define XBYAK_TLS __declspec(thread)
+	#else
+		#define XBYAK_TLS __thread
+	#endif
 #elif defined(__GNUC__)
 	#include <unistd.h>
 	#include <sys/mman.h>
@@ -144,7 +148,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x6602 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x6610 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -2187,9 +2191,6 @@ private:
 	{
 		if (op.isBit(32)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		int w = op.isBit(16);
-#ifdef XBYAK64
-		if (op.isHigh8bit()) XBYAK_THROW(ERR_BAD_COMBINATION)
-#endif
 		bool cond = reg.isREG() && (reg.getBit() > op.getBit());
 		opModRM(reg, op, cond && op.isREG(), cond && op.isMEM(), 0x0F, code | w);
 	}
