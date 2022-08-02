@@ -118,7 +118,7 @@
 	#endif
 #endif
 
-#if (__cplusplus >= 201103) || (defined(_MSC_VER) && _MSC_VER >= 1800)
+#if (__cplusplus >= 201103) || (defined(_MSC_VER) && _MSC_VER >= 1900)
 	#undef XBYAK_TLS
 	#define XBYAK_TLS thread_local
 	#define XBYAK_VARIADIC_TEMPLATE
@@ -148,7 +148,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x6610 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x6611 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED

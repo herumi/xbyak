@@ -1,5 +1,5 @@
 
-# Xbyak 6.61 [![Badge Build]][Build Status]
+# Xbyak 6.61.1 [![Badge Build]][Build Status]
 
 *A C++ JIT assembler for x86 (IA32), x64 (AMD64, x86-64)*
 
