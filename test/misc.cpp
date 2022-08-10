@@ -5,6 +5,7 @@
 #include <xbyak/xbyak_util.h>
 #include <cybozu/inttype.hpp>
 #include <cybozu/test.hpp>
+#include <algorithm>
 
 using namespace Xbyak;
 
@@ -1974,4 +1975,11 @@ CYBOZU_TEST_AUTO(cpu)
 	using namespace Xbyak::util;
 	Cpu cpu;
 	CYBOZU_TEST_EQUAL(cpu.has(Cpu::tINTEL) && cpu.has(Cpu::tAMD), cpu.has(Cpu::tINTEL | Cpu::tAMD));
+}
+
+CYBOZU_TEST_AUTO(minmax)
+{
+	using namespace Xbyak::util;
+	CYBOZU_TEST_EQUAL((std::min)(3, 4), local::min_(3, 4));
+	CYBOZU_TEST_EQUAL((std::max)(3, 4), local::max_(3, 4));
 }
