@@ -4,7 +4,6 @@
 #ifdef XBYAK_ONLY_CLASS_CPU
 #include <stdint.h>
 #include <stdlib.h>
-#include <algorithm>
 #include <assert.h>
 #ifndef XBYAK_THROW
 	#define XBYAK_THROW(x) ;
@@ -95,6 +94,11 @@ struct TypeT {
 
 template<uint64_t L1, uint64_t H1, uint64_t L2, uint64_t H2>
 TypeT<L1 | L2, H1 | H2> operator|(TypeT<L1, H1>, TypeT<L2, H2>) { return TypeT<L1 | L2, H1 | H2>(); }
+
+template<typename T>
+inline T max_(T x, T y) { return x >= y ? x : y; }
+template<typename T>
+inline T min_(T x, T y) { return x < y ? x : y; }
 
 } // local
 
@@ -193,8 +197,8 @@ private:
 			/*
 				Fallback values in case a hypervisor has 0xB leaf zeroed-out.
 			*/
-			numCores_[SmtLevel - 1] = (std::max)(1u, numCores_[SmtLevel - 1]);
-			numCores_[CoreLevel - 1] = (std::max)(numCores_[SmtLevel - 1], numCores_[CoreLevel - 1]);
+			numCores_[SmtLevel - 1] = local::max_(1u, numCores_[SmtLevel - 1]);
+			numCores_[CoreLevel - 1] = local::max_(numCores_[SmtLevel - 1], numCores_[CoreLevel - 1]);
 		} else {
 			/*
 				Failed to deremine num of cores without x2APIC support.
@@ -237,7 +241,7 @@ private:
 			if (cacheType == DATA_CACHE || cacheType == UNIFIED_CACHE) {
 				uint32_t actual_logical_cores = extractBit(data[0], 14, 25) + 1;
 				if (logical_cores != 0) { // true only if leaf 0xB is supported and valid
-					actual_logical_cores = (std::min)(actual_logical_cores, logical_cores);
+					actual_logical_cores = local::min_(actual_logical_cores, logical_cores);
 				}
 				assert(actual_logical_cores != 0);
 				dataCacheSize_[dataCacheLevels_] =
@@ -247,7 +251,7 @@ private:
 					* (data[2] + 1);
 				if (cacheType == DATA_CACHE && smt_width == 0) smt_width = actual_logical_cores;
 				assert(smt_width != 0);
-				coresSharignDataCache_[dataCacheLevels_] = (std::max)(actual_logical_cores / smt_width, 1u);
+				coresSharignDataCache_[dataCacheLevels_] = local::max_(actual_logical_cores / smt_width, 1u);
 				dataCacheLevels_++;
 			}
 		}
@@ -771,7 +775,7 @@ public:
 		const int allRegNum = pNum + tNum_ + (useRcx_ ? 1 : 0) + (useRdx_ ? 1 : 0);
 		if (tNum_ < 0 || allRegNum > maxRegNum) XBYAK_THROW(ERR_BAD_TNUM)
 		const Reg64& _rsp = code->rsp;
-		saveNum_ = (std::max)(0, allRegNum - noSaveNum);
+		saveNum_ = local::max_(0, allRegNum - noSaveNum);
 		const int *tbl = getOrderTbl() + noSaveNum;
 		for (int i = 0; i < saveNum_; i++) {
 			code->push(Reg64(tbl[i]));
