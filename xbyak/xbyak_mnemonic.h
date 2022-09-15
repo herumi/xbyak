@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "6.61.2"; }
+const char *getVersionString() const { return "6.62"; }
 void adc(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x10, 2); }
 void adc(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x10); }
 void adcx(const Reg32e& reg, const Operand& op) { opGen(reg, op, 0xF6, 0x66, isREG32_REG32orMEM, NONE, 0x38); }
@@ -747,6 +747,7 @@ void sbb(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x18); }
 void scasb() { db(0xAE); }
 void scasd() { db(0xAF); }
 void scasw() { db(0x66); db(0xAF); }
+void serialize() { db(0x0F); db(0x01); db(0xE8); }
 void seta(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, 0x90 | 7); }//-V524
 void setae(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, 0x90 | 3); }//-V524
 void setb(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, 0x90 | 2); }//-V524

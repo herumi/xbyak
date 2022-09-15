@@ -693,6 +693,7 @@ void put()
 			{ "lock", 0xF0 },
 
 			{ "sahf", 0x9E },
+			{ "serialize", 0x0F, 0x01, 0xE8 },
 			{ "stc", 0xF9 },
 			{ "std", 0xFD },
 			{ "sti", 0xFB },

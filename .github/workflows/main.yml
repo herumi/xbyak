@@ -8,6 +8,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: sudo apt update
-    - run: sudo apt install nasm yasm g++-multilib tcsh
+    - run: sudo apt install yasm g++-multilib tcsh
+    - run: wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.gz
+    - run: tar xvfz nasm-2.15.05.tar.gz && cd nasm-2.15.05 && ./configure && make && sudo make install && cd ..
     - run: make test
     - run: make -C sample CXXFLAGS="-DXBYAK_NO_EXCEPTION"

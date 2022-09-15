@@ -144,11 +144,18 @@
 	#pragma warning(disable : 4127) /* constant expresison */
 #endif
 
+// disable -Warray-bounds because it may be a bug of gcc. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104603
+#if defined(__GNUC__) && !defined(__clang__)
+	#define XBYAK_DISABLE_WARNING_ARRAY_BOUNDS
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
+
 namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x6612 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x6620 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -2925,6 +2932,10 @@ static const XBYAK_CONSTEXPR Segment es(Segment::es), cs(Segment::cs), ss(Segmen
 
 #ifdef _MSC_VER
 	#pragma warning(pop)
+#endif
+
+#if defined(__GNUC__) && !defined(__clang__)
+	#pragma GCC diagnostic pop
 #endif
 
 } // end of namespace
