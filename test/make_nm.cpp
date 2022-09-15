@@ -533,6 +533,7 @@ class Test {
 			"nop",
 
 			"sahf",
+			"serialize",
 			"stc",
 			"std",
 			"sti",
