@@ -1,6 +1,6 @@
 # History
 
-* 2022/Aug/15 ver 6.02 add serialize instruction
+* 2022/Aug/15 ver 6.62 add serialize instruction
 * 2022/Aug/02 ver 6.61.1 noexcept is supported by Visual Studio 2015 or later
 * 2022/Jul/29 ver 6.61 fix exception of movzx eax, ah in 64-bit mode
 * 2022/Jun/16 ver 6.60.2 fix detection of GFNI, VAES, and VPCLMULQDQ
