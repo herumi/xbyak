@@ -411,6 +411,7 @@ public:
 	XBYAK_DEFINE_TYPE(66, tMOVDIR64B);
 	XBYAK_DEFINE_TYPE(67, tCLZERO); // AMD Zen
 	XBYAK_DEFINE_TYPE(68, tAMX_FP16);
+	XBYAK_DEFINE_TYPE(69, tAVX_VNNI_INT8);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -555,6 +556,7 @@ public:
 					if (EAX & (1U << 5)) type_ |= tAVX512_BF16;
 				}
 				if (EAX & (1U << 21)) type_ |= tAMX_FP16;
+				if (EDX & (1U << 4)) type_ |= tAVX_VNNI_INT8;
 			}
 		}
 		setFamily();
