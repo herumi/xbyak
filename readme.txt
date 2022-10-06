@@ -166,13 +166,15 @@ vfpclassps k5{k3}, [rax+64]{1to4}, 5    --> vfpclassps(k5|k3, xword_b [rax+64], 
 vpdpbusd(xm0, xm1, xm2); // default encoding is EVEX
 vpdpbusd(xm0, xm1, xm2, EvexEncoding); // same as the above
 vpdpbusd(xm0, xm1, xm2, VexEncoding); // VEX encoding
-
+setDefaultEncoding(VexEncoding); // default encoding is VEX
+vpdpbusd(xm0, xm1, xm2); // VEX encoding
 注意
 * k1, ..., k7 は新しいopmaskレジスタです。
 * z, sae, rn-sae, rd-sae, ru-sae, rz-saeの代わりにT_z, T_sae, T_rn_sae, T_rd_sae, T_ru_sae, T_rz_saeを使ってください。
 * `k4 | k3`と`k3 | k4`は意味が異なります。
 * {1toX}の代わりにptr_bを使ってください。Xは自動的に決まります。
 * 一部の命令はメモリサイズを指定するためにxword/yword/zword(_b)を使ってください。
+* setDefaultEncoding()でencoding省略時のEVEX/VEXを設定できます。
 
 ・ラベル
 

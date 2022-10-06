@@ -110,7 +110,15 @@ vfpclassps k5{k3}, [rax+64]{1to4}, 5    --> vfpclassps(k5|k3, yword_b [rax+64], 
 vpdpbusd(xm0, xm1, xm2); // default encoding is EVEX
 vpdpbusd(xm0, xm1, xm2, EvexEncoding); // same as the above
 vpdpbusd(xm0, xm1, xm2, VexEncoding); // VEX encoding
+setDefaultEncoding(VexEncoding); // default encoding is VEX
+vpdpbusd(xm0, xm1, xm2); // VEX encoding
 ```
+
+- setDefaultEncoding(PreferredEncoding encoding);
+  - Set the default encoding to select EVEX or VEX.
+  - The default value is EvexEncoding.
+  - This function affects only an instruction that has a PreferredEncoding argument such as vpdpbusd.
+
 ### Remark
 * `k1`, ..., `k7` are opmask registers.
   - `k0` is dealt as no mask.

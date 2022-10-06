@@ -1,5 +1,7 @@
 # History
 
+* 2022/Oct/06 vpmadd52{h,l}uq support AVX-IFMA
+* 2022/Oct/05 support amx_fp16/avx_vnni_int8/avx_ne_convert and add setDefaultEncoding()
 * 2022/Aug/15 ver 6.62 add serialize instruction
 * 2022/Aug/02 ver 6.61.1 noexcept is supported by Visual Studio 2015 or later
 * 2022/Jul/29 ver 6.61 fix exception of movzx eax, ah in 64-bit mode
