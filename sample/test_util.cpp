@@ -92,6 +92,7 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tAMX_FP16, "amx_fp16" },
 		{ Cpu::tAVX_VNNI_INT8, "avx_vnni_int8" },
 		{ Cpu::tAVX_NE_CONVERT, "avx_ne_convert" },
+		{ Cpu::tAVX_IFMA, "avx_ifma" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
