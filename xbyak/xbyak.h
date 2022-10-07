@@ -2425,7 +2425,7 @@ private:
 	}
 	int orEvexIf(PreferredEncoding encoding) {
 		if (encoding == DefaultEncoding) {
-			encoding = EvexEncoding;
+			encoding = defaultEncoding_;
 		}
 		if (encoding == EvexEncoding) {
 #ifdef XBYAK_DISABLE_AVX512
@@ -2518,6 +2518,7 @@ public:
 #endif
 private:
 	bool isDefaultJmpNEAR_;
+	PreferredEncoding defaultEncoding_;
 public:
 	void L(const std::string& label) { labelMgr_.defineSlabel(label); }
 	void L(Label& label) { labelMgr_.defineClabel(label); }
@@ -2797,6 +2798,7 @@ public:
 		, es(Segment::es), cs(Segment::cs), ss(Segment::ss), ds(Segment::ds), fs(Segment::fs), gs(Segment::gs)
 #endif
 		, isDefaultJmpNEAR_(false)
+		, defaultEncoding_(EvexEncoding)
 	{
 		labelMgr_.set(this);
 	}
@@ -2832,6 +2834,9 @@ public:
 #ifdef XBYAK_UNDEF_JNL
 	#undef jnl
 #endif
+
+	// set default encoding to select Vex or Evex
+	void setDefaultEncoding(PreferredEncoding encoding) { defaultEncoding_ = encoding; }
 
 	/*
 		use single byte nop if useMultiByteNop = false
