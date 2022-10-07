@@ -2419,20 +2419,11 @@ private:
 		if (addr.getRegExp().getIndex().getKind() != kind) XBYAK_THROW(ERR_BAD_VSIB_ADDRESSING)
 		opVex(x, 0, addr, type, code);
 	}
-	void opVnni(const Xmm& x1, const Xmm& x2, const Operand& op, int type, int code0, PreferredEncoding encoding)
+	void opEncoding(const Xmm& x1, const Xmm& x2, const Operand& op, int type, int code0, PreferredEncoding encoding)
 	{
-		if (encoding == DefaultEncoding) {
-			encoding = EvexEncoding;
-		}
-		if (encoding == EvexEncoding) {
-#ifdef XBYAK_DISABLE_AVX512
-			XBYAK_THROW(ERR_EVEX_IS_INVALID)
-#endif
-			type |= T_MUST_EVEX;
-		}
-		opAVX_X_X_XM(x1, x2, op, type, code0);
+		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(encoding), code0);
 	}
-	int opShouldPreferEvex(PreferredEncoding encoding) {
+	int orEvexIf(PreferredEncoding encoding) {
 		if (encoding == DefaultEncoding) {
 			encoding = EvexEncoding;
 		}
@@ -2443,7 +2434,7 @@ private:
 			return T_MUST_EVEX;
 		}
 		return 0;
-	}	
+	}
 	void opInOut(const Reg& a, const Reg& d, uint8_t code)
 	{
 		if (a.getIdx() == Operand::AL && d.getIdx() == Operand::DX && d.getBit() == 16) {
