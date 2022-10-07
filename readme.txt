@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 6.62
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 6.63
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -166,13 +166,15 @@ vfpclassps k5{k3}, [rax+64]{1to4}, 5    --> vfpclassps(k5|k3, xword_b [rax+64], 
 vpdpbusd(xm0, xm1, xm2); // default encoding is EVEX
 vpdpbusd(xm0, xm1, xm2, EvexEncoding); // same as the above
 vpdpbusd(xm0, xm1, xm2, VexEncoding); // VEX encoding
-
+setDefaultEncoding(VexEncoding); // default encoding is VEX
+vpdpbusd(xm0, xm1, xm2); // VEX encoding
 注意
 * k1, ..., k7 は新しいopmaskレジスタです。
 * z, sae, rn-sae, rd-sae, ru-sae, rz-saeの代わりにT_z, T_sae, T_rn_sae, T_rd_sae, T_ru_sae, T_rz_saeを使ってください。
 * `k4 | k3`と`k3 | k4`は意味が異なります。
 * {1toX}の代わりにptr_bを使ってください。Xは自動的に決まります。
 * 一部の命令はメモリサイズを指定するためにxword/yword/zword(_b)を使ってください。
+* setDefaultEncoding()でencoding省略時のEVEX/VEXを設定できます。
 
 ・ラベル
 
@@ -400,6 +402,8 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2022/10/06 ver 6.63 AVX-IFMA用のvpmadd52{h,l}uq対応
+2022/10/05          amx_fp16/avx_vnni_int8/avx_ne_convertt対応とsetDefaultEncoding()追加
 2022/09/15 ver 6.62 serialize追加
 2022/08/02 ver 6.61.1 noexceptはVisual Studio 2015以降対応
 2022/07/29 ver 6.61 movzx eax, ahがエラーになるのを修正

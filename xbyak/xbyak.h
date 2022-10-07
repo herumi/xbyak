@@ -155,7 +155,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x6620 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x6630 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -2419,18 +2419,21 @@ private:
 		if (addr.getRegExp().getIndex().getKind() != kind) XBYAK_THROW(ERR_BAD_VSIB_ADDRESSING)
 		opVex(x, 0, addr, type, code);
 	}
-	void opVnni(const Xmm& x1, const Xmm& x2, const Operand& op, int type, int code0, PreferredEncoding encoding)
+	void opEncoding(const Xmm& x1, const Xmm& x2, const Operand& op, int type, int code0, PreferredEncoding encoding)
 	{
+		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(encoding), code0);
+	}
+	int orEvexIf(PreferredEncoding encoding) {
 		if (encoding == DefaultEncoding) {
-			encoding = EvexEncoding;
+			encoding = defaultEncoding_;
 		}
 		if (encoding == EvexEncoding) {
 #ifdef XBYAK_DISABLE_AVX512
 			XBYAK_THROW(ERR_EVEX_IS_INVALID)
 #endif
-			type |= T_MUST_EVEX;
+			return T_MUST_EVEX;
 		}
-		opAVX_X_X_XM(x1, x2, op, type, code0);
+		return 0;
 	}
 	void opInOut(const Reg& a, const Reg& d, uint8_t code)
 	{
@@ -2515,6 +2518,7 @@ public:
 #endif
 private:
 	bool isDefaultJmpNEAR_;
+	PreferredEncoding defaultEncoding_;
 public:
 	void L(const std::string& label) { labelMgr_.defineSlabel(label); }
 	void L(Label& label) { labelMgr_.defineClabel(label); }
@@ -2794,6 +2798,7 @@ public:
 		, es(Segment::es), cs(Segment::cs), ss(Segment::ss), ds(Segment::ds), fs(Segment::fs), gs(Segment::gs)
 #endif
 		, isDefaultJmpNEAR_(false)
+		, defaultEncoding_(EvexEncoding)
 	{
 		labelMgr_.set(this);
 	}
@@ -2829,6 +2834,9 @@ public:
 #ifdef XBYAK_UNDEF_JNL
 	#undef jnl
 #endif
+
+	// set default encoding to select Vex or Evex
+	void setDefaultEncoding(PreferredEncoding encoding) { defaultEncoding_ = encoding; }
 
 	/*
 		use single byte nop if useMultiByteNop = false

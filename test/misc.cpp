@@ -876,6 +876,10 @@ CYBOZU_TEST_AUTO(vnni)
 			vpdpbusd(xm0, xm1, xm2);
 			vpdpbusd(xm0, xm1, xm2, EvexEncoding); // EVEX
 			vpdpbusd(xm0, xm1, xm2, VexEncoding); // VEX
+			setDefaultEncoding(VexEncoding);
+			vpdpbusd(xm0, xm1, xm2); // VEX
+			setDefaultEncoding(EvexEncoding);
+			vpdpbusd(xm0, xm1, xm2); // EVEX
 		}
 		void badVex()
 		{
@@ -886,6 +890,8 @@ CYBOZU_TEST_AUTO(vnni)
 		0x62, 0xF2, 0x75, 0x08, 0x50, 0xC2,
 		0x62, 0xF2, 0x75, 0x08, 0x50, 0xC2,
 		0xC4, 0xE2, 0x71, 0x50, 0xC2,
+		0xC4, 0xE2, 0x71, 0x50, 0xC2,
+		0x62, 0xF2, 0x75, 0x08, 0x50, 0xC2,
 	};
 	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
