@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 6.62
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 6.63
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -402,6 +402,8 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2022/10/06 ver 6.63 AVX-IFMA用のvpmadd52{h,l}uq対応
+2022/10/05          amx_fp16/avx_vnni_int8/avx_ne_convertt対応とsetDefaultEncoding()追加
 2022/09/15 ver 6.62 serialize追加
 2022/08/02 ver 6.61.1 noexceptはVisual Studio 2015以降対応
 2022/07/29 ver 6.61 movzx eax, ahがエラーになるのを修正
