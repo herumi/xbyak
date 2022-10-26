@@ -1485,7 +1485,6 @@ public:
 		clabelDefList_.clear();
 		clabelUndefList_.clear();
 		resetLabelPtrList();
-		ClearError();
 	}
 	void enterLocal()
 	{
@@ -2804,6 +2803,7 @@ public:
 	}
 	void reset()
 	{
+		ClearError();
 		resetSize();
 		labelMgr_.reset();
 		labelMgr_.set(this);
