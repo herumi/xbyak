@@ -692,29 +692,29 @@ void putMov()
 			int type;
 			int mode;
 		} tbl[] = {
-			{ 0x32, "vpmovqb",   T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N2 | T_N_VL, false },
-			{ 0x22, "vpmovsqb",  T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N2 | T_N_VL, false },
-			{ 0x12, "vpmovusqb", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N2 | T_N_VL, false },
+			{ 0x32, "vpmovqb",   T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N2 | T_N_VL | T_M_K, false },
+			{ 0x22, "vpmovsqb",  T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N2 | T_N_VL | T_M_K, false },
+			{ 0x12, "vpmovusqb", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N2 | T_N_VL | T_M_K, false },
 
-			{ 0x34, "vpmovqw",   T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL, false },
-			{ 0x24, "vpmovsqw",  T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL, false },
-			{ 0x14, "vpmovusqw", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL, false },
+			{ 0x34, "vpmovqw",   T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL | T_M_K, false },
+			{ 0x24, "vpmovsqw",  T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL | T_M_K, false },
+			{ 0x14, "vpmovusqw", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL | T_M_K, false },
 
-			{ 0x35, "vpmovqd",   T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, true },
-			{ 0x25, "vpmovsqd",  T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, true },
-			{ 0x15, "vpmovusqd", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, true },
+			{ 0x35, "vpmovqd",   T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL | T_M_K, true },
+			{ 0x25, "vpmovsqd",  T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL | T_M_K, true },
+			{ 0x15, "vpmovusqd", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL | T_M_K, true },
 
-			{ 0x31, "vpmovdb",   T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL, false },
-			{ 0x21, "vpmovsdb",  T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL, false },
-			{ 0x11, "vpmovusdb", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL, false },
+			{ 0x31, "vpmovdb",   T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL | T_M_K, false },
+			{ 0x21, "vpmovsdb",  T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL | T_M_K, false },
+			{ 0x11, "vpmovusdb", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N4 | T_N_VL | T_M_K, false },
 
-			{ 0x33, "vpmovdw",   T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, true },
-			{ 0x23, "vpmovsdw",  T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, true },
-			{ 0x13, "vpmovusdw", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, true },
+			{ 0x33, "vpmovdw",   T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL | T_M_K, true },
+			{ 0x23, "vpmovsdw",  T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL | T_M_K, true },
+			{ 0x13, "vpmovusdw", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL | T_M_K, true },
 
-			{ 0x30, "vpmovwb",   T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, true },
-			{ 0x20, "vpmovswb",  T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, true },
-			{ 0x10, "vpmovuswb", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL, true },
+			{ 0x30, "vpmovwb",   T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL | T_M_K, true },
+			{ 0x20, "vpmovswb",  T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL | T_M_K, true },
+			{ 0x10, "vpmovuswb", T_F3 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW0 | T_N8 | T_N_VL | T_M_K, true },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
