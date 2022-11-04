@@ -1807,44 +1807,44 @@ public:
 		put("vpmovd2m", K, _XMM | _YMM | _ZMM);
 		put("vpmovq2m", K, _XMM | _YMM | _ZMM);
 
-		put("vpmovqb", XMM_KZ | _MEM, _XMM | _YMM | _ZMM);
-		put("vpmovsqb", XMM_KZ | _MEM, _XMM | _YMM | _ZMM);
-		put("vpmovusqb", XMM_KZ | _MEM, _XMM | _YMM | _ZMM);
+		put("vpmovqb", XMM_KZ | _MEM | MEM_K, _XMM | _YMM | _ZMM);
+		put("vpmovsqb", XMM_KZ | _MEM | MEM_K, _XMM | _YMM | _ZMM);
+		put("vpmovusqb", XMM_KZ | _MEM | MEM_K, _XMM | _YMM | _ZMM);
 
-		put("vpmovqw", XMM_KZ | _MEM, _XMM | _YMM | _ZMM);
-		put("vpmovsqw", XMM_KZ | _MEM, _XMM | _YMM | _ZMM);
-		put("vpmovusqw", XMM_KZ | _MEM, _XMM | _YMM | _ZMM);
+		put("vpmovqw", XMM_KZ | _MEM | MEM_K, _XMM | _YMM | _ZMM);
+		put("vpmovsqw", XMM_KZ | _MEM | MEM_K, _XMM | _YMM | _ZMM);
+		put("vpmovusqw", XMM_KZ | _MEM | MEM_K, _XMM | _YMM | _ZMM);
 
-		put("vpmovqd", XMM_KZ | _MEM, _XMM | _YMM);
-		put("vpmovqd", YMM_KZ | _MEM, _ZMM);
+		put("vpmovqd", XMM_KZ | _MEM | MEM_K, _XMM | _YMM);
+		put("vpmovqd", YMM_KZ | _MEM | MEM_K, _ZMM);
 
-		put("vpmovsqd", XMM_KZ | _MEM, _XMM | _YMM);
-		put("vpmovsqd", YMM_KZ | _MEM, _ZMM);
+		put("vpmovsqd", XMM_KZ | _MEM | MEM_K, _XMM | _YMM);
+		put("vpmovsqd", YMM_KZ | _MEM | MEM_K, _ZMM);
 
-		put("vpmovusqd", XMM_KZ | _MEM, _XMM | _YMM);
-		put("vpmovusqd", YMM_KZ | _MEM, _ZMM);
+		put("vpmovusqd", XMM_KZ | _MEM | MEM_K, _XMM | _YMM);
+		put("vpmovusqd", YMM_KZ | _MEM | MEM_K, _ZMM);
 
-		put("vpmovdb", XMM_KZ | _MEM, _XMM | _YMM | _ZMM);
-		put("vpmovsdb", XMM_KZ | _MEM, _XMM | _YMM | _ZMM);
-		put("vpmovusdb", XMM_KZ | _MEM, _XMM | _YMM | _ZMM);
+		put("vpmovdb", XMM_KZ | _MEM | MEM_K, _XMM | _YMM | _ZMM);
+		put("vpmovsdb", XMM_KZ | _MEM | MEM_K, _XMM | _YMM | _ZMM);
+		put("vpmovusdb", XMM_KZ | _MEM | MEM_K, _XMM | _YMM | _ZMM);
 
-		put("vpmovdw", XMM_KZ | _MEM, _XMM | _YMM);
-		put("vpmovdw", YMM_KZ | _MEM, _ZMM);
+		put("vpmovdw", XMM_KZ | _MEM | MEM_K, _XMM | _YMM);
+		put("vpmovdw", YMM_KZ | _MEM | MEM_K, _ZMM);
 
-		put("vpmovsdw", XMM_KZ | _MEM, _XMM | _YMM);
-		put("vpmovsdw", YMM_KZ | _MEM, _ZMM);
+		put("vpmovsdw", XMM_KZ | _MEM | MEM_K, _XMM | _YMM);
+		put("vpmovsdw", YMM_KZ | _MEM | MEM_K, _ZMM);
 
-		put("vpmovusdw", XMM_KZ | _MEM, _XMM | _YMM);
-		put("vpmovusdw", YMM_KZ | _MEM, _ZMM);
+		put("vpmovusdw", XMM_KZ | _MEM | MEM_K, _XMM | _YMM);
+		put("vpmovusdw", YMM_KZ | _MEM | MEM_K, _ZMM);
 
-		put("vpmovwb", XMM_KZ | _MEM, _XMM | _YMM);
-		put("vpmovwb", YMM_KZ | _MEM, _ZMM);
+		put("vpmovwb", XMM_KZ | _MEM | MEM_K, _XMM | _YMM);
+		put("vpmovwb", YMM_KZ | _MEM | MEM_K, _ZMM);
 
-		put("vpmovswb", XMM_KZ | _MEM, _XMM | _YMM);
-		put("vpmovswb", YMM_KZ | _MEM, _ZMM);
+		put("vpmovswb", XMM_KZ | _MEM | MEM_K, _XMM | _YMM);
+		put("vpmovswb", YMM_KZ | _MEM | MEM_K, _ZMM);
 
-		put("vpmovuswb", XMM_KZ | _MEM, _XMM | _YMM);
-		put("vpmovuswb", YMM_KZ | _MEM, _ZMM);
+		put("vpmovuswb", XMM_KZ | _MEM | MEM_K, _XMM | _YMM);
+		put("vpmovuswb", YMM_KZ | _MEM | MEM_K, _ZMM);
 	}
 	void putRot()
 	{
