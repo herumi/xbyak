@@ -105,8 +105,10 @@ CYBOZU_TEST_AUTO(mov_const)
 			CYBOZU_TEST_NO_EXCEPTION(mov(rax, ptr[(void*)0x80000000]));
 			CYBOZU_TEST_NO_EXCEPTION(mov(rax, ptr[(void*)0xffffffff]));
 #else
-			CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0x80000000ull]), Xbyak::Error);
-			CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0xffffffffull]), Xbyak::Error);
+			if (sizeof(void*) != 4) { // sizeof(void*) == 4 on x32
+				CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0x80000000ull]), Xbyak::Error);
+				CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0xffffffffull]), Xbyak::Error);
+			}
 #endif
 #endif
 		}

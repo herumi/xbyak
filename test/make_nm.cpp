@@ -1295,7 +1295,7 @@ class Test {
 			put(p, REG64, "0x1234567890abcdefLL", "0x1234567890abcdef");
 			put("movbe", REG16|REG32e, MEM);
 			put("movbe", MEM, REG16|REG32e);
-#ifdef XBYAK64
+#if defined(XBYAK64) && !defined(__ILP32__)
 			put(p, RAX|EAX|AX|AL, "ptr [0x1234567890abcdefLL]", "[qword 0x1234567890abcdef]");
 			put(p, "ptr [0x1234567890abcdefLL]", "[qword 0x1234567890abcdef]", RAX|EAX|AX|AL);
 			put(p, "qword [rax], 0");
@@ -2609,7 +2609,7 @@ public:
 		putMPX();
 #endif
 
-#ifdef XBYAK64
+#if defined(XBYAK64) && !defined(__ILP32__)
 
 #ifdef USE_YASM
 		putRip();
