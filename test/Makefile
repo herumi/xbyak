@@ -95,9 +95,7 @@ ifneq ($(ONLY_64BIT),0)
 	./test_avx512.sh
 endif
 ifeq ($(BIT),64)
-ifneq ($(X32),1)
 	./test_avx512.sh 64
-endif
 endif
 
 test:
