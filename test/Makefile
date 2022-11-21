@@ -1,7 +1,7 @@
 TARGET = make_nm normalize_prefix bad_address misc cvt_test cvt_test32 noexception misc32
 XBYAK_INC=../xbyak/xbyak.h
 UNAME_S=$(shell uname -s)
-ifeq ($(shell dpkg --print-architecture),x32)
+ifeq ($(shell ./detect_x32),x32)
 X32=1
 endif
 BIT=32
@@ -98,7 +98,10 @@ ifeq ($(BIT),64)
 	./test_avx512.sh 64
 endif
 
-test:
+detect_x32: detect_x32.c
+	$(CC) $< -o $@
+
+test: detect_x32
 	$(MAKE) test_nm
 	$(MAKE) test_avx
 	$(MAKE) test_avx512
