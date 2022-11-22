@@ -1,6 +1,9 @@
-TARGET = make_nm normalize_prefix bad_address misc cvt_test cvt_test32 noexception misc32
+TARGET = make_nm normalize_prefix bad_address misc cvt_test cvt_test32 noexception misc32 detect_x32
 XBYAK_INC=../xbyak/xbyak.h
 UNAME_S=$(shell uname -s)
+ifeq ($(shell ./detect_x32),x32)
+X32=1
+endif
 BIT=32
 ifeq ($(shell uname -m),x86_64)
 BIT=64
@@ -68,8 +71,10 @@ endif
 	./cvt_test
 ifeq ($(BIT),64)
 	./test_address.sh 64
+ifneq ($(X32),1)
 	./test_nm.sh 64
 	./test_nm.sh Y64
+endif
 	./jmp64
 endif
 
@@ -79,9 +84,10 @@ ifneq ($(ONLY_64BIT),0)
 	./test_avx.sh Y
 endif
 ifeq ($(BIT),64)
-	./test_address.sh 64
 	./test_avx.sh 64
+ifneq ($(X32),1)
 	./test_avx.sh Y64
+endif
 endif
 
 test_avx512: normalize_prefix
@@ -92,7 +98,10 @@ ifeq ($(BIT),64)
 	./test_avx512.sh 64
 endif
 
-test:
+detect_x32: detect_x32.c
+	$(CC) $< -o $@
+
+test: detect_x32
 	$(MAKE) test_nm
 	$(MAKE) test_avx
 	$(MAKE) test_avx512
@@ -103,5 +112,4 @@ clean:
 lib_run: lib_test.cpp lib_run.cpp lib.h
 	$(CXX) $(CFLAGS) lib_run.cpp lib_test.cpp -o lib_run
 make_nm: make_nm.cpp $(XBYAK_INC)
-
 

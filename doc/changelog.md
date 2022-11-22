@@ -1,5 +1,6 @@
 # History
 
+* 2022/Nov/22 ver 6.65 consider x32
 * 2022/Nov/04 ver 6.64 some vmov* support addressing with mask
 * 2022/Oct/06 ver 6.63 vpmadd52{h,l}uq support AVX-IFMA
 * 2022/Oct/05 ver 6.63 support amx_fp16/avx_vnni_int8/avx_ne_convert and add setDefaultEncoding()
