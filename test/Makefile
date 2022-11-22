@@ -1,4 +1,4 @@
-TARGET = make_nm normalize_prefix bad_address misc cvt_test cvt_test32 noexception misc32
+TARGET = make_nm normalize_prefix bad_address misc cvt_test cvt_test32 noexception misc32 detect_x32
 XBYAK_INC=../xbyak/xbyak.h
 UNAME_S=$(shell uname -s)
 ifeq ($(shell ./detect_x32),x32)
