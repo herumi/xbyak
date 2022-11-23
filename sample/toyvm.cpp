@@ -5,8 +5,8 @@
 
 	mem_  4byte x 65536
 
-	¤¹¤Ù¤Æ¤ÎÌ¿Îá¤Ï4byte¸ÇÄê
-	Â¨ÃÍ¤ÏÁ´¤Æ16bit
+	ã™ã¹ã¦ã®å‘½ä»¤ã¯4byteå›ºå®š
+	å³å€¤ã¯å…¨ã¦16bit
 
 	R = A or B
 	vldiR, imm  ; R = imm
@@ -109,7 +109,7 @@ public:
 				reg[r] -= imm;
 				break;
 			case PUT:
-				printf("%c %8d(0x%08x)\n", 'A' + r, reg[r], reg[r]);
+				printf("%c %8u(0x%08x)\n", 'A' + r, reg[r], reg[r]);
 				break;
 			case JNZ:
 				if (reg[r] != 0) pc += static_cast<signed short>(imm);
@@ -294,7 +294,7 @@ lp:
 	p = t;
 	n--;
 	if (n != 0) goto lp;
-	printf("c=%d(0x%08x)\n", c, c);
+	printf("c=%u(0x%08x)\n", c, c);
 }
 
 int main()
