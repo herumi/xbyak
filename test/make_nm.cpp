@@ -1018,9 +1018,7 @@ class Test {
 	}
 	void putCmov() const
 	{
-		const struct {
-			const char *s;
-		} tbl[] = {
+		const char tbl[][4] = {
 			"o",
 			"no",
 			"b",
@@ -1054,11 +1052,11 @@ class Test {
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			char buf[32];
-			snprintf(buf, sizeof(buf), "cmov%s", tbl[i].s);
+			snprintf(buf, sizeof(buf), "cmov%s", tbl[i]);
 			put(buf, REG16, REG16|MEM);
 			put(buf, REG32, REG32|MEM);
 			put(buf, REG64, REG64|MEM);
-			snprintf(buf, sizeof(buf), "set%s", tbl[i].s);
+			snprintf(buf, sizeof(buf), "set%s", tbl[i]);
 			put(buf, REG8|REG8_3|MEM);
 		}
 	}
