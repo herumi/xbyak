@@ -7,7 +7,7 @@ sub()
 
 CFLAGS="-Wall -fno-operator-names -I../ $OPT2"
 echo "compile address.cpp"
-g++ $CFLAGS address.cpp -o address
+$CXX $CFLAGS address.cpp -o address
 
 ./address $1 > a.asm
 echo "asm"
@@ -17,7 +17,7 @@ awk '{printf "%s", sub(/-$/, "", $3) ? $3 : $3 ORS}' a.lst | $FILTER > ok.lst
 echo "xbyak"
 ./address $1 jit > nm.cpp
 echo "compile nm_frame.cpp"
-g++ $CFLAGS -DXBYAK_TEST nm_frame.cpp -o nm_frame
+$CXX $CFLAGS -DXBYAK_TEST nm_frame.cpp -o nm_frame
 ./nm_frame > x.lst
 diff ok.lst x.lst && echo "ok"
 

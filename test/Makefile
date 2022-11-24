@@ -56,12 +56,11 @@ noexception: noexception.cpp ../xbyak/xbyak.h
 test_nm: normalize_prefix $(TARGET)
 	$(MAKE) -C ../gen
 ifneq ($(ONLY_64BIT),1)
-	./test_nm.sh
-	./test_nm.sh noexcept
-	./noexception
-	./test_nm.sh Y
-	./test_nm.sh avx512
-	./test_address.sh
+	env CXX=$(CXX) ./test_nm.sh
+	env CXX=$(CXX) ./test_nm.sh noexcept
+	env CXX=$(CXX) ./test_nm.sh Y
+	env CXX=$(CXX) ./test_nm.sh avx512
+	env CXX=$(CXX) ./test_address.sh
 	./jmp
 	./cvt_test32
 endif
@@ -70,32 +69,32 @@ endif
 	./misc32
 	./cvt_test
 ifeq ($(BIT),64)
-	./test_address.sh 64
+	env CXX=$(CXX) ./test_address.sh 64
 ifneq ($(X32),1)
-	./test_nm.sh 64
-	./test_nm.sh Y64
+	env CXX=$(CXX) ./test_nm.sh 64
+	env CXX=$(CXX) ./test_nm.sh Y64
 endif
 	./jmp64
 endif
 
 test_avx: normalize_prefix
 ifneq ($(ONLY_64BIT),0)
-	./test_avx.sh
-	./test_avx.sh Y
+	env CXX=$(CXX) ./test_avx.sh
+	env CXX=$(CXX) ./test_avx.sh Y
 endif
 ifeq ($(BIT),64)
-	./test_avx.sh 64
+	env CXX=$(CXX) ./test_avx.sh 64
 ifneq ($(X32),1)
-	./test_avx.sh Y64
+	env CXX=$(CXX) ./test_avx.sh Y64
 endif
 endif
 
 test_avx512: normalize_prefix
 ifneq ($(ONLY_64BIT),0)
-	./test_avx512.sh
+	env CXX=$(CXX) ./test_avx512.sh
 endif
 ifeq ($(BIT),64)
-	./test_avx512.sh 64
+	env CXX=$(CXX) ./test_avx512.sh 64
 endif
 
 detect_x32: detect_x32.c
