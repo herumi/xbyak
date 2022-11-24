@@ -1,6 +1,7 @@
 #!/bin/sh
 
 FILTER="grep -v warning"
+CXX=${CXX:=g++}
 
 case $1 in
 Y)

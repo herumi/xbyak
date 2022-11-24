@@ -6,6 +6,8 @@ sub()
 {
 
 CFLAGS="-Wall -I../ $OPT2"
+CXX=${CXX:=g++}
+
 echo "compile address.cpp"
 $CXX $CFLAGS address.cpp -o address
 

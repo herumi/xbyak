@@ -1,6 +1,7 @@
 #!/bin/sh
 
 FILTER=cat
+CXX=${CXX:=g++}
 
 case $1 in
 Y)
