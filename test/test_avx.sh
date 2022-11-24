@@ -31,7 +31,7 @@ Y64)
 	;;
 esac
 
-CFLAGS="-Wall -fno-operator-names -I../ $OPT2 -DUSE_AVX"
+CFLAGS="-Wall -I../ $OPT2 -DUSE_AVX"
 echo "compile make_nm.cpp"
 $CXX $CFLAGS make_nm.cpp -o make_nm
 

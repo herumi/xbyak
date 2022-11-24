@@ -5,7 +5,7 @@ FILTER="grep -v warning"
 sub()
 {
 
-CFLAGS="-Wall -fno-operator-names -I../ $OPT2"
+CFLAGS="-Wall -I../ $OPT2"
 echo "compile address.cpp"
 $CXX $CFLAGS address.cpp -o address
 

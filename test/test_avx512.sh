@@ -18,7 +18,7 @@ case $1 in
 	;;
 esac
 
-CFLAGS="-Wall -fno-operator-names -I../ $OPT2 -DUSE_AVX512"
+CFLAGS="-Wall -I../ $OPT2 -DUSE_AVX512"
 echo "compile make_512.cpp"
 $CXX $CFLAGS make_512.cpp -o make_512
 
