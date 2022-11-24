@@ -5,8 +5,8 @@
 
 	mem_  4byte x 65536
 
-	すべての命令は4byte固定
-	即値は全て16bit
+	all instructions are fixed at 4 bytes.
+	all immediate values are 16-bit.
 
 	R = A or B
 	vldiR, imm  ; R = imm
