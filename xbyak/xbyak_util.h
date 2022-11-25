@@ -414,6 +414,7 @@ public:
 	XBYAK_DEFINE_TYPE(69, tAVX_VNNI_INT8);
 	XBYAK_DEFINE_TYPE(70, tAVX_NE_CONVERT);
 	XBYAK_DEFINE_TYPE(71, tAVX_IFMA);
+	XBYAK_DEFINE_TYPE(72, tRAO_INT);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -553,6 +554,7 @@ public:
 			if (EDX & (1U << 22)) type_ |= tAMX_BF16;
 			if (maxNumSubLeaves >= 1) {
 				getCpuidEx(7, 1, data);
+				if (EAX & (1U << 3)) type_ |= tRAO_INT;
 				if (EAX & (1U << 4)) type_ |= tAVX_VNNI;
 				if (type_ & tAVX512F) {
 					if (EAX & (1U << 5)) type_ |= tAVX512_BF16;
