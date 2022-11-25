@@ -402,7 +402,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
-2022/11/22 ver 6.65 x32動作確認
+2022/11/25 ver 6.66 RAO-INTサポート
 2022/11/04 ver 6.64 vmov*命令をmaskつきアドレッシング対応修正
 2022/10/06 ver 6.63 AVX-IFMA用のvpmadd52{h,l}uq対応
 2022/10/05          amx_fp16/avx_vnni_int8/avx_ne_convertt対応とsetDefaultEncoding()追加
