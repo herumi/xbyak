@@ -1,4 +1,6 @@
 const char *getVersionString() const { return "6.65"; }
+void aadd(const Address& addr, const Reg32e &reg) { opModM(addr, reg, 0x0F, 0x38, 0x0FC); }
+void aand(const Address& addr, const Reg32e &reg) { db(0x66); opModM(addr, reg, 0x0F, 0x38, 0x0FC); }
 void adc(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x10, 2); }
 void adc(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x10); }
 void adcx(const Reg32e& reg, const Operand& op) { opGen(reg, op, 0xF6, 0x66, isREG32_REG32orMEM, NONE, 0x38); }
@@ -24,6 +26,8 @@ void andnpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x55, 0x66, isXM
 void andnps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x55, 0x100, isXMM_XMMorMEM); }
 void andpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x54, 0x66, isXMM_XMMorMEM); }
 void andps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x54, 0x100, isXMM_XMMorMEM); }
+void aor(const Address& addr, const Reg32e &reg) { db(0xF2); opModM(addr, reg, 0x0F, 0x38, 0x0FC); }
+void axor(const Address& addr, const Reg32e &reg) { db(0xF3); opModM(addr, reg, 0x0F, 0x38, 0x0FC); }
 void bextr(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opGpr(r1, op, r2, T_0F38, 0xf7, false); }
 void blendpd(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0x0D, 0x66, isXMM_XMMorMEM, static_cast<uint8_t>(imm), 0x3A); }
 void blendps(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0x0C, 0x66, isXMM_XMMorMEM, static_cast<uint8_t>(imm), 0x3A); }
