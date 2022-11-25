@@ -5,8 +5,8 @@
 
 	mem_  4byte x 65536
 
-	すべての命令は4byte固定
-	即値は全て16bit
+	all instructions are fixed at 4 bytes.
+	all immediate values are 16-bit.
 
 	R = A or B
 	vldiR, imm  ; R = imm
@@ -109,7 +109,7 @@ public:
 				reg[r] -= imm;
 				break;
 			case PUT:
-				printf("%c %8d(0x%08x)\n", 'A' + r, reg[r], reg[r]);
+				printf("%c %8u(0x%08x)\n", 'A' + r, reg[r], reg[r]);
 				break;
 			case JNZ:
 				if (reg[r] != 0) pc += static_cast<signed short>(imm);
@@ -294,7 +294,7 @@ lp:
 	p = t;
 	n--;
 	if (n != 0) goto lp;
-	printf("c=%d(0x%08x)\n", c, c);
+	printf("c=%u(0x%08x)\n", c, c);
 }
 
 int main()

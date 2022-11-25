@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
 		quantize2(dest2, src, qTbl);
 		for (int i = 0; i < N; i++) {
 			if (dest[i] != dest2[i]) {
-				printf("err[%d] %d %d\n", i, dest[i], dest2[i]);
+				printf("err[%d] %u %u\n", i, dest[i], dest2[i]);
 			}
 		}
 

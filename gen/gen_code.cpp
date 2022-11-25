@@ -807,6 +807,23 @@ void put()
 			printf("void %s(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x%02X, %d); }\n", p->name, p->code, p->ext);
 		}
 	}
+	{
+		const struct Tbl {
+			const char *name;
+			uint8_t prefix;
+		} tbl[] = {
+			{ "aadd", 0 },
+			{ "aand", 0x66 },
+			{ "aor", 0xF2 },
+			{ "axor", 0xF3 },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			printf("void %s(const Address& addr, const Reg32e &reg) { ", p->name);
+			if (p->prefix) printf("db(0x%02X); ", p->prefix);
+			printf("opModM(addr, reg, 0x0F, 0x38, 0x0FC); }\n");
+		}
+	}
 
 	{
 		const struct Tbl {

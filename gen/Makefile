@@ -1,6 +1,6 @@
 TARGET=../xbyak/xbyak_mnemonic.h
 BIN=sortline gen_code gen_avx512
-CFLAGS=-I../ -O2 -DXBYAK_NO_OP_NAMES -Wall -Wextra -Wno-missing-field-initializers $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
+CFLAGS=-I../ -O2 -Wall -Wextra -Wno-missing-field-initializers $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
 all: $(TARGET) ../CMakeLists.txt ../meson.build ../readme.md ../readme.txt
 sortline: sortline.cpp
 	$(CXX) $(CFLAGS) $< -o $@

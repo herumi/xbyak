@@ -23,9 +23,9 @@ endif
 
 all: $(TARGET)
 
-CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith
+CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wwrite-strings -Wfloat-equal -Wpointer-arith
 
-CFLAGS=-O2 -fomit-frame-pointer -Wall -fno-operator-names -I../ -I./ $(CFLAGS_WARN) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) #-std=c++0x
+CFLAGS=-O2 -Wall -I../ -I./ $(CFLAGS_WARN) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) #-std=c++0x
 make_nm:
 	$(CXX) $(CFLAGS) make_nm.cpp -o $@
 normalize_prefix: normalize_prefix.cpp ../xbyak/xbyak.h
@@ -56,12 +56,11 @@ noexception: noexception.cpp ../xbyak/xbyak.h
 test_nm: normalize_prefix $(TARGET)
 	$(MAKE) -C ../gen
 ifneq ($(ONLY_64BIT),1)
-	./test_nm.sh
-	./test_nm.sh noexcept
-	./noexception
-	./test_nm.sh Y
-	./test_nm.sh avx512
-	./test_address.sh
+	env CXX=$(CXX) sh -e ./test_nm.sh
+	env CXX=$(CXX) sh -e ./test_nm.sh noexcept
+	env CXX=$(CXX) sh -e ./test_nm.sh Y
+	env CXX=$(CXX) sh -e ./test_nm.sh avx512
+	env CXX=$(CXX) sh -e ./test_address.sh
 	./jmp
 	./cvt_test32
 endif
@@ -70,32 +69,32 @@ endif
 	./misc32
 	./cvt_test
 ifeq ($(BIT),64)
-	./test_address.sh 64
+	env CXX=$(CXX) sh -e ./test_address.sh 64
 ifneq ($(X32),1)
-	./test_nm.sh 64
-	./test_nm.sh Y64
+	env CXX=$(CXX) sh -e ./test_nm.sh 64
+	env CXX=$(CXX) sh -e ./test_nm.sh Y64
 endif
 	./jmp64
 endif
 
 test_avx: normalize_prefix
 ifneq ($(ONLY_64BIT),0)
-	./test_avx.sh
-	./test_avx.sh Y
+	env CXX=$(CXX) sh -e ./test_avx.sh
+	env CXX=$(CXX) sh -e ./test_avx.sh Y
 endif
 ifeq ($(BIT),64)
-	./test_avx.sh 64
+	env CXX=$(CXX) sh -e ./test_avx.sh 64
 ifneq ($(X32),1)
-	./test_avx.sh Y64
+	env CXX=$(CXX) sh -e ./test_avx.sh Y64
 endif
 endif
 
 test_avx512: normalize_prefix
 ifneq ($(ONLY_64BIT),0)
-	./test_avx512.sh
+	env CXX=$(CXX) sh -e ./test_avx512.sh
 endif
 ifeq ($(BIT),64)
-	./test_avx512.sh 64
+	env CXX=$(CXX) sh -e ./test_avx512.sh 64
 endif
 
 detect_x32: detect_x32.c
