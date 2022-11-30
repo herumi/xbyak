@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "6.66"; }
+const char *getVersionString() const { return "6.67"; }
 void aadd(const Address& addr, const Reg32e &reg) { opModM(addr, reg, 0x0F, 0x38, 0x0FC); }
 void aand(const Address& addr, const Reg32e &reg) { db(0x66); opModM(addr, reg, 0x0F, 0x38, 0x0FC); }
 void adc(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x10, 2); }
@@ -1662,6 +1662,22 @@ void vcvtsd2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx())
 void vcvttsd2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W1 | T_EVEX | T_EW1 | T_N4 | T_SAE_X, 0x2C); }
 void vmovq(const Xmm& x, const Reg64& r) { opAVX_X_X_XM(x, xm0, Xmm(r.getIdx()), T_66 | T_0F | T_W1 | T_EVEX | T_EW1, 0x6E); }
 void vmovq(const Reg64& r, const Xmm& x) { opAVX_X_X_XM(x, xm0, Xmm(r.getIdx()), T_66 | T_0F | T_W1 | T_EVEX | T_EW1, 0x7E); }
+void cmpbexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xE6, false); }
+void cmpbxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xE2, false); }
+void cmplexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xEE, false); }
+void cmplxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xEC, false); }
+void cmpnbexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xE7, false); }
+void cmpnbxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xE3, false); }
+void cmpnlexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xEF, false); }
+void cmpnlxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xED, false); }
+void cmpnoxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xE1, false); }
+void cmpnpxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xEB, false); }
+void cmpnsxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xE9, false); }
+void cmpnzxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xE5, false); }
+void cmpoxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xE0, false); }
+void cmppxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xEA, false); }
+void cmpsxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xE8, false); }
+void cmpzxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0xE4, false); }
 void ldtilecfg(const Address& addr) { opVex(tmm0, &tmm0, addr, T_0F38 | T_W0, 0x49); }
 void sttilecfg(const Address& addr) { opVex(tmm0, &tmm0, addr, T_66 | T_0F38 | T_W0, 0x49); }
 void tileloadd(const Tmm& tm, const Address& addr) { opAMX(tm, addr, T_F2 | T_0F38 | T_W0, 0x4b); }

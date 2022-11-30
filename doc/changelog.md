@@ -1,5 +1,6 @@
 # History
 
+* 2022/Nov/30 ver 6.67 support CMPccXADD
 * 2022/Nov/25 ver 6.66 support RAO-INT
 * 2022/Nov/22 ver 6.65 consider x32
 * 2022/Nov/04 ver 6.64 some vmov* support addressing with mask

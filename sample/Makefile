@@ -1,7 +1,7 @@
 XBYAK_INC=../xbyak/xbyak.h
 CXX?=g++
 
-#BOOST_EXIST=$(shell echo "#include <boost/spirit/core.hpp>" | $CXX -x c++ -c - 2>/dev/null && echo 1)
+#BOOST_EXIST=$(shell echo "#include <boost/spirit/core.hpp>" | $(CXX) -x c++ -c - 2>/dev/null && echo 1)
 # I don't know why the above code causes an error on GitHub action.
 BOOST_EXIST?=0
 UNAME_M=$(shell uname -m)

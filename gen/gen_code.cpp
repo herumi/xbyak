@@ -1883,6 +1883,34 @@ void put64()
 
 	puts("void vmovq(const Xmm& x, const Reg64& r) { opAVX_X_X_XM(x, xm0, Xmm(r.getIdx()), T_66 | T_0F | T_W1 | T_EVEX | T_EW1, 0x6E); }");
 	puts("void vmovq(const Reg64& r, const Xmm& x) { opAVX_X_X_XM(x, xm0, Xmm(r.getIdx()), T_66 | T_0F | T_W1 | T_EVEX | T_EW1, 0x7E); }");
+	// CMPccXADD
+	{
+		const struct Tbl {
+			const char *name;
+			uint8_t code;
+		} tbl[] = {
+			{ "be", 0xE6 },
+			{ "b", 0xE2 },
+			{ "le", 0xEE },
+			{ "l", 0xEC },
+			{ "nbe", 0xE7 },
+			{ "nb", 0xE3 },
+			{ "nle", 0xEF },
+			{ "nl", 0xED },
+			{ "no", 0xE1 },
+			{ "np", 0xEB },
+			{ "ns", 0xE9 },
+			{ "nz", 0xE5 },
+			{ "o", 0xE0 },
+			{ "p", 0xEA },
+			{ "s", 0xE8 },
+			{ "z", 0xE4 },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			printf("void cmp%sxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0x%02X, false); }\n", p->name, p->code);
+		}
+	}
 }
 
 void putAMX_TILE()

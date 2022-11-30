@@ -415,6 +415,7 @@ public:
 	XBYAK_DEFINE_TYPE(70, tAVX_NE_CONVERT);
 	XBYAK_DEFINE_TYPE(71, tAVX_IFMA);
 	XBYAK_DEFINE_TYPE(72, tRAO_INT);
+	XBYAK_DEFINE_TYPE(73, tCMPCCXADD);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -559,6 +560,7 @@ public:
 				if (type_ & tAVX512F) {
 					if (EAX & (1U << 5)) type_ |= tAVX512_BF16;
 				}
+				if (EAX & (1U << 7)) type_ |= tCMPCCXADD;
 				if (EAX & (1U << 21)) type_ |= tAMX_FP16;
 				if (EAX & (1U << 23)) type_ |= tAVX_IFMA;
 				if (EDX & (1U << 4)) type_ |= tAVX_VNNI_INT8;
