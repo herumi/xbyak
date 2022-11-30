@@ -402,6 +402,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2022/11/30 ver 6.67 CMPccXADDサポート
 2022/11/25 ver 6.66 RAO-INTサポート
 2022/11/22 ver 6.65 x32動作確認
 2022/11/04 ver 6.64 vmov*命令をmaskつきアドレッシング対応修正
