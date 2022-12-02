@@ -1,15 +1,21 @@
 name: test
 on: [push]
 
+defaults:
+  run:
+    shell: sh
+
+permissions:
+  contents: read
+
 jobs:
-  build:
-    name: test
+  test:
     runs-on: ubuntu-latest
+    container:
+      image: debian:testing
     steps:
-    - uses: actions/checkout@v2
-    - run: sudo apt update
-    - run: sudo apt install yasm g++-multilib tcsh
-    - run: wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.gz
-    - run: tar xvfz nasm-2.15.05.tar.gz && cd nasm-2.15.05 && ./configure && make && sudo make install && cd ..
+    - uses: actions/checkout@v3
+    - run: apt -y update
+    - run: apt -y install g++-multilib libboost-dev make nasm yasm
     - run: make test
     - run: make -C sample CXXFLAGS="-DXBYAK_NO_EXCEPTION"
