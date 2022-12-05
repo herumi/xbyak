@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 FILTER=cat
 CXX=${CXX:=g++}
 
