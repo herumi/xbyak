@@ -2,7 +2,7 @@ TARGET = make_nm normalize_prefix bad_address misc cvt_test cvt_test32 noexcepti
 XBYAK_INC=../xbyak/xbyak.h
 UNAME_S=$(shell uname -s)
 ifeq ($(shell ./detect_x32),x32)
-X32=1
+X32?=1
 endif
 BIT=32
 ifeq ($(shell uname -m),x86_64)
@@ -98,7 +98,7 @@ ifeq ($(BIT),64)
 endif
 
 detect_x32: detect_x32.c
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $< -o $@
 
 test: detect_x32
 	$(MAKE) test_nm
