@@ -1,5 +1,6 @@
 # History
 
+* 2022/Dec/07 ver 6.68 support prefetchit{0,1}
 * 2022/Nov/30 ver 6.67 support CMPccXADD
 * 2022/Nov/25 ver 6.66 support RAO-INT
 * 2022/Nov/22 ver 6.65 consider x32

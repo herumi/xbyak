@@ -402,6 +402,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2022/12/07 ver 6.68 prefetchit{0,1}サポート
 2022/11/30 ver 6.67 CMPccXADDサポート
 2022/11/25 ver 6.66 RAO-INTサポート
 2022/11/22 ver 6.65 x32動作確認
