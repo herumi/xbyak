@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "6.67"; }
+const char *getVersionString() const { return "6.68"; }
 void aadd(const Address& addr, const Reg32e &reg) { opModM(addr, reg, 0x0F, 0x38, 0x0FC); }
 void aand(const Address& addr, const Reg32e &reg) { db(0x66); opModM(addr, reg, 0x0F, 0x38, 0x0FC); }
 void adc(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x10, 2); }
@@ -658,6 +658,8 @@ void pmuludq(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF4); }
 void popcnt(const Reg&reg, const Operand& op) { opSp1(reg, op, 0xF3, 0x0F, 0xB8); }
 void popf() { db(0x9D); }
 void por(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xEB); }
+void prefetchit0(const Address& addr) { opModM(addr, Reg32(7), 0x0F, 0x18); }
+void prefetchit1(const Address& addr) { opModM(addr, Reg32(6), 0x0F, 0x18); }
 void prefetchnta(const Address& addr) { opModM(addr, Reg32(0), 0x0F, 0x18); }
 void prefetcht0(const Address& addr) { opModM(addr, Reg32(1), 0x0F, 0x18); }
 void prefetcht1(const Address& addr) { opModM(addr, Reg32(2), 0x0F, 0x18); }

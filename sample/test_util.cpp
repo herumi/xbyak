@@ -95,6 +95,7 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tAVX_IFMA, "avx_ifma" },
 		{ Cpu::tRAO_INT, "rao-int" },
 		{ Cpu::tCMPCCXADD, "cmpccxadd" },
+		{ Cpu::tPREFETCHITI, "prefetchiti" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
