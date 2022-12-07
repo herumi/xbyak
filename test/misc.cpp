@@ -2139,4 +2139,22 @@ CYBOZU_TEST_AUTO(CMPccXADD)
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
+
+CYBOZU_TEST_AUTO(prefetchiti)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			prefetchit0(ptr[rax]);
+			prefetchit1(ptr[rax]);
+		}
+	} c;
+	const uint8_t tbl[] = {
+		0x0f, 0x18, 0x38,
+		0x0f, 0x18, 0x30
+	};
+	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
 #endif
