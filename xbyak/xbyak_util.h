@@ -173,11 +173,9 @@ private:
 	}
 	void setNumCores()
 	{
-		if (!has(tINTEL)) return;
+		if (!has(tINTEL) && !has(tAMD)) return;
 
 		uint32_t data[4] = {};
-
-		 /* CAUTION: These numbers are configuration as shipped by Intel. */
 		getCpuidEx(0x0, 0, data);
 		if (data[0] >= 0xB) {
 			 /*
@@ -211,7 +209,48 @@ private:
 	}
 	void setCacheHierarchy()
 	{
-		if (!has(tINTEL)) return;
+		if (!has(tINTEL) && !has(tAMD)) return;
+
+		// https://github.com/amd/ZenDNN/blob/a08bf9a9efc160a69147cdecfb61cc85cc0d4928/src/cpu/x64/xbyak/xbyak_util.h#L236-L288
+		if (has(tAMD)) {
+			// There are 3 Data Cache Levels (L1, L2, L3)
+			dataCacheLevels_ = 3;
+			const int leaf = 0x8000001D; // for modern AMD CPus
+			// Sub leaf value ranges from 0 to 3
+			// Sub leaf value 0 refers to L1 Data Cache
+			// Sub leaf value 1 refers to L1 Instruction Cache
+			// Sub leaf value 2 refers to L2 Cache
+			// Sub leaf value 3 refers to L3 Cache
+			// For legacy AMD CPU, use leaf 0x80000005 for L1 cache
+			// and 0x80000006 for L2 and L3 cache
+			int cache_index = 0;
+			for (uint32_t sub_leaf = 0; sub_leaf <= dataCacheLevels_; sub_leaf++) {
+				// Skip sub_leaf = 1 as it refers to
+				// L1 Instruction Cache (not required)
+				if (sub_leaf == 1) {
+					continue;
+				}
+				uint32_t data[4] = {};
+				getCpuidEx(leaf, sub_leaf, data);
+				// Cache Size = Line Size * Partitions * Associativity * Cache Sets
+				dataCacheSize_[cache_index] =
+					(extractBit(data[1], 22, 31) + 1) // Associativity-1
+					* (extractBit(data[1], 12, 21) + 1) // Partitions-1
+					* (extractBit(data[1], 0, 11) + 1) // Line Size
+					* (data[2] + 1);
+				// Calculate the number of cores sharing the current data cache
+				int smt_width = numCores_[0];
+				int logical_cores = numCores_[1];
+				int actual_logical_cores = extractBit(data[0], 14, 25) /* # of cores * # of threads */ + 1;
+				if (logical_cores != 0) {
+					actual_logical_cores = local::min_(actual_logical_cores, logical_cores);
+				}
+				coresSharignDataCache_[cache_index] = local::max_(actual_logical_cores / smt_width, 1);
+				++cache_index;
+			}
+			return;
+		}
+		// intel
 		const uint32_t NO_CACHE = 0;
 		const uint32_t DATA_CACHE = 1;
 //		const uint32_t INSTRUCTION_CACHE = 2;
