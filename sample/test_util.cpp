@@ -88,6 +88,8 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tCLDEMOTE, "cldemote" },
 		{ Cpu::tMOVDIRI, "movdiri" },
 		{ Cpu::tMOVDIR64B, "movdir64b" },
+		{ Cpu::tUINTR, "uintr" },
+		{ Cpu::tSERIALIZE, "serialize" },
 		{ Cpu::tCLZERO, "clzero" },
 		{ Cpu::tAMX_FP16, "amx_fp16" },
 		{ Cpu::tAVX_VNNI_INT8, "avx_vnni_int8" },
@@ -127,7 +129,6 @@ void putCPUinfo(bool onlyCpuidFeature)
 		Core i7-3930K        6           2D
 	*/
 	cpu.putFamily();
-	if (!cpu.has(Cpu::tINTEL)) return;
 	for (unsigned int i = 0; i < cpu.getDataCacheLevels(); i++) {
 		printf("cache level=%u data cache size=%u cores sharing data cache=%u\n", i, cpu.getDataCacheSize(i), cpu.getCoresSharingDataCache(i));
 	}
