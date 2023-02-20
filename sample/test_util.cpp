@@ -88,6 +88,7 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tCLDEMOTE, "cldemote" },
 		{ Cpu::tMOVDIRI, "movdiri" },
 		{ Cpu::tMOVDIR64B, "movdir64b" },
+		{ Cpu::tUINTR, "uintr" },
 		{ Cpu::tSERIALIZE, "serialize" },
 		{ Cpu::tCLZERO, "clzero" },
 		{ Cpu::tAMX_FP16, "amx_fp16" },

@@ -457,6 +457,7 @@ public:
 	XBYAK_DEFINE_TYPE(73, tCMPCCXADD);
 	XBYAK_DEFINE_TYPE(74, tPREFETCHITI);
 	XBYAK_DEFINE_TYPE(75, tSERIALIZE);
+	XBYAK_DEFINE_TYPE(76, tUINTR);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -591,6 +592,7 @@ public:
 			if (ECX & (1U << 25)) type_ |= tCLDEMOTE;
 			if (ECX & (1U << 27)) type_ |= tMOVDIRI;
 			if (ECX & (1U << 28)) type_ |= tMOVDIR64B;
+			if (EDX & (1U << 5)) type_ |= tUINTR;
 			if (EDX & (1U << 14)) type_ |= tSERIALIZE;
 			if (EDX & (1U << 22)) type_ |= tAMX_BF16;
 			if (EDX & (1U << 24)) type_ |= tAMX_TILE;
