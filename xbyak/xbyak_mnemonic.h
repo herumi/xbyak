@@ -65,6 +65,7 @@ void cldemote(const Address& addr) { opMIB(addr, eax, 0x0F, 0x1C); }
 void clflush(const Address& addr) { opModM(addr, Reg32(7), 0x0F, 0xAE); }
 void clflushopt(const Address& addr) { db(0x66); opModM(addr, Reg32(7), 0x0F, 0xAE); }
 void cli() { db(0xFA); }
+void clui() { db(0xF3); db(0x0F); db(0x01); db(0xEE); }
 void clwb(const Address& addr) { db(0x66); opMIB(addr, esi, 0x0F, 0xAE); }
 void clzero() { db(0x0F); db(0x01); db(0xFC); }
 void cmc() { db(0xF5); }

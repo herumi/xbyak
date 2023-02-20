@@ -1949,6 +1949,7 @@ CYBOZU_TEST_AUTO(misc)
 			movdiri(ptr[rax+r12], r9);
 			movdiri(ptr[rax+r12*2+4], r9d);
 			movdir64b(r10, ptr[r8]);
+			clui();
 #endif
 		}
 	} c;
@@ -1972,6 +1973,7 @@ CYBOZU_TEST_AUTO(misc)
 		0x4e, 0x0f, 0x38, 0xf9, 0x0c, 0x20, // movdiri
 		0x46, 0x0f, 0x38, 0xf9, 0x4c, 0x60, 0x04, // movdiri
 		0x66, 0x45, 0x0f, 0x38, 0xf8, 0x10, // movdir64b
+		0xf3, 0x0f, 0x01, 0xee, // clui
 #endif
 	};
 	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
@@ -2157,4 +2159,5 @@ CYBOZU_TEST_AUTO(prefetchiti)
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
+
 #endif
