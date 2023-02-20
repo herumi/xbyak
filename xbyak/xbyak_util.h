@@ -215,7 +215,7 @@ private:
 		if (has(tAMD)) {
 			// There are 3 Data Cache Levels (L1, L2, L3)
 			dataCacheLevels_ = 3;
-			const int leaf = 0x8000001D; // for modern AMD CPus
+			const uint32_t leaf = 0x8000001D; // for modern AMD CPus
 			// Sub leaf value ranges from 0 to 3
 			// Sub leaf value 0 refers to L1 Data Cache
 			// Sub leaf value 1 refers to L1 Instruction Cache
