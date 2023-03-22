@@ -458,6 +458,7 @@ public:
 	XBYAK_DEFINE_TYPE(74, tPREFETCHITI);
 	XBYAK_DEFINE_TYPE(75, tSERIALIZE);
 	XBYAK_DEFINE_TYPE(76, tUINTR);
+	XBYAK_DEFINE_TYPE(77, tXSAVE);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -526,6 +527,7 @@ public:
 		if (ECX & (1U << 23)) type_ |= tPOPCNT;
 		if (ECX & (1U << 25)) type_ |= tAESNI;
 		if (ECX & (1U << 1)) type_ |= tPCLMULQDQ;
+		if (ECX & (1U << 26)) type_ |= tXSAVE;
 		if (ECX & (1U << 27)) type_ |= tOSXSAVE;
 		if (ECX & (1U << 30)) type_ |= tRDRAND;
 		if (ECX & (1U << 29)) type_ |= tF16C;
