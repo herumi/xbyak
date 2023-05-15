@@ -1,6 +1,6 @@
 # History
 
-* 2023/May/23 ver 6.69.1 add detection of xsave (thanks to Wunkolo)
+* 2023/Mar/23 ver 6.69.1 add detection of xsave (thanks to Wunkolo)
 * 2023/Feb/20 ver 6.69 util::Cpu supports AMD CPUs. support UINTR
 * 2022/Dec/07 ver 6.68 support prefetchit{0,1}
 * 2022/Nov/30 ver 6.67 support CMPccXADD
