@@ -93,7 +93,7 @@ struct TypeT {
 };
 
 template<uint64_t L1, uint64_t H1, uint64_t L2, uint64_t H2>
-TypeT<L1 | L2, H1 | H2> operator|(TypeT<L1, H1>, TypeT<L2, H2>) { return TypeT<L1 | L2, H1 | H2>(); }
+XBYAK_CONSTEXPR TypeT<L1 | L2, H1 | H2> operator|(TypeT<L1, H1>, TypeT<L2, H2>) { return TypeT<L1 | L2, H1 | H2>(); }
 
 template<typename T>
 inline T max_(T x, T y) { return x >= y ? x : y; }
