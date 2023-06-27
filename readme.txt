@@ -402,6 +402,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2023/06/27 ver 6.69.2 `TypeT operator|`にconstexpr追加(thanks to Wunkolo)
 2023/03/23 ver 6.69.1 xsave判定追加(thanks to Wunkolo)
 2023/02/20 ver 6.69 util::CpuがAMD対応 UINTR命令対応
 2022/12/07 ver 6.68 prefetchit{0,1}サポート
