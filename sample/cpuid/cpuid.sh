@@ -6,6 +6,6 @@ cpus=(p4p mrm pnr nhm wsm snb ivb hsw bdw slt slm glm glp tnt skl cnl icl skx cl
 for cpu in ${cpus[@]} ; do
   echo $cpu
   ~/bin/sde -$cpu -- ../test_util64 -cpuid > tmp.txt
-  diff tmp.txt $cpu.txt
+  diff $cpu.txt tmp.txt
 done
 
