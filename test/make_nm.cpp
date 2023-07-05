@@ -1497,8 +1497,8 @@ class Test {
 			const char tbl[][16] = {
 				"pclmullqlqdq",
 				"pclmulhqlqdq",
-//				"pclmullqhdq", // QQQ : not supported by nasm/yasm
-//				"pclmulhqhdq",
+				"pclmullqhqdq",
+				"pclmulhqhqdq",
 			};
 			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 				const char *p = tbl[i];

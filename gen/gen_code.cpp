@@ -974,8 +974,8 @@ void put()
 		} tbl[] = {
 			{ "pclmullqlqdq", 0 },
 			{ "pclmulhqlqdq", 1 },
-			{ "pclmullqhdq", 0x10 },
-			{ "pclmulhqhdq", 0x11 },
+			{ "pclmullqhqdq", 0x10 },
+			{ "pclmulhqhqdq", 0x11 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
