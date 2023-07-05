@@ -1493,18 +1493,6 @@ class Test {
 				put(p, XMM, XMM|MEM, IMM);
 			}
 		}
-		{
-			const char tbl[][16] = {
-				"pclmullqlqdq",
-				"pclmulhqlqdq",
-				"pclmullqhqdq",
-				"pclmulhqhqdq",
-			};
-			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-				const char *p = tbl[i];
-				put(p, XMM, XMM|MEM);
-			}
-		}
 		put("extractps", REG32e|MEM, XMM, IMM);
 		put("pextrw", REG32e|MEM, XMM, IMM); // pextrw for REG32 is for MMX2
 		put("pextrb", REG32e|MEM, XMM, IMM);
@@ -1521,6 +1509,23 @@ class Test {
 		put("pinsrq", XMM, REG64|MEM, IMM);
 #endif
 
+	}
+	void putVpclmulqdq()
+	{
+		const char tbl[][16] = {
+			"vpclmullqlqdq",
+			"vpclmulhqlqdq",
+			"vpclmullqhqdq",
+			"vpclmulhqhqdq",
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const char *p = tbl[i] + 1; // remove the top 'v'
+			put(p, XMM, XMM|MEM);
+			p = tbl[i]; // use the top 'v'
+			put(p, XMM, XMM, XMM|MEM);
+			put(p, YMM, YMM, YMM|MEM);
+			put(p, ZMM, ZMM, ZMM|MEM);
+		}
 	}
 	void putSHA() const
 	{
@@ -2569,6 +2574,7 @@ public:
 		putPushPop8_16();
 #else
 		putSIMPLE();
+		putVpclmulqdq();
 		putReg1();
 		putBt();
 		putRorM();
