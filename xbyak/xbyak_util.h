@@ -9,6 +9,13 @@
 	#define XBYAK_THROW(x) ;
 	#define XBYAK_THROW_RET(x, y) return y;
 #endif
+#ifndef XBYAK_CONSTEXPR
+#if ((__cplusplus >= 201402L) && !(!defined(__clang__) && defined(__GNUC__) && (__GNUC__ <= 5))) || (defined(_MSC_VER) && _MSC_VER >= 1910)
+	#define XBYAK_CONSTEXPR constexpr
+#else
+	#define XBYAK_CONSTEXPR
+#endif
+#endif
 #else
 #include <string.h>
 

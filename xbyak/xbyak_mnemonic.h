@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "6.69.2"; }
+const char *getVersionString() const { return "6.70"; }
 void aadd(const Address& addr, const Reg32e &reg) { opModM(addr, reg, 0x0F, 0x38, 0x0FC); }
 void aand(const Address& addr, const Reg32e &reg) { db(0x66); opModM(addr, reg, 0x0F, 0x38, 0x0FC); }
 void adc(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x10, 2); }
@@ -589,9 +589,9 @@ void pavgb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xE0); }
 void pavgw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xE3); }
 void pblendvb(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x10, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
 void pblendw(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0x0E, 0x66, isXMM_XMMorMEM, static_cast<uint8_t>(imm), 0x3A); }
-void pclmulhqhdq(const Xmm& xmm, const Operand& op) { pclmulqdq(xmm, op, 0x11); }
+void pclmulhqhqdq(const Xmm& xmm, const Operand& op) { pclmulqdq(xmm, op, 0x11); }
 void pclmulhqlqdq(const Xmm& xmm, const Operand& op) { pclmulqdq(xmm, op, 0x01); }
-void pclmullqhdq(const Xmm& xmm, const Operand& op) { pclmulqdq(xmm, op, 0x10); }
+void pclmullqhqdq(const Xmm& xmm, const Operand& op) { pclmulqdq(xmm, op, 0x10); }
 void pclmullqlqdq(const Xmm& xmm, const Operand& op) { pclmulqdq(xmm, op, 0x00); }
 void pclmulqdq(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0x44, 0x66, isXMM_XMMorMEM, static_cast<uint8_t>(imm), 0x3A); }
 void pcmpeqb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x74); }
@@ -1192,6 +1192,10 @@ void vpbroadcastb(const Xmm& x, const Operand& op) { if (!(op.isXMM() || op.isME
 void vpbroadcastd(const Xmm& x, const Operand& op) { if (!(op.isXMM() || op.isMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_XM_IMM(x, op, T_N4 | T_66 | T_0F38 | T_W0 | T_YMM | T_EVEX, 0x58); }
 void vpbroadcastq(const Xmm& x, const Operand& op) { if (!(op.isXMM() || op.isMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_XM_IMM(x, op, T_N8 | T_66 | T_0F38 | T_W0 | T_EW1 | T_YMM | T_EVEX, 0x59); }
 void vpbroadcastw(const Xmm& x, const Operand& op) { if (!(op.isXMM() || op.isMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_XM_IMM(x, op, T_N2 | T_66 | T_0F38 | T_W0 | T_YMM | T_EVEX, 0x79); }
+void vpclmulhqhqdq(const Xmm& x1, const Xmm& x2, const Operand& op) { vpclmulqdq(x1, x2, op, 0x11); }
+void vpclmulhqlqdq(const Xmm& x1, const Xmm& x2, const Operand& op) { vpclmulqdq(x1, x2, op, 0x01); }
+void vpclmullqhqdq(const Xmm& x1, const Xmm& x2, const Operand& op) { vpclmulqdq(x1, x2, op, 0x10); }
+void vpclmullqlqdq(const Xmm& x1, const Xmm& x2, const Operand& op) { vpclmulqdq(x1, x2, op, 0x00); }
 void vpclmulqdq(const Xmm& x1, const Xmm& x2, const Operand& op, uint8_t imm) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F3A | T_W0 | T_YMM | T_EVEX, 0x44, imm); }
 void vpcmpeqb(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F | T_YMM, 0x74); }
 void vpcmpeqd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66 | T_0F | T_YMM, 0x76); }

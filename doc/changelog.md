@@ -1,5 +1,6 @@
 # History
 
+* 2023/Jul/05 ver 6.70 add alias of vclmulqdq, correct alias of pclmulqdq
 * 2023/Jun/27 ver 6.69.2 add constexpr to `TypeT operator|` (thanks to Wunkolo)
 * 2023/Mar/23 ver 6.69.1 add detection of xsave (thanks to Wunkolo)
 * 2023/Feb/20 ver 6.69 util::Cpu supports AMD CPUs. support UINTR
