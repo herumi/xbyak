@@ -527,13 +527,13 @@ public:
 
 		getCpuid(1, data);
 		if (ECX & (1U << 0)) type_ |= tSSE3;
+		if (ECX & (1U << 1)) type_ |= tPCLMULQDQ;
 		if (ECX & (1U << 9)) type_ |= tSSSE3;
 		if (ECX & (1U << 19)) type_ |= tSSE41;
 		if (ECX & (1U << 20)) type_ |= tSSE42;
 		if (ECX & (1U << 22)) type_ |= tMOVBE;
 		if (ECX & (1U << 23)) type_ |= tPOPCNT;
 		if (ECX & (1U << 25)) type_ |= tAESNI;
-		if (ECX & (1U << 1)) type_ |= tPCLMULQDQ;
 		if (ECX & (1U << 26)) type_ |= tXSAVE;
 		if (ECX & (1U << 27)) type_ |= tOSXSAVE;
 		if (ECX & (1U << 30)) type_ |= tRDRAND;
