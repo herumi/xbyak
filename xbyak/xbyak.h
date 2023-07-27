@@ -371,10 +371,22 @@ inline const To CastTo(From p) XBYAK_NOEXCEPT
 }
 namespace inner {
 
+#ifdef _WIN32
+struct SystemInfo {
+	SYSTEM_INFO info;
+	SystemInfo()
+	{
+		GetSystemInfo(&info);
+	}
+};
+#endif
 //static const size_t ALIGN_PAGE_SIZE = 4096;
 inline size_t getPageSize()
 {
-#ifdef __GNUC__
+#ifdef _WIN32
+	static const SystemInfo si;
+	return si.info.dwPageSize;
+#elif defined(__GNUC__)
 	static const long pageSize = sysconf(_SC_PAGESIZE);
 	if (pageSize > 0) {
 		return (size_t)pageSize;
