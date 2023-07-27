@@ -13,6 +13,9 @@ ifeq ($(UNAME_S),Darwin)
   # 32-bit binary is not supported
   ONLY_64BIT=1
 endif
+ifeq ($(findstring MINGW64,$(UNAME_S)),MINGW64)
+  ONLY_64BIT=1
+endif
 ifeq ($(ONLY_64BIT),0)
   TARGET += jmp address
 endif
