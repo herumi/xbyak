@@ -28,7 +28,7 @@ all: $(TARGET)
 
 CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wwrite-strings -Wfloat-equal -Wpointer-arith
 
-CFLAGS=-O2 -Wall -I../ -I./ $(CFLAGS_WARN) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) #-std=c++0x
+CFLAGS=-O2 -Wall -I.. -I. $(CFLAGS_WARN) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) #-std=c++0x
 make_nm:
 	$(CXX) $(CFLAGS) make_nm.cpp -o $@
 normalize_prefix: normalize_prefix.cpp ../xbyak/xbyak.h
