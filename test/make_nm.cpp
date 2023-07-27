@@ -1050,6 +1050,10 @@ class Test {
 			"nle",
 			"g",
 		};
+#if defined(__GNUC__) && !defined(__clang__)
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wformat-truncation" // wrong detection
+#endif
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			char buf[32];
 			snprintf(buf, sizeof(buf), "cmov%s", tbl[i]);
@@ -1059,6 +1063,9 @@ class Test {
 			snprintf(buf, sizeof(buf), "set%s", tbl[i]);
 			put(buf, REG8|REG8_3|MEM);
 		}
+#if defined(__GNUC__) && !defined(__clang__)
+	#pragma GCC diagnostic pop
+#endif
 	}
 	void putReg1() const
 	{

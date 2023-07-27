@@ -1,5 +1,5 @@
 
-# Xbyak 6.70 [![Badge Build]][Build Status]
+# Xbyak 6.71 [![Badge Build]][Build Status]
 
 *A C++ JIT assembler for x86 (IA32), x64 (AMD64, x86-64)*
 
@@ -25,6 +25,10 @@ It is named from a Japanese word [開闢](https://translate.google.com/?hl=ja&sl
 **Note**:
 Use `and_()`, `or_()`, ... instead of `and()`, `or()`.
 If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
+
+### Derived Projects
+- [Xbyak_aarch64](https://github.com/fujitsu/xbyak_aarch64/) : for AArch64
+- [Xbyak_riscv](https://github.com/herumi/xbyak_riscv) : for RISC-V
 
 ### News
 

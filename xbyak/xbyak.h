@@ -155,7 +155,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x6700 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x6710 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -371,7 +371,29 @@ inline const To CastTo(From p) XBYAK_NOEXCEPT
 }
 namespace inner {
 
-static const size_t ALIGN_PAGE_SIZE = 4096;
+#ifdef _WIN32
+struct SystemInfo {
+	SYSTEM_INFO info;
+	SystemInfo()
+	{
+		GetSystemInfo(&info);
+	}
+};
+#endif
+//static const size_t ALIGN_PAGE_SIZE = 4096;
+inline size_t getPageSize()
+{
+#ifdef _WIN32
+	static const SystemInfo si;
+	return si.info.dwPageSize;
+#elif defined(__GNUC__)
+	static const long pageSize = sysconf(_SC_PAGESIZE);
+	if (pageSize > 0) {
+		return (size_t)pageSize;
+	}
+#endif
+	return 4096;
+}
 
 inline bool IsInDisp8(uint32_t x) { return 0xFFFFFF80 <= x || x <= 0x7F; }
 inline bool IsInInt32(uint64_t x) { return ~uint64_t(0x7fffffffu) <= x || x <= 0x7FFFFFFFU; }
@@ -397,7 +419,7 @@ enum LabelMode {
 */
 struct Allocator {
 	explicit Allocator(const std::string& = "") {} // same interface with MmapAllocator
-	virtual uint8_t *alloc(size_t size) { return reinterpret_cast<uint8_t*>(AlignedMalloc(size, inner::ALIGN_PAGE_SIZE)); }
+	virtual uint8_t *alloc(size_t size) { return reinterpret_cast<uint8_t*>(AlignedMalloc(size, inner::getPageSize())); }
 	virtual void free(uint8_t *p) { AlignedFree(p); }
 	virtual ~Allocator() {}
 	/* override to return false if you call protect() manually */
@@ -445,7 +467,7 @@ public:
 	explicit MmapAllocator(const std::string& name = "xbyak") : name_(name) {}
 	uint8_t *alloc(size_t size)
 	{
-		const size_t alignedSizeM1 = inner::ALIGN_PAGE_SIZE - 1;
+		const size_t alignedSizeM1 = inner::getPageSize() - 1;
 		size = (size + alignedSizeM1) & ~alignedSizeM1;
 #if defined(MAP_ANONYMOUS)
 		int mode = MAP_PRIVATE | MAP_ANONYMOUS;
@@ -1213,9 +1235,6 @@ public:
 		size_t pageSize = sysconf(_SC_PAGESIZE);
 		size_t iaddr = reinterpret_cast<size_t>(addr);
 		size_t roundAddr = iaddr & ~(pageSize - static_cast<size_t>(1));
-#ifndef NDEBUG
-		if (pageSize != 4096) fprintf(stderr, "large page(%zd) is used. not tested enough.\n", pageSize);
-#endif
 		return mprotect(reinterpret_cast<void*>(roundAddr), size + (iaddr - roundAddr), mode) == 0;
 #else
 		return true;
@@ -2884,7 +2903,7 @@ public:
 	{
 		if (x == 1) return;
 		if (x < 1 || (x & (x - 1))) XBYAK_THROW(ERR_BAD_ALIGN)
-		if (isAutoGrow() && x > inner::ALIGN_PAGE_SIZE) fprintf(stderr, "warning:autoGrow mode does not support %d align\n", (int)x);
+		if (isAutoGrow()) XBYAK_THROW(ERR_BAD_ALIGN)
 		size_t remain = size_t(getCurr()) % x;
 		if (remain) {
 			nop(x - remain, useMultiByteNop);
