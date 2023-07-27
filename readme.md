@@ -26,6 +26,10 @@ It is named from a Japanese word [開闢](https://translate.google.com/?hl=ja&sl
 Use `and_()`, `or_()`, ... instead of `and()`, `or()`.
 If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
+### Derived Projects
+- [Xbyak_aarch64](https://github.com/fujitsu/xbyak_aarch64/) : for AArch64
+- [Xbyak_riscv](https://github.com/herumi/xbyak_riscv) : for RISC-V
+
 ### News
 
 - add amx_fp16/avx_vnni_int8/avx_ne_convert/avx-ifma
