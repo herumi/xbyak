@@ -558,6 +558,7 @@ class Test {
 			"wbinvd",
 			"wrmsr",
 			"xlatb",
+			"xend",
 
 			"popf",
 			"pushf",
@@ -1333,6 +1334,7 @@ class Test {
 #ifdef XBYAK64
 		put("cmpxchg16b", MEM);
 		put("fxrstor64", MEM);
+		put("xbegin", "0x12345678");
 #endif
 		{
 			const char tbl[][8] = {
@@ -1355,6 +1357,7 @@ class Test {
 		put("xchg", EAX|REG32, EAX|REG32|MEM);
 		put("xchg", MEM, EAX|REG32);
 		put("xchg", REG64, REG64|MEM);
+		put("xabort", IMM8);
 	}
 	void putShift() const
 	{

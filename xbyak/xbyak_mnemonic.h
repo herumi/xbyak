@@ -1374,7 +1374,10 @@ void vzeroupper() { db(0xC5); db(0xF8); db(0x77); }
 void wait() { db(0x9B); }
 void wbinvd() { db(0x0F); db(0x09); }
 void wrmsr() { db(0x0F); db(0x30); }
+void xabort(uint8_t imm) { db(0xC6); db(0xF8); db(imm); }
 void xadd(const Operand& op, const Reg& reg) { opModRM(reg, op, (op.isREG() && reg.isREG() && op.getBit() == reg.getBit()), op.isMEM(), 0x0F, 0xC0 | (reg.isBit(8) ? 0 : 1)); }
+void xbegin(uint32_t rel) { db(0xC7); db(0xF8); dd(rel); }
+void xend() { db(0x0F); db(0x01); db(0xD5); }
 void xgetbv() { db(0x0F); db(0x01); db(0xD0); }
 void xlatb() { db(0xD7); }
 void xor_(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x30, 6); }
