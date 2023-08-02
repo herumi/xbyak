@@ -115,3 +115,4 @@ lib_run: lib_test.cpp lib_run.cpp lib.h
 	$(CXX) $(CFLAGS) lib_run.cpp lib_test.cpp -o lib_run
 make_nm: make_nm.cpp $(XBYAK_INC)
 
+.PHONY: test

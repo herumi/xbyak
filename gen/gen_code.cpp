@@ -720,6 +720,7 @@ void put()
 			{ "wbinvd", 0x0F, 0x09 },
 			{ "wrmsr", 0x0F, 0x30 },
 			{ "xlatb", 0xD7 },
+			{ "xend", 0x0f, 0x01, 0xd5 },
 
 			{ "popf", 0x9D },
 			{ "pushf", 0x9C },
@@ -1113,6 +1114,8 @@ void put()
 		puts("void umwait(const Reg32& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) db(0xF2); db(0x0F); db(0xAE); setModRM(3, 6, idx); }");
 		puts("void clwb(const Address& addr) { db(0x66); opMIB(addr, esi, 0x0F, 0xAE); }");
 		puts("void cldemote(const Address& addr) { opMIB(addr, eax, 0x0F, 0x1C); }");
+		puts("void xabort(uint8_t imm) { db(0xC6); db(0xF8); db(imm); }");
+		puts("void xbegin(uint32_t rel) { db(0xC7); db(0xF8); dd(rel); }");
 	}
 	{
 		const struct Tbl {
