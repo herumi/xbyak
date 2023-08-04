@@ -1116,6 +1116,10 @@ void put()
 		puts("void cldemote(const Address& addr) { opMIB(addr, eax, 0x0F, 0x1C); }");
 		puts("void xabort(uint8_t imm) { db(0xC6); db(0xF8); db(imm); }");
 		puts("void xbegin(uint32_t rel) { db(0xC7); db(0xF8); dd(rel); }");
+
+		puts("void vsha512msg1(const Ymm& y, const Xmm& x) { opVex(y, 0, x, T_F2 | T_0F38 | T_W0 | T_YMM, 0xCC); }");
+		puts("void vsha512msg2(const Ymm& y1, const Ymm& y2) { opVex(y1, 0, y2, T_F2 | T_0F38 | T_W0 | T_YMM, 0xCD); }");
+		puts("void vsha512rnds2(const Ymm& y1, const Ymm& y2, const Xmm& x) { opVex(y1, &y2, x, T_F2 | T_0F38 | T_W0 | T_YMM, 0xCB); }");
 	}
 	{
 		const struct Tbl {

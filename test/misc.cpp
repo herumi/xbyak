@@ -2171,3 +2171,23 @@ CYBOZU_TEST_AUTO(prefetchiti)
 }
 
 #endif
+
+CYBOZU_TEST_AUTO(crypto)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			vsha512msg1(ymm3, xmm5);
+			vsha512msg2(ymm9, ymm10);
+			vsha512rnds2(ymm1, ymm3, xmm2);
+		}
+	} c;
+	const uint8_t tbl[] = {
+		0xc4, 0xe2, 0x7f, 0xcc, 0xdd,
+		0xc4, 0x42, 0x7f, 0xcd, 0xca,
+		0xc4, 0xe2, 0x67, 0xcb, 0xca
+	};
+	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
