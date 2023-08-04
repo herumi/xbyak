@@ -2170,8 +2170,6 @@ CYBOZU_TEST_AUTO(prefetchiti)
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
 
-#endif
-
 CYBOZU_TEST_AUTO(crypto)
 {
 	struct Code : Xbyak::CodeGenerator {
@@ -2191,3 +2189,5 @@ CYBOZU_TEST_AUTO(crypto)
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
+
+#endif
