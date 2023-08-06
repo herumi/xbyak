@@ -466,6 +466,9 @@ public:
 	XBYAK_DEFINE_TYPE(75, tSERIALIZE);
 	XBYAK_DEFINE_TYPE(76, tUINTR);
 	XBYAK_DEFINE_TYPE(77, tXSAVE);
+	XBYAK_DEFINE_TYPE(78, tSHA512);
+	XBYAK_DEFINE_TYPE(79, tSM3);
+	XBYAK_DEFINE_TYPE(80, tSM4);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -608,6 +611,9 @@ public:
 			if (EDX & (1U << 25)) type_ |= tAMX_INT8;
 			if (maxNumSubLeaves >= 1) {
 				getCpuidEx(7, 1, data);
+				if (EAX & (1U << 0)) type_ |= tSHA512;
+				if (EAX & (1U << 1)) type_ |= tSM3;
+				if (EAX & (1U << 2)) type_ |= tSM4;
 				if (EAX & (1U << 3)) type_ |= tRAO_INT;
 				if (EAX & (1U << 4)) type_ |= tAVX_VNNI;
 				if (type_ & tAVX512F) {
