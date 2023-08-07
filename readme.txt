@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 6.72
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 6.73
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -402,6 +402,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2023/08/07 ver 6.73 sha512/sm3/sm4/avx-vnni-int16追加
 2023/08/02 ver 6.72 xabort, xbegin, xend追加
 2023/07/27 ver 6.71 Allocatorでhuge pageを考慮する。
 2023/07/05 ver 6.70 vpclmulqdqのailas追加
