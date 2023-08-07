@@ -1817,6 +1817,7 @@ void put()
 		}
 	}
 	// avx-vnni-int8
+	// avx-vnni-int16
 	{
 		const struct Tbl {
 			uint8_t code;
@@ -1829,6 +1830,13 @@ void put()
 			{ 0x51, "vpdpbsuds", T_F3 | T_0F38 | T_W0 | T_YMM },
 			{ 0x50, "vpdpbuud", T_0F38 | T_W0 | T_YMM },
 			{ 0x51, "vpdpbuuds", T_0F38 | T_W0 | T_YMM },
+
+			{ 0xD2, "vpdpwsud", T_F3 | T_0F38 | T_W0 | T_YMM },
+			{ 0xD3, "vpdpwsuds", T_F3 | T_0F38 | T_W0 | T_YMM },
+			{ 0xD2, "vpdpwusd", T_66 | T_0F38 | T_W0 | T_YMM },
+			{ 0xD3, "vpdpwusds", T_66 | T_0F38 | T_W0 | T_YMM },
+			{ 0xD2, "vpdpwuud", T_0F38 | T_W0 | T_YMM },
+			{ 0xD3, "vpdpwuuds", T_0F38 | T_W0 | T_YMM },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
