@@ -102,6 +102,7 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tSHA512, "sha512" },
 		{ Cpu::tSM3, "sm3" },
 		{ Cpu::tSM4, "sm4" },
+		{ Cpu::tAVX_VNNI_INT16, "avx_vnni_int16" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
