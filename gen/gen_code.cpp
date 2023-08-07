@@ -208,6 +208,11 @@ void putX_X_XM(bool omitOnly)
 			{ 0xCF, "gf2p8affineinvqb", T_66 | T_0F3A | T_W1 | T_EVEX | T_YMM | T_EW1 | T_SAE_Z | T_B64, true, false, 3 },
 			{ 0xCE, "gf2p8affineqb", T_66 | T_0F3A | T_W1 | T_EVEX | T_YMM | T_EW1 | T_SAE_Z | T_B64, true, false, 3 },
 			{ 0xCF, "gf2p8mulb", T_66 | T_0F38 | T_W0 | T_EVEX | T_YMM | T_EW0 | T_SAE_Z, false, false, 3 },
+			{ 0xDA, "sm3msg1", T_0F38 | T_W0 | T_EVEX | T_EW0, false, false, 2 },
+			{ 0xDA, "sm3msg2", T_66 | T_0F38 | T_W0 | T_EVEX | T_EW0, false, false, 2 },
+			{ 0xDE, "sm3rnds2", T_66 | T_0F3A | T_W0 | T_EVEX | T_EW0, true, false, 2 },
+			{ 0xDA, "sm4key4", T_F3 | T_0F38 | T_W0 | T_EVEX | T_EW0, false, false, 2 },
+			{ 0xDA, "sm4rnds4", T_F2 | T_0F38 | T_W0 | T_EVEX | T_EW0, false, false, 2 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -1116,6 +1121,10 @@ void put()
 		puts("void cldemote(const Address& addr) { opMIB(addr, eax, 0x0F, 0x1C); }");
 		puts("void xabort(uint8_t imm) { db(0xC6); db(0xF8); db(imm); }");
 		puts("void xbegin(uint32_t rel) { db(0xC7); db(0xF8); dd(rel); }");
+
+		puts("void vsha512msg1(const Ymm& y, const Xmm& x) { if (!(y.isYMM() && x.isXMM())) XBYAK_THROW(ERR_BAD_PARAMETER) opVex(y, 0, x, T_F2 | T_0F38 | T_W0 | T_YMM, 0xCC); }");
+		puts("void vsha512msg2(const Ymm& y1, const Ymm& y2) { if (!(y1.isYMM() && y2.isYMM())) XBYAK_THROW(ERR_BAD_PARAMETER) opVex(y1, 0, y2, T_F2 | T_0F38 | T_W0 | T_YMM, 0xCD); }");
+		puts("void vsha512rnds2(const Ymm& y1, const Ymm& y2, const Xmm& x) { if (!(y1.isYMM() && y2.isYMM() && x.isXMM())) XBYAK_THROW(ERR_BAD_PARAMETER) opVex(y1, &y2, x, T_F2 | T_0F38 | T_W0 | T_YMM, 0xCB); }");
 	}
 	{
 		const struct Tbl {
@@ -1808,6 +1817,7 @@ void put()
 		}
 	}
 	// avx-vnni-int8
+	// avx-vnni-int16
 	{
 		const struct Tbl {
 			uint8_t code;
@@ -1820,6 +1830,13 @@ void put()
 			{ 0x51, "vpdpbsuds", T_F3 | T_0F38 | T_W0 | T_YMM },
 			{ 0x50, "vpdpbuud", T_0F38 | T_W0 | T_YMM },
 			{ 0x51, "vpdpbuuds", T_0F38 | T_W0 | T_YMM },
+
+			{ 0xD2, "vpdpwsud", T_F3 | T_0F38 | T_W0 | T_YMM },
+			{ 0xD3, "vpdpwsuds", T_F3 | T_0F38 | T_W0 | T_YMM },
+			{ 0xD2, "vpdpwusd", T_66 | T_0F38 | T_W0 | T_YMM },
+			{ 0xD3, "vpdpwusds", T_66 | T_0F38 | T_W0 | T_YMM },
+			{ 0xD2, "vpdpwuud", T_0F38 | T_W0 | T_YMM },
+			{ 0xD3, "vpdpwuuds", T_0F38 | T_W0 | T_YMM },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];

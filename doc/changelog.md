@@ -1,5 +1,6 @@
 # History
 
+* 2023/Aug/07 ver 6.73 add sha512/sm3/sm4/avx-vnni-int16
 * 2023/Aug/02 ver 6.72 add xbegin/xabort/xend
 * 2023/Jul/27 ver 6.71 Allocator supports huge page
 * 2023/Jul/05 ver 6.70 add alias of vclmulqdq, correct alias of pclmulqdq
