@@ -109,8 +109,8 @@ CYBOZU_TEST_AUTO(changeBit)
 		{ &dil, &di, &edi, &rdi, &xmm7, &ymm7, &zmm7 },
 		{ &r8b, &r8w, &r8d, &r8, &xmm8, &ymm8, &zmm8 },
 		{ &r15b, &r15w, &r15d, &r15, &xmm15, &ymm15, &zmm15 },
-		{ 0, 0, 0, 0, &xmm16, &ymm16, &zmm16 },
-		{ 0, 0, 0, 0, &xmm31, &ymm31, &zmm31 },
+		{ &r16b, &r16w, &r16d, &r16, &xmm16, &ymm16, &zmm16 },
+		{ &r31b, &r31w, &r31d, &r31, &xmm31, &ymm31, &zmm31 },
 	};
 	const int bitTbl[N] = { 8, 16, 32, 64, 128, 256, 512 };
 #else
