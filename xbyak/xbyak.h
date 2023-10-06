@@ -550,9 +550,13 @@ public:
 	enum Code {
 #ifdef XBYAK64
 		RAX = 0, RCX, RDX, RBX, RSP, RBP, RSI, RDI, R8, R9, R10, R11, R12, R13, R14, R15,
+		R16, R17, R18, R19, R20, R21, R22, R23, R24, R25, R26, R27, R28, R29, R30, R31,
 		R8D = 8, R9D, R10D, R11D, R12D, R13D, R14D, R15D,
+		R16D, R17D, R18D, R19D, R20D, R21D, R22D, R23D, R24D, R25D, R26D, R27D, R28D, R29D, R30D, R31D,
 		R8W = 8, R9W, R10W, R11W, R12W, R13W, R14W, R15W,
+		R16W, R17W, R18W, R19W, R20W, R21W, R22W, R23W, R24W, R25W, R26W, R27W, R28W, R29W, R30W, R31W,
 		R8B = 8, R9B, R10B, R11B, R12B, R13B, R14B, R15B,
+		R16B, R17B, R18B, R19B, R20B, R21B, R22B, R23B, R24B, R25B, R26B, R27B, R28B, R29B, R30B, R31B,
 		SPL = 4, BPL, SIL, DIL,
 #endif
 		EAX = 0, ECX, EDX, EBX, ESP, EBP, ESI, EDI,
@@ -634,11 +638,19 @@ public:
 				static const char *tbl[4] = { "spl", "bpl", "sil", "dil" };
 				return tbl[idx - 4];
 			}
-			static const char *tbl[4][16] = {
-				{ "al", "cl", "dl", "bl", "ah", "ch", "dh", "bh", "r8b", "r9b", "r10b",  "r11b", "r12b", "r13b", "r14b", "r15b" },
-				{ "ax", "cx", "dx", "bx", "sp", "bp", "si", "di", "r8w", "r9w", "r10w",  "r11w", "r12w", "r13w", "r14w", "r15w" },
-				{ "eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi", "r8d", "r9d", "r10d",  "r11d", "r12d", "r13d", "r14d", "r15d" },
-				{ "rax", "rcx", "rdx", "rbx", "rsp", "rbp", "rsi", "rdi", "r8", "r9", "r10",  "r11", "r12", "r13", "r14", "r15" },
+			static const char *tbl[4][32] = {
+				{ "al", "cl", "dl", "bl", "ah", "ch", "dh", "bh", "r8b", "r9b", "r10b",  "r11b", "r12b", "r13b", "r14b", "r15b",
+				 "r16b", "r17b", "r18b", "r19b", "r20b", "r21b", "r22b", "r23b", "r24b", "r25b", "r26b", "r27b", "r28b", "r29b", "r30b", "r31b",
+				},
+				{ "ax", "cx", "dx", "bx", "sp", "bp", "si", "di", "r8w", "r9w", "r10w",  "r11w", "r12w", "r13w", "r14w", "r15w",
+				 "r16w", "r17w", "r18w", "r19w", "r20w", "r21w", "r22w", "r23w", "r24w", "r25w", "r26w", "r27w", "r28w", "r29w", "r30w", "r31w",
+				},
+				{ "eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi", "r8d", "r9d", "r10d",  "r11d", "r12d", "r13d", "r14d", "r15d",
+				 "r16d", "r17d", "r18d", "r19d", "r20d", "r21d", "r22d", "r23d", "r24d", "r25d", "r26d", "r27d", "r28d", "r29d", "r30d", "r31d",
+				},
+				{ "rax", "rcx", "rdx", "rbx", "rsp", "rbp", "rsi", "rdi", "r8", "r9", "r10",  "r11", "r12", "r13", "r14", "r15",
+				 "r16", "r17", "r18", "r19", "r20", "r21", "r22", "r23", "r24", "r25", "r26", "r27", "r28", "r29", "r30", "r31",
+				},
 			};
 			return tbl[bit_ == 8 ? 0 : bit_ == 16 ? 1 : bit_ == 32 ? 2 : 3][idx];
 		} else if (isOPMASK()) {
@@ -701,17 +713,21 @@ inline void Operand::setBit(int bit)
 		Kind kind = REG;
 		switch (bit) {
 		case 8:
-			if (idx >= 16) goto ERR;
 #ifdef XBYAK32
 			if (idx >= 4) goto ERR;
 #else
+			if (idx >= 32) goto ERR;
 			if (4 <= idx && idx < 8) idx |= EXT8BIT;
 #endif
 			break;
 		case 16:
 		case 32:
 		case 64:
+#ifdef XBYAK32
 			if (idx >= 16) goto ERR;
+#else
+			if (idx >= 32) goto ERR;
+#endif
 			break;
 		case 128: kind = XMM; break;
 		case 256: kind = YMM; break;
@@ -2506,9 +2522,13 @@ public:
 	const EvexModifierZero T_z; // {z}
 #ifdef XBYAK64
 	const Reg64 rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15;
+	const Reg64 r16, r17, r18, r19, r20, r21, r22, r23, r24, r25, r26, r27, r28, r29, r30, r31;
 	const Reg32 r8d, r9d, r10d, r11d, r12d, r13d, r14d, r15d;
+	const Reg32 r16d, r17d, r18d, r19d, r20d, r21d, r22d, r23d, r24d, r25d, r26d, r27d, r28d, r29d, r30d, r31d;
 	const Reg16 r8w, r9w, r10w, r11w, r12w, r13w, r14w, r15w;
+	const Reg16 r16w, r17w, r18w, r19w, r20w, r21w, r22w, r23w, r24w, r25w, r26w, r27w, r28w, r29w, r30w, r31w;
 	const Reg8 r8b, r9b, r10b, r11b, r12b, r13b, r14b, r15b;
+	const Reg8 r16b, r17b, r18b, r19b, r20b, r21b, r22b, r23b, r24b, r25b, r26b, r27b, r28b, r29b, r30b, r31b;
 	const Reg8 spl, bpl, sil, dil;
 	const Xmm xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
 	const Xmm xmm16, xmm17, xmm18, xmm19, xmm20, xmm21, xmm22, xmm23;
@@ -2786,9 +2806,13 @@ public:
 		, T_z()
 #ifdef XBYAK64
 		, rax(Operand::RAX), rcx(Operand::RCX), rdx(Operand::RDX), rbx(Operand::RBX), rsp(Operand::RSP), rbp(Operand::RBP), rsi(Operand::RSI), rdi(Operand::RDI), r8(Operand::R8), r9(Operand::R9), r10(Operand::R10), r11(Operand::R11), r12(Operand::R12), r13(Operand::R13), r14(Operand::R14), r15(Operand::R15)
+		, r16(Operand::R16), r17(Operand::R17), r18(Operand::R18), r19(Operand::R19), r20(Operand::R20), r21(Operand::R21), r22(Operand::R22), r23(Operand::R23), r24(Operand::R24), r25(Operand::R25), r26(Operand::R26), r27(Operand::R27), r28(Operand::R28), r29(Operand::R29), r30(Operand::R30), r31(Operand::R31)
 		, r8d(8), r9d(9), r10d(10), r11d(11), r12d(12), r13d(13), r14d(14), r15d(15)
+		, r16d(Operand::R16D), r17d(Operand::R17D), r18d(Operand::R18D), r19d(Operand::R19D), r20d(Operand::R20D), r21d(Operand::R21D), r22d(Operand::R22D), r23d(Operand::R23D), r24d(Operand::R24D), r25d(Operand::R25D), r26d(Operand::R26D), r27d(Operand::R27D), r28d(Operand::R28D), r29d(Operand::R29D), r30d(Operand::R30D), r31d(Operand::R31D)
 		, r8w(8), r9w(9), r10w(10), r11w(11), r12w(12), r13w(13), r14w(14), r15w(15)
+		, r16w(Operand::R16W), r17w(Operand::R17W), r18w(Operand::R18W), r19w(Operand::R19W), r20w(Operand::R20W), r21w(Operand::R21W), r22w(Operand::R22W), r23w(Operand::R23W), r24w(Operand::R24W), r25w(Operand::R25W), r26w(Operand::R26W), r27w(Operand::R27W), r28w(Operand::R28W), r29w(Operand::R29W), r30w(Operand::R30W), r31w(Operand::R31W)
 		, r8b(8), r9b(9), r10b(10), r11b(11), r12b(12), r13b(13), r14b(14), r15b(15)
+		, r16b(Operand::R16B), r17b(Operand::R17B), r18b(Operand::R18B), r19b(Operand::R19B), r20b(Operand::R20B), r21b(Operand::R21B), r22b(Operand::R22B), r23b(Operand::R23B), r24b(Operand::R24B), r25b(Operand::R25B), r26b(Operand::R26B), r27b(Operand::R27B), r28b(Operand::R28B), r29b(Operand::R29B), r30b(Operand::R30B), r31b(Operand::R31B)
 		, spl(Operand::SPL, true), bpl(Operand::BPL, true), sil(Operand::SIL, true), dil(Operand::DIL, true)
 		, xmm8(8), xmm9(9), xmm10(10), xmm11(11), xmm12(12), xmm13(13), xmm14(14), xmm15(15)
 		, xmm16(16), xmm17(17), xmm18(18), xmm19(19), xmm20(20), xmm21(21), xmm22(22), xmm23(23)
@@ -2937,9 +2961,13 @@ static const XBYAK_CONSTEXPR EvexModifierRounding T_sae(EvexModifierRounding::T_
 static const XBYAK_CONSTEXPR EvexModifierZero T_z;
 #ifdef XBYAK64
 static const XBYAK_CONSTEXPR Reg64 rax(Operand::RAX), rcx(Operand::RCX), rdx(Operand::RDX), rbx(Operand::RBX), rsp(Operand::RSP), rbp(Operand::RBP), rsi(Operand::RSI), rdi(Operand::RDI), r8(Operand::R8), r9(Operand::R9), r10(Operand::R10), r11(Operand::R11), r12(Operand::R12), r13(Operand::R13), r14(Operand::R14), r15(Operand::R15);
+static const XBYAK_CONSTEXPR Reg64 r16(16), r17(17), r18(18), r19(19), r20(20), r21(21), r22(22), r23(23), r24(24), r25(25), r26(26), r27(27), r28(28), r29(29), r30(30), r31(31);
 static const XBYAK_CONSTEXPR Reg32 r8d(8), r9d(9), r10d(10), r11d(11), r12d(12), r13d(13), r14d(14), r15d(15);
+static const XBYAK_CONSTEXPR Reg32 r16d(16), r17d(17), r18d(18), r19d(19), r20d(20), r21d(21), r22d(22), r23d(23), r24d(24), r25d(25), r26d(26), r27d(27), r28d(28), r29d(29), r30d(30), r31d(31);
 static const XBYAK_CONSTEXPR Reg16 r8w(8), r9w(9), r10w(10), r11w(11), r12w(12), r13w(13), r14w(14), r15w(15);
+static const XBYAK_CONSTEXPR Reg16 r16w(16), r17w(17), r18w(18), r19w(19), r20w(20), r21w(21), r22w(22), r23w(23), r24w(24), r25w(25), r26w(26), r27w(27), r28w(28), r29w(29), r30w(30), r31w(31);
 static const XBYAK_CONSTEXPR Reg8 r8b(8), r9b(9), r10b(10), r11b(11), r12b(12), r13b(13), r14b(14), r15b(15), spl(Operand::SPL, true), bpl(Operand::BPL, true), sil(Operand::SIL, true), dil(Operand::DIL, true);
+static const XBYAK_CONSTEXPR Reg8 r16b(16), r17b(17), r18b(18), r19b(19), r20b(20), r21b(21), r22b(22), r23b(23), r24b(24), r25b(25), r26b(26), r27b(27), r28b(28), r29b(29), r30b(30), r31b(31);
 static const XBYAK_CONSTEXPR Xmm xmm8(8), xmm9(9), xmm10(10), xmm11(11), xmm12(12), xmm13(13), xmm14(14), xmm15(15);
 static const XBYAK_CONSTEXPR Xmm xmm16(16), xmm17(17), xmm18(18), xmm19(19), xmm20(20), xmm21(21), xmm22(22), xmm23(23);
 static const XBYAK_CONSTEXPR Xmm xmm24(24), xmm25(25), xmm26(26), xmm27(27), xmm28(28), xmm29(29), xmm30(30), xmm31(31);
