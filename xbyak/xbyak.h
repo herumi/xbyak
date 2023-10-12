@@ -576,6 +576,7 @@ public:
 	}
 	XBYAK_CONSTEXPR Kind getKind() const { return static_cast<Kind>(kind_); }
 	XBYAK_CONSTEXPR int getIdx() const { return idx_ & (EXT8BIT - 1); }
+	XBYAK_CONSTEXPR bool hasIdxBit(int bit) const { return idx_ & (1<<bit); }
 	XBYAK_CONSTEXPR bool isNone() const { return kind_ == 0; }
 	XBYAK_CONSTEXPR bool isMMX() const { return is(MMX); }
 	XBYAK_CONSTEXPR bool isXMM() const { return is(XMM); }
@@ -1707,16 +1708,24 @@ private:
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) std::swap(p1, p2);
 		if (p1->isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
+		// except movsx(16bit, 32/64bit)
+		uint8_t p66 = (op1.isBit(16) && !op2.isBit(i32e)) || (op2.isBit(16) && !op1.isBit(i32e)) ? 0x66 : 0;
 		if (p2->isMEM()) {
 			const Address& addr = p2->getAddress();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
+			if (p66) db(p66);
 			rex = addr.getRex() | p1->getReg().getRex();
 		} else {
+			if (p66) db(p66);
+			if (op1.getIdx() >= 16 || op2.getIdx() >= 16) {
+				// rex2 : op1 = B, op2 = R
+				db(0xD5);
+				db(rex2p(0, op2.hasIdxBit(4),0, op1.hasIdxBit(4), op1.isREG(64), op2.hasIdxBit(3), 0, op1.hasIdxBit(3)));
+				return;
+			}
 			// ModRM(reg, base);
 			rex = op2.getReg().getRex(op1.getReg());
 		}
-		// except movsx(16bit, 32/64bit)
-		if ((op1.isBit(16) && !op2.isBit(i32e)) || (op2.isBit(16) && !op1.isBit(i32e))) db(0x66);
 		if (rex) db(rex);
 	}
 	enum AVXtype {
@@ -2919,7 +2928,11 @@ public:
 			size -= len;
 		}
 	}
-
+	// make rex2 prefix
+	static inline uint8_t rex2p(int M0, int R4, int X4, int B4, int W, int R3, int X3, int B3)
+	{
+		return uint8_t((M0<<7) | (R4<<6) | (X4<<5) | (B4<<4) | (W<<3) | (R3<<2) | (X3<<1) | B3);
+	}
 #ifndef XBYAK_DONT_READ_LIST
 #include "xbyak_mnemonic.h"
 	/*
