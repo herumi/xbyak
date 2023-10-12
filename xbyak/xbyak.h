@@ -386,13 +386,15 @@ inline size_t getPageSize()
 #ifdef _WIN32
 	static const SystemInfo si;
 	return si.info.dwPageSize;
-#elif defined(__GNUC__)
+#else
+#ifdef __GNUC__
 	static const long pageSize = sysconf(_SC_PAGESIZE);
 	if (pageSize > 0) {
 		return (size_t)pageSize;
 	}
 #endif
 	return 4096;
+#endif
 }
 
 inline bool IsInDisp8(uint32_t x) { return 0xFFFFFF80 <= x || x <= 0x7F; }
