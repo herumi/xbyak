@@ -1305,6 +1305,7 @@ public:
 	}
 	bool is64bitDisp() const { return mode_ == M_64bitDisp; } // for moffset
 	bool isBroadcast() const { return broadcast_; }
+	bool hasRex2() const { return e_.getBase().getIdx() >= 16 || e_.getIndex().getIdx() >= 16; }
 	const Label* getLabel() const { return label_; }
 	bool operator==(const Address& rhs) const
 	{
@@ -1710,15 +1711,24 @@ private:
 		if (p1->isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
 		// except movsx(16bit, 32/64bit)
 		uint8_t p66 = (op1.isBit(16) && !op2.isBit(i32e)) || (op2.isBit(16) && !op1.isBit(i32e)) ? 0x66 : 0;
+		if (p66) db(p66);
 		if (p2->isMEM()) {
+			const Reg& r = *static_cast<const Reg*>(p1);
 			const Address& addr = p2->getAddress();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
-			if (p66) db(p66);
-			rex = addr.getRex() | p1->getReg().getRex();
+			if (r.getIdx() >= 16 || addr.hasRex2()) {
+				const RegExp e = addr.getRegExp();
+				const Reg& base = e.getBase();
+				const Reg& idx = e.getIndex();
+				db(0xD5);
+				// rex2 : R = r, X = idx, B = base
+				db(rex2p(0, r.hasIdxBit(4),idx.hasIdxBit(4), base.hasIdxBit(4), r.isREG(64), r.hasIdxBit(3), idx.hasIdxBit(3), base.hasIdxBit(3)));
+				return;
+			}
+			rex = addr.getRex() | r.getRex();
 		} else {
-			if (p66) db(p66);
 			if (op1.getIdx() >= 16 || op2.getIdx() >= 16) {
-				// rex2 : op1 = B, op2 = R
+				// rex2 : R = op2, X = None, B = op1
 				db(0xD5);
 				db(rex2p(0, op2.hasIdxBit(4),0, op1.hasIdxBit(4), op1.isREG(64), op2.hasIdxBit(3), 0, op1.hasIdxBit(3)));
 				return;
