@@ -763,16 +763,6 @@ public:
 	XBYAK_CONSTEXPR Reg(int idx, Kind kind, int bit = 0, bool ext8bit = false) : Operand(idx, kind, bit, ext8bit) { }
 	// convert to Reg8/Reg16/Reg32/Reg64/XMM/YMM/ZMM
 	Reg changeBit(int bit) const { Reg r(*this); r.setBit(bit); return r; }
-	uint8_t getRexW() const { return isREG(64) ? 8 : 0; }
-	uint8_t getRexR() const { return isExtIdx() ? 4 : 0; }
-	uint8_t getRexX() const { return isExtIdx() ? 2 : 0; }
-	uint8_t getRexB() const { return isExtIdx() ? 1 : 0; }
-	uint8_t getRex(const Reg& base = Reg()) const
-	{
-		uint8_t rex = getRexW() | getRexR() | base.getRexW() | base.getRexB();
-		if (rex || isExt8bit() || base.isExt8bit()) rex |= 0x40;
-		return rex;
-	}
 	Reg8 cvt8() const;
 	Reg16 cvt16() const;
 	Reg32 cvt32() const;
@@ -982,11 +972,6 @@ public:
 	}
 	friend RegExp operator+(const RegExp& a, const RegExp& b);
 	friend RegExp operator-(const RegExp& e, size_t disp);
-	uint8_t getRex() const
-	{
-		uint8_t rex = index_.getRexX() | base_.getRexB();
-		return rex ? uint8_t(rex | 0x40) : 0;
-	}
 private:
 	/*
 		[base_ + index_ * scale_ + disp_]
@@ -1298,11 +1283,6 @@ public:
 	bool is32bit() const { return e_.getBase().getBit() == 32 || e_.getIndex().getBit() == 32; }
 	bool isOnlyDisp() const { return !e_.getBase().getBit() && !e_.getIndex().getBit(); } // for mov eax
 	size_t getDisp() const { return e_.getDisp(); }
-	uint8_t getRex() const
-	{
-		if (mode_ != M_ModRM) return 0;
-		return getRegExp().getRex();
-	}
 	bool is64bitDisp() const { return mode_ == M_64bitDisp; } // for moffset
 	bool isBroadcast() const { return broadcast_; }
 	bool hasRex2() const { return e_.getBase().getIdx() >= 16 || e_.getIndex().getIdx() >= 16; }
@@ -1703,7 +1683,16 @@ private:
 		// SSE instructions do not support XMM16 - XMM31
 		return !(op1.isXMM() && op1.getIdx() >= 16);
 	}
-	void rex(const Operand& op1, const Operand& op2 = Operand())
+	static inline uint8_t rexRXB(int bit, int bit3, const Reg& r, const Reg& b, const Reg& x = Reg())
+	{
+		int v = bit3 ? 8 : 0;
+		if (r.hasIdxBit(bit)) v |= 4;
+		if (x.hasIdxBit(bit)) v |= 2;
+		if (b.hasIdxBit(bit)) v |= 1;
+		return uint8_t(v);
+	}
+	// optimize = false is a special case for bnd*
+	void rex(const Operand& op1, const Operand& op2 = Operand(), bool optimize = true)
 	{
 		uint8_t rex = 0;
 		const Operand *p1 = &op1, *p2 = &op2;
@@ -1715,26 +1704,30 @@ private:
 		if (p2->isMEM()) {
 			const Reg& r = *static_cast<const Reg*>(p1);
 			const Address& addr = p2->getAddress();
+			const RegExp e = addr.getRegExp(optimize);
+			const Reg& base = e.getBase();
+			const Reg& idx = e.getIndex();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
+			rex = rexRXB(3, r.isREG(64), r, base, idx);
 			if (r.getIdx() >= 16 || addr.hasRex2()) {
-				const RegExp e = addr.getRegExp();
-				const Reg& base = e.getBase();
-				const Reg& idx = e.getIndex();
 				db(0xD5);
-				// rex2 : R = r, X = idx, B = base
-				db(rex2p(0, r.hasIdxBit(4),idx.hasIdxBit(4), base.hasIdxBit(4), r.isREG(64), r.hasIdxBit(3), idx.hasIdxBit(3), base.hasIdxBit(3)));
+				// rex2 : R = r, B = base, X = idx
+				db((rexRXB(4, 0, r, base, idx) << 4) | rex);
 				return;
 			}
-			rex = addr.getRex() | r.getRex();
+			if (rex || r.isExt8bit()) rex |= 0x40;
 		} else {
-			if (op1.getIdx() >= 16 || op2.getIdx() >= 16) {
-				// rex2 : R = op2, X = None, B = op1
+			const Reg& r1 = static_cast<const Reg&>(op1);
+			const Reg& r2 = static_cast<const Reg&>(op2);
+			// ModRM(reg, base);
+			rex = rexRXB(3, r1.isREG(64) || r2.isREG(64), r2, r1);
+			if (r1.getIdx() >= 16 || r2.getIdx() >= 16) {
+				// rex2 : R = op2, B = op1, X = None
 				db(0xD5);
-				db(rex2p(0, op2.hasIdxBit(4),0, op1.hasIdxBit(4), op1.isREG(64), op2.hasIdxBit(3), 0, op1.hasIdxBit(3)));
+				db((rexRXB(4, 0, r2, r1) << 4) | rex);
 				return;
 			}
-			// ModRM(reg, base);
-			rex = op2.getReg().getRex(op1.getReg());
+			if (rex || r1.isExt8bit() || r2.isExt8bit()) rex |= 0x40;
 		}
 		if (rex) db(rex);
 	}
@@ -1956,22 +1949,23 @@ private:
 		db(code0 | (reg.isBit(8) ? 0 : 1)); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
 		opAddr(addr, reg.getIdx(), immSize);
 	}
-	void opLoadSeg(const Address& addr, const Reg& reg, int code0, int code1 = NONE)
+	void opLoadSeg(const Address& addr, const Reg& reg, int code0, int code1)
 	{
-		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
 		if (reg.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
+		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
+		// can't use opModM
 		rex(addr, reg);
 		db(code0); if (code1 != NONE) db(code1);
 		opAddr(addr, reg.getIdx());
 	}
+	// for only MPX(bnd*)
 	void opMIB(const Address& addr, const Reg& reg, int code0, int code1)
 	{
 		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
 		if (addr.getMode() != Address::M_ModRM) XBYAK_THROW(ERR_INVALID_MIB_ADDRESS)
-		if (BIT == 64 && addr.is32bit()) db(0x67);
+		// can't use opModM
 		const RegExp& regExp = addr.getRegExp(false);
-		uint8_t rex = regExp.getRex();
-		if (rex) db(rex);
+		rex(addr, reg, false);
 		db(code0); db(code1);
 		setSIB(regExp, reg.getIdx());
 	}
