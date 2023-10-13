@@ -61,11 +61,11 @@ void cbw() { db(0x66); db(0x98); }
 void cdq() { db(0x99); }
 void clc() { db(0xF8); }
 void cld() { db(0xFC); }
-void cldemote(const Address& addr) { opMIB(addr, eax, 0x0F, 0x1C); }
+void cldemote(const Address& addr) { opModM(addr, eax, 0x0F, 0x1C); }
 void clflush(const Address& addr) { opModM(addr, Reg32(7), 0x0F, 0xAE); }
 void clflushopt(const Address& addr) { db(0x66); opModM(addr, Reg32(7), 0x0F, 0xAE); }
 void cli() { db(0xFA); }
-void clwb(const Address& addr) { db(0x66); opMIB(addr, esi, 0x0F, 0xAE); }
+void clwb(const Address& addr) { db(0x66); opModM(addr, esi, 0x0F, 0xAE); }
 void clzero() { db(0x0F); db(0x01); db(0xFC); }
 void cmc() { db(0xF5); }
 void cmova(const Reg& reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, 0x40 | 7); }//-V524
