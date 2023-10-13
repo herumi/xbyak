@@ -1,4 +1,4 @@
-TARGET = make_nm normalize_prefix bad_address misc cvt_test cvt_test32 noexception misc32 detect_x32
+TARGET = make_nm normalize_prefix bad_address misc cvt_test cvt_test32 noexception misc32 detect_x32 apx
 XBYAK_INC=../xbyak/xbyak.h
 UNAME_S=$(shell uname -s)
 ifeq ($(shell ./detect_x32),x32)
@@ -55,6 +55,8 @@ cvt_test32: cvt_test.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK32
 noexception: noexception.cpp ../xbyak/xbyak.h
 	$(CXX) $(CFLAGS) $< -o $@ -fno-exceptions
+apx: apx.cpp ../xbyak/xbyak.h
+	$(CXX) $(CFLAGS) apx.cpp -o $@
 
 test_nm: normalize_prefix $(TARGET)
 	$(MAKE) -C ../gen
@@ -71,6 +73,7 @@ endif
 	./misc
 	./misc32
 	./cvt_test
+	./apx
 ifeq ($(BIT),64)
 	CXX=$(CXX) ./test_address.sh 64
 ifneq ($(X32),1)
