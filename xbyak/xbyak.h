@@ -596,6 +596,7 @@ public:
 	XBYAK_CONSTEXPR bool isExtIdx2() const { return (getIdx() & 16) != 0; }
 	XBYAK_CONSTEXPR bool hasEvex() const { return isZMM() || isExtIdx2() || getOpmaskIdx() || getRounding(); }
 	XBYAK_CONSTEXPR bool hasRex() const { return isExt8bit() || isREG(64) || isExtIdx(); }
+	XBYAK_CONSTEXPR bool hasRex2() const { return isREG() && (getIdx() >= 16); }
 	XBYAK_CONSTEXPR bool hasZero() const { return zero_; }
 	XBYAK_CONSTEXPR int getOpmaskIdx() const { return mask_; }
 	XBYAK_CONSTEXPR int getRounding() const { return rounding_; }
@@ -1285,7 +1286,6 @@ public:
 	size_t getDisp() const { return e_.getDisp(); }
 	bool is64bitDisp() const { return mode_ == M_64bitDisp; } // for moffset
 	bool isBroadcast() const { return broadcast_; }
-	bool hasRex2() const { return e_.getBase().getIdx() >= 16 || e_.getIndex().getIdx() >= 16; }
 	const Label* getLabel() const { return label_; }
 	bool operator==(const Address& rhs) const
 	{
@@ -1691,6 +1691,11 @@ private:
 		if (b.hasIdxBit(bit)) v |= 1;
 		return uint8_t(v);
 	}
+	void rex2(int bit3, int rex4bit, const Reg& r, const Reg& b, const Reg& x = Reg())
+	{
+		db(0xD5);
+		db((rexRXB(4, bit3, r, b, x) << 4) | rex4bit);
+	}
 	// optimize = false is a special case for bnd*
 	void rex(const Operand& op1, const Operand& op2 = Operand(), bool optimize = true)
 	{
@@ -1709,10 +1714,8 @@ private:
 			const Reg& idx = e.getIndex();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			rex = rexRXB(3, r.isREG(64), r, base, idx);
-			if (r.getIdx() >= 16 || addr.hasRex2()) {
-				db(0xD5);
-				// rex2 : R = r, B = base, X = idx
-				db((rexRXB(4, 0, r, base, idx) << 4) | rex);
+			if (r.hasRex2() || base.hasRex2() || idx.hasRex2()) {
+				rex2(0, rex, r, base, idx);
 				return;
 			}
 			if (rex || r.isExt8bit()) rex |= 0x40;
@@ -1721,10 +1724,8 @@ private:
 			const Reg& r2 = static_cast<const Reg&>(op2);
 			// ModRM(reg, base);
 			rex = rexRXB(3, r1.isREG(64) || r2.isREG(64), r2, r1);
-			if (r1.getIdx() >= 16 || r2.getIdx() >= 16) {
-				// rex2 : R = op2, B = op1, X = None
-				db(0xD5);
-				db((rexRXB(4, 0, r2, r1) << 4) | rex);
+			if (r1.hasRex2() || r2.hasRex2()) {
+				rex2(0, rex, r2, r1);
 				return;
 			}
 			if (rex || r1.isExt8bit() || r2.isExt8bit()) rex |= 0x40;
