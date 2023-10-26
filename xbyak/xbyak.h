@@ -1698,7 +1698,6 @@ private:
 		db(0xD5);
 		db((rexRXB(4, bit3, r, b, x) << 4) | rex4bit);
 	}
-	// optimize = false is a special case for bnd*
 	void rex(const Operand& op1, const Operand& op2 = Operand())
 	{
 		uint8_t rex = 0;
@@ -2815,9 +2814,17 @@ public:
 	{
 		int code0 = 0x10;
 		const Operand *p1 = &op1, *p2 = &op2;
-		if (p1->isMEM()) std::swap(p1, p2);
+		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code0 |= 2; }
 		if (p1->isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
 		if (p2->isMEM()) {
+			const Reg& r = *static_cast<const Reg*>(p1);
+			const Address& addr = p2->getAddress();
+			const RegExp e = addr.getRegExp();
+			const Reg& base = e.getBase();
+			const Reg& idx = e.getIndex();
+			evexLeg(r, base, idx, d);
+			db(code0 | (r.isBit(8) ? 0 : 1));
+			opAddr(addr, r.getIdx());
 		} else {
 			evexLeg(static_cast<const Reg&>(op2), static_cast<const Reg&>(op1), Reg(), d);
 			db(code0 | (d.isBit(8) ? 0 : 1));
