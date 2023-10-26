@@ -2933,11 +2933,6 @@ public:
 			size -= len;
 		}
 	}
-	// make rex2 prefix
-	static inline uint8_t rex2p(int M0, int R4, int X4, int B4, int W, int R3, int X3, int B3)
-	{
-		return uint8_t((M0<<7) | (R4<<6) | (X4<<5) | (B4<<4) | (W<<3) | (R3<<2) | (X3<<1) | B3);
-	}
 #ifndef XBYAK_DONT_READ_LIST
 #include "xbyak_mnemonic.h"
 	/*
