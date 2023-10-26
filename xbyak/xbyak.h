@@ -1266,20 +1266,21 @@ public:
 		M_ripAddr
 	};
 	XBYAK_CONSTEXPR Address(uint32_t sizeBit, bool broadcast, const RegExp& e)
-		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), broadcast_(broadcast)
+		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), broadcast_(broadcast), optimize_(true)
 	{
 		e_.verify();
 	}
 #ifdef XBYAK64
 	explicit XBYAK_CONSTEXPR Address(size_t disp)
-		: Operand(0, MEM, 64), e_(disp), label_(0), mode_(M_64bitDisp), broadcast_(false){ }
+		: Operand(0, MEM, 64), e_(disp), label_(0), mode_(M_64bitDisp), broadcast_(false), optimize_(true) { }
 	XBYAK_CONSTEXPR Address(uint32_t sizeBit, bool broadcast, const RegRip& addr)
-		: Operand(0, MEM, sizeBit), e_(addr.disp_), label_(addr.label_), mode_(addr.isAddr_ ? M_ripAddr : M_rip), broadcast_(broadcast) { }
+		: Operand(0, MEM, sizeBit), e_(addr.disp_), label_(addr.label_), mode_(addr.isAddr_ ? M_ripAddr : M_rip), broadcast_(broadcast), optimize_(true) { }
 #endif
-	RegExp getRegExp(bool optimize = true) const
+	RegExp getRegExp() const
 	{
-		return optimize ? e_.optimize() : e_;
+		return optimize_ ? e_.optimize() : e_;
 	}
+	Address cloneNoOptimize() const { Address addr = *this; addr.optimize_ = false; return addr; }
 	Mode getMode() const { return mode_; }
 	bool is32bit() const { return e_.getBase().getBit() == 32 || e_.getIndex().getBit() == 32; }
 	bool isOnlyDisp() const { return !e_.getBase().getBit() && !e_.getIndex().getBit(); } // for mov eax
@@ -1298,6 +1299,7 @@ private:
 	const Label* label_;
 	Mode mode_;
 	bool broadcast_;
+	bool optimize_;
 };
 
 inline const Address& Operand::getAddress() const
@@ -1697,7 +1699,7 @@ private:
 		db((rexRXB(4, bit3, r, b, x) << 4) | rex4bit);
 	}
 	// optimize = false is a special case for bnd*
-	void rex(const Operand& op1, const Operand& op2 = Operand(), bool optimize = true)
+	void rex(const Operand& op1, const Operand& op2 = Operand())
 	{
 		uint8_t rex = 0;
 		const Operand *p1 = &op1, *p2 = &op2;
@@ -1709,7 +1711,7 @@ private:
 		if (p2->isMEM()) {
 			const Reg& r = *static_cast<const Reg*>(p1);
 			const Address& addr = p2->getAddress();
-			const RegExp e = addr.getRegExp(optimize);
+			const RegExp e = addr.getRegExp();
 			const Reg& base = e.getBase();
 			const Reg& idx = e.getIndex();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
@@ -1962,13 +1964,8 @@ private:
 	// for only MPX(bnd*)
 	void opMIB(const Address& addr, const Reg& reg, int code0, int code1)
 	{
-		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
 		if (addr.getMode() != Address::M_ModRM) XBYAK_THROW(ERR_INVALID_MIB_ADDRESS)
-		// can't use opModM
-		const RegExp& regExp = addr.getRegExp(false);
-		rex(addr, reg, false);
-		db(code0); db(code1);
-		setSIB(regExp, reg.getIdx());
+		opModM(addr.cloneNoOptimize(), reg, code0, code1);
 	}
 	void makeJmp(uint32_t disp, LabelType type, uint8_t shortCode, uint8_t longCode, uint8_t longPref)
 	{
@@ -2511,9 +2508,10 @@ private:
 	void opAMX(const Tmm& t1, const Address& addr, int type, int code0)
 	{
 		// require both base and index
-		const RegExp exp = addr.getRegExp(false);
+		Address addr2 = addr.cloneNoOptimize();
+		const RegExp exp = addr2.getRegExp();
 		if (exp.getBase().getBit() == 0 || exp.getIndex().getBit() == 0) XBYAK_THROW(ERR_NOT_SUPPORTED)
-		opVex(t1, &tmm0, addr, type, code0);
+		opVex(t1, &tmm0, addr2, type, code0);
 	}
 #endif
 public:
