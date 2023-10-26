@@ -1871,6 +1871,24 @@ private:
 		db(code);
 		return disp8N;
 	}
+	// evex of Legacy
+	void evexLeg(const Reg& r, const Reg& b, const Reg& x, const Reg& v, int M = 4, bool ND = true, bool NF = false)
+	{
+		int R3 = !r.isExtIdx();
+		int X3 = !x.isExtIdx();
+		int B3 = b.isExtIdx() ? 0 : 0x20;
+		int R4 = r.isExtIdx2() ? 0 : 0x10;
+		int B4 = b.isExtIdx2() ? 0x08 : 0;
+		int w =r.isBit(64);
+		int V = (~v.getIdx() & 15) << 3;
+		int X4 = x.isExtIdx2() ? 0 : 0x04;
+		int pp = r.isBit(16) ? 1 : 0;
+		int V4 = !v.isExtIdx2();
+		db(0x62);
+		db((R3<<7) | (X3<<6) | B3 | R4 | B4 | M);
+		db((w<<7) | V | X4 | pp);
+		db((ND<<4) | (V4<<3) | (NF<<2));
+	}
 	void setModRM(int mod, int r1, int r2)
 	{
 		db(static_cast<uint8_t>((mod << 6) | ((r1 & 7) << 3) | (r2 & 7)));
@@ -2792,6 +2810,19 @@ public:
 	void mov(const Segment& seg, const Operand& op)
 	{
 		opModRM(Reg8(seg.getIdx()), op.isREG(16|i32e) ? static_cast<const Operand&>(op.getReg().cvt32()) : op, op.isREG(16|i32e), op.isMEM(), 0x8E);
+	}
+	void adc2(const Reg& d, const Operand& op1, const Operand& op2)
+	{
+		int code0 = 0x10;
+		const Operand *p1 = &op1, *p2 = &op2;
+		if (p1->isMEM()) std::swap(p1, p2);
+		if (p1->isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (p2->isMEM()) {
+		} else {
+			evexLeg(static_cast<const Reg&>(op2), static_cast<const Reg&>(op1), Reg(), d);
+			db(code0 | (d.isBit(8) ? 0 : 1));
+			setModRM(3, op2.getIdx(), op1.getIdx());
+		}
 	}
 #endif
 
