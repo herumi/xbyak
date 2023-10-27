@@ -799,20 +799,22 @@ void put()
 			uint8_t code; // (reg, reg)
 			uint8_t ext; // (reg, imm)
 			const char *name;
+			bool support3op;
 		} tbl[] = {
-			{ 0x10, 2, "adc" },
-			{ 0x00, 0, "add" },
-			{ 0x20, 4, "and_" },
-			{ 0x38, 7, "cmp" },
-			{ 0x08, 1, "or_" },
-			{ 0x18, 3, "sbb" },
-			{ 0x28, 5, "sub" },
-			{ 0x30, 6, "xor_" },
+			{ 0x10, 2, "adc", true },
+			{ 0x00, 0, "add", true },
+			{ 0x20, 4, "and_", true },
+			{ 0x38, 7, "cmp", false },
+			{ 0x08, 1, "or_", true },
+			{ 0x18, 3, "sbb", true },
+			{ 0x28, 5, "sub", true },
+			{ 0x30, 6, "xor_", true },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x%02X); }\n", p->name, p->code);
 			printf("void %s(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x%02X, %d); }\n", p->name, p->code, p->ext);
+			if (!p->support3op) continue;
 			printf("void %s(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0x%02X); }\n", p->name, p->code);
 			printf("void %s(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, %d); }\n", p->name, p->ext);
 		}

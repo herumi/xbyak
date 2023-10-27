@@ -106,8 +106,6 @@ void cmovs(const Reg& reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i
 void cmovz(const Reg& reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, 0x40 | 4); }//-V524
 void cmp(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x38, 7); }
 void cmp(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x38); }
-void cmp(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 7); }
-void cmp(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0x38); }
 void cmpeqpd(const Xmm& x, const Operand& op) { cmppd(x, op, 0); }
 void cmpeqps(const Xmm& x, const Operand& op) { cmpps(x, op, 0); }
 void cmpeqsd(const Xmm& x, const Operand& op) { cmpsd(x, op, 0); }
