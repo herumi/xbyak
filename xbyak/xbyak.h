@@ -1956,17 +1956,21 @@ private:
 	}
 	LabelManager labelMgr_;
 	bool isInDisp16(uint32_t x) const { return 0xFFFF8000 <= x || x <= 0x7FFF; }
+	void writeCode(const Reg& r, int code0, int code1 = NONE, int code2 = NONE)
+	{
+		db(code0 | (r.isBit(8) ? 0 : 1)); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
+	}
 	void opModR(const Reg& reg1, const Reg& reg2, int code0, int code1 = NONE, int code2 = NONE)
 	{
 		rex(reg2, reg1);
-		db(code0 | (reg1.isBit(8) ? 0 : 1)); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
+		writeCode(reg1, code0, code1, code2);
 		setModRM(3, reg1.getIdx(), reg2.getIdx());
 	}
 	void opModM(const Address& addr, const Reg& reg, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
 	{
 		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
 		rex(addr, reg);
-		db(code0 | (reg.isBit(8) ? 0 : 1)); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
+		writeCode(reg, code0, code1, code2);
 		opAddr(addr, reg.getIdx(), immSize);
 	}
 	void opLoadSeg(const Address& addr, const Reg& reg, int code0, int code1)
@@ -2161,14 +2165,19 @@ private:
 			opModRM(op2, op1, op1.isREG() && op1.getKind() == op2.getKind(), op1.isMEM() && op2.isREG(), code);
 		}
 	}
-	// (REG|MEM, IMM)
-	void opRM_I(const Operand& op, uint32_t imm, int code, int ext)
+	uint32_t getImmBit(const Operand& op, uint32_t imm)
 	{
 		verifyMemHasSize(op);
 		uint32_t immBit = inner::IsInDisp8(imm) ? 8 : isInDisp16(imm) ? 16 : 32;
 		if (op.isBit(8)) immBit = 8;
 		if (op.getBit() < immBit) XBYAK_THROW(ERR_IMM_IS_TOO_BIG)
 		if (op.isBit(32|64) && immBit == 16) immBit = 32; /* don't use MEM16 if 32/64bit mode */
+		return immBit;
+	}
+	// (REG|MEM, IMM)
+	void opRM_I(const Operand& op, uint32_t imm, int code, int ext)
+	{
+		uint32_t immBit = getImmBit(op, imm);
 		if (op.isREG() && op.getIdx() == 0 && (op.getBit() == immBit || (op.isBit(64) && immBit == 32))) { // rax, eax, ax, al
 			rex(op);
 			db(code | 4 | (immBit == 8 ? 0 : 1));
@@ -2176,6 +2185,14 @@ private:
 			int tmp = immBit < (std::min)(op.getBit(), 32U) ? 2 : 0;
 			opR_ModM(op, 0, ext, 0x80 | tmp, NONE, NONE, false, immBit / 8);
 		}
+		db(imm, immBit / 8);
+	}
+	// (r, r/m, imm)
+	void opROI(const Reg& d, const Operand& op, uint32_t imm, int ext)
+	{
+		uint32_t immBit = getImmBit(d, imm);
+		int tmp = immBit < (std::min)(d.getBit(), 32U) ? 2 : 0;
+		opROO(d, op, Reg(ext, Operand::REG, d.getBit()), 0x80 | tmp, NONE, NONE, immBit / 8);
 		db(imm, immBit / 8);
 	}
 	void opIncDec(const Operand& op, int code, int ext)
@@ -2635,7 +2652,7 @@ public:
 	void test(const Operand& op, uint32_t imm)
 	{
 		verifyMemHasSize(op);
-        int immSize = (std::min)(op.getBit() / 8, 4U);
+	        int immSize = (std::min)(op.getBit() / 8, 4U);
 		if (op.isREG() && op.getIdx() == 0) { // al, ax, eax
 			rex(op);
 			db(0xA8 | (op.isBit(8) ? 0 : 1));
@@ -2810,9 +2827,10 @@ public:
 	{
 		opModRM(Reg8(seg.getIdx()), op.isREG(16|i32e) ? static_cast<const Operand&>(op.getReg().cvt32()) : op, op.isREG(16|i32e), op.isMEM(), 0x8E);
 	}
-	void adc2(const Reg& d, const Operand& op1, const Operand& op2)
+
+	// (r, r, m) or (r, m, r)
+	void opROO(const Reg& d, const Operand& op1, const Operand& op2, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
 	{
-		int code0 = 0x10;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code0 |= 2; }
 		if (p1->isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
@@ -2820,14 +2838,12 @@ public:
 			const Reg& r = *static_cast<const Reg*>(p1);
 			const Address& addr = p2->getAddress();
 			const RegExp e = addr.getRegExp();
-			const Reg& base = e.getBase();
-			const Reg& idx = e.getIndex();
-			evexLeg(r, base, idx, d);
-			db(code0 | (r.isBit(8) ? 0 : 1));
-			opAddr(addr, r.getIdx());
+			evexLeg(r, e.getBase(), e.getIndex(), d);
+			writeCode(d, code0, code1, code2);
+			opAddr(addr, r.getIdx(), immSize);
 		} else {
 			evexLeg(static_cast<const Reg&>(op2), static_cast<const Reg&>(op1), Reg(), d);
-			db(code0 | (d.isBit(8) ? 0 : 1));
+			writeCode(d, code0, code1, code2);
 			setModRM(3, op2.getIdx(), op1.getIdx());
 		}
 	}

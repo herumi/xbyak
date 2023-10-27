@@ -264,10 +264,10 @@ CYBOZU_TEST_AUTO(r3)
 	struct Code : Xbyak::CodeGenerator {
 		Code()
 		{
-			adc2(r20b, r21b, r23b);
-			adc2(r20w, r21w, r23w);
-			adc2(r20d, r21d, r23d);
-			adc2(r20, r21, r23);
+			adc(r20b, r21b, r23b);
+			adc(r20w, r21w, r23w);
+			adc(r20d, r21d, r23d);
+			adc(r20, r21, r23);
 	}
 	}  c;
 	const uint8_t tbl[] = {
@@ -284,12 +284,12 @@ CYBOZU_TEST_AUTO(rm3)
 	struct Code : Xbyak::CodeGenerator {
 		Code()
 		{
-			adc2(rax, r18, ptr [rbx+rcx*4+0x123]);
-			adc2(rax, ptr [rbx+rcx*4+0x123], r20);
-			adc2(rax, ptr [r30], r29);
-			adc2(r11, r13, ptr [r10]);
-			adc2(r11, r13, ptr [r10*4]);
-			adc2(r11, ptr [r10*8], r9);
+			adc(rax, r18, ptr [rbx+rcx*4+0x123]);
+			adc(rax, ptr [rbx+rcx*4+0x123], r20);
+			adc(rax, ptr [r30], r29);
+			adc(r11, r13, ptr [r10]);
+			adc(r11, r13, ptr [r10*4]);
+			adc(r11, ptr [r10*8], r9);
 		}
 	}  c;
 	const uint8_t tbl[] = {
