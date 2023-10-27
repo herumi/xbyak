@@ -128,6 +128,16 @@ vpdpbusd(xm0, xm1, xm2); // VEX encoding
 * use `ptr_b` for broadcast `{1toX}`. X is automatically determined.
 * specify `xword`/`yword`/`zword(_b)` for m128/m256/m512 if necessary.
 
+## APX
+- Support 16 additional GPRs (general-purpose registers) r16, ..., r31
+- Support three-operand instruction
+- Support NF (status flags update suppression)
+
+e.g.
+- `add(r20, r21, r23)`;
+- `add(r20, ptr[rax + rcx * 8 + 0x1234], r23);`
+- `add(r20|T_NF, r21, r23)`; // set EVEX.NF = 1
+
 ## Label
 Two kinds of Label are supported. (String literal and Label class).
 
