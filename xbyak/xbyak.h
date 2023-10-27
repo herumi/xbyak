@@ -227,6 +227,7 @@ enum {
 	ERR_X2APIC_IS_NOT_SUPPORTED,
 	ERR_NOT_SUPPORTED,
 	ERR_SAME_REGS_ARE_INVALID,
+	ERR_INVALID_NF,
 	ERR_INTERNAL // Put it at last.
 };
 
@@ -280,6 +281,7 @@ inline const char *ConvertErrorToString(int err)
 		"x2APIC is not supported",
 		"not supported",
 		"same regs are invalid",
+		"invalid NF",
 		"internal error"
 	};
 	assert(ERR_INTERNAL + 1 == sizeof(errTbl) / sizeof(*errTbl));
@@ -525,6 +527,8 @@ typedef Allocator MmapAllocator;
 class Address;
 class Reg;
 
+struct ApxFlagNF {};
+
 class Operand {
 	static const uint8_t EXT8BIT = 0x20;
 	unsigned int idx_:6; // 0..31 + EXT8BIT = 1 if spl/bpl/sil/dil
@@ -534,6 +538,7 @@ protected:
 	unsigned int zero_:1;
 	unsigned int mask_:3;
 	unsigned int rounding_:3;
+	unsigned int NF_:1;
 	void setIdx(int idx) { idx_ = idx; }
 public:
 	enum Kind {
@@ -565,12 +570,12 @@ public:
 		AX = 0, CX, DX, BX, SP, BP, SI, DI,
 		AL = 0, CL, DL, BL, AH, CH, DH, BH
 	};
-	XBYAK_CONSTEXPR Operand() : idx_(0), kind_(0), bit_(0), zero_(0), mask_(0), rounding_(0) { }
+	XBYAK_CONSTEXPR Operand() : idx_(0), kind_(0), bit_(0), zero_(0), mask_(0), rounding_(0), NF_(0) { }
 	XBYAK_CONSTEXPR Operand(int idx, Kind kind, int bit, bool ext8bit = 0)
 		: idx_(static_cast<uint8_t>(idx | (ext8bit ? EXT8BIT : 0)))
 		, kind_(kind)
 		, bit_(bit)
-		, zero_(0), mask_(0), rounding_(0)
+		, zero_(0), mask_(0), rounding_(0), NF_(0)
 	{
 		assert((bit_ & (bit_ - 1)) == 0); // bit must be power of two
 	}
@@ -619,6 +624,8 @@ public:
 		rounding_ = idx;
 	}
 	void setZero() { zero_ = true; }
+	void setNF() { NF_ = true; }
+	int getNF() const { return NF_; }
 	// ah, ch, dh, bh?
 	bool isHigh8bit() const
 	{
@@ -770,6 +777,7 @@ public:
 #ifdef XBYAK64
 	Reg64 cvt64() const;
 #endif
+	Reg operator|(const ApxFlagNF&) const { Reg r(*this); r.setNF(); return r; }
 };
 
 inline const Reg& Operand::getReg() const
@@ -1700,6 +1708,7 @@ private:
 	}
 	void rex(const Operand& op1, const Operand& op2 = Operand())
 	{
+		if (op1.getNF() | op2.getNF()) XBYAK_THROW(ERR_INVALID_NF)
 		uint8_t rex = 0;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) std::swap(p1, p2);
@@ -1871,7 +1880,7 @@ private:
 		return disp8N;
 	}
 	// evex of Legacy
-	void evexLeg(const Reg& r, const Reg& b, const Reg& x, const Reg& v, int M = 4, bool ND = true, bool NF = false)
+	void evexLeg(const Reg& r, const Reg& b, const Reg& x, const Reg& v, int M = 4, bool ND = true)
 	{
 		int R3 = !r.isExtIdx();
 		int X3 = !x.isExtIdx();
@@ -1883,6 +1892,7 @@ private:
 		int X4 = x.isExtIdx2() ? 0 : 0x04;
 		int pp = r.isBit(16) ? 1 : 0;
 		int V4 = !v.isExtIdx2();
+		int NF = r.getNF() | b.getNF() | x.getNF() | v.getNF();
 		db(0x62);
 		db((R3<<7) | (X3<<6) | B3 | R4 | B4 | M);
 		db((w<<7) | V | X4 | pp);
@@ -2568,6 +2578,7 @@ public:
 	const BoundsReg bnd0, bnd1, bnd2, bnd3;
 	const EvexModifierRounding T_sae, T_rn_sae, T_rd_sae, T_ru_sae, T_rz_sae; // {sae}, {rn-sae}, {rd-sae}, {ru-sae}, {rz-sae}
 	const EvexModifierZero T_z; // {z}
+	const ApxFlagNF T_NF;
 #ifdef XBYAK64
 	const Reg64 rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15;
 	const Reg64 r16, r17, r18, r19, r20, r21, r22, r23, r24, r25, r26, r27, r28, r29, r30, r31;
@@ -2872,6 +2883,7 @@ public:
 		, bnd0(0), bnd1(1), bnd2(2), bnd3(3)
 		, T_sae(EvexModifierRounding::T_SAE), T_rn_sae(EvexModifierRounding::T_RN_SAE), T_rd_sae(EvexModifierRounding::T_RD_SAE), T_ru_sae(EvexModifierRounding::T_RU_SAE), T_rz_sae(EvexModifierRounding::T_RZ_SAE)
 		, T_z()
+		, T_NF()
 #ifdef XBYAK64
 		, rax(Operand::RAX), rcx(Operand::RCX), rdx(Operand::RDX), rbx(Operand::RBX), rsp(Operand::RSP), rbp(Operand::RBP), rsi(Operand::RSI), rdi(Operand::RDI), r8(Operand::R8), r9(Operand::R9), r10(Operand::R10), r11(Operand::R11), r12(Operand::R12), r13(Operand::R13), r14(Operand::R14), r15(Operand::R15)
 		, r16(Operand::R16), r17(Operand::R17), r18(Operand::R18), r19(Operand::R19), r20(Operand::R20), r21(Operand::R21), r22(Operand::R22), r23(Operand::R23), r24(Operand::R24), r25(Operand::R25), r26(Operand::R26), r27(Operand::R27), r28(Operand::R28), r29(Operand::R29), r30(Operand::R30), r31(Operand::R31)
@@ -3046,6 +3058,7 @@ static const XBYAK_CONSTEXPR Zmm zmm16(16), zmm17(17), zmm18(18), zmm19(19), zmm
 static const XBYAK_CONSTEXPR Zmm zmm24(24), zmm25(25), zmm26(26), zmm27(27), zmm28(28), zmm29(29), zmm30(30), zmm31(31);
 static const XBYAK_CONSTEXPR Zmm tmm0(0), tmm1(1), tmm2(2), tmm3(3), tmm4(4), tmm5(5), tmm6(6), tmm7(7);
 static const XBYAK_CONSTEXPR RegRip rip;
+static const XBYAK_CONSTEXPR ApxFlagNF T_NF;
 #endif
 #ifndef XBYAK_DISABLE_SEGMENT
 static const XBYAK_CONSTEXPR Segment es(Segment::es), cs(Segment::cs), ss(Segment::ss), ds(Segment::ds), fs(Segment::fs), gs(Segment::gs);
