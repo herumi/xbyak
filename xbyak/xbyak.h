@@ -2170,7 +2170,7 @@ private:
 		verifyMemHasSize(op);
 		uint32_t immBit = inner::IsInDisp8(imm) ? 8 : isInDisp16(imm) ? 16 : 32;
 		if (op.isBit(8)) immBit = 8;
-		if (op.getBit() < immBit) XBYAK_THROW(ERR_IMM_IS_TOO_BIG)
+		if (op.getBit() < immBit) XBYAK_THROW_RET(ERR_IMM_IS_TOO_BIG, 0)
 		if (op.isBit(32|64) && immBit == 16) immBit = 32; /* don't use MEM16 if 32/64bit mode */
 		return immBit;
 	}
