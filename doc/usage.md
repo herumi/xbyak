@@ -136,7 +136,7 @@ vpdpbusd(xm0, xm1, xm2); // VEX encoding
 e.g.
 - `add(r20, r21, r23)`;
 - `add(r20, ptr[rax + rcx * 8 + 0x1234], r23);`
-- `add(r20|T_NF, r21, r23)`; // set EVEX.NF = 1
+- `add(r20|T_nf, r21, r23)`; // set EVEX.NF = 1
 
 ## Label
 Two kinds of Label are supported. (String literal and Label class).
