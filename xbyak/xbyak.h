@@ -601,7 +601,7 @@ public:
 	XBYAK_CONSTEXPR bool isExtIdx2() const { return (getIdx() & 16) != 0; }
 	XBYAK_CONSTEXPR bool hasEvex() const { return isZMM() || isExtIdx2() || getOpmaskIdx() || getRounding(); }
 	XBYAK_CONSTEXPR bool hasRex() const { return isExt8bit() || isREG(64) || isExtIdx(); }
-	XBYAK_CONSTEXPR bool hasRex2() const { return isREG() && (getIdx() >= 16); }
+	XBYAK_CONSTEXPR bool hasRex2() const;
 	XBYAK_CONSTEXPR bool hasZero() const { return zero_; }
 	XBYAK_CONSTEXPR int getOpmaskIdx() const { return mask_; }
 	XBYAK_CONSTEXPR int getRounding() const { return rounding_; }
@@ -1295,6 +1295,7 @@ public:
 	size_t getDisp() const { return e_.getDisp(); }
 	bool is64bitDisp() const { return mode_ == M_64bitDisp; } // for moffset
 	bool isBroadcast() const { return broadcast_; }
+	bool hasRex2() const { return e_.getBase().hasRex2() || e_.getIndex().hasRex2(); }
 	const Label* getLabel() const { return label_; }
 	bool operator==(const Address& rhs) const
 	{
@@ -1320,6 +1321,11 @@ inline bool Operand::operator==(const Operand& rhs) const
 {
 	if (isMEM() && rhs.isMEM()) return this->getAddress() == rhs.getAddress();
 	return isEqualIfNotInherited(rhs);
+}
+
+inline XBYAK_CONSTEXPR bool Operand::hasRex2() const
+{
+	return (isREG() && (getIdx() >= 16)) || (isMEM() && static_cast<const Address&>(*this).hasRex2());
 }
 
 class AddressFrame {
@@ -1724,7 +1730,7 @@ private:
 			const Reg& idx = e.getIndex();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			rex = rexRXB(3, r.isREG(64), r, base, idx);
-			if (r.hasRex2() || base.hasRex2() || idx.hasRex2()) {
+			if (r.hasRex2() || addr.hasRex2()) {
 				rex2(0, rex, r, base, idx);
 				return;
 			}
@@ -1880,18 +1886,20 @@ private:
 		return disp8N;
 	}
 	// evex of Legacy
-	void evexLeg(const Reg& r, const Reg& b, const Reg& x, const Reg& v, int M = 4, bool ND = true)
+	void evexLeg(const Reg& r, const Reg& b, const Reg& x, const Reg& v, int type)
 	{
+		int M = 4; // legacy
 		int R3 = !r.isExtIdx();
 		int X3 = !x.isExtIdx();
 		int B3 = b.isExtIdx() ? 0 : 0x20;
 		int R4 = r.isExtIdx2() ? 0 : 0x10;
 		int B4 = b.isExtIdx2() ? 0x08 : 0;
-		int w =r.isBit(64);
+		int w =r.isBit(64) || (type & T_W1);
 		int V = (~v.getIdx() & 15) << 3;
 		int X4 = x.isExtIdx2() ? 0 : 0x04;
-		int pp = r.isBit(16) ? 1 : 0;
+		int pp = r.isBit(16) || (type & T_66);
 		int V4 = !v.isExtIdx2();
+		int ND = v.isREG();
 		int NF = r.getNF() | b.getNF() | x.getNF() | v.getNF();
 		db(0x62);
 		db((R3<<7) | (X3<<6) | B3 | R4 | B4 | M);
@@ -1966,21 +1974,21 @@ private:
 	}
 	LabelManager labelMgr_;
 	bool isInDisp16(uint32_t x) const { return 0xFFFF8000 <= x || x <= 0x7FFF; }
-	void writeCode(const Reg& r, int code0, int code1 = NONE, int code2 = NONE)
+	void writeCode(int type, const Reg& r, int code0, int code1 = NONE, int code2 = NONE)
 	{
-		db(code0 | (r.isBit(8) ? 0 : 1)); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
+		db(code0 | (type == 0 && !r.isBit(8))); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
 	}
 	void opModR(const Reg& reg1, const Reg& reg2, int code0, int code1 = NONE, int code2 = NONE)
 	{
 		rex(reg2, reg1);
-		writeCode(reg1, code0, code1, code2);
+		writeCode(0, reg1, code0, code1, code2);
 		setModRM(3, reg1.getIdx(), reg2.getIdx());
 	}
 	void opModM(const Address& addr, const Reg& reg, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
 	{
 		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
 		rex(addr, reg);
-		writeCode(reg, code0, code1, code2);
+		writeCode(0, reg, code0, code1, code2);
 		opAddr(addr, reg.getIdx(), immSize);
 	}
 	void opLoadSeg(const Address& addr, const Reg& reg, int code0, int code1)
@@ -2198,11 +2206,11 @@ private:
 		db(imm, immBit / 8);
 	}
 	// (r, r/m, imm)
-	void opROI(const Reg& d, const Operand& op, uint32_t imm, int ext)
+	void opROI(const Reg& d, const Operand& op, uint32_t imm, int type, int ext)
 	{
 		uint32_t immBit = getImmBit(d, imm);
 		int tmp = immBit < (std::min)(d.getBit(), 32U) ? 2 : 0;
-		opROO(d, op, Reg(ext, Operand::REG, d.getBit()), 0x80 | tmp, NONE, NONE, immBit / 8);
+		opROO(d, op, Reg(ext, Operand::REG, d.getBit()), type, 0x80 | tmp, NONE, NONE, immBit / 8);
 		db(imm, immBit / 8);
 	}
 	void opIncDec(const Operand& op, int code, int ext)
@@ -2361,7 +2369,12 @@ private:
 		const unsigned int bit = r.getBit();
 		if (p1->getBit() != bit || (p2->isREG() && p2->getBit() != bit)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		type |= (bit == 64) ? T_W1 : T_W0;
-		opVex(r, p1, *p2, type, code, imm8);
+		if (r.hasRex2() || op1.hasRex2() || op2.hasRex2()) {
+			opROO(r, *p1, *p2, type, code);
+			if (imm8 != NONE) db(imm8);
+		} else {
+			opVex(r, p1, *p2, type, code, imm8);
+		}
 	}
 	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, int imm8 = NONE)
 	{
@@ -2840,7 +2853,7 @@ public:
 	}
 
 	// (r, r, m) or (r, m, r)
-	void opROO(const Reg& d, const Operand& op1, const Operand& op2, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
+	void opROO(const Reg& d, const Operand& op1, const Operand& op2, int type, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
 	{
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code0 |= 2; }
@@ -2849,12 +2862,12 @@ public:
 			const Reg& r = *static_cast<const Reg*>(p1);
 			const Address& addr = p2->getAddress();
 			const RegExp e = addr.getRegExp();
-			evexLeg(r, e.getBase(), e.getIndex(), d);
-			writeCode(d, code0, code1, code2);
+			evexLeg(r, e.getBase(), e.getIndex(), d, type);
+			writeCode(type, d, code0, code1, code2);
 			opAddr(addr, r.getIdx(), immSize);
 		} else {
-			evexLeg(static_cast<const Reg&>(op2), static_cast<const Reg&>(op1), Reg(), d);
-			writeCode(d, code0, code1, code2);
+			evexLeg(static_cast<const Reg&>(op2), static_cast<const Reg&>(op1), Reg(), d, type);
+			writeCode(type, d, code0, code1, code2);
 			setModRM(3, op2.getIdx(), op1.getIdx());
 		}
 	}
@@ -2996,6 +3009,10 @@ public:
 			db(seq, len);
 			size -= len;
 		}
+	}
+	void adcx2(const Reg32e& r1, const Operand& op)
+	{
+		opROO(Reg(), op, r1, T_66, 0x66);
 	}
 #ifndef XBYAK_DONT_READ_LIST
 #include "xbyak_mnemonic.h"

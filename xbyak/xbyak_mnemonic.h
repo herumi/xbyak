@@ -3,13 +3,13 @@ void aadd(const Address& addr, const Reg32e &reg) { opModM(addr, reg, 0x0F, 0x38
 void aand(const Address& addr, const Reg32e &reg) { db(0x66); opModM(addr, reg, 0x0F, 0x38, 0x0FC); }
 void adc(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x10, 2); }
 void adc(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x10); }
-void adc(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 2); }
-void adc(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0x10); }
+void adc(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 0, 2); }
+void adc(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0, 0x10); }
 void adcx(const Reg32e& reg, const Operand& op) { opGen(reg, op, 0xF6, 0x66, isREG32_REG32orMEM, NONE, 0x38); }
 void add(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x00, 0); }
 void add(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x00); }
-void add(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 0); }
-void add(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0x00); }
+void add(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 0, 0); }
+void add(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0, 0x00); }
 void addpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x58, 0x66, isXMM_XMMorMEM); }
 void addps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x58, 0x100, isXMM_XMMorMEM); }
 void addsd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x58, 0xF2, isXMM_XMMorMEM); }
@@ -25,8 +25,8 @@ void aesimc(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xDB, 0x66, isXM
 void aeskeygenassist(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen(xmm, op, 0xDF, 0x66, isXMM_XMMorMEM, imm, 0x3A); }
 void and_(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x20, 4); }
 void and_(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x20); }
-void and_(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 4); }
-void and_(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0x20); }
+void and_(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 0, 4); }
+void and_(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0, 0x20); }
 void andn(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opGpr(r1, r2, op, T_0F38, 0xf2, true); }
 void andnpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x55, 0x66, isXMM_XMMorMEM); }
 void andnps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x55, 0x100, isXMM_XMMorMEM); }
@@ -565,8 +565,8 @@ void neg(const Operand& op) { opR_ModM(op, 0, 3, 0xF6); }
 void not_(const Operand& op) { opR_ModM(op, 0, 2, 0xF6); }
 void or_(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x08, 1); }
 void or_(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x08); }
-void or_(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 1); }
-void or_(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0x08); }
+void or_(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 0, 1); }
+void or_(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0, 0x08); }
 void orpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x56, 0x66, isXMM_XMMorMEM); }
 void orps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x56, 0x100, isXMM_XMMorMEM); }
 void out_(const Reg& d, const Reg& a) { opInOut(a, d, 0xEE); }
@@ -758,8 +758,8 @@ void sar(const Operand& op, int imm) { opShift(op, imm, 7); }
 void sarx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opGpr(r1, op, r2, T_F3 | T_0F38, 0xf7, false); }
 void sbb(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x18, 3); }
 void sbb(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x18); }
-void sbb(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 3); }
-void sbb(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0x18); }
+void sbb(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 0, 3); }
+void sbb(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0, 0x18); }
 void scasb() { db(0xAE); }
 void scasd() { db(0xAF); }
 void scasw() { db(0x66); db(0xAF); }
@@ -828,8 +828,8 @@ void stosd() { db(0xAB); }
 void stosw() { db(0x66); db(0xAB); }
 void sub(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x28, 5); }
 void sub(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x28); }
-void sub(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 5); }
-void sub(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0x28); }
+void sub(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 0, 5); }
+void sub(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0, 0x28); }
 void subpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x5C, 0x66, isXMM_XMMorMEM); }
 void subps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x5C, 0x100, isXMM_XMMorMEM); }
 void subsd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x5C, 0xF2, isXMM_XMMorMEM); }
@@ -1408,8 +1408,8 @@ void xgetbv() { db(0x0F); db(0x01); db(0xD0); }
 void xlatb() { db(0xD7); }
 void xor_(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x30, 6); }
 void xor_(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x30); }
-void xor_(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 6); }
-void xor_(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0x30); }
+void xor_(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 0, 6); }
+void xor_(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0, 0x30); }
 void xorpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x57, 0x66, isXMM_XMMorMEM); }
 void xorps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x57, 0x100, isXMM_XMMorMEM); }
 #ifdef XBYAK_ENABLE_OMITTED_OPERAND

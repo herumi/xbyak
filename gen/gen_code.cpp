@@ -815,8 +815,8 @@ void put()
 			printf("void %s(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x%02X); }\n", p->name, p->code);
 			printf("void %s(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x%02X, %d); }\n", p->name, p->code, p->ext);
 			if (!p->support3op) continue;
-			printf("void %s(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0x%02X); }\n", p->name, p->code);
-			printf("void %s(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, %d); }\n", p->name, p->ext);
+			printf("void %s(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0, 0x%02X); }\n", p->name, p->code);
+			printf("void %s(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 0, %d); }\n", p->name, p->ext);
 		}
 	}
 	{
