@@ -1757,9 +1757,9 @@ private:
 		T_N16 = 5,
 		T_N32 = 6,
 		T_NX_MASK = 7,
-		//
+		T_DUP = T_NX_MASK,//1 << 4, // N = (8, 32, 64)
 		T_N_VL = 1 << 3, // N * (1, 2, 4) for VL
-		T_DUP = 1 << 4, // N = (8, 32, 64)
+		// 1 << 4 is free
 		T_66 = 1 << 5, // pp = 1
 		T_F3 = 1 << 6, // pp = 2
 		T_F2 = T_66 | T_F3, // pp = 3
@@ -1861,7 +1861,7 @@ private:
 			LL = (VL == 512) ? 2 : (VL == 256) ? 1 : 0;
 			if (b) {
 				disp8N = ((type & T_B16) == T_B16) ? 2 : (type & T_B32) ? 4 : 8;
-			} else if (type & T_DUP) {
+			} else if ((type & T_NX_MASK) == T_DUP) {
 				disp8N = VL == 128 ? 8 : VL == 256 ? 32 : 64;
 			} else {
 				if ((type & (T_NX_MASK | T_N_VL)) == 0) {
@@ -3009,10 +3009,6 @@ public:
 			db(seq, len);
 			size -= len;
 		}
-	}
-	void adcx2(const Reg32e& r1, const Operand& op)
-	{
-		opROO(Reg(), op, r1, T_66, 0x66);
 	}
 #ifndef XBYAK_DONT_READ_LIST
 #include "xbyak_mnemonic.h"

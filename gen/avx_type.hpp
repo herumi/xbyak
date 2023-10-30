@@ -1,7 +1,6 @@
 #include <assert.h>
 // copy CodeGenerator::AVXtype
 	enum AVXtype {
-		// low 3 bit
 		T_N1 = 1,
 		T_N2 = 2,
 		T_N4 = 3,
@@ -9,9 +8,9 @@
 		T_N16 = 5,
 		T_N32 = 6,
 		T_NX_MASK = 7,
-		//
+		T_DUP = T_NX_MASK,//1 << 4, // N = (8, 32, 64)
 		T_N_VL = 1 << 3, // N * (1, 2, 4) for VL
-		T_DUP = 1 << 4, // N = (8, 32, 64)
+		// 1 << 4 is free
 		T_66 = 1 << 5, // pp = 1
 		T_F3 = 1 << 6, // pp = 2
 		T_F2 = T_66 | T_F3, // pp = 3
@@ -55,7 +54,7 @@ std::string type2String(int type)
 {
 	std::string str;
 	int low = type & T_NX_MASK;
-	if (0 < low) {
+	if (0 < low && low < 7) {
 		const char *tbl[8] = {
 			"T_N1", "T_N2", "T_N4", "T_N8", "T_N16", "T_N32"
 		};
@@ -66,7 +65,7 @@ std::string type2String(int type)
 		if (!str.empty()) str += " | ";
 		str += "T_N_VL";
 	}
-	if (type & T_DUP) {
+	if ((type & T_NX_MASK) == T_DUP) {
 		if (!str.empty()) str += " | ";
 		str += "T_DUP";
 	}
