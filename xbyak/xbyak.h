@@ -1897,7 +1897,7 @@ private:
 		int w =r.isBit(64) || (type & T_W1);
 		int V = (~v.getIdx() & 15) << 3;
 		int X4 = x.isExtIdx2() ? 0 : 0x04;
-		int pp = r.isBit(16) || (type & T_66);
+		int pp = type ? getPP(type) : r.isBit(16);
 		int V4 = !v.isExtIdx2();
 		int ND = v.isREG();
 		int NF = r.getNF() | b.getNF() | x.getNF() | v.getNF();

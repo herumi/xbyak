@@ -1056,7 +1056,7 @@ void put()
 	}
 	{
 		const struct Tbl {
-			uint8_t code;
+			uint8_t prefix;
 			const char *name;
 		} tbl[] = {
 			{ 0x66, "adcx" },
@@ -1064,8 +1064,8 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Reg32e& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_66, 0x%02X)) return; opGen(reg, op, 0xF6, 0x%02X, isREG32_REG32orMEM, NONE, 0x38); }\n", p->name, p->code, p->code);
-			printf("void %s(const Reg32e& d, const Reg32e& reg, const Operand& op) { opROO(d, op, reg, T_66, 0x%02X); }\n", p->name, p->code);
+			printf("void %s(const Reg32e& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_%02X, 0x66)) return; opGen(reg, op, 0xF6, 0x%02X, isREG32_REG32orMEM, NONE, 0x38); }\n", p->name, p->prefix, p->prefix);
+			printf("void %s(const Reg32e& d, const Reg32e& reg, const Operand& op) { opROO(d, op, reg, T_%02X, 0x66); }\n", p->name, p->prefix);
 		}
 	}
 	{ // in/out
