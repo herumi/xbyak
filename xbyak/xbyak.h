@@ -2855,10 +2855,10 @@ public:
 	// (r, r, m) or (r, m, r)
 	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, int type, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
 	{
-//		if (type == 0 && !(d.hasRex2() || op1.hasRex2() || op2.hasRex2())) return false;
+		if (!d.isREG() && !(d.hasRex2() || op1.hasRex2() || op2.hasRex2())) return false;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code0 |= 2; }
-		if (p1->isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
 		if (p2->isMEM()) {
 			const Reg& r = *static_cast<const Reg*>(p1);
 			const Address& addr = p2->getAddress();
