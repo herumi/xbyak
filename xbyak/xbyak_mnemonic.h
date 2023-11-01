@@ -5,7 +5,8 @@ void adc(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x10, 2); }
 void adc(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x10); }
 void adc(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 0, 2); }
 void adc(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0, 0x10); }
-void adcx(const Reg32e& reg, const Operand& op) { opGen(reg, op, 0xF6, 0x66, isREG32_REG32orMEM, NONE, 0x38); }
+void adcx(const Reg32e& d, const Reg32e& reg, const Operand& op) { opROO(d, op, reg, T_66, 0x66); }
+void adcx(const Reg32e& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_66, 0x66)) return; opGen(reg, op, 0xF6, 0x66, isREG32_REG32orMEM, NONE, 0x38); }
 void add(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x00, 0); }
 void add(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x00); }
 void add(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 0, 0); }
@@ -16,7 +17,8 @@ void addsd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x58, 0xF2, isXMM
 void addss(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x58, 0xF3, isXMM_XMMorMEM); }
 void addsubpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xD0, 0x66, isXMM_XMMorMEM); }
 void addsubps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xD0, 0xF2, isXMM_XMMorMEM); }
-void adox(const Reg32e& reg, const Operand& op) { opGen(reg, op, 0xF6, 0xF3, isREG32_REG32orMEM, NONE, 0x38); }
+void adox(const Reg32e& d, const Reg32e& reg, const Operand& op) { opROO(d, op, reg, T_66, 0xF3); }
+void adox(const Reg32e& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_66, 0xF3)) return; opGen(reg, op, 0xF6, 0xF3, isREG32_REG32orMEM, NONE, 0x38); }
 void aesdec(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xDE, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
 void aesdeclast(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xDF, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
 void aesenc(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xDC, 0x66, isXMM_XMMorMEM, NONE, 0x38); }

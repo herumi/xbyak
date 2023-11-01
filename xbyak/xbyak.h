@@ -2853,8 +2853,9 @@ public:
 	}
 
 	// (r, r, m) or (r, m, r)
-	void opROO(const Reg& d, const Operand& op1, const Operand& op2, int type, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
+	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, int type, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
 	{
+//		if (type == 0 && !(d.hasRex2() || op1.hasRex2() || op2.hasRex2())) return false;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code0 |= 2; }
 		if (p1->isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
@@ -2870,6 +2871,7 @@ public:
 			writeCode(type, d, code0, code1, code2);
 			setModRM(3, op2.getIdx(), op1.getIdx());
 		}
+		return true;
 	}
 #endif
 
@@ -3009,6 +3011,14 @@ public:
 			db(seq, len);
 			size -= len;
 		}
+	}
+	void adcx2(const Reg32e& r1, const Operand& op)
+	{
+		opROO(Reg(), op, r1, T_66, 0x66);
+	}
+	void adcx2(const Reg32e& d, const Reg32e& r1, const Operand& op)
+	{
+		opROO(d, op, r1, T_66, 0x66);
 	}
 #ifndef XBYAK_DONT_READ_LIST
 #include "xbyak_mnemonic.h"

@@ -1054,6 +1054,20 @@ void put()
 			printf("void %s(const Reg& reg, const Operand& op) { opMovxx(reg, op, 0x%02X); }\n", p->name, p->code);
 		}
 	}
+	{
+		const struct Tbl {
+			uint8_t code;
+			const char *name;
+		} tbl[] = {
+			{ 0x66, "adcx" },
+			{ 0xF3, "adox" },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			printf("void %s(const Reg32e& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_66, 0x%02X)) return; opGen(reg, op, 0xF6, 0x%02X, isREG32_REG32orMEM, NONE, 0x38); }\n", p->name, p->code, p->code);
+			printf("void %s(const Reg32e& d, const Reg32e& reg, const Operand& op) { opROO(d, op, reg, T_66, 0x%02X); }\n", p->name, p->code);
+		}
+	}
 	{ // in/out
 		puts("void in_(const Reg& a, uint8_t v) { opInOut(a, 0xE4, v); }");
 		puts("void in_(const Reg& a, const Reg& d) { opInOut(a, d, 0xEC); }");
@@ -1084,8 +1098,6 @@ void put()
 		puts("void movbe(const Address& addr, const Reg& reg) { opModM(addr, reg, 0x0F, 0x38, 0xF1); }");
 		puts("void movdiri(const Address& addr, const Reg32e& reg) { opModM(addr, reg, 0x0F, 0x38, 0xF9); }");
 		puts("void movdir64b(const Reg& reg, const Address& addr) { db(0x66); opModM(addr, reg.cvt32(), 0x0F, 0x38, 0xF8); }");
-		puts("void adcx(const Reg32e& reg, const Operand& op) { opGen(reg, op, 0xF6, 0x66, isREG32_REG32orMEM, NONE, 0x38); }");
-		puts("void adox(const Reg32e& reg, const Operand& op) { opGen(reg, op, 0xF6, 0xF3, isREG32_REG32orMEM, NONE, 0x38); }");
 		puts("void cmpxchg8b(const Address& addr) { opModM(addr, Reg32(1), 0x0F, 0xC7); }");
 
 		puts("void pextrw(const Operand& op, const Mmx& xmm, uint8_t imm) { opExt(op, xmm, 0x15, imm, true); }");
