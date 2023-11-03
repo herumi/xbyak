@@ -1,12 +1,17 @@
 TARGET=../xbyak/xbyak_mnemonic.h
 BIN=sortline gen_code gen_avx512
-CFLAGS=-I../ -O2 -Wall -Wextra -Wno-missing-field-initializers $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
+CFLAGS=-I../ -I ./ -Wall -Wextra -Wno-missing-field-initializers $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
 all: $(TARGET) ../CMakeLists.txt ../meson.build ../readme.md ../readme.txt
+
+avx_type_def.h: ../xbyak/xbyak.h
+	sed -n '/@@@begin of avx_type_def.h/,/@@@end of avx_type_def.h/p' $< > $@
+
+avx_type.hpp: avx_type_def.h
 sortline: sortline.cpp
 	$(CXX) $(CFLAGS) $< -o $@
-gen_code: gen_code.cpp ../xbyak/xbyak.h avx_type.hpp
+gen_code: gen_code.cpp avx_type.hpp
 	$(CXX) $(CFLAGS) $< -o $@
-gen_avx512: gen_avx512.cpp ../xbyak/xbyak.h avx_type.hpp
+gen_avx512: gen_avx512.cpp avx_type.hpp
 	$(CXX) $(CFLAGS) $< -o $@
 
 $(TARGET): $(BIN)
@@ -36,4 +41,4 @@ VER=$(shell head -n 1 ../xbyak/xbyak_mnemonic.h|grep -o "[0-9.]*")
 	sed -l 2 -i -e "s/Xbyak [0-9.]*/Xbyak $(VER)/" $@
 
 clean:
-	$(RM) $(BIN) $(TARGET)
+	$(RM) $(BIN) $(TARGET) avx_type_def.h

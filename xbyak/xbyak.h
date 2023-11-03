@@ -1748,6 +1748,7 @@ private:
 		}
 		if (rex) db(rex);
 	}
+	// @@@begin of avx_type_def.h
 	enum AVXtype {
 		// low 3 bit
 		T_N1 = 1,
@@ -1794,7 +1795,8 @@ private:
 		T_XXX
 	};
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
-	uint32_t getPP(int type) const { return (type >> 5) & 3; }
+	static inline uint32_t getPP(int type) { return (type >> 5) & 3; }
+	// @@@end of avx_type_def.h
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
 	{
 		int w = (type & T_W1) ? 1 : 0;
