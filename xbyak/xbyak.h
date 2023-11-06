@@ -2155,16 +2155,42 @@ private:
 			}
 		}
 	}
+	static inline int pre1(int c)
+	{
+		switch (c) {
+		case 0x66: return T_66;
+		case 0xF2: return T_F2;
+		case 0xF3: return T_F3;
+		case NONE: return 0;
+		default:
+			printf("!!! pre1=%02x\n", c);
+			XBYAK_THROW_RET(ERR_NOT_SUPPORTED, 0)
+			break;
+		}
+	}
+	static inline int pre2(int c)
+	{
+		switch (c) {
+		case 0x38: return T_0F38;
+		case 0x3A: return T_0F3A;
+		case NONE: return T_0F;
+		default:
+			printf("!!! pre2=%02x\n", c);
+			XBYAK_THROW_RET(ERR_NOT_SUPPORTED, 0)
+			break;
+		}
+	}
 	/* preCode is for SSSE3/SSE4 */
 	void opGen(const Operand& reg, const Operand& op, int code, int pref, bool isValid(const Operand&, const Operand&), int imm8 = NONE, int preCode = NONE)
 	{
 		if (isValid && !isValid(reg, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		if (!isValidSSE(reg) || !isValidSSE(op)) XBYAK_THROW(ERR_NOT_SUPPORTED)
-		if (pref != NONE) db(pref);
 		if (op.isMEM()) {
+			if (pref != NONE) db(pref);
 			opModM(op.getAddress(), reg.getReg(), 0x0F, preCode, code, (imm8 != NONE) ? 1 : 0);
 		} else {
-			opModR(reg.getReg(), op.getReg(), 0x0F, preCode, code);
+			int type = pre1(pref) | pre2(preCode);
+			opModR2(reg.getReg(), op.getReg(), type, code);
 		}
 		if (imm8 != NONE) db(imm8);
 	}
