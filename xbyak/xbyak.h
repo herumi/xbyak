@@ -1748,6 +1748,51 @@ private:
 		}
 		if (rex) db(rex);
 	}
+	void rexA(int type, const Operand& op1, const Operand& op2 = Operand())
+	{
+		if (op1.getNF() | op2.getNF()) XBYAK_THROW(ERR_INVALID_NF)
+		uint8_t rex = 0;
+		const Operand *p1 = &op1, *p2 = &op2;
+		if (p1->isMEM()) std::swap(p1, p2);
+		if (p1->isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
+		// except movsx(16bit, 32/64bit)
+		uint8_t p66 = (op1.isBit(16) && !op2.isBit(i32e)) || (op2.isBit(16) && !op1.isBit(i32e)) ? 0x66 : 0;
+		if (p66) db(p66);
+		if ((type & (T_VEX|T_EVEX|T_MUST_EVEX)) == 0) {
+			if ((type & T_F2) == T_F2) {
+				db(0xF2);
+			} else if (type & T_66) {
+				if (!p66) db(0x66); // only once
+			} else if (type & T_F3) {
+				db(0xF3);
+			}
+		}
+		if (p2->isMEM()) {
+			const Reg& r = *static_cast<const Reg*>(p1);
+			const Address& addr = p2->getAddress();
+			const RegExp e = addr.getRegExp();
+			const Reg& base = e.getBase();
+			const Reg& idx = e.getIndex();
+			if (BIT == 64 && addr.is32bit()) db(0x67);
+			rex = rexRXB(3, r.isREG(64), r, base, idx);
+			if (r.hasRex2() || addr.hasRex2()) {
+				rex2(0, rex, r, base, idx);
+				return;
+			}
+			if (rex || r.isExt8bit()) rex |= 0x40;
+		} else {
+			const Reg& r1 = static_cast<const Reg&>(op1);
+			const Reg& r2 = static_cast<const Reg&>(op2);
+			// ModRM(reg, base);
+			rex = rexRXB(3, r1.isREG(64) || r2.isREG(64), r2, r1);
+			if (r1.hasRex2() || r2.hasRex2()) {
+				rex2(0, rex, r2, r1);
+				return;
+			}
+			if (rex || r1.isExt8bit() || r2.isExt8bit()) rex |= 0x40;
+		}
+		if (rex) db(rex);
+	}
 	// @@@begin of avx_type_def.h
 	enum AVXtype {
 		// low 3 bit
@@ -1760,7 +1805,7 @@ private:
 		T_NX_MASK = 7,
 		T_DUP = T_NX_MASK,//1 << 4, // N = (8, 32, 64)
 		T_N_VL = 1 << 3, // N * (1, 2, 4) for VL
-		// 1 << 4 is free
+		T_VEX = 1 << 4,
 		T_66 = 1 << 5, // pp = 1
 		T_F3 = 1 << 6, // pp = 2
 		T_F2 = T_66 | T_F3, // pp = 3
@@ -1980,10 +2025,29 @@ private:
 	{
 		db(code0 | (type == 0 && !r.isBit(8))); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
 	}
+	void writeCode2(int type, const Reg& r, int code)
+	{
+		if ((type & (T_VEX|T_EVEX|T_MUST_EVEX)) == 0) {
+			if (type & T_0F) {
+				db(0x0F);
+			} else if (type & T_0F38) {
+				db(0x0F); db(0x38);
+			} else if (type & T_0F3A) {
+				db(0x0F); db(0x3A);
+			}
+		}
+		db(code | (type == 0 && !r.isBit(8)));
+	}
 	void opModR(const Reg& reg1, const Reg& reg2, int code0, int code1 = NONE, int code2 = NONE)
 	{
 		rex(reg2, reg1);
 		writeCode(0, reg1, code0, code1, code2);
+		setModRM(3, reg1.getIdx(), reg2.getIdx());
+	}
+	void opModR2(const Reg& reg1, const Reg& reg2, int type, int code)
+	{
+		rexA(type, reg2, reg1);
+		writeCode2(type, reg1, code);
 		setModRM(3, reg1.getIdx(), reg2.getIdx());
 	}
 	void opModM(const Address& addr, const Reg& reg, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)

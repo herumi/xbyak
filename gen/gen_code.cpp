@@ -479,19 +479,18 @@ void put()
 	{
 		// (XMM, XMM)
 		const struct Tbl {
+			int type;
 			uint8_t code;
-			uint8_t pref;
 			const char *name;
 		} tbl[] = {
-			{ 0xF7, 0x66, "maskmovdqu" },
-			{ 0x12, 0  , "movhlps" },
-			{ 0x16, 0  , "movlhps" },
+			{ T_66 | T_0F, 0xF7, "maskmovdqu" },
+			{ T_0F, 0x12, "movhlps" },
+			{ T_0F, 0x16, "movlhps" },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Xmm& reg1, const Xmm& reg2) { ", p->name);
-			if (p->pref) printf("db(0x%02X); ", p->pref);
-			printf(" opModR(reg1, reg2, 0x0F, 0x%02X); }\n", p->code);
+			std::string type = type2String(p->type);
+			printf("void %s(const Xmm& reg1, const Xmm& reg2) { opModR2(reg1, reg2, %s, 0x%02X); }\n", p->name, type.c_str(), p->code);
 		}
 	}
 	{

@@ -18,6 +18,10 @@ std::string type2String(int type)
 		if (!str.empty()) str += " | ";
 		str += "T_N_VL";
 	}
+	if (type & T_VEX) {
+		if (!str.empty()) str += " | ";
+		str += "T_VEX";
+	}
 	if ((type & T_NX_MASK) == T_DUP) {
 		if (!str.empty()) str += " | ";
 		str += "T_DUP";

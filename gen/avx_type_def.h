@@ -10,7 +10,7 @@
 		T_NX_MASK = 7,
 		T_DUP = T_NX_MASK,//1 << 4, // N = (8, 32, 64)
 		T_N_VL = 1 << 3, // N * (1, 2, 4) for VL
-		// 1 << 4 is free
+		T_VEX = 1 << 4,
 		T_66 = 1 << 5, // pp = 1
 		T_F3 = 1 << 6, // pp = 2
 		T_F2 = T_66 | T_F3, // pp = 3
