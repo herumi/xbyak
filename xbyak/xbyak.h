@@ -2172,7 +2172,7 @@ private:
 	{
 		if (!isValidSSE(mmx)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		if (mmx.isXMM()) db(0x66);
-		opModR(Reg32(ext), mmx, 0x0F, code);
+		opModR2(Reg32(ext), mmx, T_0F, code);
 		db(imm8);
 	}
 	void opMMX(const Mmx& mmx, const Operand& op, int code, int pref = 0x66, int imm8 = NONE, int preCode = NONE)
@@ -2196,7 +2196,7 @@ private:
 		if (!isValidSSE(op) || !isValidSSE(mmx)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		if (hasMMX2 && op.isREG(i32e)) { /* pextrw is special */
 			if (mmx.isXMM()) db(0x66);
-			opModR(op.getReg(), mmx, 0x0F, 0xC5); db(imm);
+			opModR2(op.getReg(), mmx, T_0F, 0xC5); db(imm);
 		} else {
 			opGen(mmx, op, code, 0x66, isXMM_REG32orMEM, imm, 0x3A);
 		}
@@ -2290,7 +2290,7 @@ private:
 #endif
 		code = 0xFE;
 		if (op.isREG()) {
-			opModR(Reg(ext, Operand::REG, op.getBit()), op.getReg(), code);
+			opModR2(Reg(ext, Operand::REG, op.getBit()), op.getReg(), 0, code);
 		} else {
 			opModM(op.getAddress(), Reg(ext, Operand::REG, op.getBit()), code);
 		}
