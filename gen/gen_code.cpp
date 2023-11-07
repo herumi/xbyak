@@ -312,7 +312,7 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x%02X); }\n"
+			printf("void %s(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x%02X); }\n"
 				, p->name, p->code);
 		}
 	}
@@ -343,7 +343,7 @@ void put()
 			for (int j = 0; j < 4; j++) {
 				// B(0), W(1), D(2), Q(3)
 				if (!(p->mode & (1 << j))) continue;
-				printf("void %s%s(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x%02X); }\n"
+				printf("void %s%s(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x%02X); }\n"
 					, p->name, modTbl[j]
 					, p->code | j
 				);
@@ -971,9 +971,9 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x%02X, 0x66, NONE, 0x38); }\n", p->name, p->code);
+			printf("void %s(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x%02X, T_0F38, T_66); }\n", p->name, p->code);
 		}
-		printf("void palignr(const Mmx& mmx, const Operand& op, int imm) { opMMX(mmx, op, 0x0f, 0x66, static_cast<uint8_t>(imm), 0x3a); }\n");
+		printf("void palignr(const Mmx& mmx, const Operand& op, int imm) { opMMX2(mmx, op, 0x0F, T_0F3A, T_66, static_cast<uint8_t>(imm)); }\n");
 	}
 	{
 		const struct Tbl {

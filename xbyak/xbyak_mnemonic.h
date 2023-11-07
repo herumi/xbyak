@@ -576,27 +576,27 @@ void out_(uint8_t v, const Reg& a) { opInOut(a, 0xE6, v); }
 void outsb() { db(0x6E); }
 void outsd() { db(0x6F); }
 void outsw() { db(0x66); db(0x6F); }
-void pabsb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x1C, 0x66, NONE, 0x38); }
-void pabsd(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x1E, 0x66, NONE, 0x38); }
-void pabsw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x1D, 0x66, NONE, 0x38); }
-void packssdw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x6B); }
-void packsswb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x63); }
+void pabsb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x1C, T_0F38, T_66); }
+void pabsd(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x1E, T_0F38, T_66); }
+void pabsw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x1D, T_0F38, T_66); }
+void packssdw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x6B); }
+void packsswb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x63); }
 void packusdw(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x2B, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
-void packuswb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x67); }
-void paddb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xFC); }
-void paddd(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xFE); }
-void paddq(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xD4); }
-void paddsb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xEC); }
-void paddsw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xED); }
-void paddusb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xDC); }
-void paddusw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xDD); }
-void paddw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xFD); }
-void palignr(const Mmx& mmx, const Operand& op, int imm) { opMMX(mmx, op, 0x0f, 0x66, static_cast<uint8_t>(imm), 0x3a); }
-void pand(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xDB); }
-void pandn(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xDF); }
+void packuswb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x67); }
+void paddb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xFC); }
+void paddd(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xFE); }
+void paddq(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xD4); }
+void paddsb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xEC); }
+void paddsw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xED); }
+void paddusb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xDC); }
+void paddusw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xDD); }
+void paddw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xFD); }
+void palignr(const Mmx& mmx, const Operand& op, int imm) { opMMX2(mmx, op, 0x0F, T_0F3A, T_66, static_cast<uint8_t>(imm)); }
+void pand(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xDB); }
+void pandn(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xDF); }
 void pause() { db(0xF3); db(0x90); }
-void pavgb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xE0); }
-void pavgw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xE3); }
+void pavgb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xE0); }
+void pavgw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xE3); }
 void pblendvb(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x10, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
 void pblendw(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0x0E, 0x66, isXMM_XMMorMEM, static_cast<uint8_t>(imm), 0x3A); }
 void pclmulhqhqdq(const Xmm& xmm, const Operand& op) { pclmulqdq(xmm, op, 0x11); }
@@ -604,16 +604,16 @@ void pclmulhqlqdq(const Xmm& xmm, const Operand& op) { pclmulqdq(xmm, op, 0x01);
 void pclmullqhqdq(const Xmm& xmm, const Operand& op) { pclmulqdq(xmm, op, 0x10); }
 void pclmullqlqdq(const Xmm& xmm, const Operand& op) { pclmulqdq(xmm, op, 0x00); }
 void pclmulqdq(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0x44, 0x66, isXMM_XMMorMEM, static_cast<uint8_t>(imm), 0x3A); }
-void pcmpeqb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x74); }
-void pcmpeqd(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x76); }
+void pcmpeqb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x74); }
+void pcmpeqd(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x76); }
 void pcmpeqq(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x29, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
-void pcmpeqw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x75); }
+void pcmpeqw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x75); }
 void pcmpestri(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen(xmm, op, 0x61, 0x66, isXMM_XMMorMEM, imm, 0x3A); }
 void pcmpestrm(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen(xmm, op, 0x60, 0x66, isXMM_XMMorMEM, imm, 0x3A); }
-void pcmpgtb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x64); }
-void pcmpgtd(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x66); }
+void pcmpgtb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x64); }
+void pcmpgtd(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x66); }
 void pcmpgtq(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x37, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
-void pcmpgtw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x65); }
+void pcmpgtw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x65); }
 void pcmpistri(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen(xmm, op, 0x63, 0x66, isXMM_XMMorMEM, imm, 0x3A); }
 void pcmpistrm(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen(xmm, op, 0x62, 0x66, isXMM_XMMorMEM, imm, 0x3A); }
 void pdep(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opGpr(r1, r2, op, T_F2 | T_0F38, 0xf5, true); }
@@ -621,28 +621,28 @@ void pext(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opGpr(r1, r2,
 void pextrb(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x14, imm); }
 void pextrd(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x16, imm); }
 void pextrw(const Operand& op, const Mmx& xmm, uint8_t imm) { opExt(op, xmm, 0x15, imm, true); }
-void phaddd(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x02, 0x66, NONE, 0x38); }
-void phaddsw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x03, 0x66, NONE, 0x38); }
-void phaddw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x01, 0x66, NONE, 0x38); }
+void phaddd(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x02, T_0F38, T_66); }
+void phaddsw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x03, T_0F38, T_66); }
+void phaddw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x01, T_0F38, T_66); }
 void phminposuw(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x41, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
-void phsubd(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x06, 0x66, NONE, 0x38); }
-void phsubsw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x07, 0x66, NONE, 0x38); }
-void phsubw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x05, 0x66, NONE, 0x38); }
+void phsubd(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x06, T_0F38, T_66); }
+void phsubsw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x07, T_0F38, T_66); }
+void phsubw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x05, T_0F38, T_66); }
 void pinsrb(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen(xmm, op, 0x20, 0x66, isXMM_REG32orMEM, imm, 0x3A); }
 void pinsrd(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen(xmm, op, 0x22, 0x66, isXMM_REG32orMEM, imm, 0x3A); }
 void pinsrw(const Mmx& mmx, const Operand& op, int imm) { if (!op.isREG(32) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opGen(mmx, op, 0xC4, mmx.isXMM() ? 0x66 : NONE, 0, imm); }
-void pmaddubsw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x04, 0x66, NONE, 0x38); }
-void pmaddwd(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF5); }
+void pmaddubsw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x04, T_0F38, T_66); }
+void pmaddwd(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xF5); }
 void pmaxsb(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x3C, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
 void pmaxsd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x3D, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
-void pmaxsw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xEE); }
-void pmaxub(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xDE); }
+void pmaxsw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xEE); }
+void pmaxub(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xDE); }
 void pmaxud(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x3F, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
 void pmaxuw(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x3E, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
 void pminsb(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x38, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
 void pminsd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x39, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
-void pminsw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xEA); }
-void pminub(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xDA); }
+void pminsw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xEA); }
+void pminub(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xDA); }
 void pminud(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x3B, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
 void pminuw(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x3A, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
 void pmovmskb(const Reg32e& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR2(reg, mmx, T_0F, 0xD7); }
@@ -659,15 +659,15 @@ void pmovzxdq(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x35, 0x66, is
 void pmovzxwd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x33, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
 void pmovzxwq(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x34, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
 void pmuldq(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x28, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
-void pmulhrsw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x0B, 0x66, NONE, 0x38); }
-void pmulhuw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xE4); }
-void pmulhw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xE5); }
+void pmulhrsw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x0B, T_0F38, T_66); }
+void pmulhuw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xE4); }
+void pmulhw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xE5); }
 void pmulld(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x40, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
-void pmullw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xD5); }
-void pmuludq(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF4); }
+void pmullw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xD5); }
+void pmuludq(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xF4); }
 void popcnt(const Reg&reg, const Operand& op) { opSp1(reg, op, 0xF3, 0x0F, 0xB8); }
 void popf() { db(0x9D); }
-void por(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xEB); }
+void por(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xEB); }
 void prefetchit0(const Address& addr) { opModM2(addr, Reg32(7), T_0F, 0x18); }
 void prefetchit1(const Address& addr) { opModM2(addr, Reg32(6), T_0F, 0x18); }
 void prefetchnta(const Address& addr) { opModM2(addr, Reg32(0), T_0F, 0x18); }
@@ -676,52 +676,52 @@ void prefetcht1(const Address& addr) { opModM2(addr, Reg32(2), T_0F, 0x18); }
 void prefetcht2(const Address& addr) { opModM2(addr, Reg32(3), T_0F, 0x18); }
 void prefetchw(const Address& addr) { opModM2(addr, Reg32(1), T_0F, 0x0D); }
 void prefetchwt1(const Address& addr) { opModM2(addr, Reg32(2), T_0F, 0x0D); }
-void psadbw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF6); }
-void pshufb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x00, 0x66, NONE, 0x38); }
+void psadbw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xF6); }
+void pshufb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x00, T_0F38, T_66); }
 void pshufd(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX(mmx, op, 0x70, 0x66, imm8); }
 void pshufhw(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX(mmx, op, 0x70, 0xF3, imm8); }
 void pshuflw(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX(mmx, op, 0x70, 0xF2, imm8); }
 void pshufw(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX(mmx, op, 0x70, 0x00, imm8); }
-void psignb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x08, 0x66, NONE, 0x38); }
-void psignd(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x0A, 0x66, NONE, 0x38); }
-void psignw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x09, 0x66, NONE, 0x38); }
-void pslld(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF2); }
+void psignb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x08, T_0F38, T_66); }
+void psignd(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x0A, T_0F38, T_66); }
+void psignw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x09, T_0F38, T_66); }
+void pslld(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xF2); }
 void pslld(const Mmx& mmx, int imm8) { opMMX_IMM(mmx, imm8, 0x72, 6); }
 void pslldq(const Xmm& xmm, int imm8) { opMMX_IMM(xmm, imm8, 0x73, 7); }
-void psllq(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF3); }
+void psllq(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xF3); }
 void psllq(const Mmx& mmx, int imm8) { opMMX_IMM(mmx, imm8, 0x73, 6); }
-void psllw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF1); }
+void psllw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xF1); }
 void psllw(const Mmx& mmx, int imm8) { opMMX_IMM(mmx, imm8, 0x71, 6); }
-void psrad(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xE2); }
+void psrad(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xE2); }
 void psrad(const Mmx& mmx, int imm8) { opMMX_IMM(mmx, imm8, 0x72, 4); }
-void psraw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xE1); }
+void psraw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xE1); }
 void psraw(const Mmx& mmx, int imm8) { opMMX_IMM(mmx, imm8, 0x71, 4); }
-void psrld(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xD2); }
+void psrld(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xD2); }
 void psrld(const Mmx& mmx, int imm8) { opMMX_IMM(mmx, imm8, 0x72, 2); }
 void psrldq(const Xmm& xmm, int imm8) { opMMX_IMM(xmm, imm8, 0x73, 3); }
-void psrlq(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xD3); }
+void psrlq(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xD3); }
 void psrlq(const Mmx& mmx, int imm8) { opMMX_IMM(mmx, imm8, 0x73, 2); }
-void psrlw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xD1); }
+void psrlw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xD1); }
 void psrlw(const Mmx& mmx, int imm8) { opMMX_IMM(mmx, imm8, 0x71, 2); }
-void psubb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF8); }
-void psubd(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xFA); }
-void psubq(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xFB); }
-void psubsb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xE8); }
-void psubsw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xE9); }
-void psubusb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xD8); }
-void psubusw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xD9); }
-void psubw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF9); }
+void psubb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xF8); }
+void psubd(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xFA); }
+void psubq(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xFB); }
+void psubsb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xE8); }
+void psubsw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xE9); }
+void psubusb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xD8); }
+void psubusw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xD9); }
+void psubw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xF9); }
 void ptest(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x17, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
-void punpckhbw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x68); }
-void punpckhdq(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x6A); }
+void punpckhbw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x68); }
+void punpckhdq(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x6A); }
 void punpckhqdq(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x6D, 0x66, isXMM_XMMorMEM); }
-void punpckhwd(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x69); }
-void punpcklbw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x60); }
-void punpckldq(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x62); }
+void punpckhwd(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x69); }
+void punpcklbw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x60); }
+void punpckldq(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x62); }
 void punpcklqdq(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x6C, 0x66, isXMM_XMMorMEM); }
-void punpcklwd(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x61); }
+void punpcklwd(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x61); }
 void pushf() { db(0x9C); }
-void pxor(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xEF); }
+void pxor(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xEF); }
 void rcl(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 2); }
 void rcl(const Operand& op, int imm) { opShift(op, imm, 2); }
 void rcpps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x53, 0x100, isXMM_XMMorMEM); }

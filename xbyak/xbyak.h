@@ -2193,11 +2193,21 @@ private:
 	{
 		if (isValid && !isValid(reg, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		if (!isValidSSE(reg) || !isValidSSE(op)) XBYAK_THROW(ERR_NOT_SUPPORTED)
+		int type = pre1(pref) | pre2(preCode);
 		if (op.isMEM()) {
-			if (pref != NONE) db(pref);
-			opModM(op.getAddress(), reg.getReg(), 0x0F, preCode, code, (imm8 != NONE) ? 1 : 0);
+			opModM2(op.getAddress(), reg.getReg(), type, code, (imm8 != NONE) ? 1 : 0);
 		} else {
-			int type = pre1(pref) | pre2(preCode);
+			opModR2(reg.getReg(), op.getReg(), type, code);
+		}
+		if (imm8 != NONE) db(imm8);
+	}
+	void opGen2(const Operand& reg, const Operand& op, int type, int code, bool isValid(const Operand&, const Operand&), int imm8 = NONE)
+	{
+		if (isValid && !isValid(reg, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (!isValidSSE(reg) || !isValidSSE(op)) XBYAK_THROW(ERR_NOT_SUPPORTED)
+		if (op.isMEM()) {
+			opModM2(op.getAddress(), reg.getReg(), type, code, (imm8 != NONE) ? 1 : 0);
+		} else {
 			opModR2(reg.getReg(), op.getReg(), type, code);
 		}
 		if (imm8 != NONE) db(imm8);
@@ -2212,6 +2222,11 @@ private:
 	void opMMX(const Mmx& mmx, const Operand& op, int code, int pref = 0x66, int imm8 = NONE, int preCode = NONE)
 	{
 		opGen(mmx, op, code, mmx.isXMM() ? pref : NONE, isXMMorMMX_MEM, imm8, preCode);
+	}
+	void opMMX2(const Mmx& mmx, const Operand& op, int code, int type = T_0F, int pref = T_66, int imm8 = NONE)
+	{
+		if (mmx.isXMM()) type |= pref;
+		opGen2(mmx, op, type, code, isXMMorMMX_MEM, imm8);
 	}
 	void opMovXMM(const Operand& op1, const Operand& op2, int code, int pref)
 	{
