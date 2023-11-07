@@ -494,31 +494,31 @@ void put()
 		// (XMM, XMM|MEM)
 		const struct Tbl {
 			uint8_t code;
-			int pref;
+			const char *type;
 			const char *name;
 		} tbl[] = {
-			{ 0x6D, 0x66, "punpckhqdq" },
-			{ 0x6C, 0x66, "punpcklqdq" },
+			{ 0x6D, "T_66", "punpckhqdq" },
+			{ 0x6C, "T_66", "punpcklqdq" },
 
-			{ 0x2F, NO , "comiss" },
-			{ 0x2E, NO , "ucomiss" },
-			{ 0x2F, 0x66, "comisd" },
-			{ 0x2E, 0x66, "ucomisd" },
+			{ 0x2F, "0", "comiss" },
+			{ 0x2E, "0", "ucomiss" },
+			{ 0x2F, "T_66", "comisd" },
+			{ 0x2E, "T_66", "ucomisd" },
 
-			{ 0x5A, 0x66, "cvtpd2ps" },
-			{ 0x5A, NO , "cvtps2pd" },
-			{ 0x5A, 0xF2, "cvtsd2ss" },
-			{ 0x5A, 0xF3, "cvtss2sd" },
-			{ 0xE6, 0xF2, "cvtpd2dq" },
-			{ 0xE6, 0x66, "cvttpd2dq" },
-			{ 0xE6, 0xF3, "cvtdq2pd" },
-			{ 0x5B, 0x66, "cvtps2dq" },
-			{ 0x5B, 0xF3, "cvttps2dq" },
-			{ 0x5B, NO , "cvtdq2ps" },
+			{ 0x5A, "T_66", "cvtpd2ps" },
+			{ 0x5A, "0", "cvtps2pd" },
+			{ 0x5A, "T_F2", "cvtsd2ss" },
+			{ 0x5A, "T_F3", "cvtss2sd" },
+			{ 0xE6, "T_F2", "cvtpd2dq" },
+			{ 0xE6, "T_66", "cvttpd2dq" },
+			{ 0xE6, "T_F3", "cvtdq2pd" },
+			{ 0x5B, "T_66", "cvtps2dq" },
+			{ 0x5B, "T_F3", "cvttps2dq" },
+			{ 0x5B, "0", "cvtdq2ps" },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x%02X, 0x%02X, isXMM_XMMorMEM); }\n", p->name, p->code, p->pref);
+			printf("void %s(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, p->type, p->code);
 		}
 	}
 

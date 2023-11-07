@@ -149,29 +149,29 @@ void cmpunordsd(const Xmm& x, const Operand& op) { cmpsd(x, op, 3); }
 void cmpunordss(const Xmm& x, const Operand& op) { cmpss(x, op, 3); }
 void cmpxchg(const Operand& op, const Reg& reg) { opModRM(reg, op, (op.isREG() && reg.isREG() && op.getBit() == reg.getBit()), op.isMEM(), 0x0F, 0xB0 | (reg.isBit(8) ? 0 : 1)); }
 void cmpxchg8b(const Address& addr) { opModM(addr, Reg32(1), 0x0F, 0xC7); }
-void comisd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x2F, 0x66, isXMM_XMMorMEM); }
-void comiss(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x2F, 0x100, isXMM_XMMorMEM); }
+void comisd(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | T_66, 0x2F, isXMM_XMMorMEM); }
+void comiss(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | 0, 0x2F, isXMM_XMMorMEM); }
 void cpuid() { db(0x0F); db(0xA2); }
 void crc32(const Reg32e& reg, const Operand& op) { if (reg.isBit(32) && op.isBit(16)) db(0x66); db(0xF2); opModRM(reg, op, op.isREG(), op.isMEM(), 0x0F, 0x38, 0xF0 | (op.isBit(8) ? 0 : 1)); }
-void cvtdq2pd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xE6, 0xF3, isXMM_XMMorMEM); }
-void cvtdq2ps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x5B, 0x100, isXMM_XMMorMEM); }
-void cvtpd2dq(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xE6, 0xF2, isXMM_XMMorMEM); }
+void cvtdq2pd(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | T_F3, 0xE6, isXMM_XMMorMEM); }
+void cvtdq2ps(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | 0, 0x5B, isXMM_XMMorMEM); }
+void cvtpd2dq(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | T_F2, 0xE6, isXMM_XMMorMEM); }
 void cvtpd2pi(const Operand& reg, const Operand& op) { opGen(reg, op, 0x2D, 0x66, isMMX_XMMorMEM); }
-void cvtpd2ps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x5A, 0x66, isXMM_XMMorMEM); }
+void cvtpd2ps(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | T_66, 0x5A, isXMM_XMMorMEM); }
 void cvtpi2pd(const Operand& reg, const Operand& op) { opGen(reg, op, 0x2A, 0x66, isXMM_MMXorMEM); }
 void cvtpi2ps(const Operand& reg, const Operand& op) { opGen(reg, op, 0x2A, 0x100, isXMM_MMXorMEM); }
-void cvtps2dq(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x5B, 0x66, isXMM_XMMorMEM); }
-void cvtps2pd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x5A, 0x100, isXMM_XMMorMEM); }
+void cvtps2dq(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | T_66, 0x5B, isXMM_XMMorMEM); }
+void cvtps2pd(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | 0, 0x5A, isXMM_XMMorMEM); }
 void cvtps2pi(const Operand& reg, const Operand& op) { opGen(reg, op, 0x2D, 0x100, isMMX_XMMorMEM); }
 void cvtsd2si(const Operand& reg, const Operand& op) { opGen(reg, op, 0x2D, 0xF2, isREG32_XMMorMEM); }
-void cvtsd2ss(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x5A, 0xF2, isXMM_XMMorMEM); }
+void cvtsd2ss(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | T_F2, 0x5A, isXMM_XMMorMEM); }
 void cvtsi2sd(const Operand& reg, const Operand& op) { opGen(reg, op, 0x2A, 0xF2, isXMM_REG32orMEM); }
 void cvtsi2ss(const Operand& reg, const Operand& op) { opGen(reg, op, 0x2A, 0xF3, isXMM_REG32orMEM); }
-void cvtss2sd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x5A, 0xF3, isXMM_XMMorMEM); }
+void cvtss2sd(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | T_F3, 0x5A, isXMM_XMMorMEM); }
 void cvtss2si(const Operand& reg, const Operand& op) { opGen(reg, op, 0x2D, 0xF3, isREG32_XMMorMEM); }
-void cvttpd2dq(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xE6, 0x66, isXMM_XMMorMEM); }
+void cvttpd2dq(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | T_66, 0xE6, isXMM_XMMorMEM); }
 void cvttpd2pi(const Operand& reg, const Operand& op) { opGen(reg, op, 0x2C, 0x66, isMMX_XMMorMEM); }
-void cvttps2dq(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x5B, 0xF3, isXMM_XMMorMEM); }
+void cvttps2dq(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | T_F3, 0x5B, isXMM_XMMorMEM); }
 void cvttps2pi(const Operand& reg, const Operand& op) { opGen(reg, op, 0x2C, 0x100, isMMX_XMMorMEM); }
 void cvttsd2si(const Operand& reg, const Operand& op) { opGen(reg, op, 0x2C, 0xF2, isREG32_XMMorMEM); }
 void cvttss2si(const Operand& reg, const Operand& op) { opGen(reg, op, 0x2C, 0xF3, isREG32_XMMorMEM); }
@@ -714,11 +714,11 @@ void psubw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF9); }
 void ptest(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x17, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
 void punpckhbw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x68); }
 void punpckhdq(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x6A); }
-void punpckhqdq(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x6D, 0x66, isXMM_XMMorMEM); }
+void punpckhqdq(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | T_66, 0x6D, isXMM_XMMorMEM); }
 void punpckhwd(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x69); }
 void punpcklbw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x60); }
 void punpckldq(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x62); }
-void punpcklqdq(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x6C, 0x66, isXMM_XMMorMEM); }
+void punpcklqdq(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | T_66, 0x6C, isXMM_XMMorMEM); }
 void punpcklwd(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x61); }
 void pushf() { db(0x9C); }
 void pxor(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xEF); }
@@ -840,8 +840,8 @@ void sysenter() { db(0x0F); db(0x34); }
 void sysexit() { db(0x0F); db(0x35); }
 void tpause(const Reg32& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) db(0x66); db(0x0F); db(0xAE); setModRM(3, 6, idx); }
 void tzcnt(const Reg&reg, const Operand& op) { opSp1(reg, op, 0xF3, 0x0F, 0xBC); }
-void ucomisd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x2E, 0x66, isXMM_XMMorMEM); }
-void ucomiss(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x2E, 0x100, isXMM_XMMorMEM); }
+void ucomisd(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | T_66, 0x2E, isXMM_XMMorMEM); }
+void ucomiss(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_0F | 0, 0x2E, isXMM_XMMorMEM); }
 void ud2() { db(0x0F); db(0x0B); }
 void umonitor(const Reg& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) int bit = r.getBit(); if (BIT != bit) { if ((BIT == 32 && bit == 16) || (BIT == 64 && bit == 32)) { db(0x67); } else { XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) } } db(0xF3); db(0x0F); db(0xAE); setModRM(3, 6, idx); }
 void umwait(const Reg32& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) db(0xF2); db(0x0F); db(0xAE); setModRM(3, 6, idx); }
