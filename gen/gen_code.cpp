@@ -427,7 +427,7 @@ void put()
 			SD = 1 << 3
 		};
 		const struct {
-			const char *suf;
+			const char *type;
 			const char *name;
 		} sufTbl[] = {
 			{ "T_0F", "ps" },
@@ -466,9 +466,9 @@ void put()
 				if (!(p->mode & (1 << j))) continue;
 				if (p->hasImm) {
 					// don't change uint8_t to int because NO is not in byte
-					printf("void %s%s(const Xmm& xmm, const Operand& op, uint8_t imm8) { opGen2(xmm, op, %s, 0x%02X, isXMM_XMMorMEM, imm8); }\n", p->name, sufTbl[j].name, sufTbl[j].suf, p->code);
+					printf("void %s%s(const Xmm& xmm, const Operand& op, uint8_t imm8) { opGen2(xmm, op, %s, 0x%02X, isXMM_XMMorMEM, imm8); }\n", p->name, sufTbl[j].name, sufTbl[j].type, p->code);
 				} else {
-					printf("void %s%s(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, sufTbl[j].name, sufTbl[j].suf, p->code);
+					printf("void %s%s(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, sufTbl[j].name, sufTbl[j].type, p->code);
 				}
 			}
 		}
@@ -526,26 +526,26 @@ void put()
 		// special type
 		const struct Tbl {
 			uint8_t code;
-			int pref;
+			const char *type;
 			const char *name;
 			const char *cond;
 		} tbl[] = {
-			{ 0x2A, NO , "cvtpi2ps",  "isXMM_MMXorMEM" },
-			{ 0x2D, NO , "cvtps2pi",  "isMMX_XMMorMEM" },
-			{ 0x2A, 0xF3, "cvtsi2ss",  "isXMM_REG32orMEM" },
-			{ 0x2D, 0xF3, "cvtss2si",  "isREG32_XMMorMEM" },
-			{ 0x2C, NO , "cvttps2pi", "isMMX_XMMorMEM" },
-			{ 0x2C, 0xF3, "cvttss2si", "isREG32_XMMorMEM" },
-			{ 0x2A, 0x66, "cvtpi2pd",  "isXMM_MMXorMEM" },
-			{ 0x2D, 0x66, "cvtpd2pi",  "isMMX_XMMorMEM" },
-			{ 0x2A, 0xF2, "cvtsi2sd",  "isXMM_REG32orMEM" },
-			{ 0x2D, 0xF2, "cvtsd2si",  "isREG32_XMMorMEM" },
-			{ 0x2C, 0x66, "cvttpd2pi", "isMMX_XMMorMEM" },
-			{ 0x2C, 0xF2, "cvttsd2si", "isREG32_XMMorMEM" },
+			{ 0x2A, "0" , "cvtpi2ps",  "isXMM_MMXorMEM" },
+			{ 0x2D, "0" , "cvtps2pi",  "isMMX_XMMorMEM" },
+			{ 0x2A, "T_F3", "cvtsi2ss",  "isXMM_REG32orMEM" },
+			{ 0x2D, "T_F3", "cvtss2si",  "isREG32_XMMorMEM" },
+			{ 0x2C, "0" , "cvttps2pi", "isMMX_XMMorMEM" },
+			{ 0x2C, "T_F3", "cvttss2si", "isREG32_XMMorMEM" },
+			{ 0x2A, "T_66", "cvtpi2pd",  "isXMM_MMXorMEM" },
+			{ 0x2D, "T_66", "cvtpd2pi",  "isMMX_XMMorMEM" },
+			{ 0x2A, "T_F2", "cvtsi2sd",  "isXMM_REG32orMEM" },
+			{ 0x2D, "T_F2", "cvtsd2si",  "isREG32_XMMorMEM" },
+			{ 0x2C, "T_66", "cvttpd2pi", "isMMX_XMMorMEM" },
+			{ 0x2C, "T_F2", "cvttsd2si", "isREG32_XMMorMEM" },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Operand& reg, const Operand& op) { opGen(reg, op, 0x%02X, 0x%02X, %s); }\n", p->name, p->code, p->pref, p->cond);
+			printf("void %s(const Operand& reg, const Operand& op) { opGen2(reg, op, T_0F | %s, 0x%02X, %s); }\n", p->name, p->type, p->code, p->cond);
 		}
 	}
 	{
