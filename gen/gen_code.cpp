@@ -572,17 +572,17 @@ void put()
 	{
 		const struct Tbl {
 			uint8_t code;
-			int pref;
 			const char *name;
+			int type;
 		} tbl[] = {
-			{ 0x16, NO,   "movhps" },
-			{ 0x12, NO,   "movlps" },
-			{ 0x16, 0x66, "movhpd" },
-			{ 0x12, 0x66, "movlpd" },
+			{ 0x16, "movhps", T_0F },
+			{ 0x12, "movlps", T_0F },
+			{ 0x16, "movhpd", T_0F | T_66 },
+			{ 0x12, "movlpd", T_0F | T_66 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x%02X, 0x%02X); }\n", p->name, p->code, p->pref);
+			printf("void %s(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x%02X, 0x%02X); }\n", p->name, p->type, p->code);
 		}
 	}
 	{

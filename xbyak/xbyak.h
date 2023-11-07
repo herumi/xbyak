@@ -2215,8 +2215,9 @@ private:
 	void opMMX_IMM(const Mmx& mmx, int imm8, int code, int ext)
 	{
 		if (!isValidSSE(mmx)) XBYAK_THROW(ERR_NOT_SUPPORTED)
-		if (mmx.isXMM()) db(0x66);
-		opModR2(Reg32(ext), mmx, T_0F, code);
+		int type = T_0F;
+		if (mmx.isXMM()) type |= T_66;
+		opModR2(Reg32(ext), mmx, type, code);
 		db(imm8);
 	}
 	void opMMX(const Mmx& mmx, const Operand& op, int code, int type = T_0F, int pref = T_66, int imm8 = NONE)
@@ -2224,14 +2225,13 @@ private:
 		if (mmx.isXMM()) type |= pref;
 		opGen2(mmx, op, type, code, isXMMorMMX_MEM, imm8);
 	}
-	void opMovXMM(const Operand& op1, const Operand& op2, int code, int pref)
+	void opMovXMM(const Operand& op1, const Operand& op2, int type, int code)
 	{
 		if (!isValidSSE(op1) || !isValidSSE(op2)) XBYAK_THROW(ERR_NOT_SUPPORTED)
-		if (pref != NONE) db(pref);
 		if (op1.isXMM() && op2.isMEM()) {
-			opModM(op2.getAddress(), op1.getReg(), 0x0F, code);
+			opModM2(op2.getAddress(), op1.getReg(), type, code);
 		} else if (op1.isMEM() && op2.isXMM()) {
-			opModM(op1.getAddress(), op2.getReg(), 0x0F, code | 1);
+			opModM2(op1.getAddress(), op2.getReg(), type, code | 1);
 		} else {
 			XBYAK_THROW(ERR_BAD_COMBINATION)
 		}

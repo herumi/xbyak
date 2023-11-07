@@ -523,11 +523,11 @@ void movdqa(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x6F, T_0F, T_66
 void movdqu(const Address& addr, const Xmm& xmm) { opModM2(addr, xmm, T_0F|T_F3, 0x7F); }
 void movdqu(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x6F, T_0F, T_F3); }
 void movhlps(const Xmm& reg1, const Xmm& reg2) { opModR2(reg1, reg2, T_0F, 0x12); }
-void movhpd(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x16, 0x66); }
-void movhps(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x16, 0x100); }
+void movhpd(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x120, 0x16); }
+void movhps(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x100, 0x16); }
 void movlhps(const Xmm& reg1, const Xmm& reg2) { opModR2(reg1, reg2, T_0F, 0x16); }
-void movlpd(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x12, 0x66); }
-void movlps(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x12, 0x100); }
+void movlpd(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x120, 0x12); }
+void movlps(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x100, 0x12); }
 void movmskpd(const Reg32e& reg, const Xmm& xmm) { db(0x66); movmskps(reg, xmm); }
 void movmskps(const Reg32e& reg, const Xmm& xmm) { opModR2(reg, xmm, T_0F, 0x50); }
 void movntdq(const Address& addr, const Xmm& reg) { opModM(addr, Reg16(reg.getIdx()), 0x0F, 0xE7); }
