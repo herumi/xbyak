@@ -1758,7 +1758,7 @@ private:
 		// except movsx(16bit, 32/64bit)
 		uint8_t p66 = (op1.isBit(16) && !op2.isBit(i32e)) || (op2.isBit(16) && !op1.isBit(i32e)) ? 0x66 : 0;
 		if (p66) db(p66);
-		if ((type & (T_VEX|T_EVEX|T_MUST_EVEX)) == 0) {
+//		if ((type & (T_VEX|T_EVEX|T_MUST_EVEX)) == 0) {
 			if ((type & T_F2) == T_F2) {
 				db(0xF2);
 			} else if (type & T_66) {
@@ -1766,7 +1766,7 @@ private:
 			} else if (type & T_F3) {
 				db(0xF3);
 			}
-		}
+//		}
 		if (p2->isMEM()) {
 			const Reg& r = *static_cast<const Reg*>(p1);
 			const Address& addr = p2->getAddress();
@@ -2027,7 +2027,7 @@ private:
 	}
 	void writeCode2(int type, const Reg& r, int code)
 	{
-		if ((type & (T_VEX|T_EVEX|T_MUST_EVEX)) == 0) {
+//		if ((type & (T_VEX|T_EVEX|T_MUST_EVEX)) == 0) {
 			if (type & T_0F) {
 				db(0x0F);
 			} else if (type & T_0F38) {
@@ -2035,7 +2035,7 @@ private:
 			} else if (type & T_0F3A) {
 				db(0x0F); db(0x3A);
 			}
-		}
+//		}
 		db(code | (type == 0 && !r.isBit(8)));
 	}
 	void opModR(const Reg& reg1, const Reg& reg2, int code0, int code1 = NONE, int code2 = NONE)
