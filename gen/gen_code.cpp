@@ -1099,7 +1099,7 @@ void put()
 		puts("void pextrb(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x14, imm); }");
 		puts("void pextrd(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x16, imm); }");
 		puts("void extractps(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x17, imm); }");
-		puts("void pinsrw(const Mmx& mmx, const Operand& op, int imm) { if (!op.isREG(32) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opGen(mmx, op, 0xC4, mmx.isXMM() ? 0x66 : NONE, 0, imm); }");
+		puts("void pinsrw(const Mmx& mmx, const Operand& op, int imm) { if (!op.isREG(32) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opGen2(mmx, op, T_0F | (mmx.isXMM() ? T_66 : 0), 0xC4, 0, imm); }");
 		puts("void insertps(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen2(xmm, op, T_66 | T_0F3A, 0x21, isXMM_XMMorMEM, imm); }");
 		puts("void pinsrb(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen2(xmm, op, T_66 | T_0F3A, 0x20, isXMM_REG32orMEM, imm); }");
 		puts("void pinsrd(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen2(xmm, op, T_66 | T_0F3A, 0x22, isXMM_REG32orMEM, imm); }");
@@ -1408,13 +1408,11 @@ void put()
 			{ 0xDE, "aesdec", T_0F38 | T_66 | T_YMM | T_EVEX, 3 },
 			{ 0xDF, "aesdeclast", T_0F38 | T_66 | T_YMM | T_EVEX, 3 },
 		};
-		const uint8_t ppTbl[] = { 0, 0x66, 0xf3, 0xf2 };
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			std::string type = type2String(p->type);
 			if (p->mode & 1) {
-				uint8_t pref = ppTbl[getPP(p->type)];
-				printf("void %s(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x%02X, 0x%02X, isXMM_XMMorMEM%s); }\n", p->name, p->code, pref, p->type & T_0F38 ? ", NONE, 0x38" : "");
+				printf("void %s(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, type.c_str(), p->code);
 			}
 			if (p->mode & 2) {
 				printf("void v%s(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, %s, 0x%02X); }\n"

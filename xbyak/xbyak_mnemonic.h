@@ -15,14 +15,14 @@ void addpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x58, 0x66, isXMM
 void addps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x58, 0x100, isXMM_XMMorMEM); }
 void addsd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x58, 0xF2, isXMM_XMMorMEM); }
 void addss(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x58, 0xF3, isXMM_XMMorMEM); }
-void addsubpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xD0, 0x66, isXMM_XMMorMEM); }
-void addsubps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xD0, 0xF2, isXMM_XMMorMEM); }
+void addsubpd(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_66 | T_0F | T_YMM, 0xD0, isXMM_XMMorMEM); }
+void addsubps(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_F2 | T_0F | T_YMM, 0xD0, isXMM_XMMorMEM); }
 void adox(const Reg32e& d, const Reg32e& reg, const Operand& op) { opROO(d, op, reg, T_F3, 0x66); }
 void adox(const Reg32e& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_F3, 0x66)) return; opGen(reg, op, 0xF6, 0xF3, isREG32_REG32orMEM, NONE, 0x38); }
-void aesdec(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xDE, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
-void aesdeclast(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xDF, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
-void aesenc(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xDC, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
-void aesenclast(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xDD, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
+void aesdec(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_66 | T_0F38 | T_YMM | T_EVEX, 0xDE, isXMM_XMMorMEM); }
+void aesdeclast(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_66 | T_0F38 | T_YMM | T_EVEX, 0xDF, isXMM_XMMorMEM); }
+void aesenc(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_66 | T_0F38 | T_YMM | T_EVEX, 0xDC, isXMM_XMMorMEM); }
+void aesenclast(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_66 | T_0F38 | T_YMM | T_EVEX, 0xDD, isXMM_XMMorMEM); }
 void aesimc(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xDB, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
 void aeskeygenassist(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen(xmm, op, 0xDF, 0x66, isXMM_XMMorMEM, imm, 0x3A); }
 void and_(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x20, 4); }
@@ -335,11 +335,11 @@ void fyl2xp1() { db(0xD9); db(0xF9); }
 void gf2p8affineinvqb(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0xCF, 0x66, isXMM_XMMorMEM, static_cast<uint8_t>(imm), 0x3A); }
 void gf2p8affineqb(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0xCE, 0x66, isXMM_XMMorMEM, static_cast<uint8_t>(imm), 0x3A); }
 void gf2p8mulb(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0xCF, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
-void haddpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x7C, 0x66, isXMM_XMMorMEM); }
-void haddps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x7C, 0xF2, isXMM_XMMorMEM); }
+void haddpd(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_66 | T_0F | T_YMM, 0x7C, isXMM_XMMorMEM); }
+void haddps(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_F2 | T_0F | T_YMM, 0x7C, isXMM_XMMorMEM); }
 void hlt() { db(0xF4); }
-void hsubpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x7D, 0x66, isXMM_XMMorMEM); }
-void hsubps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x7D, 0xF2, isXMM_XMMorMEM); }
+void hsubpd(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_66 | T_0F | T_YMM, 0x7D, isXMM_XMMorMEM); }
+void hsubps(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_F2 | T_0F | T_YMM, 0x7D, isXMM_XMMorMEM); }
 void idiv(const Operand& op) { opR_ModM(op, 0, 7, 0xF6); }
 void imul(const Operand& op) { opR_ModM(op, 0, 5, 0xF6); }
 void in_(const Reg& a, const Reg& d) { opInOut(a, d, 0xEC); }
@@ -630,7 +630,7 @@ void phsubsw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x07, T_0F38, T
 void phsubw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x05, T_0F38, T_66); }
 void pinsrb(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen2(xmm, op, T_66 | T_0F3A, 0x20, isXMM_REG32orMEM, imm); }
 void pinsrd(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen2(xmm, op, T_66 | T_0F3A, 0x22, isXMM_REG32orMEM, imm); }
-void pinsrw(const Mmx& mmx, const Operand& op, int imm) { if (!op.isREG(32) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opGen(mmx, op, 0xC4, mmx.isXMM() ? 0x66 : NONE, 0, imm); }
+void pinsrw(const Mmx& mmx, const Operand& op, int imm) { if (!op.isREG(32) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opGen2(mmx, op, T_0F | (mmx.isXMM() ? T_66 : 0), 0xC4, 0, imm); }
 void pmaddubsw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x04, T_0F38, T_66); }
 void pmaddwd(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF5); }
 void pmaxsb(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x3C, 0x66, isXMM_XMMorMEM, NONE, 0x38); }
