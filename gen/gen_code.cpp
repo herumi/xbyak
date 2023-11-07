@@ -224,9 +224,9 @@ void putX_X_XM(bool omitOnly)
 			} else {
 				if (p->mode & 1) {
 					if (p->hasIMM) {
-						printf("void %s(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0x%02X, 0x66, isXMM_XMMorMEM, static_cast<uint8_t>(imm), 0x3A); }\n", p->name, p->code);
+						printf("void %s(const Xmm& xmm, const Operand& op, int imm) { opGen2(xmm, op, T_66 | T_0F3A, 0x%02X, isXMM_XMMorMEM, static_cast<uint8_t>(imm)); }\n", p->name, p->code);
 					} else {
-						printf("void %s(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x%02X, 0x66, isXMM_XMMorMEM, NONE, 0x38); }\n", p->name, p->code);
+						printf("void %s(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, T_66 | T_0F38, 0x%02X, isXMM_XMMorMEM); }\n", p->name, p->code);
 					}
 				}
 				if (p->mode & 2) {
