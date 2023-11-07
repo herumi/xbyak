@@ -1,6 +1,6 @@
 const char *getVersionString() const { return "6.73"; }
-void aadd(const Address& addr, const Reg32e &reg) { opModM(addr, reg, 0x0F, 0x38, 0x0FC); }
-void aand(const Address& addr, const Reg32e &reg) { db(0x66); opModM(addr, reg, 0x0F, 0x38, 0x0FC); }
+void aadd(const Address& addr, const Reg32e &reg) { opModM2(addr, reg, T_0F38, 0x0FC); }
+void aand(const Address& addr, const Reg32e &reg) { opModM2(addr, reg, T_0F38 | T_66, 0x0FC); }
 void adc(const Operand& op, uint32_t imm) { opRM_I(op, imm, 0x10, 2); }
 void adc(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x10); }
 void adc(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 0, 2); }
@@ -34,8 +34,8 @@ void andnpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x55, 0x66, isXM
 void andnps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x55, 0x100, isXMM_XMMorMEM); }
 void andpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x54, 0x66, isXMM_XMMorMEM); }
 void andps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x54, 0x100, isXMM_XMMorMEM); }
-void aor(const Address& addr, const Reg32e &reg) { db(0xF2); opModM(addr, reg, 0x0F, 0x38, 0x0FC); }
-void axor(const Address& addr, const Reg32e &reg) { db(0xF3); opModM(addr, reg, 0x0F, 0x38, 0x0FC); }
+void aor(const Address& addr, const Reg32e &reg) { opModM2(addr, reg, T_0F38 | T_F2, 0x0FC); }
+void axor(const Address& addr, const Reg32e &reg) { opModM2(addr, reg, T_0F38 | T_F3, 0x0FC); }
 void bextr(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opGpr(r1, op, r2, T_0F38, 0xf7, false); }
 void blendpd(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0x0D, 0x66, isXMM_XMMorMEM, static_cast<uint8_t>(imm), 0x3A); }
 void blendps(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, 0x0C, 0x66, isXMM_XMMorMEM, static_cast<uint8_t>(imm), 0x3A); }
@@ -48,11 +48,11 @@ void bnd() { db(0xF2); }
 void bndcl(const BoundsReg& bnd, const Operand& op) { db(0xF3); opR_ModM(op, i32e, bnd.getIdx(), 0x0F, 0x1A, NONE, !op.isMEM()); }
 void bndcn(const BoundsReg& bnd, const Operand& op) { db(0xF2); opR_ModM(op, i32e, bnd.getIdx(), 0x0F, 0x1B, NONE, !op.isMEM()); }
 void bndcu(const BoundsReg& bnd, const Operand& op) { db(0xF2); opR_ModM(op, i32e, bnd.getIdx(), 0x0F, 0x1A, NONE, !op.isMEM()); }
-void bndldx(const BoundsReg& bnd, const Address& addr) { opMIB(addr, bnd, 0x0F, 0x1A); }
+void bndldx(const BoundsReg& bnd, const Address& addr) { opMIB(addr, bnd, T_0F, 0x1A); }
 void bndmk(const BoundsReg& bnd, const Address& addr) { db(0xF3); opModM(addr, bnd, 0x0F, 0x1B); }
 void bndmov(const Address& addr, const BoundsReg& bnd) { db(0x66); opModM(addr, bnd, 0x0F, 0x1B); }
 void bndmov(const BoundsReg& bnd, const Operand& op) { db(0x66); opModRM(bnd, op, op.isBNDREG(), op.isMEM(), 0x0F, 0x1A); }
-void bndstx(const Address& addr, const BoundsReg& bnd) { opMIB(addr, bnd, 0x0F, 0x1B); }
+void bndstx(const Address& addr, const BoundsReg& bnd) { opMIB(addr, bnd, T_0F, 0x1B); }
 void bsf(const Reg&reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, 0xBC); }
 void bsr(const Reg&reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, 0xBD); }
 void bswap(const Reg32e& reg) { opModR2(Reg32(1), reg, 0, 0x0F); }
@@ -474,8 +474,8 @@ void ldmxcsr(const Address& addr) { opModM(addr, Reg32(2), 0x0F, 0xAE); }
 void lea(const Reg& reg, const Address& addr) { if (!reg.isBit(16 | i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opModM(addr, reg, 0x8D); }
 void leave() { db(0xC9); }
 void lfence() { db(0x0F); db(0xAE); db(0xE8); }
-void lfs(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, 0x0F, 0xB4); }
-void lgs(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, 0x0F, 0xB5); }
+void lfs(const Reg& reg, const Address& addr) { opLoadSeg2(addr, reg, T_0F, 0xB4); }
+void lgs(const Reg& reg, const Address& addr) { opLoadSeg2(addr, reg, T_0F, 0xB5); }
 void lock() { db(0xF0); }
 void lodsb() { db(0xAC); }
 void lodsd() { db(0xAD); }
@@ -489,7 +489,7 @@ void loope(std::string label) { opJmp(label, T_SHORT, 0xE1, 0, 0); }
 void loopne(const Label& label) { opJmp(label, T_SHORT, 0xE0, 0, 0); }
 void loopne(const char *label) { loopne(std::string(label)); }
 void loopne(std::string label) { opJmp(label, T_SHORT, 0xE0, 0, 0); }
-void lss(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, 0x0F, 0xB2); }
+void lss(const Reg& reg, const Address& addr) { opLoadSeg2(addr, reg, T_0F, 0xB2); }
 void lzcnt(const Reg&reg, const Operand& op) { opSp1(reg, op, 0xF3, 0x0F, 0xBD); }
 void maskmovdqu(const Xmm& reg1, const Xmm& reg2) { opModR2(reg1, reg2, T_66 | T_0F, 0xF7); }
 void maskmovq(const Mmx& reg1, const Mmx& reg2) { if (!reg1.isMMX() || !reg2.isMMX()) XBYAK_THROW(ERR_BAD_COMBINATION) opModR2(reg1, reg2, T_0F, 0xF7); }
@@ -668,14 +668,14 @@ void pmuludq(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF4); }
 void popcnt(const Reg&reg, const Operand& op) { opSp1(reg, op, 0xF3, 0x0F, 0xB8); }
 void popf() { db(0x9D); }
 void por(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xEB); }
-void prefetchit0(const Address& addr) { opModM(addr, Reg32(7), 0x0F, 0x18); }
-void prefetchit1(const Address& addr) { opModM(addr, Reg32(6), 0x0F, 0x18); }
-void prefetchnta(const Address& addr) { opModM(addr, Reg32(0), 0x0F, 0x18); }
-void prefetcht0(const Address& addr) { opModM(addr, Reg32(1), 0x0F, 0x18); }
-void prefetcht1(const Address& addr) { opModM(addr, Reg32(2), 0x0F, 0x18); }
-void prefetcht2(const Address& addr) { opModM(addr, Reg32(3), 0x0F, 0x18); }
-void prefetchw(const Address& addr) { opModM(addr, Reg32(1), 0x0F, 0x0D); }
-void prefetchwt1(const Address& addr) { opModM(addr, Reg32(2), 0x0F, 0x0D); }
+void prefetchit0(const Address& addr) { opModM2(addr, Reg32(7), T_0F, 0x18); }
+void prefetchit1(const Address& addr) { opModM2(addr, Reg32(6), T_0F, 0x18); }
+void prefetchnta(const Address& addr) { opModM2(addr, Reg32(0), T_0F, 0x18); }
+void prefetcht0(const Address& addr) { opModM2(addr, Reg32(1), T_0F, 0x18); }
+void prefetcht1(const Address& addr) { opModM2(addr, Reg32(2), T_0F, 0x18); }
+void prefetcht2(const Address& addr) { opModM2(addr, Reg32(3), T_0F, 0x18); }
+void prefetchw(const Address& addr) { opModM2(addr, Reg32(1), T_0F, 0x0D); }
+void prefetchwt1(const Address& addr) { opModM2(addr, Reg32(2), T_0F, 0x0D); }
 void psadbw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF6); }
 void pshufb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x00, 0x66, NONE, 0x38); }
 void pshufd(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX(mmx, op, 0x70, 0x66, imm8); }
@@ -1753,8 +1753,8 @@ void pusha() { db(0x60); }
 void pushad() { db(0x60); }
 void pushfd() { db(0x9C); }
 void popa() { db(0x61); }
-void lds(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, 0xC5, 0x100); }
-void les(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, 0xC4, 0x100); }
+void lds(const Reg& reg, const Address& addr) { opLoadSeg2(addr, reg, 0, 0xC5); }
+void les(const Reg& reg, const Address& addr) { opLoadSeg2(addr, reg, 0, 0xC4); }
 #endif
 #ifndef XBYAK_NO_OP_NAMES
 void and(const Operand& op1, const Operand& op2) { and_(op1, op2); }

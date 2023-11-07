@@ -245,9 +245,9 @@ void putMemOp(const char *name, uint8_t prefix, uint8_t ext, uint8_t code1, int 
 	printf("opModM(addr, Reg%d(%d), 0x%02X, 0x%02X); }\n", bit, ext, code1, code2);
 }
 
-void putLoadSeg(const char *name, uint8_t code1, int code2 = NONE)
+void putLoadSeg(const char *name, int type, uint8_t code)
 {
-	printf("void %s(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, 0x%02X, 0x%02X); }\n", name, code1, code2);
+	printf("void %s(const Reg& reg, const Address& addr) { opLoadSeg2(addr, reg, %s, 0x%02X); }\n", name, type ? "T_0F" : "0", code);
 }
 
 void put()
@@ -569,7 +569,7 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void prefetch%s(const Address& addr) { opModM(addr, Reg32(%d), 0x0F, 0x%02X); }\n", p->name, p->ext, p->code);
+			printf("void prefetch%s(const Address& addr) { opModM2(addr, Reg32(%d), T_0F, 0x%02X); }\n", p->name, p->ext, p->code);
 		}
 	}
 	{
@@ -789,9 +789,9 @@ void put()
 		putGeneric(tbl, NUM_OF_ARRAY(tbl));
 		puts("void enter(uint16_t x, uint8_t y) { db(0xC8); dw(x); db(y); }");
 		puts("void int_(uint8_t x) { db(0xCD); db(x); }");
-		putLoadSeg("lss", 0x0F, 0xB2);
-		putLoadSeg("lfs", 0x0F, 0xB4);
-		putLoadSeg("lgs", 0x0F, 0xB5);
+		putLoadSeg("lss", T_0F, 0xB2);
+		putLoadSeg("lfs", T_0F, 0xB4);
+		putLoadSeg("lgs", T_0F, 0xB5);
 	}
 	{
 		const struct Tbl {
@@ -821,18 +821,17 @@ void put()
 	{
 		const struct Tbl {
 			const char *name;
-			uint8_t prefix;
+			const char *prefix;
 		} tbl[] = {
-			{ "aadd", 0 },
-			{ "aand", 0x66 },
-			{ "aor", 0xF2 },
-			{ "axor", 0xF3 },
+			{ "aadd", "" },
+			{ "aand", " | T_66" },
+			{ "aor", " | T_F2" },
+			{ "axor", " | T_F3" },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Address& addr, const Reg32e &reg) { ", p->name);
-			if (p->prefix) printf("db(0x%02X); ", p->prefix);
-			printf("opModM(addr, reg, 0x0F, 0x38, 0x0FC); }\n");
+			printf("opModM2(addr, reg, T_0F38%s, 0x0FC); }\n", p->prefix);
 		}
 	}
 
@@ -1078,11 +1077,11 @@ void put()
 		puts("void bndcl(const BoundsReg& bnd, const Operand& op) { db(0xF3); opR_ModM(op, i32e, bnd.getIdx(), 0x0F, 0x1A, NONE, !op.isMEM()); }");
 		puts("void bndcu(const BoundsReg& bnd, const Operand& op) { db(0xF2); opR_ModM(op, i32e, bnd.getIdx(), 0x0F, 0x1A, NONE, !op.isMEM()); }");
 		puts("void bndcn(const BoundsReg& bnd, const Operand& op) { db(0xF2); opR_ModM(op, i32e, bnd.getIdx(), 0x0F, 0x1B, NONE, !op.isMEM()); }");
-		puts("void bndldx(const BoundsReg& bnd, const Address& addr) { opMIB(addr, bnd, 0x0F, 0x1A); }");
+		puts("void bndldx(const BoundsReg& bnd, const Address& addr) { opMIB(addr, bnd, T_0F, 0x1A); }");
 		puts("void bndmk(const BoundsReg& bnd, const Address& addr) { db(0xF3); opModM(addr, bnd, 0x0F, 0x1B); }");
 		puts("void bndmov(const BoundsReg& bnd, const Operand& op) { db(0x66); opModRM(bnd, op, op.isBNDREG(), op.isMEM(), 0x0F, 0x1A); }");
 		puts("void bndmov(const Address& addr, const BoundsReg& bnd) { db(0x66); opModM(addr, bnd, 0x0F, 0x1B); }");
-		puts("void bndstx(const Address& addr, const BoundsReg& bnd) { opMIB(addr, bnd, 0x0F, 0x1B); }");
+		puts("void bndstx(const Address& addr, const BoundsReg& bnd) { opMIB(addr, bnd, T_0F, 0x1B); }");
 	}
 	// misc
 	{
@@ -1882,8 +1881,8 @@ void put32()
 		{ "popa", 0x61 },
 	};
 	putGeneric(tbl, NUM_OF_ARRAY(tbl));
-	putLoadSeg("lds", 0xC5, NONE);
-	putLoadSeg("les", 0xC4, NONE);
+	putLoadSeg("lds", 0, 0xC5);
+	putLoadSeg("les", 0, 0xC4);
 }
 
 void put64()

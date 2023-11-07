@@ -2057,20 +2057,28 @@ private:
 		writeCode(0, reg, code0, code1, code2);
 		opAddr(addr, reg.getIdx(), immSize);
 	}
-	void opLoadSeg(const Address& addr, const Reg& reg, int code0, int code1)
+	void opModM2(const Address& addr, const Reg& reg, int type, int code, int immSize = 0)
+	{
+		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
+		rexA(type, addr, reg);
+		writeCode2(type, reg, code);
+		opAddr(addr, reg.getIdx(), immSize);
+	}
+	void opLoadSeg2(const Address& addr, const Reg& reg, int type, int code)
 	{
 		if (reg.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
 		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
 		// can't use opModM
 		rex(addr, reg);
-		db(code0); if (code1 != NONE) db(code1);
+		if (type & T_0F) db(0x0F);
+		db(code);
 		opAddr(addr, reg.getIdx());
 	}
 	// for only MPX(bnd*)
-	void opMIB(const Address& addr, const Reg& reg, int code0, int code1)
+	void opMIB(const Address& addr, const Reg& reg, int type, int code)
 	{
 		if (addr.getMode() != Address::M_ModRM) XBYAK_THROW(ERR_INVALID_MIB_ADDRESS)
-		opModM(addr.cloneNoOptimize(), reg, code0, code1);
+		opModM2(addr.cloneNoOptimize(), reg, type, code);
 	}
 	void makeJmp(uint32_t disp, LabelType type, uint8_t shortCode, uint8_t longCode, uint8_t longPref)
 	{
@@ -2318,7 +2326,7 @@ private:
 		if (op.isREG()) {
 			opModR2(Reg(ext, Operand::REG, op.getBit()), op.getReg(), 0, code);
 		} else {
-			opModM(op.getAddress(), Reg(ext, Operand::REG, op.getBit()), code);
+			opModM2(op.getAddress(), Reg(ext, Operand::REG, op.getBit()), 0, code);
 		}
 	}
 	void opPushPop(const Operand& op, int code, int ext, int alt)
