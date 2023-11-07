@@ -383,18 +383,17 @@ void put()
 
 	{
 		const struct Tbl {
-			uint8_t code;
-			uint8_t pref;
+			const char *pref;
 			const char *name;
 		} tbl[] = {
-			{ 0x70, 0, "pshufw" },
-			{ 0x70, 0xF2, "pshuflw" },
-			{ 0x70, 0xF3, "pshufhw" },
-			{ 0x70, 0x66, "pshufd" },
+			{ "0", "pshufw" },
+			{ "T_F2", "pshuflw" },
+			{ "T_F3", "pshufhw" },
+			{ "T_66", "pshufd" },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX(mmx, op, 0x%02X, 0x%02X, imm8); }\n", p->name, p->code, p->pref);
+			printf("void %s(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX2(mmx, op, 0x70, T_0F, %s, imm8); }\n", p->name, p->pref);
 		}
 	}
 	{

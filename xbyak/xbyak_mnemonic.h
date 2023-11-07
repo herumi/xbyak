@@ -678,10 +678,10 @@ void prefetchw(const Address& addr) { opModM2(addr, Reg32(1), T_0F, 0x0D); }
 void prefetchwt1(const Address& addr) { opModM2(addr, Reg32(2), T_0F, 0x0D); }
 void psadbw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0xF6); }
 void pshufb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x00, T_0F38, T_66); }
-void pshufd(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX(mmx, op, 0x70, 0x66, imm8); }
-void pshufhw(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX(mmx, op, 0x70, 0xF3, imm8); }
-void pshuflw(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX(mmx, op, 0x70, 0xF2, imm8); }
-void pshufw(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX(mmx, op, 0x70, 0x00, imm8); }
+void pshufd(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX2(mmx, op, 0x70, T_0F, T_66, imm8); }
+void pshufhw(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX2(mmx, op, 0x70, T_0F, T_F3, imm8); }
+void pshuflw(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX2(mmx, op, 0x70, T_0F, T_F2, imm8); }
+void pshufw(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX2(mmx, op, 0x70, T_0F, 0, imm8); }
 void psignb(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x08, T_0F38, T_66); }
 void psignd(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x0A, T_0F38, T_66); }
 void psignw(const Mmx& mmx, const Operand& op) { opMMX2(mmx, op, 0x09, T_0F38, T_66); }
