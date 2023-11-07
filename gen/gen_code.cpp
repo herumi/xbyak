@@ -1100,9 +1100,9 @@ void put()
 		puts("void pextrd(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x16, imm); }");
 		puts("void extractps(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x17, imm); }");
 		puts("void pinsrw(const Mmx& mmx, const Operand& op, int imm) { if (!op.isREG(32) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opGen(mmx, op, 0xC4, mmx.isXMM() ? 0x66 : NONE, 0, imm); }");
-		puts("void insertps(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen(xmm, op, 0x21, 0x66, isXMM_XMMorMEM, imm, 0x3A); }");
-		puts("void pinsrb(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen(xmm, op, 0x20, 0x66, isXMM_REG32orMEM, imm, 0x3A); }");
-		puts("void pinsrd(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen(xmm, op, 0x22, 0x66, isXMM_REG32orMEM, imm, 0x3A); }");
+		puts("void insertps(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen2(xmm, op, T_66 | T_0F3A, 0x21, isXMM_XMMorMEM, imm); }");
+		puts("void pinsrb(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen2(xmm, op, T_66 | T_0F3A, 0x20, isXMM_REG32orMEM, imm); }");
+		puts("void pinsrd(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen2(xmm, op, T_66 | T_0F3A, 0x22, isXMM_REG32orMEM, imm); }");
 
 		puts("void pmovmskb(const Reg32e& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR2(reg, mmx, T_0F, 0xD7); }");
 		puts("void maskmovq(const Mmx& reg1, const Mmx& reg2) { if (!reg1.isMMX() || !reg2.isMMX()) XBYAK_THROW(ERR_BAD_COMBINATION) opModR2(reg1, reg2, T_0F, 0xF7); }");
@@ -1911,8 +1911,8 @@ void put64()
 	puts("void movq(const Reg64& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR2(mmx, reg, T_0F, 0x7E); }");
 	puts("void movq(const Mmx& mmx, const Reg64& reg) { if (mmx.isXMM()) db(0x66); opModR2(mmx, reg, T_0F, 0x6E); }");
 	puts("void movsxd(const Reg64& reg, const Operand& op) { if (!op.isBit(32)) XBYAK_THROW(ERR_BAD_COMBINATION) opModRM(reg, op, op.isREG(), op.isMEM(), 0x63); }");
-	puts("void pextrq(const Operand& op, const Xmm& xmm, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opGen(Reg64(xmm.getIdx()), op, 0x16, 0x66, 0, imm, 0x3A); }");
-	puts("void pinsrq(const Xmm& xmm, const Operand& op, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opGen(Reg64(xmm.getIdx()), op, 0x22, 0x66, 0, imm, 0x3A); }");
+	puts("void pextrq(const Operand& op, const Xmm& xmm, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opGen2(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x16, 0, imm); }");
+	puts("void pinsrq(const Xmm& xmm, const Operand& op, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opGen2(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x22, 0, imm); }");
 	puts("void senduipi(const Reg64& r) { opModR2(Reg32(6), r.cvt32(), T_F3 | T_0F, 0xC7); }");
 
 	puts("void vcvtss2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W1 | T_EVEX | T_EW1 | T_ER_X | T_N8, 0x2D); }");

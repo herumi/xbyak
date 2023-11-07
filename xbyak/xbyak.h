@@ -2243,7 +2243,7 @@ private:
 			if (mmx.isXMM()) db(0x66);
 			opModR2(op.getReg(), mmx, T_0F, 0xC5); db(imm);
 		} else {
-			opGen(mmx, op, code, 0x66, isXMM_REG32orMEM, imm, 0x3A);
+			opGen2(mmx, op, T_66 | T_0F3A, code, isXMM_REG32orMEM, imm);
 		}
 	}
 	void opR_ModM(const Operand& op, int bit, int ext, int code0, int code1 = NONE, int code2 = NONE, bool disableRex = false, int immSize = 0)
