@@ -2219,11 +2219,7 @@ private:
 		opModR2(Reg32(ext), mmx, T_0F, code);
 		db(imm8);
 	}
-	void opMMX(const Mmx& mmx, const Operand& op, int code, int pref = 0x66, int imm8 = NONE, int preCode = NONE)
-	{
-		opGen(mmx, op, code, mmx.isXMM() ? pref : NONE, isXMMorMMX_MEM, imm8, preCode);
-	}
-	void opMMX2(const Mmx& mmx, const Operand& op, int code, int type = T_0F, int pref = T_66, int imm8 = NONE)
+	void opMMX(const Mmx& mmx, const Operand& op, int code, int type = T_0F, int pref = T_66, int imm8 = NONE)
 	{
 		if (mmx.isXMM()) type |= pref;
 		opGen2(mmx, op, type, code, isXMMorMMX_MEM, imm8);
