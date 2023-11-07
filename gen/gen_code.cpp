@@ -1359,7 +1359,7 @@ void put()
 				const char *prefTbl[5] = { "NONE", "0x66", "0xF3", "0xF2" };
 				const char *pref = prefTbl[getPP(p->type)];
 				const char *suf = p->type & T_0F38 ? "0x38" : p->type & T_0F3A ? "0x3A" : "NONE";
-				printf("void %s(const Xmm& xmm, const Operand& op%s) { opGen(xmm, op, 0x%02X, %s, isXMM_XMMorMEM%s, %s); }\n", p->name, immS1, p->code, pref, immS2, suf);
+				printf("void %s(const Xmm& xmm, const Operand& op%s) { opGen2(xmm, op, %s, 0x%02X, isXMM_XMMorMEM%s); }\n", p->name, immS1, type.c_str(), p->code, immS2);
 			}
 			if (p->mode & 2) {
 				printf("void v%s(const Xmm& xm, const Operand& op%s) { opAVX_X_XM_IMM(xm, op, %s, 0x%02X%s); }\n"
