@@ -427,13 +427,13 @@ void put()
 			SD = 1 << 3
 		};
 		const struct {
-			int code;
+			const char *suf;
 			const char *name;
 		} sufTbl[] = {
-			{ NO, "ps" },
-			{ 0xF3, "ss" },
-			{ 0x66, "pd" },
-			{ 0xF2, "sd" },
+			{ "T_0F", "ps" },
+			{ "T_0F | T_F3", "ss" },
+			{ "T_0F | T_66", "pd" },
+			{ "T_0F | T_F2", "sd" },
 		};
 		const struct Tbl {
 			uint8_t code;
@@ -466,9 +466,9 @@ void put()
 				if (!(p->mode & (1 << j))) continue;
 				if (p->hasImm) {
 					// don't change uint8_t to int because NO is not in byte
-					printf("void %s%s(const Xmm& xmm, const Operand& op, uint8_t imm8) { opGen(xmm, op, 0x%2X, 0x%02X, isXMM_XMMorMEM, imm8); }\n", p->name, sufTbl[j].name, p->code, sufTbl[j].code);
+					printf("void %s%s(const Xmm& xmm, const Operand& op, uint8_t imm8) { opGen2(xmm, op, %s, 0x%02X, isXMM_XMMorMEM, imm8); }\n", p->name, sufTbl[j].name, sufTbl[j].suf, p->code);
 				} else {
-					printf("void %s%s(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x%2X, 0x%02X, isXMM_XMMorMEM); }\n", p->name, sufTbl[j].name, p->code, sufTbl[j].code);
+					printf("void %s%s(const Xmm& xmm, const Operand& op) { opGen2(xmm, op, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, sufTbl[j].name, sufTbl[j].suf, p->code);
 				}
 			}
 		}
