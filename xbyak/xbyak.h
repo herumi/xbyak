@@ -2307,8 +2307,8 @@ private:
 	void opROI(const Reg& d, const Operand& op, uint32_t imm, int type, int ext)
 	{
 		uint32_t immBit = getImmBit(d, imm);
-		int tmp = immBit < (std::min)(d.getBit(), 32U) ? 2 : 0;
-		opROO(d, op, Reg(ext, Operand::REG, d.getBit()), type, 0x80 | tmp, NONE, NONE, immBit / 8);
+		int code = immBit < (std::min)(d.getBit(), 32U) ? 2 : 0;
+		opROO(d, op, Reg(ext, Operand::REG, d.getBit()), type, 0x80 | code, immBit / 8);
 		db(imm, immBit / 8);
 	}
 	void opIncDec(const Operand& op, int code, int ext)
@@ -2951,27 +2951,7 @@ public:
 	}
 
 	// (r, r, m) or (r, m, r)
-	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, int type, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
-	{
-		if (!d.isREG() && !(d.hasRex2() || op1.hasRex2() || op2.hasRex2())) return false;
-		const Operand *p1 = &op1, *p2 = &op2;
-		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code0 |= 2; }
-		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
-		if (p2->isMEM()) {
-			const Reg& r = *static_cast<const Reg*>(p1);
-			const Address& addr = p2->getAddress();
-			const RegExp e = addr.getRegExp();
-			evexLeg(r, e.getBase(), e.getIndex(), d, type);
-			writeCode(type, d, code0, code1, code2);
-			opAddr(addr, r.getIdx(), immSize);
-		} else {
-			evexLeg(static_cast<const Reg&>(op2), static_cast<const Reg&>(op1), Reg(), d, type);
-			writeCode(type, d, code0, code1, code2);
-			setModRM(3, op2.getIdx(), op1.getIdx());
-		}
-		return true;
-	}
-	bool opROO2(const Reg& d, const Operand& op1, const Operand& op2, int type, int code, int immSize = 0)
+	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, int type, int code, int immSize = 0)
 	{
 		if (!d.isREG() && !(d.hasRex2() || op1.hasRex2() || op2.hasRex2())) return false;
 		const Operand *p1 = &op1, *p2 = &op2;

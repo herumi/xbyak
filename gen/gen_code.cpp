@@ -1059,7 +1059,7 @@ void put()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Reg32e& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_%02X, 0x66)) return; opGen(reg, op, T_%02X | T_0F38, 0xF6, isREG32_REG32orMEM); }\n", p->name, p->prefix, p->prefix);
-			printf("void %s(const Reg32e& d, const Reg32e& reg, const Operand& op) { opROO2(d, op, reg, T_%02X, 0x66); }\n", p->name, p->prefix);
+			printf("void %s(const Reg32e& d, const Reg32e& reg, const Operand& op) { opROO(d, op, reg, T_%02X, 0x66); }\n", p->name, p->prefix);
 		}
 	}
 	{ // in/out
