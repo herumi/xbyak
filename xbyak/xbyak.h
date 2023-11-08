@@ -1712,7 +1712,7 @@ private:
 		db(0xD5);
 		db((rexRXB(4, bit3, r, b, x) << 4) | rex4bit);
 	}
-	void rex(const Operand& op1, const Operand& op2 = Operand())
+	void rex(const Operand& op1, const Operand& op2 = Operand(), int type = 0)
 	{
 		if (op1.getNF() | op2.getNF()) XBYAK_THROW(ERR_INVALID_NF)
 		uint8_t rex = 0;
@@ -1722,51 +1722,13 @@ private:
 		// except movsx(16bit, 32/64bit)
 		uint8_t p66 = (op1.isBit(16) && !op2.isBit(i32e)) || (op2.isBit(16) && !op1.isBit(i32e)) ? 0x66 : 0;
 		if (p66) db(p66);
-		if (p2->isMEM()) {
-			const Reg& r = *static_cast<const Reg*>(p1);
-			const Address& addr = p2->getAddress();
-			const RegExp e = addr.getRegExp();
-			const Reg& base = e.getBase();
-			const Reg& idx = e.getIndex();
-			if (BIT == 64 && addr.is32bit()) db(0x67);
-			rex = rexRXB(3, r.isREG(64), r, base, idx);
-			if (r.hasRex2() || addr.hasRex2()) {
-				rex2(0, rex, r, base, idx);
-				return;
-			}
-			if (rex || r.isExt8bit()) rex |= 0x40;
-		} else {
-			const Reg& r1 = static_cast<const Reg&>(op1);
-			const Reg& r2 = static_cast<const Reg&>(op2);
-			// ModRM(reg, base);
-			rex = rexRXB(3, r1.isREG(64) || r2.isREG(64), r2, r1);
-			if (r1.hasRex2() || r2.hasRex2()) {
-				rex2(0, rex, r2, r1);
-				return;
-			}
-			if (rex || r1.isExt8bit() || r2.isExt8bit()) rex |= 0x40;
+		if ((type & T_F2) == T_F2) {
+			db(0xF2);
+		} else if (type & T_66) {
+			if (!p66) db(0x66); // only once
+		} else if (type & T_F3) {
+			db(0xF3);
 		}
-		if (rex) db(rex);
-	}
-	void rexA(int type, const Operand& op1, const Operand& op2 = Operand())
-	{
-		if (op1.getNF() | op2.getNF()) XBYAK_THROW(ERR_INVALID_NF)
-		uint8_t rex = 0;
-		const Operand *p1 = &op1, *p2 = &op2;
-		if (p1->isMEM()) std::swap(p1, p2);
-		if (p1->isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
-		// except movsx(16bit, 32/64bit)
-		uint8_t p66 = (op1.isBit(16) && !op2.isBit(i32e)) || (op2.isBit(16) && !op1.isBit(i32e)) ? 0x66 : 0;
-		if (p66) db(p66);
-//		if ((type & (T_VEX|T_EVEX|T_MUST_EVEX)) == 0) {
-			if ((type & T_F2) == T_F2) {
-				db(0xF2);
-			} else if (type & T_66) {
-				if (!p66) db(0x66); // only once
-			} else if (type & T_F3) {
-				db(0xF3);
-			}
-//		}
 		if (p2->isMEM()) {
 			const Reg& r = *static_cast<const Reg*>(p1);
 			const Address& addr = p2->getAddress();
@@ -2034,14 +1996,14 @@ private:
 	}
 	void opModR(const Reg& reg1, const Reg& reg2, int type, int code)
 	{
-		rexA(type, reg2, reg1);
+		rex(reg2, reg1, type);
 		writeCode2(type, reg1, code);
 		setModRM(3, reg1.getIdx(), reg2.getIdx());
 	}
 	void opModM(const Address& addr, const Reg& reg, int type, int code, int immSize = 0)
 	{
 		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
-		rexA(type, addr, reg);
+		rex(addr, reg, type);
 		writeCode2(type, reg, code);
 		opAddr(addr, reg.getIdx(), immSize);
 	}
