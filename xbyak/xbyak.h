@@ -1983,7 +1983,7 @@ private:
 	}
 	LabelManager labelMgr_;
 	bool isInDisp16(uint32_t x) const { return 0xFFFF8000 <= x || x <= 0x7FFF; }
-	void writeCode2(int type, const Reg& r, int code)
+	void writeCode(int type, const Reg& r, int code)
 	{
 		if (type & T_0F) {
 			db(0x0F);
@@ -1994,25 +1994,25 @@ private:
 		}
 		db(code | (type == 0 && !r.isBit(8)));
 	}
-	void opModR(const Reg& reg1, const Reg& reg2, int type, int code)
+	void opRR(const Reg& reg1, const Reg& reg2, int type, int code)
 	{
 		rex(reg2, reg1, type);
-		writeCode2(type, reg1, code);
+		writeCode(type, reg1, code);
 		setModRM(3, reg1.getIdx(), reg2.getIdx());
 	}
-	void opModM(const Address& addr, const Reg& reg, int type, int code, int immSize = 0)
+	void opMR(const Address& addr, const Reg& reg, int type, int code, int immSize = 0)
 	{
 		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
 		rex(addr, reg, type);
-		writeCode2(type, reg, code);
+		writeCode(type, reg, code);
 		opAddr(addr, reg.getIdx(), immSize);
 	}
 	void opLoadSeg(const Address& addr, const Reg& reg, int type, int code)
 	{
 		if (reg.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
 		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
-		// can't use opModM
-		rex(addr, reg);
+		// can't use opMR
+		rex(addr, reg, type);
 		if (type & T_0F) db(0x0F);
 		db(code);
 		opAddr(addr, reg.getIdx());
@@ -2021,7 +2021,7 @@ private:
 	void opMIB(const Address& addr, const Reg& reg, int type, int code)
 	{
 		if (addr.getMode() != Address::M_ModRM) XBYAK_THROW(ERR_INVALID_MIB_ADDRESS)
-		opModM(addr.cloneNoOptimize(), reg, type, code);
+		opMR(addr.cloneNoOptimize(), reg, type, code);
 	}
 	void makeJmp(uint32_t disp, LabelType type, uint8_t shortCode, uint8_t longCode, uint8_t longPref)
 	{
@@ -2079,9 +2079,9 @@ private:
 		const int bit = 16|i32e;
 		if (type == T_FAR) {
 			if (!op.isMEM(bit)) XBYAK_THROW(ERR_NOT_SUPPORTED)
-			opR_ModM(op, bit, ext + 1, 0, 0xFF, false);
+			opRext(op, bit, ext + 1, 0, 0xFF, false);
 		} else {
-			opR_ModM(op, bit, ext, 0, 0xFF, true);
+			opRext(op, bit, ext, 0, 0xFF, true);
 		}
 	}
 	// reg is reg field of ModRM
@@ -2111,9 +2111,9 @@ private:
 		if (isValid && !isValid(reg, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		if (!isValidSSE(reg) || !isValidSSE(op)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		if (op.isMEM()) {
-			opModM(op.getAddress(), reg.getReg(), type, code, (imm8 != NONE) ? 1 : 0);
+			opMR(op.getAddress(), reg.getReg(), type, code, (imm8 != NONE) ? 1 : 0);
 		} else {
-			opModR(reg.getReg(), op.getReg(), type, code);
+			opRR(reg.getReg(), op.getReg(), type, code);
 		}
 		if (imm8 != NONE) db(imm8);
 	}
@@ -2122,7 +2122,7 @@ private:
 		if (!isValidSSE(mmx)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		int type = T_0F;
 		if (mmx.isXMM()) type |= T_66;
-		opModR(Reg32(ext), mmx, type, code);
+		opRR(Reg32(ext), mmx, type, code);
 		db(imm8);
 	}
 	void opMMX(const Mmx& mmx, const Operand& op, int code, int type = T_0F, int pref = T_66, int imm8 = NONE)
@@ -2134,31 +2134,32 @@ private:
 	{
 		if (!isValidSSE(op1) || !isValidSSE(op2)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		if (op1.isXMM() && op2.isMEM()) {
-			opModM(op2.getAddress(), op1.getReg(), type, code);
+			opMR(op2.getAddress(), op1.getReg(), type, code);
 		} else if (op1.isMEM() && op2.isXMM()) {
-			opModM(op1.getAddress(), op2.getReg(), type, code | 1);
+			opMR(op1.getAddress(), op2.getReg(), type, code | 1);
 		} else {
 			XBYAK_THROW(ERR_BAD_COMBINATION)
 		}
 	}
+	// pextr{w,b,d}, extractps
 	void opExt(const Operand& op, const Mmx& mmx, int code, int imm, bool hasMMX2 = false)
 	{
 		if (!isValidSSE(op) || !isValidSSE(mmx)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		if (hasMMX2 && op.isREG(i32e)) { /* pextrw is special */
 			if (mmx.isXMM()) db(0x66);
-			opModR(op.getReg(), mmx, T_0F, 0xC5); db(imm);
+			opRR(op.getReg(), mmx, T_0F, 0xC5); db(imm);
 		} else {
 			opGen(mmx, op, T_66 | T_0F3A, code, isXMM_REG32orMEM, imm);
 		}
 	}
-	void opR_ModM(const Operand& op, int bit, int ext, int type, int code, bool disableRex = false, int immSize = 0)
+	void opRext(const Operand& op, int bit, int ext, int type, int code, bool disableRex = false, int immSize = 0)
 	{
 		int opBit = op.getBit();
 		if (disableRex && opBit == 64) opBit = 32;
 		if (op.isREG(bit)) {
-			opModR(Reg(ext, Operand::REG, opBit), op.getReg().changeBit(opBit), type, code);
+			opRR(Reg(ext, Operand::REG, opBit), op.getReg().changeBit(opBit), type, code);
 		} else if (op.isMEM()) {
-			opModM(op.getAddress(), Reg(ext, Operand::REG, opBit), type, code, immSize);
+			opMR(op.getAddress(), Reg(ext, Operand::REG, opBit), type, code, immSize);
 		} else {
 			XBYAK_THROW(ERR_BAD_COMBINATION)
 		}
@@ -2166,20 +2167,20 @@ private:
 	void opShift(const Operand& op, int imm, int ext)
 	{
 		verifyMemHasSize(op);
-		opR_ModM(op, 0, ext, 0, (0xC0 | ((imm == 1 ? 1 : 0) << 4)), false, (imm != 1) ? 1 : 0);
+		opRext(op, 0, ext, 0, (0xC0 | ((imm == 1 ? 1 : 0) << 4)), false, (imm != 1) ? 1 : 0);
 		if (imm != 1) db(imm);
 	}
 	void opShift(const Operand& op, const Reg8& _cl, int ext)
 	{
 		if (_cl.getIdx() != Operand::CL) XBYAK_THROW(ERR_BAD_COMBINATION)
-		opR_ModM(op, 0, ext, 0, 0xD2);
+		opRext(op, 0, ext, 0, 0xD2);
 	}
-	void opModRM(const Operand& op1, const Operand& op2, bool condR, bool condM, int type, int code, int immSize = 0)
+	void opRO(const Reg& r, const Operand& op, bool condR, bool condM, int type, int code, int immSize = 0)
 	{
 		if (condR) {
-			opModR(op1.getReg(), op2.getReg(), type, code);
+			opRR(r, op.getReg(), type, code);
 		} else if (condM) {
-			opModM(op2.getAddress(), op1.getReg(), type, code, immSize);
+			opMR(op.getAddress(), r, type, code, immSize);
 		} else {
 			XBYAK_THROW(ERR_BAD_COMBINATION)
 		}
@@ -2187,16 +2188,18 @@ private:
 	void opShxd(const Operand& op, const Reg& reg, uint8_t imm, int code, const Reg8 *_cl = 0)
 	{
 		if (_cl && _cl->getIdx() != Operand::CL) XBYAK_THROW(ERR_BAD_COMBINATION)
-		opModRM(reg, op, (op.isREG(16 | i32e) && op.getBit() == reg.getBit()), op.isMEM() && (reg.isREG(16 | i32e)), T_0F, code | (_cl ? 1 : 0), _cl ? 0 : 1);
+		opRO(reg, op, (op.isREG(16 | i32e) && op.getBit() == reg.getBit()), op.isMEM() && (reg.isREG(16 | i32e)), T_0F, code | (_cl ? 1 : 0), _cl ? 0 : 1);
 		if (!_cl) db(imm);
 	}
 	// (REG, REG|MEM), (MEM, REG)
-	void opRM_RM(const Operand& op1, const Operand& op2, int code)
+	void opRO_MR(const Operand& op1, const Operand& op2, int code)
 	{
 		if (op1.isREG() && op2.isMEM()) {
-			opModM(op2.getAddress(), op1.getReg(), 0, code | 2);
+			opMR(op2.getAddress(), op1.getReg(), 0, code | 2);
+		} else if (op2.isREG()) {
+			opRO(static_cast<const Reg&>(op2), op1, op1.isREG() && op1.getKind() == op2.getKind(), op1.isMEM() && op2.isREG(), 0, code);
 		} else {
-			opModRM(op2, op1, op1.isREG() && op1.getKind() == op2.getKind(), op1.isMEM() && op2.isREG(), 0, code);
+			XBYAK_THROW(ERR_BAD_COMBINATION)
 		}
 	}
 	uint32_t getImmBit(const Operand& op, uint32_t imm)
@@ -2209,7 +2212,7 @@ private:
 		return immBit;
 	}
 	// (REG|MEM, IMM)
-	void opRM_I(const Operand& op, uint32_t imm, int code, int ext)
+	void opOI(const Operand& op, uint32_t imm, int code, int ext)
 	{
 		uint32_t immBit = getImmBit(op, imm);
 		if (op.isREG() && op.getIdx() == 0 && (op.getBit() == immBit || (op.isBit(64) && immBit == 32))) { // rax, eax, ax, al
@@ -2217,7 +2220,7 @@ private:
 			db(code | 4 | (immBit == 8 ? 0 : 1));
 		} else {
 			int tmp = immBit < (std::min)(op.getBit(), 32U) ? 2 : 0;
-			opR_ModM(op, 0, ext, 0, 0x80 | tmp, false, immBit / 8);
+			opRext(op, 0, ext, 0, 0x80 | tmp, false, immBit / 8);
 		}
 		db(imm, immBit / 8);
 	}
@@ -2240,9 +2243,9 @@ private:
 #endif
 		code = 0xFE;
 		if (op.isREG()) {
-			opModR(Reg(ext, Operand::REG, op.getBit()), op.getReg(), 0, code);
+			opRR(Reg(ext, Operand::REG, op.getBit()), op.getReg(), 0, code);
 		} else {
-			opModM(op.getAddress(), Reg(ext, Operand::REG, op.getBit()), 0, code);
+			opMR(op.getAddress(), Reg(ext, Operand::REG, op.getBit()), 0, code);
 		}
 	}
 	void opPushPop(const Operand& op, int code, int ext, int alt)
@@ -2256,7 +2259,7 @@ private:
 				return;
 			}
 			if (op.isMEM()) {
-				opModM(op.getAddress(), Reg(ext, Operand::REG, 32), 0, code);
+				opMR(op.getAddress(), Reg(ext, Operand::REG, 32), 0, code);
 				return;
 			}
 		}
@@ -2314,7 +2317,7 @@ private:
 		if (op.isBit(32)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		int w = op.isBit(16);
 		bool cond = reg.isREG() && (reg.getBit() > op.getBit());
-		opModRM(reg, op, cond && op.isREG(), cond && op.isMEM(), T_0F, code | w);
+		opRO(reg, op, cond && op.isREG(), cond && op.isMEM(), T_0F, code | w);
 	}
 	void opFpuMem(const Address& addr, uint8_t m16, uint8_t m32, uint8_t m64, uint8_t ext, uint8_t m64ext)
 	{
@@ -2322,7 +2325,6 @@ private:
 		uint8_t code = addr.isBit(16) ? m16 : addr.isBit(32) ? m32 : addr.isBit(64) ? m64 : 0;
 		if (!code) XBYAK_THROW(ERR_BAD_MEM_SIZE)
 		if (m64ext && addr.isBit(64)) ext = m64ext;
-
 		rex(addr, st0);
 		db(code);
 		opAddr(addr, ext);
@@ -2463,7 +2465,7 @@ private:
 		bool is16bit = reg.isREG(16) && (op.isREG(16) || op.isMEM());
 		if (!is16bit && !(reg.isREG(i32e) && (op.isREG(reg.getBit()) || op.isMEM()))) XBYAK_THROW(ERR_BAD_COMBINATION)
 		if (is16bit) db(0x66);
-		opModRM(reg.changeBit(i32e == 32 ? 32 : reg.getBit()), op, op.isREG(), true, T_F3 | T_0F, code);
+		opRO(reg.changeBit(i32e == 32 ? 32 : reg.getBit()), op, op.isREG(), true, T_F3 | T_0F, code);
 	}
 	void opGather(const Xmm& x1, const Address& addr, const Xmm& x2, int type, uint8_t code, int mode)
 	{
@@ -2686,7 +2688,7 @@ public:
 
 	void test(const Operand& op, const Reg& reg)
 	{
-		opModRM(reg, op, op.isREG() && (op.getKind() == reg.getKind()), op.isMEM(), 0, 0x84);
+		opRO(reg, op, op.isREG() && (op.getKind() == reg.getKind()), op.isMEM(), 0, 0x84);
 	}
 	void test(const Operand& op, uint32_t imm)
 	{
@@ -2696,19 +2698,19 @@ public:
 			rex(op);
 			db(0xA8 | (op.isBit(8) ? 0 : 1));
 		} else {
-			opR_ModM(op, 0, 0, 0, 0xF6, false, immSize);
+			opRext(op, 0, 0, 0, 0xF6, false, immSize);
 		}
 		db(imm, immSize);
 	}
 	void imul(const Reg& reg, const Operand& op)
 	{
-		opModRM(reg, op, op.isREG() && (reg.getKind() == op.getKind()), op.isMEM(), T_0F, 0xAF);
+		opRO(reg, op, op.isREG() && (reg.getKind() == op.getKind()), op.isMEM(), T_0F, 0xAF);
 	}
 	void imul(const Reg& reg, const Operand& op, int imm)
 	{
 		int s = inner::IsInDisp8(imm) ? 1 : 0;
         int immSize = s ? 1 : reg.isREG(16) ? 2 : 4;
-		opModRM(reg, op, op.isREG() && (reg.getKind() == op.getKind()), op.isMEM(), 0, 0x69 | (s << 1), immSize);
+		opRO(reg, op, op.isREG() && (reg.getKind() == op.getKind()), op.isMEM(), 0, 0x69 | (s << 1), immSize);
 		db(imm, immSize);
 	}
 	void push(const Operand& op) { opPushPop(op, 0xFF, 6, 0x50); }
@@ -2765,7 +2767,7 @@ public:
 		} else
 #endif
 		{
-			opRM_RM(reg1, reg2, 0x88);
+			opRO_MR(reg1, reg2, 0x88);
 		}
 	}
 	void mov(const Operand& op, uint64_t imm)
@@ -2783,7 +2785,7 @@ public:
 				if (!inner::IsInInt32(imm)) XBYAK_THROW(ERR_IMM_IS_TOO_BIG)
 				immSize = 4;
 			}
-			opModM(op.getAddress(), Reg(0, Operand::REG, op.getBit()), 0, 0xC6, immSize);
+			opMR(op.getAddress(), Reg(0, Operand::REG, op.getBit()), 0, 0xC6, immSize);
 			db(static_cast<uint32_t>(imm), immSize);
 		} else {
 			XBYAK_THROW(ERR_BAD_COMBINATION)
@@ -2815,7 +2817,7 @@ public:
 			rex(*p2, *p1); db(0x90 | (p2->getIdx() & 7));
 			return;
 		}
-		opModRM(*p1, *p2, (p1->isREG() && p2->isREG() && (p1->getBit() == p2->getBit())), p2->isMEM(), 0, 0x86 | (p1->isBit(8) ? 0 : 1));
+		opRO(static_cast<const Reg&>(*p1), *p2, (p1->isREG() && p2->isREG() && (p1->getBit() == p2->getBit())), p2->isMEM(), 0, 0x86 | (p1->isBit(8) ? 0 : 1));
 	}
 
 #ifndef XBYAK_DISABLE_SEGMENT
@@ -2860,11 +2862,11 @@ public:
 	}
 	void mov(const Operand& op, const Segment& seg)
 	{
-		opModRM(Reg8(seg.getIdx()), op, op.isREG(16|i32e), op.isMEM(), 0, 0x8C);
+		opRO(Reg8(seg.getIdx()), op, op.isREG(16|i32e), op.isMEM(), 0, 0x8C);
 	}
 	void mov(const Segment& seg, const Operand& op)
 	{
-		opModRM(Reg8(seg.getIdx()), op.isREG(16|i32e) ? static_cast<const Operand&>(op.getReg().cvt32()) : op, op.isREG(16|i32e), op.isMEM(), 0, 0x8E);
+		opRO(Reg8(seg.getIdx()), op.isREG(16|i32e) ? static_cast<const Operand&>(op.getReg().cvt32()) : op, op.isREG(16|i32e), op.isMEM(), 0, 0x8E);
 	}
 
 	// (r, r, m) or (r, m, r)
@@ -2879,11 +2881,11 @@ public:
 			const Address& addr = p2->getAddress();
 			const RegExp e = addr.getRegExp();
 			evexLeg(r, e.getBase(), e.getIndex(), d, type);
-			writeCode2(type, d, code);
+			writeCode(type, d, code);
 			opAddr(addr, r.getIdx(), immSize);
 		} else {
 			evexLeg(static_cast<const Reg&>(op2), static_cast<const Reg&>(op1), Reg(), d, type);
-			writeCode2(type, d, code);
+			writeCode(type, d, code);
 			setModRM(3, op2.getIdx(), op1.getIdx());
 		}
 		return true;
