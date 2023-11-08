@@ -238,11 +238,9 @@ void putX_X_XM(bool omitOnly)
 	}
 }
 
-void putMemOp(const char *name, uint8_t prefix, uint8_t ext, uint8_t code1, int code2, int bit = 32)
+void putMemOp(const char *name, const char *type, uint8_t ext, uint8_t code, int bit, int fwait = false)
 {
-	printf("void %s(const Address& addr) { ", name);
-	if (prefix) printf("db(0x%02X); ", prefix);
-	printf("opModM(addr, Reg%d(%d), 0x%02X, 0x%02X); }\n", bit, ext, code1, code2);
+	printf("void %s(const Address& addr) { %sopModM2(addr, Reg%d(%d), %s, 0x%02X); }\n", name, fwait ? "db(0x9B); " : "", bit, ext, type, code);
 }
 
 void putLoadSeg(const char *name, int type, uint8_t code)
@@ -989,34 +987,34 @@ void put()
 	}
 	{
 		const struct Tbl {
-			uint8_t code1;
-			int code2;
+			const char *type;
+			uint8_t code;
 			uint8_t ext;
 			const char *name;
-			uint8_t prefix;
+			bool fwait;
 		} tbl[] = {
-			{ 0x0F, 0xAE, 2, "ldmxcsr", 0 },
-			{ 0x0F, 0xAE, 3, "stmxcsr", 0 },
-			{ 0x0F, 0xAE, 7, "clflush", 0 },
-			{ 0x0F, 0xAE, 7, "clflushopt", 0x66 },
-			{ 0xDF, NONE, 4, "fbld", 0 },
-			{ 0xDF, NONE, 6, "fbstp", 0 },
-			{ 0xD9, NONE, 5, "fldcw", 0 },
-			{ 0xD9, NONE, 4, "fldenv", 0 },
-			{ 0xDD, NONE, 4, "frstor", 0 },
-			{ 0xDD, NONE, 6, "fsave", 0x9B },
-			{ 0xDD, NONE, 6, "fnsave", 0 },
-			{ 0xD9, NONE, 7, "fstcw", 0x9B },
-			{ 0xD9, NONE, 7, "fnstcw", 0 },
-			{ 0xD9, NONE, 6, "fstenv", 0x9B },
-			{ 0xD9, NONE, 6, "fnstenv", 0 },
-			{ 0xDD, NONE, 7, "fstsw", 0x9B },
-			{ 0xDD, NONE, 7, "fnstsw", 0 },
-			{ 0x0F, 0xAE, 1, "fxrstor", 0 },
+			{ "T_0F", 0xAE, 2, "ldmxcsr", false },
+			{ "T_0F", 0xAE, 3, "stmxcsr", false },
+			{ "T_0F", 0xAE, 7, "clflush", false },
+			{ "T_66 | T_0F", 0xAE, 7, "clflushopt", false},
+			{ "0", 0xDF, 4, "fbld", false },
+			{ "0", 0xDF, 6, "fbstp", false },
+			{ "0", 0xD9, 5, "fldcw", false },
+			{ "0", 0xD9, 4, "fldenv", false },
+			{ "0", 0xDD, 4, "frstor", false },
+			{ "0", 0xDD, 6, "fsave", true  },
+			{ "0", 0xDD, 6, "fnsave", false },
+			{ "0", 0xD9, 7, "fstcw", true },
+			{ "0", 0xD9, 7, "fnstcw", false },
+			{ "0", 0xD9, 6, "fstenv", true },
+			{ "0", 0xD9, 6, "fnstenv", false },
+			{ "0", 0xDD, 7, "fstsw", true },
+			{ "0", 0xDD, 7, "fnstsw", false },
+			{ "T_0F", 0xAE, 1, "fxrstor", false },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			putMemOp(p->name, p->prefix, p->ext, p->code1, p->code2);
+			putMemOp(p->name, p->type, p->ext, p->code, 32, p->fwait);
 		}
 		puts("void fstsw(const Reg16& r) { if (r.getIdx() != Operand::AX) XBYAK_THROW(ERR_BAD_PARAMETER) db(0x9B); db(0xDF); db(0xE0); }");
 		puts("void fnstsw(const Reg16& r) { if (r.getIdx() != Operand::AX) XBYAK_THROW(ERR_BAD_PARAMETER) db(0xDF); db(0xE0); }");
@@ -1900,8 +1898,8 @@ void put64()
 	};
 	putGeneric(tbl, NUM_OF_ARRAY(tbl));
 
-	putMemOp("cmpxchg16b", 0, 1, 0x0F, 0xC7, 64);
-	putMemOp("fxrstor64", 0, 1, 0x0F, 0xAE, 64);
+	putMemOp("cmpxchg16b", "T_0F", 1, 0xC7, 64);
+	putMemOp("fxrstor64", "T_0F", 1, 0xAE, 64);
 	puts("void movq(const Reg64& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR2(mmx, reg, T_0F, 0x7E); }");
 	puts("void movq(const Mmx& mmx, const Reg64& reg) { if (mmx.isXMM()) db(0x66); opModR2(mmx, reg, T_0F, 0x6E); }");
 	puts("void movsxd(const Reg64& reg, const Operand& op) { if (!op.isBit(32)) XBYAK_THROW(ERR_BAD_COMBINATION) opModRM(reg, op, op.isREG(), op.isMEM(), 0x63); }");

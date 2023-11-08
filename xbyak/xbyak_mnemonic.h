@@ -70,8 +70,8 @@ void cdq() { db(0x99); }
 void clc() { db(0xF8); }
 void cld() { db(0xFC); }
 void cldemote(const Address& addr) { opModM(addr, eax, 0x0F, 0x1C); }
-void clflush(const Address& addr) { opModM(addr, Reg32(7), 0x0F, 0xAE); }
-void clflushopt(const Address& addr) { db(0x66); opModM(addr, Reg32(7), 0x0F, 0xAE); }
+void clflush(const Address& addr) { opModM2(addr, Reg32(7), T_0F, 0xAE); }
+void clflushopt(const Address& addr) { opModM2(addr, Reg32(7), T_66 | T_0F, 0xAE); }
 void cli() { db(0xFA); }
 void clwb(const Address& addr) { db(0x66); opModM(addr, esi, 0x0F, 0xAE); }
 void clzero() { db(0x0F); db(0x01); db(0xFC); }
@@ -198,8 +198,8 @@ void fadd(const Fpu& reg1, const Fpu& reg2) { opFpuFpu(reg1, reg2, 0xD8C0, 0xDCC
 void faddp() { db(0xDE); db(0xC1); }
 void faddp(const Fpu& reg1) { opFpuFpu(reg1, st0, 0x0000, 0xDEC0); }
 void faddp(const Fpu& reg1, const Fpu& reg2) { opFpuFpu(reg1, reg2, 0x0000, 0xDEC0); }
-void fbld(const Address& addr) { opModM(addr, Reg32(4), 0xDF, 0x100); }
-void fbstp(const Address& addr) { opModM(addr, Reg32(6), 0xDF, 0x100); }
+void fbld(const Address& addr) { opModM2(addr, Reg32(4), 0, 0xDF); }
+void fbstp(const Address& addr) { opModM2(addr, Reg32(6), 0, 0xDF); }
 void fchs() { db(0xD9); db(0xE0); }
 void fclex() { db(0x9B); db(0xDB); db(0xE2); }
 void fcmovb(const Fpu& reg1) { opFpuFpu(st0, reg1, 0xDAC0, 0x00C0); }
@@ -261,8 +261,8 @@ void fisubr(const Address& addr) { opFpuMem(addr, 0xDE, 0xDA, 0x00, 5, 0); }
 void fld(const Address& addr) { opFpuMem(addr, 0x00, 0xD9, 0xDD, 0, 0); }
 void fld(const Fpu& reg) { opFpu(reg, 0xD9, 0xC0); }
 void fld1() { db(0xD9); db(0xE8); }
-void fldcw(const Address& addr) { opModM(addr, Reg32(5), 0xD9, 0x100); }
-void fldenv(const Address& addr) { opModM(addr, Reg32(4), 0xD9, 0x100); }
+void fldcw(const Address& addr) { opModM2(addr, Reg32(5), 0, 0xD9); }
+void fldenv(const Address& addr) { opModM2(addr, Reg32(4), 0, 0xD9); }
 void fldl2e() { db(0xD9); db(0xEA); }
 void fldl2t() { db(0xD9); db(0xE9); }
 void fldlg2() { db(0xD9); db(0xEC); }
@@ -278,29 +278,29 @@ void fmulp(const Fpu& reg1, const Fpu& reg2) { opFpuFpu(reg1, reg2, 0x0000, 0xDE
 void fnclex() { db(0xDB); db(0xE2); }
 void fninit() { db(0xDB); db(0xE3); }
 void fnop() { db(0xD9); db(0xD0); }
-void fnsave(const Address& addr) { opModM(addr, Reg32(6), 0xDD, 0x100); }
-void fnstcw(const Address& addr) { opModM(addr, Reg32(7), 0xD9, 0x100); }
-void fnstenv(const Address& addr) { opModM(addr, Reg32(6), 0xD9, 0x100); }
-void fnstsw(const Address& addr) { opModM(addr, Reg32(7), 0xDD, 0x100); }
+void fnsave(const Address& addr) { opModM2(addr, Reg32(6), 0, 0xDD); }
+void fnstcw(const Address& addr) { opModM2(addr, Reg32(7), 0, 0xD9); }
+void fnstenv(const Address& addr) { opModM2(addr, Reg32(6), 0, 0xD9); }
+void fnstsw(const Address& addr) { opModM2(addr, Reg32(7), 0, 0xDD); }
 void fnstsw(const Reg16& r) { if (r.getIdx() != Operand::AX) XBYAK_THROW(ERR_BAD_PARAMETER) db(0xDF); db(0xE0); }
 void fpatan() { db(0xD9); db(0xF3); }
 void fprem() { db(0xD9); db(0xF8); }
 void fprem1() { db(0xD9); db(0xF5); }
 void fptan() { db(0xD9); db(0xF2); }
 void frndint() { db(0xD9); db(0xFC); }
-void frstor(const Address& addr) { opModM(addr, Reg32(4), 0xDD, 0x100); }
-void fsave(const Address& addr) { db(0x9B); opModM(addr, Reg32(6), 0xDD, 0x100); }
+void frstor(const Address& addr) { opModM2(addr, Reg32(4), 0, 0xDD); }
+void fsave(const Address& addr) { db(0x9B); opModM2(addr, Reg32(6), 0, 0xDD); }
 void fscale() { db(0xD9); db(0xFD); }
 void fsin() { db(0xD9); db(0xFE); }
 void fsincos() { db(0xD9); db(0xFB); }
 void fsqrt() { db(0xD9); db(0xFA); }
 void fst(const Address& addr) { opFpuMem(addr, 0x00, 0xD9, 0xDD, 2, 0); }
 void fst(const Fpu& reg) { opFpu(reg, 0xDD, 0xD0); }
-void fstcw(const Address& addr) { db(0x9B); opModM(addr, Reg32(7), 0xD9, 0x100); }
-void fstenv(const Address& addr) { db(0x9B); opModM(addr, Reg32(6), 0xD9, 0x100); }
+void fstcw(const Address& addr) { db(0x9B); opModM2(addr, Reg32(7), 0, 0xD9); }
+void fstenv(const Address& addr) { db(0x9B); opModM2(addr, Reg32(6), 0, 0xD9); }
 void fstp(const Address& addr) { opFpuMem(addr, 0x00, 0xD9, 0xDD, 3, 0); }
 void fstp(const Fpu& reg) { opFpu(reg, 0xDD, 0xD8); }
-void fstsw(const Address& addr) { db(0x9B); opModM(addr, Reg32(7), 0xDD, 0x100); }
+void fstsw(const Address& addr) { db(0x9B); opModM2(addr, Reg32(7), 0, 0xDD); }
 void fstsw(const Reg16& r) { if (r.getIdx() != Operand::AX) XBYAK_THROW(ERR_BAD_PARAMETER) db(0x9B); db(0xDF); db(0xE0); }
 void fsub(const Address& addr) { opFpuMem(addr, 0x00, 0xD8, 0xDC, 4, 0); }
 void fsub(const Fpu& reg1) { opFpuFpu(st0, reg1, 0xD8E0, 0xDCE8); }
@@ -328,7 +328,7 @@ void fwait() { db(0x9B); }
 void fxam() { db(0xD9); db(0xE5); }
 void fxch() { db(0xD9); db(0xC9); }
 void fxch(const Fpu& reg) { opFpu(reg, 0xD9, 0xC8); }
-void fxrstor(const Address& addr) { opModM(addr, Reg32(1), 0x0F, 0xAE); }
+void fxrstor(const Address& addr) { opModM2(addr, Reg32(1), T_0F, 0xAE); }
 void fxtract() { db(0xD9); db(0xF4); }
 void fyl2x() { db(0xD9); db(0xF1); }
 void fyl2xp1() { db(0xD9); db(0xF9); }
@@ -470,7 +470,7 @@ void jz(const void *addr) { opJmpAbs(addr, T_NEAR, 0x74, 0x84, 0x0F); }//-V524
 void jz(std::string label, LabelType type = T_AUTO) { opJmp(label, type, 0x74, 0x84, 0x0F); }//-V524
 void lahf() { db(0x9F); }
 void lddqu(const Xmm& xmm, const Address& addr) { db(0xF2); opModM(addr, xmm, 0x0F, 0xF0); }
-void ldmxcsr(const Address& addr) { opModM(addr, Reg32(2), 0x0F, 0xAE); }
+void ldmxcsr(const Address& addr) { opModM2(addr, Reg32(2), T_0F, 0xAE); }
 void lea(const Reg& reg, const Address& addr) { if (!reg.isBit(16 | i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opModM(addr, reg, 0x8D); }
 void leave() { db(0xC9); }
 void lfence() { db(0x0F); db(0xAE); db(0xE8); }
@@ -824,7 +824,7 @@ void stac() { db(0x0F); db(0x01); db(0xCB); }
 void stc() { db(0xF9); }
 void std() { db(0xFD); }
 void sti() { db(0xFB); }
-void stmxcsr(const Address& addr) { opModM(addr, Reg32(3), 0x0F, 0xAE); }
+void stmxcsr(const Address& addr) { opModM2(addr, Reg32(3), T_0F, 0xAE); }
 void stosb() { db(0xAA); }
 void stosd() { db(0xAB); }
 void stosw() { db(0x66); db(0xAB); }
@@ -1692,8 +1692,8 @@ void clui() { db(0xF3); db(0x0F); db(0x01); db(0xEE); }
 void stui() { db(0xF3); db(0x0F); db(0x01); db(0xEF); }
 void testui() { db(0xF3); db(0x0F); db(0x01); db(0xED); }
 void uiret() { db(0xF3); db(0x0F); db(0x01); db(0xEC); }
-void cmpxchg16b(const Address& addr) { opModM(addr, Reg64(1), 0x0F, 0xC7); }
-void fxrstor64(const Address& addr) { opModM(addr, Reg64(1), 0x0F, 0xAE); }
+void cmpxchg16b(const Address& addr) { opModM2(addr, Reg64(1), T_0F, 0xC7); }
+void fxrstor64(const Address& addr) { opModM2(addr, Reg64(1), T_0F, 0xAE); }
 void movq(const Reg64& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR2(mmx, reg, T_0F, 0x7E); }
 void movq(const Mmx& mmx, const Reg64& reg) { if (mmx.isXMM()) db(0x66); opModR2(mmx, reg, T_0F, 0x6E); }
 void movsxd(const Reg64& reg, const Operand& op) { if (!op.isBit(32)) XBYAK_THROW(ERR_BAD_COMBINATION) opModRM(reg, op, op.isREG(), op.isMEM(), 0x63); }

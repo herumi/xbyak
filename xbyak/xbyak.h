@@ -2027,15 +2027,13 @@ private:
 	}
 	void writeCode2(int type, const Reg& r, int code)
 	{
-//		if ((type & (T_VEX|T_EVEX|T_MUST_EVEX)) == 0) {
-			if (type & T_0F) {
-				db(0x0F);
-			} else if (type & T_0F38) {
-				db(0x0F); db(0x38);
-			} else if (type & T_0F3A) {
-				db(0x0F); db(0x3A);
-			}
-//		}
+		if (type & T_0F) {
+			db(0x0F);
+		} else if (type & T_0F38) {
+			db(0x0F); db(0x38);
+		} else if (type & T_0F3A) {
+			db(0x0F); db(0x3A);
+		}
 		db(code | (type == 0 && !r.isBit(8)));
 	}
 	void opModR(const Reg& reg1, const Reg& reg2, int code0, int code1 = NONE, int code2 = NONE)
@@ -2161,31 +2159,6 @@ private:
 				}
 				dd(inner::VerifyInInt32(disp));
 			}
-		}
-	}
-	static inline int pre1(int c)
-	{
-		switch (c) {
-		case 0x66: return T_66;
-		case 0xF2: return T_F2;
-		case 0xF3: return T_F3;
-		case NONE: return 0;
-		default:
-			printf("!!! pre1=%02x\n", c);
-			XBYAK_THROW_RET(ERR_NOT_SUPPORTED, 0)
-			break;
-		}
-	}
-	static inline int pre2(int c)
-	{
-		switch (c) {
-		case 0x38: return T_0F38;
-		case 0x3A: return T_0F3A;
-		case NONE: return T_0F;
-		default:
-			printf("!!! pre2=%02x\n", c);
-			XBYAK_THROW_RET(ERR_NOT_SUPPORTED, 0)
-			break;
 		}
 	}
 	void opGen(const Operand& reg, const Operand& op, int type, int code, bool isValid(const Operand&, const Operand&), int imm8 = NONE)
