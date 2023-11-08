@@ -2377,21 +2377,17 @@ private:
 		}
 		if (imm8 != NONE) db(imm8);
 	}
-	// (r, r, r/m) if isR_R_RM
-	// (r, r/m, r)
-	void opGpr(const Reg32e& r, const Operand& op1, const Operand& op2, int type, uint8_t code, bool isR_R_RM, int imm8 = NONE)
+	// (r, r, r/m)
+	void opRRO(const Reg32e& d, const Reg& r1, const Operand& op2, int type, uint8_t code, int imm8 = NONE)
 	{
-		const Operand *p1 = &op1;
-		const Operand *p2 = &op2;
-		if (!isR_R_RM) std::swap(p1, p2);
-		const unsigned int bit = r.getBit();
-		if (p1->getBit() != bit || (p2->isREG() && p2->getBit() != bit)) XBYAK_THROW(ERR_BAD_COMBINATION)
+		const unsigned int bit = d.getBit();
+		if (r1.getBit() != bit || (op2.isREG() && op2.getBit() != bit)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		type |= (bit == 64) ? T_W1 : T_W0;
-		if (r.hasRex2() || op1.hasRex2() || op2.hasRex2()) {
-			opROO(r, *p1, *p2, type, code);
+		if (d.hasRex2() || r1.hasRex2() || op2.hasRex2()) {
+			opROO(d, r1, op2, type, code);
 			if (imm8 != NONE) db(imm8);
 		} else {
-			opVex(r, p1, *p2, type, code, imm8);
+			opVex(d, &r1, op2, type, code, imm8);
 		}
 	}
 	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code, int imm8 = NONE)

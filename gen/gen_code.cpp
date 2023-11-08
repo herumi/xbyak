@@ -1735,7 +1735,7 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			printf("void %s(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opGpr(r1, r2, op, %s, 0x%x, true); }\n", p.name, type2String(p.type).c_str(), p.code);
+			printf("void %s(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, %s, 0x%x); }\n", p.name, type2String(p.type).c_str(), p.code);
 		}
 	}
 	// gpr(reg, r/m, reg)
@@ -1753,9 +1753,9 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			printf("void %s(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opGpr(r1, op, r2, %s, 0x%x, false); }\n", p.name, type2String(p.type).c_str(), p.code);
+			printf("void %s(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, %s, 0x%x); }\n", p.name, type2String(p.type).c_str(), p.code);
 		}
-		puts("void rorx(const Reg32e& r, const Operand& op, uint8_t imm) { opGpr(r, op, Reg32e(0, r.getBit()), T_0F3A | T_F2, 0xF0, false, imm); }");
+		puts("void rorx(const Reg32e& r, const Operand& op, uint8_t imm) { opRRO(r, Reg32e(0, r.getBit()), op, T_0F3A | T_F2, 0xF0, imm); }");
 	}
 	// gpr(reg, r/m)
 	{
@@ -1771,7 +1771,7 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			printf("void %s(const Reg32e& r, const Operand& op) { opGpr(Reg32e(%d, r.getBit()), op, r, %s, 0x%x, false); }\n", p.name, p.idx, type2String(p.type).c_str(), p.code);
+			printf("void %s(const Reg32e& r, const Operand& op) { opRRO(Reg32e(%d, r.getBit()), r, op, %s, 0x%x); }\n", p.name, p.idx, type2String(p.type).c_str(), p.code);
 		}
 	}
 	// gather
@@ -1939,7 +1939,7 @@ void put64()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void cmp%sxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opGpr(r1, addr, r2, T_66 | T_0F38, 0x%02X, false); }\n", p->name, p->code);
+			printf("void cmp%sxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0x%02X); }\n", p->name, p->code);
 		}
 	}
 }
