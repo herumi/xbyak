@@ -2106,14 +2106,14 @@ private:
 			}
 		}
 	}
-	void opSSE(const Operand& reg, const Operand& op, int type, int code, bool isValid(const Operand&, const Operand&), int imm8 = NONE)
+	void opSSE(const Reg& r, const Operand& op, int type, int code, bool isValid(const Operand&, const Operand&), int imm8 = NONE)
 	{
-		if (isValid && !isValid(reg, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
-		if (!isValidSSE(reg) || !isValidSSE(op)) XBYAK_THROW(ERR_NOT_SUPPORTED)
+		if (isValid && !isValid(r, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (!isValidSSE(r) || !isValidSSE(op)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		if (op.isMEM()) {
-			opMR(op.getAddress(), reg.getReg(), type, code, (imm8 != NONE) ? 1 : 0);
+			opMR(op.getAddress(), r, type, code, (imm8 != NONE) ? 1 : 0);
 		} else {
-			opRR(reg.getReg(), op.getReg(), type, code);
+			opRR(r, op.getReg(), type, code);
 		}
 		if (imm8 != NONE) db(imm8);
 	}
@@ -2177,10 +2177,17 @@ private:
 	}
 	void opRO(const Reg& r, const Operand& op, bool condR, bool condM, int type, int code, int immSize = 0)
 	{
+#if 0
+		if (condM) {
+			opMR(op.getAddress(), r, type, code, immSize);
+		} else if (condR) {
+			opRR(r, op.getReg(), type, code);
+#else
 		if (condR) {
 			opRR(r, op.getReg(), type, code);
 		} else if (condM) {
 			opMR(op.getAddress(), r, type, code, immSize);
+#endif
 		} else {
 			XBYAK_THROW(ERR_BAD_COMBINATION)
 		}

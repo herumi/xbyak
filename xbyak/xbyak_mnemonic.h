@@ -156,25 +156,25 @@ void crc32(const Reg32e& reg, const Operand& op) { if (reg.isBit(32) && op.isBit
 void cvtdq2pd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F3, 0xE6, isXMM_XMMorMEM); }
 void cvtdq2ps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | 0, 0x5B, isXMM_XMMorMEM); }
 void cvtpd2dq(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F2, 0xE6, isXMM_XMMorMEM); }
-void cvtpd2pi(const Operand& reg, const Operand& op) { opSSE(reg, op, T_0F | T_66, 0x2D, isMMX_XMMorMEM); }
+void cvtpd2pi(const Reg& reg, const Operand& op) { opSSE(reg, op, T_0F | T_66, 0x2D, isMMX_XMMorMEM); }
 void cvtpd2ps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x5A, isXMM_XMMorMEM); }
-void cvtpi2pd(const Operand& reg, const Operand& op) { opSSE(reg, op, T_0F | T_66, 0x2A, isXMM_MMXorMEM); }
-void cvtpi2ps(const Operand& reg, const Operand& op) { opSSE(reg, op, T_0F | 0, 0x2A, isXMM_MMXorMEM); }
+void cvtpi2pd(const Reg& reg, const Operand& op) { opSSE(reg, op, T_0F | T_66, 0x2A, isXMM_MMXorMEM); }
+void cvtpi2ps(const Reg& reg, const Operand& op) { opSSE(reg, op, T_0F | 0, 0x2A, isXMM_MMXorMEM); }
 void cvtps2dq(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x5B, isXMM_XMMorMEM); }
 void cvtps2pd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | 0, 0x5A, isXMM_XMMorMEM); }
-void cvtps2pi(const Operand& reg, const Operand& op) { opSSE(reg, op, T_0F | 0, 0x2D, isMMX_XMMorMEM); }
-void cvtsd2si(const Operand& reg, const Operand& op) { opSSE(reg, op, T_0F | T_F2, 0x2D, isREG32_XMMorMEM); }
+void cvtps2pi(const Reg& reg, const Operand& op) { opSSE(reg, op, T_0F | 0, 0x2D, isMMX_XMMorMEM); }
+void cvtsd2si(const Reg& reg, const Operand& op) { opSSE(reg, op, T_0F | T_F2, 0x2D, isREG32_XMMorMEM); }
 void cvtsd2ss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F2, 0x5A, isXMM_XMMorMEM); }
-void cvtsi2sd(const Operand& reg, const Operand& op) { opSSE(reg, op, T_0F | T_F2, 0x2A, isXMM_REG32orMEM); }
-void cvtsi2ss(const Operand& reg, const Operand& op) { opSSE(reg, op, T_0F | T_F3, 0x2A, isXMM_REG32orMEM); }
+void cvtsi2sd(const Reg& reg, const Operand& op) { opSSE(reg, op, T_0F | T_F2, 0x2A, isXMM_REG32orMEM); }
+void cvtsi2ss(const Reg& reg, const Operand& op) { opSSE(reg, op, T_0F | T_F3, 0x2A, isXMM_REG32orMEM); }
 void cvtss2sd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F3, 0x5A, isXMM_XMMorMEM); }
-void cvtss2si(const Operand& reg, const Operand& op) { opSSE(reg, op, T_0F | T_F3, 0x2D, isREG32_XMMorMEM); }
+void cvtss2si(const Reg& reg, const Operand& op) { opSSE(reg, op, T_0F | T_F3, 0x2D, isREG32_XMMorMEM); }
 void cvttpd2dq(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0xE6, isXMM_XMMorMEM); }
-void cvttpd2pi(const Operand& reg, const Operand& op) { opSSE(reg, op, T_0F | T_66, 0x2C, isMMX_XMMorMEM); }
+void cvttpd2pi(const Reg& reg, const Operand& op) { opSSE(reg, op, T_0F | T_66, 0x2C, isMMX_XMMorMEM); }
 void cvttps2dq(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F3, 0x5B, isXMM_XMMorMEM); }
-void cvttps2pi(const Operand& reg, const Operand& op) { opSSE(reg, op, T_0F | 0, 0x2C, isMMX_XMMorMEM); }
-void cvttsd2si(const Operand& reg, const Operand& op) { opSSE(reg, op, T_0F | T_F2, 0x2C, isREG32_XMMorMEM); }
-void cvttss2si(const Operand& reg, const Operand& op) { opSSE(reg, op, T_0F | T_F3, 0x2C, isREG32_XMMorMEM); }
+void cvttps2pi(const Reg& reg, const Operand& op) { opSSE(reg, op, T_0F | 0, 0x2C, isMMX_XMMorMEM); }
+void cvttsd2si(const Reg& reg, const Operand& op) { opSSE(reg, op, T_0F | T_F2, 0x2C, isREG32_XMMorMEM); }
+void cvttss2si(const Reg& reg, const Operand& op) { opSSE(reg, op, T_0F | T_F3, 0x2C, isREG32_XMMorMEM); }
 void cwd() { db(0x66); db(0x99); }
 void cwde() { db(0x98); }
 void dec(const Operand& op) { opIncDec(op, 0x48, 1); }

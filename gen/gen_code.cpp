@@ -542,7 +542,7 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Operand& reg, const Operand& op) { opSSE(reg, op, T_0F | %s, 0x%02X, %s); }\n", p->name, p->type, p->code, p->cond);
+			printf("void %s(const Reg& reg, const Operand& op) { opSSE(reg, op, T_0F | %s, 0x%02X, %s); }\n", p->name, p->type, p->code, p->cond);
 		}
 	}
 	{
