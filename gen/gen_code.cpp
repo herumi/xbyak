@@ -224,9 +224,9 @@ void putX_X_XM(bool omitOnly)
 			} else {
 				if (p->mode & 1) {
 					if (p->hasIMM) {
-						printf("void %s(const Xmm& xmm, const Operand& op, int imm) { opGen(xmm, op, T_66 | T_0F3A, 0x%02X, isXMM_XMMorMEM, static_cast<uint8_t>(imm)); }\n", p->name, p->code);
+						printf("void %s(const Xmm& xmm, const Operand& op, int imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x%02X, isXMM_XMMorMEM, static_cast<uint8_t>(imm)); }\n", p->name, p->code);
 					} else {
-						printf("void %s(const Xmm& xmm, const Operand& op) { opGen(xmm, op, T_66 | T_0F38, 0x%02X, isXMM_XMMorMEM); }\n", p->name, p->code);
+						printf("void %s(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66 | T_0F38, 0x%02X, isXMM_XMMorMEM); }\n", p->name, p->code);
 					}
 				}
 				if (p->mode & 2) {
@@ -463,9 +463,9 @@ void put()
 				if (!(p->mode & (1 << j))) continue;
 				if (p->hasImm) {
 					// don't change uint8_t to int because NO is not in byte
-					printf("void %s%s(const Xmm& xmm, const Operand& op, uint8_t imm8) { opGen(xmm, op, %s, 0x%02X, isXMM_XMMorMEM, imm8); }\n", p->name, sufTbl[j].name, sufTbl[j].type, p->code);
+					printf("void %s%s(const Xmm& xmm, const Operand& op, uint8_t imm8) { opSSE(xmm, op, %s, 0x%02X, isXMM_XMMorMEM, imm8); }\n", p->name, sufTbl[j].name, sufTbl[j].type, p->code);
 				} else {
-					printf("void %s%s(const Xmm& xmm, const Operand& op) { opGen(xmm, op, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, sufTbl[j].name, sufTbl[j].type, p->code);
+					printf("void %s%s(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, sufTbl[j].name, sufTbl[j].type, p->code);
 				}
 			}
 		}
@@ -515,7 +515,7 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Xmm& xmm, const Operand& op) { opGen(xmm, op, T_0F | %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, p->type, p->code);
+			printf("void %s(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, p->type, p->code);
 		}
 	}
 
@@ -542,7 +542,7 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Operand& reg, const Operand& op) { opGen(reg, op, T_0F | %s, 0x%02X, %s); }\n", p->name, p->type, p->code, p->cond);
+			printf("void %s(const Operand& reg, const Operand& op) { opSSE(reg, op, T_0F | %s, 0x%02X, %s); }\n", p->name, p->type, p->code, p->cond);
 		}
 	}
 	{
@@ -1056,7 +1056,7 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Reg32e& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_%02X, 0x66)) return; opGen(reg, op, T_%02X | T_0F38, 0xF6, isREG32_REG32orMEM); }\n", p->name, p->prefix, p->prefix);
+			printf("void %s(const Reg32e& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_%02X, 0x66)) return; opSSE(reg, op, T_%02X | T_0F38, 0xF6, isREG32_REG32orMEM); }\n", p->name, p->prefix, p->prefix);
 			printf("void %s(const Reg32e& d, const Reg32e& reg, const Operand& op) { opROO(d, op, reg, T_%02X, 0x66); }\n", p->name, p->prefix);
 		}
 	}
@@ -1096,10 +1096,10 @@ void put()
 		puts("void pextrb(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x14, imm); }");
 		puts("void pextrd(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x16, imm); }");
 		puts("void extractps(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x17, imm); }");
-		puts("void pinsrw(const Mmx& mmx, const Operand& op, int imm) { if (!op.isREG(32) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opGen(mmx, op, T_0F | (mmx.isXMM() ? T_66 : 0), 0xC4, 0, imm); }");
-		puts("void insertps(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen(xmm, op, T_66 | T_0F3A, 0x21, isXMM_XMMorMEM, imm); }");
-		puts("void pinsrb(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen(xmm, op, T_66 | T_0F3A, 0x20, isXMM_REG32orMEM, imm); }");
-		puts("void pinsrd(const Xmm& xmm, const Operand& op, uint8_t imm) { opGen(xmm, op, T_66 | T_0F3A, 0x22, isXMM_REG32orMEM, imm); }");
+		puts("void pinsrw(const Mmx& mmx, const Operand& op, int imm) { if (!op.isREG(32) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opSSE(mmx, op, T_0F | (mmx.isXMM() ? T_66 : 0), 0xC4, 0, imm); }");
+		puts("void insertps(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x21, isXMM_XMMorMEM, imm); }");
+		puts("void pinsrb(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x20, isXMM_REG32orMEM, imm); }");
+		puts("void pinsrd(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x22, isXMM_REG32orMEM, imm); }");
 
 		puts("void pmovmskb(const Reg32e& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opRR(reg, mmx, T_0F, 0xD7); }");
 		puts("void maskmovq(const Mmx& reg1, const Mmx& reg2) { if (!reg1.isMMX() || !reg2.isMMX()) XBYAK_THROW(ERR_BAD_COMBINATION) opRR(reg1, reg2, T_0F, 0xF7); }");
@@ -1353,7 +1353,7 @@ void put()
 			if (p->mode & 1) {
 				const char *immS1 = p->hasIMM ? ", uint8_t imm" : "";
 				const char *immS2 = p->hasIMM ? ", imm" : ", NONE";
-				printf("void %s(const Xmm& xmm, const Operand& op%s) { opGen(xmm, op, %s, 0x%02X, isXMM_XMMorMEM%s); }\n", p->name, immS1, type.c_str(), p->code, immS2);
+				printf("void %s(const Xmm& xmm, const Operand& op%s) { opSSE(xmm, op, %s, 0x%02X, isXMM_XMMorMEM%s); }\n", p->name, immS1, type.c_str(), p->code, immS2);
 			}
 			if (p->mode & 2) {
 				printf("void v%s(const Xmm& xm, const Operand& op%s) { opAVX_X_XM_IMM(xm, op, %s, 0x%02X%s); }\n"
@@ -1406,7 +1406,7 @@ void put()
 			const Tbl *p = &tbl[i];
 			std::string type = type2String(p->type);
 			if (p->mode & 1) {
-				printf("void %s(const Xmm& xmm, const Operand& op) { opGen(xmm, op, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, type.c_str(), p->code);
+				printf("void %s(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, type.c_str(), p->code);
 			}
 			if (p->mode & 2) {
 				printf("void v%s(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, %s, 0x%02X); }\n"
@@ -1903,8 +1903,8 @@ void put64()
 	puts("void movq(const Reg64& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opRR(mmx, reg, T_0F, 0x7E); }");
 	puts("void movq(const Mmx& mmx, const Reg64& reg) { if (mmx.isXMM()) db(0x66); opRR(mmx, reg, T_0F, 0x6E); }");
 	puts("void movsxd(const Reg64& reg, const Operand& op) { if (!op.isBit(32)) XBYAK_THROW(ERR_BAD_COMBINATION) opRO(reg, op, op.isREG(), op.isMEM(), 0, 0x63); }");
-	puts("void pextrq(const Operand& op, const Xmm& xmm, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opGen(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x16, 0, imm); }");
-	puts("void pinsrq(const Xmm& xmm, const Operand& op, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opGen(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x22, 0, imm); }");
+	puts("void pextrq(const Operand& op, const Xmm& xmm, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opSSE(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x16, 0, imm); }");
+	puts("void pinsrq(const Xmm& xmm, const Operand& op, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opSSE(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x22, 0, imm); }");
 	puts("void senduipi(const Reg64& r) { opRR(Reg32(6), r.cvt32(), T_F3 | T_0F, 0xC7); }");
 
 	puts("void vcvtss2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W1 | T_EVEX | T_EW1 | T_ER_X | T_N8, 0x2D); }");
