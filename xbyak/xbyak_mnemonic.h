@@ -55,7 +55,7 @@ void bndmov(const BoundsReg& bnd, const Operand& op) { opModRM(bnd, op, op.isBND
 void bndstx(const Address& addr, const BoundsReg& bnd) { opMIB(addr, bnd, T_0F, 0x1B); }
 void bsf(const Reg&reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), T_0F, 0xBC); }
 void bsr(const Reg&reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), T_0F, 0xBD); }
-void bswap(const Reg32e& reg) { opModR2(Reg32(1), reg, 0, 0x0F); }
+void bswap(const Reg32e& reg) { opModR(Reg32(1), reg, 0, 0x0F); }
 void bt(const Operand& op, const Reg& reg) { opModRM(reg, op, op.isREG(16|32|64) && op.getBit() == reg.getBit(), op.isMEM(), T_0F, 0xA3); }
 void bt(const Operand& op, uint8_t imm) { opR_ModM(op, 16|32|64, 4, T_0F, 0xba, false, 1); db(imm); }
 void btc(const Operand& op, const Reg& reg) { opModRM(reg, op, op.isREG(16|32|64) && op.getBit() == reg.getBit(), op.isMEM(), T_0F, 0xBB); }
@@ -491,8 +491,8 @@ void loopne(const char *label) { loopne(std::string(label)); }
 void loopne(std::string label) { opJmp(label, T_SHORT, 0xE0, 0, 0); }
 void lss(const Reg& reg, const Address& addr) { opLoadSeg2(addr, reg, T_0F, 0xB2); }
 void lzcnt(const Reg&reg, const Operand& op) { opCnt(reg, op, 0xBD); }
-void maskmovdqu(const Xmm& reg1, const Xmm& reg2) { opModR2(reg1, reg2, T_66 | T_0F, 0xF7); }
-void maskmovq(const Mmx& reg1, const Mmx& reg2) { if (!reg1.isMMX() || !reg2.isMMX()) XBYAK_THROW(ERR_BAD_COMBINATION) opModR2(reg1, reg2, T_0F, 0xF7); }
+void maskmovdqu(const Xmm& reg1, const Xmm& reg2) { opModR(reg1, reg2, T_66 | T_0F, 0xF7); }
+void maskmovq(const Mmx& reg1, const Mmx& reg2) { if (!reg1.isMMX() || !reg2.isMMX()) XBYAK_THROW(ERR_BAD_COMBINATION) opModR(reg1, reg2, T_0F, 0xF7); }
 void maxpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, T_0F | T_66, 0x5F, isXMM_XMMorMEM); }
 void maxps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, T_0F, 0x5F, isXMM_XMMorMEM); }
 void maxsd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, T_0F | T_F2, 0x5F, isXMM_XMMorMEM); }
@@ -512,24 +512,24 @@ void movbe(const Address& addr, const Reg& reg) { opModM2(addr, reg, T_0F38, 0xF
 void movbe(const Reg& reg, const Address& addr) { opModM2(addr, reg, T_0F38, 0xF0); }
 void movd(const Address& addr, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModM2(addr, mmx, T_0F, 0x7E); }
 void movd(const Mmx& mmx, const Address& addr) { if (mmx.isXMM()) db(0x66); opModM2(addr, mmx, T_0F, 0x6E); }
-void movd(const Mmx& mmx, const Reg32& reg) { if (mmx.isXMM()) db(0x66); opModR2(mmx, reg, T_0F, 0x6E); }
-void movd(const Reg32& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR2(mmx, reg, T_0F, 0x7E); }
+void movd(const Mmx& mmx, const Reg32& reg) { if (mmx.isXMM()) db(0x66); opModR(mmx, reg, T_0F, 0x6E); }
+void movd(const Reg32& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR(mmx, reg, T_0F, 0x7E); }
 void movddup(const Xmm& xmm, const Operand& op) { opGen(xmm, op, T_DUP | T_F2 | T_0F | T_EW1 | T_YMM | T_EVEX | T_ER_X | T_ER_Y | T_ER_Z, 0x12, isXMM_XMMorMEM, NONE); }
 void movdir64b(const Reg& reg, const Address& addr) { opModM2(addr, reg.cvt32(), T_66 | T_0F38, 0xF8); }
 void movdiri(const Address& addr, const Reg32e& reg) { opModM2(addr, reg, T_0F38, 0xF9); }
-void movdq2q(const Mmx& mmx, const Xmm& xmm) { opModR2(mmx, xmm, T_F2 | T_0F, 0xD6); }
+void movdq2q(const Mmx& mmx, const Xmm& xmm) { opModR(mmx, xmm, T_F2 | T_0F, 0xD6); }
 void movdqa(const Address& addr, const Xmm& xmm) { opModM2(addr, xmm, T_0F|T_66, 0x7F); }
 void movdqa(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x6F, T_0F, T_66); }
 void movdqu(const Address& addr, const Xmm& xmm) { opModM2(addr, xmm, T_0F|T_F3, 0x7F); }
 void movdqu(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x6F, T_0F, T_F3); }
-void movhlps(const Xmm& reg1, const Xmm& reg2) { opModR2(reg1, reg2, T_0F, 0x12); }
+void movhlps(const Xmm& reg1, const Xmm& reg2) { opModR(reg1, reg2, T_0F, 0x12); }
 void movhpd(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x120, 0x16); }
 void movhps(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x100, 0x16); }
-void movlhps(const Xmm& reg1, const Xmm& reg2) { opModR2(reg1, reg2, T_0F, 0x16); }
+void movlhps(const Xmm& reg1, const Xmm& reg2) { opModR(reg1, reg2, T_0F, 0x16); }
 void movlpd(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x120, 0x12); }
 void movlps(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x100, 0x12); }
 void movmskpd(const Reg32e& reg, const Xmm& xmm) { db(0x66); movmskps(reg, xmm); }
-void movmskps(const Reg32e& reg, const Xmm& xmm) { opModR2(reg, xmm, T_0F, 0x50); }
+void movmskps(const Reg32e& reg, const Xmm& xmm) { opModR(reg, xmm, T_0F, 0x50); }
 void movntdq(const Address& addr, const Xmm& reg) { opModM2(addr, Reg16(reg.getIdx()), T_0F, 0xE7); }
 void movntdqa(const Xmm& xmm, const Address& addr) { opModM2(addr, xmm, T_66 | T_0F38, 0x2A); }
 void movnti(const Address& addr, const Reg32e& reg) { opModM2(addr, reg, T_0F, 0xC3); }
@@ -538,7 +538,7 @@ void movntps(const Address& addr, const Xmm& xmm) { opModM2(addr, Mmx(xmm.getIdx
 void movntq(const Address& addr, const Mmx& mmx) { if (!mmx.isMMX()) XBYAK_THROW(ERR_BAD_COMBINATION) opModM2(addr, mmx, T_0F, 0xE7); }
 void movq(const Address& addr, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModM2(addr, mmx, T_0F, mmx.isXMM() ? 0xD6 : 0x7F); }
 void movq(const Mmx& mmx, const Operand& op) { if (mmx.isXMM()) db(0xF3); opModRM(mmx, op, (mmx.getKind() == op.getKind()), op.isMEM(), T_0F, mmx.isXMM() ? 0x7E : 0x6F); }
-void movq2dq(const Xmm& xmm, const Mmx& mmx) { opModR2(xmm, mmx, T_F3 | T_0F, 0xD6); }
+void movq2dq(const Xmm& xmm, const Mmx& mmx) { opModR(xmm, mmx, T_F3 | T_0F, 0xD6); }
 void movsb() { db(0xA4); }
 void movsd() { db(0xA5); }
 void movsd(const Address& addr, const Xmm& xmm) { opModM2(addr, xmm, T_0F|T_F2, 0x11); }
@@ -645,7 +645,7 @@ void pminsw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xEA); }
 void pminub(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xDA); }
 void pminud(const Xmm& xmm, const Operand& op) { opGen(xmm, op, T_66 | T_0F38, 0x3B, isXMM_XMMorMEM); }
 void pminuw(const Xmm& xmm, const Operand& op) { opGen(xmm, op, T_66 | T_0F38, 0x3A, isXMM_XMMorMEM); }
-void pmovmskb(const Reg32e& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR2(reg, mmx, T_0F, 0xD7); }
+void pmovmskb(const Reg32e& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR(reg, mmx, T_0F, 0xD7); }
 void pmovsxbd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, T_N4 | T_N_VL | T_66 | T_0F38 | T_YMM | T_EVEX, 0x21, isXMM_XMMorMEM, NONE); }
 void pmovsxbq(const Xmm& xmm, const Operand& op) { opGen(xmm, op, T_N2 | T_N_VL | T_66 | T_0F38 | T_YMM | T_EVEX, 0x22, isXMM_XMMorMEM, NONE); }
 void pmovsxbw(const Xmm& xmm, const Operand& op) { opGen(xmm, op, T_N8 | T_N_VL | T_66 | T_0F38 | T_YMM | T_EVEX, 0x20, isXMM_XMMorMEM, NONE); }
@@ -730,8 +730,8 @@ void rcr(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 3); }
 void rcr(const Operand& op, int imm) { opShift(op, imm, 3); }
 void rdmsr() { db(0x0F); db(0x32); }
 void rdpmc() { db(0x0F); db(0x33); }
-void rdrand(const Reg& r) { if (r.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opModR2(Reg(6, Operand::REG, r.getBit()), r, T_0F, 0xC7); }
-void rdseed(const Reg& r) { if (r.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opModR2(Reg(7, Operand::REG, r.getBit()), r, T_0F, 0xC7); }
+void rdrand(const Reg& r) { if (r.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opModR(Reg(6, Operand::REG, r.getBit()), r, T_0F, 0xC7); }
+void rdseed(const Reg& r) { if (r.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opModR(Reg(7, Operand::REG, r.getBit()), r, T_0F, 0xC7); }
 void rdtsc() { db(0x0F); db(0x31); }
 void rdtscp() { db(0x0F); db(0x01); db(0xF9); }
 void rep() { db(0xF3); }
@@ -1694,12 +1694,12 @@ void testui() { db(0xF3); db(0x0F); db(0x01); db(0xED); }
 void uiret() { db(0xF3); db(0x0F); db(0x01); db(0xEC); }
 void cmpxchg16b(const Address& addr) { opModM2(addr, Reg64(1), T_0F, 0xC7); }
 void fxrstor64(const Address& addr) { opModM2(addr, Reg64(1), T_0F, 0xAE); }
-void movq(const Reg64& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR2(mmx, reg, T_0F, 0x7E); }
-void movq(const Mmx& mmx, const Reg64& reg) { if (mmx.isXMM()) db(0x66); opModR2(mmx, reg, T_0F, 0x6E); }
+void movq(const Reg64& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR(mmx, reg, T_0F, 0x7E); }
+void movq(const Mmx& mmx, const Reg64& reg) { if (mmx.isXMM()) db(0x66); opModR(mmx, reg, T_0F, 0x6E); }
 void movsxd(const Reg64& reg, const Operand& op) { if (!op.isBit(32)) XBYAK_THROW(ERR_BAD_COMBINATION) opModRM(reg, op, op.isREG(), op.isMEM(), 0, 0x63); }
 void pextrq(const Operand& op, const Xmm& xmm, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opGen(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x16, 0, imm); }
 void pinsrq(const Xmm& xmm, const Operand& op, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opGen(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x22, 0, imm); }
-void senduipi(const Reg64& r) { opModR2(Reg32(6), r.cvt32(), T_F3 | T_0F, 0xC7); }
+void senduipi(const Reg64& r) { opModR(Reg32(6), r.cvt32(), T_F3 | T_0F, 0xC7); }
 void vcvtss2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W1 | T_EVEX | T_EW1 | T_ER_X | T_N8, 0x2D); }
 void vcvttss2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W1 | T_EVEX | T_EW1 | T_SAE_X | T_N8, 0x2C); }
 void vcvtsd2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W1 | T_EVEX | T_EW1 | T_N4 | T_ER_X, 0x2D); }

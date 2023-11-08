@@ -2021,10 +2021,6 @@ private:
 	}
 	LabelManager labelMgr_;
 	bool isInDisp16(uint32_t x) const { return 0xFFFF8000 <= x || x <= 0x7FFF; }
-	void writeCode(int type, const Reg& r, int code0, int code1 = NONE, int code2 = NONE)
-	{
-		db(code0 | (type == 0 && !r.isBit(8))); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
-	}
 	void writeCode2(int type, const Reg& r, int code)
 	{
 		if (type & T_0F) {
@@ -2036,24 +2032,11 @@ private:
 		}
 		db(code | (type == 0 && !r.isBit(8)));
 	}
-	void opModR(const Reg& reg1, const Reg& reg2, int code0, int code1 = NONE, int code2 = NONE)
-	{
-		rex(reg2, reg1);
-		writeCode(0, reg1, code0, code1, code2);
-		setModRM(3, reg1.getIdx(), reg2.getIdx());
-	}
-	void opModR2(const Reg& reg1, const Reg& reg2, int type, int code)
+	void opModR(const Reg& reg1, const Reg& reg2, int type, int code)
 	{
 		rexA(type, reg2, reg1);
 		writeCode2(type, reg1, code);
 		setModRM(3, reg1.getIdx(), reg2.getIdx());
-	}
-	void opModM(const Address& addr, const Reg& reg, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
-	{
-		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
-		rex(addr, reg);
-		writeCode(0, reg, code0, code1, code2);
-		opAddr(addr, reg.getIdx(), immSize);
 	}
 	void opModM2(const Address& addr, const Reg& reg, int type, int code, int immSize = 0)
 	{
@@ -2168,7 +2151,7 @@ private:
 		if (op.isMEM()) {
 			opModM2(op.getAddress(), reg.getReg(), type, code, (imm8 != NONE) ? 1 : 0);
 		} else {
-			opModR2(reg.getReg(), op.getReg(), type, code);
+			opModR(reg.getReg(), op.getReg(), type, code);
 		}
 		if (imm8 != NONE) db(imm8);
 	}
@@ -2177,7 +2160,7 @@ private:
 		if (!isValidSSE(mmx)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		int type = T_0F;
 		if (mmx.isXMM()) type |= T_66;
-		opModR2(Reg32(ext), mmx, type, code);
+		opModR(Reg32(ext), mmx, type, code);
 		db(imm8);
 	}
 	void opMMX(const Mmx& mmx, const Operand& op, int code, int type = T_0F, int pref = T_66, int imm8 = NONE)
@@ -2201,7 +2184,7 @@ private:
 		if (!isValidSSE(op) || !isValidSSE(mmx)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		if (hasMMX2 && op.isREG(i32e)) { /* pextrw is special */
 			if (mmx.isXMM()) db(0x66);
-			opModR2(op.getReg(), mmx, T_0F, 0xC5); db(imm);
+			opModR(op.getReg(), mmx, T_0F, 0xC5); db(imm);
 		} else {
 			opGen(mmx, op, T_66 | T_0F3A, code, isXMM_REG32orMEM, imm);
 		}
@@ -2211,7 +2194,7 @@ private:
 		int opBit = op.getBit();
 		if (disableRex && opBit == 64) opBit = 32;
 		if (op.isREG(bit)) {
-			opModR2(Reg(ext, Operand::REG, opBit), op.getReg().changeBit(opBit), type, code);
+			opModR(Reg(ext, Operand::REG, opBit), op.getReg().changeBit(opBit), type, code);
 		} else if (op.isMEM()) {
 			opModM2(op.getAddress(), Reg(ext, Operand::REG, opBit), type, code, immSize);
 		} else {
@@ -2232,7 +2215,7 @@ private:
 	void opModRM(const Operand& op1, const Operand& op2, bool condR, bool condM, int type, int code, int immSize = 0)
 	{
 		if (condR) {
-			opModR2(op1.getReg(), op2.getReg(), type, code);
+			opModR(op1.getReg(), op2.getReg(), type, code);
 		} else if (condM) {
 			opModM2(op2.getAddress(), op1.getReg(), type, code, immSize);
 		} else {
@@ -2295,7 +2278,7 @@ private:
 #endif
 		code = 0xFE;
 		if (op.isREG()) {
-			opModR2(Reg(ext, Operand::REG, op.getBit()), op.getReg(), 0, code);
+			opModR(Reg(ext, Operand::REG, op.getBit()), op.getReg(), 0, code);
 		} else {
 			opModM2(op.getAddress(), Reg(ext, Operand::REG, op.getBit()), 0, code);
 		}
