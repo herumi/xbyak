@@ -2045,7 +2045,7 @@ private:
 		writeCode2(type, reg, code);
 		opAddr(addr, reg.getIdx(), immSize);
 	}
-	void opLoadSeg2(const Address& addr, const Reg& reg, int type, int code)
+	void opLoadSeg(const Address& addr, const Reg& reg, int type, int code)
 	{
 		if (reg.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
 		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
