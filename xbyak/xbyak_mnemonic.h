@@ -49,8 +49,8 @@ void bndcl(const BoundsReg& bnd, const Operand& op) { db(0xF3); opR_ModM(op, i32
 void bndcn(const BoundsReg& bnd, const Operand& op) { db(0xF2); opR_ModM(op, i32e, bnd.getIdx(), 0x0F, 0x1B, NONE, !op.isMEM()); }
 void bndcu(const BoundsReg& bnd, const Operand& op) { db(0xF2); opR_ModM(op, i32e, bnd.getIdx(), 0x0F, 0x1A, NONE, !op.isMEM()); }
 void bndldx(const BoundsReg& bnd, const Address& addr) { opMIB(addr, bnd, T_0F, 0x1A); }
-void bndmk(const BoundsReg& bnd, const Address& addr) { db(0xF3); opModM(addr, bnd, 0x0F, 0x1B); }
-void bndmov(const Address& addr, const BoundsReg& bnd) { db(0x66); opModM(addr, bnd, 0x0F, 0x1B); }
+void bndmk(const BoundsReg& bnd, const Address& addr) { opModM2(addr, bnd, T_F3 | T_0F, 0x1B); }
+void bndmov(const Address& addr, const BoundsReg& bnd) { opModM2(addr, bnd, T_66 | T_0F, 0x1B); }
 void bndmov(const BoundsReg& bnd, const Operand& op) { db(0x66); opModRM(bnd, op, op.isBNDREG(), op.isMEM(), 0x0F, 0x1A); }
 void bndstx(const Address& addr, const BoundsReg& bnd) { opMIB(addr, bnd, T_0F, 0x1B); }
 void bsf(const Reg&reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, 0xBC); }
@@ -69,11 +69,11 @@ void cbw() { db(0x66); db(0x98); }
 void cdq() { db(0x99); }
 void clc() { db(0xF8); }
 void cld() { db(0xFC); }
-void cldemote(const Address& addr) { opModM(addr, eax, 0x0F, 0x1C); }
+void cldemote(const Address& addr) { opModM2(addr, eax, T_0F, 0x1C); }
 void clflush(const Address& addr) { opModM2(addr, Reg32(7), T_0F, 0xAE); }
 void clflushopt(const Address& addr) { opModM2(addr, Reg32(7), T_66 | T_0F, 0xAE); }
 void cli() { db(0xFA); }
-void clwb(const Address& addr) { db(0x66); opModM(addr, esi, 0x0F, 0xAE); }
+void clwb(const Address& addr) { opModM2(addr, esi, T_66 | T_0F, 0xAE); }
 void clzero() { db(0x0F); db(0x01); db(0xFC); }
 void cmc() { db(0xF5); }
 void cmova(const Reg& reg, const Operand& op) { opModRM(reg, op, op.isREG(16 | i32e), op.isMEM(), 0x0F, 0x40 | 7); }//-V524
@@ -148,7 +148,7 @@ void cmpunordps(const Xmm& x, const Operand& op) { cmpps(x, op, 3); }
 void cmpunordsd(const Xmm& x, const Operand& op) { cmpsd(x, op, 3); }
 void cmpunordss(const Xmm& x, const Operand& op) { cmpss(x, op, 3); }
 void cmpxchg(const Operand& op, const Reg& reg) { opModRM(reg, op, (op.isREG() && reg.isREG() && op.getBit() == reg.getBit()), op.isMEM(), 0x0F, 0xB0 | (reg.isBit(8) ? 0 : 1)); }
-void cmpxchg8b(const Address& addr) { opModM(addr, Reg32(1), 0x0F, 0xC7); }
+void cmpxchg8b(const Address& addr) { opModM2(addr, Reg32(1), T_0F, 0xC7); }
 void comisd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, T_0F | T_66, 0x2F, isXMM_XMMorMEM); }
 void comiss(const Xmm& xmm, const Operand& op) { opGen(xmm, op, T_0F | 0, 0x2F, isXMM_XMMorMEM); }
 void cpuid() { db(0x0F); db(0xA2); }
@@ -469,9 +469,9 @@ void jz(const char *label, LabelType type = T_AUTO) { jz(std::string(label), typ
 void jz(const void *addr) { opJmpAbs(addr, T_NEAR, 0x74, 0x84, 0x0F); }//-V524
 void jz(std::string label, LabelType type = T_AUTO) { opJmp(label, type, 0x74, 0x84, 0x0F); }//-V524
 void lahf() { db(0x9F); }
-void lddqu(const Xmm& xmm, const Address& addr) { db(0xF2); opModM(addr, xmm, 0x0F, 0xF0); }
+void lddqu(const Xmm& xmm, const Address& addr) { opModM2(addr, xmm, T_F2 | T_0F, 0xF0); }
 void ldmxcsr(const Address& addr) { opModM2(addr, Reg32(2), T_0F, 0xAE); }
-void lea(const Reg& reg, const Address& addr) { if (!reg.isBit(16 | i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opModM(addr, reg, 0x8D); }
+void lea(const Reg& reg, const Address& addr) { if (!reg.isBit(16 | i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opModM2(addr, reg, 0, 0x8D); }
 void leave() { db(0xC9); }
 void lfence() { db(0x0F); db(0xAE); db(0xE8); }
 void lfs(const Reg& reg, const Address& addr) { opLoadSeg2(addr, reg, T_0F, 0xB4); }
@@ -508,15 +508,15 @@ void movapd(const Address& addr, const Xmm& xmm) { opModM2(addr, xmm, T_0F|T_66,
 void movapd(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x28, T_0F, T_66); }
 void movaps(const Address& addr, const Xmm& xmm) { opModM2(addr, xmm, T_0F|0, 0x29); }
 void movaps(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x28, T_0F, 0); }
-void movbe(const Address& addr, const Reg& reg) { opModM(addr, reg, 0x0F, 0x38, 0xF1); }
-void movbe(const Reg& reg, const Address& addr) { opModM(addr, reg, 0x0F, 0x38, 0xF0); }
-void movd(const Address& addr, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModM(addr, mmx, 0x0F, 0x7E); }
-void movd(const Mmx& mmx, const Address& addr) { if (mmx.isXMM()) db(0x66); opModM(addr, mmx, 0x0F, 0x6E); }
+void movbe(const Address& addr, const Reg& reg) { opModM2(addr, reg, T_0F38, 0xF1); }
+void movbe(const Reg& reg, const Address& addr) { opModM2(addr, reg, T_0F38, 0xF0); }
+void movd(const Address& addr, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModM2(addr, mmx, T_0F, 0x7E); }
+void movd(const Mmx& mmx, const Address& addr) { if (mmx.isXMM()) db(0x66); opModM2(addr, mmx, T_0F, 0x6E); }
 void movd(const Mmx& mmx, const Reg32& reg) { if (mmx.isXMM()) db(0x66); opModR2(mmx, reg, T_0F, 0x6E); }
 void movd(const Reg32& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModR2(mmx, reg, T_0F, 0x7E); }
 void movddup(const Xmm& xmm, const Operand& op) { opGen(xmm, op, T_DUP | T_F2 | T_0F | T_EW1 | T_YMM | T_EVEX | T_ER_X | T_ER_Y | T_ER_Z, 0x12, isXMM_XMMorMEM, NONE); }
-void movdir64b(const Reg& reg, const Address& addr) { db(0x66); opModM(addr, reg.cvt32(), 0x0F, 0x38, 0xF8); }
-void movdiri(const Address& addr, const Reg32e& reg) { opModM(addr, reg, 0x0F, 0x38, 0xF9); }
+void movdir64b(const Reg& reg, const Address& addr) { opModM2(addr, reg.cvt32(), T_66 | T_0F38, 0xF8); }
+void movdiri(const Address& addr, const Reg32e& reg) { opModM2(addr, reg, T_0F38, 0xF9); }
 void movdq2q(const Mmx& mmx, const Xmm& xmm) { opModR2(mmx, xmm, T_F2 | T_0F, 0xD6); }
 void movdqa(const Address& addr, const Xmm& xmm) { opModM2(addr, xmm, T_0F|T_66, 0x7F); }
 void movdqa(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x6F, T_0F, T_66); }
@@ -530,13 +530,13 @@ void movlpd(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x120, 
 void movlps(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x100, 0x12); }
 void movmskpd(const Reg32e& reg, const Xmm& xmm) { db(0x66); movmskps(reg, xmm); }
 void movmskps(const Reg32e& reg, const Xmm& xmm) { opModR2(reg, xmm, T_0F, 0x50); }
-void movntdq(const Address& addr, const Xmm& reg) { opModM(addr, Reg16(reg.getIdx()), 0x0F, 0xE7); }
-void movntdqa(const Xmm& xmm, const Address& addr) { db(0x66); opModM(addr, xmm, 0x0F, 0x38, 0x2A); }
-void movnti(const Address& addr, const Reg32e& reg) { opModM(addr, reg, 0x0F, 0xC3); }
-void movntpd(const Address& addr, const Xmm& reg) { opModM(addr, Reg16(reg.getIdx()), 0x0F, 0x2B); }
-void movntps(const Address& addr, const Xmm& xmm) { opModM(addr, Mmx(xmm.getIdx()), 0x0F, 0x2B); }
-void movntq(const Address& addr, const Mmx& mmx) { if (!mmx.isMMX()) XBYAK_THROW(ERR_BAD_COMBINATION) opModM(addr, mmx, 0x0F, 0xE7); }
-void movq(const Address& addr, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModM(addr, mmx, 0x0F, mmx.isXMM() ? 0xD6 : 0x7F); }
+void movntdq(const Address& addr, const Xmm& reg) { opModM2(addr, Reg16(reg.getIdx()), T_0F, 0xE7); }
+void movntdqa(const Xmm& xmm, const Address& addr) { opModM2(addr, xmm, T_66 | T_0F38, 0x2A); }
+void movnti(const Address& addr, const Reg32e& reg) { opModM2(addr, reg, T_0F, 0xC3); }
+void movntpd(const Address& addr, const Xmm& reg) { opModM2(addr, Reg16(reg.getIdx()), T_0F, 0x2B); }
+void movntps(const Address& addr, const Xmm& xmm) { opModM2(addr, Mmx(xmm.getIdx()), T_0F, 0x2B); }
+void movntq(const Address& addr, const Mmx& mmx) { if (!mmx.isMMX()) XBYAK_THROW(ERR_BAD_COMBINATION) opModM2(addr, mmx, T_0F, 0xE7); }
+void movq(const Address& addr, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opModM2(addr, mmx, T_0F, mmx.isXMM() ? 0xD6 : 0x7F); }
 void movq(const Mmx& mmx, const Operand& op) { if (mmx.isXMM()) db(0xF3); opModRM(mmx, op, (mmx.getKind() == op.getKind()), op.isMEM(), 0x0F, mmx.isXMM() ? 0x7E : 0x6F); }
 void movq2dq(const Xmm& xmm, const Mmx& mmx) { opModR2(xmm, mmx, T_F3 | T_0F, 0xD6); }
 void movsb() { db(0xA4); }
