@@ -2134,9 +2134,9 @@ private:
 		const int bit = 16|i32e;
 		if (type == T_FAR) {
 			if (!op.isMEM(bit)) XBYAK_THROW(ERR_NOT_SUPPORTED)
-			opR_ModM2(op, bit, ext + 1, 0, 0xFF, false);
+			opR_ModM(op, bit, ext + 1, 0, 0xFF, false);
 		} else {
-			opR_ModM2(op, bit, ext, 0, 0xFF, true);
+			opR_ModM(op, bit, ext, 0, 0xFF, true);
 		}
 	}
 	// reg is reg field of ModRM
@@ -2206,19 +2206,7 @@ private:
 			opGen(mmx, op, T_66 | T_0F3A, code, isXMM_REG32orMEM, imm);
 		}
 	}
-	void opR_ModM(const Operand& op, int bit, int ext, int code0, int code1 = NONE, int code2 = NONE, bool disableRex = false, int immSize = 0)
-	{
-		int opBit = op.getBit();
-		if (disableRex && opBit == 64) opBit = 32;
-		if (op.isREG(bit)) {
-			opModR(Reg(ext, Operand::REG, opBit), op.getReg().changeBit(opBit), code0, code1, code2);
-		} else if (op.isMEM()) {
-			opModM(op.getAddress(), Reg(ext, Operand::REG, opBit), code0, code1, code2, immSize);
-		} else {
-			XBYAK_THROW(ERR_BAD_COMBINATION)
-		}
-	}
-	void opR_ModM2(const Operand& op, int bit, int ext, int type, int code, bool disableRex = false, int immSize = 0)
+	void opR_ModM(const Operand& op, int bit, int ext, int type, int code, bool disableRex = false, int immSize = 0)
 	{
 		int opBit = op.getBit();
 		if (disableRex && opBit == 64) opBit = 32;
@@ -2233,13 +2221,13 @@ private:
 	void opShift(const Operand& op, int imm, int ext)
 	{
 		verifyMemHasSize(op);
-		opR_ModM2(op, 0, ext, 0, (0xC0 | ((imm == 1 ? 1 : 0) << 4)), false, (imm != 1) ? 1 : 0);
+		opR_ModM(op, 0, ext, 0, (0xC0 | ((imm == 1 ? 1 : 0) << 4)), false, (imm != 1) ? 1 : 0);
 		if (imm != 1) db(imm);
 	}
 	void opShift(const Operand& op, const Reg8& _cl, int ext)
 	{
 		if (_cl.getIdx() != Operand::CL) XBYAK_THROW(ERR_BAD_COMBINATION)
-		opR_ModM2(op, 0, ext, 0, 0xD2);
+		opR_ModM(op, 0, ext, 0, 0xD2);
 	}
 	void opModRM(const Operand& op1, const Operand& op2, bool condR, bool condM, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
 	{
@@ -2284,7 +2272,7 @@ private:
 			db(code | 4 | (immBit == 8 ? 0 : 1));
 		} else {
 			int tmp = immBit < (std::min)(op.getBit(), 32U) ? 2 : 0;
-			opR_ModM2(op, 0, ext, 0, 0x80 | tmp, false, immBit / 8);
+			opR_ModM(op, 0, ext, 0, 0x80 | tmp, false, immBit / 8);
 		}
 		db(imm, immBit / 8);
 	}
@@ -2764,7 +2752,7 @@ public:
 			rex(op);
 			db(0xA8 | (op.isBit(8) ? 0 : 1));
 		} else {
-			opR_ModM2(op, 0, 0, 0, 0xF6, false, immSize);
+			opR_ModM(op, 0, 0, 0, 0xF6, false, immSize);
 		}
 		db(imm, immSize);
 	}
