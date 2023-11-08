@@ -627,7 +627,7 @@ void put()
 			printf("void j%s(const Label& label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }%s\n", p->name, p->ext | 0x70, p->ext | 0x80, 0x0F, msg);
 			printf("void j%s(const char *label, LabelType type = T_AUTO) { j%s(std::string(label), type); }%s\n", p->name, p->name, msg);
 			printf("void j%s(const void *addr) { opJmpAbs(addr, T_NEAR, 0x%02X, 0x%02X, 0x%02X); }%s\n", p->name, p->ext | 0x70, p->ext | 0x80, 0x0F, msg);
-			printf("void set%s(const Operand& op) { opR_ModM(op, 8, 0, 0x0F, 0x90 | %d); }%s\n", p->name, p->ext, msg);
+			printf("void set%s(const Operand& op) { opR_ModM2(op, 8, 0, T_0F, 0x90 | %d); }%s\n", p->name, p->ext, msg);
 		}
 	}
 	{
@@ -857,7 +857,7 @@ void put()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Operand& op, const Reg& reg) { opModRM(reg, op, op.isREG(16|32|64) && op.getBit() == reg.getBit(), op.isMEM(), 0x0f, 0x%02X); }\n", p->name, p->code);
-			printf("void %s(const Operand& op, uint8_t imm) { opR_ModM(op, 16|32|64, %d, 0x0f, 0xba, NONE, false, 1); db(imm); }\n", p->name, p->ext);
+			printf("void %s(const Operand& op, uint8_t imm) { opR_ModM2(op, 16|32|64, %d, T_0F, 0xba, false, 1); db(imm); }\n", p->name, p->ext);
 		}
 	}
 	{
@@ -876,7 +876,7 @@ void put()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			const std::string name = p->name;
-			printf("void %s(const Operand& op) { opR_ModM(op, 0, %d, 0x%02X); }\n", p->name, p->ext, p->code);
+			printf("void %s(const Operand& op) { opR_ModM2(op, 0, %d, 0, 0x%02X); }\n", p->name, p->ext, p->code);
 		}
 	}
 	{
@@ -1068,9 +1068,9 @@ void put()
 	}
 	// mpx
 	{
-		puts("void bndcl(const BoundsReg& bnd, const Operand& op) { db(0xF3); opR_ModM(op, i32e, bnd.getIdx(), 0x0F, 0x1A, NONE, !op.isMEM()); }");
-		puts("void bndcu(const BoundsReg& bnd, const Operand& op) { db(0xF2); opR_ModM(op, i32e, bnd.getIdx(), 0x0F, 0x1A, NONE, !op.isMEM()); }");
-		puts("void bndcn(const BoundsReg& bnd, const Operand& op) { db(0xF2); opR_ModM(op, i32e, bnd.getIdx(), 0x0F, 0x1B, NONE, !op.isMEM()); }");
+		puts("void bndcl(const BoundsReg& bnd, const Operand& op) { opR_ModM2(op, i32e, bnd.getIdx(), T_F3 | T_0F, 0x1A, !op.isMEM()); }");
+		puts("void bndcu(const BoundsReg& bnd, const Operand& op) { opR_ModM2(op, i32e, bnd.getIdx(), T_F2 | T_0F, 0x1A, !op.isMEM()); }");
+		puts("void bndcn(const BoundsReg& bnd, const Operand& op) { opR_ModM2(op, i32e, bnd.getIdx(), T_F2 | T_0F, 0x1B, !op.isMEM()); }");
 		puts("void bndldx(const BoundsReg& bnd, const Address& addr) { opMIB(addr, bnd, T_0F, 0x1A); }");
 		puts("void bndmk(const BoundsReg& bnd, const Address& addr) { opModM2(addr, bnd, T_F3 | T_0F, 0x1B); }");
 		puts("void bndmov(const BoundsReg& bnd, const Operand& op) { db(0x66); opModRM(bnd, op, op.isBNDREG(), op.isMEM(), 0x0F, 0x1A); }");
