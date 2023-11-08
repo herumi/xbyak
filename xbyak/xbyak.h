@@ -2110,11 +2110,7 @@ private:
 	{
 		if (isValid && !isValid(r, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		if (!isValidSSE(r) || !isValidSSE(op)) XBYAK_THROW(ERR_NOT_SUPPORTED)
-		if (op.isMEM()) {
-			opMR(op.getAddress(), r, type, code, (imm8 != NONE) ? 1 : 0);
-		} else {
-			opRR(r, op.getReg(), type, code);
-		}
+		opRO(r, op, true, type, code, (imm8 != NONE) ? 1 : 0);
 		if (imm8 != NONE) db(imm8);
 	}
 	void opMMX_IMM(const Mmx& mmx, int imm8, int code, int ext)
@@ -2156,10 +2152,11 @@ private:
 	{
 		int opBit = op.getBit();
 		if (disableRex && opBit == 64) opBit = 32;
-		if (op.isREG(bit)) {
-			opRR(Reg(ext, Operand::REG, opBit), op.getReg().changeBit(opBit), type, code);
-		} else if (op.isMEM()) {
-			opMR(op.getAddress(), Reg(ext, Operand::REG, opBit), type, code, immSize);
+		const Reg r(ext, Operand::REG, opBit);
+		if (op.isMEM()) {
+			opMR(op.getAddress(), r, type, code, immSize);
+		} else if (op.isREG(bit)) {
+			opRR(r, op.getReg().changeBit(opBit), type, code);
 		} else {
 			XBYAK_THROW(ERR_BAD_COMBINATION)
 		}
@@ -2175,6 +2172,7 @@ private:
 		if (_cl.getIdx() != Operand::CL) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opRext(op, 0, ext, 0, 0xD2);
 	}
+	// condR assumes that op.isREG() is true
 	void opRO(const Reg& r, const Operand& op, bool condR, int type, int code, int immSize = 0)
 	{
 		if (op.isMEM()) {
@@ -2189,7 +2187,7 @@ private:
 	{
 		if (_cl && _cl->getIdx() != Operand::CL) XBYAK_THROW(ERR_BAD_COMBINATION)
 		if (!reg.isREG(16 | i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
-		opRO(reg, op, op.isREG(), T_0F, code | (_cl ? 1 : 0), _cl ? 0 : 1);
+		opRO(reg, op, true, T_0F, code | (_cl ? 1 : 0), _cl ? 0 : 1);
 		if (!_cl) db(imm);
 	}
 	// (REG, REG|MEM), (MEM, REG)
@@ -2199,7 +2197,7 @@ private:
 			if (!op1.isREG()) XBYAK_THROW(ERR_BAD_COMBINATION)
 			opMR(op2.getAddress(), op1.getReg(), 0, code | 2);
 		} else {
-			opRO(static_cast<const Reg&>(op2), op1, op1.isREG() && op1.getKind() == op2.getKind(), 0, code);
+			opRO(static_cast<const Reg&>(op2), op1, op1.getKind() == op2.getKind(), 0, code);
 		}
 	}
 	uint32_t getImmBit(const Operand& op, uint32_t imm)
@@ -2317,7 +2315,7 @@ private:
 		if (op.isBit(32)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		int w = op.isBit(16);
 		if (!(reg.isREG() && (reg.getBit() > op.getBit()))) XBYAK_THROW(ERR_BAD_COMBINATION)
-		opRO(reg, op, op.isREG(), T_0F, code | w);
+		opRO(reg, op, true, T_0F, code | w);
 	}
 	void opFpuMem(const Address& addr, uint8_t m16, uint8_t m32, uint8_t m64, uint8_t ext, uint8_t m64ext)
 	{
@@ -2461,7 +2459,7 @@ private:
 		bool is16bit = reg.isREG(16) && (op.isREG(16) || op.isMEM());
 		if (!is16bit && !(reg.isREG(i32e) && (op.isREG(reg.getBit()) || op.isMEM()))) XBYAK_THROW(ERR_BAD_COMBINATION)
 		if (is16bit) db(0x66);
-		opRO(reg.changeBit(i32e == 32 ? 32 : reg.getBit()), op, op.isREG(), T_F3 | T_0F, code);
+		opRO(reg.changeBit(i32e == 32 ? 32 : reg.getBit()), op, true, T_F3 | T_0F, code);
 	}
 	void opGather(const Xmm& x1, const Address& addr, const Xmm& x2, int type, uint8_t code, int mode)
 	{
@@ -2684,7 +2682,7 @@ public:
 
 	void test(const Operand& op, const Reg& reg)
 	{
-		opRO(reg, op, op.isREG() && (op.getKind() == reg.getKind()), 0, 0x84);
+		opRO(reg, op, op.getKind() == reg.getKind(), 0, 0x84);
 	}
 	void test(const Operand& op, uint32_t imm)
 	{
@@ -2700,13 +2698,13 @@ public:
 	}
 	void imul(const Reg& reg, const Operand& op)
 	{
-		opRO(reg, op, op.isREG() && (reg.getKind() == op.getKind()), T_0F, 0xAF);
+		opRO(reg, op, reg.getKind() == op.getKind(), T_0F, 0xAF);
 	}
 	void imul(const Reg& reg, const Operand& op, int imm)
 	{
 		int s = inner::IsInDisp8(imm) ? 1 : 0;
         int immSize = s ? 1 : reg.isREG(16) ? 2 : 4;
-		opRO(reg, op, op.isREG() && (reg.getKind() == op.getKind()), 0, 0x69 | (s << 1), immSize);
+		opRO(reg, op, reg.getKind() == op.getKind(), 0, 0x69 | (s << 1), immSize);
 		db(imm, immSize);
 	}
 	void push(const Operand& op) { opPushPop(op, 0xFF, 6, 0x50); }
@@ -2813,7 +2811,7 @@ public:
 			rex(*p2, *p1); db(0x90 | (p2->getIdx() & 7));
 			return;
 		}
-		opRO(static_cast<const Reg&>(*p1), *p2, (p1->isREG() && p2->isREG() && (p1->getBit() == p2->getBit())), 0, 0x86 | (p1->isBit(8) ? 0 : 1));
+		opRO(static_cast<const Reg&>(*p1), *p2, (p1->isREG() && (p1->getBit() == p2->getBit())), 0, 0x86 | (p1->isBit(8) ? 0 : 1));
 	}
 
 #ifndef XBYAK_DISABLE_SEGMENT

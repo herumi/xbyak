@@ -856,8 +856,8 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Operand& op, const Reg& reg) { opRO(reg, op, op.isREG(16|32|64) && op.getBit() == reg.getBit(), T_0F, 0x%02X); }\n", p->name, p->code);
-			printf("void %s(const Operand& op, uint8_t imm) { opRext(op, 16|32|64, %d, T_0F, 0xba, false, 1); db(imm); }\n", p->name, p->ext);
+			printf("void %s(const Operand& op, const Reg& reg) { opRO(reg, op, op.isREG(16|i32e) && op.getBit() == reg.getBit(), T_0F, 0x%02X); }\n", p->name, p->code);
+			printf("void %s(const Operand& op, uint8_t imm) { opRext(op, 16|i32e, %d, T_0F, 0xba, false, 1); db(imm); }\n", p->name, p->ext);
 		}
 	}
 	{
@@ -924,7 +924,7 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Reg&reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x%02X); }\n", p->name, p->code);
+			printf("void %s(const Reg&reg, const Operand& op) { opRO(reg, op, op.isREG(16|i32e), T_0F, 0x%02X); }\n", p->name, p->code);
 		}
 	}
 	{
@@ -1084,8 +1084,8 @@ void put()
 		puts("void ret(int imm = 0) { if (imm) { db(0xC2); dw(imm); } else { db(0xC3); } }");
 		puts("void retf(int imm = 0) { if (imm) { db(0xCA); dw(imm); } else { db(0xCB); } }");
 
-		puts("void xadd(const Operand& op, const Reg& reg) { opRO(reg, op, (op.isREG() && reg.isREG() && op.getBit() == reg.getBit()), T_0F, 0xC0 | (reg.isBit(8) ? 0 : 1)); }");
-		puts("void cmpxchg(const Operand& op, const Reg& reg) { opRO(reg, op, (op.isREG() && reg.isREG() && op.getBit() == reg.getBit()), T_0F, 0xB0 | (reg.isBit(8) ? 0 : 1)); }");
+		puts("void xadd(const Operand& op, const Reg& reg) { opRO(reg, op, op.getBit() == reg.getBit(), T_0F, 0xC0 | (reg.isBit(8) ? 0 : 1)); }");
+		puts("void cmpxchg(const Operand& op, const Reg& reg) { opRO(reg, op, op.getBit() == reg.getBit(), T_0F, 0xB0 | (reg.isBit(8) ? 0 : 1)); }");
 		puts("void movbe(const Reg& reg, const Address& addr) { opMR(addr, reg, T_0F38, 0xF0); }");
 		puts("void movbe(const Address& addr, const Reg& reg) { opMR(addr, reg, T_0F38, 0xF1); }");
 		puts("void movdiri(const Address& addr, const Reg32e& reg) { opMR(addr, reg, T_0F38, 0xF9); }");
@@ -1117,11 +1117,11 @@ void put()
 		puts("void movd(const Mmx& mmx, const Reg32& reg) { if (mmx.isXMM()) db(0x66); opRR(mmx, reg, T_0F, 0x6E); }");
 		puts("void movq2dq(const Xmm& xmm, const Mmx& mmx) { opRR(xmm, mmx, T_F3 | T_0F, 0xD6); }");
 		puts("void movdq2q(const Mmx& mmx, const Xmm& xmm) { opRR(mmx, xmm, T_F2 | T_0F, 0xD6); }");
-		puts("void movq(const Mmx& mmx, const Operand& op) { if (mmx.isXMM()) db(0xF3); opRO(mmx, op, (mmx.getKind() == op.getKind()), T_0F, mmx.isXMM() ? 0x7E : 0x6F); }");
+		puts("void movq(const Mmx& mmx, const Operand& op) { if (mmx.isXMM()) db(0xF3); opRO(mmx, op, mmx.getKind() == op.getKind(), T_0F, mmx.isXMM() ? 0x7E : 0x6F); }");
 		puts("void movq(const Address& addr, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opMR(addr, mmx, T_0F, mmx.isXMM() ? 0xD6 : 0x7F); }");
 		puts("void rdrand(const Reg& r) { if (r.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opRR(Reg(6, Operand::REG, r.getBit()), r, T_0F, 0xC7); }");
 		puts("void rdseed(const Reg& r) { if (r.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opRR(Reg(7, Operand::REG, r.getBit()), r, T_0F, 0xC7); }");
-		puts("void crc32(const Reg32e& reg, const Operand& op) { if (reg.isBit(32) && op.isBit(16)) db(0x66); opRO(reg, op, op.isREG(), T_F2 | T_0F38, 0xF0 | (op.isBit(8) ? 0 : 1)); }");
+		puts("void crc32(const Reg32e& reg, const Operand& op) { if (reg.isBit(32) && op.isBit(16)) db(0x66); opRO(reg, op, true, T_F2 | T_0F38, 0xF0 | (op.isBit(8) ? 0 : 1)); }");
 		puts("void tpause(const Reg32& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) db(0x66); db(0x0F); db(0xAE); setModRM(3, 6, idx); }");
 		puts("void umonitor(const Reg& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) int bit = r.getBit(); if (BIT != bit) { if ((BIT == 32 && bit == 16) || (BIT == 64 && bit == 32)) { db(0x67); } else { XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) } } db(0xF3); db(0x0F); db(0xAE); setModRM(3, 6, idx); }");
 		puts("void umwait(const Reg32& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) db(0xF2); db(0x0F); db(0xAE); setModRM(3, 6, idx); }");
@@ -1902,7 +1902,7 @@ void put64()
 	putMemOp("fxrstor64", "T_0F", 1, 0xAE, 64);
 	puts("void movq(const Reg64& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opRR(mmx, reg, T_0F, 0x7E); }");
 	puts("void movq(const Mmx& mmx, const Reg64& reg) { if (mmx.isXMM()) db(0x66); opRR(mmx, reg, T_0F, 0x6E); }");
-	puts("void movsxd(const Reg64& reg, const Operand& op) { if (!op.isBit(32)) XBYAK_THROW(ERR_BAD_COMBINATION) opRO(reg, op, op.isREG(), 0, 0x63); }");
+	puts("void movsxd(const Reg64& reg, const Operand& op) { if (!op.isBit(32)) XBYAK_THROW(ERR_BAD_COMBINATION) opRO(reg, op, true, 0, 0x63); }");
 	puts("void pextrq(const Operand& op, const Xmm& xmm, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opSSE(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x16, 0, imm); }");
 	puts("void pinsrq(const Xmm& xmm, const Operand& op, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opSSE(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x22, 0, imm); }");
 	puts("void senduipi(const Reg64& r) { opRR(Reg32(6), r.cvt32(), T_F3 | T_0F, 0xC7); }");
