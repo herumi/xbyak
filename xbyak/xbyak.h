@@ -2430,7 +2430,7 @@ private:
 			opVex(r, p1, *p2, type, code, imm8);
 		}
 	}
-	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, int imm8 = NONE)
+	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code, int imm8 = NONE)
 	{
 		const Xmm *x2 = static_cast<const Xmm*>(&op1);
 		const Operand *op = &op2;
@@ -2440,12 +2440,12 @@ private:
 		}
 		// (x1, x2, op)
 		if (!((x1.isXMM() && x2->isXMM()) || ((type & T_YMM) && ((x1.isYMM() && x2->isYMM()) || (x1.isZMM() && x2->isZMM()))))) XBYAK_THROW(ERR_BAD_COMBINATION)
-		opVex(x1, x2, *op, type, code0, imm8);
+		opVex(x1, x2, *op, type, code, imm8);
 	}
-	void opAVX_K_X_XM(const Opmask& k, const Xmm& x2, const Operand& op3, int type, int code0, int imm8 = NONE)
+	void opAVX_K_X_XM(const Opmask& k, const Xmm& x2, const Operand& op3, int type, int code, int imm8 = NONE)
 	{
 		if (!op3.isMEM() && (x2.getKind() != op3.getKind())) XBYAK_THROW(ERR_BAD_COMBINATION)
-		opVex(k, &x2, op3, type, code0, imm8);
+		opVex(k, &x2, op3, type, code, imm8);
 	}
 	// (x, x/m), (y, x/m256), (z, y/m)
 	void checkCvt1(const Operand& x, const Operand& op) const
@@ -2576,9 +2576,9 @@ private:
 		if (addr.getRegExp().getIndex().getKind() != kind) XBYAK_THROW(ERR_BAD_VSIB_ADDRESSING)
 		opVex(x, 0, addr, type, code);
 	}
-	void opEncoding(const Xmm& x1, const Xmm& x2, const Operand& op, int type, int code0, PreferredEncoding encoding)
+	void opEncoding(const Xmm& x1, const Xmm& x2, const Operand& op, int type, int code, PreferredEncoding encoding)
 	{
-		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(encoding), code0);
+		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(encoding), code);
 	}
 	int orEvexIf(PreferredEncoding encoding) {
 		if (encoding == DefaultEncoding) {
@@ -2615,13 +2615,13 @@ private:
 		XBYAK_THROW(ERR_BAD_COMBINATION)
 	}
 #ifdef XBYAK64
-	void opAMX(const Tmm& t1, const Address& addr, int type, int code0)
+	void opAMX(const Tmm& t1, const Address& addr, int type, int code)
 	{
 		// require both base and index
 		Address addr2 = addr.cloneNoOptimize();
 		const RegExp exp = addr2.getRegExp();
 		if (exp.getBase().getBit() == 0 || exp.getIndex().getBit() == 0) XBYAK_THROW(ERR_NOT_SUPPORTED)
-		opVex(t1, &tmm0, addr2, type, code0);
+		opVex(t1, &tmm0, addr2, type, code);
 	}
 #endif
 public:
