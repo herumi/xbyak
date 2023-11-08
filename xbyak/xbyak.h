@@ -2188,19 +2188,6 @@ private:
 			break;
 		}
 	}
-	/* preCode is for SSSE3/SSE4 */
-	void opGen(const Operand& reg, const Operand& op, int code, int pref, bool isValid(const Operand&, const Operand&), int imm8 = NONE, int preCode = NONE)
-	{
-		if (isValid && !isValid(reg, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
-		if (!isValidSSE(reg) || !isValidSSE(op)) XBYAK_THROW(ERR_NOT_SUPPORTED)
-		int type = pre1(pref) | pre2(preCode);
-		if (op.isMEM()) {
-			opModM2(op.getAddress(), reg.getReg(), type, code, (imm8 != NONE) ? 1 : 0);
-		} else {
-			opModR2(reg.getReg(), op.getReg(), type, code);
-		}
-		if (imm8 != NONE) db(imm8);
-	}
 	void opGen2(const Operand& reg, const Operand& op, int type, int code, bool isValid(const Operand&, const Operand&), int imm8 = NONE)
 	{
 		if (isValid && !isValid(reg, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
@@ -2984,6 +2971,26 @@ public:
 		}
 		return true;
 	}
+	bool opROO2(const Reg& d, const Operand& op1, const Operand& op2, int type, int code, int immSize = 0)
+	{
+		if (!d.isREG() && !(d.hasRex2() || op1.hasRex2() || op2.hasRex2())) return false;
+		const Operand *p1 = &op1, *p2 = &op2;
+		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code |= 2; }
+		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
+		if (p2->isMEM()) {
+			const Reg& r = *static_cast<const Reg*>(p1);
+			const Address& addr = p2->getAddress();
+			const RegExp e = addr.getRegExp();
+			evexLeg(r, e.getBase(), e.getIndex(), d, type);
+			writeCode2(type, d, code);
+			opAddr(addr, r.getIdx(), immSize);
+		} else {
+			evexLeg(static_cast<const Reg&>(op2), static_cast<const Reg&>(op1), Reg(), d, type);
+			writeCode2(type, d, code);
+			setModRM(3, op2.getIdx(), op1.getIdx());
+		}
+		return true;
+	}
 #endif
 
 	enum { NONE = 256 };
@@ -3122,14 +3129,6 @@ public:
 			db(seq, len);
 			size -= len;
 		}
-	}
-	void adcx2(const Reg32e& r1, const Operand& op)
-	{
-		opROO(Reg(), op, r1, T_66, 0x66);
-	}
-	void adcx2(const Reg32e& d, const Reg32e& r1, const Operand& op)
-	{
-		opROO(d, op, r1, T_66, 0x66);
 	}
 #ifndef XBYAK_DONT_READ_LIST
 #include "xbyak_mnemonic.h"

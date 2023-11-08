@@ -252,7 +252,6 @@ void putLoadSeg(const char *name, int type, uint8_t code)
 
 void put()
 {
-	const int NO = CodeGenerator::NONE;
 	{
 		char buf[16];
 		unsigned int v = VERSION;
@@ -1059,8 +1058,8 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Reg32e& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_%02X, 0x66)) return; opGen(reg, op, 0xF6, 0x%02X, isREG32_REG32orMEM, NONE, 0x38); }\n", p->name, p->prefix, p->prefix);
-			printf("void %s(const Reg32e& d, const Reg32e& reg, const Operand& op) { opROO(d, op, reg, T_%02X, 0x66); }\n", p->name, p->prefix);
+			printf("void %s(const Reg32e& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_%02X, 0x66)) return; opGen2(reg, op, T_%02X | T_0F38, 0xF6, isREG32_REG32orMEM); }\n", p->name, p->prefix, p->prefix);
+			printf("void %s(const Reg32e& d, const Reg32e& reg, const Operand& op) { opROO2(d, op, reg, T_%02X, 0x66); }\n", p->name, p->prefix);
 		}
 	}
 	{ // in/out
@@ -1356,9 +1355,6 @@ void put()
 			if (p->mode & 1) {
 				const char *immS1 = p->hasIMM ? ", uint8_t imm" : "";
 				const char *immS2 = p->hasIMM ? ", imm" : ", NONE";
-				const char *prefTbl[5] = { "NONE", "0x66", "0xF3", "0xF2" };
-				const char *pref = prefTbl[getPP(p->type)];
-				const char *suf = p->type & T_0F38 ? "0x38" : p->type & T_0F3A ? "0x3A" : "NONE";
 				printf("void %s(const Xmm& xmm, const Operand& op%s) { opGen2(xmm, op, %s, 0x%02X, isXMM_XMMorMEM%s); }\n", p->name, immS1, type.c_str(), p->code, immS2);
 			}
 			if (p->mode & 2) {
