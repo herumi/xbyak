@@ -29,6 +29,7 @@ void and_(const Operand& op, uint32_t imm) { opOI(op, imm, 0x20, 4); }
 void and_(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x20); }
 void and_(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_NF|T_CODE1_IF1, 4); }
 void and_(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, T_NF|T_CODE1_IF1, 0x20); }
+void andn(const Reg& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_VEX|T_0F38|T_NF, 0xf2); }
 void andnpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x55, isXMM_XMMorMEM); }
 void andnps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x55, isXMM_XMMorMEM); }
 void andpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x54, isXMM_XMMorMEM); }
@@ -559,7 +560,7 @@ void mulpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x59
 void mulps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x59, isXMM_XMMorMEM); }
 void mulsd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F2, 0x59, isXMM_XMMorMEM); }
 void mulss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F3, 0x59, isXMM_XMMorMEM); }
-void mulx(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_F2|T_0F38, 0xf6); }
+void mulx(const Reg& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_F2|T_0F38, 0xf6); }
 void mwait() { db(0x0F); db(0x01); db(0xC9); }
 void mwaitx() { db(0x0F); db(0x01); db(0xFB); }
 void neg(const Operand& op) { opRext(op, 0, 3, 0, 0xF6); }
@@ -615,8 +616,8 @@ void pcmpgtq(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66 | T_0F38, 
 void pcmpgtw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x65); }
 void pcmpistri(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66|T_0F3A, 0x63, isXMM_XMMorMEM, imm); }
 void pcmpistrm(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66|T_0F3A, 0x62, isXMM_XMMorMEM, imm); }
-void pdep(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_F2|T_0F38, 0xf5); }
-void pext(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_F3|T_0F38, 0xf5); }
+void pdep(const Reg& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_F2|T_0F38, 0xf5); }
+void pext(const Reg& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_F3|T_0F38, 0xf5); }
 void pextrb(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x14, imm); }
 void pextrd(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x16, imm); }
 void pextrw(const Operand& op, const Mmx& xmm, uint8_t imm) { opExt(op, xmm, 0x15, imm, true); }
@@ -1014,7 +1015,7 @@ void vcvtneebf162ps(const Xmm& x, const Address& addr) { opVex(x, 0, addr, T_F3|
 void vcvtneeph2ps(const Xmm& x, const Address& addr) { opVex(x, 0, addr, T_66|T_0F38|T_W0|T_YMM, 0xB0); }
 void vcvtneobf162ps(const Xmm& x, const Address& addr) { opVex(x, 0, addr, T_F2|T_0F38|T_W0|T_YMM, 0xB0); }
 void vcvtneoph2ps(const Xmm& x, const Address& addr) { opVex(x, 0, addr, T_0F38|T_W0|T_YMM, 0xB0); }
-void vcvtneps2bf16(const Xmm& x, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opCvt2(x, op, T_F3|T_0F38|T_EW0|T_YMM|T_SAE_Z|T_B32|orEvexIf(encoding), 0x72); }void andn(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_0F38, 0xf2); }
+void vcvtneps2bf16(const Xmm& x, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opCvt2(x, op, T_F3|T_0F38|T_EW0|T_YMM|T_SAE_Z|T_B32|orEvexIf(encoding), 0x72); }
 void vcvtpd2dq(const Xmm& x, const Operand& op) { opCvt2(x, op, T_0F | T_F2 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_ER_Z, 0xE6); }
 void vcvtpd2ps(const Xmm& x, const Operand& op) { opCvt2(x, op, T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_ER_Z, 0x5A); }
 void vcvtph2ps(const Xmm& x, const Operand& op) { checkCvt1(x, op); opVex(x, 0, op, T_0F38 | T_66 | T_W0 | T_EVEX | T_EW0 | T_N8 | T_N_VL | T_SAE_Y, 0x13); }

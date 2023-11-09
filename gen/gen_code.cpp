@@ -1723,7 +1723,7 @@ void put()
 			const Tbl& p = tbl[i];
 			printf("void %s(const Xmm& x, const Address& addr) { opVex(x, 0, addr, %s, 0x%02X); }\n", p.name, type2String(p.type).c_str(), p.code);
 		}
-		printf("void vcvtneps2bf16(const Xmm& x, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opCvt2(x, op, %s|orEvexIf(encoding), 0x72); }", type2String(T_F3 | T_0F38 | T_EW0 | T_YMM | T_SAE_Z | T_B32).c_str());
+		printf("void vcvtneps2bf16(const Xmm& x, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opCvt2(x, op, %s|orEvexIf(encoding), 0x72); }\n", type2String(T_F3 | T_0F38 | T_EW0 | T_YMM | T_SAE_Z | T_B32).c_str());
 	}
 	// haswell gpr(reg, reg, r/m)
 	{
@@ -1732,14 +1732,14 @@ void put()
 			uint64_t type;
 			uint8_t code;
 		} tbl[] = {
-			{ "andn", T_0F38, 0xF2 },
+			{ "andn", T_0F38 | T_VEX | T_NF, 0xF2 },
 			{ "mulx", T_F2 | T_0F38, 0xF6 },
 			{ "pdep", T_F2 | T_0F38, 0xF5 },
 			{ "pext", T_F3 | T_0F38, 0xF5 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			printf("void %s(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, %s, 0x%x); }\n", p.name, type2String(p.type).c_str(), p.code);
+			printf("void %s(const Reg& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, %s, 0x%x); }\n", p.name, type2String(p.type).c_str(), p.code);
 		}
 	}
 	// gpr(reg, r/m, reg)

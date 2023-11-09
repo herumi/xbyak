@@ -1894,10 +1894,15 @@ private:
 		db(code);
 		return disp8N;
 	}
+	static inline int getMap(uint64_t type)
+	{
+		if (type & (T_0F38|T_0F3A)) return 2;
+		return 4; // legacy
+	}
 	// evex of Legacy
 	void evexLeg(const Reg& r, const Reg& b, const Reg& x, const Reg& v, uint64_t type)
 	{
-		int M = 4; // legacy
+		int M = getMap(type);
 		int R3 = !r.isExtIdx();
 		int X3 = !x.isExtIdx();
 		int B3 = b.isExtIdx() ? 0 : 0x20;
@@ -1908,13 +1913,14 @@ private:
 		int X4 = x.isExtIdx2() ? 0 : 0x04;
 		int pp = type ? getPP(type) : r.isBit(16);
 		int V4 = !v.isExtIdx2();
-		int ND = v.isREG();
+		int ND = (type & T_VEX) ? 0 : v.isREG();
 		int NF = v.getNF();
+		int L = 0;
 		if ((type & T_NF) == 0 && NF) XBYAK_THROW(ERR_INVALID_NF)
 		db(0x62);
 		db((R3<<7) | (X3<<6) | B3 | R4 | B4 | M);
 		db((w<<7) | V | X4 | pp);
-		db((ND<<4) | (V4<<3) | (NF<<2));
+		db((L<<5) | (ND<<4) | (V4<<3) | (NF<<2));
 	}
 	void setModRM(int mod, int r1, int r2)
 	{
@@ -1986,12 +1992,14 @@ private:
 	bool isInDisp16(uint32_t x) const { return 0xFFFF8000 <= x || x <= 0x7FFF; }
 	void writeCode(uint64_t type, const Reg& r, int code)
 	{
-		if (type & T_0F) {
-			db(0x0F);
-		} else if (type & T_0F38) {
-			db(0x0F); db(0x38);
-		} else if (type & T_0F3A) {
-			db(0x0F); db(0x3A);
+		if (!(type & T_VEX)) {
+			if (type & T_0F) {
+				db(0x0F);
+			} else if (type & T_0F38) {
+				db(0x0F); db(0x38);
+			} else if (type & T_0F3A) {
+				db(0x0F); db(0x3A);
+			}
 		}
 		db(code | ((type == 0 || (type & T_CODE1_IF1)) && !r.isBit(8)));
 	}
@@ -2377,13 +2385,13 @@ private:
 		if (imm8 != NONE) db(imm8);
 	}
 	// (r, r, r/m)
-	void opRRO(const Reg32e& d, const Reg& r1, const Operand& op2, uint64_t type, uint8_t code, int imm8 = NONE)
+	void opRRO(const Reg& d, const Reg& r1, const Operand& op2, uint64_t type, uint8_t code, int imm8 = NONE)
 	{
 		const unsigned int bit = d.getBit();
 		if (r1.getBit() != bit || (op2.isREG() && op2.getBit() != bit)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		type |= (bit == 64) ? T_W1 : T_W0;
-		if (d.hasRex2() || r1.hasRex2() || op2.hasRex2()) {
-			opROO(d, r1, op2, type, code);
+		if (d.hasRex2() || r1.hasRex2() || op2.hasRex2() || d.getNF()) {
+			opROO(r1, op2, d, type, code);
 			if (imm8 != NONE) db(imm8);
 		} else {
 			opVex(d, &r1, op2, type, code, imm8);
