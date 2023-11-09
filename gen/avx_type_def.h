@@ -1,5 +1,6 @@
 	// @@@begin of avx_type_def.h
 	enum AVXtype {
+		T_NONE = 0,
 		// low 3 bit
 		T_N1 = 1,
 		T_N2 = 2,
@@ -38,12 +39,13 @@
 		T_B16 = T_B32 | T_B64, // m16bcst (Be careful)
 		T_M_K = 1 << 28, // mem{k}
 		T_VSIB = 1 << 29,
-		T_MEM_EVEX = 1 << 30, // use evex if mem
-		T_FP16 = 1 << 31, // avx512-fp16
+		T_MEM_EVEX = 1u << 30, // use evex if mem
+		T_FP16 = 1u << 31, // avx512-fp16
 		T_MAP5 = T_FP16 | T_0F,
 		T_MAP6 = T_FP16 | T_0F38,
+		T_NF = 1ull << 32, // T_nf
 		T_XXX
 	};
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
-	static inline uint32_t getPP(int type) { return (type >> 5) & 3; }
+	static inline uint32_t getPP(uint64_t type) { return (type >> 5) & 3; }
 	// @@@end of avx_type_def.h

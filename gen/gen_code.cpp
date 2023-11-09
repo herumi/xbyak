@@ -48,7 +48,7 @@ void putX_X_XM(bool omitOnly)
 		const struct Tbl {
 			uint8_t code;
 			const char *name;
-			int type;
+			uint64_t type;
 			bool hasIMM;
 			bool enableOmit;
 			int mode; // 1 : sse, 2 : avx, 3 : sse + avx
@@ -243,9 +243,9 @@ void putMemOp(const char *name, const char *type, uint8_t ext, uint8_t code, int
 	printf("void %s(const Address& addr) { %sopMR(addr, Reg%d(%d), %s, 0x%02X); }\n", name, fwait ? "db(0x9B); " : "", bit, ext, type, code);
 }
 
-void putLoadSeg(const char *name, int type, uint8_t code)
+void putLoadSeg(const char *name, uint64_t type, uint8_t code)
 {
-	printf("void %s(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, %s, 0x%02X); }\n", name, type ? "T_0F" : "0", code);
+	printf("void %s(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, %s, 0x%02X); }\n", name, type ? "T_0F" : "T_NONE", code);
 }
 
 void put()
@@ -383,7 +383,7 @@ void put()
 			const char *pref;
 			const char *name;
 		} tbl[] = {
-			{ "0", "pshufw" },
+			{ "T_NONE", "pshufw" },
 			{ "T_F2", "pshuflw" },
 			{ "T_F3", "pshufhw" },
 			{ "T_66", "pshufd" },
@@ -403,9 +403,9 @@ void put()
 			{ 0x6F, 0x7F, "T_66", "movdqa" },
 			{ 0x6F, 0x7F, "T_F3", "movdqu" },
 			// SSE2
-			{ 0x28, 0x29, "0", "movaps" },
+			{ 0x28, 0x29, "T_NONE", "movaps" },
 			{ 0x10, 0x11, "T_F3", "movss" },
-			{ 0x10, 0x11, "0", "movups" },
+			{ 0x10, 0x11, "T_NONE", "movups" },
 			{ 0x28, 0x29, "T_66", "movapd" },
 			{ 0x10, 0x11, "T_F2", "movsd" },
 			{ 0x10, 0x11, "T_66", "movupd" },
@@ -473,7 +473,7 @@ void put()
 	{
 		// (XMM, XMM)
 		const struct Tbl {
-			int type;
+			uint64_t type;
 			uint8_t code;
 			const char *name;
 		} tbl[] = {
@@ -491,31 +491,32 @@ void put()
 		// (XMM, XMM|MEM)
 		const struct Tbl {
 			uint8_t code;
-			const char *type;
+			uint64_t type;
 			const char *name;
 		} tbl[] = {
-			{ 0x6D, "T_66", "punpckhqdq" },
-			{ 0x6C, "T_66", "punpcklqdq" },
+			{ 0x6D, T_66, "punpckhqdq" },
+			{ 0x6C, T_66, "punpcklqdq" },
 
-			{ 0x2F, "0", "comiss" },
-			{ 0x2E, "0", "ucomiss" },
-			{ 0x2F, "T_66", "comisd" },
-			{ 0x2E, "T_66", "ucomisd" },
+			{ 0x2F, T_NONE, "comiss" },
+			{ 0x2E, T_NONE, "ucomiss" },
+			{ 0x2F, T_66, "comisd" },
+			{ 0x2E, T_66, "ucomisd" },
 
-			{ 0x5A, "T_66", "cvtpd2ps" },
-			{ 0x5A, "0", "cvtps2pd" },
-			{ 0x5A, "T_F2", "cvtsd2ss" },
-			{ 0x5A, "T_F3", "cvtss2sd" },
-			{ 0xE6, "T_F2", "cvtpd2dq" },
-			{ 0xE6, "T_66", "cvttpd2dq" },
-			{ 0xE6, "T_F3", "cvtdq2pd" },
-			{ 0x5B, "T_66", "cvtps2dq" },
-			{ 0x5B, "T_F3", "cvttps2dq" },
-			{ 0x5B, "0", "cvtdq2ps" },
+			{ 0x5A, T_66, "cvtpd2ps" },
+			{ 0x5A, T_NONE, "cvtps2pd" },
+			{ 0x5A, T_F2, "cvtsd2ss" },
+			{ 0x5A, T_F3, "cvtss2sd" },
+			{ 0xE6, T_F2, "cvtpd2dq" },
+			{ 0xE6, T_66, "cvttpd2dq" },
+			{ 0xE6, T_F3, "cvtdq2pd" },
+			{ 0x5B, T_66, "cvtps2dq" },
+			{ 0x5B, T_F3, "cvttps2dq" },
+			{ 0x5B, T_NONE, "cvtdq2ps" },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, p->type, p->code);
+			std::string type = type2String(p->type | T_0F);
+			printf("void %s(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, type.c_str(), p->code);
 		}
 	}
 
@@ -523,26 +524,27 @@ void put()
 		// special type
 		const struct Tbl {
 			uint8_t code;
-			const char *type;
+			uint64_t type;
 			const char *name;
 			const char *cond;
 		} tbl[] = {
-			{ 0x2A, "0" , "cvtpi2ps",  "isXMM_MMXorMEM" },
-			{ 0x2D, "0" , "cvtps2pi",  "isMMX_XMMorMEM" },
-			{ 0x2A, "T_F3", "cvtsi2ss",  "isXMM_REG32orMEM" },
-			{ 0x2D, "T_F3", "cvtss2si",  "isREG32_XMMorMEM" },
-			{ 0x2C, "0" , "cvttps2pi", "isMMX_XMMorMEM" },
-			{ 0x2C, "T_F3", "cvttss2si", "isREG32_XMMorMEM" },
-			{ 0x2A, "T_66", "cvtpi2pd",  "isXMM_MMXorMEM" },
-			{ 0x2D, "T_66", "cvtpd2pi",  "isMMX_XMMorMEM" },
-			{ 0x2A, "T_F2", "cvtsi2sd",  "isXMM_REG32orMEM" },
-			{ 0x2D, "T_F2", "cvtsd2si",  "isREG32_XMMorMEM" },
-			{ 0x2C, "T_66", "cvttpd2pi", "isMMX_XMMorMEM" },
-			{ 0x2C, "T_F2", "cvttsd2si", "isREG32_XMMorMEM" },
+			{ 0x2A, T_NONE , "cvtpi2ps",  "isXMM_MMXorMEM" },
+			{ 0x2D, T_NONE , "cvtps2pi",  "isMMX_XMMorMEM" },
+			{ 0x2A, T_F3, "cvtsi2ss",  "isXMM_REG32orMEM" },
+			{ 0x2D, T_F3, "cvtss2si",  "isREG32_XMMorMEM" },
+			{ 0x2C, T_NONE , "cvttps2pi", "isMMX_XMMorMEM" },
+			{ 0x2C, T_F3, "cvttss2si", "isREG32_XMMorMEM" },
+			{ 0x2A, T_66, "cvtpi2pd",  "isXMM_MMXorMEM" },
+			{ 0x2D, T_66, "cvtpd2pi",  "isMMX_XMMorMEM" },
+			{ 0x2A, T_F2, "cvtsi2sd",  "isXMM_REG32orMEM" },
+			{ 0x2D, T_F2, "cvtsd2si",  "isREG32_XMMorMEM" },
+			{ 0x2C, T_66, "cvttpd2pi", "isMMX_XMMorMEM" },
+			{ 0x2C, T_F2, "cvttsd2si", "isREG32_XMMorMEM" },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Reg& reg, const Operand& op) { opSSE(reg, op, T_0F | %s, 0x%02X, %s); }\n", p->name, p->type, p->code, p->cond);
+			std::string type = type2String(p->type | T_0F);
+			printf("void %s(const Reg& reg, const Operand& op) { opSSE(reg, op, %s, 0x%02X, %s); }\n", p->name, type.c_str(), p->code, p->cond);
 		}
 	}
 	{
@@ -570,7 +572,7 @@ void put()
 		const struct Tbl {
 			uint8_t code;
 			const char *name;
-			int type;
+			uint64_t type;
 		} tbl[] = {
 			{ 0x16, "movhps", T_0F },
 			{ 0x12, "movlps", T_0F },
@@ -579,7 +581,8 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, 0x%02X, 0x%02X); }\n", p->name, p->type, p->code);
+			std::string type = type2String(p->type);
+			printf("void %s(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, %s, 0x%02X); }\n", p->name, type.c_str(), p->code);
 		}
 	}
 	{
@@ -793,15 +796,16 @@ void put()
 			uint8_t ext; // (reg, imm)
 			const char *name;
 			bool support3op;
+			bool allowNF;
 		} tbl[] = {
-			{ 0x10, 2, "adc", true },
-			{ 0x00, 0, "add", true },
-			{ 0x20, 4, "and_", true },
-			{ 0x38, 7, "cmp", false },
-			{ 0x08, 1, "or_", true },
-			{ 0x18, 3, "sbb", true },
-			{ 0x28, 5, "sub", true },
-			{ 0x30, 6, "xor_", true },
+			{ 0x10, 2, "adc", true, false },
+			{ 0x00, 0, "add", true, true },
+			{ 0x20, 4, "and_", true, true },
+			{ 0x38, 7, "cmp", false, false },
+			{ 0x08, 1, "or_", true, true },
+			{ 0x18, 3, "sbb", true, false },
+			{ 0x28, 5, "sub", true, true },
+			{ 0x30, 6, "xor_", true, true },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -1096,7 +1100,7 @@ void put()
 		puts("void pextrb(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x14, imm); }");
 		puts("void pextrd(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x16, imm); }");
 		puts("void extractps(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x17, imm); }");
-		puts("void pinsrw(const Mmx& mmx, const Operand& op, int imm) { if (!op.isREG(32) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opSSE(mmx, op, T_0F | (mmx.isXMM() ? T_66 : 0), 0xC4, 0, imm); }");
+		puts("void pinsrw(const Mmx& mmx, const Operand& op, int imm) { if (!op.isREG(32) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opSSE(mmx, op, T_0F | (mmx.isXMM() ? T_66 : T_NONE), 0xC4, 0, imm); }");
 		puts("void insertps(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x21, isXMM_XMMorMEM, imm); }");
 		puts("void pinsrb(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x20, isXMM_REG32orMEM, imm); }");
 		puts("void pinsrd(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x22, isXMM_REG32orMEM, imm); }");
@@ -1272,7 +1276,7 @@ void put()
 		const struct Tbl {
 			uint8_t code;
 			const char *name;
-			int type;
+			uint64_t type;
 			bool hasIMM;
 			int mode; // 1 : SSE, 2 : AVX, 3 : SSE + AVX
 		} tbl[] = {
@@ -1366,7 +1370,7 @@ void put()
 		const struct Tbl {
 			uint8_t code;
 			const char *name;
-			int type;
+			uint64_t type;
 		} tbl[] = {
 			{ 0x29, "movapd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_M_K },
 			{ 0x29, "movaps", T_0F | T_YMM | T_EVEX | T_EW0 | T_M_K },
@@ -1387,7 +1391,7 @@ void put()
 		const struct Tbl {
 			uint8_t code;
 			const char *name;
-			int type;
+			uint64_t type;
 			int mode; // 1 : sse, 2 : avx, 3 : sse + avx
 		} tbl[] = {
 			{ 0xD0, "addsubpd", T_0F | T_66 | T_YMM, 3 },
@@ -1435,7 +1439,7 @@ void put()
 		const struct Tbl {
 			uint8_t code;
 			const char *name;
-			int type;
+			uint64_t type;
 		} tbl[] = {
 			{ 0x36, "vpermd", T_66 | T_0F38 | T_W0 | T_YMM | T_EVEX | T_EW0 | T_B32 },
 			{ 0x36, "vpermq", T_66 | T_0F38 | T_W0 | T_YMM | T_EVEX | T_EW1 | T_B64 },
@@ -1453,7 +1457,7 @@ void put()
 		const struct Tbl {
 			uint8_t code;
 			const char *name;
-			int type;
+			uint64_t type;
 		} tbl[] = {
 			{ 0x00, "vpermq", T_0F3A | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B64 },
 			{ 0x01, "vpermpd", T_0F3A | T_66 | T_W1 | T_YMM | T_EVEX | T_EW1 | T_B64 },
@@ -1567,7 +1571,7 @@ void put()
 		const struct Tbl {
 			const char *name;
 			uint8_t code;
-			int type;
+			uint64_t type;
 			bool ew1;
 		} tbl[] = {
 			{ "vbroadcastss", 0x18, T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_N4 },
@@ -1614,7 +1618,7 @@ void put()
 			const char *name;
 			uint8_t code;
 			int idx;
-			int type;
+			uint64_t type;
 		} tbl[] = {
 			{ "pslldq", 0x73, 7, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX },
 			{ "psrldq", 0x73, 3, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX },
@@ -1653,7 +1657,7 @@ void put()
 		printf("void vmovd(const Xmm& x, const Operand& op) { if (!op.isREG(32) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_X_XM(x, xm0, op, T_0F | T_66 | T_W0 | T_EVEX | T_N4, 0x6E); }\n");
 		printf("void vmovd(const Operand& op, const Xmm& x) { if (!op.isREG(32) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_X_XM(x, xm0, op, T_0F | T_66 | T_W0 | T_EVEX | T_N4, 0x7E); }\n");
 
-		printf("void vmovq(const Xmm& x, const Address& addr) { int type, code; if (x.getIdx() < 16) { type = T_0F | T_F3; code = 0x7E; } else { type = T_0F | T_66 | T_EVEX | T_EW1 | T_N8; code = 0x6E; } opAVX_X_X_XM(x, xm0, addr, type, code); }\n");
+		printf("void vmovq(const Xmm& x, const Address& addr) { uint64_t type, code; if (x.getIdx() < 16) { type = T_0F | T_F3; code = 0x7E; } else { type = T_0F | T_66 | T_EVEX | T_EW1 | T_N8; code = 0x6E; } opAVX_X_X_XM(x, xm0, addr, type, code); }\n");
 		printf("void vmovq(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, xm0, addr, T_0F | T_66 | T_EVEX | T_EW1 | T_N8, x.getIdx() < 16 ? 0xD6 : 0x7E); }\n");
 		printf("void vmovq(const Xmm& x1, const Xmm& x2) { opAVX_X_X_XM(x1, xm0, x2, T_0F | T_F3 | T_EVEX | T_EW1 | T_N8, 0x7E); }\n");
 
@@ -1671,7 +1675,7 @@ void put()
 		// vmovsd, vmovss
 		for (int i = 0; i < 2; i++) {
 			char c1 = i == 0 ? 'd' : 's';
-			int type = T_0F | T_EVEX;
+			uint64_t type = T_0F | T_EVEX;
 			type |= i == 0 ? (T_F2 | T_EW1 | T_N8) : (T_F3 | T_EW0 | T_N4);
 			std::string s = type2String(type);
 			printf("void vmovs%c(const Xmm& x1, const Xmm& x2, const Operand& op = Operand()) { if (!op.isNone() && !op.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_X_XM(x1, x2, op, %s, 0x10); }\n", c1, s.c_str());
@@ -1705,7 +1709,7 @@ void put()
 	{
 		const struct Tbl {
 			const char *name;
-			int type;
+			uint64_t type;
 			uint8_t code;
 		} tbl[] = {
 			{ "vbcstnebf162ps", T_F3 | T_0F38 | T_W0 | T_B16 | T_YMM, 0xB1 },
@@ -1725,7 +1729,7 @@ void put()
 	{
 		const struct Tbl {
 			const char *name;
-			int type;
+			uint64_t type;
 			uint8_t code;
 		} tbl[] = {
 			{ "andn", T_0F38, 0xF2 },
@@ -1742,7 +1746,7 @@ void put()
 	{
 		const struct Tbl {
 			const char *name;
-			int type;
+			uint64_t type;
 			uint8_t code;
 		} tbl[] = {
 			{ "bextr", T_0F38, 0xF7 },
@@ -1761,7 +1765,7 @@ void put()
 	{
 		const struct Tbl {
 			const char *name;
-			int type;
+			uint64_t type;
 			uint8_t code;
 			uint8_t idx;
 		} tbl[] = {
@@ -1804,7 +1808,7 @@ void put()
 		const struct Tbl {
 			uint8_t code;
 			const char *name;
-			int type;
+			uint64_t type;
 		} tbl[] = {
 			{ 0x50, "vpdpbusd", T_66 | T_0F38 | T_YMM | T_EW0 | T_SAE_Z | T_B32},
 			{ 0x51, "vpdpbusds", T_66 | T_0F38 | T_YMM | T_EW0 | T_SAE_Z | T_B32},
@@ -1825,7 +1829,7 @@ void put()
 		const struct Tbl {
 			uint8_t code;
 			const char *name;
-			int type;
+			uint64_t type;
 		} tbl[] = {
 			{ 0x50, "vpdpbssd", T_F2 | T_0F38 | T_W0 | T_YMM },
 			{ 0x51, "vpdpbssds", T_F2 | T_0F38 | T_W0 | T_YMM },
