@@ -798,20 +798,20 @@ void put()
 			uint64_t type;
 		} tbl[] = {
 			{ 0x10, 2, "adc", true, T_NONE },
-			{ 0x00, 0, "add", true, T_NF },
-			{ 0x20, 4, "and_", true, T_NF },
+			{ 0x00, 0, "add", true, T_NF | T_CODE1_IF1 },
+			{ 0x20, 4, "and_", true, T_NF | T_CODE1_IF1 },
 			{ 0x38, 7, "cmp", false, T_NONE },
-			{ 0x08, 1, "or_", true, T_NF },
+			{ 0x08, 1, "or_", true, T_NF | T_CODE1_IF1 },
 			{ 0x18, 3, "sbb", true, T_NONE },
-			{ 0x28, 5, "sub", true, T_NF },
-			{ 0x30, 6, "xor_", true, T_NF },
+			{ 0x28, 5, "sub", true, T_NF | T_CODE1_IF1 },
+			{ 0x30, 6, "xor_", true, T_NF | T_CODE1_IF1 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x%02X); }\n", p->name, p->code);
 			printf("void %s(const Operand& op, uint32_t imm) { opOI(op, imm, 0x%02X, %d); }\n", p->name, p->code, p->ext);
 			if (!p->support3op) continue;
-			std::string s = type2String(p->type | T_CODE1_IF1);
+			std::string s = type2String(p->type);
 			printf("void %s(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, %s, 0x%02X); }\n", p->name, s.c_str(), p->code);
 			printf("void %s(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, %s, %d); }\n", p->name, s.c_str(), p->ext);
 		}

@@ -3,8 +3,8 @@ void aadd(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38, 0x0F
 void aand(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38 | T_66, 0x0FC); }
 void adc(const Operand& op, uint32_t imm) { opOI(op, imm, 0x10, 2); }
 void adc(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x10); }
-void adc(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_CODE1_IF1, 2); }
-void adc(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, T_CODE1_IF1, 0x10); }
+void adc(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_NONE, 2); }
+void adc(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, T_NONE, 0x10); }
 void adcx(const Reg32e& d, const Reg32e& reg, const Operand& op) { opROO(d, op, reg, T_66, 0x66); }
 void adcx(const Reg32e& reg, const Operand& op) { if (!reg.isREG(16|i32e) && reg.getBit() == op.getBit()) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) if (opROO(Reg(), op, reg, T_66, 0x66)) return; opRO(reg, op, T_66 | T_0F38, 0xF6); }
 void add(const Operand& op, uint32_t imm) { opOI(op, imm, 0x00, 0); }
@@ -759,8 +759,8 @@ void sar(const Operand& op, int imm) { opShift(op, imm, 7); }
 void sarx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_F3|T_0F38, 0xf7); }
 void sbb(const Operand& op, uint32_t imm) { opOI(op, imm, 0x18, 3); }
 void sbb(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x18); }
-void sbb(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_CODE1_IF1, 3); }
-void sbb(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, T_CODE1_IF1, 0x18); }
+void sbb(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_NONE, 3); }
+void sbb(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, T_NONE, 0x18); }
 void scasb() { db(0xAE); }
 void scasd() { db(0xAF); }
 void scasw() { db(0x66); db(0xAF); }
