@@ -6,7 +6,7 @@ void adc(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x10); }
 void adc(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 0, 2); }
 void adc(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, 0, 0x10); }
 void adcx(const Reg32e& d, const Reg32e& reg, const Operand& op) { opROO(d, op, reg, T_66, 0x66); }
-void adcx(const Reg32e& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_66, 0x66)) return; opSSE(reg, op, T_66 | T_0F38, 0xF6, isREG32_REG32orMEM); }
+void adcx(const Reg32e& reg, const Operand& op) { if (!reg.isREG(16|i32e) && reg.getBit() == op.getBit()) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) if (opROO(Reg(), op, reg, T_66, 0x66)) return; opRO(reg, op, T_66 | T_0F38, 0xF6); }
 void add(const Operand& op, uint32_t imm) { opOI(op, imm, 0x00, 0); }
 void add(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x00); }
 void add(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, 0, 0); }
@@ -18,7 +18,7 @@ void addss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F3, 0x58
 void addsubpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66 | T_0F | T_YMM, 0xD0, isXMM_XMMorMEM); }
 void addsubps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_F2 | T_0F | T_YMM, 0xD0, isXMM_XMMorMEM); }
 void adox(const Reg32e& d, const Reg32e& reg, const Operand& op) { opROO(d, op, reg, T_F3, 0x66); }
-void adox(const Reg32e& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_F3, 0x66)) return; opSSE(reg, op, T_F3 | T_0F38, 0xF6, isREG32_REG32orMEM); }
+void adox(const Reg32e& reg, const Operand& op) { if (!reg.isREG(16|i32e) && reg.getBit() == op.getBit()) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) if (opROO(Reg(), op, reg, T_F3, 0x66)) return; opRO(reg, op, T_F3 | T_0F38, 0xF6); }
 void aesdec(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66 | T_0F38 | T_YMM | T_EVEX, 0xDE, isXMM_XMMorMEM); }
 void aesdeclast(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66 | T_0F38 | T_YMM | T_EVEX, 0xDF, isXMM_XMMorMEM); }
 void aesenc(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66 | T_0F38 | T_YMM | T_EVEX, 0xDC, isXMM_XMMorMEM); }
@@ -51,18 +51,18 @@ void bndcu(const BoundsReg& bnd, const Operand& op) { opRext(op, i32e, bnd.getId
 void bndldx(const BoundsReg& bnd, const Address& addr) { opMIB(addr, bnd, T_0F, 0x1A); }
 void bndmk(const BoundsReg& bnd, const Address& addr) { opMR(addr, bnd, T_F3 | T_0F, 0x1B); }
 void bndmov(const Address& addr, const BoundsReg& bnd) { opMR(addr, bnd, T_66 | T_0F, 0x1B); }
-void bndmov(const BoundsReg& bnd, const Operand& op) { opRO(bnd, op, op.isBNDREG(), T_66 | T_0F, 0x1A); }
+void bndmov(const BoundsReg& bnd, const Operand& op) { opRO(bnd, op, T_66 | T_0F, 0x1A, op.isBNDREG()); }
 void bndstx(const Address& addr, const BoundsReg& bnd) { opMIB(addr, bnd, T_0F, 0x1B); }
-void bsf(const Reg&reg, const Operand& op) { opRO(reg, op, op.isREG(16|i32e), T_0F, 0xBC); }
-void bsr(const Reg&reg, const Operand& op) { opRO(reg, op, op.isREG(16|i32e), T_0F, 0xBD); }
+void bsf(const Reg&reg, const Operand& op) { opRO(reg, op, T_0F, 0xBC, op.isREG(16|i32e)); }
+void bsr(const Reg&reg, const Operand& op) { opRO(reg, op, T_0F, 0xBD, op.isREG(16|i32e)); }
 void bswap(const Reg32e& reg) { opRR(Reg32(1), reg, 0, 0x0F); }
-void bt(const Operand& op, const Reg& reg) { opRO(reg, op, op.isREG(16|i32e) && op.getBit() == reg.getBit(), T_0F, 0xA3); }
+void bt(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xA3, op.isREG(16|i32e) && op.getBit() == reg.getBit()); }
 void bt(const Operand& op, uint8_t imm) { opRext(op, 16|i32e, 4, T_0F, 0xba, false, 1); db(imm); }
-void btc(const Operand& op, const Reg& reg) { opRO(reg, op, op.isREG(16|i32e) && op.getBit() == reg.getBit(), T_0F, 0xBB); }
+void btc(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xBB, op.isREG(16|i32e) && op.getBit() == reg.getBit()); }
 void btc(const Operand& op, uint8_t imm) { opRext(op, 16|i32e, 7, T_0F, 0xba, false, 1); db(imm); }
-void btr(const Operand& op, const Reg& reg) { opRO(reg, op, op.isREG(16|i32e) && op.getBit() == reg.getBit(), T_0F, 0xB3); }
+void btr(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xB3, op.isREG(16|i32e) && op.getBit() == reg.getBit()); }
 void btr(const Operand& op, uint8_t imm) { opRext(op, 16|i32e, 6, T_0F, 0xba, false, 1); db(imm); }
-void bts(const Operand& op, const Reg& reg) { opRO(reg, op, op.isREG(16|i32e) && op.getBit() == reg.getBit(), T_0F, 0xAB); }
+void bts(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xAB, op.isREG(16|i32e) && op.getBit() == reg.getBit()); }
 void bts(const Operand& op, uint8_t imm) { opRext(op, 16|i32e, 5, T_0F, 0xba, false, 1); db(imm); }
 void bzhi(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_0F38, 0xf5); }
 void cbw() { db(0x66); db(0x98); }
@@ -76,36 +76,36 @@ void cli() { db(0xFA); }
 void clwb(const Address& addr) { opMR(addr, esi, T_66 | T_0F, 0xAE); }
 void clzero() { db(0x0F); db(0x01); db(0xFC); }
 void cmc() { db(0xF5); }
-void cmova(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 7); }//-V524
-void cmovae(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 3); }//-V524
-void cmovb(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 2); }//-V524
-void cmovbe(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 6); }//-V524
-void cmovc(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 2); }//-V524
-void cmove(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 4); }//-V524
-void cmovg(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 15); }//-V524
-void cmovge(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 13); }//-V524
-void cmovl(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 12); }//-V524
-void cmovle(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 14); }//-V524
-void cmovna(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 6); }//-V524
-void cmovnae(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 2); }//-V524
-void cmovnb(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 3); }//-V524
-void cmovnbe(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 7); }//-V524
-void cmovnc(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 3); }//-V524
-void cmovne(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 5); }//-V524
-void cmovng(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 14); }//-V524
-void cmovnge(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 12); }//-V524
-void cmovnl(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 13); }//-V524
-void cmovnle(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 15); }//-V524
-void cmovno(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 1); }//-V524
-void cmovnp(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 11); }//-V524
-void cmovns(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 9); }//-V524
-void cmovnz(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 5); }//-V524
-void cmovo(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 0); }//-V524
-void cmovp(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 10); }//-V524
-void cmovpe(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 10); }//-V524
-void cmovpo(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 11); }//-V524
-void cmovs(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 8); }//-V524
-void cmovz(const Reg& reg, const Operand& op) { opRO(reg, op, op.isREG(16 | i32e), T_0F, 0x40 | 4); }//-V524
+void cmova(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 7, op.isREG(16|i32e)); }//-V524
+void cmovae(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 3, op.isREG(16|i32e)); }//-V524
+void cmovb(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 2, op.isREG(16|i32e)); }//-V524
+void cmovbe(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 6, op.isREG(16|i32e)); }//-V524
+void cmovc(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 2, op.isREG(16|i32e)); }//-V524
+void cmove(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 4, op.isREG(16|i32e)); }//-V524
+void cmovg(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 15, op.isREG(16|i32e)); }//-V524
+void cmovge(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 13, op.isREG(16|i32e)); }//-V524
+void cmovl(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 12, op.isREG(16|i32e)); }//-V524
+void cmovle(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 14, op.isREG(16|i32e)); }//-V524
+void cmovna(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 6, op.isREG(16|i32e)); }//-V524
+void cmovnae(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 2, op.isREG(16|i32e)); }//-V524
+void cmovnb(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 3, op.isREG(16|i32e)); }//-V524
+void cmovnbe(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 7, op.isREG(16|i32e)); }//-V524
+void cmovnc(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 3, op.isREG(16|i32e)); }//-V524
+void cmovne(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 5, op.isREG(16|i32e)); }//-V524
+void cmovng(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 14, op.isREG(16|i32e)); }//-V524
+void cmovnge(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 12, op.isREG(16|i32e)); }//-V524
+void cmovnl(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 13, op.isREG(16|i32e)); }//-V524
+void cmovnle(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 15, op.isREG(16|i32e)); }//-V524
+void cmovno(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 1, op.isREG(16|i32e)); }//-V524
+void cmovnp(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 11, op.isREG(16|i32e)); }//-V524
+void cmovns(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 9, op.isREG(16|i32e)); }//-V524
+void cmovnz(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 5, op.isREG(16|i32e)); }//-V524
+void cmovo(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 0, op.isREG(16|i32e)); }//-V524
+void cmovp(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 10, op.isREG(16|i32e)); }//-V524
+void cmovpe(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 10, op.isREG(16|i32e)); }//-V524
+void cmovpo(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 11, op.isREG(16|i32e)); }//-V524
+void cmovs(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 8, op.isREG(16|i32e)); }//-V524
+void cmovz(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 4, op.isREG(16|i32e)); }//-V524
 void cmp(const Operand& op, uint32_t imm) { opOI(op, imm, 0x38, 7); }
 void cmp(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x38); }
 void cmpeqpd(const Xmm& x, const Operand& op) { cmppd(x, op, 0); }
@@ -147,12 +147,12 @@ void cmpunordpd(const Xmm& x, const Operand& op) { cmppd(x, op, 3); }
 void cmpunordps(const Xmm& x, const Operand& op) { cmpps(x, op, 3); }
 void cmpunordsd(const Xmm& x, const Operand& op) { cmpsd(x, op, 3); }
 void cmpunordss(const Xmm& x, const Operand& op) { cmpss(x, op, 3); }
-void cmpxchg(const Operand& op, const Reg& reg) { opRO(reg, op, op.getBit() == reg.getBit(), T_0F, 0xB0 | (reg.isBit(8) ? 0 : 1)); }
+void cmpxchg(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xB0 | (reg.isBit(8) ? 0 : 1), op.getBit() == reg.getBit()); }
 void cmpxchg8b(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0xC7); }
 void comisd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x2F, isXMM_XMMorMEM); }
 void comiss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | 0, 0x2F, isXMM_XMMorMEM); }
 void cpuid() { db(0x0F); db(0xA2); }
-void crc32(const Reg32e& reg, const Operand& op) { if (reg.isBit(32) && op.isBit(16)) db(0x66); opRO(reg, op, true, T_F2 | T_0F38, 0xF0 | (op.isBit(8) ? 0 : 1)); }
+void crc32(const Reg32e& reg, const Operand& op) { if (reg.isBit(32) && op.isBit(16)) db(0x66); opRO(reg, op, T_F2 | T_0F38, 0xF0 | (op.isBit(8) ? 0 : 1)); }
 void cvtdq2pd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F3, 0xE6, isXMM_XMMorMEM); }
 void cvtdq2ps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | 0, 0x5B, isXMM_XMMorMEM); }
 void cvtpd2dq(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F2, 0xE6, isXMM_XMMorMEM); }
@@ -537,7 +537,7 @@ void movntpd(const Address& addr, const Xmm& reg) { opMR(addr, Reg16(reg.getIdx(
 void movntps(const Address& addr, const Xmm& xmm) { opMR(addr, Mmx(xmm.getIdx()), T_0F, 0x2B); }
 void movntq(const Address& addr, const Mmx& mmx) { if (!mmx.isMMX()) XBYAK_THROW(ERR_BAD_COMBINATION) opMR(addr, mmx, T_0F, 0xE7); }
 void movq(const Address& addr, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opMR(addr, mmx, T_0F, mmx.isXMM() ? 0xD6 : 0x7F); }
-void movq(const Mmx& mmx, const Operand& op) { if (mmx.isXMM()) db(0xF3); opRO(mmx, op, mmx.getKind() == op.getKind(), T_0F, mmx.isXMM() ? 0x7E : 0x6F); }
+void movq(const Mmx& mmx, const Operand& op) { if (mmx.isXMM()) db(0xF3); opRO(mmx, op, T_0F, mmx.isXMM() ? 0x7E : 0x6F, mmx.getKind() == op.getKind()); }
 void movq2dq(const Xmm& xmm, const Mmx& mmx) { opRR(xmm, mmx, T_F3 | T_0F, 0xD6); }
 void movsb() { db(0xA4); }
 void movsd() { db(0xA5); }
@@ -1403,7 +1403,7 @@ void wait() { db(0x9B); }
 void wbinvd() { db(0x0F); db(0x09); }
 void wrmsr() { db(0x0F); db(0x30); }
 void xabort(uint8_t imm) { db(0xC6); db(0xF8); db(imm); }
-void xadd(const Operand& op, const Reg& reg) { opRO(reg, op, op.getBit() == reg.getBit(), T_0F, 0xC0 | (reg.isBit(8) ? 0 : 1)); }
+void xadd(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xC0 | (reg.isBit(8) ? 0 : 1), op.getBit() == reg.getBit()); }
 void xbegin(uint32_t rel) { db(0xC7); db(0xF8); dd(rel); }
 void xend() { db(0x0F); db(0x01); db(0xD5); }
 void xgetbv() { db(0x0F); db(0x01); db(0xD0); }
@@ -1696,7 +1696,7 @@ void cmpxchg16b(const Address& addr) { opMR(addr, Reg64(1), T_0F, 0xC7); }
 void fxrstor64(const Address& addr) { opMR(addr, Reg64(1), T_0F, 0xAE); }
 void movq(const Reg64& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opRR(mmx, reg, T_0F, 0x7E); }
 void movq(const Mmx& mmx, const Reg64& reg) { if (mmx.isXMM()) db(0x66); opRR(mmx, reg, T_0F, 0x6E); }
-void movsxd(const Reg64& reg, const Operand& op) { if (!op.isBit(32)) XBYAK_THROW(ERR_BAD_COMBINATION) opRO(reg, op, true, 0, 0x63); }
+void movsxd(const Reg64& reg, const Operand& op) { if (!op.isBit(32)) XBYAK_THROW(ERR_BAD_COMBINATION) opRO(reg, op, 0, 0x63); }
 void pextrq(const Operand& op, const Xmm& xmm, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opSSE(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x16, 0, imm); }
 void pinsrq(const Xmm& xmm, const Operand& op, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opSSE(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x22, 0, imm); }
 void senduipi(const Reg64& r) { opRR(Reg32(6), r.cvt32(), T_F3 | T_0F, 0xC7); }
