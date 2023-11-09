@@ -811,7 +811,7 @@ void put()
 			printf("void %s(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x%02X); }\n", p->name, p->code);
 			printf("void %s(const Operand& op, uint32_t imm) { opOI(op, imm, 0x%02X, %d); }\n", p->name, p->code, p->ext);
 			if (!p->support3op) continue;
-			std::string s = type2String(0);//p->type);
+			std::string s = type2String(p->type | T_CODE1_IF1);
 			printf("void %s(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, %s, 0x%02X); }\n", p->name, s.c_str(), p->code);
 			printf("void %s(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, %s, %d); }\n", p->name, s.c_str(), p->ext);
 		}
