@@ -15,15 +15,9 @@ std::string type2String(uint64_t type)
 		assert(low < int(sizeof(tbl) / sizeof(tbl[0])));
 		str = tbl[low - 1];
 	}
-	if (type & T_N_VL) {
-		str += "|T_N_VL";
-	}
-	if (type & T_VEX) {
-		str += "|T_VEX";
-	}
-	if ((type & T_NX_MASK) == T_DUP) {
-		str += "|T_DUP";
-	}
+	if (type & T_N_VL) str += "|T_N_VL";
+	if (type & T_VEX) str += "|T_VEX";
+	if ((type & T_NX_MASK) == T_DUP) str += "|T_DUP";
 	switch (type & T_F2) { // T_F2 = T_66|T_F3
 	case T_66: str += "|T_66"; break;
 	case T_F3: str += "|T_F3"; break;
@@ -44,75 +38,36 @@ std::string type2String(uint64_t type)
 			str += "|T_0F38";
 		}
 	}
-	if (type & T_0F3A) {
-		str += "|T_0F3A";
-	}
-	if (type & T_L0) {
-		str += "|T_L0";
-	}
-	if (type & T_L1) {
-		str += "|T_L1";
-	}
-	if (type & T_W0) {
-		str += "|T_W0";
-	}
-	if (type & T_W1) {
-		str += "|T_W1";
-	}
-	if (type & T_EW0) {
-		str += "|T_EW0";
-	}
-	if (type & T_EW1) {
-		str += "|T_EW1";
-	}
-	if (type & T_YMM) {
-		str += "|T_YMM";
-	}
-	if (type & T_EVEX) {
-		str += "|T_EVEX";
-	}
-	if (type & T_ER_X) {
-		str += "|T_ER_X";
-	}
-	if (type & T_ER_Y) {
-		str += "|T_ER_Y";
-	}
-	if (type & T_ER_Z) {
-		str += "|T_ER_Z";
-	}
-	if (type & T_ER_R) {
-		str += "|T_ER_R";
-	}
-	if (type & T_SAE_X) {
-		str += "|T_SAE_X";
-	}
-	if (type & T_SAE_Y) {
-		str += "|T_SAE_Y";
-	}
-	if (type & T_SAE_Z) {
-		str += "|T_SAE_Z";
-	}
-	if (type & T_MUST_EVEX) {
-		str += "|T_MUST_EVEX";
-	}
+	if (type & T_0F3A) str += "|T_0F3A";
+	if (type & T_L0) str += "|T_L0";
+	if (type & T_L1) str += "|T_L1";
+	if (type & T_W0) str += "|T_W0";
+	if (type & T_W1) str += "|T_W1";
+	if (type & T_EW0) str += "|T_EW0";
+	if (type & T_EW1) str += "|T_EW1";
+	if (type & T_YMM) str += "|T_YMM";
+	if (type & T_EVEX) str += "|T_EVEX";
+	if (type & T_ER_X) str += "|T_ER_X";
+	if (type & T_ER_Y) str += "|T_ER_Y";
+	if (type & T_ER_Z) str += "|T_ER_Z";
+	if (type & T_ER_R) str += "|T_ER_R";
+	if (type & T_SAE_X) str += "|T_SAE_X";
+	if (type & T_SAE_Y) str += "|T_SAE_Y";
+	if (type & T_SAE_Z) str += "|T_SAE_Z";
+	if (type & T_MUST_EVEX) str += "|T_MUST_EVEX";
+
 	switch (type & T_B16) { // T_B16 = T_B32 | T_B64
 	case T_B16: str += "|T_B16"; break;
 	case T_B32: str += "|T_B32"; break;
 	case T_B64: str += "|T_B64"; break;
 	default: break;
 	}
-	if (type & T_M_K) {
-		str += "|T_M_K";
-	}
-	if (type & T_VSIB) {
-		str += "|T_VSIB";
-	}
-	if (type & T_MEM_EVEX) {
-		str += "|T_MEM_EVEX";
-	}
-	if (type & T_NF) {
-		str += "|T_NF";
-	}
+	if (type & T_M_K) str += "|T_M_K";
+	if (type & T_VSIB) str += "|T_VSIB";
+	if (type & T_MEM_EVEX) str += "|T_MEM_EVEX";
+	if (type & T_NF) str += "|T_NF";
+	if (type & T_NO_OR1) str += "|T_NO_OR1";
+
 	if (str[0] == '|') str = str.substr(1);
 	return str;
 }

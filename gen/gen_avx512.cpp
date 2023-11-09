@@ -142,9 +142,9 @@ void putVcmp()
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
-		std::string type = type2String(p->type);
+		std::string s = type2String(p->type);
 		printf("void %s(const Opmask& k, const Xmm& x, const Operand& op%s) { opAVX_K_X_XM(k, x, op, %s, 0x%02X%s); }\n"
-			, p->name, p->hasIMM ? ", uint8_t imm" : "", type.c_str(), p->code, p->hasIMM ? ", imm" : "");
+			, p->name, p->hasIMM ? ", uint8_t imm" : "", s.c_str(), p->code, p->hasIMM ? ", imm" : "");
 	}
 	puts("void vcomish(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_MAP5 | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N2, 0x2F); }");
 	puts("void vucomish(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_MAP5 | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N2, 0x2E); }");
@@ -210,8 +210,8 @@ void putX_XM()
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
-		std::string type = type2String(p->type);
-		printf("void %s(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, %s, 0x%02X); }\n", p->name, type.c_str(), p->code);
+		std::string s = type2String(p->type);
+		printf("void %s(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, %s, 0x%02X); }\n", p->name, s.c_str(), p->code);
 	}
 	puts("void vpabsq(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_B64 | T_YMM, 0x1F); }");
 
@@ -242,8 +242,8 @@ void putM_X()
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
-		std::string type = type2String(p->type);
-		printf("void %s(const Address& addr, const Xmm& x) { opAVX_X_XM_IMM(x, addr, %s, 0x%02X); }\n", p->name, type.c_str(), p->code);
+		std::string s = type2String(p->type);
+		printf("void %s(const Address& addr, const Xmm& x) { opAVX_X_XM_IMM(x, addr, %s, 0x%02X); }\n", p->name, s.c_str(), p->code);
 	}
 }
 
@@ -265,8 +265,8 @@ void putXM_X()
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
-		std::string type = type2String(p->type);
-		printf("void %s(const Operand& op, const Xmm& x) { opAVX_X_XM_IMM(x, op, %s, 0x%02X); }\n", p->name, type.c_str(), p->code);
+		std::string s = type2String(p->type);
+		printf("void %s(const Operand& op, const Xmm& x) { opAVX_X_XM_IMM(x, op, %s, 0x%02X); }\n", p->name, s.c_str(), p->code);
 	}
 }
 
@@ -413,9 +413,9 @@ void putX_X_XM_IMM()
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
-		std::string type = type2String(p->type);
+		std::string s = type2String(p->type);
 		printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op%s) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X%s); }\n"
-			, p->name, p->hasIMM ? ", uint8_t imm" : "", type.c_str(), p->code, p->hasIMM ? ", imm" : "");
+			, p->name, p->hasIMM ? ", uint8_t imm" : "", s.c_str(), p->code, p->hasIMM ? ", imm" : "");
 	}
 }
 
@@ -435,8 +435,8 @@ void putShift()
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& p = tbl[i];
-		std::string type = type2String(p.type);
-		printf("void %s(const Xmm& x, const Operand& op, uint8_t imm) { opAVX_X_X_XM(Xmm(x.getKind(), %d), x, op, %s, 0x%02X, imm); }\n", p.name, p.idx, type.c_str(), p.code);
+		std::string s = type2String(p.type);
+		printf("void %s(const Xmm& x, const Operand& op, uint8_t imm) { opAVX_X_X_XM(Xmm(x.getKind(), %d), x, op, %s, 0x%02X, imm); }\n", p.name, p.idx, s.c_str(), p.code);
 	}
 }
 
@@ -461,9 +461,9 @@ void putExtractInsert()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			std::string type = type2String(p.type);
+			std::string s = type2String(p.type);
 			const char *kind = p.isZMM ? "Operand::MEM | Operand::YMM" : "Operand::MEM | Operand::XMM";
-			printf("void %s(const Operand& op, const %s& r, uint8_t imm) { if (!op.is(%s)) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(r, 0, op, %s, 0x%2X, imm); }\n", p.name, p.isZMM ? "Zmm" : "Ymm", kind, type.c_str(), p.code);
+			printf("void %s(const Operand& op, const %s& r, uint8_t imm) { if (!op.is(%s)) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(r, 0, op, %s, 0x%2X, imm); }\n", p.name, p.isZMM ? "Zmm" : "Ymm", kind, s.c_str(), p.code);
 		}
 	}
 	{
@@ -485,12 +485,12 @@ void putExtractInsert()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			std::string type = type2String(p.type);
+			std::string s = type2String(p.type);
 			const char *x = p.isZMM ? "Zmm" : "Ymm";
 			const char *cond = p.isZMM ? "op.is(Operand::MEM | Operand::YMM)" : "(r1.getKind() == r2.getKind() && op.is(Operand::MEM | Operand::XMM))";
 			printf("void %s(const %s& r1, const %s& r2, const Operand& op, uint8_t imm) {"
 				"if (!%s) XBYAK_THROW(ERR_BAD_COMBINATION) "
-				"opVex(r1, &r2, op, %s, 0x%2X, imm); }\n", p.name, x, x, cond, type.c_str(), p.code);
+				"opVex(r1, &r2, op, %s, 0x%2X, imm); }\n", p.name, x, x, cond, s.c_str(), p.code);
 		}
 	}
 }
@@ -511,9 +511,9 @@ void putBroadcast(bool only64bit)
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			std::string type = type2String(p.type);
+			std::string s = type2String(p.type);
 			if ((only64bit && p.reg == 64) || (!only64bit && p.reg != 64)) {
-				printf("void %s(const Xmm& x, const Reg%d& r) { opVex(x, 0, r, %s, 0x%02X); }\n", p.name, p.reg, type.c_str(), p.code);
+				printf("void %s(const Xmm& x, const Reg%d& r) { opVex(x, 0, r, %s, 0x%02X); }\n", p.name, p.reg, s.c_str(), p.code);
 			}
 		}
 	}
@@ -583,28 +583,28 @@ void putCvt()
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& p = tbl[i];
-		std::string type = type2String(p.type);
+		std::string s = type2String(p.type);
 		switch (p.ptn) {
 		case 0:
-			printf("void %s(const Reg32e& r, const Operand& op) { uint64_t type = (%s) | (r.isREG(64) ? T_EW1 : T_EW0); opVex(r, &xm0, op, type, 0x%02X); }\n", p.name, type.c_str(), p.code);
+			printf("void %s(const Reg32e& r, const Operand& op) { uint64_t type = (%s) | (r.isREG(64) ? T_EW1 : T_EW0); opVex(r, &xm0, op, type, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 1:
-			printf("void %s(const Xmm& x, const Operand& op) { checkCvt1(x, op); opVex(x, 0, op, %s, 0x%02X); }\n", p.name, type.c_str(), p.code);
+			printf("void %s(const Xmm& x, const Operand& op) { checkCvt1(x, op); opVex(x, 0, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 2:
-			printf("void %s(const Xmm& x, const Operand& op) { opCvt2(x, op, %s, 0x%02X); }\n", p.name, type.c_str(), p.code);
+			printf("void %s(const Xmm& x, const Operand& op) { opCvt2(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 3:
-			printf("void %s(const Xmm& x, const Operand& op) { if (!op.isXMM() && !op.isMEM()) XBYAK_THROW(ERR_BAD_MEM_SIZE) opVex(x, 0, op, %s, 0x%02X); }\n", p.name, type.c_str(), p.code);
+			printf("void %s(const Xmm& x, const Operand& op) { if (!op.isXMM() && !op.isMEM()) XBYAK_THROW(ERR_BAD_MEM_SIZE) opVex(x, 0, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 4:
-			printf("void %s(const Xmm& x, const Operand& op) { checkCvt4(x, op); opCvt(x, op, %s, 0x%02X); }\n", p.name, type.c_str(), p.code);
+			printf("void %s(const Xmm& x, const Operand& op) { checkCvt4(x, op); opCvt(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 5:
-			printf("void %s(const Xmm& x, const Operand& op) { opCvt5(x, op, %s, 0x%02X); }\n", p.name, type.c_str(), p.code);
+			printf("void %s(const Xmm& x, const Operand& op) { opCvt5(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 6:
-			printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { if (!(x1.isXMM() && x2.isXMM() && op.isBit(32|64))) XBYAK_THROW(ERR_BAD_COMBINATION) uint64_t type = (%s) | (op.isBit(32) ? (T_EW0 | T_N4) : (T_EW1 | T_N8)); opVex(x1, &x2, op, type, 0x%02X); }\n", p.name, type.c_str(), p.code);
+			printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { if (!(x1.isXMM() && x2.isXMM() && op.isBit(32|64))) XBYAK_THROW(ERR_BAD_COMBINATION) uint64_t type = (%s) | (op.isBit(32) ? (T_EW0 | T_N4) : (T_EW1 | T_N8)); opVex(x1, &x2, op, type, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		}
 	}
@@ -636,8 +636,8 @@ void putGather()
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& p = tbl[i];
-		std::string type = type2String(p.type | T_VSIB);
-		printf("void %s(const Xmm& x, const Address& addr) { opGather2(x, addr, %s, 0x%02X, %d); }\n", p.name, type.c_str(), p.code, p.mode);
+		std::string s = type2String(p.type | T_VSIB);
+		printf("void %s(const Xmm& x, const Address& addr) { opGather2(x, addr, %s, 0x%02X, %d); }\n", p.name, s.c_str(), p.code, p.mode);
 	}
 }
 void putScatter()
@@ -660,8 +660,8 @@ void putScatter()
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& p = tbl[i];
-		std::string type = type2String(p.type | T_VSIB);
-		printf("void %s(const Address& addr, const Xmm& x) { opGather2(x, addr, %s, 0x%02X, %d); }\n", p.name, type.c_str(), p.code, p.mode);
+		std::string s = type2String(p.type | T_VSIB);
+		printf("void %s(const Address& addr, const Xmm& x) { opGather2(x, addr, %s, 0x%02X, %d); }\n", p.name, s.c_str(), p.code, p.mode);
 	}
 }
 
@@ -718,8 +718,8 @@ void putMov()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			std::string type = type2String(p.type);
-			printf("void %s(const Operand& op, const Xmm& x) { opVmov(op, x, %s, 0x%02X, %s); }\n", p.name, type.c_str(), p.code, p.mode ? "true" : "false");
+			std::string s = type2String(p.type);
+			printf("void %s(const Operand& op, const Xmm& x) { opVmov(op, x, %s, 0x%02X, %s); }\n", p.name, s.c_str(), p.code, p.mode ? "true" : "false");
 		}
 	}
 }
@@ -770,9 +770,9 @@ void putX_XM_IMM()
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
-		std::string type = type2String(p->type);
+		std::string s = type2String(p->type);
 		printf("void %s(const Xmm& x, const Operand& op%s) { opAVX_X_XM_IMM(x, op, %s, 0x%02X%s); }\n"
-			, p->name, p->hasIMM ? ", uint8_t imm" : "", type.c_str(), p->code, p->hasIMM ? ", imm" : "");
+			, p->name, p->hasIMM ? ", uint8_t imm" : "", s.c_str(), p->code, p->hasIMM ? ", imm" : "");
 	}
 }
 
@@ -810,9 +810,9 @@ void putMisc()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			std::string type = type2String(p.type | T_66 | T_0F38 | T_MUST_EVEX | T_M_K | T_VSIB);
+			std::string s = type2String(p.type | T_66 | T_0F38 | T_MUST_EVEX | T_M_K | T_VSIB);
 			printf("void %s(const Address& addr) { opGatherFetch(addr, zm%d, %s, 0x%2X, Operand::%s); }\n"
-				, p.name, p.zm, type.c_str(), p.code, p.isZmm ? "ZMM" : "YMM");
+				, p.name, p.zm, s.c_str(), p.code, p.isZmm ? "ZMM" : "YMM");
 		}
 	}
 
@@ -887,18 +887,18 @@ void putFP16_FMA()
 				{ "213", 0xA0 },
 				{ "231", 0xB0 },
 			};
-			int t = T_66 | T_MAP6 | T_EW0 | T_MUST_EVEX;
+			uint64_t type = T_66 | T_MAP6 | T_EW0 | T_MUST_EVEX;
 			const char *suf = 0;
 			if (tbl[i].isPH) {
-				t |= T_ER_Z | T_YMM | T_B16;
+				type |= T_ER_Z | T_YMM | T_B16;
 				suf = "ph";
 			} else {
-				t |= T_ER_X | T_N2;
+				type |= T_ER_X | T_N2;
 				suf = "sh";
 			}
-			std::string type = type2String(t);
+			std::string s = type2String(type);
 			printf("void %s%s%s(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X); }\n"
-				, tbl[i].name, ord[k].str, suf, type.c_str(), tbl[i].code | ord[k].code);
+				, tbl[i].name, ord[k].str, suf, s.c_str(), tbl[i].code | ord[k].code);
 		}
 	}
 }
@@ -928,9 +928,9 @@ void putFP16_FMA2()
 				t |= T_ER_X | T_N2;
 				suf = "sh";
 			}
-			std::string type = type2String(t);
+			std::string s = type2String(t);
 			printf("void vf%s%s%s(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X); }\n"
-				, j == 0 ? "c" : "", tbl[i].name, suf, type.c_str(), tbl[i].code);
+				, j == 0 ? "c" : "", tbl[i].name, suf, s.c_str(), tbl[i].code);
 		}
 	}
 }
@@ -938,16 +938,16 @@ void putFP16_FMA2()
 void putFP16_2()
 {
 	{
-		int t = T_F3 | T_MAP5 | T_MUST_EVEX | T_EW0 | T_N2;
-		std::string type = type2String(t);
-		printf("void vmovsh(const Xmm& x, const Address& addr) { opAVX_X_X_XM(x, xm0, addr, %s, 0x10); }\n", type.c_str());
-		printf("void vmovsh(const Xmm& x1, const Xmm& x2, const Xmm& x3) { opAVX_X_X_XM(x1, x2, x3, %s, 0x10); }\n", type.c_str());
+		uint64_t type = T_F3 | T_MAP5 | T_MUST_EVEX | T_EW0 | T_N2;
+		std::string s = type2String(type);
+		printf("void vmovsh(const Xmm& x, const Address& addr) { opAVX_X_X_XM(x, xm0, addr, %s, 0x10); }\n", s.c_str());
+		printf("void vmovsh(const Xmm& x1, const Xmm& x2, const Xmm& x3) { opAVX_X_X_XM(x1, x2, x3, %s, 0x10); }\n", s.c_str());
 	}
 	{
-		int t = T_66 | T_MAP5 | T_MUST_EVEX | T_N2;
-		std::string type = type2String(t);
-		printf("void vmovw(const Xmm& x, const Operand& op) { if (!op.isREG(32|64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_X_XM(x, xm0, op, %s, 0x6E); }\n", type.c_str());
-		printf("void vmovw(const Reg32e& r, const Xmm& x) { opAVX_X_X_XM(x, xm0, r, %s, 0x7E); }\n", type.c_str());
+		uint64_t type = T_66 | T_MAP5 | T_MUST_EVEX | T_N2;
+		std::string s = type2String(type);
+		printf("void vmovw(const Xmm& x, const Operand& op) { if (!op.isREG(32|64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_X_XM(x, xm0, op, %s, 0x6E); }\n", s.c_str());
+		printf("void vmovw(const Reg32e& r, const Xmm& x) { opAVX_X_X_XM(x, xm0, r, %s, 0x7E); }\n", s.c_str());
 	}
 }
 

@@ -216,7 +216,7 @@ void putX_X_XM(bool omitOnly)
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			std::string type = type2String(p->type);
+			std::string s = type2String(p->type);
 			if (omitOnly) {
 				if (p->enableOmit) {
 					printf("void v%s(const Xmm& x, const Operand& op%s) { v%s(x, x, op%s); }\n", p->name, p->hasIMM ? ", uint8_t imm" : "", p->name, p->hasIMM ? ", imm" : "");
@@ -231,7 +231,7 @@ void putX_X_XM(bool omitOnly)
 				}
 				if (p->mode & 2) {
 					printf("void v%s(const Xmm& x1, const Xmm& x2, const Operand& op%s) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X%s); }\n"
-					, p->name, p->hasIMM ? ", uint8_t imm" : "", type.c_str(), p->code, p->hasIMM ? ", imm" : "");
+					, p->name, p->hasIMM ? ", uint8_t imm" : "", s.c_str(), p->code, p->hasIMM ? ", imm" : "");
 				}
 			}
 		}
@@ -483,8 +483,8 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			std::string type = type2String(p->type);
-			printf("void %s(const Xmm& reg1, const Xmm& reg2) { opRR(reg1, reg2, %s, 0x%02X); }\n", p->name, type.c_str(), p->code);
+			std::string s = type2String(p->type);
+			printf("void %s(const Xmm& reg1, const Xmm& reg2) { opRR(reg1, reg2, %s, 0x%02X); }\n", p->name, s.c_str(), p->code);
 		}
 	}
 	{
@@ -515,11 +515,10 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			std::string type = type2String(p->type | T_0F);
-			printf("void %s(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, type.c_str(), p->code);
+			std::string s = type2String(p->type | T_0F);
+			printf("void %s(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, s.c_str(), p->code);
 		}
 	}
-
 	{
 		// special type
 		const struct Tbl {
@@ -543,8 +542,8 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			std::string type = type2String(p->type | T_0F);
-			printf("void %s(const Reg& reg, const Operand& op) { opSSE(reg, op, %s, 0x%02X, %s); }\n", p->name, type.c_str(), p->code, p->cond);
+			std::string s = type2String(p->type | T_0F);
+			printf("void %s(const Reg& reg, const Operand& op) { opSSE(reg, op, %s, 0x%02X, %s); }\n", p->name, s.c_str(), p->code, p->cond);
 		}
 	}
 	{
@@ -581,8 +580,8 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			std::string type = type2String(p->type);
-			printf("void %s(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, %s, 0x%02X); }\n", p->name, type.c_str(), p->code);
+			std::string s = type2String(p->type);
+			printf("void %s(const Operand& op1, const Operand& op2) { opMovXMM(op1, op2, %s, 0x%02X); }\n", p->name, s.c_str(), p->code);
 		}
 	}
 	{
@@ -812,9 +811,9 @@ void put()
 			printf("void %s(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x%02X); }\n", p->name, p->code);
 			printf("void %s(const Operand& op, uint32_t imm) { opOI(op, imm, 0x%02X, %d); }\n", p->name, p->code, p->ext);
 			if (!p->support3op) continue;
-			std::string type = type2String(0);//p->type);
-			printf("void %s(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, %s, 0x%02X); }\n", p->name, type.c_str(), p->code);
-			printf("void %s(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, %s, %d); }\n", p->name, type.c_str(), p->ext);
+			std::string s = type2String(0);//p->type);
+			printf("void %s(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, %s, 0x%02X); }\n", p->name, s.c_str(), p->code);
+			printf("void %s(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, %s, %d); }\n", p->name, s.c_str(), p->ext);
 		}
 	}
 	{
@@ -1354,15 +1353,15 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			std::string type = type2String(p->type);
+			std::string s = type2String(p->type);
 			if (p->mode & 1) {
 				const char *immS1 = p->hasIMM ? ", uint8_t imm" : "";
 				const char *immS2 = p->hasIMM ? ", imm" : ", NONE";
-				printf("void %s(const Xmm& xmm, const Operand& op%s) { opSSE(xmm, op, %s, 0x%02X, isXMM_XMMorMEM%s); }\n", p->name, immS1, type.c_str(), p->code, immS2);
+				printf("void %s(const Xmm& xmm, const Operand& op%s) { opSSE(xmm, op, %s, 0x%02X, isXMM_XMMorMEM%s); }\n", p->name, immS1, s.c_str(), p->code, immS2);
 			}
 			if (p->mode & 2) {
 				printf("void v%s(const Xmm& xm, const Operand& op%s) { opAVX_X_XM_IMM(xm, op, %s, 0x%02X%s); }\n"
-					, p->name, p->hasIMM ? ", uint8_t imm" : "", type.c_str(), p->code, p->hasIMM ? ", imm" : "");
+					, p->name, p->hasIMM ? ", uint8_t imm" : "", s.c_str(), p->code, p->hasIMM ? ", imm" : "");
 			}
 		}
 	}
@@ -1382,9 +1381,9 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			std::string type = type2String(p->type);
+			std::string s = type2String(p->type);
 			printf("void v%s(const Address& addr, const Xmm& xmm) { opAVX_X_XM_IMM(xmm, addr, %s, 0x%02X); }\n"
-				, p->name, type.c_str(), p->code);
+				, p->name, s.c_str(), p->code);
 		}
 	}
 	// (x, x/m), (y, y/m), (x, x, x/m), (y, y, y/m)
@@ -1409,13 +1408,13 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			std::string type = type2String(p->type);
+			std::string s = type2String(p->type);
 			if (p->mode & 1) {
-				printf("void %s(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, type.c_str(), p->code);
+				printf("void %s(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, s.c_str(), p->code);
 			}
 			if (p->mode & 2) {
 				printf("void v%s(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, %s, 0x%02X); }\n"
-					, p->name, type.c_str(), p->code);
+					, p->name, s.c_str(), p->code);
 			}
 		}
 	}
@@ -1449,8 +1448,8 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			std::string type = type2String(p.type);
-			printf("void %s(const Ymm& y1, const Ymm& y2, const Operand& op) { opAVX_X_X_XM(y1, y2, op, %s, 0x%02X); }\n", p.name, type.c_str(), p.code);
+			std::string s = type2String(p.type);
+			printf("void %s(const Ymm& y1, const Ymm& y2, const Operand& op) { opAVX_X_X_XM(y1, y2, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 		}
 	}
 	// vpermq, vpermpd
@@ -1465,8 +1464,8 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			std::string type = type2String(p.type);
-			printf("void %s(const Ymm& y, const Operand& op, uint8_t imm) { opAVX_X_XM_IMM(y, op, %s, 0x%02X, imm); }\n", p.name, type.c_str(), p.code);
+			std::string s = type2String(p.type);
+			printf("void %s(const Ymm& y, const Operand& op, uint8_t imm) { opAVX_X_XM_IMM(y, op, %s, 0x%02X, imm); }\n", p.name, s.c_str(), p.code);
 		}
 	}
 	// vcmpeqps
@@ -1504,11 +1503,11 @@ void put()
 			const Tbl& p = tbl[i];
 			char c = p.isH ? 'h' : 'l';
 			const char *suf = p.isPd ? "pd" : "ps";
-			const char *type = p.isPd ? "T_0F | T_66 | T_EVEX | T_EW1 | T_N8" : "T_0F | T_EVEX | T_EW0 | T_N8";
+			std::string s = type2String(p.isPd ? (T_0F | T_66 | T_EVEX | T_EW1 | T_N8) : (T_0F | T_EVEX | T_EW0 | T_N8));
 			printf("void vmov%c%s(const Xmm& x, const Operand& op1, const Operand& op2 = Operand()) { if (!op2.isNone() && !op2.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_X_XM(x, op1, op2, %s, 0x%02X); }\n"
-				, c, suf, type, p.code);
+				, c, suf, s.c_str(), p.code);
 			printf("void vmov%c%s(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, xm0, addr, %s, 0x%02X); }\n"
-				, c, suf, type, p.code + 1);
+				, c, suf, s.c_str(), p.code + 1);
 		}
 	}
 	// FMA
@@ -1557,9 +1556,9 @@ void put()
 					} else { // ss
 						t |= T_ER_X | T_N4;
 					}
-					std::string type = type2String(t);
+					std::string s = type2String(t);
 					printf("void %s%s%s(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X); }\n"
-						, tbl[i].name, ord[k].str, suf.c_str(), type.c_str(), tbl[i].code + ord[k].code);
+						, tbl[i].name, ord[k].str, suf.c_str(), s.c_str(), tbl[i].code + ord[k].code);
 				}
 			}
 		}
@@ -1583,8 +1582,8 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			std::string type = type2String(p.type);
-			printf("void %s(const Xmm& x, const Operand& op) { if (!(op.isXMM() || op.isMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_XM_IMM(x, op, %s, 0x%02X); }\n", p.name, type.c_str(), p.code);
+			std::string s = type2String(p.type);
+			printf("void %s(const Xmm& x, const Operand& op) { if (!(op.isXMM() || op.isMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_XM_IMM(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 		}
 
 		puts("void vextractf128(const Operand& op, const Ymm& y, uint8_t imm) { if (!(op.isXMEM() && y.isYMM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(y, 0, op, T_0F3A | T_66 | T_W0 | T_YMM, 0x19, imm); }");
@@ -1634,8 +1633,8 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			std::string type = type2String(p.type);
-			printf("void v%s(const Xmm& x, const Operand& op, uint8_t imm) { opAVX_X_X_XM(Xmm(x.getKind(), %d), x, op, %s, 0x%02X, imm); }\n", p.name, p.idx, type.c_str(), p.code);
+			std::string s = type2String(p.type);
+			printf("void v%s(const Xmm& x, const Operand& op, uint8_t imm) { opAVX_X_X_XM(Xmm(x.getKind(), %d), x, op, %s, 0x%02X, imm); }\n", p.name, p.idx, s.c_str(), p.code);
 		}
 	}
 	// 4-op
@@ -1724,7 +1723,7 @@ void put()
 			const Tbl& p = tbl[i];
 			printf("void %s(const Xmm& x, const Address& addr) { opVex(x, 0, addr, %s, 0x%02X); }\n", p.name, type2String(p.type).c_str(), p.code);
 		}
-		puts("void vcvtneps2bf16(const Xmm& x, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opCvt2(x, op, T_F3 | T_0F38 | T_EW0 | T_YMM | T_SAE_Z | T_B32 | orEvexIf(encoding), 0x72); }");
+		printf("void vcvtneps2bf16(const Xmm& x, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opCvt2(x, op, %s|orEvexIf(encoding), 0x72); }", type2String(T_F3 | T_0F38 | T_EW0 | T_YMM | T_SAE_Z | T_B32).c_str());
 	}
 	// haswell gpr(reg, reg, r/m)
 	{
@@ -1820,8 +1819,8 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			std::string type = type2String(p->type);
-			printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, %s, 0x%02X, encoding); }\n", p->name, type.c_str(), p->code);
+			std::string s = type2String(p->type);
+			printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, %s, 0x%02X, encoding); }\n", p->name, s.c_str(), p->code);
 		}
 	}
 	// avx-vnni-int8
@@ -1848,8 +1847,8 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			std::string type = type2String(p->type);
-			printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X); }\n", p->name, type.c_str(), p->code);
+			std::string s = type2String(p->type);
+			printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X); }\n", p->name, s.c_str(), p->code);
 		}
 	}
 }
