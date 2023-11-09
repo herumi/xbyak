@@ -66,7 +66,7 @@ std::string type2String(uint64_t type)
 	if (type & T_VSIB) str += "|T_VSIB";
 	if (type & T_MEM_EVEX) str += "|T_MEM_EVEX";
 	if (type & T_NF) str += "|T_NF";
-	if (type & T_NO_OR1) str += "|T_NO_OR1";
+	if (type & T_CODE1_IF1) str += "|T_CODE1_IF1";
 
 	if (str[0] == '|') str = str.substr(1);
 	return str;

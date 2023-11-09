@@ -914,21 +914,21 @@ void putFP16_FMA2()
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		for (int j = 0; j < 2; j++) {
-			int t = T_MAP6 | T_EW0 | T_MUST_EVEX;
+			uint64_t type = T_MAP6 | T_EW0 | T_MUST_EVEX;
 			if (j == 0) {
-				t |= T_F2;
+				type |= T_F2;
 			} else {
-				t |= T_F3;
+				type |= T_F3;
 			}
 			const char *suf = 0;
 			if (tbl[i].isPH) {
-				t |= T_ER_Z | T_YMM | T_B32;
+				type |= T_ER_Z | T_YMM | T_B32;
 				suf = "ph";
 			} else {
-				t |= T_ER_X | T_N2;
+				type |= T_ER_X | T_N2;
 				suf = "sh";
 			}
-			std::string s = type2String(t);
+			std::string s = type2String(type);
 			printf("void vf%s%s%s(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X); }\n"
 				, j == 0 ? "c" : "", tbl[i].name, suf, s.c_str(), tbl[i].code);
 		}

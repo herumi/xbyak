@@ -1800,7 +1800,7 @@ private:
 	static const uint64_t T_MAP5 = T_FP16 | T_0F;
 	static const uint64_t T_MAP6 = T_FP16 | T_0F38;
 	static const uint64_t T_NF = 1ull << 32; // T_nf
-	static const uint64_t T_NO_OR1 = 1ull << 33; // does not "code | 1"
+	static const uint64_t T_CODE1_IF1 = 1ull << 33; // code|=1 if !r.isBit(8)
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type >> 5) & 3; }
 	// @@@end of avx_type_def.h
@@ -1993,8 +1993,7 @@ private:
 		} else if (type & T_0F3A) {
 			db(0x0F); db(0x3A);
 		}
-//		db(code | (!(type & T_NO_OR1) && !r.isBit(8)));
-		db(code | (type == 0 && !r.isBit(8)));
+		db(code | ((type == 0 || (type & T_CODE1_IF1)) && !r.isBit(8)));
 	}
 	void opRR(const Reg& reg1, const Reg& reg2, uint64_t type, int code)
 	{
