@@ -1739,7 +1739,7 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
-			printf("void %s(const Reg& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, %s, 0x%x); }\n", p.name, type2String(p.type).c_str(), p.code);
+			printf("void %s(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, %s, 0x%x); }\n", p.name, type2String(p.type).c_str(), p.code);
 		}
 	}
 	// gpr(reg, r/m, reg)
@@ -1749,7 +1749,7 @@ void put()
 			uint64_t type;
 			uint8_t code;
 		} tbl[] = {
-			{ "bextr", T_0F38, 0xF7 },
+			{ "bextr", T_0F38 | T_VEX | T_NF, 0xF7 },
 			{ "bzhi", T_0F38, 0xF5 },
 			{ "sarx", T_0F38 | T_F3, 0xF7 },
 			{ "shlx", T_0F38 | T_66, 0xF7 },

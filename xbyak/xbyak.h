@@ -853,6 +853,7 @@ struct Fpu : public Reg {
 
 struct Reg32e : public Reg {
 	explicit XBYAK_CONSTEXPR Reg32e(int idx, int bit) : Reg(idx, Operand::REG, bit) {}
+	Reg32e operator|(const ApxFlagNF&) const { Reg32e r(*this); r.setNF(); return r; }
 };
 struct Reg32 : public Reg32e {
 	explicit XBYAK_CONSTEXPR Reg32(int idx = 0) : Reg32e(idx, 32) {}
