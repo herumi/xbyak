@@ -616,8 +616,8 @@ void pcmpgtq(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66 | T_0F38, 
 void pcmpgtw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x65); }
 void pcmpistri(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66|T_0F3A, 0x63, isXMM_XMMorMEM, imm); }
 void pcmpistrm(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66|T_0F3A, 0x62, isXMM_XMMorMEM, imm); }
-void pdep(const Reg& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_F2|T_0F38, 0xf5); }
-void pext(const Reg& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_F3|T_0F38, 0xf5); }
+void pdep(const Reg& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_VEX|T_F2|T_0F38, 0xf5); }
+void pext(const Reg& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_VEX|T_F3|T_0F38, 0xf5); }
 void pextrb(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x14, imm); }
 void pextrd(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x16, imm); }
 void pextrw(const Operand& op, const Mmx& xmm, uint8_t imm) { opExt(op, xmm, 0x15, imm, true); }
