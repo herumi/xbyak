@@ -1770,8 +1770,8 @@ void put()
 			uint8_t idx;
 		} tbl[] = {
 			{ "blsi", T_0F38 | T_VEX|T_NF, 0xF3, 3 },
-			{ "blsmsk", T_0F38, 0xF3, 2 },
-			{ "blsr", T_0F38, 0xF3, 1 },
+			{ "blsmsk", T_0F38 | T_VEX|T_NF, 0xF3, 2 },
+			{ "blsr", T_0F38 | T_VEX|T_NF, 0xF3, 1 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
