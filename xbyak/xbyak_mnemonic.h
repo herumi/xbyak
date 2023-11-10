@@ -745,7 +745,7 @@ void rol(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 0); }
 void rol(const Operand& op, int imm) { opShift(op, imm, 0); }
 void ror(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 1); }
 void ror(const Operand& op, int imm) { opShift(op, imm, 1); }
-void rorx(const Reg32e& r, const Operand& op, uint8_t imm) { opRRO(r, Reg32e(0, r.getBit()), op, T_0F3A | T_F2, 0xF0, imm); }
+void rorx(const Reg32e& r, const Operand& op, uint8_t imm) { opRRO(r, Reg32e(0, r.getBit()), op, T_0F3A|T_F2|T_VEX|T_MAP3, 0xF0, imm); }
 void roundpd(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66|T_0F3A|T_YMM, 0x09, isXMM_XMMorMEM, imm); }
 void roundps(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66|T_0F3A|T_YMM, 0x08, isXMM_XMMorMEM, imm); }
 void roundsd(const Xmm& xmm, const Operand& op, int imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x0B, isXMM_XMMorMEM, static_cast<uint8_t>(imm)); }
