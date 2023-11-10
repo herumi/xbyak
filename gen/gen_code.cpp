@@ -1751,9 +1751,9 @@ void put()
 		} tbl[] = {
 			{ "bextr", T_0F38 | T_VEX | T_NF, 0xF7 },
 			{ "bzhi", T_0F38 | T_VEX | T_NF, 0xF5 },
-			{ "sarx", T_0F38 | T_F3, 0xF7 },
-			{ "shlx", T_0F38 | T_66, 0xF7 },
-			{ "shrx", T_0F38 | T_F2, 0xF7 },
+			{ "sarx", T_0F38 | T_F3 | T_VEX, 0xF7 },
+			{ "shlx", T_0F38 | T_66 | T_VEX, 0xF7 },
+			{ "shrx", T_0F38 | T_F2 | T_VEX, 0xF7 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];

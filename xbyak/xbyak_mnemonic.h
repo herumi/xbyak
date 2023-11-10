@@ -757,7 +757,7 @@ void sal(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 4); }
 void sal(const Operand& op, int imm) { opShift(op, imm, 4); }
 void sar(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 7); }
 void sar(const Operand& op, int imm) { opShift(op, imm, 7); }
-void sarx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_F3|T_0F38, 0xf7); }
+void sarx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_VEX|T_F3|T_0F38, 0xf7); }
 void sbb(const Operand& op, uint32_t imm) { opOI(op, imm, 0x18, 3); }
 void sbb(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x18); }
 void sbb(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_NONE, 3); }
@@ -808,12 +808,12 @@ void shl(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 4); }
 void shl(const Operand& op, int imm) { opShift(op, imm, 4); }
 void shld(const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(op, reg, 0, 0xA4, &_cl); }
 void shld(const Operand& op, const Reg& reg, uint8_t imm) { opShxd(op, reg, imm, 0xA4); }
-void shlx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_66|T_0F38, 0xf7); }
+void shlx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_VEX|T_66|T_0F38, 0xf7); }
 void shr(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 5); }
 void shr(const Operand& op, int imm) { opShift(op, imm, 5); }
 void shrd(const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(op, reg, 0, 0xAC, &_cl); }
 void shrd(const Operand& op, const Reg& reg, uint8_t imm) { opShxd(op, reg, imm, 0xAC); }
-void shrx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_F2|T_0F38, 0xf7); }
+void shrx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_VEX|T_F2|T_0F38, 0xf7); }
 void shufpd(const Xmm& xmm, const Operand& op, uint8_t imm8) { opSSE(xmm, op, T_0F | T_66, 0xC6, isXMM_XMMorMEM, imm8); }
 void shufps(const Xmm& xmm, const Operand& op, uint8_t imm8) { opSSE(xmm, op, T_0F, 0xC6, isXMM_XMMorMEM, imm8); }
 void sqrtpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x51, isXMM_XMMorMEM); }
