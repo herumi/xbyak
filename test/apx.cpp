@@ -496,3 +496,23 @@ CYBOZU_TEST_AUTO(andn_etc)
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
 
+CYBOZU_TEST_AUTO(bextr_etc)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			bextr(r29, r30, r31);
+			bextr(r29|T_nf, r30, r31);
+			bextr(eax, ecx, r17d);
+			bextr(r29, ptr [r31+r20*4], r30);
+		}
+	} c;
+	const uint8_t tbl[] = {
+		0x62, 0x4a, 0x84, 0x00, 0xf7, 0xee, 0x62, 0x4a, 0x84, 0x00, 0xf7, 0xee, 0x62, 0xf2, 0x74, 0x00,
+		0xf7, 0xc1, 0x62, 0x4a, 0x88, 0x00, 0xf7, 0x2c, 0xa7,
+	};
+	const size_t n = sizeof(tbl);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
+
