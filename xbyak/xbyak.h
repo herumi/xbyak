@@ -1803,6 +1803,7 @@ private:
 	static const uint64_t T_NF = 1ull << 32; // T_nf
 	static const uint64_t T_CODE1_IF1 = 1ull << 33; // code|=1 if !r.isBit(8)
 	static const uint64_t T_MAP3 = 1ull << 34; // rorx only
+	static const uint64_t T_ND1 = 1ull << 35; // ND=1
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type >> 5) & 3; }
 	// @@@end of avx_type_def.h
@@ -1911,12 +1912,12 @@ private:
 		int B3 = b.isExtIdx() ? 0 : 0x20;
 		int R4 = r.isExtIdx2() ? 0 : 0x10;
 		int B4 = b.isExtIdx2() ? 0x08 : 0;
-		int w =r.isBit(64) || (type & T_W1);
+		int w = r.isBit(64) || v.isBit(64) || (type & T_W1);
 		int V = (~v.getIdx() & 15) << 3;
 		int X4 = x.isExtIdx2() ? 0 : 0x04;
-		int pp = type ? getPP(type) : r.isBit(16);
+		int pp = (type & T_F2) ? getPP(type) : r.isBit(16); // use type if T_F2|T_F3|T_66
 		int V4 = !v.isExtIdx2();
-		int ND = (type & T_VEX) ? 0 : v.isREG();
+		int ND = (type & T_ND1) ? 1 : (type & T_VEX) ? 0 : v.isREG();
 		int NF = r.getNF() | v.getNF();
 		int L = 0;
 		if ((type & T_NF) == 0 && NF) XBYAK_THROW(ERR_INVALID_NF)
@@ -2388,6 +2389,7 @@ private:
 		if (imm8 != NONE) db(imm8);
 	}
 	// (r, r, r/m)
+	// opRRO(a, b, c) == opROO(b, c, a)
 	void opRRO(const Reg& d, const Reg& r1, const Operand& op2, uint64_t type, uint8_t code, int imm8 = NONE)
 	{
 		const unsigned int bit = d.getBit();
@@ -2878,7 +2880,7 @@ public:
 	// (r, r, m) or (r, m, r)
 	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, uint64_t type, int code, int immSize = 0)
 	{
-		if (!d.isREG() && !(d.hasRex2() || op1.hasRex2() || op2.hasRex2())) return false;
+		if (!(type & T_VEX) && !d.isREG() && !(d.hasRex2() || op1.hasRex2() || op2.hasRex2())) return false;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code |= 2; }
 		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
@@ -3034,6 +3036,13 @@ public:
 			db(seq, len);
 			size -= len;
 		}
+	}
+	void inc2(const Reg& r, const Operand& op)
+	{
+		int code = r.isBit(8) ? 0xFE : 0xFF;
+		uint64_t type = T_VEX|T_NF|T_ND1;
+		if (r.isBit(16)) type |= T_66;
+		opROO(r, op, Reg(), type, code);
 	}
 #ifndef XBYAK_DONT_READ_LIST
 #include "xbyak_mnemonic.h"
