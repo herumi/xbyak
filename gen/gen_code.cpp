@@ -1769,7 +1769,7 @@ void put()
 			uint8_t code;
 			uint8_t idx;
 		} tbl[] = {
-			{ "blsi", T_0F38, 0xF3, 3 },
+			{ "blsi", T_0F38 | T_VEX|T_NF, 0xF3, 3 },
 			{ "blsmsk", T_0F38, 0xF3, 2 },
 			{ "blsr", T_0F38, 0xF3, 1 },
 		};

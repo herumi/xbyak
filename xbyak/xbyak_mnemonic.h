@@ -41,7 +41,7 @@ void blendpd(const Xmm& xmm, const Operand& op, int imm) { opSSE(xmm, op, T_66 |
 void blendps(const Xmm& xmm, const Operand& op, int imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x0C, isXMM_XMMorMEM, static_cast<uint8_t>(imm)); }
 void blendvpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F38, 0x15, isXMM_XMMorMEM, NONE); }
 void blendvps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F38, 0x14, isXMM_XMMorMEM, NONE); }
-void blsi(const Reg32e& r, const Operand& op) { opRRO(Reg32e(3, r.getBit()), r, op, T_0F38, 0xf3); }
+void blsi(const Reg32e& r, const Operand& op) { opRRO(Reg32e(3, r.getBit()), r, op, T_VEX|T_0F38|T_NF, 0xf3); }
 void blsmsk(const Reg32e& r, const Operand& op) { opRRO(Reg32e(2, r.getBit()), r, op, T_0F38, 0xf3); }
 void blsr(const Reg32e& r, const Operand& op) { opRRO(Reg32e(1, r.getBit()), r, op, T_0F38, 0xf3); }
 void bnd() { db(0xF2); }
