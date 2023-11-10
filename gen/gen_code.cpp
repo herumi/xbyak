@@ -1733,7 +1733,7 @@ void put()
 			uint8_t code;
 		} tbl[] = {
 			{ "andn", T_0F38 | T_VEX | T_NF, 0xF2 },
-			{ "mulx", T_F2 | T_0F38, 0xF6 },
+			{ "mulx", T_F2 | T_0F38 | T_VEX , 0xF6 },
 			{ "pdep", T_F2 | T_0F38, 0xF5 },
 			{ "pext", T_F3 | T_0F38, 0xF5 },
 		};

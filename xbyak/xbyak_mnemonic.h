@@ -560,7 +560,7 @@ void mulpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x59
 void mulps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x59, isXMM_XMMorMEM); }
 void mulsd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F2, 0x59, isXMM_XMMorMEM); }
 void mulss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F3, 0x59, isXMM_XMMorMEM); }
-void mulx(const Reg& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_F2|T_0F38, 0xf6); }
+void mulx(const Reg& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_VEX|T_F2|T_0F38, 0xf6); }
 void mwait() { db(0x0F); db(0x01); db(0xC9); }
 void mwaitx() { db(0x0F); db(0x01); db(0xFB); }
 void neg(const Operand& op) { opRext(op, 0, 3, 0, 0xF6); }
