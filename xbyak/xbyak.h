@@ -1915,7 +1915,7 @@ private:
 		int pp = type ? getPP(type) : r.isBit(16);
 		int V4 = !v.isExtIdx2();
 		int ND = (type & T_VEX) ? 0 : v.isREG();
-		int NF = v.getNF();
+		int NF = r.getNF() | v.getNF();
 		int L = 0;
 		if ((type & T_NF) == 0 && NF) XBYAK_THROW(ERR_INVALID_NF)
 		db(0x62);
