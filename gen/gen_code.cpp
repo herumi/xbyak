@@ -835,16 +835,15 @@ void put()
 
 	{
 		const struct Tbl {
-			uint8_t code;
 			uint8_t ext;
 			const char *name;
 		} tbl[] = {
-			{ 0x48, 1, "dec" },
-			{ 0x40, 0, "inc" },
+			{ 1, "dec" },
+			{ 0, "inc" },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Operand& op) { opIncDec(op, 0x%02X, %d); }\n", p->name, p->code, p->ext);
+			printf("void %s(const Operand& op) { opIncDec(op, %d); }\n", p->name, p->ext);
 		}
 	}
 	{

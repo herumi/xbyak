@@ -2243,21 +2243,16 @@ private:
 		opROO(d, op, Reg(ext, Operand::REG, d.getBit()), type, 0x80 | code, immBit / 8);
 		db(imm, immBit / 8);
 	}
-	void opIncDec(const Operand& op, int code, int ext)
+	void opIncDec(const Operand& op, int ext)
 	{
 		verifyMemHasSize(op);
 #ifndef XBYAK64
 		if (op.isREG() && !op.isBit(8)) {
-			rex(op); db(code | op.getIdx());
+			rex(op); db((ext ? 0x48 : 0x40) | op.getIdx());
 			return;
 		}
 #endif
-		code = 0xFE;
-		if (op.isREG()) {
-			opRR(Reg(ext, Operand::REG, op.getBit()), op.getReg(), 0, code);
-		} else {
-			opMR(op.getAddress(), Reg(ext, Operand::REG, op.getBit()), 0, code);
-		}
+		opRext(op, op.getBit(), ext, 0, 0xFE);
 	}
 	void opPushPop(const Operand& op, int code, int ext, int alt)
 	{
@@ -2701,7 +2696,7 @@ public:
 	void test(const Operand& op, uint32_t imm)
 	{
 		verifyMemHasSize(op);
-	        int immSize = (std::min)(op.getBit() / 8, 4U);
+		int immSize = (std::min)(op.getBit() / 8, 4U);
 		if (op.isREG() && op.getIdx() == 0) { // al, ax, eax
 			rex(op);
 			db(0xA8 | (op.isBit(8) ? 0 : 1));
