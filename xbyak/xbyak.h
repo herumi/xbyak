@@ -2243,8 +2243,17 @@ private:
 		opROO(d, op, Reg(ext, Operand::REG, d.getBit()), type, 0x80 | code, immBit / 8);
 		db(imm, immBit / 8);
 	}
-	void opIncDec(const Operand& op, int ext)
+	void opIncDec(const Reg& d, const Operand& op, int ext)
 	{
+#ifdef XBYAK64
+		if (d.isREG()) {
+			int code = d.isBit(8) ? 0xFE : 0xFF;
+			uint64_t type = T_VEX|T_NF|T_ND1;
+			if (d.isBit(16)) type |= T_66;
+			opROO(d, op, Reg(ext, Operand::REG, d.getBit()), type, code);
+			return;
+		}
+#endif
 		verifyMemHasSize(op);
 #ifndef XBYAK64
 		if (op.isREG() && !op.isBit(8)) {
@@ -3031,13 +3040,6 @@ public:
 			db(seq, len);
 			size -= len;
 		}
-	}
-	void inc2(const Reg& r, const Operand& op)
-	{
-		int code = r.isBit(8) ? 0xFE : 0xFF;
-		uint64_t type = T_VEX|T_NF|T_ND1;
-		if (r.isBit(16)) type |= T_66;
-		opROO(r, op, Reg(), type, code);
 	}
 #ifndef XBYAK_DONT_READ_LIST
 #include "xbyak_mnemonic.h"

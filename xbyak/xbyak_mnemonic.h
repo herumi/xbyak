@@ -177,7 +177,8 @@ void cvttsd2si(const Reg& reg, const Operand& op) { opSSE(reg, op, T_F2|T_0F, 0x
 void cvttss2si(const Reg& reg, const Operand& op) { opSSE(reg, op, T_F3|T_0F, 0x2C, isREG32_XMMorMEM); }
 void cwd() { db(0x66); db(0x99); }
 void cwde() { db(0x98); }
-void dec(const Operand& op) { opIncDec(op, 1); }
+void dec(const Operand& op) { opIncDec(Reg(), op, 1); }
+void dec(const Reg& d, const Operand& op) { opIncDec(d, op, 1); }
 void div(const Operand& op) { opRext(op, 0, 6, 0, 0xF6); }
 void divpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x5E, isXMM_XMMorMEM); }
 void divps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x5E, isXMM_XMMorMEM); }
@@ -344,7 +345,8 @@ void idiv(const Operand& op) { opRext(op, 0, 7, 0, 0xF6); }
 void imul(const Operand& op) { opRext(op, 0, 5, 0, 0xF6); }
 void in_(const Reg& a, const Reg& d) { opInOut(a, d, 0xEC); }
 void in_(const Reg& a, uint8_t v) { opInOut(a, 0xE4, v); }
-void inc(const Operand& op) { opIncDec(op, 0); }
+void inc(const Operand& op) { opIncDec(Reg(), op, 0); }
+void inc(const Reg& d, const Operand& op) { opIncDec(d, op, 0); }
 void insertps(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x21, isXMM_XMMorMEM, imm); }
 void int3() { db(0xCC); }
 void int_(uint8_t x) { db(0xCD); db(x); }

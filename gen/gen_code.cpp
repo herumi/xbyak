@@ -843,7 +843,8 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Operand& op) { opIncDec(op, %d); }\n", p->name, p->ext);
+			printf("void %s(const Operand& op) { opIncDec(Reg(), op, %d); }\n", p->name, p->ext);
+			printf("void %s(const Reg& d, const Operand& op) { opIncDec(d, op, %d); }\n", p->name, p->ext);
 		}
 	}
 	{
