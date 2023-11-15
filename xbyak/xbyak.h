@@ -2253,6 +2253,8 @@ private:
 			opROO(d, op, Reg(ext, Operand::REG, d.getBit()), type, code);
 			return;
 		}
+#else
+		(void)d;
 #endif
 		verifyMemHasSize(op);
 #ifndef XBYAK64
