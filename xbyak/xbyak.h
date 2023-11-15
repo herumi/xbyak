@@ -1918,7 +1918,7 @@ private:
 		int pp = (type & T_F2) ? getPP(type) : r.isBit(16); // use type if T_F2|T_F3|T_66
 		int V4 = !v.isExtIdx2();
 		int ND = (type & T_ND1) ? 1 : (type & T_VEX) ? 0 : v.isREG();
-		int NF = r.getNF() | v.getNF();
+		int NF = r.getNF() | b.getNF() | x.getNF() | v.getNF();
 		int L = 0;
 		if ((type & T_NF) == 0 && NF) XBYAK_THROW(ERR_INVALID_NF)
 		db(0x62);
