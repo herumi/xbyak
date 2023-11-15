@@ -2013,12 +2013,12 @@ private:
 		writeCode(type, reg1, code);
 		setModRM(3, reg1.getIdx(), reg2.getIdx());
 	}
-	void opMR(const Address& addr, const Reg& reg, uint64_t type, int code, int immSize = 0)
+	void opMR(const Address& addr, const Reg& r, uint64_t type, int code, int immSize = 0)
 	{
 		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
-		rex(addr, reg, type);
-		writeCode(type, reg, code);
-		opAddr(addr, reg.getIdx(), immSize);
+		rex(addr, r, type);
+		writeCode(type, r, code);
+		opAddr(addr, r.getIdx(), immSize);
 	}
 	void opLoadSeg(const Address& addr, const Reg& reg, uint64_t type, int code)
 	{
@@ -2166,6 +2166,7 @@ private:
 		int opBit = op.getBit();
 		if (disableRex && opBit == 64) opBit = 32;
 		const Reg r(ext, Operand::REG, opBit);
+		if ((type & T_VEX) && (op.hasRex2() || op.getNF()) && opROO(Reg(0, Operand::REG, opBit), op, r, type, code)) return;
 		if (op.isMEM()) {
 			opMR(op.getAddress(), r, type, code, immSize);
 		} else if (op.isREG(bit)) {

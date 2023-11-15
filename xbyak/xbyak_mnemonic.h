@@ -179,7 +179,7 @@ void cwd() { db(0x66); db(0x99); }
 void cwde() { db(0x98); }
 void dec(const Operand& op) { opIncDec(Reg(), op, 1); }
 void dec(const Reg& d, const Operand& op) { opIncDec(d, op, 1); }
-void div(const Operand& op) { opRext(op, 0, 6, 0, 0xF6); }
+void div(const Operand& op) { opRext(op, 0, 6, T_VEX|T_NF|T_CODE1_IF1, 0xF6); }
 void divpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x5E, isXMM_XMMorMEM); }
 void divps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x5E, isXMM_XMMorMEM); }
 void divsd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F2, 0x5E, isXMM_XMMorMEM); }
@@ -341,8 +341,8 @@ void haddps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_F2|T_0F|T_YMM,
 void hlt() { db(0xF4); }
 void hsubpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F|T_YMM, 0x7D, isXMM_XMMorMEM); }
 void hsubps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_F2|T_0F|T_YMM, 0x7D, isXMM_XMMorMEM); }
-void idiv(const Operand& op) { opRext(op, 0, 7, 0, 0xF6); }
-void imul(const Operand& op) { opRext(op, 0, 5, 0, 0xF6); }
+void idiv(const Operand& op) { opRext(op, 0, 7, T_VEX|T_NF|T_CODE1_IF1, 0xF6); }
+void imul(const Operand& op) { opRext(op, 0, 5, T_VEX|T_NF|T_CODE1_IF1, 0xF6); }
 void in_(const Reg& a, const Reg& d) { opInOut(a, d, 0xEC); }
 void in_(const Reg& a, uint8_t v) { opInOut(a, 0xE4, v); }
 void inc(const Operand& op) { opIncDec(Reg(), op, 0); }
@@ -557,7 +557,7 @@ void movups(const Address& addr, const Xmm& xmm) { opMR(addr, xmm, T_0F|T_NONE, 
 void movups(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x10, T_0F, T_NONE); }
 void movzx(const Reg& reg, const Operand& op) { opMovxx(reg, op, 0xB6); }
 void mpsadbw(const Xmm& xmm, const Operand& op, int imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x42, isXMM_XMMorMEM, static_cast<uint8_t>(imm)); }
-void mul(const Operand& op) { opRext(op, 0, 4, 0, 0xF6); }
+void mul(const Operand& op) { opRext(op, 0, 4, T_VEX|T_NF|T_CODE1_IF1, 0xF6); }
 void mulpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x59, isXMM_XMMorMEM); }
 void mulps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x59, isXMM_XMMorMEM); }
 void mulsd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F2, 0x59, isXMM_XMMorMEM); }
@@ -565,8 +565,8 @@ void mulss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F3, 0x59
 void mulx(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_VEX|T_F2|T_0F38, 0xf6); }
 void mwait() { db(0x0F); db(0x01); db(0xC9); }
 void mwaitx() { db(0x0F); db(0x01); db(0xFB); }
-void neg(const Operand& op) { opRext(op, 0, 3, 0, 0xF6); }
-void not_(const Operand& op) { opRext(op, 0, 2, 0, 0xF6); }
+void neg(const Operand& op) { opRext(op, 0, 3, T_VEX|T_NF|T_CODE1_IF1, 0xF6); }
+void not_(const Operand& op) { opRext(op, 0, 2, T_VEX|T_NF|T_CODE1_IF1, 0xF6); }
 void or_(const Operand& op, uint32_t imm) { opOI(op, imm, 0x08, 1); }
 void or_(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x08); }
 void or_(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_NF|T_CODE1_IF1, 1); }

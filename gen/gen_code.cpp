@@ -880,7 +880,7 @@ void put()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			const std::string name = p->name;
-			printf("void %s(const Operand& op) { opRext(op, 0, %d, 0, 0x%02X); }\n", p->name, p->ext, p->code);
+			printf("void %s(const Operand& op) { opRext(op, 0, %d, T_VEX|T_NF|T_CODE1_IF1, 0x%02X); }\n", p->name, p->ext, p->code);
 		}
 	}
 	{
