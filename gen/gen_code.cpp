@@ -869,18 +869,22 @@ void put()
 			uint8_t code;
 			uint8_t ext;
 			const char *name;
+			bool NF;
 		} tbl[] = {
-			{ 0xF6, 6, "div" },
-			{ 0xF6, 7, "idiv" },
-			{ 0xF6, 5, "imul" },
-			{ 0xF6, 4, "mul" },
-			{ 0xF6, 3, "neg" },
-			{ 0xF6, 2, "not_" },
+			{ 0xF6, 6, "div", true },
+			{ 0xF6, 7, "idiv", true },
+			{ 0xF6, 5, "imul", true },
+			{ 0xF6, 4, "mul", true },
+			{ 0xF6, 3, "neg", true },
+			{ 0xF6, 2, "not_", false },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			const std::string name = p->name;
-			printf("void %s(const Operand& op) { opRext(op, 0, %d, T_VEX|T_NF|T_CODE1_IF1, 0x%02X); }\n", p->name, p->ext, p->code);
+			uint64_t type = T_VEX|T_CODE1_IF1;
+			if (p->NF) type |= T_NF;
+			std::string s = type2String(type);
+			printf("void %s(const Operand& op) { opRext(op, 0, %d, %s, 0x%02X); }\n", p->name, p->ext, s.c_str(), p->code);
 		}
 	}
 	{
