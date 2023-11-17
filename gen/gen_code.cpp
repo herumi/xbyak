@@ -870,13 +870,14 @@ void put()
 			uint8_t ext;
 			const char *name;
 			bool NF;
+			int n; // # of op
 		} tbl[] = {
-			{ 0xF6, 6, "div", true },
-			{ 0xF6, 7, "idiv", true },
-			{ 0xF6, 5, "imul", true },
-			{ 0xF6, 4, "mul", true },
-			{ 0xF6, 3, "neg", true },
-			{ 0xF6, 2, "not_", false },
+			{ 0xF6, 6, "div", true, 1 },
+			{ 0xF6, 7, "idiv", true, 1 },
+			{ 0xF6, 5, "imul", true ,3 },
+			{ 0xF6, 4, "mul", true, 1 },
+			{ 0xF6, 3, "neg", true, 2 },
+			{ 0xF6, 2, "not_", false, 2 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -885,6 +886,12 @@ void put()
 			if (p->NF) type |= T_NF;
 			std::string s = type2String(type);
 			printf("void %s(const Operand& op) { opRext(op, 0, %d, %s, 0x%02X); }\n", p->name, p->ext, s.c_str(), p->code);
+			if (p->n == 2) {
+				uint64_t type = T_VEX|T_ND1|T_CODE1_IF1;
+				if (p->NF) type |= T_NF;
+				std::string s = type2String(type);
+				printf("void %s(const Reg& d, const Operand& op) { opROO(d, op, Reg(%d, Operand::REG, d.getBit()), %s, 0xF6); }\n", p->name, p->ext, s.c_str());
+			}
 		}
 	}
 	{

@@ -566,7 +566,9 @@ void mulx(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2,
 void mwait() { db(0x0F); db(0x01); db(0xC9); }
 void mwaitx() { db(0x0F); db(0x01); db(0xFB); }
 void neg(const Operand& op) { opRext(op, 0, 3, T_VEX|T_NF|T_CODE1_IF1, 0xF6); }
+void neg(const Reg& d, const Operand& op) { opROO(d, op, Reg(3, Operand::REG, d.getBit()), T_VEX|T_NF|T_CODE1_IF1|T_ND1, 0xF6); }
 void not_(const Operand& op) { opRext(op, 0, 2, T_VEX|T_CODE1_IF1, 0xF6); }
+void not_(const Reg& d, const Operand& op) { opROO(d, op, Reg(2, Operand::REG, d.getBit()), T_VEX|T_CODE1_IF1|T_ND1, 0xF6); }
 void or_(const Operand& op, uint32_t imm) { opOI(op, imm, 0x08, 1); }
 void or_(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x08); }
 void or_(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_NF|T_CODE1_IF1, 1); }

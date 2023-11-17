@@ -3044,6 +3044,10 @@ public:
 			size -= len;
 		}
 	}
+	void not2(const Reg& d, const Operand& op)
+	{
+		opROO(d, op, Reg(2, Operand::REG, d.getBit()), T_VEX|T_ND1|T_CODE1_IF1, 0xF6);
+	}
 #ifndef XBYAK_DONT_READ_LIST
 #include "xbyak_mnemonic.h"
 	/*
