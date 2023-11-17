@@ -343,6 +343,7 @@ void hsubpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F|T_YMM,
 void hsubps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_F2|T_0F|T_YMM, 0x7D, isXMM_XMMorMEM); }
 void idiv(const Operand& op) { opRext(op, 0, 7, T_VEX|T_NF|T_CODE1_IF1, 0xF6); }
 void imul(const Operand& op) { opRext(op, 0, 5, T_VEX|T_NF|T_CODE1_IF1, 0xF6); }
+void imul(const Reg& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_VEX|T_NF, 0xAF)) return; opRO(reg, op, T_0F, 0xAF, reg.getKind() == op.getKind()); }
 void in_(const Reg& a, const Reg& d) { opInOut(a, d, 0xEC); }
 void in_(const Reg& a, uint8_t v) { opInOut(a, 0xE4, v); }
 void inc(const Operand& op) { opIncDec(Reg(), op, 0); }

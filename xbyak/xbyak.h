@@ -2174,6 +2174,27 @@ private:
 			opSSE(mmx, op, T_66 | T_0F3A, code, isXMM_REG32orMEM, imm);
 		}
 	}
+	// (r, r, m) or (r, m, r)
+	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, uint64_t type, int code, int immSize = 0)
+	{
+		if (!d.isREG() && !(d.hasRex2NFZU() || op1.hasRex2NFZU() || op2.hasRex2NFZU())) return false;
+		const Operand *p1 = &op1, *p2 = &op2;
+		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code |= 2; }
+		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
+		if (p2->isMEM()) {
+			const Reg& r = *static_cast<const Reg*>(p1);
+			const Address& addr = p2->getAddress();
+			const RegExp e = addr.getRegExp();
+			evexLeg(r, e.getBase(), e.getIndex(), d, type);
+			writeCode(type, d, code);
+			opAddr(addr, r.getIdx(), immSize);
+		} else {
+			evexLeg(static_cast<const Reg&>(op2), static_cast<const Reg&>(op1), Reg(), d, type);
+			writeCode(type, d, code);
+			setModRM(3, op2.getIdx(), op1.getIdx());
+		}
+		return true;
+	}
 	void opRext(const Operand& op, int bit, int ext, uint64_t type, int code, bool disableRex = false, int immSize = 0)
 	{
 		int opBit = op.getBit();
@@ -2731,11 +2752,6 @@ public:
 		}
 		db(imm, immSize);
 	}
-	void imul(const Reg& reg, const Operand& op)
-	{
-		if (opROO(Reg(), op, reg, T_VEX|T_NF, 0xAF)) return;
-		opRO(reg, op, T_0F, 0xAF, reg.getKind() == op.getKind());
-	}
 	void imul(const Reg& reg, const Operand& op, int imm)
 	{
 		int s = inner::IsInDisp8(imm) ? 1 : 0;
@@ -2900,28 +2916,6 @@ public:
 	void mov(const Segment& seg, const Operand& op)
 	{
 		opRO(Reg8(seg.getIdx()), op.isREG(16|i32e) ? static_cast<const Operand&>(op.getReg().cvt32()) : op, 0, 0x8E, op.isREG(16|i32e));
-	}
-
-	// (r, r, m) or (r, m, r)
-	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, uint64_t type, int code, int immSize = 0)
-	{
-		if (!d.isREG() && !(d.hasRex2NFZU() || op1.hasRex2NFZU() || op2.hasRex2NFZU())) return false;
-		const Operand *p1 = &op1, *p2 = &op2;
-		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code |= 2; }
-		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
-		if (p2->isMEM()) {
-			const Reg& r = *static_cast<const Reg*>(p1);
-			const Address& addr = p2->getAddress();
-			const RegExp e = addr.getRegExp();
-			evexLeg(r, e.getBase(), e.getIndex(), d, type);
-			writeCode(type, d, code);
-			opAddr(addr, r.getIdx(), immSize);
-		} else {
-			evexLeg(static_cast<const Reg&>(op2), static_cast<const Reg&>(op1), Reg(), d, type);
-			writeCode(type, d, code);
-			setModRM(3, op2.getIdx(), op1.getIdx());
-		}
-		return true;
 	}
 #endif
 
