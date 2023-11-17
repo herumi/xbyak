@@ -2719,6 +2719,7 @@ public:
 	}
 	void imul(const Reg& reg, const Operand& op)
 	{
+		if (opROO(Reg(), op, reg, T_VEX|T_NF, 0xAF)) return;
 		opRO(reg, op, T_0F, 0xAF, reg.getKind() == op.getKind());
 	}
 	void imul(const Reg& reg, const Operand& op, int imm)
@@ -3043,10 +3044,6 @@ public:
 			db(seq, len);
 			size -= len;
 		}
-	}
-	void not2(const Reg& d, const Operand& op)
-	{
-		opROO(d, op, Reg(2, Operand::REG, d.getBit()), T_VEX|T_ND1|T_CODE1_IF1, 0xF6);
 	}
 #ifndef XBYAK_DONT_READ_LIST
 #include "xbyak_mnemonic.h"
