@@ -46,6 +46,7 @@
 	static const uint64_t T_CODE1_IF1 = 1ull << 33; // code|=1 if !r.isBit(8)
 	static const uint64_t T_MAP3 = 1ull << 34; // rorx only
 	static const uint64_t T_ND1 = 1ull << 35; // ND=1
+	static const uint64_t T_ZU = 1ull << 36; // ND=ZU
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type >> 5) & 3; }
 	// @@@end of avx_type_def.h

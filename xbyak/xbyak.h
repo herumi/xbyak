@@ -228,6 +228,7 @@ enum {
 	ERR_NOT_SUPPORTED,
 	ERR_SAME_REGS_ARE_INVALID,
 	ERR_INVALID_NF,
+	ERR_INVALID_ZU,
 	ERR_INTERNAL // Put it at last.
 };
 
@@ -282,6 +283,7 @@ inline const char *ConvertErrorToString(int err)
 		"not supported",
 		"same regs are invalid",
 		"invalid NF",
+		"invalid ZU",
 		"internal error"
 	};
 	assert(ERR_INTERNAL + 1 == sizeof(errTbl) / sizeof(*errTbl));
@@ -528,6 +530,7 @@ class Address;
 class Reg;
 
 struct ApxFlagNF {};
+struct ApxFlagZU {};
 
 class Operand {
 	static const uint8_t EXT8BIT = 0x20;
@@ -539,6 +542,7 @@ protected:
 	unsigned int mask_:3;
 	unsigned int rounding_:3;
 	unsigned int NF_:1;
+	unsigned int ZU_:1; // ND=ZU
 	void setIdx(int idx) { idx_ = idx; }
 public:
 	enum Kind {
@@ -570,12 +574,12 @@ public:
 		AX = 0, CX, DX, BX, SP, BP, SI, DI,
 		AL = 0, CL, DL, BL, AH, CH, DH, BH
 	};
-	XBYAK_CONSTEXPR Operand() : idx_(0), kind_(0), bit_(0), zero_(0), mask_(0), rounding_(0), NF_(0) { }
+	XBYAK_CONSTEXPR Operand() : idx_(0), kind_(0), bit_(0), zero_(0), mask_(0), rounding_(0), NF_(0), ZU_(0) { }
 	XBYAK_CONSTEXPR Operand(int idx, Kind kind, int bit, bool ext8bit = 0)
 		: idx_(static_cast<uint8_t>(idx | (ext8bit ? EXT8BIT : 0)))
 		, kind_(kind)
 		, bit_(bit)
-		, zero_(0), mask_(0), rounding_(0), NF_(0)
+		, zero_(0), mask_(0), rounding_(0), NF_(0), ZU_(0)
 	{
 		assert((bit_ & (bit_ - 1)) == 0); // bit must be power of two
 	}
@@ -626,6 +630,8 @@ public:
 	void setZero() { zero_ = true; }
 	void setNF() { NF_ = true; }
 	int getNF() const { return NF_; }
+	void setZU() { ZU_ = true; }
+	int getZU() const { return ZU_; }
 	// ah, ch, dh, bh?
 	bool isHigh8bit() const
 	{
@@ -778,6 +784,7 @@ public:
 	Reg64 cvt64() const;
 #endif
 	Reg operator|(const ApxFlagNF&) const { Reg r(*this); r.setNF(); return r; }
+	Reg operator|(const ApxFlagZU&) const { Reg r(*this); r.setZU(); return r; }
 };
 
 inline const Reg& Operand::getReg() const
@@ -854,6 +861,7 @@ struct Fpu : public Reg {
 struct Reg32e : public Reg {
 	explicit XBYAK_CONSTEXPR Reg32e(int idx, int bit) : Reg(idx, Operand::REG, bit) {}
 	Reg32e operator|(const ApxFlagNF&) const { Reg32e r(*this); r.setNF(); return r; }
+	Reg32e operator|(const ApxFlagZU&) const { Reg32e r(*this); r.setZU(); return r; }
 };
 struct Reg32 : public Reg32e {
 	explicit XBYAK_CONSTEXPR Reg32(int idx = 0) : Reg32e(idx, 32) {}
@@ -1716,6 +1724,7 @@ private:
 	void rex(const Operand& op1, const Operand& op2 = Operand(), uint64_t type = 0)
 	{
 		if (op1.getNF() | op2.getNF()) XBYAK_THROW(ERR_INVALID_NF)
+		if (op1.getZU() | op2.getZU()) XBYAK_THROW(ERR_INVALID_ZU)
 		uint8_t rex = 0;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) std::swap(p1, p2);
@@ -1804,6 +1813,7 @@ private:
 	static const uint64_t T_CODE1_IF1 = 1ull << 33; // code|=1 if !r.isBit(8)
 	static const uint64_t T_MAP3 = 1ull << 34; // rorx only
 	static const uint64_t T_ND1 = 1ull << 35; // ND=1
+	static const uint64_t T_ZU = 1ull << 36; // ND=ZU
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type >> 5) & 3; }
 	// @@@end of avx_type_def.h
@@ -1917,7 +1927,7 @@ private:
 		int X4 = x.isExtIdx2() ? 0 : 0x04;
 		int pp = (type & T_F2) ? getPP(type) : r.isBit(16); // use type if T_F2|T_F3|T_66
 		int V4 = !v.isExtIdx2();
-		int ND = (type & T_ND1) ? 1 : (type & T_VEX) ? 0 : v.isREG();
+		int ND = (type & T_ZU) ? v.getZU() : (type & T_ND1) ? 1 : (type & T_VEX) ? 0 : v.isREG();
 		int NF = r.getNF() | b.getNF() | x.getNF() | v.getNF();
 		int L = 0;
 		if ((type & T_NF) == 0 && NF) XBYAK_THROW(ERR_INVALID_NF)
@@ -2624,6 +2634,7 @@ public:
 	const EvexModifierRounding T_sae, T_rn_sae, T_rd_sae, T_ru_sae, T_rz_sae; // {sae}, {rn-sae}, {rd-sae}, {ru-sae}, {rz-sae}
 	const EvexModifierZero T_z; // {z}
 	const ApxFlagNF T_nf;
+	const ApxFlagZU T_zu;
 #ifdef XBYAK64
 	const Reg64 rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15;
 	const Reg64 r16, r17, r18, r19, r20, r21, r22, r23, r24, r25, r26, r27, r28, r29, r30, r31;
@@ -2932,6 +2943,7 @@ public:
 		, T_sae(EvexModifierRounding::T_SAE), T_rn_sae(EvexModifierRounding::T_RN_SAE), T_rd_sae(EvexModifierRounding::T_RD_SAE), T_ru_sae(EvexModifierRounding::T_RU_SAE), T_rz_sae(EvexModifierRounding::T_RZ_SAE)
 		, T_z()
 		, T_nf()
+		, T_zu()
 #ifdef XBYAK64
 		, rax(Operand::RAX), rcx(Operand::RCX), rdx(Operand::RDX), rbx(Operand::RBX), rsp(Operand::RSP), rbp(Operand::RBP), rsi(Operand::RSI), rdi(Operand::RDI), r8(Operand::R8), r9(Operand::R9), r10(Operand::R10), r11(Operand::R11), r12(Operand::R12), r13(Operand::R13), r14(Operand::R14), r15(Operand::R15)
 		, r16(Operand::R16), r17(Operand::R17), r18(Operand::R18), r19(Operand::R19), r20(Operand::R20), r21(Operand::R21), r22(Operand::R22), r23(Operand::R23), r24(Operand::R24), r25(Operand::R25), r26(Operand::R26), r27(Operand::R27), r28(Operand::R28), r29(Operand::R29), r30(Operand::R30), r31(Operand::R31)
@@ -3107,6 +3119,7 @@ static const XBYAK_CONSTEXPR Zmm zmm24(24), zmm25(25), zmm26(26), zmm27(27), zmm
 static const XBYAK_CONSTEXPR Zmm tmm0(0), tmm1(1), tmm2(2), tmm3(3), tmm4(4), tmm5(5), tmm6(6), tmm7(7);
 static const XBYAK_CONSTEXPR RegRip rip;
 static const XBYAK_CONSTEXPR ApxFlagNF T_nf;
+static const XBYAK_CONSTEXPR ApxFlagZU T_zu;
 #endif
 #ifndef XBYAK_DISABLE_SEGMENT
 static const XBYAK_CONSTEXPR Segment es(Segment::es), cs(Segment::cs), ss(Segment::ss), ds(Segment::ds), fs(Segment::fs), gs(Segment::gs);
