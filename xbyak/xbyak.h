@@ -606,6 +606,7 @@ public:
 	XBYAK_CONSTEXPR bool hasEvex() const { return isZMM() || isExtIdx2() || getOpmaskIdx() || getRounding(); }
 	XBYAK_CONSTEXPR bool hasRex() const { return isExt8bit() || isREG(64) || isExtIdx(); }
 	XBYAK_CONSTEXPR bool hasRex2() const;
+	XBYAK_CONSTEXPR bool hasRex2NF() const { return hasRex2() || NF_; }
 	XBYAK_CONSTEXPR bool hasZero() const { return zero_; }
 	XBYAK_CONSTEXPR int getOpmaskIdx() const { return mask_; }
 	XBYAK_CONSTEXPR int getRounding() const { return rounding_; }
@@ -2176,7 +2177,7 @@ private:
 		int opBit = op.getBit();
 		if (disableRex && opBit == 64) opBit = 32;
 		const Reg r(ext, Operand::REG, opBit);
-		if ((type & T_VEX) && (op.hasRex2() || op.getNF()) && opROO(Reg(0, Operand::REG, opBit), op, r, type, code)) return;
+		if ((type & T_VEX) && op.hasRex2NF() && opROO(Reg(0, Operand::REG, opBit), op, r, type, code)) return;
 		if (op.isMEM()) {
 			opMR(op.getAddress(), r, type, code, immSize);
 		} else if (op.isREG(bit)) {
@@ -2899,7 +2900,7 @@ public:
 	// (r, r, m) or (r, m, r)
 	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, uint64_t type, int code, int immSize = 0)
 	{
-		if (!(type & T_VEX) && !d.isREG() && !(d.hasRex2() || op1.hasRex2() || op2.hasRex2())) return false;
+		if (!d.isREG() && !(d.hasRex2NF() || op1.hasRex2NF() || op2.hasRex2NF())) return false;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code |= 2; }
 		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
