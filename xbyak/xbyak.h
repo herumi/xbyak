@@ -607,6 +607,7 @@ public:
 	XBYAK_CONSTEXPR bool hasRex() const { return isExt8bit() || isREG(64) || isExtIdx(); }
 	XBYAK_CONSTEXPR bool hasRex2() const;
 	XBYAK_CONSTEXPR bool hasRex2NF() const { return hasRex2() || NF_; }
+	XBYAK_CONSTEXPR bool hasRex2NFZU() const { return hasRex2() || NF_ || ZU_; }
 	XBYAK_CONSTEXPR bool hasZero() const { return zero_; }
 	XBYAK_CONSTEXPR int getOpmaskIdx() const { return mask_; }
 	XBYAK_CONSTEXPR int getRounding() const { return rounding_; }
@@ -1928,10 +1929,11 @@ private:
 		int X4 = x.isExtIdx2() ? 0 : 0x04;
 		int pp = (type & T_F2) ? getPP(type) : r.isBit(16); // use type if T_F2|T_F3|T_66
 		int V4 = !v.isExtIdx2();
-		int ND = (type & T_ZU) ? v.getZU() : (type & T_ND1) ? 1 : (type & T_VEX) ? 0 : v.isREG();
+		int ND = (type & T_ZU) ? r.getZU() : (type & T_ND1) ? 1 : (type & T_VEX) ? 0 : v.isREG();
 		int NF = r.getNF() | b.getNF() | x.getNF() | v.getNF();
 		int L = 0;
 		if ((type & T_NF) == 0 && NF) XBYAK_THROW(ERR_INVALID_NF)
+		if ((type & T_ZU) == 0 && r.getZU()) XBYAK_THROW(ERR_INVALID_ZU)
 		db(0x62);
 		db((R3<<7) | (X3<<6) | B3 | R4 | B4 | M);
 		db((w<<7) | V | X4 | pp);
@@ -2738,7 +2740,10 @@ public:
 	{
 		int s = inner::IsInDisp8(imm) ? 1 : 0;
         int immSize = s ? 1 : reg.isREG(16) ? 2 : 4;
-		opRO(reg, op, 0, 0x69 | (s << 1), reg.getKind() == op.getKind(), immSize);
+		uint8_t code = 0x69 | (s << 1);
+		if (!opROO(Reg(), op, reg, T_VEX|T_NF|T_ZU, code, immSize)) {
+			opRO(reg, op, 0, code, reg.getKind() == op.getKind(), immSize);
+		}
 		db(imm, immSize);
 	}
 	void push(const Operand& op) { opPushPop(op, 0xFF, 6, 0x50); }
@@ -2900,7 +2905,7 @@ public:
 	// (r, r, m) or (r, m, r)
 	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, uint64_t type, int code, int immSize = 0)
 	{
-		if (!d.isREG() && !(d.hasRex2NF() || op1.hasRex2NF() || op2.hasRex2NF())) return false;
+		if (!d.isREG() && !(d.hasRex2NFZU() || op1.hasRex2NFZU() || op2.hasRex2NFZU())) return false;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code |= 2; }
 		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
