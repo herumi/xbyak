@@ -131,12 +131,15 @@ vpdpbusd(xm0, xm1, xm2); // VEX encoding
 ## APX
 - Support 16 additional GPRs (general-purpose registers) r16, ..., r31
 - Support three-operand instruction
-- Support NF (status flags update suppression)
+- Support T_nf for NF=1 (status flags update suppression)
+- Support T_zu for NF=ZU (zero upper)
 
 e.g.
-- `add(r20, r21, r23)`;
+- `add(r20, r21, r23);`
 - `add(r20, ptr[rax + rcx * 8 + 0x1234], r23);`
-- `add(r20|T_nf, r21, r23)`; // set EVEX.NF = 1
+- `add(r20|T_nf, r21, r23);` // set EVEX.NF=1
+- `imul(ax|T_zu, cx, 0x1234);` // set ND=ZU
+- `imul(ax|T_zu|T_nf, cx, 0x1234);` // set ND=ZU and EVEX.NF=1
 
 ## Label
 Two kinds of Label are supported. (String literal and Label class).
