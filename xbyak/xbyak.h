@@ -1734,8 +1734,8 @@ private:
 		if (p1->isMEM()) std::swap(p1, p2);
 		if (p1->isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
 		// except movsx(16bit, 32/64bit)
-		uint8_t p66 = (op1.isBit(16) && !op2.isBit(i32e)) || (op2.isBit(16) && !op1.isBit(i32e)) ? 0x66 : 0;
-		if (p66) db(p66);
+		bool p66 = (op1.isBit(16) && !op2.isBit(i32e)) || (op2.isBit(16) && !op1.isBit(i32e));
+		if (p66) db(0x66);
 		if ((type & T_F2) == T_F2) {
 			db(0xF2);
 		} else if (type & T_66) {
