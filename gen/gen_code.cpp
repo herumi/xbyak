@@ -920,14 +920,17 @@ void put()
 		const struct Tbl {
 			const char *name;
 			uint8_t code;
+			uint8_t code2;
 		} tbl[] = {
-			{ "shld", 0xA4 },
-			{ "shrd", 0xAC },
+			{ "shld", 0xA4, 0x24 },
+			{ "shrd", 0xAC, 0x2C },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Operand& op, const Reg& reg, uint8_t imm) { opShxd(op, reg, imm, 0x%02X); }\n", p->name, p->code);
-			printf("void %s(const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(op, reg, 0, 0x%02X, &_cl); }\n", p->name, p->code);
+			printf("void %s(const Operand& op, const Reg& reg, uint8_t imm) { opShxd(Reg(), op, reg, imm, 0x%02X, 0x%02X); }\n", p->name, p->code, p->code2);
+			printf("void %s(const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(Reg(), op, reg, 0, 0x%02X, 0x%02X, &_cl); }\n", p->name, p->code, p->code2);
+			printf("void %s(const Reg& d, const Operand& op, const Reg& reg, uint8_t imm) { opShxd(d, op, reg, imm, 0x%02X, 0x%02X); }\n", p->name, p->code, p->code2);
+			printf("void %s(const Reg& d, const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(d, op, reg, 0, 0x%02X, 0x%02X, &_cl); }\n", p->name, p->code, p->code2);
 		}
 	}
 	{

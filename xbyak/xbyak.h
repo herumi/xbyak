@@ -2231,11 +2231,17 @@ private:
 			XBYAK_THROW(ERR_BAD_COMBINATION)
 		}
 	}
-	void opShxd(const Operand& op, const Reg& reg, uint8_t imm, int code, const Reg8 *_cl = 0)
+	void opShxd(const Reg& d, const Operand& op, const Reg& reg, uint8_t imm, int code, int code2, const Reg8 *_cl = 0)
 	{
 		if (_cl && _cl->getIdx() != Operand::CL) XBYAK_THROW(ERR_BAD_COMBINATION)
 		if (!reg.isREG(16|i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
-		opRO(reg, op, T_0F, code | (_cl ? 1 : 0), true, _cl ? 0 : 1);
+		int immSize = _cl ? 0 : 1;
+		if (_cl) code |= 1;
+		uint64_t type = T_VEX | T_NF;
+		if (d.isREG()) type |= T_ND1;
+		if (!opROO(d, op, reg, type, _cl ? code : code2, immSize)) {
+			opRO(reg, op, T_0F, code, true, immSize);
+		}
 		if (!_cl) db(imm);
 	}
 	// (REG, REG|MEM), (MEM, REG)

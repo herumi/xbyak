@@ -811,13 +811,17 @@ void sha256msg2(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F38, 0xCD
 void sha256rnds2(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F38, 0xCB, isXMM_XMMorMEM, NONE); }
 void shl(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 4); }
 void shl(const Operand& op, int imm) { opShift(op, imm, 4); }
-void shld(const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(op, reg, 0, 0xA4, &_cl); }
-void shld(const Operand& op, const Reg& reg, uint8_t imm) { opShxd(op, reg, imm, 0xA4); }
+void shld(const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(Reg(), op, reg, 0, 0xA4, 0x24, &_cl); }
+void shld(const Operand& op, const Reg& reg, uint8_t imm) { opShxd(Reg(), op, reg, imm, 0xA4, 0x24); }
+void shld(const Reg& d, const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(d, op, reg, 0, 0xA4, 0x24, &_cl); }
+void shld(const Reg& d, const Operand& op, const Reg& reg, uint8_t imm) { opShxd(d, op, reg, imm, 0xA4, 0x24); }
 void shlx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_VEX|T_66|T_0F38, 0xf7); }
 void shr(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 5); }
 void shr(const Operand& op, int imm) { opShift(op, imm, 5); }
-void shrd(const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(op, reg, 0, 0xAC, &_cl); }
-void shrd(const Operand& op, const Reg& reg, uint8_t imm) { opShxd(op, reg, imm, 0xAC); }
+void shrd(const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(Reg(), op, reg, 0, 0xAC, 0x2C, &_cl); }
+void shrd(const Operand& op, const Reg& reg, uint8_t imm) { opShxd(Reg(), op, reg, imm, 0xAC, 0x2C); }
+void shrd(const Reg& d, const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(d, op, reg, 0, 0xAC, 0x2C, &_cl); }
+void shrd(const Reg& d, const Operand& op, const Reg& reg, uint8_t imm) { opShxd(d, op, reg, imm, 0xAC, 0x2C); }
 void shrx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_VEX|T_F2|T_0F38, 0xf7); }
 void shufpd(const Xmm& xmm, const Operand& op, uint8_t imm8) { opSSE(xmm, op, T_0F | T_66, 0xC6, isXMM_XMMorMEM, imm8); }
 void shufps(const Xmm& xmm, const Operand& op, uint8_t imm8) { opSSE(xmm, op, T_0F, 0xC6, isXMM_XMMorMEM, imm8); }
