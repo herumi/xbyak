@@ -1735,12 +1735,11 @@ private:
 		if (p1->isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
 		// except movsx(16bit, 32/64bit)
 		bool p66 = (op1.isBit(16) && !op2.isBit(i32e)) || (op2.isBit(16) && !op1.isBit(i32e));
-		if (p66) db(0x66);
+		if ((type & T_66) || p66) db(0x66);
 		if (type & T_F2) {
 			db(0xF2);
-		} else if (type & T_66) {
-			if (!p66) db(0x66); // only once
-		} else if (type & T_F3) {
+		}
+		if (type & T_F3) {
 			db(0xF3);
 		}
 		if (p2->isMEM()) {

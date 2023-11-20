@@ -152,7 +152,7 @@ void cmpxchg8b(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0xC7); }
 void comisd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F, 0x2F, isXMM_XMMorMEM); }
 void comiss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x2F, isXMM_XMMorMEM); }
 void cpuid() { db(0x0F); db(0xA2); }
-void crc32(const Reg32e& reg, const Operand& op) { if (reg.isBit(32) && op.isBit(16)) db(0x66); opRO(reg, op, T_F2 | T_0F38, 0xF0 | (op.isBit(8) ? 0 : 1)); }
+void crc32(const Reg32e& r, const Operand& op) { if (!((r.isBit(32) && op.isBit(8|16|32)) || (r.isBit(64) && op.isBit(8|64)))) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) int code = 0xF0 | !op.isBit(8); uint64_t type = op.isBit(16) ? T_66:0; if (opROO(Reg(), op, static_cast<const Reg&>(r), T_VEX|type, code)) return; opRO(r, op, T_F2|T_0F38|type, code); }
 void cvtdq2pd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_F3|T_0F, 0xE6, isXMM_XMMorMEM); }
 void cvtdq2ps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x5B, isXMM_XMMorMEM); }
 void cvtpd2dq(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_F2|T_0F, 0xE6, isXMM_XMMorMEM); }
