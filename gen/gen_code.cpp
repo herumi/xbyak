@@ -1112,7 +1112,7 @@ void put()
 		puts("void cmpxchg(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xB0 | (reg.isBit(8) ? 0 : 1), op.getBit() == reg.getBit()); }");
 		puts("void movbe(const Reg& reg, const Address& addr) { opMR(addr, reg, T_0F38, 0xF0); }");
 		puts("void movbe(const Address& addr, const Reg& reg) { opMR(addr, reg, T_0F38, 0xF1); }");
-		puts("void movdiri(const Address& addr, const Reg32e& reg) { opMR(addr, reg, T_0F38, 0xF9); }");
+		puts("void movdiri(const Address& addr, const Reg32e& reg) { if (opROO(Reg(),  addr, reg, T_VEX, 0xF9)) return; opMR(addr, reg, T_0F38, 0xF9); }");
 		puts("void movdir64b(const Reg& reg, const Address& addr) { if (opROO(Reg(),  addr, reg.cvt32(), T_VEX|T_66, 0xF8)) return; opMR(addr, reg.cvt32(), T_66 | T_0F38, 0xF8); }");
 		puts("void cmpxchg8b(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0xC7); }");
 

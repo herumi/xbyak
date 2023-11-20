@@ -1016,10 +1016,14 @@ CYBOZU_TEST_AUTO(mov)
 		Code()
 		{
 			movdir64b(r16, ptr [r20+r21*8+0x4]);
+			movdiri(ptr [r20+r21*8+0x4], r16);
 		}
 	} c;
 	const uint8_t tbl[] = {
+		// movdir64b
 		0x62, 0xec, 0x79, 0x08, 0xf8, 0x44, 0xec, 0x04,
+		// movdiri
+		0x62, 0xec, 0xf8, 0x08, 0xf9, 0x44, 0xec, 0x04,
 	};
 	const size_t n = sizeof(tbl);
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
