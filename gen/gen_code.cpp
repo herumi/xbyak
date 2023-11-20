@@ -947,14 +947,19 @@ void put()
 		const struct Tbl {
 			const char *name;
 			uint8_t code;
+			uint8_t code2;
 		} tbl[] = {
-			{ "popcnt", 0xB8 },
-			{ "tzcnt", 0xBC },
-			{ "lzcnt", 0xBD },
+			{ "popcnt", 0xB8, 0 },
+			{ "tzcnt", 0xBC, 0xF4 },
+			{ "lzcnt", 0xBD, 0xF5 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Reg&reg, const Operand& op) { opCnt(reg, op, 0x%02X); }\n", p->name, p->code);
+			if (p->code2) {
+				printf("void %s(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_VEX|T_NF, 0x%02X)) return; opCnt(reg, op, 0x%02X); }\n", p->name, p->code2, p->code);
+			} else {
+				printf("void %s(const Reg&reg, const Operand& op) { opCnt(reg, op, 0x%02X); }\n", p->name, p->code);
+			}
 		}
 	}
 	// SSSE3

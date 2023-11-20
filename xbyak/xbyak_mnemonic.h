@@ -493,7 +493,7 @@ void loopne(const Label& label) { opJmp(label, T_SHORT, 0xE0, 0, 0); }
 void loopne(const char *label) { loopne(std::string(label)); }
 void loopne(std::string label) { opJmp(label, T_SHORT, 0xE0, 0, 0); }
 void lss(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_0F, 0xB2); }
-void lzcnt(const Reg&reg, const Operand& op) { opCnt(reg, op, 0xBD); }
+void lzcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_VEX|T_NF, 0xF5)) return; opCnt(reg, op, 0xBD); }
 void maskmovdqu(const Xmm& reg1, const Xmm& reg2) { opRR(reg1, reg2, T_66|T_0F, 0xF7); }
 void maskmovq(const Mmx& reg1, const Mmx& reg2) { if (!reg1.isMMX() || !reg2.isMMX()) XBYAK_THROW(ERR_BAD_COMBINATION) opRR(reg1, reg2, T_0F, 0xF7); }
 void maxpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x5F, isXMM_XMMorMEM); }
@@ -844,7 +844,7 @@ void subss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F3, 0x5C
 void sysenter() { db(0x0F); db(0x34); }
 void sysexit() { db(0x0F); db(0x35); }
 void tpause(const Reg32& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) db(0x66); db(0x0F); db(0xAE); setModRM(3, 6, idx); }
-void tzcnt(const Reg&reg, const Operand& op) { opCnt(reg, op, 0xBC); }
+void tzcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_VEX|T_NF, 0xF4)) return; opCnt(reg, op, 0xBC); }
 void ucomisd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F, 0x2E, isXMM_XMMorMEM); }
 void ucomiss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x2E, isXMM_XMMorMEM); }
 void ud2() { db(0x0F); db(0x0B); }
