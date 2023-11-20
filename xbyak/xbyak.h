@@ -2764,8 +2764,8 @@ public:
 	void imul(const Reg& reg, const Operand& op, int imm)
 	{
 		int s = inner::IsInDisp8(imm) ? 1 : 0;
-        int immSize = s ? 1 : reg.isREG(16) ? 2 : 4;
-		uint8_t code = 0x69 | (s << 1);
+		int immSize = s ? 1 : reg.isREG(16) ? 2 : 4;
+		uint8_t code = uint8_t(0x69 | (s << 1));
 		if (!opROO(Reg(), op, reg, T_VEX|T_NF|T_ZU, code, immSize)) {
 			opRO(reg, op, 0, code, reg.getKind() == op.getKind(), immSize);
 		}
