@@ -1736,7 +1736,7 @@ private:
 		// except movsx(16bit, 32/64bit)
 		bool p66 = (op1.isBit(16) && !op2.isBit(i32e)) || (op2.isBit(16) && !op1.isBit(i32e));
 		if (p66) db(0x66);
-		if ((type & T_F2) == T_F2) {
+		if (type & T_F2) {
 			db(0xF2);
 		} else if (type & T_66) {
 			if (!p66) db(0x66); // only once
@@ -1786,7 +1786,6 @@ private:
 	static const uint64_t T_VEX = 1ull << 4;
 	static const uint64_t T_66 = 1ull << 5; // pp = 1
 	static const uint64_t T_F3 = 1ull << 6; // pp = 2
-	static const uint64_t T_F2 = T_66 | T_F3; // pp = 3
 	static const uint64_t T_ER_R = 1ull << 7; // reg{er}
 	static const uint64_t T_0F = 1ull << 8;
 	static const uint64_t T_0F38 = 1ull << 9;
@@ -1820,8 +1819,9 @@ private:
 	static const uint64_t T_MAP3 = 1ull << 34; // rorx only
 	static const uint64_t T_ND1 = 1ull << 35; // ND=1
 	static const uint64_t T_ZU = 1ull << 36; // ND=ZU
+	static const uint64_t T_F2 = 1ull << 37; // pp = 3
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
-	static inline uint32_t getPP(uint64_t type) { return (type >> 5) & 3; }
+	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
 	// @@@end of avx_type_def.h
 	void vex(const Reg& reg, const Reg& base, const Operand *v, uint64_t type, int code, bool x = false)
 	{
@@ -1931,7 +1931,7 @@ private:
 		int w = r.isBit(64) || v.isBit(64) || (type & T_W1);
 		int V = (~v.getIdx() & 15) << 3;
 		int X4 = x.isExtIdx2() ? 0 : 0x04;
-		int pp = (type & T_F2) ? getPP(type) : r.isBit(16); // use type if T_F2|T_F3|T_66
+		int pp = (type & (T_F2|T_F3|T_66)) ? getPP(type) : r.isBit(16);
 		int V4 = !v.isExtIdx2();
 		int ND = (type & T_ZU) ? r.getZU() : (type & T_ND1) ? 1 : (type & T_VEX) ? 0 : v.isREG();
 		int NF = r.getNF() | b.getNF() | x.getNF() | v.getNF();
@@ -2151,7 +2151,7 @@ private:
 		opRR(Reg32(ext), mmx, type, code);
 		db(imm8);
 	}
-	void opMMX(const Mmx& mmx, const Operand& op, int code, uint64_t type = T_0F, int pref = T_66, int imm8 = NONE)
+	void opMMX(const Mmx& mmx, const Operand& op, int code, uint64_t type = T_0F, uint64_t pref = T_66, int imm8 = NONE)
 	{
 		if (mmx.isXMM()) type |= pref;
 		opSSE(mmx, op, type, code, isXMMorMMX_MEM, imm8);

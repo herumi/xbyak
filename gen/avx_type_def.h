@@ -13,7 +13,6 @@
 	static const uint64_t T_VEX = 1ull << 4;
 	static const uint64_t T_66 = 1ull << 5; // pp = 1
 	static const uint64_t T_F3 = 1ull << 6; // pp = 2
-	static const uint64_t T_F2 = T_66 | T_F3; // pp = 3
 	static const uint64_t T_ER_R = 1ull << 7; // reg{er}
 	static const uint64_t T_0F = 1ull << 8;
 	static const uint64_t T_0F38 = 1ull << 9;
@@ -47,6 +46,7 @@
 	static const uint64_t T_MAP3 = 1ull << 34; // rorx only
 	static const uint64_t T_ND1 = 1ull << 35; // ND=1
 	static const uint64_t T_ZU = 1ull << 36; // ND=ZU
+	static const uint64_t T_F2 = 1ull << 37; // pp = 3
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
-	static inline uint32_t getPP(uint64_t type) { return (type >> 5) & 3; }
+	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
 	// @@@end of avx_type_def.h

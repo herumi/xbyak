@@ -18,12 +18,9 @@ std::string type2String(uint64_t type)
 	if (type & T_N_VL) str += "|T_N_VL";
 	if (type & T_VEX) str += "|T_VEX";
 	if ((type & T_NX_MASK) == T_DUP) str += "|T_DUP";
-	switch (type & T_F2) { // T_F2 = T_66|T_F3
-	case T_66: str += "|T_66"; break;
-	case T_F3: str += "|T_F3"; break;
-	case T_F2: str += "|T_F2"; break;
-	default: break;
-	}
+	if (type & T_66) str += "|T_66";
+	if (type & T_F3) str += "|T_F3";
+	if (type & T_F2) str += "|T_F2";
 	if (type & T_0F) {
 		if (type & T_FP16) {
 			str += "|T_MAP5";
