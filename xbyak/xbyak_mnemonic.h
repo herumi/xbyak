@@ -511,8 +511,8 @@ void movapd(const Address& addr, const Xmm& xmm) { opMR(addr, xmm, T_0F|T_66, 0x
 void movapd(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x28, T_0F, T_66); }
 void movaps(const Address& addr, const Xmm& xmm) { opMR(addr, xmm, T_0F|T_NONE, 0x29); }
 void movaps(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x28, T_0F, T_NONE); }
-void movbe(const Address& addr, const Reg& reg) { opMR(addr, reg, T_0F38, 0xF1); }
-void movbe(const Reg& reg, const Address& addr) { opMR(addr, reg, T_0F38, 0xF0); }
+void movbe(const Address& addr, const Reg& reg) { if (opROO(Reg(), addr, reg, T_VEX, 0x61)) return; opMR(addr, reg, T_0F38, 0xF1); }
+void movbe(const Reg& reg, const Address& addr) { if (opROO(Reg(), addr, reg, T_VEX, 0x60)) return; opMR(addr, reg, T_0F38, 0xF0); }
 void movd(const Address& addr, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opMR(addr, mmx, T_0F, 0x7E); }
 void movd(const Mmx& mmx, const Address& addr) { if (mmx.isXMM()) db(0x66); opMR(addr, mmx, T_0F, 0x6E); }
 void movd(const Mmx& mmx, const Reg32& reg) { if (mmx.isXMM()) db(0x66); opRR(mmx, reg, T_0F, 0x6E); }
