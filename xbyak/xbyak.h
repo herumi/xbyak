@@ -229,6 +229,7 @@ enum {
 	ERR_SAME_REGS_ARE_INVALID,
 	ERR_INVALID_NF,
 	ERR_INVALID_ZU,
+	ERR_CANT_USE_REX2,
 	ERR_INTERNAL // Put it at last.
 };
 
@@ -284,6 +285,7 @@ inline const char *ConvertErrorToString(int err)
 		"same regs are invalid",
 		"invalid NF",
 		"invalid ZU",
+		"can't use rex2",
 		"internal error"
 	};
 	assert(ERR_INTERNAL + 1 == sizeof(errTbl) / sizeof(*errTbl));
@@ -1750,6 +1752,7 @@ private:
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			rex = rexRXB(3, r.isREG(64), r, base, idx);
 			if (r.hasRex2() || addr.hasRex2()) {
+				if (type & (T_0F|T_0F38|T_0F3A)) XBYAK_THROW(ERR_CANT_USE_REX2)
 				rex2(0, rex, r, base, idx);
 				return;
 			}
@@ -1760,6 +1763,7 @@ private:
 			// ModRM(reg, base);
 			rex = rexRXB(3, r1.isREG(64) || r2.isREG(64), r2, r1);
 			if (r1.hasRex2() || r2.hasRex2()) {
+				if (type & (T_0F|T_0F38|T_0F3A)) XBYAK_THROW(ERR_CANT_USE_REX2)
 				rex2(0, rex, r2, r1);
 				return;
 			}
