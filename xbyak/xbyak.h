@@ -2198,12 +2198,12 @@ private:
 		}
 		return true;
 	}
-	void opRext(const Operand& op, int bit, int ext, uint64_t type, int code, bool disableRex = false, int immSize = 0)
+	void opRext(const Operand& op, int bit, int ext, uint64_t type, int code, bool disableRex = false, int immSize = 0, const Reg *d = 0)
 	{
 		int opBit = op.getBit();
 		if (disableRex && opBit == 64) opBit = 32;
 		const Reg r(ext, Operand::REG, opBit);
-		if ((type & T_VEX) && op.hasRex2NF() && opROO(Reg(0, Operand::REG, opBit), op, r, type, code)) return;
+		if ((type & T_VEX) && op.hasRex2NF() && opROO(d ? *d : Reg(0, Operand::REG, opBit), op, r, type, code)) return;
 		if (op.isMEM()) {
 			opMR(op.getAddress(), r, type, code, immSize);
 		} else if (op.isREG(bit)) {
@@ -2212,18 +2212,20 @@ private:
 			XBYAK_THROW(ERR_BAD_COMBINATION)
 		}
 	}
-	void opShift(const Operand& op, int imm, int ext)
+	void opShift(const Operand& op, int imm, int ext, const Reg *d = 0)
 	{
-		verifyMemHasSize(op);
-		uint64_t type = T_VEX|T_CODE1_IF1; if (ext & 8) type |= T_NF;
-		opRext(op, 0, ext&7, type, (0xC0 | ((imm == 1 ? 1 : 0) << 4)), false, (imm != 1) ? 1 : 0);
+		if (d == 0) verifyMemHasSize(op);
+		if (d && op.getBit() != 0 && d->getBit() != op.getBit()) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
+		uint64_t type = T_VEX|T_CODE1_IF1; if (ext & 8) type |= T_NF; if (d) type |= T_ND1;
+		opRext(op, 0, ext&7, type, (0xC0 | ((imm == 1 ? 1 : 0) << 4)), false, (imm != 1) ? 1 : 0, d);
 		if (imm != 1) db(imm);
 	}
-	void opShift(const Operand& op, const Reg8& _cl, int ext)
+	void opShift(const Operand& op, const Reg8& _cl, int ext, const Reg *d = 0)
 	{
 		if (_cl.getIdx() != Operand::CL) XBYAK_THROW(ERR_BAD_COMBINATION)
-		uint64_t type = T_VEX|T_CODE1_IF1; if (ext & 8) type |= T_NF;
-		opRext(op, 0, ext&7, type, 0xD2);
+		if (d && op.getBit() != 0 && d->getBit() != op.getBit()) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
+		uint64_t type = T_VEX|T_CODE1_IF1; if (ext & 8) type |= T_NF; if (d) type |= T_ND1;
+		opRext(op, 0, ext&7, type, 0xD2, false, 0, d);
 	}
 	// condR assumes that op.isREG() is true
 	void opRO(const Reg& r, const Operand& op, uint64_t type, int code, bool condR = true, int immSize = 0)

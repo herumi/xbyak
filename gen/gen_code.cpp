@@ -914,6 +914,8 @@ void put()
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Operand& op, int imm) { opShift(op, imm, %d); }\n", p->name, p->ext);
 			printf("void %s(const Operand& op, const Reg8& _cl) { opShift(op, _cl, %d); }\n", p->name, p->ext);
+			printf("void %s(const Reg& d, const Operand& op, int imm) { opShift(op, imm, %d, &d); }\n", p->name, p->ext);
+			printf("void %s(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, %d, &d); }\n", p->name, p->ext);
 		}
 	}
 	{

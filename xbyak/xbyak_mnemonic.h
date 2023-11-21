@@ -729,10 +729,14 @@ void pushf() { db(0x9C); }
 void pxor(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xEF); }
 void rcl(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 2); }
 void rcl(const Operand& op, int imm) { opShift(op, imm, 2); }
+void rcl(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 2, &d); }
+void rcl(const Reg& d, const Operand& op, int imm) { opShift(op, imm, 2, &d); }
 void rcpps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x53, isXMM_XMMorMEM); }
 void rcpss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F3, 0x53, isXMM_XMMorMEM); }
 void rcr(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 3); }
 void rcr(const Operand& op, int imm) { opShift(op, imm, 3); }
+void rcr(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 3, &d); }
+void rcr(const Reg& d, const Operand& op, int imm) { opShift(op, imm, 3, &d); }
 void rdmsr() { db(0x0F); db(0x32); }
 void rdpmc() { db(0x0F); db(0x33); }
 void rdrand(const Reg& r) { if (r.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opRR(Reg(6, Operand::REG, r.getBit()), r, T_0F, 0xC7); }
@@ -748,8 +752,12 @@ void ret(int imm = 0) { if (imm) { db(0xC2); dw(imm); } else { db(0xC3); } }
 void retf(int imm = 0) { if (imm) { db(0xCA); dw(imm); } else { db(0xCB); } }
 void rol(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 8); }
 void rol(const Operand& op, int imm) { opShift(op, imm, 8); }
+void rol(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 8, &d); }
+void rol(const Reg& d, const Operand& op, int imm) { opShift(op, imm, 8, &d); }
 void ror(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 9); }
 void ror(const Operand& op, int imm) { opShift(op, imm, 9); }
+void ror(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 9, &d); }
+void ror(const Reg& d, const Operand& op, int imm) { opShift(op, imm, 9, &d); }
 void rorx(const Reg32e& r, const Operand& op, uint8_t imm) { opRRO(r, Reg32e(0, r.getBit()), op, T_0F3A|T_F2|T_VEX|T_MAP3, 0xF0, imm); }
 void roundpd(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66|T_0F3A|T_YMM, 0x09, isXMM_XMMorMEM, imm); }
 void roundps(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66|T_0F3A|T_YMM, 0x08, isXMM_XMMorMEM, imm); }
@@ -760,8 +768,12 @@ void rsqrtss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F3, 0x
 void sahf() { db(0x9E); }
 void sal(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 12); }
 void sal(const Operand& op, int imm) { opShift(op, imm, 12); }
+void sal(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 12, &d); }
+void sal(const Reg& d, const Operand& op, int imm) { opShift(op, imm, 12, &d); }
 void sar(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 15); }
 void sar(const Operand& op, int imm) { opShift(op, imm, 15); }
+void sar(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 15, &d); }
+void sar(const Reg& d, const Operand& op, int imm) { opShift(op, imm, 15, &d); }
 void sarx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_VEX|T_F3|T_0F38, 0xf7); }
 void sbb(const Operand& op, uint32_t imm) { opOI(op, imm, 0x18, 3); }
 void sbb(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x18); }
@@ -811,6 +823,8 @@ void sha256msg2(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F38, 0xCD
 void sha256rnds2(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F38, 0xCB, isXMM_XMMorMEM, NONE); }
 void shl(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 12); }
 void shl(const Operand& op, int imm) { opShift(op, imm, 12); }
+void shl(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 12, &d); }
+void shl(const Reg& d, const Operand& op, int imm) { opShift(op, imm, 12, &d); }
 void shld(const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(Reg(), op, reg, 0, 0xA4, 0x24, &_cl); }
 void shld(const Operand& op, const Reg& reg, uint8_t imm) { opShxd(Reg(), op, reg, imm, 0xA4, 0x24); }
 void shld(const Reg& d, const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(d, op, reg, 0, 0xA4, 0x24, &_cl); }
@@ -818,6 +832,8 @@ void shld(const Reg& d, const Operand& op, const Reg& reg, uint8_t imm) { opShxd
 void shlx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_VEX|T_66|T_0F38, 0xf7); }
 void shr(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 13); }
 void shr(const Operand& op, int imm) { opShift(op, imm, 13); }
+void shr(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 13, &d); }
+void shr(const Reg& d, const Operand& op, int imm) { opShift(op, imm, 13, &d); }
 void shrd(const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(Reg(), op, reg, 0, 0xAC, 0x2C, &_cl); }
 void shrd(const Operand& op, const Reg& reg, uint8_t imm) { opShxd(Reg(), op, reg, imm, 0xAC, 0x2C); }
 void shrd(const Reg& d, const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(d, op, reg, 0, 0xAC, 0x2C, &_cl); }
