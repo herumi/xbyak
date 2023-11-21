@@ -1930,7 +1930,7 @@ private:
 		int w = r.isBit(64) || v.isBit(64) || (type & T_W1);
 		int V = (~v.getIdx() & 15) << 3;
 		int X4 = x.isExtIdx2() ? 0 : 0x04;
-		int pp = (type & (T_F2|T_F3|T_66)) ? getPP(type) : r.isBit(16);
+		int pp = (type & (T_F2|T_F3|T_66)) ? getPP(type) : (r.isBit(16) || v.isBit(16));
 		int V4 = !v.isExtIdx2();
 		int ND = (type & T_ZU) ? r.getZU() : (type & T_ND1) ? 1 : (type & T_VEX) ? 0 : v.isREG();
 		int NF = r.getNF() | b.getNF() | x.getNF() | v.getNF();
