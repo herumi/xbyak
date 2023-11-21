@@ -2215,13 +2215,13 @@ private:
 	void opShift(const Operand& op, int imm, int ext)
 	{
 		verifyMemHasSize(op);
-		opRext(op, 0, ext, 0, (0xC0 | ((imm == 1 ? 1 : 0) << 4)), false, (imm != 1) ? 1 : 0);
+		opRext(op, 0, ext, T_VEX|T_NF|T_CODE1_IF1, (0xC0 | ((imm == 1 ? 1 : 0) << 4)), false, (imm != 1) ? 1 : 0);
 		if (imm != 1) db(imm);
 	}
 	void opShift(const Operand& op, const Reg8& _cl, int ext)
 	{
 		if (_cl.getIdx() != Operand::CL) XBYAK_THROW(ERR_BAD_COMBINATION)
-		opRext(op, 0, ext, 0, 0xD2);
+		opRext(op, 0, ext, T_VEX|T_NF|T_CODE1_IF1, 0xD2);
 	}
 	// condR assumes that op.isREG() is true
 	void opRO(const Reg& r, const Operand& op, uint64_t type, int code, bool condR = true, int immSize = 0)
