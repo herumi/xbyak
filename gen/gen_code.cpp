@@ -898,17 +898,17 @@ void put()
 	{
 		const struct Tbl {
 			const char *name;
-			uint8_t ext;
+			uint8_t ext; // |8 means supporting NF=1
 		} tbl[] = {
-			{ "rcl", 2 },
-			{ "rcr", 3 },
-			{ "rol", 0 },
-			{ "ror", 1 },
-			{ "sar", 7 },
-			{ "shl", 4 },
-			{ "shr", 5 },
+			{ "rcl", 2|0 },
+			{ "rcr", 3|0 },
+			{ "rol", 0|8 },
+			{ "ror", 1|8 },
+			{ "sar", 7|8 },
+			{ "shl", 4|8 },
+			{ "shr", 5|8 },
 
-			{ "sal", 4 },
+			{ "sal", 4|8 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
