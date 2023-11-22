@@ -1019,6 +1019,8 @@ CYBOZU_TEST_AUTO(base)
 			add(r30, r20);
 			add(r30, ptr[r20]);
 			cmp(r30, ptr[r20]);
+			push(r16);
+			pop(r16);
 		}
 	} c;
 	const uint8_t tbl[] = {
@@ -1029,6 +1031,10 @@ CYBOZU_TEST_AUTO(base)
 		0xd5, 0x5c, 0x03, 0x34, 0x24,
 		// cmp
 		0xd5, 0x5c, 0x3b, 0x34, 0x24,
+		// push
+		0xd5, 0x10, 0x50,
+		// pop
+		0xd5, 0x10, 0x58,
 	};
 	const size_t n = sizeof(tbl);
 	CYBOZU_TEST_EQUAL(c.getSize(), n);

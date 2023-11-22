@@ -2315,7 +2315,7 @@ private:
 	}
 	void opPushPop(const Operand& op, int code, int ext, int alt)
 	{
-		if (op.isREG(64) && op.hasRex2()) {
+		if (op.isREG() && op.hasRex2()) {
 			const Reg& r = static_cast<const Reg&>(op);
 			rex2(0, rexRXB(3, 0, Reg(), r), Reg(), r);
 			db(alt);
