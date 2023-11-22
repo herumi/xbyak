@@ -625,6 +625,7 @@ void put()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void cmov%s(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | %d, op.isREG(16|i32e)); }%s\n", p->name, p->ext, msg);
+			printf("void cmov%s(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | %d); }%s\n", p->name, p->ext, msg);
 			printf("void j%s(std::string label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }%s\n", p->name, p->ext | 0x70, p->ext | 0x80, 0x0F, msg);
 			printf("void j%s(const Label& label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }%s\n", p->name, p->ext | 0x70, p->ext | 0x80, 0x0F, msg);
 			printf("void j%s(const char *label, LabelType type = T_AUTO) { j%s(std::string(label), type); }%s\n", p->name, p->name, msg);

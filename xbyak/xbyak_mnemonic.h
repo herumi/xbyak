@@ -76,35 +76,65 @@ void cli() { db(0xFA); }
 void clwb(const Address& addr) { opMR(addr, esi, T_66 | T_0F, 0xAE); }
 void clzero() { db(0x0F); db(0x01); db(0xFC); }
 void cmc() { db(0xF5); }
+void cmova(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 7); }//-V524
 void cmova(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 7, op.isREG(16|i32e)); }//-V524
+void cmovae(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 3); }//-V524
 void cmovae(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 3, op.isREG(16|i32e)); }//-V524
+void cmovb(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 2); }//-V524
 void cmovb(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 2, op.isREG(16|i32e)); }//-V524
+void cmovbe(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 6); }//-V524
 void cmovbe(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 6, op.isREG(16|i32e)); }//-V524
+void cmovc(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 2); }//-V524
 void cmovc(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 2, op.isREG(16|i32e)); }//-V524
+void cmove(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 4); }//-V524
 void cmove(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 4, op.isREG(16|i32e)); }//-V524
+void cmovg(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 15); }//-V524
 void cmovg(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 15, op.isREG(16|i32e)); }//-V524
+void cmovge(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 13); }//-V524
 void cmovge(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 13, op.isREG(16|i32e)); }//-V524
+void cmovl(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 12); }//-V524
 void cmovl(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 12, op.isREG(16|i32e)); }//-V524
+void cmovle(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 14); }//-V524
 void cmovle(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 14, op.isREG(16|i32e)); }//-V524
+void cmovna(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 6); }//-V524
 void cmovna(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 6, op.isREG(16|i32e)); }//-V524
+void cmovnae(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 2); }//-V524
 void cmovnae(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 2, op.isREG(16|i32e)); }//-V524
+void cmovnb(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 3); }//-V524
 void cmovnb(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 3, op.isREG(16|i32e)); }//-V524
+void cmovnbe(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 7); }//-V524
 void cmovnbe(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 7, op.isREG(16|i32e)); }//-V524
+void cmovnc(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 3); }//-V524
 void cmovnc(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 3, op.isREG(16|i32e)); }//-V524
+void cmovne(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 5); }//-V524
 void cmovne(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 5, op.isREG(16|i32e)); }//-V524
+void cmovng(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 14); }//-V524
 void cmovng(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 14, op.isREG(16|i32e)); }//-V524
+void cmovnge(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 12); }//-V524
 void cmovnge(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 12, op.isREG(16|i32e)); }//-V524
+void cmovnl(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 13); }//-V524
 void cmovnl(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 13, op.isREG(16|i32e)); }//-V524
+void cmovnle(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 15); }//-V524
 void cmovnle(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 15, op.isREG(16|i32e)); }//-V524
+void cmovno(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 1); }//-V524
 void cmovno(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 1, op.isREG(16|i32e)); }//-V524
+void cmovnp(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 11); }//-V524
 void cmovnp(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 11, op.isREG(16|i32e)); }//-V524
+void cmovns(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 9); }//-V524
 void cmovns(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 9, op.isREG(16|i32e)); }//-V524
+void cmovnz(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 5); }//-V524
 void cmovnz(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 5, op.isREG(16|i32e)); }//-V524
+void cmovo(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 0); }//-V524
 void cmovo(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 0, op.isREG(16|i32e)); }//-V524
+void cmovp(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 10); }//-V524
 void cmovp(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 10, op.isREG(16|i32e)); }//-V524
+void cmovpe(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 10); }//-V524
 void cmovpe(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 10, op.isREG(16|i32e)); }//-V524
+void cmovpo(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 11); }//-V524
 void cmovpo(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 11, op.isREG(16|i32e)); }//-V524
+void cmovs(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 8); }//-V524
 void cmovs(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 8, op.isREG(16|i32e)); }//-V524
+void cmovz(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 4); }//-V524
 void cmovz(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 4, op.isREG(16|i32e)); }//-V524
 void cmp(const Operand& op, uint32_t imm) { opOI(op, imm, 0x38, 7); }
 void cmp(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x38); }

@@ -1066,6 +1066,9 @@ CYBOZU_TEST_AUTO(mov_misc)
 
 			cmpbexadd(ptr [r20+r30*8], r21, r22);
 			cmpbexadd(ptr [r20+r30*8], r21d, r22d);
+
+			cmovb(r8, r9, r10);
+			cmovb(r8d, r9d, r10d);
 		}
 	} c;
 	const uint8_t tbl[] = {
@@ -1085,6 +1088,9 @@ CYBOZU_TEST_AUTO(mov_misc)
 		//cmpbexadd
 		0x62, 0xaa, 0xc9, 0x00, 0xe6, 0x2c, 0xf4,
 		0x62, 0xaa, 0x49, 0x00, 0xe6, 0x2c, 0xf4,
+		// cmovb
+		0x62, 0x54, 0xbc, 0x18, 0x42, 0xca,
+		0x62, 0x54, 0x3c, 0x18, 0x42, 0xca,
 	};
 	const size_t n = sizeof(tbl);
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
