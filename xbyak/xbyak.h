@@ -1927,7 +1927,7 @@ private:
 		int B3 = b.isExtIdx() ? 0 : 0x20;
 		int R4 = r.isExtIdx2() ? 0 : 0x10;
 		int B4 = b.isExtIdx2() ? 0x08 : 0;
-		int w = r.isBit(64) || v.isBit(64) || (type & T_W1);
+		int w = (type & T_W0) ? 0 : (r.isBit(64) || v.isBit(64) || (type & T_W1));
 		int V = (~v.getIdx() & 15) << 3;
 		int X4 = x.isExtIdx2() ? 0 : 0x04;
 		int pp = (type & (T_F2|T_F3|T_66)) ? getPP(type) : (r.isBit(16) || v.isBit(16));

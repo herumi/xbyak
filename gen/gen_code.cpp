@@ -1941,6 +1941,10 @@ void put64()
 	puts("void vmovq(const Xmm& x, const Reg64& r) { opAVX_X_X_XM(x, xm0, Xmm(r.getIdx()), T_66 | T_0F | T_W1 | T_EVEX | T_EW1, 0x6E); }");
 	puts("void vmovq(const Reg64& r, const Xmm& x) { opAVX_X_X_XM(x, xm0, Xmm(r.getIdx()), T_66 | T_0F | T_W1 | T_EVEX | T_EW1, 0x7E); }");
 	puts("void jmpabs(uint64_t addr) { db(0xD5); db(0x00); db(0xA1); dq(addr); }");
+	puts("void push2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_VEX|T_ND1|T_W0, 0xFF); }");
+	puts("void push2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_VEX|T_ND1|T_W1, 0xFF); }");
+	puts("void pop2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_VEX|T_ND1|T_W0, 0x8F); }");
+	puts("void pop2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_VEX|T_ND1|T_W1, 0x8F); }");
 	// CMPccXADD
 	{
 		const struct Tbl {
