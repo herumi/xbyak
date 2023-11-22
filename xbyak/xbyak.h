@@ -2315,6 +2315,12 @@ private:
 	}
 	void opPushPop(const Operand& op, int code, int ext, int alt)
 	{
+		if (op.isREG(64) && op.hasRex2()) {
+			const Reg& r = static_cast<const Reg&>(op);
+			rex2(0, rexRXB(3, 0, Reg(), r), Reg(), r);
+			db(alt);
+			return;
+		}
 		int bit = op.getBit();
 		if (bit == 16 || bit == BIT) {
 			if (bit == 16) db(0x66);
