@@ -1736,22 +1736,22 @@ void push2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_VEX|T_N
 void push2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_VEX|T_ND1|T_W1, 0xFF); }
 void pop2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_VEX|T_ND1|T_W0, 0x8F); }
 void pop2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_VEX|T_ND1|T_W1, 0x8F); }
-void cmpbexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xE6); }
-void cmpbxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xE2); }
-void cmplexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xEE); }
-void cmplxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xEC); }
-void cmpnbexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xE7); }
-void cmpnbxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xE3); }
-void cmpnlexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xEF); }
-void cmpnlxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xED); }
-void cmpnoxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xE1); }
-void cmpnpxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xEB); }
-void cmpnsxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xE9); }
-void cmpnzxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xE5); }
-void cmpoxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xE0); }
-void cmppxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xEA); }
-void cmpsxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xE8); }
-void cmpzxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0xE4); }
+void cmpbexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE6); }
+void cmpbxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE2); }
+void cmplexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xEE); }
+void cmplxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xEC); }
+void cmpnbexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE7); }
+void cmpnbxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE3); }
+void cmpnlexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xEF); }
+void cmpnlxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xED); }
+void cmpnoxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE1); }
+void cmpnpxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xEB); }
+void cmpnsxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE9); }
+void cmpnzxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE5); }
+void cmpoxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE0); }
+void cmppxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xEA); }
+void cmpsxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE8); }
+void cmpzxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE4); }
 void ldtilecfg(const Address& addr) { opVex(tmm0, &tmm0, addr, T_0F38 | T_W0, 0x49); }
 void sttilecfg(const Address& addr) { opVex(tmm0, &tmm0, addr, T_66 | T_0F38 | T_W0, 0x49); }
 void tileloadd(const Tmm& tm, const Address& addr) { opAMX(tm, addr, T_F2 | T_0F38 | T_W0, 0x4b); }

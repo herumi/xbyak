@@ -1970,7 +1970,7 @@ void put64()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void cmp%sxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_66 | T_0F38, 0x%02X); }\n", p->name, p->code);
+			printf("void cmp%sxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0x%02X); }\n", p->name, p->code);
 		}
 	}
 }
