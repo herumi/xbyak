@@ -230,6 +230,7 @@ enum {
 	ERR_INVALID_NF,
 	ERR_INVALID_ZU,
 	ERR_CANT_USE_REX2,
+	ERR_INVALID_DFV,
 	ERR_INTERNAL // Put it at last.
 };
 
@@ -286,6 +287,7 @@ inline const char *ConvertErrorToString(int err)
 		"invalid NF",
 		"invalid ZU",
 		"can't use rex2",
+		"invalid dfv",
 		"internal error"
 	};
 	assert(ERR_INTERNAL + 1 == sizeof(errTbl) / sizeof(*errTbl));
@@ -1919,7 +1921,7 @@ private:
 		return 4; // legacy
 	}
 	// evex of Legacy
-	void evexLeg(const Reg& r, const Reg& b, const Reg& x, const Reg& v, uint64_t type)
+	void evexLeg(const Reg& r, const Reg& b, const Reg& x, const Reg& v, uint64_t type, int sc = NONE)
 	{
 		int M = getMap(type);
 		int R3 = !r.isExtIdx();
@@ -1940,7 +1942,11 @@ private:
 		db(0x62);
 		db((R3<<7) | (X3<<6) | B3 | R4 | B4 | M);
 		db((w<<7) | V | X4 | pp);
-		db((L<<5) | (ND<<4) | (V4<<3) | (NF<<2));
+		if (sc != NONE) {
+			db((L<<5) | (ND<<4) | (16 - sc));
+		} else {
+			db((L<<5) | (ND<<4) | (V4<<3) | (NF<<2));
+		}
 	}
 	void setModRM(int mod, int r1, int r2)
 	{
@@ -2178,7 +2184,7 @@ private:
 		}
 	}
 	// (r, r, m) or (r, m, r)
-	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, uint64_t type, int code, int immSize = 0)
+	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, uint64_t type, int code, int immSize = 0, int sc = NONE)
 	{
 		if (!d.isREG() && !(d.hasRex2NFZU() || op1.hasRex2NFZU() || op2.hasRex2NFZU())) return false;
 		const Operand *p1 = &op1, *p2 = &op2;
@@ -2188,11 +2194,11 @@ private:
 			const Reg& r = *static_cast<const Reg*>(p1);
 			const Address& addr = p2->getAddress();
 			const RegExp e = addr.getRegExp();
-			evexLeg(r, e.getBase(), e.getIndex(), d, type);
+			evexLeg(r, e.getBase(), e.getIndex(), d, type, sc);
 			writeCode(type, d, code);
 			opAddr(addr, r.getIdx(), immSize);
 		} else {
-			evexLeg(static_cast<const Reg&>(op2), static_cast<const Reg&>(op1), Reg(), d, type);
+			evexLeg(static_cast<const Reg&>(op2), static_cast<const Reg&>(op1), Reg(), d, type, sc);
 			writeCode(type, d, code);
 			setModRM(3, op2.getIdx(), op1.getIdx());
 		}
@@ -2646,6 +2652,11 @@ private:
 		}
 		XBYAK_THROW(ERR_BAD_COMBINATION)
 	}
+	void opCcmp(const Operand& op1, const Operand& op2, int dfv, int sc)
+	{
+		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
+		opROO(Reg(15 - dfv, Operand::REG, (op1.getBit() | op2.getBit())), op1, op2, T_VEX|T_CODE1_IF1, 0x38, sc);
+	}
 #ifdef XBYAK64
 	void opAMX(const Tmm& t1, const Address& addr, uint64_t type, int code)
 	{
@@ -3040,9 +3051,9 @@ public:
 	// set default encoding to select Vex or Evex
 	void setDefaultEncoding(PreferredEncoding encoding) { defaultEncoding_ = encoding; }
 
-	void setb2(const Operand& op)
+	void ccmpb(const Operand& op1, const Operand& op2, int dfv)
 	{
-		opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x42);
+		opCcmp(op1, op2, dfv, 0);
 	}
 	/*
 		use single byte nop if useMultiByteNop = false
