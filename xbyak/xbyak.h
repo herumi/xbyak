@@ -1932,7 +1932,7 @@ private:
 		int X4 = x.isExtIdx2() ? 0 : 0x04;
 		int pp = (type & (T_F2|T_F3|T_66)) ? getPP(type) : (r.isBit(16) || v.isBit(16));
 		int V4 = !v.isExtIdx2();
-		int ND = (type & T_ZU) ? r.getZU() : (type & T_ND1) ? 1 : (type & T_VEX) ? 0 : v.isREG();
+		int ND = (type & T_ZU) ? (r.getZU() || b.getZU()) : (type & T_ND1) ? 1 : (type & T_VEX) ? 0 : v.isREG();
 		int NF = r.getNF() | b.getNF() | x.getNF() | v.getNF();
 		int L = 0;
 		if ((type & T_NF) == 0 && NF) XBYAK_THROW(ERR_INVALID_NF)
@@ -2203,7 +2203,7 @@ private:
 		int opBit = op.getBit();
 		if (disableRex && opBit == 64) opBit = 32;
 		const Reg r(ext, Operand::REG, opBit);
-		if ((type & T_VEX) && op.hasRex2NF() && opROO(d ? *d : Reg(0, Operand::REG, opBit), op, r, type, code)) return;
+		if ((type & T_VEX) && op.hasRex2NFZU() && opROO(d ? *d : Reg(0, Operand::REG, opBit), op, r, type, code)) return;
 		if (op.isMEM()) {
 			opMR(op.getAddress(), r, type, code, immSize);
 		} else if (op.isREG(bit)) {
@@ -3040,6 +3040,10 @@ public:
 	// set default encoding to select Vex or Evex
 	void setDefaultEncoding(PreferredEncoding encoding) { defaultEncoding_ = encoding; }
 
+	void setb2(const Operand& op)
+	{
+		opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x42);
+	}
 	/*
 		use single byte nop if useMultiByteNop = false
 	*/
