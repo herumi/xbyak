@@ -636,6 +636,7 @@ void put()
 			// true if SCC = 0b1010, false if SCC = 0b1011 (see APX Architecture Specification p.266)
 			const char *s = p->ext == 10 ? "t" : p->ext == 11 ? "f" : p->name;
 			printf("void ccmp%s(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, %d); }\n", s, p->ext);
+			printf("void ccmp%s(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, %d); }\n", s, p->ext);
 		}
 	}
 	{

@@ -2657,6 +2657,15 @@ private:
 		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
 		opROO(Reg(15 - dfv, Operand::REG, (op1.getBit() | op2.getBit())), op1, op2, T_VEX|T_CODE1_IF1, 0x38, 0, sc);
 	}
+	void opCcmpi(const Operand& op, int imm, int dfv, int sc)
+	{
+		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
+		uint32_t immBit = getImmBit(op, imm);
+		uint32_t opBit = op.getBit();
+		int tmp = immBit < (std::min)(opBit, 32U) ? 2 : 0;
+		opROO(Reg(15 - dfv, Operand::REG, opBit), op, r15.changeBit(opBit), T_VEX|T_CODE1_IF1, 0x80 | tmp, immBit / 8, sc);
+		db(imm, immBit / 8);
+	}
 #ifdef XBYAK64
 	void opAMX(const Tmm& t1, const Address& addr, uint64_t type, int code)
 	{
