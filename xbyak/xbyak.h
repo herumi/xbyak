@@ -1943,7 +1943,7 @@ private:
 		db((R3<<7) | (X3<<6) | B3 | R4 | B4 | M);
 		db((w<<7) | V | X4 | pp);
 		if (sc != NONE) {
-			db((L<<5) | (ND<<4) | (16 - sc));
+			db((L<<5) | (ND<<4) | sc);
 		} else {
 			db((L<<5) | (ND<<4) | (V4<<3) | (NF<<2));
 		}
@@ -2655,7 +2655,7 @@ private:
 	void opCcmp(const Operand& op1, const Operand& op2, int dfv, int sc)
 	{
 		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
-		opROO(Reg(15 - dfv, Operand::REG, (op1.getBit() | op2.getBit())), op1, op2, T_VEX|T_CODE1_IF1, 0x38, sc);
+		opROO(Reg(15 - dfv, Operand::REG, (op1.getBit() | op2.getBit())), op1, op2, T_VEX|T_CODE1_IF1, 0x38, 0, sc);
 	}
 #ifdef XBYAK64
 	void opAMX(const Tmm& t1, const Address& addr, uint64_t type, int code)
@@ -3051,10 +3051,6 @@ public:
 	// set default encoding to select Vex or Evex
 	void setDefaultEncoding(PreferredEncoding encoding) { defaultEncoding_ = encoding; }
 
-	void ccmpb(const Operand& op1, const Operand& op2, int dfv)
-	{
-		opCcmp(op1, op2, dfv, 0);
-	}
 	/*
 		use single byte nop if useMultiByteNop = false
 	*/

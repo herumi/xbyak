@@ -66,6 +66,34 @@ void bts(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xAB, op.isREG
 void bts(const Operand& op, uint8_t imm) { opRext(op, 16|i32e, 5, T_0F, 0xba, false, 1); db(imm); }
 void bzhi(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_VEX|T_0F38|T_NF, 0xf5); }
 void cbw() { db(0x66); db(0x98); }
+void ccmpa(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 7); }
+void ccmpae(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 3); }
+void ccmpb(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 2); }
+void ccmpbe(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 6); }
+void ccmpc(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 2); }
+void ccmpe(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 4); }
+void ccmpf(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 11); }
+void ccmpg(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 15); }
+void ccmpge(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 13); }
+void ccmpl(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 12); }
+void ccmple(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 14); }
+void ccmpna(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 6); }
+void ccmpnae(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 2); }
+void ccmpnb(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 3); }
+void ccmpnbe(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 7); }
+void ccmpnc(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 3); }
+void ccmpne(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 5); }
+void ccmpng(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 14); }
+void ccmpnge(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 12); }
+void ccmpnl(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 13); }
+void ccmpnle(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 15); }
+void ccmpno(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 1); }
+void ccmpns(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 9); }
+void ccmpnz(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 5); }
+void ccmpo(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0); }
+void ccmps(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 8); }
+void ccmpt(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 10); }
+void ccmpz(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 4); }
 void cdq() { db(0x99); }
 void clc() { db(0xF8); }
 void cld() { db(0xFC); }
