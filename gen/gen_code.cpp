@@ -894,9 +894,9 @@ void put()
 			std::string s = type2String(type);
 			printf("void %s(const Operand& op) { opRext(op, 0, %d, %s, 0x%02X); }\n", p->name, p->ext, s.c_str(), p->code);
 			if (p->n == 2) {
-				uint64_t type = T_VEX|T_ND1|T_CODE1_IF1;
+				type = T_VEX|T_ND1|T_CODE1_IF1;
 				if (p->NF) type |= T_NF;
-				std::string s = type2String(type);
+				s = type2String(type);
 				printf("void %s(const Reg& d, const Operand& op) { opROO(d, op, Reg(%d, Operand::REG, d.getBit()), %s, 0xF6); }\n", p->name, p->ext, s.c_str());
 			}
 		}
@@ -1912,24 +1912,26 @@ void put64()
 	put_jREGz("ecx", true);
 	put_jREGz("rcx", false);
 
-	const GenericTbl tbl[] = {
-		{ "cdqe", 0x48, 0x98 },
-		{ "cqo", 0x48, 0x99 },
-		{ "cmpsq", 0x48, 0xA7 },
-		{ "popfq", 0x9D },
-		{ "pushfq", 0x9C },
-		{ "lodsq", 0x48, 0xAD },
-		{ "movsq", 0x48, 0xA5 },
-		{ "scasq", 0x48, 0xAF },
-		{ "stosq", 0x48, 0xAB },
-		{ "syscall", 0x0F, 0x05 },
-		{ "sysret", 0x0F, 0x07 },
-		{ "clui", 0xF3, 0x0F, 0x01, 0xEE },
-		{ "stui", 0xF3, 0x0F, 0x01, 0xEF },
-		{ "testui", 0xF3, 0x0F, 0x01, 0xED },
-		{ "uiret", 0xF3, 0x0F, 0x01, 0xEC },
-	};
-	putGeneric(tbl, NUM_OF_ARRAY(tbl));
+	{
+		const GenericTbl tbl[] = {
+			{ "cdqe", 0x48, 0x98 },
+			{ "cqo", 0x48, 0x99 },
+			{ "cmpsq", 0x48, 0xA7 },
+			{ "popfq", 0x9D },
+			{ "pushfq", 0x9C },
+			{ "lodsq", 0x48, 0xAD },
+			{ "movsq", 0x48, 0xA5 },
+			{ "scasq", 0x48, 0xAF },
+			{ "stosq", 0x48, 0xAB },
+			{ "syscall", 0x0F, 0x05 },
+			{ "sysret", 0x0F, 0x07 },
+			{ "clui", 0xF3, 0x0F, 0x01, 0xEE },
+			{ "stui", 0xF3, 0x0F, 0x01, 0xEF },
+			{ "testui", 0xF3, 0x0F, 0x01, 0xED },
+			{ "uiret", 0xF3, 0x0F, 0x01, 0xEC },
+		};
+		putGeneric(tbl, NUM_OF_ARRAY(tbl));
+	}
 
 	putMemOp("cmpxchg16b", "T_0F", 1, 0xC7, 64);
 	putMemOp("fxrstor64", "T_0F", 1, 0xAE, 64);
