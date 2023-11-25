@@ -536,6 +536,12 @@ class Reg;
 struct ApxFlagNF {};
 struct ApxFlagZU {};
 
+// dfv (default flags value) is or operation of these flags
+static const int T_of = 8;
+static const int T_sf = 4;
+static const int T_zf = 2;
+static const int T_cf = 1;
+
 class Operand {
 	static const uint8_t EXT8BIT = 0x20;
 	unsigned int idx_:6; // 0..31 + EXT8BIT = 1 if spl/bpl/sil/dil
