@@ -642,6 +642,35 @@ void put()
 		}
 	}
 	{
+		// cfcmov
+		const struct Tbl {
+			uint8_t code;
+			const char *suf;
+		} tbl[] = {
+			{0x40, "o"},
+			{0x41, "no"},
+			{0x42, "b"},
+			{0x43, "nb"},
+			{0x44, "z"},
+			{0x45, "nz"},
+			{0x46, "be"},
+			{0x47, "nbe"},
+			{0x48, "s"},
+			{0x49, "ns"},
+			{0x4A, "p"},
+			{0x4B, "np"},
+			{0x4C, "l"},
+			{0x4D, "nl"},
+			{0x4E, "le"},
+			{0x4F, "nle"},
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			printf("void cfcmov%s(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x%02X); }\n", p->suf, p->code);
+			printf("void cfcmov%s(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x%02X); }\n", p->suf, p->code);
+		}
+	}
+	{
 		const struct Tbl {
 			const char *name;
 			uint8_t code;

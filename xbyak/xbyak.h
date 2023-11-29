@@ -2192,7 +2192,7 @@ private:
 	// (r, r, m) or (r, m, r)
 	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, uint64_t type, int code, int immSize = 0, int sc = NONE)
 	{
-		if (!d.isREG() && !(d.hasRex2NFZU() || op1.hasRex2NFZU() || op2.hasRex2NFZU())) return false;
+		if (!(type & T_MUST_EVEX) && !d.isREG() && !(d.hasRex2NFZU() || op1.hasRex2NFZU() || op2.hasRex2NFZU())) return false;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code |= 2; }
 		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
@@ -2680,6 +2680,20 @@ private:
 		int immBit = (std::min)(opBit, 32U);
 		opROO(Reg(15 - dfv, Operand::REG, opBit), op, Reg(0, Operand::REG, opBit), T_VEX|T_CODE1_IF1, 0xF6, immBit / 8, sc);
 		db(imm, immBit / 8);
+	}
+	void opCfcmov(const Reg& d, const Operand& op1, const Operand& op2, int code)
+	{
+		const int dBit = d.getBit();
+		const int op2Bit = op2.getBit();
+		if (dBit > 0 && op2Bit > 0 && dBit != op2Bit) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
+		if (op1.isBit(8) || op2Bit == 8) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
+		if (op2.isMEM()) {
+			if (op1.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
+			uint64_t type = dBit > 0 ? (T_MUST_EVEX|T_NF) : T_MUST_EVEX;
+			opROO(d, op2, op1, type, code);
+		} else {
+			opROO(d, op1, static_cast<const Reg&>(op2)|T_nf, T_MUST_EVEX|T_NF, 0x42);
+		}
 	}
 #ifdef XBYAK64
 	void opAMX(const Tmm& t1, const Address& addr, uint64_t type, int code)

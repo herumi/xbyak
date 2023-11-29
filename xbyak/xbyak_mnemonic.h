@@ -123,6 +123,38 @@ void ccmpt(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, d
 void ccmpz(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 4); }
 void ccmpz(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 4); }
 void cdq() { db(0x99); }
+void cfcmovb(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x42); }
+void cfcmovb(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x42); }
+void cfcmovbe(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x46); }
+void cfcmovbe(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x46); }
+void cfcmovl(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x4C); }
+void cfcmovl(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x4C); }
+void cfcmovle(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x4E); }
+void cfcmovle(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x4E); }
+void cfcmovnb(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x43); }
+void cfcmovnb(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x43); }
+void cfcmovnbe(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x47); }
+void cfcmovnbe(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x47); }
+void cfcmovnl(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x4D); }
+void cfcmovnl(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x4D); }
+void cfcmovnle(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x4F); }
+void cfcmovnle(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x4F); }
+void cfcmovno(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x41); }
+void cfcmovno(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x41); }
+void cfcmovnp(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x4B); }
+void cfcmovnp(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x4B); }
+void cfcmovns(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x49); }
+void cfcmovns(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x49); }
+void cfcmovnz(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x45); }
+void cfcmovnz(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x45); }
+void cfcmovo(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x40); }
+void cfcmovo(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x40); }
+void cfcmovp(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x4A); }
+void cfcmovp(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x4A); }
+void cfcmovs(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x48); }
+void cfcmovs(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x48); }
+void cfcmovz(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x44); }
+void cfcmovz(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x44); }
 void clc() { db(0xF8); }
 void cld() { db(0xFC); }
 void cldemote(const Address& addr) { opMR(addr, eax, T_0F, 0x1C); }
