@@ -132,7 +132,7 @@ vpdpbusd(xm0, xm1, xm2); // VEX encoding
 - Support 16 additional GPRs (general-purpose registers) r16, ..., r31
 - Support three-operand instruction
 - Support T_nf for NF=1 (status flags update suppression)
-- Support T_zu for NF=ZU (zero upper)
+- Support T_zu for NF=ZU (zero upper) for imul and setcc
 
 e.g.
 - `add(r20, r21, r23);`
