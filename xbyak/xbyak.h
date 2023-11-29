@@ -2658,10 +2658,10 @@ private:
 		}
 		XBYAK_THROW(ERR_BAD_COMBINATION)
 	}
-	void opCcmp(const Operand& op1, const Operand& op2, int dfv, int sc)
+	void opCcmp(const Operand& op1, const Operand& op2, int dfv, int code, int sc) // cmp = 0x38, test = 0x84
 	{
 		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
-		opROO(Reg(15 - dfv, Operand::REG, (op1.getBit() | op2.getBit())), op1, op2, T_VEX|T_CODE1_IF1, 0x38, 0, sc);
+		opROO(Reg(15 - dfv, Operand::REG, (op1.getBit() | op2.getBit())), op1, op2, T_VEX|T_CODE1_IF1, code, 0, sc);
 	}
 	void opCcmpi(const Operand& op, int imm, int dfv, int sc)
 	{
@@ -2670,6 +2670,15 @@ private:
 		uint32_t opBit = op.getBit();
 		int tmp = immBit < (std::min)(opBit, 32U) ? 2 : 0;
 		opROO(Reg(15 - dfv, Operand::REG, opBit), op, Reg(15, Operand::REG, opBit), T_VEX|T_CODE1_IF1, 0x80 | tmp, immBit / 8, sc);
+		db(imm, immBit / 8);
+	}
+	void opTesti(const Operand& op, int imm, int dfv, int sc)
+	{
+		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
+		uint32_t opBit = op.getBit();
+		if (opBit == 0) XBYAK_THROW(ERR_MEM_SIZE_IS_NOT_SPECIFIED);
+		int immBit = (std::min)(opBit, 32U);
+		opROO(Reg(15 - dfv, Operand::REG, opBit), op, Reg(0, Operand::REG, opBit), T_VEX|T_CODE1_IF1, 0xF6, immBit / 8, sc);
 		db(imm, immBit / 8);
 	}
 #ifdef XBYAK64
