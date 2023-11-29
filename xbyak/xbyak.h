@@ -2692,7 +2692,7 @@ private:
 			uint64_t type = dBit > 0 ? (T_MUST_EVEX|T_NF) : T_MUST_EVEX;
 			opROO(d, op2, op1, type, code);
 		} else {
-			opROO(d, op1, static_cast<const Reg&>(op2)|T_nf, T_MUST_EVEX|T_NF, 0x42);
+			opROO(d, op1, static_cast<const Reg&>(op2)|T_nf, T_MUST_EVEX|T_NF, code);
 		}
 	}
 #ifdef XBYAK64
