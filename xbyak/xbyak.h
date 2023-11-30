@@ -1829,6 +1829,8 @@ private:
 	static const uint64_t T_F2 = 1ull << 37; // pp = 3
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
+	static inline uint32_t getMMM(uint64_t type) { return (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0; }
+
 	// @@@end of avx_type_def.h
 	void vex(const Reg& reg, const Reg& base, const Operand *v, uint64_t type, int code, bool x = false)
 	{
@@ -1843,7 +1845,7 @@ private:
 		if (!b && !x && !w && (type & T_0F)) {
 			db(0xC5); db((r ? 0 : 0x80) | vvvv);
 		} else {
-			uint32_t mmmm = (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0;
+			uint32_t mmmm = getMMM(type);
 			db(0xC4); db((r ? 0 : 0x80) | (x ? 0 : 0x40) | (b ? 0 : 0x20) | mmmm); db((w << 7) | vvvv);
 		}
 		db(code);
@@ -1866,18 +1868,18 @@ private:
 		if ((a > 0 && a != v) + (b > 0 && b != v) + (c > 0 && c != v) > 0) XBYAK_THROW_RET(err, 0)
 		return v;
 	}
-	int evex(const Reg& reg, const Reg& base, const Operand *v, uint64_t type, int code, bool x = false, bool b = false, int aaa = 0, uint32_t VL = 0, bool Hi16Vidx = false)
+	int evex(const Reg& reg, const Reg& base, const Operand *v, uint64_t type, int code, const Reg *x = 0, bool b = false, int aaa = 0, uint32_t VL = 0, bool Hi16Vidx = false)
 	{
 		if (!(type & (T_EVEX | T_MUST_EVEX))) XBYAK_THROW_RET(ERR_EVEX_IS_INVALID, 0)
 		int w = (type & T_EW1) ? 1 : 0;
-		uint32_t mmm = (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0;
+		uint32_t mmm = getMMM(type);
 		if (type & T_FP16) mmm |= 4;
 		uint32_t pp = getPP(type);
 		int idx = v ? v->getIdx() : 0;
 		uint32_t vvvv = ~idx;
 
 		bool R = !reg.isExtIdx();
-		bool X = x ? false : !base.isExtIdx2();
+		bool X = (x && x->isExtIdx()) ? false : !base.isExtIdx2();
 		bool B = !base.isExtIdx();
 		bool Rp = !reg.isExtIdx2();
 		int LL;
@@ -1914,8 +1916,8 @@ private:
 		if (aaa == 0) aaa = verifyDuplicate(base.getOpmaskIdx(), reg.getOpmaskIdx(), (v ? v->getOpmaskIdx() : 0), ERR_OPMASK_IS_ALREADY_SET);
 		if (aaa == 0) z = 0; // clear T_z if mask is not set
 		db(0x62);
-		db((R ? 0x80 : 0) | (X ? 0x40 : 0) | (B ? 0x20 : 0) | (Rp ? 0x10 : 0) | mmm);
-		db((w == 1 ? 0x80 : 0) | ((vvvv & 15) << 3) | 4 | (pp & 3));
+		db((R ? 0x80 : 0) | (X ? 0x40 : 0) | (B ? 0x20 : 0) | (Rp ? 0x10 : 0) | /*(base.isExtIdx2() ? 0x40 : 0) |*/ mmm);
+		db((w == 1 ? 0x80 : 0) | ((vvvv & 15) << 3) | (/*x && x->isExtIdx2() ? 0 :*/ 4) | (pp & 3));
 		db((z ? 0x80 : 0) | ((LL & 3) << 5) | (b ? 0x10 : 0) | (Vp ? 8 : 0) | (aaa & 7));
 		db(code);
 		return disp8N;
@@ -2434,8 +2436,7 @@ private:
 			const Reg& index = regExp.getIndex();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			int disp8N = 0;
-			bool x = index.isExtIdx();
-			if ((type & (T_MUST_EVEX|T_MEM_EVEX)) || r.hasEvex() || (p1 && p1->hasEvex()) || addr.isBroadcast() || addr.getOpmaskIdx()) {
+			if ((type & (T_MUST_EVEX|T_MEM_EVEX)) || r.hasEvex() || (p1 && p1->hasEvex()) || addr.isBroadcast() || addr.getOpmaskIdx() || addr.hasRex2()) {
 				int aaa = addr.getOpmaskIdx();
 				if (aaa && !(type & T_M_K)) XBYAK_THROW(ERR_INVALID_OPMASK_WITH_MEMORY)
 				bool b = false;
@@ -2444,9 +2445,9 @@ private:
 					b = true;
 				}
 				int VL = regExp.isVsib() ? index.getBit() : 0;
-				disp8N = evex(r, base, p1, type, code, x, b, aaa, VL, index.isExtIdx2());
+				disp8N = evex(r, base, p1, type, code, &index, b, aaa, VL, index.isExtIdx2());
 			} else {
-				vex(r, base, p1, type, code, x);
+				vex(r, base, p1, type, code, index.isExtIdx());
 			}
 			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0, disp8N, (type & T_VSIB) != 0);
 		} else {
