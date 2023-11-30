@@ -16,7 +16,7 @@ std::string type2String(uint64_t type)
 		str = tbl[low - 1];
 	}
 	if (type & T_N_VL) str += "|T_N_VL";
-	if (type & T_VEX) str += "|T_VEX";
+	if (type & T_APX) str += "|T_APX";
 	if ((type & T_NX_MASK) == T_DUP) str += "|T_DUP";
 	if (type & T_66) str += "|T_66";
 	if (type & T_F3) str += "|T_F3";

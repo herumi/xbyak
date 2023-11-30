@@ -10,7 +10,7 @@
 	static const uint64_t T_NX_MASK = 7ull;
 	static const uint64_t T_DUP = T_NX_MASK;//1 << 4, // N = (8, 32, 64)
 	static const uint64_t T_N_VL = 1ull << 3; // N * (1, 2, 4) for VL
-	static const uint64_t T_VEX = 1ull << 4;
+	static const uint64_t T_APX = 1ull << 4;
 	static const uint64_t T_66 = 1ull << 5; // pp = 1
 	static const uint64_t T_F3 = 1ull << 6; // pp = 2
 	static const uint64_t T_ER_R = 1ull << 7; // reg{er}

@@ -625,12 +625,12 @@ void put()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void cmov%s(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | %d, op.isREG(16|i32e)); }%s\n", p->name, p->ext, msg);
-			printf("void cmov%s(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | %d); }%s\n", p->name, p->ext, msg);
+			printf("void cmov%s(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | %d); }%s\n", p->name, p->ext, msg);
 			printf("void j%s(std::string label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }%s\n", p->name, p->ext | 0x70, p->ext | 0x80, 0x0F, msg);
 			printf("void j%s(const Label& label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }%s\n", p->name, p->ext | 0x70, p->ext | 0x80, 0x0F, msg);
 			printf("void j%s(const char *label, LabelType type = T_AUTO) { j%s(std::string(label), type); }%s\n", p->name, p->name, msg);
 			printf("void j%s(const void *addr) { opJmpAbs(addr, T_NEAR, 0x%02X, 0x%02X, 0x%02X); }%s\n", p->name, p->ext | 0x70, p->ext | 0x80, 0x0F, msg);
-			printf("void set%s(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | %d)) return; opRext(op, 8, 0, T_0F, 0x90 | %d); }%s\n", p->name, p->ext, p->ext, msg);
+			printf("void set%s(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | %d)) return; opRext(op, 8, 0, T_0F, 0x90 | %d); }%s\n", p->name, p->ext, p->ext, msg);
 
 			// ccmpscc
 			// true if SCC = 0b1010, false if SCC = 0b1011 (see APX Architecture Specification p.266)
@@ -920,18 +920,18 @@ void put()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			const std::string name = p->name;
-			uint64_t type = T_VEX|T_CODE1_IF1;
+			uint64_t type = T_APX|T_CODE1_IF1;
 			if (p->NF) type |= T_NF;
 			std::string s = type2String(type);
 			printf("void %s(const Operand& op) { opRext(op, 0, %d, %s, 0x%02X); }\n", p->name, p->ext, s.c_str(), p->code);
 			if (p->n == 2) {
-				type = T_VEX|T_ND1|T_CODE1_IF1;
+				type = T_APX|T_ND1|T_CODE1_IF1;
 				if (p->NF) type |= T_NF;
 				s = type2String(type);
 				printf("void %s(const Reg& d, const Operand& op) { opROO(d, op, Reg(%d, Operand::REG, d.getBit()), %s, 0xF6); }\n", p->name, p->ext, s.c_str());
 			}
 		}
-		printf("void imul(const Reg& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_VEX|T_NF, 0xAF)) return; opRO(reg, op, T_0F, 0xAF, reg.getKind() == op.getKind()); }\n");
+		printf("void imul(const Reg& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF, 0xAF)) return; opRO(reg, op, T_0F, 0xAF, reg.getKind() == op.getKind()); }\n");
 	}
 	{
 		const struct Tbl {
@@ -999,7 +999,7 @@ void put()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			if (p->code2) {
-				printf("void %s(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_VEX|T_NF, 0x%02X)) return; opCnt(reg, op, 0x%02X); }\n", p->name, p->code2, p->code);
+				printf("void %s(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF, 0x%02X)) return; opCnt(reg, op, 0x%02X); }\n", p->name, p->code2, p->code);
 			} else {
 				printf("void %s(const Reg&reg, const Operand& op) { opCnt(reg, op, 0x%02X); }\n", p->name, p->code);
 			}
@@ -1150,10 +1150,10 @@ void put()
 
 		puts("void xadd(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xC0 | (reg.isBit(8) ? 0 : 1), op.getBit() == reg.getBit()); }");
 		puts("void cmpxchg(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xB0 | (reg.isBit(8) ? 0 : 1), op.getBit() == reg.getBit()); }");
-		puts("void movbe(const Reg& reg, const Address& addr) { if (opROO(Reg(), addr, reg, T_VEX, 0x60)) return; opMR(addr, reg, T_0F38, 0xF0); }");
-		puts("void movbe(const Address& addr, const Reg& reg) { if (opROO(Reg(), addr, reg, T_VEX, 0x61)) return; opMR(addr, reg, T_0F38, 0xF1); }");
-		puts("void movdiri(const Address& addr, const Reg32e& reg) { if (opROO(Reg(),  addr, reg, T_VEX, 0xF9)) return; opMR(addr, reg, T_0F38, 0xF9); }");
-		puts("void movdir64b(const Reg& reg, const Address& addr) { if (opROO(Reg(),  addr, reg.cvt32(), T_VEX|T_66, 0xF8)) return; opMR(addr, reg.cvt32(), T_66 | T_0F38, 0xF8); }");
+		puts("void movbe(const Reg& reg, const Address& addr) { if (opROO(Reg(), addr, reg, T_APX, 0x60)) return; opMR(addr, reg, T_0F38, 0xF0); }");
+		puts("void movbe(const Address& addr, const Reg& reg) { if (opROO(Reg(), addr, reg, T_APX, 0x61)) return; opMR(addr, reg, T_0F38, 0xF1); }");
+		puts("void movdiri(const Address& addr, const Reg32e& reg) { if (opROO(Reg(),  addr, reg, T_APX, 0xF9)) return; opMR(addr, reg, T_0F38, 0xF9); }");
+		puts("void movdir64b(const Reg& reg, const Address& addr) { if (opROO(Reg(),  addr, reg.cvt32(), T_APX|T_66, 0xF8)) return; opMR(addr, reg.cvt32(), T_66 | T_0F38, 0xF8); }");
 		puts("void cmpxchg8b(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0xC7); }");
 
 		puts("void pextrw(const Operand& op, const Mmx& xmm, uint8_t imm) { opExt(op, xmm, 0x15, imm, true); }");
@@ -1185,7 +1185,7 @@ void put()
 		puts("void movq(const Address& addr, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opMR(addr, mmx, T_0F, mmx.isXMM() ? 0xD6 : 0x7F); }");
 		puts("void rdrand(const Reg& r) { if (r.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opRR(Reg(6, Operand::REG, r.getBit()), r, T_0F, 0xC7); }");
 		puts("void rdseed(const Reg& r) { if (r.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opRR(Reg(7, Operand::REG, r.getBit()), r, T_0F, 0xC7); }");
-		puts("void crc32(const Reg32e& r, const Operand& op) { if (!((r.isBit(32) && op.isBit(8|16|32)) || (r.isBit(64) && op.isBit(8|64)))) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) int code = 0xF0 | (op.isBit(8) ? 0 : 1); uint64_t type = op.isBit(16) ? T_66:0; if (opROO(Reg(), op, static_cast<const Reg&>(r), T_VEX|type, code)) return; opRO(r, op, T_F2|T_0F38|type, code); }");
+		puts("void crc32(const Reg32e& r, const Operand& op) { if (!((r.isBit(32) && op.isBit(8|16|32)) || (r.isBit(64) && op.isBit(8|64)))) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) int code = 0xF0 | (op.isBit(8) ? 0 : 1); uint64_t type = op.isBit(16) ? T_66:0; if (opROO(Reg(), op, static_cast<const Reg&>(r), T_APX|type, code)) return; opRO(r, op, T_F2|T_0F38|type, code); }");
 		puts("void tpause(const Reg32& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) db(0x66); db(0x0F); db(0xAE); setModRM(3, 6, idx); }");
 		puts("void umonitor(const Reg& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) int bit = r.getBit(); if (BIT != bit) { if ((BIT == 32 && bit == 16) || (BIT == 64 && bit == 32)) { db(0x67); } else { XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) } } db(0xF3); db(0x0F); db(0xAE); setModRM(3, 6, idx); }");
 		puts("void umwait(const Reg32& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) db(0xF2); db(0x0F); db(0xAE); setModRM(3, 6, idx); }");
@@ -1792,10 +1792,10 @@ void put()
 			uint64_t type;
 			uint8_t code;
 		} tbl[] = {
-			{ "andn", T_0F38 | T_VEX | T_NF, 0xF2 },
-			{ "mulx", T_F2 | T_0F38 | T_VEX , 0xF6 },
-			{ "pdep", T_F2 | T_0F38 | T_VEX, 0xF5 },
-			{ "pext", T_F3 | T_0F38 | T_VEX, 0xF5 },
+			{ "andn", T_0F38 | T_APX | T_NF, 0xF2 },
+			{ "mulx", T_F2 | T_0F38 | T_APX , 0xF6 },
+			{ "pdep", T_F2 | T_0F38 | T_APX, 0xF5 },
+			{ "pext", T_F3 | T_0F38 | T_APX, 0xF5 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
@@ -1809,17 +1809,17 @@ void put()
 			uint64_t type;
 			uint8_t code;
 		} tbl[] = {
-			{ "bextr", T_0F38 | T_VEX | T_NF, 0xF7 },
-			{ "bzhi", T_0F38 | T_VEX | T_NF, 0xF5 },
-			{ "sarx", T_0F38 | T_F3 | T_VEX, 0xF7 },
-			{ "shlx", T_0F38 | T_66 | T_VEX, 0xF7 },
-			{ "shrx", T_0F38 | T_F2 | T_VEX, 0xF7 },
+			{ "bextr", T_0F38 | T_APX | T_NF, 0xF7 },
+			{ "bzhi", T_0F38 | T_APX | T_NF, 0xF5 },
+			{ "sarx", T_0F38 | T_F3 | T_APX, 0xF7 },
+			{ "shlx", T_0F38 | T_66 | T_APX, 0xF7 },
+			{ "shrx", T_0F38 | T_F2 | T_APX, 0xF7 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
 			printf("void %s(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, %s, 0x%x); }\n", p.name, type2String(p.type).c_str(), p.code);
 		}
-		puts("void rorx(const Reg32e& r, const Operand& op, uint8_t imm) { opRRO(r, Reg32e(0, r.getBit()), op, T_0F3A|T_F2|T_VEX|T_MAP3, 0xF0, imm); }");
+		puts("void rorx(const Reg32e& r, const Operand& op, uint8_t imm) { opRRO(r, Reg32e(0, r.getBit()), op, T_0F3A|T_F2|T_APX|T_MAP3, 0xF0, imm); }");
 	}
 	// gpr(reg, r/m)
 	{
@@ -1829,9 +1829,9 @@ void put()
 			uint8_t code;
 			uint8_t idx;
 		} tbl[] = {
-			{ "blsi", T_0F38 | T_VEX|T_NF, 0xF3, 3 },
-			{ "blsmsk", T_0F38 | T_VEX|T_NF, 0xF3, 2 },
-			{ "blsr", T_0F38 | T_VEX|T_NF, 0xF3, 1 },
+			{ "blsi", T_0F38 | T_APX|T_NF, 0xF3, 3 },
+			{ "blsmsk", T_0F38 | T_APX|T_NF, 0xF3, 2 },
+			{ "blsr", T_0F38 | T_APX|T_NF, 0xF3, 1 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
@@ -1981,10 +1981,10 @@ void put64()
 	puts("void vmovq(const Xmm& x, const Reg64& r) { opAVX_X_X_XM(x, xm0, Xmm(r.getIdx()), T_66 | T_0F | T_W1 | T_EVEX | T_EW1, 0x6E); }");
 	puts("void vmovq(const Reg64& r, const Xmm& x) { opAVX_X_X_XM(x, xm0, Xmm(r.getIdx()), T_66 | T_0F | T_W1 | T_EVEX | T_EW1, 0x7E); }");
 	puts("void jmpabs(uint64_t addr) { db(0xD5); db(0x00); db(0xA1); dq(addr); }");
-	puts("void push2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_VEX|T_ND1|T_W0, 0xFF); }");
-	puts("void push2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_VEX|T_ND1|T_W1, 0xFF); }");
-	puts("void pop2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_VEX|T_ND1|T_W0, 0x8F); }");
-	puts("void pop2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_VEX|T_ND1|T_W1, 0x8F); }");
+	puts("void push2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_APX|T_ND1|T_W0, 0xFF); }");
+	puts("void push2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_APX|T_ND1|T_W1, 0xFF); }");
+	puts("void pop2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_APX|T_ND1|T_W0, 0x8F); }");
+	puts("void pop2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_APX|T_ND1|T_W1, 0x8F); }");
 	// CMPccXADD
 	{
 		const struct Tbl {
@@ -2010,7 +2010,7 @@ void put64()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void cmp%sxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0x%02X); }\n", p->name, p->code);
+			printf("void cmp%sxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0x%02X); }\n", p->name, p->code);
 		}
 	}
 }

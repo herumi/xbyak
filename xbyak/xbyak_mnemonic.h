@@ -29,21 +29,21 @@ void and_(const Operand& op, uint32_t imm) { opOI(op, imm, 0x20, 4); }
 void and_(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x20); }
 void and_(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_NF|T_CODE1_IF1, 4); }
 void and_(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, T_NF|T_CODE1_IF1, 0x20); }
-void andn(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_VEX|T_0F38|T_NF, 0xf2); }
+void andn(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_APX|T_0F38|T_NF, 0xf2); }
 void andnpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x55, isXMM_XMMorMEM); }
 void andnps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x55, isXMM_XMMorMEM); }
 void andpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x54, isXMM_XMMorMEM); }
 void andps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x54, isXMM_XMMorMEM); }
 void aor(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38 | T_F2, 0x0FC); }
 void axor(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38 | T_F3, 0x0FC); }
-void bextr(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_VEX|T_0F38|T_NF, 0xf7); }
+void bextr(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_APX|T_0F38|T_NF, 0xf7); }
 void blendpd(const Xmm& xmm, const Operand& op, int imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x0D, isXMM_XMMorMEM, static_cast<uint8_t>(imm)); }
 void blendps(const Xmm& xmm, const Operand& op, int imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x0C, isXMM_XMMorMEM, static_cast<uint8_t>(imm)); }
 void blendvpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F38, 0x15, isXMM_XMMorMEM, NONE); }
 void blendvps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F38, 0x14, isXMM_XMMorMEM, NONE); }
-void blsi(const Reg32e& r, const Operand& op) { opRRO(Reg32e(3, r.getBit()), r, op, T_VEX|T_0F38|T_NF, 0xf3); }
-void blsmsk(const Reg32e& r, const Operand& op) { opRRO(Reg32e(2, r.getBit()), r, op, T_VEX|T_0F38|T_NF, 0xf3); }
-void blsr(const Reg32e& r, const Operand& op) { opRRO(Reg32e(1, r.getBit()), r, op, T_VEX|T_0F38|T_NF, 0xf3); }
+void blsi(const Reg32e& r, const Operand& op) { opRRO(Reg32e(3, r.getBit()), r, op, T_APX|T_0F38|T_NF, 0xf3); }
+void blsmsk(const Reg32e& r, const Operand& op) { opRRO(Reg32e(2, r.getBit()), r, op, T_APX|T_0F38|T_NF, 0xf3); }
+void blsr(const Reg32e& r, const Operand& op) { opRRO(Reg32e(1, r.getBit()), r, op, T_APX|T_0F38|T_NF, 0xf3); }
 void bnd() { db(0xF2); }
 void bndcl(const BoundsReg& bnd, const Operand& op) { opRext(op, i32e, bnd.getIdx(), T_F3 | T_0F, 0x1A, !op.isMEM()); }
 void bndcn(const BoundsReg& bnd, const Operand& op) { opRext(op, i32e, bnd.getIdx(), T_F2 | T_0F, 0x1B, !op.isMEM()); }
@@ -64,7 +64,7 @@ void btr(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xB3, op.isREG
 void btr(const Operand& op, uint8_t imm) { opRext(op, 16|i32e, 6, T_0F, 0xba, false, 1); db(imm); }
 void bts(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xAB, op.isREG(16|i32e) && op.getBit() == reg.getBit()); }
 void bts(const Operand& op, uint8_t imm) { opRext(op, 16|i32e, 5, T_0F, 0xba, false, 1); db(imm); }
-void bzhi(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_VEX|T_0F38|T_NF, 0xf5); }
+void bzhi(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_APX|T_0F38|T_NF, 0xf5); }
 void cbw() { db(0x66); db(0x98); }
 void ccmpa(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 7); }
 void ccmpa(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 7); }
@@ -164,65 +164,65 @@ void cli() { db(0xFA); }
 void clwb(const Address& addr) { opMR(addr, esi, T_66 | T_0F, 0xAE); }
 void clzero() { db(0x0F); db(0x01); db(0xFC); }
 void cmc() { db(0xF5); }
-void cmova(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 7); }//-V524
+void cmova(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 7); }//-V524
 void cmova(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 7, op.isREG(16|i32e)); }//-V524
-void cmovae(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 3); }//-V524
+void cmovae(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 3); }//-V524
 void cmovae(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 3, op.isREG(16|i32e)); }//-V524
-void cmovb(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 2); }//-V524
+void cmovb(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 2); }//-V524
 void cmovb(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 2, op.isREG(16|i32e)); }//-V524
-void cmovbe(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 6); }//-V524
+void cmovbe(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 6); }//-V524
 void cmovbe(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 6, op.isREG(16|i32e)); }//-V524
-void cmovc(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 2); }//-V524
+void cmovc(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 2); }//-V524
 void cmovc(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 2, op.isREG(16|i32e)); }//-V524
-void cmove(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 4); }//-V524
+void cmove(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 4); }//-V524
 void cmove(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 4, op.isREG(16|i32e)); }//-V524
-void cmovg(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 15); }//-V524
+void cmovg(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 15); }//-V524
 void cmovg(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 15, op.isREG(16|i32e)); }//-V524
-void cmovge(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 13); }//-V524
+void cmovge(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 13); }//-V524
 void cmovge(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 13, op.isREG(16|i32e)); }//-V524
-void cmovl(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 12); }//-V524
+void cmovl(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 12); }//-V524
 void cmovl(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 12, op.isREG(16|i32e)); }//-V524
-void cmovle(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 14); }//-V524
+void cmovle(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 14); }//-V524
 void cmovle(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 14, op.isREG(16|i32e)); }//-V524
-void cmovna(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 6); }//-V524
+void cmovna(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 6); }//-V524
 void cmovna(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 6, op.isREG(16|i32e)); }//-V524
-void cmovnae(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 2); }//-V524
+void cmovnae(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 2); }//-V524
 void cmovnae(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 2, op.isREG(16|i32e)); }//-V524
-void cmovnb(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 3); }//-V524
+void cmovnb(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 3); }//-V524
 void cmovnb(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 3, op.isREG(16|i32e)); }//-V524
-void cmovnbe(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 7); }//-V524
+void cmovnbe(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 7); }//-V524
 void cmovnbe(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 7, op.isREG(16|i32e)); }//-V524
-void cmovnc(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 3); }//-V524
+void cmovnc(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 3); }//-V524
 void cmovnc(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 3, op.isREG(16|i32e)); }//-V524
-void cmovne(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 5); }//-V524
+void cmovne(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 5); }//-V524
 void cmovne(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 5, op.isREG(16|i32e)); }//-V524
-void cmovng(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 14); }//-V524
+void cmovng(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 14); }//-V524
 void cmovng(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 14, op.isREG(16|i32e)); }//-V524
-void cmovnge(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 12); }//-V524
+void cmovnge(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 12); }//-V524
 void cmovnge(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 12, op.isREG(16|i32e)); }//-V524
-void cmovnl(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 13); }//-V524
+void cmovnl(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 13); }//-V524
 void cmovnl(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 13, op.isREG(16|i32e)); }//-V524
-void cmovnle(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 15); }//-V524
+void cmovnle(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 15); }//-V524
 void cmovnle(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 15, op.isREG(16|i32e)); }//-V524
-void cmovno(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 1); }//-V524
+void cmovno(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 1); }//-V524
 void cmovno(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 1, op.isREG(16|i32e)); }//-V524
-void cmovnp(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 11); }//-V524
+void cmovnp(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 11); }//-V524
 void cmovnp(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 11, op.isREG(16|i32e)); }//-V524
-void cmovns(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 9); }//-V524
+void cmovns(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 9); }//-V524
 void cmovns(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 9, op.isREG(16|i32e)); }//-V524
-void cmovnz(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 5); }//-V524
+void cmovnz(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 5); }//-V524
 void cmovnz(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 5, op.isREG(16|i32e)); }//-V524
-void cmovo(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 0); }//-V524
+void cmovo(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 0); }//-V524
 void cmovo(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 0, op.isREG(16|i32e)); }//-V524
-void cmovp(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 10); }//-V524
+void cmovp(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 10); }//-V524
 void cmovp(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 10, op.isREG(16|i32e)); }//-V524
-void cmovpe(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 10); }//-V524
+void cmovpe(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 10); }//-V524
 void cmovpe(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 10, op.isREG(16|i32e)); }//-V524
-void cmovpo(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 11); }//-V524
+void cmovpo(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 11); }//-V524
 void cmovpo(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 11, op.isREG(16|i32e)); }//-V524
-void cmovs(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 8); }//-V524
+void cmovs(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 8); }//-V524
 void cmovs(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 8, op.isREG(16|i32e)); }//-V524
-void cmovz(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_VEX|T_ND1, 0x40 | 4); }//-V524
+void cmovz(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 4); }//-V524
 void cmovz(const Reg& reg, const Operand& op) { opRO(reg, op, T_0F, 0x40 | 4, op.isREG(16|i32e)); }//-V524
 void cmp(const Operand& op, uint32_t imm) { opOI(op, imm, 0x38, 7); }
 void cmp(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x38); }
@@ -270,7 +270,7 @@ void cmpxchg8b(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0xC7); }
 void comisd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F, 0x2F, isXMM_XMMorMEM); }
 void comiss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x2F, isXMM_XMMorMEM); }
 void cpuid() { db(0x0F); db(0xA2); }
-void crc32(const Reg32e& r, const Operand& op) { if (!((r.isBit(32) && op.isBit(8|16|32)) || (r.isBit(64) && op.isBit(8|64)))) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) int code = 0xF0 | (op.isBit(8) ? 0 : 1); uint64_t type = op.isBit(16) ? T_66:0; if (opROO(Reg(), op, static_cast<const Reg&>(r), T_VEX|type, code)) return; opRO(r, op, T_F2|T_0F38|type, code); }
+void crc32(const Reg32e& r, const Operand& op) { if (!((r.isBit(32) && op.isBit(8|16|32)) || (r.isBit(64) && op.isBit(8|64)))) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) int code = 0xF0 | (op.isBit(8) ? 0 : 1); uint64_t type = op.isBit(16) ? T_66:0; if (opROO(Reg(), op, static_cast<const Reg&>(r), T_APX|type, code)) return; opRO(r, op, T_F2|T_0F38|type, code); }
 void ctesta(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 7); }
 void ctesta(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 7); }
 void ctestae(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 3); }
@@ -353,7 +353,7 @@ void cwd() { db(0x66); db(0x99); }
 void cwde() { db(0x98); }
 void dec(const Operand& op) { opIncDec(Reg(), op, 1); }
 void dec(const Reg& d, const Operand& op) { opIncDec(d, op, 1); }
-void div(const Operand& op) { opRext(op, 0, 6, T_VEX|T_NF|T_CODE1_IF1, 0xF6); }
+void div(const Operand& op) { opRext(op, 0, 6, T_APX|T_NF|T_CODE1_IF1, 0xF6); }
 void divpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x5E, isXMM_XMMorMEM); }
 void divps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x5E, isXMM_XMMorMEM); }
 void divsd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F2, 0x5E, isXMM_XMMorMEM); }
@@ -515,9 +515,9 @@ void haddps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_F2|T_0F|T_YMM,
 void hlt() { db(0xF4); }
 void hsubpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F|T_YMM, 0x7D, isXMM_XMMorMEM); }
 void hsubps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_F2|T_0F|T_YMM, 0x7D, isXMM_XMMorMEM); }
-void idiv(const Operand& op) { opRext(op, 0, 7, T_VEX|T_NF|T_CODE1_IF1, 0xF6); }
-void imul(const Operand& op) { opRext(op, 0, 5, T_VEX|T_NF|T_CODE1_IF1, 0xF6); }
-void imul(const Reg& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_VEX|T_NF, 0xAF)) return; opRO(reg, op, T_0F, 0xAF, reg.getKind() == op.getKind()); }
+void idiv(const Operand& op) { opRext(op, 0, 7, T_APX|T_NF|T_CODE1_IF1, 0xF6); }
+void imul(const Operand& op) { opRext(op, 0, 5, T_APX|T_NF|T_CODE1_IF1, 0xF6); }
+void imul(const Reg& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF, 0xAF)) return; opRO(reg, op, T_0F, 0xAF, reg.getKind() == op.getKind()); }
 void in_(const Reg& a, const Reg& d) { opInOut(a, d, 0xEC); }
 void in_(const Reg& a, uint8_t v) { opInOut(a, 0xE4, v); }
 void inc(const Operand& op) { opIncDec(Reg(), op, 0); }
@@ -667,7 +667,7 @@ void loopne(const Label& label) { opJmp(label, T_SHORT, 0xE0, 0, 0); }
 void loopne(const char *label) { loopne(std::string(label)); }
 void loopne(std::string label) { opJmp(label, T_SHORT, 0xE0, 0, 0); }
 void lss(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_0F, 0xB2); }
-void lzcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_VEX|T_NF, 0xF5)) return; opCnt(reg, op, 0xBD); }
+void lzcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF, 0xF5)) return; opCnt(reg, op, 0xBD); }
 void maskmovdqu(const Xmm& reg1, const Xmm& reg2) { opRR(reg1, reg2, T_66|T_0F, 0xF7); }
 void maskmovq(const Mmx& reg1, const Mmx& reg2) { if (!reg1.isMMX() || !reg2.isMMX()) XBYAK_THROW(ERR_BAD_COMBINATION) opRR(reg1, reg2, T_0F, 0xF7); }
 void maxpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x5F, isXMM_XMMorMEM); }
@@ -685,15 +685,15 @@ void movapd(const Address& addr, const Xmm& xmm) { opMR(addr, xmm, T_0F|T_66, 0x
 void movapd(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x28, T_0F, T_66); }
 void movaps(const Address& addr, const Xmm& xmm) { opMR(addr, xmm, T_0F|T_NONE, 0x29); }
 void movaps(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x28, T_0F, T_NONE); }
-void movbe(const Address& addr, const Reg& reg) { if (opROO(Reg(), addr, reg, T_VEX, 0x61)) return; opMR(addr, reg, T_0F38, 0xF1); }
-void movbe(const Reg& reg, const Address& addr) { if (opROO(Reg(), addr, reg, T_VEX, 0x60)) return; opMR(addr, reg, T_0F38, 0xF0); }
+void movbe(const Address& addr, const Reg& reg) { if (opROO(Reg(), addr, reg, T_APX, 0x61)) return; opMR(addr, reg, T_0F38, 0xF1); }
+void movbe(const Reg& reg, const Address& addr) { if (opROO(Reg(), addr, reg, T_APX, 0x60)) return; opMR(addr, reg, T_0F38, 0xF0); }
 void movd(const Address& addr, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opMR(addr, mmx, T_0F, 0x7E); }
 void movd(const Mmx& mmx, const Address& addr) { if (mmx.isXMM()) db(0x66); opMR(addr, mmx, T_0F, 0x6E); }
 void movd(const Mmx& mmx, const Reg32& reg) { if (mmx.isXMM()) db(0x66); opRR(mmx, reg, T_0F, 0x6E); }
 void movd(const Reg32& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opRR(mmx, reg, T_0F, 0x7E); }
 void movddup(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_DUP|T_F2|T_0F|T_EW1|T_YMM|T_EVEX|T_ER_X|T_ER_Y|T_ER_Z, 0x12, isXMM_XMMorMEM, NONE); }
-void movdir64b(const Reg& reg, const Address& addr) { if (opROO(Reg(),  addr, reg.cvt32(), T_VEX|T_66, 0xF8)) return; opMR(addr, reg.cvt32(), T_66 | T_0F38, 0xF8); }
-void movdiri(const Address& addr, const Reg32e& reg) { if (opROO(Reg(),  addr, reg, T_VEX, 0xF9)) return; opMR(addr, reg, T_0F38, 0xF9); }
+void movdir64b(const Reg& reg, const Address& addr) { if (opROO(Reg(),  addr, reg.cvt32(), T_APX|T_66, 0xF8)) return; opMR(addr, reg.cvt32(), T_66 | T_0F38, 0xF8); }
+void movdiri(const Address& addr, const Reg32e& reg) { if (opROO(Reg(),  addr, reg, T_APX, 0xF9)) return; opMR(addr, reg, T_0F38, 0xF9); }
 void movdq2q(const Mmx& mmx, const Xmm& xmm) { opRR(mmx, xmm, T_F2 | T_0F, 0xD6); }
 void movdqa(const Address& addr, const Xmm& xmm) { opMR(addr, xmm, T_0F|T_66, 0x7F); }
 void movdqa(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x6F, T_0F, T_66); }
@@ -732,18 +732,18 @@ void movups(const Address& addr, const Xmm& xmm) { opMR(addr, xmm, T_0F|T_NONE, 
 void movups(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x10, T_0F, T_NONE); }
 void movzx(const Reg& reg, const Operand& op) { opMovxx(reg, op, 0xB6); }
 void mpsadbw(const Xmm& xmm, const Operand& op, int imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x42, isXMM_XMMorMEM, static_cast<uint8_t>(imm)); }
-void mul(const Operand& op) { opRext(op, 0, 4, T_VEX|T_NF|T_CODE1_IF1, 0xF6); }
+void mul(const Operand& op) { opRext(op, 0, 4, T_APX|T_NF|T_CODE1_IF1, 0xF6); }
 void mulpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x59, isXMM_XMMorMEM); }
 void mulps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x59, isXMM_XMMorMEM); }
 void mulsd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F2, 0x59, isXMM_XMMorMEM); }
 void mulss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F3, 0x59, isXMM_XMMorMEM); }
-void mulx(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_VEX|T_F2|T_0F38, 0xf6); }
+void mulx(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_APX|T_F2|T_0F38, 0xf6); }
 void mwait() { db(0x0F); db(0x01); db(0xC9); }
 void mwaitx() { db(0x0F); db(0x01); db(0xFB); }
-void neg(const Operand& op) { opRext(op, 0, 3, T_VEX|T_NF|T_CODE1_IF1, 0xF6); }
-void neg(const Reg& d, const Operand& op) { opROO(d, op, Reg(3, Operand::REG, d.getBit()), T_VEX|T_NF|T_CODE1_IF1|T_ND1, 0xF6); }
-void not_(const Operand& op) { opRext(op, 0, 2, T_VEX|T_CODE1_IF1, 0xF6); }
-void not_(const Reg& d, const Operand& op) { opROO(d, op, Reg(2, Operand::REG, d.getBit()), T_VEX|T_CODE1_IF1|T_ND1, 0xF6); }
+void neg(const Operand& op) { opRext(op, 0, 3, T_APX|T_NF|T_CODE1_IF1, 0xF6); }
+void neg(const Reg& d, const Operand& op) { opROO(d, op, Reg(3, Operand::REG, d.getBit()), T_APX|T_NF|T_CODE1_IF1|T_ND1, 0xF6); }
+void not_(const Operand& op) { opRext(op, 0, 2, T_APX|T_CODE1_IF1, 0xF6); }
+void not_(const Reg& d, const Operand& op) { opROO(d, op, Reg(2, Operand::REG, d.getBit()), T_APX|T_CODE1_IF1|T_ND1, 0xF6); }
 void or_(const Operand& op, uint32_t imm) { opOI(op, imm, 0x08, 1); }
 void or_(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x08); }
 void or_(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_NF|T_CODE1_IF1, 1); }
@@ -795,8 +795,8 @@ void pcmpgtq(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66 | T_0F38, 
 void pcmpgtw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x65); }
 void pcmpistri(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66|T_0F3A, 0x63, isXMM_XMMorMEM, imm); }
 void pcmpistrm(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66|T_0F3A, 0x62, isXMM_XMMorMEM, imm); }
-void pdep(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_VEX|T_F2|T_0F38, 0xf5); }
-void pext(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_VEX|T_F3|T_0F38, 0xf5); }
+void pdep(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_APX|T_F2|T_0F38, 0xf5); }
+void pext(const Reg32e& r1, const Reg32e& r2, const Operand& op) { opRRO(r1, r2, op, T_APX|T_F3|T_0F38, 0xf5); }
 void pextrb(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x14, imm); }
 void pextrd(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x16, imm); }
 void pextrw(const Operand& op, const Mmx& xmm, uint8_t imm) { opExt(op, xmm, 0x15, imm, true); }
@@ -932,7 +932,7 @@ void ror(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 9); }
 void ror(const Operand& op, int imm) { opShift(op, imm, 9); }
 void ror(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 9, &d); }
 void ror(const Reg& d, const Operand& op, int imm) { opShift(op, imm, 9, &d); }
-void rorx(const Reg32e& r, const Operand& op, uint8_t imm) { opRRO(r, Reg32e(0, r.getBit()), op, T_0F3A|T_F2|T_VEX|T_MAP3, 0xF0, imm); }
+void rorx(const Reg32e& r, const Operand& op, uint8_t imm) { opRRO(r, Reg32e(0, r.getBit()), op, T_0F3A|T_F2|T_APX|T_MAP3, 0xF0, imm); }
 void roundpd(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66|T_0F3A|T_YMM, 0x09, isXMM_XMMorMEM, imm); }
 void roundps(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66|T_0F3A|T_YMM, 0x08, isXMM_XMMorMEM, imm); }
 void roundsd(const Xmm& xmm, const Operand& op, int imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x0B, isXMM_XMMorMEM, static_cast<uint8_t>(imm)); }
@@ -948,7 +948,7 @@ void sar(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 15); }
 void sar(const Operand& op, int imm) { opShift(op, imm, 15); }
 void sar(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 15, &d); }
 void sar(const Reg& d, const Operand& op, int imm) { opShift(op, imm, 15, &d); }
-void sarx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_VEX|T_F3|T_0F38, 0xf7); }
+void sarx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_APX|T_F3|T_0F38, 0xf7); }
 void sbb(const Operand& op, uint32_t imm) { opOI(op, imm, 0x18, 3); }
 void sbb(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x18); }
 void sbb(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_NONE, 3); }
@@ -957,36 +957,36 @@ void scasb() { db(0xAE); }
 void scasd() { db(0xAF); }
 void scasw() { db(0x66); db(0xAF); }
 void serialize() { db(0x0F); db(0x01); db(0xE8); }
-void seta(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 7)) return; opRext(op, 8, 0, T_0F, 0x90 | 7); }//-V524
-void setae(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 3)) return; opRext(op, 8, 0, T_0F, 0x90 | 3); }//-V524
-void setb(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 2)) return; opRext(op, 8, 0, T_0F, 0x90 | 2); }//-V524
-void setbe(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 6)) return; opRext(op, 8, 0, T_0F, 0x90 | 6); }//-V524
-void setc(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 2)) return; opRext(op, 8, 0, T_0F, 0x90 | 2); }//-V524
-void sete(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 4)) return; opRext(op, 8, 0, T_0F, 0x90 | 4); }//-V524
-void setg(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 15)) return; opRext(op, 8, 0, T_0F, 0x90 | 15); }//-V524
-void setge(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 13)) return; opRext(op, 8, 0, T_0F, 0x90 | 13); }//-V524
-void setl(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 12)) return; opRext(op, 8, 0, T_0F, 0x90 | 12); }//-V524
-void setle(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 14)) return; opRext(op, 8, 0, T_0F, 0x90 | 14); }//-V524
-void setna(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 6)) return; opRext(op, 8, 0, T_0F, 0x90 | 6); }//-V524
-void setnae(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 2)) return; opRext(op, 8, 0, T_0F, 0x90 | 2); }//-V524
-void setnb(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 3)) return; opRext(op, 8, 0, T_0F, 0x90 | 3); }//-V524
-void setnbe(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 7)) return; opRext(op, 8, 0, T_0F, 0x90 | 7); }//-V524
-void setnc(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 3)) return; opRext(op, 8, 0, T_0F, 0x90 | 3); }//-V524
-void setne(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 5)) return; opRext(op, 8, 0, T_0F, 0x90 | 5); }//-V524
-void setng(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 14)) return; opRext(op, 8, 0, T_0F, 0x90 | 14); }//-V524
-void setnge(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 12)) return; opRext(op, 8, 0, T_0F, 0x90 | 12); }//-V524
-void setnl(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 13)) return; opRext(op, 8, 0, T_0F, 0x90 | 13); }//-V524
-void setnle(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 15)) return; opRext(op, 8, 0, T_0F, 0x90 | 15); }//-V524
-void setno(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 1)) return; opRext(op, 8, 0, T_0F, 0x90 | 1); }//-V524
-void setnp(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 11)) return; opRext(op, 8, 0, T_0F, 0x90 | 11); }//-V524
-void setns(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 9)) return; opRext(op, 8, 0, T_0F, 0x90 | 9); }//-V524
-void setnz(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 5)) return; opRext(op, 8, 0, T_0F, 0x90 | 5); }//-V524
-void seto(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 0)) return; opRext(op, 8, 0, T_0F, 0x90 | 0); }//-V524
-void setp(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 10)) return; opRext(op, 8, 0, T_0F, 0x90 | 10); }//-V524
-void setpe(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 10)) return; opRext(op, 8, 0, T_0F, 0x90 | 10); }//-V524
-void setpo(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 11)) return; opRext(op, 8, 0, T_0F, 0x90 | 11); }//-V524
-void sets(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 8)) return; opRext(op, 8, 0, T_0F, 0x90 | 8); }//-V524
-void setz(const Operand& op) { if (opROO(Reg(), op, Reg(), T_VEX|T_ZU|T_F2, 0x40 | 4)) return; opRext(op, 8, 0, T_0F, 0x90 | 4); }//-V524
+void seta(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 7)) return; opRext(op, 8, 0, T_0F, 0x90 | 7); }//-V524
+void setae(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 3)) return; opRext(op, 8, 0, T_0F, 0x90 | 3); }//-V524
+void setb(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 2)) return; opRext(op, 8, 0, T_0F, 0x90 | 2); }//-V524
+void setbe(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 6)) return; opRext(op, 8, 0, T_0F, 0x90 | 6); }//-V524
+void setc(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 2)) return; opRext(op, 8, 0, T_0F, 0x90 | 2); }//-V524
+void sete(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 4)) return; opRext(op, 8, 0, T_0F, 0x90 | 4); }//-V524
+void setg(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 15)) return; opRext(op, 8, 0, T_0F, 0x90 | 15); }//-V524
+void setge(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 13)) return; opRext(op, 8, 0, T_0F, 0x90 | 13); }//-V524
+void setl(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 12)) return; opRext(op, 8, 0, T_0F, 0x90 | 12); }//-V524
+void setle(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 14)) return; opRext(op, 8, 0, T_0F, 0x90 | 14); }//-V524
+void setna(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 6)) return; opRext(op, 8, 0, T_0F, 0x90 | 6); }//-V524
+void setnae(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 2)) return; opRext(op, 8, 0, T_0F, 0x90 | 2); }//-V524
+void setnb(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 3)) return; opRext(op, 8, 0, T_0F, 0x90 | 3); }//-V524
+void setnbe(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 7)) return; opRext(op, 8, 0, T_0F, 0x90 | 7); }//-V524
+void setnc(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 3)) return; opRext(op, 8, 0, T_0F, 0x90 | 3); }//-V524
+void setne(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 5)) return; opRext(op, 8, 0, T_0F, 0x90 | 5); }//-V524
+void setng(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 14)) return; opRext(op, 8, 0, T_0F, 0x90 | 14); }//-V524
+void setnge(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 12)) return; opRext(op, 8, 0, T_0F, 0x90 | 12); }//-V524
+void setnl(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 13)) return; opRext(op, 8, 0, T_0F, 0x90 | 13); }//-V524
+void setnle(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 15)) return; opRext(op, 8, 0, T_0F, 0x90 | 15); }//-V524
+void setno(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 1)) return; opRext(op, 8, 0, T_0F, 0x90 | 1); }//-V524
+void setnp(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 11)) return; opRext(op, 8, 0, T_0F, 0x90 | 11); }//-V524
+void setns(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 9)) return; opRext(op, 8, 0, T_0F, 0x90 | 9); }//-V524
+void setnz(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 5)) return; opRext(op, 8, 0, T_0F, 0x90 | 5); }//-V524
+void seto(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 0)) return; opRext(op, 8, 0, T_0F, 0x90 | 0); }//-V524
+void setp(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 10)) return; opRext(op, 8, 0, T_0F, 0x90 | 10); }//-V524
+void setpe(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 10)) return; opRext(op, 8, 0, T_0F, 0x90 | 10); }//-V524
+void setpo(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 11)) return; opRext(op, 8, 0, T_0F, 0x90 | 11); }//-V524
+void sets(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 8)) return; opRext(op, 8, 0, T_0F, 0x90 | 8); }//-V524
+void setz(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 4)) return; opRext(op, 8, 0, T_0F, 0x90 | 4); }//-V524
 void sfence() { db(0x0F); db(0xAE); db(0xF8); }
 void sha1msg1(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F38, 0xC9, isXMM_XMMorMEM, NONE); }
 void sha1msg2(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F38, 0xCA, isXMM_XMMorMEM, NONE); }
@@ -1003,7 +1003,7 @@ void shld(const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(Reg(), op
 void shld(const Operand& op, const Reg& reg, uint8_t imm) { opShxd(Reg(), op, reg, imm, 0xA4, 0x24); }
 void shld(const Reg& d, const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(d, op, reg, 0, 0xA4, 0x24, &_cl); }
 void shld(const Reg& d, const Operand& op, const Reg& reg, uint8_t imm) { opShxd(d, op, reg, imm, 0xA4, 0x24); }
-void shlx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_VEX|T_66|T_0F38, 0xf7); }
+void shlx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_APX|T_66|T_0F38, 0xf7); }
 void shr(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 13); }
 void shr(const Operand& op, int imm) { opShift(op, imm, 13); }
 void shr(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 13, &d); }
@@ -1012,7 +1012,7 @@ void shrd(const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(Reg(), op
 void shrd(const Operand& op, const Reg& reg, uint8_t imm) { opShxd(Reg(), op, reg, imm, 0xAC, 0x2C); }
 void shrd(const Reg& d, const Operand& op, const Reg& reg, const Reg8& _cl) { opShxd(d, op, reg, 0, 0xAC, 0x2C, &_cl); }
 void shrd(const Reg& d, const Operand& op, const Reg& reg, uint8_t imm) { opShxd(d, op, reg, imm, 0xAC, 0x2C); }
-void shrx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_VEX|T_F2|T_0F38, 0xf7); }
+void shrx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_APX|T_F2|T_0F38, 0xf7); }
 void shufpd(const Xmm& xmm, const Operand& op, uint8_t imm8) { opSSE(xmm, op, T_0F | T_66, 0xC6, isXMM_XMMorMEM, imm8); }
 void shufps(const Xmm& xmm, const Operand& op, uint8_t imm8) { opSSE(xmm, op, T_0F, 0xC6, isXMM_XMMorMEM, imm8); }
 void sqrtpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x51, isXMM_XMMorMEM); }
@@ -1038,7 +1038,7 @@ void subss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F3, 0x5C
 void sysenter() { db(0x0F); db(0x34); }
 void sysexit() { db(0x0F); db(0x35); }
 void tpause(const Reg32& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) db(0x66); db(0x0F); db(0xAE); setModRM(3, 6, idx); }
-void tzcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_VEX|T_NF, 0xF4)) return; opCnt(reg, op, 0xBC); }
+void tzcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF, 0xF4)) return; opCnt(reg, op, 0xBC); }
 void ucomisd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F, 0x2E, isXMM_XMMorMEM); }
 void ucomiss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x2E, isXMM_XMMorMEM); }
 void ud2() { db(0x0F); db(0x0B); }
@@ -1906,26 +1906,26 @@ void vcvttsd2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()
 void vmovq(const Xmm& x, const Reg64& r) { opAVX_X_X_XM(x, xm0, Xmm(r.getIdx()), T_66 | T_0F | T_W1 | T_EVEX | T_EW1, 0x6E); }
 void vmovq(const Reg64& r, const Xmm& x) { opAVX_X_X_XM(x, xm0, Xmm(r.getIdx()), T_66 | T_0F | T_W1 | T_EVEX | T_EW1, 0x7E); }
 void jmpabs(uint64_t addr) { db(0xD5); db(0x00); db(0xA1); dq(addr); }
-void push2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_VEX|T_ND1|T_W0, 0xFF); }
-void push2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_VEX|T_ND1|T_W1, 0xFF); }
-void pop2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_VEX|T_ND1|T_W0, 0x8F); }
-void pop2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_VEX|T_ND1|T_W1, 0x8F); }
-void cmpbexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE6); }
-void cmpbxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE2); }
-void cmplexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xEE); }
-void cmplxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xEC); }
-void cmpnbexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE7); }
-void cmpnbxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE3); }
-void cmpnlexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xEF); }
-void cmpnlxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xED); }
-void cmpnoxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE1); }
-void cmpnpxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xEB); }
-void cmpnsxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE9); }
-void cmpnzxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE5); }
-void cmpoxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE0); }
-void cmppxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xEA); }
-void cmpsxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE8); }
-void cmpzxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_VEX|T_66|T_0F38, 0xE4); }
+void push2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_APX|T_ND1|T_W0, 0xFF); }
+void push2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_APX|T_ND1|T_W1, 0xFF); }
+void pop2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_APX|T_ND1|T_W0, 0x8F); }
+void pop2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_APX|T_ND1|T_W1, 0x8F); }
+void cmpbexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE6); }
+void cmpbxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE2); }
+void cmplexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xEE); }
+void cmplxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xEC); }
+void cmpnbexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE7); }
+void cmpnbxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE3); }
+void cmpnlexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xEF); }
+void cmpnlxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xED); }
+void cmpnoxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE1); }
+void cmpnpxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xEB); }
+void cmpnsxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE9); }
+void cmpnzxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE5); }
+void cmpoxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE0); }
+void cmppxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xEA); }
+void cmpsxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE8); }
+void cmpzxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE4); }
 void ldtilecfg(const Address& addr) { opVex(tmm0, &tmm0, addr, T_0F38 | T_W0, 0x49); }
 void sttilecfg(const Address& addr) { opVex(tmm0, &tmm0, addr, T_66 | T_0F38 | T_W0, 0x49); }
 void tileloadd(const Tmm& tm, const Address& addr) { opAMX(tm, addr, T_F2 | T_0F38 | T_W0, 0x4b); }

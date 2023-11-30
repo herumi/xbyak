@@ -1791,7 +1791,7 @@ private:
 	static const uint64_t T_NX_MASK = 7ull;
 	static const uint64_t T_DUP = T_NX_MASK;//1 << 4, // N = (8, 32, 64)
 	static const uint64_t T_N_VL = 1ull << 3; // N * (1, 2, 4) for VL
-	static const uint64_t T_VEX = 1ull << 4;
+	static const uint64_t T_APX = 1ull << 4;
 	static const uint64_t T_66 = 1ull << 5; // pp = 1
 	static const uint64_t T_F3 = 1ull << 6; // pp = 2
 	static const uint64_t T_ER_R = 1ull << 7; // reg{er}
@@ -1945,7 +1945,7 @@ private:
 		int X4 = x.isExtIdx2() ? 0 : 0x04;
 		int pp = (type & (T_F2|T_F3|T_66)) ? getPP(type) : (r.isBit(16) || v.isBit(16));
 		int V4 = !v.isExtIdx2();
-		int ND = (type & T_ZU) ? (r.getZU() || b.getZU()) : (type & T_ND1) ? 1 : (type & T_VEX) ? 0 : v.isREG();
+		int ND = (type & T_ZU) ? (r.getZU() || b.getZU()) : (type & T_ND1) ? 1 : (type & T_APX) ? 0 : v.isREG();
 		int NF = r.getNF() | b.getNF() | x.getNF() | v.getNF();
 		int L = 0;
 		if ((type & T_NF) == 0 && NF) XBYAK_THROW(ERR_INVALID_NF)
@@ -2029,7 +2029,7 @@ private:
 	bool isInDisp16(uint32_t x) const { return 0xFFFF8000 <= x || x <= 0x7FFF; }
 	void writeCode(uint64_t type, const Reg& r, int code)
 	{
-		if (!(type & T_VEX)) {
+		if (!(type & T_APX)) {
 			if (type & T_0F) {
 				db(0x0F);
 			} else if (type & T_0F38) {
@@ -2220,7 +2220,7 @@ private:
 		int opBit = op.getBit();
 		if (disableRex && opBit == 64) opBit = 32;
 		const Reg r(ext, Operand::REG, opBit);
-		if ((type & T_VEX) && op.hasRex2NFZU() && opROO(d ? *d : Reg(0, Operand::REG, opBit), op, r, type, code)) return;
+		if ((type & T_APX) && op.hasRex2NFZU() && opROO(d ? *d : Reg(0, Operand::REG, opBit), op, r, type, code)) return;
 		if (op.isMEM()) {
 			opMR(op.getAddress(), r, type, code, immSize);
 		} else if (op.isREG(bit)) {
@@ -2233,7 +2233,7 @@ private:
 	{
 		if (d == 0) verifyMemHasSize(op);
 		if (d && op.getBit() != 0 && d->getBit() != op.getBit()) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
-		uint64_t type = T_VEX|T_CODE1_IF1; if (ext & 8) type |= T_NF; if (d) type |= T_ND1;
+		uint64_t type = T_APX|T_CODE1_IF1; if (ext & 8) type |= T_NF; if (d) type |= T_ND1;
 		opRext(op, 0, ext&7, type, (0xC0 | ((imm == 1 ? 1 : 0) << 4)), false, (imm != 1) ? 1 : 0, d);
 		if (imm != 1) db(imm);
 	}
@@ -2241,7 +2241,7 @@ private:
 	{
 		if (_cl.getIdx() != Operand::CL) XBYAK_THROW(ERR_BAD_COMBINATION)
 		if (d && op.getBit() != 0 && d->getBit() != op.getBit()) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
-		uint64_t type = T_VEX|T_CODE1_IF1; if (ext & 8) type |= T_NF; if (d) type |= T_ND1;
+		uint64_t type = T_APX|T_CODE1_IF1; if (ext & 8) type |= T_NF; if (d) type |= T_ND1;
 		opRext(op, 0, ext&7, type, 0xD2, false, 0, d);
 	}
 	// condR assumes that op.isREG() is true
@@ -2261,7 +2261,7 @@ private:
 		if (!reg.isREG(16|i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
 		int immSize = _cl ? 0 : 1;
 		if (_cl) code |= 1;
-		uint64_t type = T_VEX | T_NF;
+		uint64_t type = T_APX | T_NF;
 		if (d.isREG()) type |= T_ND1;
 		if (!opROO(d, op, reg, type, _cl ? code : code2, immSize)) {
 			opRO(reg, op, T_0F, code, true, immSize);
@@ -2313,7 +2313,7 @@ private:
 #ifdef XBYAK64
 		if (d.isREG()) {
 			int code = d.isBit(8) ? 0xFE : 0xFF;
-			uint64_t type = T_VEX|T_NF|T_ND1;
+			uint64_t type = T_APX|T_NF|T_ND1;
 			if (d.isBit(16)) type |= T_66;
 			opROO(d, op, Reg(ext, Operand::REG, d.getBit()), type, code);
 			return;
@@ -2665,7 +2665,7 @@ private:
 	void opCcmp(const Operand& op1, const Operand& op2, int dfv, int code, int sc) // cmp = 0x38, test = 0x84
 	{
 		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
-		opROO(Reg(15 - dfv, Operand::REG, (op1.getBit() | op2.getBit())), op1, op2, T_VEX|T_CODE1_IF1, code, 0, sc);
+		opROO(Reg(15 - dfv, Operand::REG, (op1.getBit() | op2.getBit())), op1, op2, T_APX|T_CODE1_IF1, code, 0, sc);
 	}
 	void opCcmpi(const Operand& op, int imm, int dfv, int sc)
 	{
@@ -2673,7 +2673,7 @@ private:
 		uint32_t immBit = getImmBit(op, imm);
 		uint32_t opBit = op.getBit();
 		int tmp = immBit < (std::min)(opBit, 32U) ? 2 : 0;
-		opROO(Reg(15 - dfv, Operand::REG, opBit), op, Reg(15, Operand::REG, opBit), T_VEX|T_CODE1_IF1, 0x80 | tmp, immBit / 8, sc);
+		opROO(Reg(15 - dfv, Operand::REG, opBit), op, Reg(15, Operand::REG, opBit), T_APX|T_CODE1_IF1, 0x80 | tmp, immBit / 8, sc);
 		db(imm, immBit / 8);
 	}
 	void opTesti(const Operand& op, int imm, int dfv, int sc)
@@ -2682,7 +2682,7 @@ private:
 		uint32_t opBit = op.getBit();
 		if (opBit == 0) XBYAK_THROW(ERR_MEM_SIZE_IS_NOT_SPECIFIED);
 		int immBit = (std::min)(opBit, 32U);
-		opROO(Reg(15 - dfv, Operand::REG, opBit), op, Reg(0, Operand::REG, opBit), T_VEX|T_CODE1_IF1, 0xF6, immBit / 8, sc);
+		opROO(Reg(15 - dfv, Operand::REG, opBit), op, Reg(0, Operand::REG, opBit), T_APX|T_CODE1_IF1, 0xF6, immBit / 8, sc);
 		db(imm, immBit / 8);
 	}
 	void opCfcmov(const Reg& d, const Operand& op1, const Operand& op2, int code)
@@ -2829,7 +2829,7 @@ public:
 		int s = inner::IsInDisp8(imm) ? 1 : 0;
 		int immSize = s ? 1 : reg.isREG(16) ? 2 : 4;
 		uint8_t code = uint8_t(0x69 | (s << 1));
-		if (!opROO(Reg(), op, reg, T_VEX|T_NF|T_ZU, code, immSize)) {
+		if (!opROO(Reg(), op, reg, T_APX|T_NF|T_ZU, code, immSize)) {
 			opRO(reg, op, 0, code, reg.getKind() == op.getKind(), immSize);
 		}
 		db(imm, immSize);
