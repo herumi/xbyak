@@ -1684,3 +1684,23 @@ CYBOZU_TEST_AUTO(cfcmov)
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
 
+CYBOZU_TEST_AUTO(evex_misc)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			vmovaps(xmm31, ptr [r30+r26*8+0x40]);
+			vaddps(zmm30, zmm21, ptr [r20+r30*1]);
+			vcvtsd2si(r30d, ptr [r17+r31*4]);
+		}
+	} c;
+	const uint8_t tbl[] = {
+		0x62, 0x09, 0x78, 0x08, 0x28, 0x7c, 0xd6, 0x04,
+		0x62, 0x29, 0x50, 0x40, 0x58, 0x34, 0x34, 0x62,
+		0x29, 0x7b, 0x08, 0x2d, 0x34, 0xb9,
+	};
+	const size_t n = sizeof(tbl);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
+

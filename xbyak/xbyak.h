@@ -1882,13 +1882,6 @@ private:
 		bool R = reg.isExtIdx();
 		bool X3 = (x && x->isExtIdx()) || (base.isSIMD() && base.isExtIdx2());
 		bool B4 = base.isREG() && base.isExtIdx2();
-#if 0
-printf("X3=%d B4=%d\n", X3, B4);
-printf("reg=%s\n", reg.toString());
-printf("base=%s\n", base.toString());
-if (v) printf("v=%s\n", v->toString());
-if (x) printf("x=%s\n", x->toString());
-#endif
 		bool X4 = x && (x->isREG() && x->isExtIdx2());
 		bool B = base.isExtIdx();
 		bool Rp = reg.isExtIdx2();
@@ -1921,15 +1914,14 @@ if (x) printf("x=%s\n", x->toString());
 				}
 			}
 		}
-		bool Vp = ((v ? v->isExtIdx2() : 0) || Hi16Vidx);
-//if (v) printf("v=%s Vp=%d Hi16Vidx=%d\n", v->toString(), Vp, Hi16Vidx);
+		bool V4 = ((v ? v->isExtIdx2() : 0) || Hi16Vidx);
 		bool z = reg.hasZero() || base.hasZero() || (v ? v->hasZero() : false);
 		if (aaa == 0) aaa = verifyDuplicate(base.getOpmaskIdx(), reg.getOpmaskIdx(), (v ? v->getOpmaskIdx() : 0), ERR_OPMASK_IS_ALREADY_SET);
 		if (aaa == 0) z = 0; // clear T_z if mask is not set
 		db(0x62);
 		db((R ? 0 : 0x80) | (X3 ? 0 : 0x40) | (B ? 0 : 0x20) | (Rp ? 0 : 0x10) | (B4 ? 8 : 0) | mmm);
 		db((w == 1 ? 0x80 : 0) | ((vvvv & 15) << 3) | (X4 ? 0 : 4) | (pp & 3));
-		db((z ? 0x80 : 0) | ((LL & 3) << 5) | (b ? 0x10 : 0) | (Vp ? 0 : 8) | (aaa & 7));
+		db((z ? 0x80 : 0) | ((LL & 3) << 5) | (b ? 0x10 : 0) | (V4 ? 0 : 8) | (aaa & 7));
 		db(code);
 		return disp8N;
 	}
