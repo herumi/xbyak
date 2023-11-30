@@ -1828,6 +1828,7 @@ private:
 	static const uint64_t T_ND1 = 1ull << 35; // ND=1
 	static const uint64_t T_ZU = 1ull << 36; // ND=ZU
 	static const uint64_t T_F2 = 1ull << 37; // pp = 3
+	static const uint64_t T_MAP1 = 1ull << 38; // kmov
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
 	static inline uint32_t getMMM(uint64_t type) { return (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0; }
@@ -1927,6 +1928,7 @@ private:
 	}
 	static inline int getMap(uint64_t type)
 	{
+		if (type & T_MAP1) return 1;
 		if (type & T_MAP3) return 3;
 		if (type & (T_0F38|T_0F3A)) return 2;
 		return 4; // legacy
@@ -3093,6 +3095,30 @@ public:
 	// set default encoding to select Vex or Evex
 	void setDefaultEncoding(PreferredEncoding encoding) { defaultEncoding_ = encoding; }
 
+	// (reg32e/mem, k) if rev else (k, k/mem/reg32e)
+	// size = 8, 16, 32, 64
+	void opKmov(const Opmask& k, const Operand& op, bool rev, int size)
+	{
+		int code = 0;
+		bool isReg = op.isREG(size < 64 ? 32 : 64);
+		if (rev) {
+			code = isReg ? 0x93 : op.isMEM() ? 0x91 : 0;
+		} else {
+			code = op.isOPMASK() || op.isMEM() ? 0x90 : isReg ? 0x92 : 0;
+		}
+		if (code == 0) XBYAK_THROW(ERR_BAD_COMBINATION)
+		uint64_t type = 0;
+		switch (size) {
+		case 8:  type = T_W0|T_66; break;
+		case 16: type = T_W0; break;
+		case 32: type = isReg ? T_W0|T_F2 : T_W1|T_66; break;
+		case 64: type = isReg ? T_W1|T_F2 : T_W1; break;
+		}
+		const Operand *p1 = &k, *p2 = &op;
+		if (code == 0x93) { std::swap(p1, p2); }
+		if (opROO(Reg(), *p2, *p1, T_MAP1|type, code)) return;
+		opVex(static_cast<const Reg&>(*p1), 0, *p2, T_L0|T_0F|type, code);
+	}
 	/*
 		use single byte nop if useMultiByteNop = false
 	*/
