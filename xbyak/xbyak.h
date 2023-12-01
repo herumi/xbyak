@@ -2708,6 +2708,7 @@ private:
 		Address addr2 = addr.cloneNoOptimize();
 		const RegExp exp = addr2.getRegExp();
 		if (exp.getBase().getBit() == 0 || exp.getIndex().getBit() == 0) XBYAK_THROW(ERR_NOT_SUPPORTED)
+		if (opROO(Reg(), addr2, t1, T_APX|type, code)) return;
 		opVex(t1, &tmm0, addr2, type, code);
 	}
 #endif
