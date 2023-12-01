@@ -23,6 +23,7 @@ It is named from a Japanese word [開闢](https://translate.google.com/?hl=ja&sl
 - fully support AVX-512
 
 - support APX
+
 **Note**:
 Use `and_()`, `or_()`, ... instead of `and()`, `or()`.
 If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
