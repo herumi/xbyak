@@ -129,17 +129,22 @@ vpdpbusd(xm0, xm1, xm2); // VEX encoding
 * specify `xword`/`yword`/`zword(_b)` for m128/m256/m512 if necessary.
 
 ## APX
-- Support 16 additional GPRs (general-purpose registers) r16, ..., r31
+[Advanced Performance Extensions (APX) Architecture Specification](https://www.intel.com/content/www/us/en/content-details/786223/intel-advanced-performance-extensions-intel-apx-architecture-specification.html)
+- Support 64-bit 16 additional GPRs (general-purpose registers) r16, ..., r31
+  - 32-bit regs are r16d, ..., r31d
+  - 16-bit regs are r16w, ..., r31w
+  - 8-bit regs are r16b, ..., r31b
+  - `add(r20, r21);`
+  - `lea(r30, ptr[r29+r31]);`
 - Support three-operand instruction
+  - `add(r20, r21, r23);`
+  - `add(r20, ptr[rax + rcx * 8 + 0x1234], r23);`
 - Support T_nf for NF=1 (status flags update suppression)
+  - `add(r20|T_nf, r21, r23);` // Set EVEX.NF=1
 - Support T_zu for NF=ZU (zero upper) for imul and setcc
-
-e.g.
-- `add(r20, r21, r23);`
-- `add(r20, ptr[rax + rcx * 8 + 0x1234], r23);`
-- `add(r20|T_nf, r21, r23);` // set EVEX.NF=1
-- `imul(ax|T_zu, cx, 0x1234);` // set ND=ZU
-- `imul(ax|T_zu|T_nf, cx, 0x1234);` // set ND=ZU and EVEX.NF=1
+  - `imul(ax|T_zu, cx, 0x1234);` // Set ND=ZU
+  - `imul(ax|T_zu|T_nf, cx, 0x1234);` // Set ND=ZU and EVEX.NF=1
+  - `setb(r31b|T_zu);` // same as set(r31b); movzx(r31, r31b);
 
 ## Label
 Two kinds of Label are supported. (String literal and Label class).
