@@ -1,5 +1,5 @@
-TARGET = make_nm normalize_prefix bad_address misc cvt_test cvt_test32 noexception misc32 detect_x32
-XBYAK_INC=../xbyak/xbyak.h
+TARGET = make_nm normalize_prefix bad_address misc cvt_test cvt_test32 noexception misc32 detect_x32 apx
+XBYAK_INC=../xbyak/xbyak.h ../xbyak/xbyak_mnemonic.h
 UNAME_S=$(shell uname -s)
 ifeq ($(shell ./detect_x32),x32)
 X32?=1
@@ -31,30 +31,32 @@ CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wwrite-strings -Wfloat-equal -
 CFLAGS=-O2 -Wall -I.. -I. $(CFLAGS_WARN) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) #-std=c++0x
 make_nm:
 	$(CXX) $(CFLAGS) make_nm.cpp -o $@
-normalize_prefix: normalize_prefix.cpp ../xbyak/xbyak.h
+normalize_prefix: normalize_prefix.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) normalize_prefix.cpp -o $@
-test_mmx: test_mmx.cpp ../xbyak/xbyak.h
+test_mmx: test_mmx.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) test_mmx.cpp -o $@ -lpthread
-jmp: jmp.cpp ../xbyak/xbyak.h
+jmp: jmp.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) jmp.cpp -o $@ -m32
-jmp64: jmp.cpp ../xbyak/xbyak.h
+jmp64: jmp.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) jmp.cpp -o $@ -m64
-address: address.cpp ../xbyak/xbyak.h
+address: address.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) address.cpp -o $@ -m32
-address64: address.cpp ../xbyak/xbyak.h
+address64: address.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) address.cpp -o $@ -m64
-bad_address: bad_address.cpp ../xbyak/xbyak.h
+bad_address: bad_address.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) bad_address.cpp -o $@
-misc: misc.cpp ../xbyak/xbyak.h
+misc: misc.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) misc.cpp -o $@
-misc32: misc.cpp ../xbyak/xbyak.h
+misc32: misc.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) misc.cpp -o $@ -DXBYAK32
-cvt_test: cvt_test.cpp ../xbyak/xbyak.h
+cvt_test: cvt_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@
-cvt_test32: cvt_test.cpp ../xbyak/xbyak.h
+cvt_test32: cvt_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK32
-noexception: noexception.cpp ../xbyak/xbyak.h
+noexception: noexception.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@ -fno-exceptions
+apx: apx.cpp $(XBYAK_INC)
+	$(CXX) $(CFLAGS) apx.cpp -o $@
 
 test_nm: normalize_prefix $(TARGET)
 	$(MAKE) -C ../gen
@@ -71,6 +73,7 @@ endif
 	./misc
 	./misc32
 	./cvt_test
+	./apx
 ifeq ($(BIT),64)
 	CXX=$(CXX) ./test_address.sh 64
 ifneq ($(X32),1)
