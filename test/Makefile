@@ -1,4 +1,4 @@
-TARGET = make_nm normalize_prefix bad_address misc cvt_test cvt_test32 noexception misc32 detect_x32 apx
+TARGET = make_nm normalize_prefix bad_address misc cvt_test cvt_test32 noexception misc32 detect_x32
 XBYAK_INC=../xbyak/xbyak.h ../xbyak/xbyak_mnemonic.h
 UNAME_S=$(shell uname -s)
 ifeq ($(shell ./detect_x32),x32)
@@ -21,7 +21,7 @@ ifeq ($(ONLY_64BIT),0)
 endif
 
 ifeq ($(BIT),64)
-	TARGET += jmp64 address64
+	TARGET += jmp64 address64 apx
 endif
 
 all: $(TARGET)
@@ -73,7 +73,6 @@ endif
 	./misc
 	./misc32
 	./cvt_test
-	./apx
 ifeq ($(BIT),64)
 	CXX=$(CXX) ./test_address.sh 64
 ifneq ($(X32),1)
@@ -81,6 +80,7 @@ ifneq ($(X32),1)
 	CXX=$(CXX) ./test_nm.sh Y64
 endif
 	./jmp64
+	./apx
 endif
 
 test_avx: normalize_prefix
