@@ -103,12 +103,17 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tSM3, "sm3" },
 		{ Cpu::tSM4, "sm4" },
 		{ Cpu::tAVX_VNNI_INT16, "avx_vnni_int16" },
+		{ Cpu::tAPX_F, "apx_f" },
+		{ Cpu::tAVX10, "avx10" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
 	}
 	printf("\n");
 	if (onlyCpuidFeature) return;
+	if (cpu.has(Cpu::tAVX10)) {
+		printf("AVX10 version %d\n", cpu.getAVX10version());
+	}
 	if (cpu.has(Cpu::tPOPCNT)) {
 		const int n = 0x12345678; // bitcount = 13
 		const int ok = 13;

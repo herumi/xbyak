@@ -144,6 +144,7 @@ private:
 	uint32_t dataCacheSize_[maxNumberCacheLevels];
 	uint32_t coresSharignDataCache_[maxNumberCacheLevels];
 	uint32_t dataCacheLevels_;
+	uint32_t avx10version_;
 
 	uint32_t get32bitAsBE(const char *x) const
 	{
@@ -470,6 +471,8 @@ public:
 	XBYAK_DEFINE_TYPE(79, tSM3);
 	XBYAK_DEFINE_TYPE(80, tSM4);
 	XBYAK_DEFINE_TYPE(81, tAVX_VNNI_INT16);
+	XBYAK_DEFINE_TYPE(82, tAPX_F);
+	XBYAK_DEFINE_TYPE(83, tAVX10);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -481,6 +484,7 @@ public:
 		, dataCacheSize_()
 		, coresSharignDataCache_()
 		, dataCacheLevels_(0)
+		, avx10version_(0)
 	{
 		uint32_t data[4] = {};
 		const uint32_t& EAX = data[0];
@@ -627,7 +631,13 @@ public:
 				if (EDX & (1U << 5)) type_ |= tAVX_NE_CONVERT;
 				if (EDX & (1U << 10)) type_ |= tAVX_VNNI_INT16;
 				if (EDX & (1U << 14)) type_ |= tPREFETCHITI;
+				if (EDX & (1U << 19)) type_ |= tAVX10;
+				if (EDX & (1U << 21)) type_ |= tAPX_F;
 			}
+		}
+		if (has(tAVX10) && maxNum >= 24) {
+			getCpuidEx(0x24, 0, data);
+			avx10version_ = EBX & mask(7);
 		}
 		setFamily();
 		setNumCores();
@@ -645,6 +655,7 @@ public:
 	{
 		return (type & type_) == type;
 	}
+	int getAVX10version() const { return avx10version_; }
 };
 
 #ifndef XBYAK_ONLY_CLASS_CPU
