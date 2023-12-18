@@ -474,6 +474,7 @@ public:
 	XBYAK_DEFINE_TYPE(82, tAPX_F);
 	XBYAK_DEFINE_TYPE(83, tAVX10);
 	XBYAK_DEFINE_TYPE(84, tSSE4a);
+	XBYAK_DEFINE_TYPE(85, tCLWB);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -599,6 +600,7 @@ public:
 			if (EBX & (1U << 19)) type_ |= tADX;
 			if (EBX & (1U << 20)) type_ |= tSMAP;
 			if (EBX & (1U << 23)) type_ |= tCLFLUSHOPT;
+			if (EBX & (1U << 24)) type_ |= tCLWB;
 			if (EBX & (1U << 4)) type_ |= tHLE;
 			if (EBX & (1U << 11)) type_ |= tRTM;
 			if (EBX & (1U << 14)) type_ |= tMPX;
