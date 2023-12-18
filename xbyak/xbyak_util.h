@@ -473,6 +473,7 @@ public:
 	XBYAK_DEFINE_TYPE(81, tAVX_VNNI_INT16);
 	XBYAK_DEFINE_TYPE(82, tAPX_F);
 	XBYAK_DEFINE_TYPE(83, tAVX10);
+	XBYAK_DEFINE_TYPE(84, tSSE4a);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -526,6 +527,7 @@ public:
 			if (EDX & (1U << 15)) type_ |= tCMOV;
 			if (ECX & (1U << 5)) type_ |= tLZCNT;
 			if (ECX & (1U << 8)) type_ |= tPREFETCHW;
+			if (ECX & (1U << 6)) type_ |= tSSE4a;
 		}
 
 		if (maxExtendedNum >= 0x80000008) {
