@@ -107,6 +107,8 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tAVX10, "avx10" },
 		{ Cpu::tAESKLE, "aeskle" },
 		{ Cpu::tWIDE_KL, "wide_kl" },
+		{ Cpu::tKEYLOCKER, "keylocker" },
+		{ Cpu::tKEYLOCKER_WIDE, "keylocker_wide" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);

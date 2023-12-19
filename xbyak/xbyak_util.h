@@ -474,7 +474,9 @@ public:
 	XBYAK_DEFINE_TYPE(82, tAPX_F);
 	XBYAK_DEFINE_TYPE(83, tAVX10);
 	XBYAK_DEFINE_TYPE(84, tAESKLE);
-	XBYAK_DEFINE_TYPE(84, tWIDE_KL);
+	XBYAK_DEFINE_TYPE(85, tWIDE_KL);
+	XBYAK_DEFINE_TYPE(86, tKEYLOCKER);
+	XBYAK_DEFINE_TYPE(87, tKEYLOCKER_WIDE);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -608,6 +610,7 @@ public:
 			if (ECX & (1U << 8)) type_ |= tGFNI;
 			if (ECX & (1U << 9)) type_ |= tVAES;
 			if (ECX & (1U << 10)) type_ |= tVPCLMULQDQ;
+			if (ECX & (1U << 23)) type_ |= tKEYLOCKER;
 			if (ECX & (1U << 25)) type_ |= tCLDEMOTE;
 			if (ECX & (1U << 27)) type_ |= tMOVDIRI;
 			if (ECX & (1U << 28)) type_ |= tMOVDIR64B;
@@ -641,6 +644,7 @@ public:
 			getCpuidEx(0x19, 0, data);
 			if (EBX & (1U << 0)) type_ |= tAESKLE;
 			if (EBX & (1U << 2)) type_ |= tWIDE_KL;
+			if (type_ & (tKEYLOCKER|tAESKLE|tWIDE_KL)) type_ |= tKEYLOCKER_WIDE;
 		}
 		if (has(tAVX10) && maxNum >= 0x24) {
 			getCpuidEx(0x24, 0, data);
