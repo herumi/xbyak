@@ -635,7 +635,7 @@ public:
 				if (EDX & (1U << 21)) type_ |= tAPX_F;
 			}
 		}
-		if (has(tAVX10) && maxNum >= 24) {
+		if (has(tAVX10) && maxNum >= 0x24) {
 			getCpuidEx(0x24, 0, data);
 			avx10version_ = EBX & mask(7);
 		}
