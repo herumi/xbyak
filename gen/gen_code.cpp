@@ -2020,21 +2020,21 @@ void put64()
 			uint64_t type1;
 			uint64_t type2;
 			uint8_t code;
-			int n;
+			int idx;
 		} tbl[] = {
-			{ "aesdec128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDD, 2 },
-			{ "aesdec256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDF, 2 },
+			{ "aesdec128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDD, 8 },
+			{ "aesdec256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDF, 8 },
+			{ "aesdecwide128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 1 },
+			{ "aesdecwide256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 3 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			std::string s1 = type2String(p->type1);
 			std::string s2 = type2String(p->type2);
-			switch (p->n) {
-			case 1:
-				break;
-			case 2:
+			if (p->idx == 8) {
 				printf("void %s(const Xmm& x, const Address& addr) { opAESKL(&x, addr, %s, %s, 0x%02X); }\n", p->name, s1.c_str(), s2.c_str(), p->code);
-				break;
+			} else {
+				printf("void %s(const Address& addr) { opAESKL(&xmm%d, addr, %s, %s, 0x%02X); }\n", p->name, p->idx, s1.c_str(), s2.c_str(), p->code);
 			}
 		}
 	}

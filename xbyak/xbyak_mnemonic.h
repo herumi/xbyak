@@ -1928,6 +1928,8 @@ void cmpsxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r
 void cmpzxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE4); }
 void aesdec128kl(const Xmm& x, const Address& addr) { opAESKL(&x, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xDD); }
 void aesdec256kl(const Xmm& x, const Address& addr) { opAESKL(&x, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xDF); }
+void aesdecwide128kl(const Address& addr) { opAESKL(&xmm1, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xD8); }
+void aesdecwide256kl(const Address& addr) { opAESKL(&xmm3, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xD8); }
 void ldtilecfg(const Address& addr) { if (opROO(Reg(), addr, tmm0, T_APX|T_0F38|T_W0, 0x49)) return; opVex(tmm0, &tmm0, addr, T_0F38|T_W0, 0x49); }
 void sttilecfg(const Address& addr) { if (opROO(Reg(), addr, tmm0, T_APX|T_66|T_0F38|T_W0, 0x49)) return; opVex(tmm0, &tmm0, addr, T_66|T_0F38 | T_W0, 0x49); }
 void tileloadd(const Tmm& tm, const Address& addr) { opAMX(tm, addr, T_F2|T_0F38|T_W0, 0x4B); }
