@@ -46,6 +46,8 @@ Linuxではmake installで/usr/local/include/xbyakにコピーされます。
 -----------------------------------------------------------------------------
 ◎新機能
 
+APX/AVX10対応
+
 例外なしモード追加
 XBYAK_NO_EXCEPTIONを定義してコンパイルするとgcc/clangで-fno-exceptionsオプションでコンパイルできます。
 エラーは例外の代わりに`Xbyak::GetError()`で通達されます。
