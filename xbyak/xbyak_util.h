@@ -473,6 +473,8 @@ public:
 	XBYAK_DEFINE_TYPE(81, tAVX_VNNI_INT16);
 	XBYAK_DEFINE_TYPE(82, tAPX_F);
 	XBYAK_DEFINE_TYPE(83, tAVX10);
+	XBYAK_DEFINE_TYPE(84, tAESKLE);
+	XBYAK_DEFINE_TYPE(84, tWIDE_KL);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -634,6 +636,11 @@ public:
 				if (EDX & (1U << 19)) type_ |= tAVX10;
 				if (EDX & (1U << 21)) type_ |= tAPX_F;
 			}
+		}
+		if (maxNum >= 0x19) {
+			getCpuidEx(0x19, 0, data);
+			if (EBX & (1U << 0)) type_ |= tAESKLE;
+			if (EBX & (1U << 2)) type_ |= tWIDE_KL;
 		}
 		if (has(tAVX10) && maxNum >= 0x24) {
 			getCpuidEx(0x24, 0, data);
