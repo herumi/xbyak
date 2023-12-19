@@ -2026,6 +2026,10 @@ void put64()
 			{ "aesdec256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDF, 8 },
 			{ "aesdecwide128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 1 },
 			{ "aesdecwide256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 3 },
+			{ "aesenc128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDC, 8 },
+			{ "aesenc256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDE, 8 },
+			{ "aesencwide128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 0 },
+			{ "aesencwide256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 2 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
