@@ -1753,6 +1753,7 @@ CYBOZU_TEST_AUTO(kmov)
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
+
 CYBOZU_TEST_AUTO(amx)
 {
 	struct Code : Xbyak::CodeGenerator {
@@ -1835,3 +1836,37 @@ CYBOZU_TEST_AUTO(aeskl)
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
+
+CYBOZU_TEST_AUTO(encodekey)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			encodekey128(eax, ebx);
+			encodekey128(eax, r8d);
+			encodekey128(r8d, ebx);
+			encodekey128(r30d, r29d);
+
+			encodekey256(eax, ebx);
+			encodekey256(eax, r8d);
+			encodekey256(r8d, ebx);
+			encodekey256(r30d, r29d);
+		}
+	} c;
+	const uint8_t tbl[] = {
+		// encodekey128
+		0xf3, 0x0f, 0x38, 0xfa, 0xc3,
+		0x62, 0xd4, 0x7e, 0x08, 0xda, 0xc0,
+		0x62, 0x74, 0x7e, 0x08, 0xda, 0xc3,
+		0x62, 0x4c, 0x7e, 0x08, 0xda, 0xf5,
+		// encodekey256
+		0xf3, 0x0f, 0x38, 0xfb, 0xc3,
+		0x62, 0xd4, 0x7e, 0x08, 0xdb, 0xc0,
+		0x62, 0x74, 0x7e, 0x08, 0xdb, 0xc3,
+		0x62, 0x4c, 0x7e, 0x08, 0xdb, 0xf5,
+	};
+	const size_t n = sizeof(tbl);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
+

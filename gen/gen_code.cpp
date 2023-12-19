@@ -2042,6 +2042,9 @@ void put64()
 			}
 		}
 	}
+	// encodekey
+	puts("void encodekey128(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFA, 0xDA); }");
+	puts("void encodekey256(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFB, 0xDB); }");
 }
 
 void putAMX_TILE()

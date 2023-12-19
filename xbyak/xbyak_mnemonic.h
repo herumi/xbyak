@@ -1934,6 +1934,8 @@ void aesenc128kl(const Xmm& x, const Address& addr) { opAESKL(&x, addr, T_F3|T_0
 void aesenc256kl(const Xmm& x, const Address& addr) { opAESKL(&x, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xDE); }
 void aesencwide128kl(const Address& addr) { opAESKL(&xmm0, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xD8); }
 void aesencwide256kl(const Address& addr) { opAESKL(&xmm2, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xD8); }
+void encodekey128(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFA, 0xDA); }
+void encodekey256(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFB, 0xDB); }
 void ldtilecfg(const Address& addr) { if (opROO(Reg(), addr, tmm0, T_APX|T_0F38|T_W0, 0x49)) return; opVex(tmm0, &tmm0, addr, T_0F38|T_W0, 0x49); }
 void sttilecfg(const Address& addr) { if (opROO(Reg(), addr, tmm0, T_APX|T_66|T_0F38|T_W0, 0x49)) return; opVex(tmm0, &tmm0, addr, T_66|T_0F38 | T_W0, 0x49); }
 void tileloadd(const Tmm& tm, const Address& addr) { opAMX(tm, addr, T_F2|T_0F38|T_W0, 0x4B); }

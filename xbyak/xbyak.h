@@ -231,6 +231,7 @@ enum {
 	ERR_INVALID_ZU,
 	ERR_CANT_USE_REX2,
 	ERR_INVALID_DFV,
+	ERR_INVALID_REG_IDX,
 	ERR_INTERNAL // Put it at last.
 };
 
@@ -288,6 +289,7 @@ inline const char *ConvertErrorToString(int err)
 		"invalid ZU",
 		"can't use rex2",
 		"invalid dfv",
+		"invalid reg index",
 		"internal error"
 	};
 	assert(ERR_INTERNAL + 1 == sizeof(errTbl) / sizeof(*errTbl));
@@ -2738,12 +2740,20 @@ private:
 	}
 	void opAESKL(const Xmm *x, const Address& addr, uint64_t type1, uint64_t type2, uint8_t code)
 	{
-		if (x && x->getIdx() >= 16) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (x && x->getIdx() >= 16) XBYAK_THROW(ERR_INVALID_REG_IDX)
 		if (addr.hasRex2()) {
 			opROO(Reg(), addr, *x, type2, code);
 			return;
 		}
 		opRO(*x, addr, type1, code);
+	}
+	void opEncodeKey(const Reg32& r1, const Reg32& r2, uint8_t code1, uint8_t code2)
+	{
+		if (r1.getIdx() < 8 && r2.getIdx() < 8) {
+			db(0xF3); db(0x0F); db(0x38); db(code1); setModRM(3, r1.getIdx(), r2.getIdx());
+			return;
+		}
+		opROO(Reg(), r2, r1, T_MUST_EVEX|T_F3, code2);
 	}
 public:
 	unsigned int getVersion() const { return VERSION; }
