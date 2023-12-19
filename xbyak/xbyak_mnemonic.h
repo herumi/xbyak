@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "7.00"; }
+const char *getVersionString() const { return "7.01"; }
 void aadd(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38, 0x0FC); }
 void aand(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38 | T_66, 0x0FC); }
 void adc(const Operand& op, uint32_t imm) { opOI(op, imm, 0x10, 2); }
@@ -1926,6 +1926,16 @@ void cmpoxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r
 void cmppxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xEA); }
 void cmpsxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE8); }
 void cmpzxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE4); }
+void aesdec128kl(const Xmm& x, const Address& addr) { opAESKL(&x, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xDD); }
+void aesdec256kl(const Xmm& x, const Address& addr) { opAESKL(&x, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xDF); }
+void aesdecwide128kl(const Address& addr) { opAESKL(&xmm1, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xD8); }
+void aesdecwide256kl(const Address& addr) { opAESKL(&xmm3, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xD8); }
+void aesenc128kl(const Xmm& x, const Address& addr) { opAESKL(&x, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xDC); }
+void aesenc256kl(const Xmm& x, const Address& addr) { opAESKL(&x, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xDE); }
+void aesencwide128kl(const Address& addr) { opAESKL(&xmm0, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xD8); }
+void aesencwide256kl(const Address& addr) { opAESKL(&xmm2, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xD8); }
+void encodekey128(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFA, 0xDA); }
+void encodekey256(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFB, 0xDB); }
 void ldtilecfg(const Address& addr) { if (opROO(Reg(), addr, tmm0, T_APX|T_0F38|T_W0, 0x49)) return; opVex(tmm0, &tmm0, addr, T_0F38|T_W0, 0x49); }
 void sttilecfg(const Address& addr) { if (opROO(Reg(), addr, tmm0, T_APX|T_66|T_0F38|T_W0, 0x49)) return; opVex(tmm0, &tmm0, addr, T_66|T_0F38 | T_W0, 0x49); }
 void tileloadd(const Tmm& tm, const Address& addr) { opAMX(tm, addr, T_F2|T_0F38|T_W0, 0x4B); }

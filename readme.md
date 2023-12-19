@@ -1,5 +1,5 @@
 
-# Xbyak 7.00 [![Badge Build]][Build Status]
+# Xbyak 7.01 [![Badge Build]][Build Status]
 
 *A C++ JIT assembler for x86 (IA32), x64 (AMD64, x86-64)*
 
@@ -21,8 +21,7 @@ It is named from a Japanese word [開闢](https://translate.google.com/?hl=ja&sl
 - header file only
 - Intel/MASM like syntax
 - fully support AVX-512
-
-- support APX
+- support APX/AVX10
 
 **Note**:
 Use `and_()`, `or_()`, ... instead of `and()`, `or()`.
@@ -34,6 +33,7 @@ If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 ### News
 
+- support AVX10 detection, AESKLE, WIDE_KL, KEYLOCKER, KEYLOCKER_WIDE
 - support APX except for a few instructions
 - add amx_fp16/avx_vnni_int8/avx_ne_convert/avx-ifma
 - add movdiri, movdir64b, clwb, cldemote

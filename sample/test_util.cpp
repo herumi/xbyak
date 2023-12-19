@@ -31,6 +31,7 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tSSSE3, "ssse3" },
 		{ Cpu::tSSE41, "sse41" },
 		{ Cpu::tSSE42, "sse42" },
+		{ Cpu::tSSE4a, "sse4a" },
 		{ Cpu::tPOPCNT, "popcnt" },
 		{ Cpu::t3DN, "3dn" },
 		{ Cpu::tE3DN, "e3dn" },
@@ -87,6 +88,7 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tWAITPKG, "waitpkg" },
 		{ Cpu::tCLFLUSHOPT, "clflushopt" },
 		{ Cpu::tCLDEMOTE, "cldemote" },
+		{ Cpu::tCLWB, "clwb" },
 		{ Cpu::tMOVDIRI, "movdiri" },
 		{ Cpu::tMOVDIR64B, "movdir64b" },
 		{ Cpu::tUINTR, "uintr" },
@@ -105,6 +107,10 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tAVX_VNNI_INT16, "avx_vnni_int16" },
 		{ Cpu::tAPX_F, "apx_f" },
 		{ Cpu::tAVX10, "avx10" },
+		{ Cpu::tAESKLE, "aeskle" },
+		{ Cpu::tWIDE_KL, "wide_kl" },
+		{ Cpu::tKEYLOCKER, "keylocker" },
+		{ Cpu::tKEYLOCKER_WIDE, "keylocker_wide" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);

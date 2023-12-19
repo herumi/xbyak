@@ -155,7 +155,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7000 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7010 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -231,6 +231,7 @@ enum {
 	ERR_INVALID_ZU,
 	ERR_CANT_USE_REX2,
 	ERR_INVALID_DFV,
+	ERR_INVALID_REG_IDX,
 	ERR_INTERNAL // Put it at last.
 };
 
@@ -288,6 +289,7 @@ inline const char *ConvertErrorToString(int err)
 		"invalid ZU",
 		"can't use rex2",
 		"invalid dfv",
+		"invalid reg index",
 		"internal error"
 	};
 	assert(ERR_INTERNAL + 1 == sizeof(errTbl) / sizeof(*errTbl));
@@ -2712,6 +2714,47 @@ private:
 		opVex(t1, &tmm0, addr2, type, code);
 	}
 #endif
+	// (reg32e/mem, k) if rev else (k, k/mem/reg32e)
+	// size = 8, 16, 32, 64
+	void opKmov(const Opmask& k, const Operand& op, bool rev, int size)
+	{
+		int code = 0;
+		bool isReg = op.isREG(size < 64 ? 32 : 64);
+		if (rev) {
+			code = isReg ? 0x93 : op.isMEM() ? 0x91 : 0;
+		} else {
+			code = op.isOPMASK() || op.isMEM() ? 0x90 : isReg ? 0x92 : 0;
+		}
+		if (code == 0) XBYAK_THROW(ERR_BAD_COMBINATION)
+		uint64_t type = 0;
+		switch (size) {
+		case 8:  type = T_W0|T_66; break;
+		case 16: type = T_W0; break;
+		case 32: type = isReg ? T_W0|T_F2 : T_W1|T_66; break;
+		case 64: type = isReg ? T_W1|T_F2 : T_W1; break;
+		}
+		const Operand *p1 = &k, *p2 = &op;
+		if (code == 0x93) { std::swap(p1, p2); }
+		if (opROO(Reg(), *p2, *p1, T_MAP1|type, code)) return;
+		opVex(static_cast<const Reg&>(*p1), 0, *p2, T_L0|T_0F|type, code);
+	}
+	void opAESKL(const Xmm *x, const Address& addr, uint64_t type1, uint64_t type2, uint8_t code)
+	{
+		if (x && x->getIdx() >= 16) XBYAK_THROW(ERR_INVALID_REG_IDX)
+		if (addr.hasRex2()) {
+			opROO(Reg(), addr, *x, type2, code);
+			return;
+		}
+		opRO(*x, addr, type1, code);
+	}
+	void opEncodeKey(const Reg32& r1, const Reg32& r2, uint8_t code1, uint8_t code2)
+	{
+		if (r1.getIdx() < 8 && r2.getIdx() < 8) {
+			db(0xF3); db(0x0F); db(0x38); db(code1); setModRM(3, r1.getIdx(), r2.getIdx());
+			return;
+		}
+		opROO(Reg(), r2, r1, T_MUST_EVEX|T_F3, code2);
+	}
 public:
 	unsigned int getVersion() const { return VERSION; }
 	using CodeArray::db;
@@ -3096,30 +3139,6 @@ public:
 	// set default encoding to select Vex or Evex
 	void setDefaultEncoding(PreferredEncoding encoding) { defaultEncoding_ = encoding; }
 
-	// (reg32e/mem, k) if rev else (k, k/mem/reg32e)
-	// size = 8, 16, 32, 64
-	void opKmov(const Opmask& k, const Operand& op, bool rev, int size)
-	{
-		int code = 0;
-		bool isReg = op.isREG(size < 64 ? 32 : 64);
-		if (rev) {
-			code = isReg ? 0x93 : op.isMEM() ? 0x91 : 0;
-		} else {
-			code = op.isOPMASK() || op.isMEM() ? 0x90 : isReg ? 0x92 : 0;
-		}
-		if (code == 0) XBYAK_THROW(ERR_BAD_COMBINATION)
-		uint64_t type = 0;
-		switch (size) {
-		case 8:  type = T_W0|T_66; break;
-		case 16: type = T_W0; break;
-		case 32: type = isReg ? T_W0|T_F2 : T_W1|T_66; break;
-		case 64: type = isReg ? T_W1|T_F2 : T_W1; break;
-		}
-		const Operand *p1 = &k, *p2 = &op;
-		if (code == 0x93) { std::swap(p1, p2); }
-		if (opROO(Reg(), *p2, *p1, T_MAP1|type, code)) return;
-		opVex(static_cast<const Reg&>(*p1), 0, *p2, T_L0|T_0F|type, code);
-	}
 	/*
 		use single byte nop if useMultiByteNop = false
 	*/

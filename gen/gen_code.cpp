@@ -2013,6 +2013,38 @@ void put64()
 			printf("void cmp%sxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0x%02X); }\n", p->name, p->code);
 		}
 	}
+	// aes
+	{
+		const struct Tbl {
+			const char *name;
+			uint64_t type1;
+			uint64_t type2;
+			uint8_t code;
+			int idx;
+		} tbl[] = {
+			{ "aesdec128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDD, 8 },
+			{ "aesdec256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDF, 8 },
+			{ "aesdecwide128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 1 },
+			{ "aesdecwide256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 3 },
+			{ "aesenc128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDC, 8 },
+			{ "aesenc256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDE, 8 },
+			{ "aesencwide128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 0 },
+			{ "aesencwide256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 2 },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			std::string s1 = type2String(p->type1);
+			std::string s2 = type2String(p->type2);
+			if (p->idx == 8) {
+				printf("void %s(const Xmm& x, const Address& addr) { opAESKL(&x, addr, %s, %s, 0x%02X); }\n", p->name, s1.c_str(), s2.c_str(), p->code);
+			} else {
+				printf("void %s(const Address& addr) { opAESKL(&xmm%d, addr, %s, %s, 0x%02X); }\n", p->name, p->idx, s1.c_str(), s2.c_str(), p->code);
+			}
+		}
+	}
+	// encodekey
+	puts("void encodekey128(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFA, 0xDA); }");
+	puts("void encodekey256(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFB, 0xDB); }");
 }
 
 void putAMX_TILE()

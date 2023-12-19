@@ -473,6 +473,12 @@ public:
 	XBYAK_DEFINE_TYPE(81, tAVX_VNNI_INT16);
 	XBYAK_DEFINE_TYPE(82, tAPX_F);
 	XBYAK_DEFINE_TYPE(83, tAVX10);
+	XBYAK_DEFINE_TYPE(84, tAESKLE);
+	XBYAK_DEFINE_TYPE(85, tWIDE_KL);
+	XBYAK_DEFINE_TYPE(86, tKEYLOCKER);
+	XBYAK_DEFINE_TYPE(87, tKEYLOCKER_WIDE);
+	XBYAK_DEFINE_TYPE(88, tSSE4a);
+	XBYAK_DEFINE_TYPE(89, tCLWB);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -519,13 +525,14 @@ public:
 		if (maxExtendedNum >= 0x80000001) {
 			getCpuid(0x80000001, data);
 
-			if (EDX & (1U << 31)) type_ |= t3DN;
-			if (EDX & (1U << 30)) type_ |= tE3DN;
-			if (EDX & (1U << 27)) type_ |= tRDTSCP;
-			if (EDX & (1U << 22)) type_ |= tMMX2;
-			if (EDX & (1U << 15)) type_ |= tCMOV;
 			if (ECX & (1U << 5)) type_ |= tLZCNT;
+			if (ECX & (1U << 6)) type_ |= tSSE4a;
 			if (ECX & (1U << 8)) type_ |= tPREFETCHW;
+			if (EDX & (1U << 15)) type_ |= tCMOV;
+			if (EDX & (1U << 22)) type_ |= tMMX2;
+			if (EDX & (1U << 27)) type_ |= tRDTSCP;
+			if (EDX & (1U << 30)) type_ |= tE3DN;
+			if (EDX & (1U << 31)) type_ |= t3DN;
 		}
 
 		if (maxExtendedNum >= 0x80000008) {
@@ -544,8 +551,8 @@ public:
 		if (ECX & (1U << 25)) type_ |= tAESNI;
 		if (ECX & (1U << 26)) type_ |= tXSAVE;
 		if (ECX & (1U << 27)) type_ |= tOSXSAVE;
-		if (ECX & (1U << 30)) type_ |= tRDRAND;
 		if (ECX & (1U << 29)) type_ |= tF16C;
+		if (ECX & (1U << 30)) type_ |= tRDRAND;
 
 		if (EDX & (1U << 15)) type_ |= tCMOV;
 		if (EDX & (1U << 23)) type_ |= tMMX;
@@ -556,8 +563,8 @@ public:
 			// check XFEATURE_ENABLED_MASK[2:1] = '11b'
 			uint64_t bv = getXfeature();
 			if ((bv & 6) == 6) {
-				if (ECX & (1U << 28)) type_ |= tAVX;
 				if (ECX & (1U << 12)) type_ |= tFMA;
+				if (ECX & (1U << 28)) type_ |= tAVX;
 				// do *not* check AVX-512 state on macOS because it has on-demand AVX-512 support
 #if !defined(__APPLE__)
 				if (((bv >> 5) & 7) == 7)
@@ -591,21 +598,23 @@ public:
 			const uint32_t maxNumSubLeaves = EAX;
 			if (type_ & tAVX && (EBX & (1U << 5))) type_ |= tAVX2;
 			if (EBX & (1U << 3)) type_ |= tBMI1;
+			if (EBX & (1U << 4)) type_ |= tHLE;
 			if (EBX & (1U << 8)) type_ |= tBMI2;
 			if (EBX & (1U << 9)) type_ |= tENHANCED_REP;
+			if (EBX & (1U << 11)) type_ |= tRTM;
+			if (EBX & (1U << 14)) type_ |= tMPX;
 			if (EBX & (1U << 18)) type_ |= tRDSEED;
 			if (EBX & (1U << 19)) type_ |= tADX;
 			if (EBX & (1U << 20)) type_ |= tSMAP;
 			if (EBX & (1U << 23)) type_ |= tCLFLUSHOPT;
-			if (EBX & (1U << 4)) type_ |= tHLE;
-			if (EBX & (1U << 11)) type_ |= tRTM;
-			if (EBX & (1U << 14)) type_ |= tMPX;
+			if (EBX & (1U << 24)) type_ |= tCLWB;
 			if (EBX & (1U << 29)) type_ |= tSHA;
 			if (ECX & (1U << 0)) type_ |= tPREFETCHWT1;
 			if (ECX & (1U << 5)) type_ |= tWAITPKG;
 			if (ECX & (1U << 8)) type_ |= tGFNI;
 			if (ECX & (1U << 9)) type_ |= tVAES;
 			if (ECX & (1U << 10)) type_ |= tVPCLMULQDQ;
+			if (ECX & (1U << 23)) type_ |= tKEYLOCKER;
 			if (ECX & (1U << 25)) type_ |= tCLDEMOTE;
 			if (ECX & (1U << 27)) type_ |= tMOVDIRI;
 			if (ECX & (1U << 28)) type_ |= tMOVDIR64B;
@@ -635,7 +644,13 @@ public:
 				if (EDX & (1U << 21)) type_ |= tAPX_F;
 			}
 		}
-		if (has(tAVX10) && maxNum >= 24) {
+		if (maxNum >= 0x19) {
+			getCpuidEx(0x19, 0, data);
+			if (EBX & (1U << 0)) type_ |= tAESKLE;
+			if (EBX & (1U << 2)) type_ |= tWIDE_KL;
+			if (type_ & (tKEYLOCKER|tAESKLE|tWIDE_KL)) type_ |= tKEYLOCKER_WIDE;
+		}
+		if (has(tAVX10) && maxNum >= 0x24) {
 			getCpuidEx(0x24, 0, data);
 			avx10version_ = EBX & mask(7);
 		}
