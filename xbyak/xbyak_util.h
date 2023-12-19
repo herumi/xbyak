@@ -477,6 +477,8 @@ public:
 	XBYAK_DEFINE_TYPE(85, tWIDE_KL);
 	XBYAK_DEFINE_TYPE(86, tKEYLOCKER);
 	XBYAK_DEFINE_TYPE(87, tKEYLOCKER_WIDE);
+	XBYAK_DEFINE_TYPE(88, tSSE4a);
+	XBYAK_DEFINE_TYPE(89, tCLWB);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -530,6 +532,7 @@ public:
 			if (EDX & (1U << 15)) type_ |= tCMOV;
 			if (ECX & (1U << 5)) type_ |= tLZCNT;
 			if (ECX & (1U << 8)) type_ |= tPREFETCHW;
+			if (ECX & (1U << 6)) type_ |= tSSE4a;
 		}
 
 		if (maxExtendedNum >= 0x80000008) {
@@ -601,6 +604,7 @@ public:
 			if (EBX & (1U << 19)) type_ |= tADX;
 			if (EBX & (1U << 20)) type_ |= tSMAP;
 			if (EBX & (1U << 23)) type_ |= tCLFLUSHOPT;
+			if (EBX & (1U << 24)) type_ |= tCLWB;
 			if (EBX & (1U << 4)) type_ |= tHLE;
 			if (EBX & (1U << 11)) type_ |= tRTM;
 			if (EBX & (1U << 14)) type_ |= tMPX;
