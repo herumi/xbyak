@@ -2736,6 +2736,15 @@ private:
 		if (opROO(Reg(), *p2, *p1, T_MAP1|type, code)) return;
 		opVex(static_cast<const Reg&>(*p1), 0, *p2, T_L0|T_0F|type, code);
 	}
+	void opAESKL(const Xmm *x, const Address& addr, uint64_t type1, uint64_t type2, uint8_t code)
+	{
+		if (x && x->getIdx() >= 16) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (addr.hasRex2()) {
+			opROO(Reg(), addr, *x, type2, code);
+			return;
+		}
+		opRO(*x, addr, type1, code);
+	}
 public:
 	unsigned int getVersion() const { return VERSION; }
 	using CodeArray::db;

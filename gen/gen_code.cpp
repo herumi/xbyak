@@ -2013,6 +2013,30 @@ void put64()
 			printf("void cmp%sxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0x%02X); }\n", p->name, p->code);
 		}
 	}
+	// aes
+	{
+		const struct Tbl {
+			const char *name;
+			uint64_t type1;
+			uint64_t type2;
+			uint8_t code;
+			int n;
+		} tbl[] = {
+			{ "aesdec128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDD, 2 },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			std::string s1 = type2String(p->type1);
+			std::string s2 = type2String(p->type2);
+			switch (p->n) {
+			case 1:
+				break;
+			case 2:
+				printf("void %s(const Xmm& x, const Address& addr) { opAESKL(&x, addr, %s, %s, 0x%02X); }\n", p->name, s1.c_str(), s2.c_str(), p->code);
+				break;
+			}
+		}
+	}
 }
 
 void putAMX_TILE()
