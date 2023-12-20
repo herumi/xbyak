@@ -2738,15 +2738,6 @@ private:
 		if (opROO(Reg(), *p2, *p1, T_MAP1|type, code)) return;
 		opVex(static_cast<const Reg&>(*p1), 0, *p2, T_L0|T_0F|type, code);
 	}
-	void opAESKL(const Xmm *x, const Address& addr, uint64_t type1, uint64_t type2, uint8_t code)
-	{
-		if (x && x->getIdx() >= 16) XBYAK_THROW(ERR_INVALID_REG_IDX)
-		if (addr.hasRex2()) {
-			opROO(Reg(), addr, *x, type2, code);
-			return;
-		}
-		opRO(*x, addr, type1, code);
-	}
 	void opEncodeKey(const Reg32& r1, const Reg32& r2, uint8_t code1, uint8_t code2)
 	{
 		if (r1.getIdx() < 8 && r2.getIdx() < 8) {
@@ -2755,13 +2746,13 @@ private:
 		}
 		opROO(Reg(), r2, r1, T_MUST_EVEX|T_F3, code2);
 	}
-	void opSHA(const Xmm& x, const Operand& op, uint64_t type, uint8_t code1, uint8_t code2, int imm = NONE)
+	void opSSE_APX(const Xmm& x, const Operand& op, uint64_t type1, uint8_t code1, uint64_t type2, uint8_t code2, int imm = NONE)
 	{
-		if (x.getIdx() <= 15 && op.hasRex2() && opROO(Reg(), op, x, T_MUST_EVEX, code2, imm != NONE ? 1 : 0)) {
+		if (x.getIdx() <= 15 && op.hasRex2() && opROO(Reg(), op, x, type2, code2, imm != NONE ? 1 : 0)) {
 			if (imm != NONE) db(imm);
 			return;
 		}
-		opSSE(x, op, type, code1, isXMM_XMMorMEM, imm);
+		opSSE(x, op, type1, code1, isXMM_XMMorMEM, imm);
 	}
 public:
 	unsigned int getVersion() const { return VERSION; }

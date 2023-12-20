@@ -988,13 +988,13 @@ void setpo(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x4
 void sets(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 8)) return; opRext(op, 8, 0, T_0F, 0x90 | 8); }//-V524
 void setz(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 4)) return; opRext(op, 8, 0, T_0F, 0x90 | 4); }//-V524
 void sfence() { db(0x0F); db(0xAE); db(0xF8); }
-void sha1msg1(const Xmm& x, const Operand& op) { opSHA(x, op, T_0F38, 0xC9, 0xD9); }
-void sha1msg2(const Xmm& x, const Operand& op) { opSHA(x, op, T_0F38, 0xCA, 0xDA); }
-void sha1nexte(const Xmm& x, const Operand& op) { opSHA(x, op, T_0F38, 0xC8, 0xD8); }
-void sha1rnds4(const Xmm& x, const Operand& op, uint8_t imm) { opSHA(x, op, T_0F3A, 0xCC, 0xD4, imm); }
-void sha256msg1(const Xmm& x, const Operand& op) { opSHA(x, op, T_0F38, 0xCC, 0xDC); }
-void sha256msg2(const Xmm& x, const Operand& op) { opSHA(x, op, T_0F38, 0xCD, 0xDD); }
-void sha256rnds2(const Xmm& x, const Operand& op) { opSHA(x, op, T_0F38, 0xCB, 0xDB); }
+void sha1msg1(const Xmm& x, const Operand& op) { opSSE_APX(x, op, T_0F38, 0xC9, T_MUST_EVEX, 0xD9); }
+void sha1msg2(const Xmm& x, const Operand& op) { opSSE_APX(x, op, T_0F38, 0xCA, T_MUST_EVEX, 0xDA); }
+void sha1nexte(const Xmm& x, const Operand& op) { opSSE_APX(x, op, T_0F38, 0xC8, T_MUST_EVEX, 0xD8); }
+void sha1rnds4(const Xmm& x, const Operand& op, uint8_t imm) { opSSE_APX(x, op, T_0F3A, 0xCC, T_MUST_EVEX, 0xD4, imm); }
+void sha256msg1(const Xmm& x, const Operand& op) { opSSE_APX(x, op, T_0F38, 0xCC, T_MUST_EVEX, 0xDC); }
+void sha256msg2(const Xmm& x, const Operand& op) { opSSE_APX(x, op, T_0F38, 0xCD, T_MUST_EVEX, 0xDD); }
+void sha256rnds2(const Xmm& x, const Operand& op) { opSSE_APX(x, op, T_0F38, 0xCB, T_MUST_EVEX, 0xDB); }
 void shl(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 12); }
 void shl(const Operand& op, int imm) { opShift(op, imm, 12); }
 void shl(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 12, &d); }
@@ -1926,14 +1926,14 @@ void cmpoxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r
 void cmppxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xEA); }
 void cmpsxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE8); }
 void cmpzxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE4); }
-void aesdec128kl(const Xmm& x, const Address& addr) { opAESKL(&x, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xDD); }
-void aesdec256kl(const Xmm& x, const Address& addr) { opAESKL(&x, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xDF); }
-void aesdecwide128kl(const Address& addr) { opAESKL(&xmm1, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xD8); }
-void aesdecwide256kl(const Address& addr) { opAESKL(&xmm3, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xD8); }
-void aesenc128kl(const Xmm& x, const Address& addr) { opAESKL(&x, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xDC); }
-void aesenc256kl(const Xmm& x, const Address& addr) { opAESKL(&x, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xDE); }
-void aesencwide128kl(const Address& addr) { opAESKL(&xmm0, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xD8); }
-void aesencwide256kl(const Address& addr) { opAESKL(&xmm2, addr, T_F3|T_0F38, T_F3|T_MUST_EVEX, 0xD8); }
+void aesdec128kl(const Xmm& x, const Address& addr) { opSSE_APX(x, addr, T_F3|T_0F38, 0xDD, T_F3|T_MUST_EVEX, 0xDD); }
+void aesdec256kl(const Xmm& x, const Address& addr) { opSSE_APX(x, addr, T_F3|T_0F38, 0xDF, T_F3|T_MUST_EVEX, 0xDF); }
+void aesdecwide128kl(const Address& addr) { opSSE_APX(xmm1, addr, T_F3|T_0F38, 0xD8, T_F3|T_MUST_EVEX, 0xD8); }
+void aesdecwide256kl(const Address& addr) { opSSE_APX(xmm3, addr, T_F3|T_0F38, 0xD8, T_F3|T_MUST_EVEX, 0xD8); }
+void aesenc128kl(const Xmm& x, const Address& addr) { opSSE_APX(x, addr, T_F3|T_0F38, 0xDC, T_F3|T_MUST_EVEX, 0xDC); }
+void aesenc256kl(const Xmm& x, const Address& addr) { opSSE_APX(x, addr, T_F3|T_0F38, 0xDE, T_F3|T_MUST_EVEX, 0xDE); }
+void aesencwide128kl(const Address& addr) { opSSE_APX(xmm0, addr, T_F3|T_0F38, 0xD8, T_F3|T_MUST_EVEX, 0xD8); }
+void aesencwide256kl(const Address& addr) { opSSE_APX(xmm2, addr, T_F3|T_0F38, 0xD8, T_F3|T_MUST_EVEX, 0xD8); }
 void encodekey128(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFA, 0xDA); }
 void encodekey256(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFB, 0xDB); }
 void ldtilecfg(const Address& addr) { if (opROO(Reg(), addr, tmm0, T_APX|T_0F38|T_W0, 0x49)) return; opVex(tmm0, &tmm0, addr, T_0F38|T_W0, 0x49); }
