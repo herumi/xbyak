@@ -988,13 +988,13 @@ void setpo(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x4
 void sets(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 8)) return; opRext(op, 8, 0, T_0F, 0x90 | 8); }//-V524
 void setz(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 4)) return; opRext(op, 8, 0, T_0F, 0x90 | 4); }//-V524
 void sfence() { db(0x0F); db(0xAE); db(0xF8); }
-void sha1msg1(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F38, 0xC9, isXMM_XMMorMEM, NONE); }
-void sha1msg2(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F38, 0xCA, isXMM_XMMorMEM, NONE); }
-void sha1nexte(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F38, 0xC8, isXMM_XMMorMEM, NONE); }
-void sha1rnds4(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_0F3A, 0xCC, isXMM_XMMorMEM, imm); }
-void sha256msg1(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F38, 0xCC, isXMM_XMMorMEM, NONE); }
-void sha256msg2(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F38, 0xCD, isXMM_XMMorMEM, NONE); }
-void sha256rnds2(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F38, 0xCB, isXMM_XMMorMEM, NONE); }
+void sha1msg1(const Xmm& x, const Operand& op) { opSHA(x, op, T_0F38, 0xC9, 0xD9); }
+void sha1msg2(const Xmm& x, const Operand& op) { opSHA(x, op, T_0F38, 0xCA, 0xDA); }
+void sha1nexte(const Xmm& x, const Operand& op) { opSHA(x, op, T_0F38, 0xC8, 0xD8); }
+void sha1rnds4(const Xmm& x, const Operand& op, uint8_t imm) { opSHA(x, op, T_0F3A, 0xCC, 0xD4, imm); }
+void sha256msg1(const Xmm& x, const Operand& op) { opSHA(x, op, T_0F38, 0xCC, 0xDC); }
+void sha256msg2(const Xmm& x, const Operand& op) { opSHA(x, op, T_0F38, 0xCD, 0xDD); }
+void sha256rnds2(const Xmm& x, const Operand& op) { opSHA(x, op, T_0F38, 0xCB, 0xDB); }
 void shl(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 12); }
 void shl(const Operand& op, int imm) { opShift(op, imm, 12); }
 void shl(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 12, &d); }

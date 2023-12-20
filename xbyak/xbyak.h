@@ -2755,6 +2755,14 @@ private:
 		}
 		opROO(Reg(), r2, r1, T_MUST_EVEX|T_F3, code2);
 	}
+	void opSHA(const Xmm& x, const Operand& op, uint64_t type, uint8_t code1, uint8_t code2, int imm = NONE)
+	{
+		if (x.getIdx() <= 15 && op.hasRex2() && opROO(Reg(), op, x, T_MUST_EVEX, code2, imm != NONE ? 1 : 0)) {
+			if (imm != NONE) db(imm);
+			return;
+		}
+		opSSE(x, op, type, code1, isXMM_XMMorMEM, imm);
+	}
 public:
 	unsigned int getVersion() const { return VERSION; }
 	using CodeArray::db;
@@ -3139,6 +3147,10 @@ public:
 	// set default encoding to select Vex or Evex
 	void setDefaultEncoding(PreferredEncoding encoding) { defaultEncoding_ = encoding; }
 
+	void sha1msg12(const Xmm& x, const Operand& op)
+	{
+		opROO(Reg(), op, x, T_MUST_EVEX, 0xD9);
+	}
 	/*
 		use single byte nop if useMultiByteNop = false
 	*/
