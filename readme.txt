@@ -404,6 +404,9 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2023/12/20 ver 7.02 SHA*のAPX対応
+2023/12/19 ver 7.01 AESKLE, WIDE_KL, KEYLOCKER, KEYLOCKER_WIDE対応 APX10/APX判定対応
+2023/12/01 ver 7.00 APX対応
 2023/08/07 ver 6.73 sha512/sm3/sm4/avx-vnni-int16追加
 2023/08/02 ver 6.72 xabort, xbegin, xend追加
 2023/07/27 ver 6.71 Allocatorでhuge pageを考慮する。

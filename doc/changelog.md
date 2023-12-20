@@ -1,5 +1,6 @@
 # History
 
+* 2023/Dec/20 ver 7.02 SHA* support APX
 * 2023/Dec/19 ver 7.01 support AESKLE, WIDE_KL, KEYLOCKER, KEYLOCKER_WIDE, detection of APX10/APX
 * 2023/Dec/01 ver 7.00 support APX
 * 2023/Aug/07 ver 6.73 add sha512/sm3/sm4/avx-vnni-int16
