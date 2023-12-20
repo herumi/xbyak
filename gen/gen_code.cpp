@@ -1402,14 +1402,6 @@ void put()
 
 			{ 0x2E, "ucomisd", T_0F | T_66 | T_EVEX | T_EW1 | T_SAE_X | T_N8, false, 2 },
 			{ 0x2E, "ucomiss", T_0F | T_EVEX | T_EW0 | T_SAE_X | T_N4, false, 2 },
-
-			{ 0xCC, "sha1rnds4", T_0F3A, true, 1 },
-			{ 0xC8, "sha1nexte", T_0F38, false, 1 },
-			{ 0xC9, "sha1msg1", T_0F38, false, 1 },
-			{ 0xCA, "sha1msg2", T_0F38, false, 1 },
-			{ 0xCB, "sha256rnds2", T_0F38, false, 1 },
-			{ 0xCC, "sha256msg1", T_0F38, false, 1 },
-			{ 0xCD, "sha256msg2", T_0F38, false, 1 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -1424,6 +1416,26 @@ void put()
 					, p->name, p->hasIMM ? ", uint8_t imm" : "", s.c_str(), p->code, p->hasIMM ? ", imm" : "");
 			}
 		}
+	}
+	// sha
+	{
+		const struct Tbl {
+			uint8_t code;
+			uint8_t code2;
+			const char *name;
+		} tbl[] = {
+			{ 0xC8, 0xD8, "sha1nexte" },
+			{ 0xC9, 0xD9, "sha1msg1" },
+			{ 0xCA, 0xDA, "sha1msg2" },
+			{ 0xCB, 0xDB, "sha256rnds2" },
+			{ 0xCC, 0xDC, "sha256msg1" },
+			{ 0xCD, 0xDD, "sha256msg2" },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			const Tbl *p = &tbl[i];
+			printf("void %s(const Xmm& x, const Operand& op) { opSSE_APX(x, op, T_0F38, 0x%02X, T_MUST_EVEX, 0x%02X); }\n", p->name, p->code, p->code2);
+		}
+		puts("void sha1rnds4(const Xmm& x, const Operand& op, uint8_t imm) { opSSE_APX(x, op, T_0F3A, 0xCC, T_MUST_EVEX, 0xD4, imm); }");
 	}
 	// (m, x), (m, y)
 	{
@@ -2036,9 +2048,9 @@ void put64()
 			std::string s1 = type2String(p->type1);
 			std::string s2 = type2String(p->type2);
 			if (p->idx == 8) {
-				printf("void %s(const Xmm& x, const Address& addr) { opAESKL(&x, addr, %s, %s, 0x%02X); }\n", p->name, s1.c_str(), s2.c_str(), p->code);
+				printf("void %s(const Xmm& x, const Address& addr) { opSSE_APX(x, addr, %s, 0x%02X, %s, 0x%02X); }\n", p->name, s1.c_str(), p->code, s2.c_str(), p->code);
 			} else {
-				printf("void %s(const Address& addr) { opAESKL(&xmm%d, addr, %s, %s, 0x%02X); }\n", p->name, p->idx, s1.c_str(), s2.c_str(), p->code);
+				printf("void %s(const Address& addr) { opSSE_APX(xmm%d, addr, %s, 0x%02X, %s, 0x%02X); }\n", p->name, p->idx, s1.c_str(), p->code, s2.c_str(), p->code);
 			}
 		}
 	}
