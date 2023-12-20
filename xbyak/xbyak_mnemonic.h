@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "7.01"; }
+const char *getVersionString() const { return "7.02"; }
 void aadd(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38, 0x0FC); }
 void aand(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38 | T_66, 0x0FC); }
 void adc(const Operand& op, uint32_t imm) { opOI(op, imm, 0x10, 2); }
