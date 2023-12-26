@@ -145,6 +145,16 @@ vpdpbusd(xm0, xm1, xm2); // VEX encoding
   - `imul(ax|T_zu, cx, 0x1234);` // Set ND=ZU
   - `imul(ax|T_zu|T_nf, cx, 0x1234);` // Set ND=ZU and EVEX.NF=1
   - `setb(r31b|T_zu);` // same as set(r31b); movzx(r31, r31b);
+  - See [sample/zero_upper.cpp](../sample/zero_upper.cpp)
+
+### ccmpSCC and ctestSCC
+
+- ccmpSCC(op1, op2, dfv); // eflags = eflags == SCC ? cmp(op1, op2) : dfv
+- ctestSCC(op1, op2, dfv); // eflags = eflags == SCC ? test(op1, op2) : dfv
+- SCC means source condition code such as z, a, gt.
+- See [sample/ccmp.cpp](../sample/ccmp.cpp)
+- Specify the union of T_of, T_sf, T_zf, or T_cf for dfv.
+
 
 ## Label
 Two kinds of Label are supported. (String literal and Label class).
