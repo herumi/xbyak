@@ -30,7 +30,7 @@ else
 endif
 
 ifeq ($(BIT),64)
-TARGET += test64 bf64 memfunc64 test_util64 jmp_table64
+TARGET += test64 bf64 memfunc64 test_util64 jmp_table64 zero_upper ccmp
 ifeq ($(BOOST_EXIST),1)
 TARGET += calc64 #calc2_64
 endif
@@ -103,6 +103,14 @@ profiler: profiler.cpp ../xbyak/xbyak_util.h
 	$(CXX) $(CFLAGS) profiler.cpp -o $@
 profiler-vtune: profiler.cpp ../xbyak/xbyak_util.h
 	$(CXX) $(CFLAGS) profiler.cpp -o $@ -DXBYAK_USE_VTUNE -I /opt/intel/vtune_amplifier/include/ -L /opt/intel/vtune_amplifier/lib64 -ljitprofiling -ldl
+zero_upper: zero_upper.cpp $(XBYAK_INC)
+	$(CXX) $(CFLAGS) zero_upper.cpp -o $@
+test_zero_upper: zero_upper
+	sde -future -- ./zero_upper
+ccmp: ccmp.cpp $(XBYAK_INC)
+	$(CXX) $(CFLAGS) ccmp.cpp -o $@
+test_ccmp: ccmp
+	sde -future -- ./ccmp
 
 clean:
 	rm -rf $(TARGET) profiler profiler-vtune

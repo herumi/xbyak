@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "7.02"; }
+const char *getVersionString() const { return "7.03"; }
 void aadd(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38, 0x0FC); }
 void aand(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38 | T_66, 0x0FC); }
 void adc(const Operand& op, uint32_t imm) { opOI(op, imm, 0x10, 2); }
@@ -66,62 +66,62 @@ void bts(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xAB, op.isREG
 void bts(const Operand& op, uint8_t imm) { opRext(op, 16|i32e, 5, T_0F, 0xba, false, 1); db(imm); }
 void bzhi(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_APX|T_0F38|T_NF, 0xf5); }
 void cbw() { db(0x66); db(0x98); }
-void ccmpa(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 7); }
-void ccmpa(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 7); }
-void ccmpae(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 3); }
-void ccmpae(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 3); }
-void ccmpb(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 2); }
-void ccmpb(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 2); }
-void ccmpbe(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 6); }
-void ccmpbe(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 6); }
-void ccmpc(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 2); }
-void ccmpc(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 2); }
-void ccmpe(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 4); }
-void ccmpe(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 4); }
-void ccmpf(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 11); }
-void ccmpf(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 11); }
-void ccmpg(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 15); }
-void ccmpg(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 15); }
-void ccmpge(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 13); }
-void ccmpge(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 13); }
-void ccmpl(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 12); }
-void ccmpl(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 12); }
-void ccmple(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 14); }
-void ccmple(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 14); }
-void ccmpna(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 6); }
-void ccmpna(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 6); }
-void ccmpnae(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 2); }
-void ccmpnae(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 2); }
-void ccmpnb(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 3); }
-void ccmpnb(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 3); }
-void ccmpnbe(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 7); }
-void ccmpnbe(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 7); }
-void ccmpnc(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 3); }
-void ccmpnc(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 3); }
-void ccmpne(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 5); }
-void ccmpne(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 5); }
-void ccmpng(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 14); }
-void ccmpng(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 14); }
-void ccmpnge(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 12); }
-void ccmpnge(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 12); }
-void ccmpnl(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 13); }
-void ccmpnl(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 13); }
-void ccmpnle(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 15); }
-void ccmpnle(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 15); }
-void ccmpno(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 1); }
-void ccmpno(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 1); }
-void ccmpns(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 9); }
-void ccmpns(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 9); }
-void ccmpnz(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 5); }
-void ccmpnz(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 5); }
-void ccmpo(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 0); }
-void ccmpo(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 0); }
-void ccmps(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 8); }
-void ccmps(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 8); }
-void ccmpt(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 10); }
-void ccmpt(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 10); }
-void ccmpz(const Operand& op, int imm, int dfv) { opCcmpi(op, imm, dfv, 4); }
-void ccmpz(const Operand& op1, const Operand& op2, int dfv) { opCcmp(op1, op2, dfv, 0x38, 4); }
+void ccmpa(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 7); }
+void ccmpa(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 7); }
+void ccmpae(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 3); }
+void ccmpae(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 3); }
+void ccmpb(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 2); }
+void ccmpb(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 2); }
+void ccmpbe(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 6); }
+void ccmpbe(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 6); }
+void ccmpc(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 2); }
+void ccmpc(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 2); }
+void ccmpe(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 4); }
+void ccmpe(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 4); }
+void ccmpf(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 11); }
+void ccmpf(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 11); }
+void ccmpg(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 15); }
+void ccmpg(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 15); }
+void ccmpge(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 13); }
+void ccmpge(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 13); }
+void ccmpl(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 12); }
+void ccmpl(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 12); }
+void ccmple(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 14); }
+void ccmple(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 14); }
+void ccmpna(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 6); }
+void ccmpna(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 6); }
+void ccmpnae(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 2); }
+void ccmpnae(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 2); }
+void ccmpnb(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 3); }
+void ccmpnb(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 3); }
+void ccmpnbe(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 7); }
+void ccmpnbe(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 7); }
+void ccmpnc(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 3); }
+void ccmpnc(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 3); }
+void ccmpne(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 5); }
+void ccmpne(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 5); }
+void ccmpng(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 14); }
+void ccmpng(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 14); }
+void ccmpnge(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 12); }
+void ccmpnge(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 12); }
+void ccmpnl(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 13); }
+void ccmpnl(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 13); }
+void ccmpnle(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 15); }
+void ccmpnle(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 15); }
+void ccmpno(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 1); }
+void ccmpno(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 1); }
+void ccmpns(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 9); }
+void ccmpns(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 9); }
+void ccmpnz(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 5); }
+void ccmpnz(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 5); }
+void ccmpo(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 0); }
+void ccmpo(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 0); }
+void ccmps(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 8); }
+void ccmps(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 8); }
+void ccmpt(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 10); }
+void ccmpt(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 10); }
+void ccmpz(const Operand& op, int imm, int dfv = 0) { opCcmpi(op, imm, dfv, 4); }
+void ccmpz(const Operand& op1, const Operand& op2, int dfv = 0) { opCcmp(op1, op2, dfv, 0x38, 4); }
 void cdq() { db(0x99); }
 void cfcmovb(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2, 0x42); }
 void cfcmovb(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x42); }
@@ -271,62 +271,62 @@ void comisd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F, 0x2F,
 void comiss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x2F, isXMM_XMMorMEM); }
 void cpuid() { db(0x0F); db(0xA2); }
 void crc32(const Reg32e& r, const Operand& op) { if (!((r.isBit(32) && op.isBit(8|16|32)) || (r.isBit(64) && op.isBit(8|64)))) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) int code = 0xF0 | (op.isBit(8) ? 0 : 1); uint64_t type = op.isBit(16) ? T_66:0; if (opROO(Reg(), op, static_cast<const Reg&>(r), T_APX|type, code)) return; opRO(r, op, T_F2|T_0F38|type, code); }
-void ctesta(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 7); }
-void ctesta(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 7); }
-void ctestae(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 3); }
-void ctestae(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 3); }
-void ctestb(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 2); }
-void ctestb(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 2); }
-void ctestbe(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 6); }
-void ctestbe(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 6); }
-void ctestc(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 2); }
-void ctestc(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 2); }
-void cteste(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 4); }
-void cteste(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 4); }
-void ctestf(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 11); }
-void ctestf(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 11); }
-void ctestg(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 15); }
-void ctestg(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 15); }
-void ctestge(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 13); }
-void ctestge(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 13); }
-void ctestl(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 12); }
-void ctestl(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 12); }
-void ctestle(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 14); }
-void ctestle(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 14); }
-void ctestna(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 6); }
-void ctestna(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 6); }
-void ctestnae(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 2); }
-void ctestnae(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 2); }
-void ctestnb(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 3); }
-void ctestnb(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 3); }
-void ctestnbe(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 7); }
-void ctestnbe(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 7); }
-void ctestnc(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 3); }
-void ctestnc(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 3); }
-void ctestne(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 5); }
-void ctestne(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 5); }
-void ctestng(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 14); }
-void ctestng(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 14); }
-void ctestnge(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 12); }
-void ctestnge(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 12); }
-void ctestnl(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 13); }
-void ctestnl(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 13); }
-void ctestnle(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 15); }
-void ctestnle(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 15); }
-void ctestno(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 1); }
-void ctestno(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 1); }
-void ctestns(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 9); }
-void ctestns(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 9); }
-void ctestnz(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 5); }
-void ctestnz(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 5); }
-void ctesto(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 0); }
-void ctesto(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 0); }
-void ctests(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 8); }
-void ctests(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 8); }
-void ctestt(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 10); }
-void ctestt(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 10); }
-void ctestz(const Operand& op, const Reg& r, int dfv) { opCcmp(op, r, dfv, 0x84, 4); }
-void ctestz(const Operand& op, int imm, int dfv) { opTesti(op, imm, dfv, 4); }
+void ctesta(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 7); }
+void ctesta(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 7); }
+void ctestae(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 3); }
+void ctestae(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 3); }
+void ctestb(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 2); }
+void ctestb(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 2); }
+void ctestbe(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 6); }
+void ctestbe(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 6); }
+void ctestc(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 2); }
+void ctestc(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 2); }
+void cteste(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 4); }
+void cteste(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 4); }
+void ctestf(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 11); }
+void ctestf(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 11); }
+void ctestg(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 15); }
+void ctestg(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 15); }
+void ctestge(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 13); }
+void ctestge(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 13); }
+void ctestl(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 12); }
+void ctestl(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 12); }
+void ctestle(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 14); }
+void ctestle(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 14); }
+void ctestna(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 6); }
+void ctestna(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 6); }
+void ctestnae(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 2); }
+void ctestnae(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 2); }
+void ctestnb(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 3); }
+void ctestnb(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 3); }
+void ctestnbe(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 7); }
+void ctestnbe(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 7); }
+void ctestnc(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 3); }
+void ctestnc(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 3); }
+void ctestne(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 5); }
+void ctestne(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 5); }
+void ctestng(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 14); }
+void ctestng(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 14); }
+void ctestnge(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 12); }
+void ctestnge(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 12); }
+void ctestnl(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 13); }
+void ctestnl(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 13); }
+void ctestnle(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 15); }
+void ctestnle(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 15); }
+void ctestno(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 1); }
+void ctestno(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 1); }
+void ctestns(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 9); }
+void ctestns(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 9); }
+void ctestnz(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 5); }
+void ctestnz(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 5); }
+void ctesto(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 0); }
+void ctesto(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 0); }
+void ctests(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 8); }
+void ctests(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 8); }
+void ctestt(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 10); }
+void ctestt(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 10); }
+void ctestz(const Operand& op, const Reg& r, int dfv = 0) { opCcmp(op, r, dfv, 0x84, 4); }
+void ctestz(const Operand& op, int imm, int dfv = 0) { opTesti(op, imm, dfv, 4); }
 void cvtdq2pd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_F3|T_0F, 0xE6, isXMM_XMMorMEM); }
 void cvtdq2ps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x5B, isXMM_XMMorMEM); }
 void cvtpd2dq(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_F2|T_0F, 0xE6, isXMM_XMMorMEM); }
