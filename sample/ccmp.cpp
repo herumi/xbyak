@@ -17,7 +17,7 @@ struct Code1 : Xbyak::CodeGenerator {
 		const auto& p2 = sf.p[1];
 		int dfv = 0;
 		cmp(p1, 3);
-		ctesta(p2, 1, dfv); // eflags = (p1 > 3) ? (p2 & 1) : dfv;
+		ctesta(p2, 1, dfv); // eflags = (p1 > 3) ? ((p2 & 1) == 0) : dfv;
 		setz(al|T_zu);
 	}
 };
