@@ -149,11 +149,11 @@ vpdpbusd(xm0, xm1, xm2); // VEX encoding
 
 ### ccmpSCC and ctestSCC
 
-- ccmpSCC(op1, op2, dfv); // eflags = eflags == SCC ? cmp(op1, op2) : dfv
-- ctestSCC(op1, op2, dfv); // eflags = eflags == SCC ? test(op1, op2) : dfv
+- ccmpSCC(op1, op2, dfv = 0); // eflags = eflags == SCC ? cmp(op1, op2) : dfv
+- ctestSCC(op1, op2, dfv = 0); // eflags = eflags == SCC ? test(op1, op2) : dfv
 - SCC means source condition code such as z, a, gt.
 - See [sample/ccmp.cpp](../sample/ccmp.cpp)
-- Specify the union of T_of, T_sf, T_zf, or T_cf for dfv.
+- Specify the union of T_of(=8), T_sf(=4), T_zf(=2), or T_cf(=1) for dfv.
 
 
 ## Label
