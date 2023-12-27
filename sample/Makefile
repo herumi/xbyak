@@ -30,7 +30,7 @@ else
 endif
 
 ifeq ($(BIT),64)
-TARGET += test64 bf64 memfunc64 test_util64 jmp_table64 zero_upper ccmp
+TARGET += test64 bf64 memfunc64 test_util64 jmp_table64 zero_upper ccmp no_flags
 ifeq ($(BOOST_EXIST),1)
 TARGET += calc64 #calc2_64
 endif
@@ -111,6 +111,10 @@ ccmp: ccmp.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) ccmp.cpp -o $@
 test_ccmp: ccmp
 	sde -future -- ./ccmp
+no_flags: no_flags.cpp $(XBYAK_INC)
+	$(CXX) $(CFLAGS) no_flags.cpp -o $@
+test_no_flags: no_flags
+	sde -future -- ./no_flags
 
 clean:
 	rm -rf $(TARGET) profiler profiler-vtune
