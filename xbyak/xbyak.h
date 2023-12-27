@@ -1832,8 +1832,8 @@ private:
 	static const uint64_t T_F2 = 1ull << 37; // pp = 3
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
-	static inline uint32_t getMMM(uint64_t type) { return (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0; }
 	// @@@end of avx_type_def.h
+	static inline uint32_t getMap(uint64_t type) { return (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0; }
 	void vex(const Reg& reg, const Reg& base, const Operand *v, uint64_t type, int code, bool x = false)
 	{
 		int w = (type & T_W1) ? 1 : 0;
@@ -1847,7 +1847,7 @@ private:
 		if (!b && !x && !w && (type & T_0F)) {
 			db(0xC5); db((r ? 0 : 0x80) | vvvv);
 		} else {
-			uint32_t mmmm = getMMM(type);
+			uint32_t mmmm = getMap(type);
 			db(0xC4); db((r ? 0 : 0x80) | (x ? 0 : 0x40) | (b ? 0 : 0x20) | mmmm); db((w << 7) | vvvv);
 		}
 		db(code);
@@ -1874,7 +1874,7 @@ private:
 	{
 		if (!(type & (T_EVEX | T_MUST_EVEX))) XBYAK_THROW_RET(ERR_EVEX_IS_INVALID, 0)
 		int w = (type & T_EW1) ? 1 : 0;
-		uint32_t mmm = getMMM(type);
+		uint32_t mmm = getMap(type);
 		if (type & T_FP16) mmm |= 4;
 		uint32_t pp = getPP(type);
 		int idx = v ? v->getIdx() : 0;
@@ -1926,17 +1926,10 @@ private:
 		db(code);
 		return disp8N;
 	}
-	static inline int getMap(uint64_t type)
-	{
-		if (type & T_0F) return 1;
-		if (type & T_0F38) return 2;
-		if (type & T_0F3A) return 3;
-		return 4; // legacy
-	}
 	// evex of Legacy
 	void evexLeg(const Reg& r, const Reg& b, const Reg& x, const Reg& v, uint64_t type, int sc = NONE)
 	{
-		int M = getMap(type);
+		int M = getMap(type); if (M == 0) M = 4; // legacy
 		int R3 = !r.isExtIdx();
 		int X3 = !x.isExtIdx();
 		int B3 = b.isExtIdx() ? 0 : 0x20;
