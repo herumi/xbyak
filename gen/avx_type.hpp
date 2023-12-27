@@ -64,10 +64,8 @@ std::string type2String(uint64_t type)
 	if (type & T_MEM_EVEX) str += "|T_MEM_EVEX";
 	if (type & T_NF) str += "|T_NF";
 	if (type & T_CODE1_IF1) str += "|T_CODE1_IF1";
-	if (type & T_MAP3) str += "|T_MAP3";
 	if (type & T_ND1) str += "|T_ND1";
 	if (type & T_ZU) str += "|T_ZU";
-	if (type & T_MAP1) str += "|T_MAP1";
 
 	if (str[0] == '|') str = str.substr(1);
 	return str;

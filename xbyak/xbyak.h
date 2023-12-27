@@ -1826,16 +1826,14 @@ private:
 	static const uint64_t T_MAP6 = T_FP16 | T_0F38;
 	static const uint64_t T_NF = 1ull << 32; // T_nf
 	static const uint64_t T_CODE1_IF1 = 1ull << 33; // code|=1 if !r.isBit(8)
-	static const uint64_t T_MAP3 = 1ull << 34; // rorx only
+
 	static const uint64_t T_ND1 = 1ull << 35; // ND=1
 	static const uint64_t T_ZU = 1ull << 36; // ND=ZU
 	static const uint64_t T_F2 = 1ull << 37; // pp = 3
-	static const uint64_t T_MAP1 = 1ull << 38; // kmov
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
-	static inline uint32_t getMMM(uint64_t type) { return (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0; }
-
 	// @@@end of avx_type_def.h
+	static inline uint32_t getMap(uint64_t type) { return (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0; }
 	void vex(const Reg& reg, const Reg& base, const Operand *v, uint64_t type, int code, bool x = false)
 	{
 		int w = (type & T_W1) ? 1 : 0;
@@ -1849,7 +1847,7 @@ private:
 		if (!b && !x && !w && (type & T_0F)) {
 			db(0xC5); db((r ? 0 : 0x80) | vvvv);
 		} else {
-			uint32_t mmmm = getMMM(type);
+			uint32_t mmmm = getMap(type);
 			db(0xC4); db((r ? 0 : 0x80) | (x ? 0 : 0x40) | (b ? 0 : 0x20) | mmmm); db((w << 7) | vvvv);
 		}
 		db(code);
@@ -1876,7 +1874,7 @@ private:
 	{
 		if (!(type & (T_EVEX | T_MUST_EVEX))) XBYAK_THROW_RET(ERR_EVEX_IS_INVALID, 0)
 		int w = (type & T_EW1) ? 1 : 0;
-		uint32_t mmm = getMMM(type);
+		uint32_t mmm = getMap(type);
 		if (type & T_FP16) mmm |= 4;
 		uint32_t pp = getPP(type);
 		int idx = v ? v->getIdx() : 0;
@@ -1928,17 +1926,10 @@ private:
 		db(code);
 		return disp8N;
 	}
-	static inline int getMap(uint64_t type)
-	{
-		if (type & T_MAP1) return 1;
-		if (type & T_MAP3) return 3;
-		if (type & (T_0F38|T_0F3A)) return 2;
-		return 4; // legacy
-	}
 	// evex of Legacy
 	void evexLeg(const Reg& r, const Reg& b, const Reg& x, const Reg& v, uint64_t type, int sc = NONE)
 	{
-		int M = getMap(type);
+		int M = getMap(type); if (M == 0) M = 4; // legacy
 		int R3 = !r.isExtIdx();
 		int X3 = !x.isExtIdx();
 		int B3 = b.isExtIdx() ? 0 : 0x20;
@@ -2726,17 +2717,17 @@ private:
 			code = op.isOPMASK() || op.isMEM() ? 0x90 : isReg ? 0x92 : 0;
 		}
 		if (code == 0) XBYAK_THROW(ERR_BAD_COMBINATION)
-		uint64_t type = 0;
+		uint64_t type = T_0F;
 		switch (size) {
-		case 8:  type = T_W0|T_66; break;
-		case 16: type = T_W0; break;
-		case 32: type = isReg ? T_W0|T_F2 : T_W1|T_66; break;
-		case 64: type = isReg ? T_W1|T_F2 : T_W1; break;
+		case 8:  type |= T_W0|T_66; break;
+		case 16: type |= T_W0; break;
+		case 32: type |= isReg ? T_W0|T_F2 : T_W1|T_66; break;
+		case 64: type |= isReg ? T_W1|T_F2 : T_W1; break;
 		}
 		const Operand *p1 = &k, *p2 = &op;
 		if (code == 0x93) { std::swap(p1, p2); }
-		if (opROO(Reg(), *p2, *p1, T_MAP1|type, code)) return;
-		opVex(static_cast<const Reg&>(*p1), 0, *p2, T_L0|T_0F|type, code);
+		if (opROO(Reg(), *p2, *p1, T_APX|type, code)) return;
+		opVex(static_cast<const Reg&>(*p1), 0, *p2, T_L0|type, code);
 	}
 	void opEncodeKey(const Reg32& r1, const Reg32& r2, uint8_t code1, uint8_t code2)
 	{

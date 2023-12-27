@@ -1831,7 +1831,7 @@ void put()
 			const Tbl& p = tbl[i];
 			printf("void %s(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, %s, 0x%x); }\n", p.name, type2String(p.type).c_str(), p.code);
 		}
-		puts("void rorx(const Reg32e& r, const Operand& op, uint8_t imm) { opRRO(r, Reg32e(0, r.getBit()), op, T_0F3A|T_F2|T_APX|T_MAP3, 0xF0, imm); }");
+		puts("void rorx(const Reg32e& r, const Operand& op, uint8_t imm) { opRRO(r, Reg32e(0, r.getBit()), op, T_0F3A|T_F2|T_APX, 0xF0, imm); }");
 	}
 	// gpr(reg, r/m)
 	{
