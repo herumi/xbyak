@@ -932,7 +932,7 @@ void ror(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 9); }
 void ror(const Operand& op, int imm) { opShift(op, imm, 9); }
 void ror(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 9, &d); }
 void ror(const Reg& d, const Operand& op, int imm) { opShift(op, imm, 9, &d); }
-void rorx(const Reg32e& r, const Operand& op, uint8_t imm) { opRRO(r, Reg32e(0, r.getBit()), op, T_0F3A|T_F2|T_APX|T_MAP3, 0xF0, imm); }
+void rorx(const Reg32e& r, const Operand& op, uint8_t imm) { opRRO(r, Reg32e(0, r.getBit()), op, T_0F3A|T_F2|T_APX, 0xF0, imm); }
 void roundpd(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66|T_0F3A|T_YMM, 0x09, isXMM_XMMorMEM, imm); }
 void roundps(const Xmm& xmm, const Operand& op, uint8_t imm) { opSSE(xmm, op, T_66|T_0F3A|T_YMM, 0x08, isXMM_XMMorMEM, imm); }
 void roundsd(const Xmm& xmm, const Operand& op, int imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x0B, isXMM_XMMorMEM, static_cast<uint8_t>(imm)); }
