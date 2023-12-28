@@ -1736,15 +1736,15 @@ private:
 		db(0xD5);
 		db((rexRXB(4, bit3, r, b, x) << 4) | rex4bit);
 	}
-	// return T_REX2 if rex2 is selected
-	uint64_t rex(const Operand& op1, const Operand& op2 = Operand(), uint64_t type = 0)
+	// return true if rex2 is selected
+	bool rex(const Operand& op1, const Operand& op2 = Operand(), uint64_t type = 0)
 	{
-		if (op1.getNF() | op2.getNF()) XBYAK_THROW_RET(ERR_INVALID_NF, 0)
-		if (op1.getZU() | op2.getZU()) XBYAK_THROW_RET(ERR_INVALID_ZU, 0)
+		if (op1.getNF() | op2.getNF()) XBYAK_THROW_RET(ERR_INVALID_NF, false)
+		if (op1.getZU() | op2.getZU()) XBYAK_THROW_RET(ERR_INVALID_ZU, false)
 		uint8_t rex = 0;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) std::swap(p1, p2);
-		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, 0)
+		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
 		// except movsx(16bit, 32/64bit)
 		bool p66 = (op1.isBit(16) && !op2.isBit(i32e)) || (op2.isBit(16) && !op1.isBit(i32e));
 		if ((type & T_66) || p66) db(0x66);
@@ -1764,9 +1764,9 @@ private:
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			rex = rexRXB(3, r.isREG(64), r, base, idx);
 			if (r.hasRex2() || addr.hasRex2()) {
-				if (type & (T_0F38|T_0F3A)) XBYAK_THROW_RET(ERR_CANT_USE_REX2, 0)
+				if (type & (T_0F38|T_0F3A)) XBYAK_THROW_RET(ERR_CANT_USE_REX2, false)
 				rex2(is0F, rex, r, base, idx);
-				return T_REX2;
+				return true;
 			}
 			if (rex || r.isExt8bit()) rex |= 0x40;
 		} else {
@@ -1777,12 +1777,12 @@ private:
 			if (r1.hasRex2() || r2.hasRex2()) {
 				if (type & (T_0F38|T_0F3A)) XBYAK_THROW_RET(ERR_CANT_USE_REX2, 0)
 				rex2(is0F, rex, r2, r1);
-				return T_REX2;
+				return true;
 			}
 			if (rex || r1.isExt8bit() || r2.isExt8bit()) rex |= 0x40;
 		}
 		if (rex) db(rex);
-		return 0;
+		return false;
 	}
 	// @@@begin of avx_type_def.h
 	static const uint64_t T_NONE = 0ull;
@@ -1829,7 +1829,7 @@ private:
 	static const uint64_t T_MAP6 = T_FP16 | T_0F38;
 	static const uint64_t T_NF = 1ull << 32; // T_nf
 	static const uint64_t T_CODE1_IF1 = 1ull << 33; // code|=1 if !r.isBit(8)
-	static const uint64_t T_REX2 = 1ull << 34;
+
 	static const uint64_t T_ND1 = 1ull << 35; // ND=1
 	static const uint64_t T_ZU = 1ull << 36; // ND=ZU
 	static const uint64_t T_F2 = 1ull << 37; // pp = 3
@@ -2025,9 +2025,9 @@ private:
 	}
 	LabelManager labelMgr_;
 	bool isInDisp16(uint32_t x) const { return 0xFFFF8000 <= x || x <= 0x7FFF; }
-	void writeCode(uint64_t type, const Reg& r, int code)
+	void writeCode(uint64_t type, const Reg& r, int code, bool rex2 = false)
 	{
-		if (!(type & (T_APX|T_REX2))) {
+		if (!(type&T_APX || rex2)) {
 			if (type & T_0F) {
 				db(0x0F);
 			} else if (type & T_0F38) {
@@ -2036,19 +2036,19 @@ private:
 				db(0x0F); db(0x3A);
 			}
 		}
-		db(code | (((type&~T_REX2) == 0 || (type & T_CODE1_IF1)) && !r.isBit(8)));
+		db(code | ((type == 0 || (type & T_CODE1_IF1)) && !r.isBit(8)));
 	}
 	void opRR(const Reg& reg1, const Reg& reg2, uint64_t type, int code)
 	{
-		type |= rex(reg2, reg1, type);
-		writeCode(type, reg1, code);
+		bool rex2 = rex(reg2, reg1, type);
+		writeCode(type, reg1, code, rex2);
 		setModRM(3, reg1.getIdx(), reg2.getIdx());
 	}
 	void opMR(const Address& addr, const Reg& r, uint64_t type, int code, int immSize = 0)
 	{
 		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
-		type |= rex(addr, r, type);
-		writeCode(type, r, code);
+		bool rex2 = rex(addr, r, type);
+		writeCode(type, r, code, rex2);
 		opAddr(addr, r.getIdx(), immSize);
 	}
 	void opLoadSeg(const Address& addr, const Reg& reg, uint64_t type, int code)

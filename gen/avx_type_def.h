@@ -43,7 +43,7 @@
 	static const uint64_t T_MAP6 = T_FP16 | T_0F38;
 	static const uint64_t T_NF = 1ull << 32; // T_nf
 	static const uint64_t T_CODE1_IF1 = 1ull << 33; // code|=1 if !r.isBit(8)
-	static const uint64_t T_REX2 = 1ull << 34;
+
 	static const uint64_t T_ND1 = 1ull << 35; // ND=1
 	static const uint64_t T_ZU = 1ull << 36; // ND=ZU
 	static const uint64_t T_F2 = 1ull << 37; // pp = 3
