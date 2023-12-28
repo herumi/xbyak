@@ -1,5 +1,6 @@
 # History
 
+* 2023/Dec/28 ver 7.04 rex2 supports two-byte opecode
 * 2023/Dec/26 ver 7.03 set the default value of dfv to 0
 * 2023/Dec/20 ver 7.02 SHA* support APX
 * 2023/Dec/19 ver 7.01 support AESKLE, WIDE_KL, KEYLOCKER, KEYLOCKER_WIDE, detection of APX10/APX

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(xbyak LANGUAGES CXX VERSION 7.03)
+project(xbyak LANGUAGES CXX VERSION 7.04)
 
 file(GLOB headers xbyak/*.h)
 
