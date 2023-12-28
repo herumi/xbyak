@@ -1773,8 +1773,8 @@ private:
 			// ModRM(reg, base);
 			rex = rexRXB(3, r1.isREG(64) || r2.isREG(64), r2, r1);
 			if (r1.hasRex2() || r2.hasRex2()) {
-				if (type & (T_0F|T_0F38|T_0F3A)) XBYAK_THROW(ERR_CANT_USE_REX2)
-				rex2(0, rex, r2, r1);
+				if (type & (T_0F38|T_0F3A)) XBYAK_THROW(ERR_CANT_USE_REX2)
+				rex2((type & T_0F) ? 1 : 0, rex, r2, r1);
 				return;
 			}
 			if (rex || r1.isExt8bit() || r2.isExt8bit()) rex |= 0x40;
@@ -3132,6 +3132,18 @@ public:
 	void sha1msg12(const Xmm& x, const Operand& op)
 	{
 		opROO(Reg(), op, x, T_MUST_EVEX, 0xD9);
+	}
+	void bswap(const Reg32e& r)
+	{
+		int idx = r.getIdx();
+		uint8_t rex = (r.isREG(64) ? 8 : 0) | ((idx & 8) ? 1 : 0);
+		if (idx >= 16) {
+			db(0xD5); db((1<<7) | (idx & 16) | rex);
+		} else {
+			if (rex) db(0x40 | rex);
+			db(0x0F);
+		}
+		db(0xC8 + (idx & 7));
 	}
 	/*
 		use single byte nop if useMultiByteNop = false

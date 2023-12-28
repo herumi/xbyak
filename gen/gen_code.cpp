@@ -1144,7 +1144,6 @@ void put()
 	// misc
 	{
 		puts("void lea(const Reg& reg, const Address& addr) { if (!reg.isBit(16 | i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opMR(addr, reg, 0, 0x8D); }");
-		puts("void bswap(const Reg32e& reg) { opRR(Reg32(1), reg, 0, 0x0F); }");
 		puts("void ret(int imm = 0) { if (imm) { db(0xC2); dw(imm); } else { db(0xC3); } }");
 		puts("void retf(int imm = 0) { if (imm) { db(0xCA); dw(imm); } else { db(0xCB); } }");
 
