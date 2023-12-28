@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "7.03"; }
+const char *getVersionString() const { return "7.04"; }
 void aadd(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38, 0x0FC); }
 void aand(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38 | T_66, 0x0FC); }
 void adc(const Operand& op, uint32_t imm) { opOI(op, imm, 0x10, 2); }
@@ -55,7 +55,6 @@ void bndmov(const BoundsReg& bnd, const Operand& op) { opRO(bnd, op, T_66 | T_0F
 void bndstx(const Address& addr, const BoundsReg& bnd) { opMIB(addr, bnd, T_0F, 0x1B); }
 void bsf(const Reg&reg, const Operand& op) { opRO(reg, op, T_0F, 0xBC, op.isREG(16|i32e)); }
 void bsr(const Reg&reg, const Operand& op) { opRO(reg, op, T_0F, 0xBD, op.isREG(16|i32e)); }
-void bswap(const Reg32e& reg) { opRR(Reg32(1), reg, 0, 0x0F); }
 void bt(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xA3, op.isREG(16|i32e) && op.getBit() == reg.getBit()); }
 void bt(const Operand& op, uint8_t imm) { opRext(op, 16|i32e, 4, T_0F, 0xba, false, 1); db(imm); }
 void btc(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xBB, op.isREG(16|i32e) && op.getBit() == reg.getBit()); }

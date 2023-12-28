@@ -155,7 +155,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7030 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7040 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1736,14 +1736,15 @@ private:
 		db(0xD5);
 		db((rexRXB(4, bit3, r, b, x) << 4) | rex4bit);
 	}
-	void rex(const Operand& op1, const Operand& op2 = Operand(), uint64_t type = 0)
+	// return true if rex2 is selected
+	bool rex(const Operand& op1, const Operand& op2 = Operand(), uint64_t type = 0)
 	{
-		if (op1.getNF() | op2.getNF()) XBYAK_THROW(ERR_INVALID_NF)
-		if (op1.getZU() | op2.getZU()) XBYAK_THROW(ERR_INVALID_ZU)
+		if (op1.getNF() | op2.getNF()) XBYAK_THROW_RET(ERR_INVALID_NF, false)
+		if (op1.getZU() | op2.getZU()) XBYAK_THROW_RET(ERR_INVALID_ZU, false)
 		uint8_t rex = 0;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) std::swap(p1, p2);
-		if (p1->isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
 		// except movsx(16bit, 32/64bit)
 		bool p66 = (op1.isBit(16) && !op2.isBit(i32e)) || (op2.isBit(16) && !op1.isBit(i32e));
 		if ((type & T_66) || p66) db(0x66);
@@ -1753,6 +1754,7 @@ private:
 		if (type & T_F3) {
 			db(0xF3);
 		}
+		bool is0F = type & T_0F;
 		if (p2->isMEM()) {
 			const Reg& r = *static_cast<const Reg*>(p1);
 			const Address& addr = p2->getAddress();
@@ -1762,9 +1764,9 @@ private:
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			rex = rexRXB(3, r.isREG(64), r, base, idx);
 			if (r.hasRex2() || addr.hasRex2()) {
-				if (type & (T_0F|T_0F38|T_0F3A)) XBYAK_THROW(ERR_CANT_USE_REX2)
-				rex2(0, rex, r, base, idx);
-				return;
+				if (type & (T_0F38|T_0F3A)) XBYAK_THROW_RET(ERR_CANT_USE_REX2, false)
+				rex2(is0F, rex, r, base, idx);
+				return true;
 			}
 			if (rex || r.isExt8bit()) rex |= 0x40;
 		} else {
@@ -1773,13 +1775,14 @@ private:
 			// ModRM(reg, base);
 			rex = rexRXB(3, r1.isREG(64) || r2.isREG(64), r2, r1);
 			if (r1.hasRex2() || r2.hasRex2()) {
-				if (type & (T_0F|T_0F38|T_0F3A)) XBYAK_THROW(ERR_CANT_USE_REX2)
-				rex2(0, rex, r2, r1);
-				return;
+				if (type & (T_0F38|T_0F3A)) XBYAK_THROW_RET(ERR_CANT_USE_REX2, 0)
+				rex2(is0F, rex, r2, r1);
+				return true;
 			}
 			if (rex || r1.isExt8bit() || r2.isExt8bit()) rex |= 0x40;
 		}
 		if (rex) db(rex);
+		return false;
 	}
 	// @@@begin of avx_type_def.h
 	static const uint64_t T_NONE = 0ull;
@@ -2022,9 +2025,9 @@ private:
 	}
 	LabelManager labelMgr_;
 	bool isInDisp16(uint32_t x) const { return 0xFFFF8000 <= x || x <= 0x7FFF; }
-	void writeCode(uint64_t type, const Reg& r, int code)
+	void writeCode(uint64_t type, const Reg& r, int code, bool rex2 = false)
 	{
-		if (!(type & T_APX)) {
+		if (!(type&T_APX || rex2)) {
 			if (type & T_0F) {
 				db(0x0F);
 			} else if (type & T_0F38) {
@@ -2037,15 +2040,15 @@ private:
 	}
 	void opRR(const Reg& reg1, const Reg& reg2, uint64_t type, int code)
 	{
-		rex(reg2, reg1, type);
-		writeCode(type, reg1, code);
+		bool rex2 = rex(reg2, reg1, type);
+		writeCode(type, reg1, code, rex2);
 		setModRM(3, reg1.getIdx(), reg2.getIdx());
 	}
 	void opMR(const Address& addr, const Reg& r, uint64_t type, int code, int immSize = 0)
 	{
 		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
-		rex(addr, r, type);
-		writeCode(type, r, code);
+		bool rex2 = rex(addr, r, type);
+		writeCode(type, r, code, rex2);
 		opAddr(addr, r.getIdx(), immSize);
 	}
 	void opLoadSeg(const Address& addr, const Reg& reg, uint64_t type, int code)
@@ -3132,6 +3135,18 @@ public:
 	void sha1msg12(const Xmm& x, const Operand& op)
 	{
 		opROO(Reg(), op, x, T_MUST_EVEX, 0xD9);
+	}
+	void bswap(const Reg32e& r)
+	{
+		int idx = r.getIdx();
+		uint8_t rex = (r.isREG(64) ? 8 : 0) | ((idx & 8) ? 1 : 0);
+		if (idx >= 16) {
+			db(0xD5); db((1<<7) | (idx & 16) | rex);
+		} else {
+			if (rex) db(0x40 | rex);
+			db(0x0F);
+		}
+		db(0xC8 + (idx & 7));
 	}
 	/*
 		use single byte nop if useMultiByteNop = false
