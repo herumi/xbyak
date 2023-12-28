@@ -1911,3 +1911,28 @@ CYBOZU_TEST_AUTO(sha)
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
 
+CYBOZU_TEST_AUTO(0x0f_rex2)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			addps(xmm3, ptr [r30+r20*4+0x4]);
+			movups(xmm5, ptr [r16]);
+			movq(r31, xmm5);
+			cvtsd2si(r20, ptr [r30]);
+			bsr(r20, r30);
+		}
+	} c;
+	const uint8_t tbl[] = {
+		0xd5, 0xb1, 0x58, 0x5c, 0xa6, 0x04,
+		0xd5, 0x90, 0x10, 0x28, 0x66,
+		0xd5, 0x99, 0x7e, 0xef, 0xf2,
+		0xd5, 0xd9, 0x2d, 0x26,
+		0xd5, 0xd9, 0xbd, 0xe6,
+
+	};
+	const size_t n = sizeof(tbl);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
+
