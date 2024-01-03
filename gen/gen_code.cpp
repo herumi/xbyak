@@ -1148,10 +1148,10 @@ void put()
 
 		puts("void xadd(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xC0 | (reg.isBit(8) ? 0 : 1), op.getBit() == reg.getBit()); }");
 		puts("void cmpxchg(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xB0 | (reg.isBit(8) ? 0 : 1), op.getBit() == reg.getBit()); }");
-		puts("void movbe(const Reg& reg, const Address& addr) { if (opROO(Reg(), addr, reg, T_APX, 0x60)) return; opMR(addr, reg, T_0F38, 0xF0); }");
-		puts("void movbe(const Address& addr, const Reg& reg) { if (opROO(Reg(), addr, reg, T_APX, 0x61)) return; opMR(addr, reg, T_0F38, 0xF1); }");
-		puts("void movdiri(const Address& addr, const Reg32e& reg) { if (opROO(Reg(),  addr, reg, T_APX, 0xF9)) return; opMR(addr, reg, T_0F38, 0xF9); }");
-		puts("void movdir64b(const Reg& reg, const Address& addr) { if (opROO(Reg(),  addr, reg.cvt32(), T_APX|T_66, 0xF8)) return; opMR(addr, reg.cvt32(), T_66 | T_0F38, 0xF8); }");
+		puts("void movbe(const Reg& reg, const Address& addr) { opMR(addr, reg, T_0F38, 0xF0, T_APX, 0x60); }");
+		puts("void movbe(const Address& addr, const Reg& reg) { opMR(addr, reg, T_0F38, 0xF1, T_APX, 0x61); }");
+		puts("void movdiri(const Address& addr, const Reg32e& reg) { opMR(addr, reg, T_0F38, 0xF9, T_APX); }");
+		puts("void movdir64b(const Reg& reg, const Address& addr) { opMR(addr, reg.cvt32(), T_66|T_0F38, 0xF8, T_APX|T_66); }");
 		puts("void cmpxchg8b(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0xC7); }");
 
 		puts("void pextrw(const Operand& op, const Mmx& xmm, uint8_t imm) { opExt(op, xmm, 0x15, imm, true); }");
