@@ -727,6 +727,7 @@ public:
 	bool operator==(const Operand& rhs) const;
 	bool operator!=(const Operand& rhs) const { return !operator==(rhs); }
 	const Address& getAddress() const;
+	Address getAddress(int immSize) const;
 	const Reg& getReg() const;
 };
 
@@ -1344,6 +1345,12 @@ inline const Address& Operand::getAddress() const
 {
 	assert(isMEM());
 	return static_cast<const Address&>(*this);
+}
+inline Address Operand::getAddress(int immSize) const
+{
+	Address addr = getAddress();
+	addr.immSize = immSize;
+	return addr;
 }
 
 inline bool Operand::operator==(const Operand& rhs) const
@@ -2049,13 +2056,13 @@ private:
 		writeCode(type, reg1, code, rex2);
 		setModRM(3, reg1.getIdx(), reg2.getIdx());
 	}
-	void opMR(Address addr, const Reg& r, uint64_t type, int code, int immSize = 0, uint64_t type2 = 0, uint8_t code2 = 0)
+	void opMR(const Address& addr, const Reg& r, uint64_t type, int code, uint64_t type2 = 0, int code2 = NONE)
 	{
-		if (type2 && opROO(Reg(), r, addr, type2, code2)) return;
+		if (code2 == NONE) code2 = code;
+		if (type2 && opROO(Reg(), addr, r, type2, code2)) return;
 		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
 		bool rex2 = rex(addr, r, type);
 		writeCode(type, r, code, rex2);
-		addr.immSize = immSize;
 		opAddr(addr, r.getIdx());
 	}
 	void opLoadSeg(const Address& addr, const Reg& reg, uint64_t type, int code)
@@ -2227,7 +2234,7 @@ private:
 		const Reg r(ext, Operand::REG, opBit);
 		if ((type & T_APX) && op.hasRex2NFZU() && opROO(d ? *d : Reg(0, Operand::REG, opBit), op, r, type, code)) return;
 		if (op.isMEM()) {
-			opMR(op.getAddress(), r, type, code, immSize);
+			opMR(op.getAddress(immSize), r, type, code);
 		} else if (op.isREG(bit)) {
 			opRR(r, op.getReg().changeBit(opBit), type, code);
 		} else {
@@ -2253,7 +2260,7 @@ private:
 	void opRO(const Reg& r, const Operand& op, uint64_t type, int code, bool condR = true, int immSize = 0)
 	{
 		if (op.isMEM()) {
-			opMR(op.getAddress(), r, type, code, immSize);
+			opMR(op.getAddress(immSize), r, type, code);
 		} else if (condR) {
 			opRR(r, op.getReg(), type, code);
 		} else {
@@ -2955,7 +2962,7 @@ public:
 				if (!inner::IsInInt32(imm)) XBYAK_THROW(ERR_IMM_IS_TOO_BIG)
 				immSize = 4;
 			}
-			opMR(op.getAddress(), Reg(0, Operand::REG, op.getBit()), 0, 0xC6, immSize);
+			opMR(op.getAddress(immSize), Reg(0, Operand::REG, op.getBit()), 0, 0xC6);
 			db(static_cast<uint32_t>(imm), immSize);
 		} else {
 			XBYAK_THROW(ERR_BAD_COMBINATION)

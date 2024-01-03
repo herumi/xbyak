@@ -860,14 +860,14 @@ void put()
 			const char *prefix;
 		} tbl[] = {
 			{ "aadd", "" },
-			{ "aand", " | T_66" },
-			{ "aor", " | T_F2" },
-			{ "axor", " | T_F3" },
+			{ "aand", "|T_66" },
+			{ "aor", "|T_F2" },
+			{ "axor", "|T_F3" },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			printf("void %s(const Address& addr, const Reg32e &reg) { ", p->name);
-			printf("opMR(addr, reg, T_0F38%s, 0x0FC); }\n", p->prefix);
+			printf("opMR(addr, reg, T_0F38%s, 0x0FC, T_APX%s); }\n", p->prefix, p->prefix);
 		}
 	}
 

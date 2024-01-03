@@ -1,6 +1,6 @@
 const char *getVersionString() const { return "7.04"; }
-void aadd(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38, 0x0FC); }
-void aand(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38 | T_66, 0x0FC); }
+void aadd(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38, 0x0FC, T_APX); }
+void aand(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38|T_66, 0x0FC, T_APX|T_66); }
 void adc(const Operand& op, uint32_t imm) { opOI(op, imm, 0x10, 2); }
 void adc(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x10); }
 void adc(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_NONE, 2); }
@@ -34,8 +34,8 @@ void andnpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x5
 void andnps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x55, isXMM_XMMorMEM); }
 void andpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x54, isXMM_XMMorMEM); }
 void andps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x54, isXMM_XMMorMEM); }
-void aor(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38 | T_F2, 0x0FC); }
-void axor(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38 | T_F3, 0x0FC); }
+void aor(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38|T_F2, 0x0FC, T_APX|T_F2); }
+void axor(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38|T_F3, 0x0FC, T_APX|T_F3); }
 void bextr(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_APX|T_0F38|T_NF, 0xf7); }
 void blendpd(const Xmm& xmm, const Operand& op, int imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x0D, isXMM_XMMorMEM, static_cast<uint8_t>(imm)); }
 void blendps(const Xmm& xmm, const Operand& op, int imm) { opSSE(xmm, op, T_66 | T_0F3A, 0x0C, isXMM_XMMorMEM, static_cast<uint8_t>(imm)); }
