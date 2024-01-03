@@ -1332,7 +1332,7 @@ private:
 	const Label* label_;
 	Mode mode_;
 public:
-	int immSize; // 0, 1, 2, 4
+	int immSize; // the size of immediate value of nmemonics (0, 1, 2, 4)
 	int disp8N; // 0(normal), 1(force disp32), disp8N = {2, 4, 8}
 	bool permitVsib;
 private:
@@ -2049,12 +2049,14 @@ private:
 		writeCode(type, reg1, code, rex2);
 		setModRM(3, reg1.getIdx(), reg2.getIdx());
 	}
-	void opMR(const Address& addr, const Reg& r, uint64_t type, int code, int immSize = 0)
+	void opMR(Address addr, const Reg& r, uint64_t type, int code, int immSize = 0, uint64_t type2 = 0, uint8_t code2 = 0)
 	{
+		if (type2 && opROO(Reg(), r, addr, type2, code2)) return;
 		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
 		bool rex2 = rex(addr, r, type);
 		writeCode(type, r, code, rex2);
-		opAddr(addr, r.getIdx(), immSize);
+		addr.immSize = immSize;
+		opAddr(addr, r.getIdx());
 	}
 	void opLoadSeg(const Address& addr, const Reg& reg, uint64_t type, int code)
 	{
@@ -2135,8 +2137,7 @@ private:
 	}
 	// reg is reg field of ModRM
 	// immSize is the size for immediate value
-	// disp8N = 0(normal), disp8N = 1(force disp32), disp8N = {2, 4, 8} ; compressed displacement
-	void opAddr(const Address &addr, int reg, int immSize = 0)//, int disp8N = 0)
+	void opAddr(const Address &addr, int reg)
 	{
 		if (!addr.permitVsib && addr.isVsib()) XBYAK_THROW(ERR_BAD_VSIB_ADDRESSING)
 		if (addr.getMode() == Address::M_ModRM) {
@@ -2144,12 +2145,12 @@ private:
 		} else if (addr.getMode() == Address::M_rip || addr.getMode() == Address::M_ripAddr) {
 			setModRM(0, reg, 5);
 			if (addr.getLabel()) { // [rip + Label]
-				putL_inner(*addr.getLabel(), true, addr.getDisp() - immSize);
+				putL_inner(*addr.getLabel(), true, addr.getDisp() - addr.immSize);
 			} else {
 				size_t disp = addr.getDisp();
 				if (addr.getMode() == Address::M_ripAddr) {
 					if (isAutoGrow()) XBYAK_THROW(ERR_INVALID_RIP_IN_AUTO_GROW)
-					disp -= (size_t)getCurr() + 4 + immSize;
+					disp -= (size_t)getCurr() + 4 + addr.immSize;
 				}
 				dd(inner::VerifyInInt32(disp));
 			}
@@ -2206,11 +2207,12 @@ private:
 		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
 		if (p2->isMEM()) {
 			const Reg& r = *static_cast<const Reg*>(p1);
-			const Address& addr = p2->getAddress();
+			Address addr = p2->getAddress();
 			const RegExp e = addr.getRegExp();
 			evexLeg(r, e.getBase(), e.getIndex(), d, type, sc);
 			writeCode(type, d, code);
-			opAddr(addr, r.getIdx(), immSize);
+			addr.immSize = immSize;
+			opAddr(addr, r.getIdx());
 		} else {
 			evexLeg(static_cast<const Reg&>(op2), static_cast<const Reg&>(op1), Reg(), d, type, sc);
 			writeCode(type, d, code);
@@ -2457,7 +2459,8 @@ private:
 			}
 			if (type & T_VSIB) addr.permitVsib = true;
 			if (disp8N) addr.disp8N = disp8N;
-			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0);//, disp8N);
+			if (imm8 != NONE) addr.immSize = 1;
+			opAddr(addr, r.getIdx());
 		} else {
 			const Reg& base = op2.getReg();
 			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || base.hasEvex()) {
