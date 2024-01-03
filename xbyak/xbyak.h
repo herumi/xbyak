@@ -2241,6 +2241,11 @@ private:
 			XBYAK_THROW(ERR_BAD_COMBINATION)
 		}
 	}
+	void opSetCC(const Operand& op, int ext)
+	{
+		if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | ext)) return;
+		opRext(op, 8, 0, T_0F, 0x90 | ext);
+	}
 	void opShift(const Operand& op, int imm, int ext, const Reg *d = 0)
 	{
 		if (d == 0) verifyMemHasSize(op);

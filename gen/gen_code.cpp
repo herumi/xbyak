@@ -630,7 +630,7 @@ void put()
 			printf("void j%s(const Label& label, LabelType type = T_AUTO) { opJmp(label, type, 0x%02X, 0x%02X, 0x%02X); }%s\n", p->name, p->ext | 0x70, p->ext | 0x80, 0x0F, msg);
 			printf("void j%s(const char *label, LabelType type = T_AUTO) { j%s(std::string(label), type); }%s\n", p->name, p->name, msg);
 			printf("void j%s(const void *addr) { opJmpAbs(addr, T_NEAR, 0x%02X, 0x%02X, 0x%02X); }%s\n", p->name, p->ext | 0x70, p->ext | 0x80, 0x0F, msg);
-			printf("void set%s(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | %d)) return; opRext(op, 8, 0, T_0F, 0x90 | %d); }%s\n", p->name, p->ext, p->ext, msg);
+			printf("void set%s(const Operand& op) { opSetCC(op, %d); }%s\n", p->name, p->ext, msg);
 
 			// ccmpscc
 			// true if SCC = 0b1010, false if SCC = 0b1011 (see APX Architecture Specification p.266)

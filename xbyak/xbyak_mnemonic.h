@@ -956,36 +956,36 @@ void scasb() { db(0xAE); }
 void scasd() { db(0xAF); }
 void scasw() { db(0x66); db(0xAF); }
 void serialize() { db(0x0F); db(0x01); db(0xE8); }
-void seta(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 7)) return; opRext(op, 8, 0, T_0F, 0x90 | 7); }//-V524
-void setae(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 3)) return; opRext(op, 8, 0, T_0F, 0x90 | 3); }//-V524
-void setb(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 2)) return; opRext(op, 8, 0, T_0F, 0x90 | 2); }//-V524
-void setbe(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 6)) return; opRext(op, 8, 0, T_0F, 0x90 | 6); }//-V524
-void setc(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 2)) return; opRext(op, 8, 0, T_0F, 0x90 | 2); }//-V524
-void sete(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 4)) return; opRext(op, 8, 0, T_0F, 0x90 | 4); }//-V524
-void setg(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 15)) return; opRext(op, 8, 0, T_0F, 0x90 | 15); }//-V524
-void setge(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 13)) return; opRext(op, 8, 0, T_0F, 0x90 | 13); }//-V524
-void setl(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 12)) return; opRext(op, 8, 0, T_0F, 0x90 | 12); }//-V524
-void setle(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 14)) return; opRext(op, 8, 0, T_0F, 0x90 | 14); }//-V524
-void setna(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 6)) return; opRext(op, 8, 0, T_0F, 0x90 | 6); }//-V524
-void setnae(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 2)) return; opRext(op, 8, 0, T_0F, 0x90 | 2); }//-V524
-void setnb(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 3)) return; opRext(op, 8, 0, T_0F, 0x90 | 3); }//-V524
-void setnbe(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 7)) return; opRext(op, 8, 0, T_0F, 0x90 | 7); }//-V524
-void setnc(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 3)) return; opRext(op, 8, 0, T_0F, 0x90 | 3); }//-V524
-void setne(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 5)) return; opRext(op, 8, 0, T_0F, 0x90 | 5); }//-V524
-void setng(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 14)) return; opRext(op, 8, 0, T_0F, 0x90 | 14); }//-V524
-void setnge(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 12)) return; opRext(op, 8, 0, T_0F, 0x90 | 12); }//-V524
-void setnl(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 13)) return; opRext(op, 8, 0, T_0F, 0x90 | 13); }//-V524
-void setnle(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 15)) return; opRext(op, 8, 0, T_0F, 0x90 | 15); }//-V524
-void setno(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 1)) return; opRext(op, 8, 0, T_0F, 0x90 | 1); }//-V524
-void setnp(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 11)) return; opRext(op, 8, 0, T_0F, 0x90 | 11); }//-V524
-void setns(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 9)) return; opRext(op, 8, 0, T_0F, 0x90 | 9); }//-V524
-void setnz(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 5)) return; opRext(op, 8, 0, T_0F, 0x90 | 5); }//-V524
-void seto(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 0)) return; opRext(op, 8, 0, T_0F, 0x90 | 0); }//-V524
-void setp(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 10)) return; opRext(op, 8, 0, T_0F, 0x90 | 10); }//-V524
-void setpe(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 10)) return; opRext(op, 8, 0, T_0F, 0x90 | 10); }//-V524
-void setpo(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 11)) return; opRext(op, 8, 0, T_0F, 0x90 | 11); }//-V524
-void sets(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 8)) return; opRext(op, 8, 0, T_0F, 0x90 | 8); }//-V524
-void setz(const Operand& op) { if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | 4)) return; opRext(op, 8, 0, T_0F, 0x90 | 4); }//-V524
+void seta(const Operand& op) { opSetCC(op, 7); }//-V524
+void setae(const Operand& op) { opSetCC(op, 3); }//-V524
+void setb(const Operand& op) { opSetCC(op, 2); }//-V524
+void setbe(const Operand& op) { opSetCC(op, 6); }//-V524
+void setc(const Operand& op) { opSetCC(op, 2); }//-V524
+void sete(const Operand& op) { opSetCC(op, 4); }//-V524
+void setg(const Operand& op) { opSetCC(op, 15); }//-V524
+void setge(const Operand& op) { opSetCC(op, 13); }//-V524
+void setl(const Operand& op) { opSetCC(op, 12); }//-V524
+void setle(const Operand& op) { opSetCC(op, 14); }//-V524
+void setna(const Operand& op) { opSetCC(op, 6); }//-V524
+void setnae(const Operand& op) { opSetCC(op, 2); }//-V524
+void setnb(const Operand& op) { opSetCC(op, 3); }//-V524
+void setnbe(const Operand& op) { opSetCC(op, 7); }//-V524
+void setnc(const Operand& op) { opSetCC(op, 3); }//-V524
+void setne(const Operand& op) { opSetCC(op, 5); }//-V524
+void setng(const Operand& op) { opSetCC(op, 14); }//-V524
+void setnge(const Operand& op) { opSetCC(op, 12); }//-V524
+void setnl(const Operand& op) { opSetCC(op, 13); }//-V524
+void setnle(const Operand& op) { opSetCC(op, 15); }//-V524
+void setno(const Operand& op) { opSetCC(op, 1); }//-V524
+void setnp(const Operand& op) { opSetCC(op, 11); }//-V524
+void setns(const Operand& op) { opSetCC(op, 9); }//-V524
+void setnz(const Operand& op) { opSetCC(op, 5); }//-V524
+void seto(const Operand& op) { opSetCC(op, 0); }//-V524
+void setp(const Operand& op) { opSetCC(op, 10); }//-V524
+void setpe(const Operand& op) { opSetCC(op, 10); }//-V524
+void setpo(const Operand& op) { opSetCC(op, 11); }//-V524
+void sets(const Operand& op) { opSetCC(op, 8); }//-V524
+void setz(const Operand& op) { opSetCC(op, 4); }//-V524
 void sfence() { db(0x0F); db(0xAE); db(0xF8); }
 void sha1msg1(const Xmm& x, const Operand& op) { opSSE_APX(x, op, T_0F38, 0xC9, T_MUST_EVEX, 0xD9); }
 void sha1msg2(const Xmm& x, const Operand& op) { opSSE_APX(x, op, T_0F38, 0xCA, T_MUST_EVEX, 0xDA); }
