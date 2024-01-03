@@ -1298,15 +1298,15 @@ public:
 		M_ripAddr
 	};
 	XBYAK_CONSTEXPR Address(uint32_t sizeBit, bool broadcast, const RegExp& e)
-		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), broadcast_(broadcast), optimize_(true)
+		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), immSize(0), disp8N(0), permitVsib(false), broadcast_(broadcast), optimize_(true)
 	{
 		e_.verify();
 	}
 #ifdef XBYAK64
 	explicit XBYAK_CONSTEXPR Address(size_t disp)
-		: Operand(0, MEM, 64), e_(disp), label_(0), mode_(M_64bitDisp), broadcast_(false), optimize_(true) { }
+		: Operand(0, MEM, 64), e_(disp), label_(0), mode_(M_64bitDisp), immSize(0), disp8N(0), permitVsib(false), broadcast_(false), optimize_(true) { }
 	XBYAK_CONSTEXPR Address(uint32_t sizeBit, bool broadcast, const RegRip& addr)
-		: Operand(0, MEM, sizeBit), e_(addr.disp_), label_(addr.label_), mode_(addr.isAddr_ ? M_ripAddr : M_rip), broadcast_(broadcast), optimize_(true) { }
+		: Operand(0, MEM, sizeBit), e_(addr.disp_), label_(addr.label_), mode_(addr.isAddr_ ? M_ripAddr : M_rip), immSize(0), disp8N(0), permitVsib(false), broadcast_(broadcast), optimize_(true) { }
 #endif
 	RegExp getRegExp() const
 	{
@@ -1323,7 +1323,7 @@ public:
 	const Label* getLabel() const { return label_; }
 	bool operator==(const Address& rhs) const
 	{
-		return getBit() == rhs.getBit() && e_ == rhs.e_ && label_ == rhs.label_ && mode_ == rhs.mode_ && broadcast_ == rhs.broadcast_;
+		return getBit() == rhs.getBit() && e_ == rhs.e_ && label_ == rhs.label_ && mode_ == rhs.mode_ && immSize == rhs.immSize && disp8N == rhs.disp8N && permitVsib == rhs.permitVsib && broadcast_ == rhs.broadcast_ && optimize_ == rhs.optimize_;
 	}
 	bool operator!=(const Address& rhs) const { return !operator==(rhs); }
 	bool isVsib() const { return e_.isVsib(); }
@@ -1331,6 +1331,11 @@ private:
 	RegExp e_;
 	const Label* label_;
 	Mode mode_;
+public:
+	int immSize; // 0, 1, 2, 4
+	int disp8N; // 0(normal), 1(force disp32), disp8N = {2, 4, 8}
+	bool permitVsib;
+private:
 	bool broadcast_;
 	bool optimize_;
 };
@@ -2131,11 +2136,11 @@ private:
 	// reg is reg field of ModRM
 	// immSize is the size for immediate value
 	// disp8N = 0(normal), disp8N = 1(force disp32), disp8N = {2, 4, 8} ; compressed displacement
-	void opAddr(const Address &addr, int reg, int immSize = 0, int disp8N = 0, bool permitVisb = false)
+	void opAddr(const Address &addr, int reg, int immSize = 0)//, int disp8N = 0)
 	{
-		if (!permitVisb && addr.isVsib()) XBYAK_THROW(ERR_BAD_VSIB_ADDRESSING)
+		if (!addr.permitVsib && addr.isVsib()) XBYAK_THROW(ERR_BAD_VSIB_ADDRESSING)
 		if (addr.getMode() == Address::M_ModRM) {
-			setSIB(addr.getRegExp(), reg, disp8N);
+			setSIB(addr.getRegExp(), reg, addr.disp8N);
 		} else if (addr.getMode() == Address::M_rip || addr.getMode() == Address::M_ripAddr) {
 			setModRM(0, reg, 5);
 			if (addr.getLabel()) { // [rip + Label]
@@ -2431,7 +2436,7 @@ private:
 	void opVex(const Reg& r, const Operand *p1, const Operand& op2, uint64_t type, int code, int imm8 = NONE)
 	{
 		if (op2.isMEM()) {
-			const Address& addr = op2.getAddress();
+			Address addr = op2.getAddress();
 			const RegExp& regExp = addr.getRegExp();
 			const Reg& base = regExp.getBase();
 			const Reg& index = regExp.getIndex();
@@ -2450,7 +2455,9 @@ private:
 			} else {
 				vex(r, base, p1, type, code, index.isExtIdx());
 			}
-			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0, disp8N, (type & T_VSIB) != 0);
+			if (type & T_VSIB) addr.permitVsib = true;
+			if (disp8N) addr.disp8N = disp8N;
+			opAddr(addr, r.getIdx(), (imm8 != NONE) ? 1 : 0);//, disp8N);
 		} else {
 			const Reg& base = op2.getReg();
 			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || base.hasEvex()) {
