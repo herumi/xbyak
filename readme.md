@@ -33,6 +33,7 @@ If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 ### News
 
+- support RAO-INT for APX
 - support AVX10 detection, AESKLE, WIDE_KL, KEYLOCKER, KEYLOCKER_WIDE
 - support APX except for a few instructions
 - add amx_fp16/avx_vnni_int8/avx_ne_convert/avx-ifma
