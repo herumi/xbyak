@@ -177,7 +177,7 @@ private:
 	}
 	uint32_t extractBit(uint32_t val, uint32_t base, uint32_t end)
 	{
-		return (val >> base) & ((1u << (end - base)) - 1);
+		return (val >> base) & ((1u << (end + 1 - base)) - 1);
 	}
 	void setNumCores()
 	{
