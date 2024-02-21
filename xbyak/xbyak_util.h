@@ -145,6 +145,13 @@ private:
 	uint32_t dataCacheLevels_;
 	uint32_t avx10version_;
 
+	bool compareVendorString(const uint32_t EBX, const uint32_t ECX, const uint32_t EDX, const char vendorString[12]) {
+		return (
+			*reinterpret_cast<const uint32_t*>(&vendorString[0]) == EBX &&
+			*reinterpret_cast<const uint32_t*>(&vendorString[4]) == EDX &&
+			*reinterpret_cast<const uint32_t*>(&vendorString[8]) == ECX
+		);
+	}
 	uint32_t extractBit(uint32_t val, uint32_t base, uint32_t end)
 	{
 		return (val >> base) & ((1u << (end + 1 - base)) - 1);
@@ -555,9 +562,7 @@ public:
 		const uint32_t& EDX = data[3];
 		getCpuid(0, data);
 		const uint32_t maxNum = EAX;
-		static const uint32_t amd[]   = { 0x68747541 /* Auth */, 0x444D4163 /* cAMD */, 0x69746E65 /* enti */};
-		static const uint32_t intel[] = { 0x756E6547 /* Genu */, 0x6C65746E /* ntel */, 0x49656E69 /* ineI */};
-		if (EBX == amd[0] && ECX == amd[1] && EDX == amd[2]) {
+		if (compareVendorString(EBX, ECX, EDX, "AuthenticAMD")) {
 			type_ |= tAMD;
 			getCpuid(0x80000001, data);
 			if (EDX & (1U << 31)) {
@@ -570,8 +575,7 @@ public:
 				// Long mode implies support for PREFETCHW on AMD
 				type_ |= tPREFETCHW;
 			}
-		}
-		if (EBX == intel[0] && ECX == intel[1] && EDX == intel[2]) {
+		} else if (compareVendorString(EBX, ECX, EDX, "GenuineIntel")) {
 			type_ |= tINTEL;
 		}
 
