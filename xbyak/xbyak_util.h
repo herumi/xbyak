@@ -220,7 +220,7 @@ private:
 			int logicalProcessorCount = extractBit(data[1], 16, 23);
 			int htt = extractBit(data[3], 28, 28); // Hyper-threading technology.
 			getCpuid(0x80000000, data);
-			int highestExtendedLeaf = data[0];
+			uint32_t highestExtendedLeaf = data[0];
 			if (highestExtendedLeaf >= 0x80000008) {
 				getCpuid(0x80000008, data);
 				physicalThreadCount = extractBit(data[2], 0, 7) + 1;
@@ -273,7 +273,6 @@ private:
 			getCpuid(0x80000000, data);
 			if (data[0] >= 0x8000001D) {
 				// For modern AMD CPUs.
-				int cache_index = 0;
 				dataCacheLevels_ = 0;
 				for (uint32_t subLeaf = 0; dataCacheLevels_ < maxNumberCacheLevels; subLeaf++) {
 					getCpuidEx(0x8000001D, subLeaf, data);
@@ -288,14 +287,12 @@ private:
 					*/
 					if (cacheType == 0) break; // No more caches.
 					if (cacheType == 0x2) continue; // Skip instruction cache.
-					int cacheLevel = extractBit(data[0], 5, 7);
 					int fullyAssociative = extractBit(data[0], 9, 9);
 					int numSharingCache = extractBit(data[0], 14, 25) + 1;
 					int cacheNumWays = extractBit(data[1], 22, 31) + 1;
 					int cachePhysPartitions = extractBit(data[1], 12, 21) + 1;
 					int cacheLineSize = extractBit(data[1], 0, 11) + 1;
 					int cacheNumSets = data[2] + 1;
-					int cacheInclusive = extractBit(data[3], 1, 1);
 					dataCacheSize_[dataCacheLevels_] =
 						cacheLineSize * cachePhysPartitions * cacheNumWays;
 					if (fullyAssociative == 0) {
