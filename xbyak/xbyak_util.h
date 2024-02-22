@@ -92,6 +92,7 @@ typedef enum {
    SmtLevel = 1,
    CoreLevel = 2
 } CpuTopologyLevel;
+typedef CpuTopologyLevel IntelCpuTopologyLevel; // for backward compatibility
 
 namespace local {
 
