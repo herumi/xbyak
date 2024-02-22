@@ -149,7 +149,8 @@ private:
 	{
 		return x[0] | (x[1] << 8) | (x[2] << 16) | (x[3] << 24);
 	}
-	bool compareVendorString(uint32_t EBX, uint32_t ECX, uint32_t EDX, const char s[12]) const
+	// [EBX:ECX:EDX] == s?
+	bool isEqualStr(uint32_t EBX, uint32_t ECX, uint32_t EDX, const char s[12]) const
 	{
 		return get32bitAsBE(&s[0]) == EBX && get32bitAsBE(&s[4]) == EDX && get32bitAsBE(&s[8]) == ECX;
 	}
@@ -563,7 +564,7 @@ public:
 		const uint32_t& EDX = data[3];
 		getCpuid(0, data);
 		const uint32_t maxNum = EAX;
-		if (compareVendorString(EBX, ECX, EDX, "AuthenticAMD")) {
+		if (isEqualStr(EBX, ECX, EDX, "AuthenticAMD")) {
 			type_ |= tAMD;
 			getCpuid(0x80000001, data);
 			if (EDX & (1U << 31)) {
@@ -576,7 +577,7 @@ public:
 				// Long mode implies support for PREFETCHW on AMD
 				type_ |= tPREFETCHW;
 			}
-		} else if (compareVendorString(EBX, ECX, EDX, "GenuineIntel")) {
+		} else if (isEqualStr(EBX, ECX, EDX, "GenuineIntel")) {
 			type_ |= tINTEL;
 		}
 
