@@ -145,14 +145,15 @@ private:
 	uint32_t dataCacheLevels_;
 	uint32_t avx10version_;
 
-	bool compareVendorString(const uint32_t EBX, const uint32_t ECX, const uint32_t EDX, const char vendorString[12]) {
-		return (
-			*reinterpret_cast<const uint32_t*>(&vendorString[0]) == EBX &&
-			*reinterpret_cast<const uint32_t*>(&vendorString[4]) == EDX &&
-			*reinterpret_cast<const uint32_t*>(&vendorString[8]) == ECX
-		);
+	uint32_t get32bitAsBE(const char *x) const
+	{
+		return x[0] | (x[1] << 8) | (x[2] << 16) | (x[3] << 24);
 	}
-	uint32_t extractBit(uint32_t val, uint32_t base, uint32_t end)
+	bool compareVendorString(const uint32_t EBX, const uint32_t ECX, const uint32_t EDX, const char vendorString[12]) const
+	{
+		return get32bitAsBE(&vendorString[0]) == EBX && get32bitAsBE(&vendorString[4]) == EDX && get32bitAsBE(&vendorString[8]) == ECX;
+	}
+	uint32_t extractBit(uint32_t val, uint32_t base, uint32_t end) const
 	{
 		return (val >> base) & ((1u << (end + 1 - base)) - 1);
 	}
