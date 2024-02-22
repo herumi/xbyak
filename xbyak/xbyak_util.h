@@ -211,7 +211,7 @@ private:
 				return;
 			}
 		}
-		// "Extended Topology Enumeration" is not supported. 
+		// "Extended Topology Enumeration" is not supported.
 		if (has(tAMD)) {
 			/*
 				AMD - Legacy Method
