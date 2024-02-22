@@ -149,9 +149,9 @@ private:
 	{
 		return x[0] | (x[1] << 8) | (x[2] << 16) | (x[3] << 24);
 	}
-	bool compareVendorString(const uint32_t EBX, const uint32_t ECX, const uint32_t EDX, const char vendorString[12]) const
+	bool compareVendorString(uint32_t EBX, uint32_t ECX, uint32_t EDX, const char s[12]) const
 	{
-		return get32bitAsBE(&vendorString[0]) == EBX && get32bitAsBE(&vendorString[4]) == EDX && get32bitAsBE(&vendorString[8]) == ECX;
+		return get32bitAsBE(&s[0]) == EBX && get32bitAsBE(&s[4]) == EDX && get32bitAsBE(&s[8]) == ECX;
 	}
 	uint32_t extractBit(uint32_t val, uint32_t base, uint32_t end) const
 	{
