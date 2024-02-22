@@ -150,6 +150,10 @@ private:
 	{
 		return x[0] | (x[1] << 8) | (x[2] << 16) | (x[3] << 24);
 	}
+	uint32_t mask(int n) const
+	{
+		return (1U << n) - 1;
+	}
 	// [EBX:ECX:EDX] == s?
 	bool isEqualStr(uint32_t EBX, uint32_t ECX, uint32_t EDX, const char s[12]) const
 	{
@@ -712,7 +716,7 @@ public:
 		}
 		if (has(tAVX10) && maxNum >= 0x24) {
 			getCpuidEx(0x24, 0, data);
-			avx10version_ = EBX & 0x7F;
+			avx10version_ = EBX & mask(7);
 		}
 		setFamily();
 		setNumCores();
