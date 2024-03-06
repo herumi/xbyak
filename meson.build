@@ -28,12 +28,14 @@ import('pkgconfig').generate(
 	dataonly: true,
 )
 
+shared_cmake_dir = get_option('prefix') / 'share/cmake/xbyak'
 if meson.version().version_compare('>=0.50.0')
 	cmake = import('cmake')
 
 	cmake.write_basic_package_version_file(
 		name: meson.project_name(),
-		version: meson.project_version()
+		version: meson.project_version(),
+		install_dir: shared_cmake_dir,
 	)
 
 	cmake_conf = configuration_data()
@@ -43,6 +45,7 @@ if meson.version().version_compare('>=0.50.0')
 	cmake.configure_package_config_file(
 		name: meson.project_name(),
 		input: 'cmake'/'meson-config.cmake.in',
-		configuration: cmake_conf
+		configuration: cmake_conf,
+		install_dir: shared_cmake_dir,
 	)
 endif
