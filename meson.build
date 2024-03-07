@@ -10,7 +10,8 @@ project(
 	default_options: 'b_ndebug=if-release'
 )
 
-install_subdir('xbyak', install_dir: get_option('includedir'))
+include_dir = get_option('prefix') / get_option('includedir')
+install_subdir('xbyak', install_dir: include_dir)
 
 xbyak_dep = declare_dependency(include_directories: include_directories('.'))
 
@@ -22,15 +23,19 @@ import('pkgconfig').generate(
 	name: meson.project_name(),
 	description: 'JIT assembler for x86(IA32), x64(AMD64, x86-64)',
 	version: meson.project_version(),
-	url: 'https://github.com/herumi/xbyak'
+	url: 'https://github.com/herumi/xbyak',
+	variables: ['includedir=@0@'.format(include_dir)],
+	dataonly: true,
 )
 
+shared_cmake_dir = get_option('prefix') / 'share/cmake/xbyak'
 if meson.version().version_compare('>=0.50.0')
 	cmake = import('cmake')
 
 	cmake.write_basic_package_version_file(
 		name: meson.project_name(),
-		version: meson.project_version()
+		version: meson.project_version(),
+		install_dir: shared_cmake_dir,
 	)
 
 	cmake_conf = configuration_data()
@@ -40,6 +45,7 @@ if meson.version().version_compare('>=0.50.0')
 	cmake.configure_package_config_file(
 		name: meson.project_name(),
 		input: 'cmake'/'meson-config.cmake.in',
-		configuration: cmake_conf
+		configuration: cmake_conf,
+		install_dir: shared_cmake_dir,
 	)
 endif
