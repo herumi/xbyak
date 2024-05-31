@@ -14,7 +14,7 @@ jobs:
     container:
       image: debian:testing
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: apt -y update
     - run: apt -y install g++-multilib libboost-dev make nasm yasm
     - run: make test
