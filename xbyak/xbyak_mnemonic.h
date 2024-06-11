@@ -1612,6 +1612,8 @@ void xor_(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_N
 void xor_(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, T_NF|T_CODE1_IF1, 0x30); }
 void xorpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x57, isXMM_XMMorMEM); }
 void xorps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x57, isXMM_XMMorMEM); }
+void xresldtrk() { db(0xF2); db(0x0F); db(0x01); db(0xE9); }
+void xsusldtrk() { db(0xF2); db(0x0F); db(0x01); db(0xE8); }
 #ifdef XBYAK_ENABLE_OMITTED_OPERAND
 void vblendpd(const Xmm& x, const Operand& op, uint8_t imm) { vblendpd(x, x, op, imm); }
 void vblendps(const Xmm& x, const Operand& op, uint8_t imm) { vblendps(x, x, op, imm); }
