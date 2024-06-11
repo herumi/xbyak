@@ -1,5 +1,6 @@
 # History
 
+* 2024/Jun/11 ver 7.07 support xresldtrk/xsusldtrk
 * 2024/Mar/07 ver 7.06 Xbyak::util::Cpu supports AMD processor
 * 2024/Feb/11 ver 7.05.1 fix extractBit() in util::Cpu and align() for autoGrow mode
 * 2024/Jan/03 ver 7.05 support RAO-INT for APX
