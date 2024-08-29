@@ -5,7 +5,7 @@
 project(
 	'xbyak',
 	'cpp',
-	version: '7.07',
+	version: '7.07.1',
 	license: 'BSD-3-Clause',
 	default_options: 'b_ndebug=if-release'
 )
@@ -22,19 +22,15 @@ import('pkgconfig').generate(
 	name: meson.project_name(),
 	description: 'JIT assembler for x86(IA32), x64(AMD64, x86-64)',
 	version: meson.project_version(),
-	url: 'https://github.com/herumi/xbyak',
-	install_dir: get_option('datadir')/'pkgconfig'
+	url: 'https://github.com/herumi/xbyak'
 )
 
-if meson.version().version_compare('>=0.62.0')
+if meson.version().version_compare('>=0.50.0')
 	cmake = import('cmake')
-	shared_cmake_dir = get_option('datadir')/'cmake'/meson.project_name()
 
 	cmake.write_basic_package_version_file(
 		name: meson.project_name(),
-		version: meson.project_version(),
-		install_dir: shared_cmake_dir,
-		arch_independent: true
+		version: meson.project_version()
 	)
 
 	cmake_conf = configuration_data()
@@ -44,7 +40,6 @@ if meson.version().version_compare('>=0.62.0')
 	cmake.configure_package_config_file(
 		name: meson.project_name(),
 		input: 'cmake'/'meson-config.cmake.in',
-		configuration: cmake_conf,
-		install_dir: shared_cmake_dir,
+		configuration: cmake_conf
 	)
 endif
