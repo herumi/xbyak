@@ -189,18 +189,30 @@ int main(int argc, char *argv[])
 	fprintf(stderr, "64bit mode\n");
 #endif
 	if (argc == 1) {
-		fprintf(stderr, "bf filename.bf [0|1]\n");
+		fprintf(stderr, "bf filename.bf [0|1|2]\n");
 		return 1;
 	}
 	std::ifstream ifs(argv[1]);
 	int mode = argc == 3 ? atoi(argv[2]) : 0;
 	try {
 		Brainfuck bf(ifs);
-		if (mode == 0) {
+		switch (mode) {
+		case 0: {
 			static int stack[128 * 1024];
 			bf.getCode<void (*)(const void*, const void*, int *)>()(reinterpret_cast<const void*>(putchar), reinterpret_cast<const void*>(getchar), stack);
-		} else {
+			break;
+			}
+		case 1: {
 			dump(bf.getCode(), bf.getSize());
+			break;
+			}
+		default: {
+			const char *dumpName = "bf.dump";
+			printf("dump to %s\n", dumpName);
+			std::ofstream ofs(dumpName, std::ios::binary);
+			ofs.write((const char*)bf.getCode(), bf.getSize());
+			break;
+			}
 		}
 	} catch (std::exception& e) {
 		printf("ERR:%s\n", e.what());
