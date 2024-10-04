@@ -911,6 +911,10 @@ void rcr(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 3); }
 void rcr(const Operand& op, int imm) { opShift(op, imm, 3); }
 void rcr(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 3, &d); }
 void rcr(const Reg& d, const Operand& op, int imm) { opShift(op, imm, 3, &d); }
+#ifdef XBYAK64
+void rdfsbase(const Reg& r) { if (r.isBit(8) || r.isBit(16)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) db(0xF3); opRR(Reg(0, Operand::REG, r.getBit()), r, T_0F, 0xAE); }
+void rdgsbase(const Reg& r) { if (r.isBit(8) || r.isBit(16)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) db(0xF3); opRR(Reg(1, Operand::REG, r.getBit()), r, T_0F, 0xAE); }
+#endif
 void rdmsr() { db(0x0F); db(0x32); }
 void rdpmc() { db(0x0F); db(0x33); }
 void rdrand(const Reg& r) { if (r.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opRR(Reg(6, Operand::REG, r.getBit()), r, T_0F, 0xC7); }
@@ -1600,6 +1604,10 @@ void vzeroall() { db(0xC5); db(0xFC); db(0x77); }
 void vzeroupper() { db(0xC5); db(0xF8); db(0x77); }
 void wait() { db(0x9B); }
 void wbinvd() { db(0x0F); db(0x09); }
+#ifdef XBYAK64
+void wrfsbase(const Reg& r) { if (r.isBit(8) || r.isBit(16)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) db(0xF3); opRR(Reg(2, Operand::REG, r.getBit()), r, T_0F, 0xAE); }
+void wrgsbase(const Reg& r) { if (r.isBit(8) || r.isBit(16)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) db(0xF3); opRR(Reg(3, Operand::REG, r.getBit()), r, T_0F, 0xAE); }
+#endif
 void wrmsr() { db(0x0F); db(0x30); }
 void xabort(uint8_t imm) { db(0xC6); db(0xF8); db(imm); }
 void xadd(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xC0 | (reg.isBit(8) ? 0 : 1), op.getBit() == reg.getBit()); }
