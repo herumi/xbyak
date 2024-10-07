@@ -1937,6 +1937,10 @@ void aesencwide128kl(const Address& addr) { opSSE_APX(xmm0, addr, T_F3|T_0F38, 0
 void aesencwide256kl(const Address& addr) { opSSE_APX(xmm2, addr, T_F3|T_0F38, 0xD8, T_F3|T_MUST_EVEX, 0xD8); }
 void encodekey128(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFA, 0xDA); }
 void encodekey256(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFB, 0xDB); }
+void rdfsbase(const Reg32e& r) { opRR(eax, r, T_F3|T_0F, 0xAE); }
+void rdgsbase(const Reg32e& r) { opRR(ecx, r, T_F3|T_0F, 0xAE); }
+void wrfsbase(const Reg32e& r) { opRR(edx, r, T_F3|T_0F, 0xAE); }
+void wrgsbase(const Reg32e& r) { opRR(ebx, r, T_F3|T_0F, 0xAE); }
 void ldtilecfg(const Address& addr) { if (opROO(Reg(), addr, tmm0, T_APX|T_0F38|T_W0, 0x49)) return; opVex(tmm0, &tmm0, addr, T_0F38|T_W0, 0x49); }
 void sttilecfg(const Address& addr) { if (opROO(Reg(), addr, tmm0, T_APX|T_66|T_0F38|T_W0, 0x49)) return; opVex(tmm0, &tmm0, addr, T_66|T_0F38 | T_W0, 0x49); }
 void tileloadd(const Tmm& tm, const Address& addr) { opAMX(tm, addr, T_F2|T_0F38|T_W0, 0x4B); }
