@@ -42,7 +42,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#define XBYAK_NO_OP_NAMES
 #include "xbyak/xbyak.h"
 #ifdef _MSC_VER
 	#pragma warning(disable : 4996) // scanf

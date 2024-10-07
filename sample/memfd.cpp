@@ -25,6 +25,7 @@ public:
 
 int main()
 {
+	printf("pid=%d\n", getpid());
     Code c1("Xbyak::abc", 123);
     Code c2("Xbyak::xyz", 456);
     printf("c1 %d\n", c1.getCode<int (*)()>()());
@@ -36,4 +37,5 @@ int main()
 			printf("%s\n", line.c_str());
 		}
 	}
+	getchar();
 }

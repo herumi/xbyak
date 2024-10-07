@@ -2057,6 +2057,15 @@ void put64()
 	// encodekey
 	puts("void encodekey128(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFA, 0xDA); }");
 	puts("void encodekey256(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFB, 0xDB); }");
+	// read/write fs/gs
+	{
+		const char *tbl[] = {
+			"rdfs", "rdgs", "wrfs", "wrgs"
+		};
+		for (int i = 0; i < 4; i++) {
+			printf("void %sbase(const Reg32e& r) { opRR(%s, r, T_F3|T_0F, 0xAE); }\n", tbl[i], Reg(i, Operand::REG, 32).toString());
+		}
+	}
 }
 
 void putAMX_TILE()
