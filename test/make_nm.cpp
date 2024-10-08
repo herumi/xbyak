@@ -3390,6 +3390,8 @@ public:
 				}
 			}
 		}
+		put("vfmadd132pd", ZMM, ZMM, ZMM_ER);
+		put("vfmadd132ps", ZMM, ZMM, ZMM_ER);
 	}
 	void put512_Y_XM()
 	{
