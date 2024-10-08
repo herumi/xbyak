@@ -835,18 +835,20 @@ void putFP16_1()
 	const struct Tbl {
 		uint8_t code;
 		const char *name;
+		int mode;
 	} tbl[] = {
-		{ 0x58, "add" },
-		{ 0x5C, "sub" },
-		{ 0x59, "mul" },
-		{ 0x5E, "div" },
-		{ 0x5F, "max" },
-		{ 0x5D, "min" },
+		{ 0x58, "add", 0 },
+		{ 0x5C, "sub", 0 },
+		{ 0x59, "mul", 0 },
+		{ 0x5E, "div", 0 },
+		{ 0x5F, "max", 1 },
+		{ 0x5D, "min", 1 },
 	};
+	const char *erTbl[] = { "ER", "SAE" };
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
-		printf("void v%sph(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_MAP5 | T_EW0 | T_YMM | T_MUST_EVEX | T_ER_Z | T_B16, 0x%02X); }\n", p->name, p->code);
-		printf("void v%ssh(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_MAP5 | T_F3 | T_EW0 | T_MUST_EVEX | T_ER_X | T_N2, 0x%02X); }\n", p->name, p->code);
+		printf("void v%sph(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_MAP5 | T_EW0 | T_YMM | T_MUST_EVEX | T_%s_Z | T_B16, 0x%02X); }\n", p->name, erTbl[p->mode], p->code);
+		printf("void v%ssh(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_MAP5 | T_F3 | T_EW0 | T_MUST_EVEX | T_%s_X | T_N2, 0x%02X); }\n", p->name, erTbl[p->mode], p->code);
 	}
 }
 

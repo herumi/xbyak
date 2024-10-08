@@ -1867,16 +1867,19 @@ private:
 		}
 		db(code);
 	}
-	void verifySAE(const Reg& r, uint64_t type) const
+	// Allow YMM embedded rounding for AVX10.2 to minimize flag modifications
+	bool verifySAE(const Reg& r, const Reg& b, uint64_t type) const
 	{
-		if (((type & T_SAE_X) && r.isXMM()) || ((type & T_SAE_Y) && r.isYMM()) || ((type & T_SAE_Z) && r.isZMM())) return;
-		XBYAK_THROW(ERR_SAE_IS_INVALID)
+		if (((type & T_SAE_X) && (r.isYMM() && b.isXMM())) || ((type & T_SAE_Y) && b.isXMM()) || ((type & T_SAE_Z) && b.isYMM())) return true;
+		if (((type & T_SAE_X) && b.isXMM()) || ((type & T_SAE_Y) && b.isYMM()) || ((type & T_SAE_Z) && b.isZMM())) return false;
+		XBYAK_THROW_RET(ERR_SAE_IS_INVALID, false)
 	}
-	void verifyER(const Reg& r, uint64_t type) const
+	bool verifyER(const Reg& r, const Reg& b, uint64_t type) const
 	{
-		if ((type & T_ER_R) && r.isREG(32|64)) return;
-		if (((type & T_ER_X) && r.isXMM()) || ((type & T_ER_Y) && r.isYMM()) || ((type & T_ER_Z) && r.isZMM())) return;
-		XBYAK_THROW(ERR_ER_IS_INVALID)
+		if ((type & T_ER_R) && b.isREG(32|64)) return false;
+		if (((type & T_ER_X) && (r.isYMM() && b.isXMM())) || ((type & T_ER_Y) && b.isXMM()) || ((type & T_ER_Z) && b.isYMM())) return true;
+		if (((type & T_ER_X) && b.isXMM()) || ((type & T_ER_Y) && b.isYMM()) || ((type & T_ER_Z) && b.isZMM())) return false;
+		XBYAK_THROW_RET(ERR_SAE_IS_INVALID, false)
 	}
 	// (a, b, c) contains non zero two or three values then err
 	int verifyDuplicate(int a, int b, int c, int err)
@@ -1897,19 +1900,21 @@ private:
 
 		bool R = reg.isExtIdx();
 		bool X3 = (x && x->isExtIdx()) || (base.isSIMD() && base.isExtIdx2());
-		bool B4 = base.isREG() && base.isExtIdx2();
-		bool X4 = x && (x->isREG() && x->isExtIdx2());
+		uint8_t B4 = (base.isREG() && base.isExtIdx2()) ? 8 : 0;
+		uint8_t U = (x && (x->isREG() && x->isExtIdx2())) ? 0 : 4;
 		bool B = base.isExtIdx();
 		bool Rp = reg.isExtIdx2();
 		int LL;
 		int rounding = verifyDuplicate(reg.getRounding(), base.getRounding(), v ? v->getRounding() : 0, ERR_ROUNDING_IS_ALREADY_SET);
 		int disp8N = 1;
 		if (rounding) {
+			bool isUzero = false;
 			if (rounding == EvexModifierRounding::T_SAE) {
-				verifySAE(base, type); LL = 0;
+				isUzero = verifySAE(reg, base, type); LL = 0;
 			} else {
-				verifyER(base, type); LL = rounding - 1;
+				isUzero = verifyER(reg, base, type); LL = rounding - 1;
 			}
+			if (isUzero) U = 0; // avx10.2 Evex.U
 			b = true;
 		} else {
 			if (v) VL = (std::max)(VL, v->getBit());
@@ -1935,8 +1940,8 @@ private:
 		if (aaa == 0) aaa = verifyDuplicate(base.getOpmaskIdx(), reg.getOpmaskIdx(), (v ? v->getOpmaskIdx() : 0), ERR_OPMASK_IS_ALREADY_SET);
 		if (aaa == 0) z = 0; // clear T_z if mask is not set
 		db(0x62);
-		db((R ? 0 : 0x80) | (X3 ? 0 : 0x40) | (B ? 0 : 0x20) | (Rp ? 0 : 0x10) | (B4 ? 8 : 0) | mmm);
-		db((w == 1 ? 0x80 : 0) | ((vvvv & 15) << 3) | (X4 ? 0 : 4) | (pp & 3));
+		db((R ? 0 : 0x80) | (X3 ? 0 : 0x40) | (B ? 0 : 0x20) | (Rp ? 0 : 0x10) | B4 | mmm);
+		db((w == 1 ? 0x80 : 0) | ((vvvv & 15) << 3) | U | (pp & 3));
 		db((z ? 0x80 : 0) | ((LL & 3) << 5) | (b ? 0x10 : 0) | (V4 ? 0 : 8) | (aaa & 7));
 		db(code);
 		return disp8N;

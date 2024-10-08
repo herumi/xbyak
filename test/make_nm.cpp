@@ -1335,6 +1335,10 @@ class Test {
 		put("cmpxchg16b", MEM);
 		put("fxrstor64", MEM);
 		put("xbegin", "0x12345678");
+		put("rdfsbase", REG32|REG64);
+		put("rdgsbase", REG32|REG64);
+		put("wrfsbase", REG32|REG64);
+		put("wrgsbase", REG32|REG64);
 #endif
 		{
 			const char tbl[][8] = {
@@ -2216,6 +2220,7 @@ class Test {
 			put("vcvtpd2ps", XMM, XMM | YMM | MEM);
 			put("vcvtpd2dq", XMM, XMM | YMM | MEM);
 			put("vcvttpd2dq", XMM, XMM | YMM | MEM);
+			put("vcvttpd2dq", YMM, MEM | ZMM_SAE);
 
 			put("vcvtph2ps", XMM | YMM, XMM | MEM);
 			put("vcvtps2ph", XMM | MEM, XMM | YMM, IMM8);
@@ -3385,6 +3390,8 @@ public:
 				}
 			}
 		}
+		put("vfmadd132pd", ZMM, ZMM, ZMM_ER);
+		put("vfmadd132ps", ZMM, ZMM, ZMM_ER);
 	}
 	void put512_Y_XM()
 	{
@@ -3458,6 +3465,11 @@ public:
 				put(p, _ZMM, _ZMM, mem);
 			}
 		}
+		put("vaddpd", ZMM, ZMM, ZMM_ER);
+		put("vmaxpd", ZMM, ZMM, ZMM_SAE);
+		put("vminps", ZMM, ZMM, ZMM_SAE);
+		put("vmaxsd", XMM, XMM, XMM_SAE);
+		put("vminss", XMM, XMM, XMM_SAE);
 #endif
 	}
 	void put512_cvt()
@@ -3474,6 +3486,10 @@ public:
 		put("vcvtpd2dq", XMM_KZ, _XMM | _YMM | M_1to2);
 		put("vcvtpd2dq", YMM_KZ, _ZMM | ZMM_ER | M_1to8);
 #endif
+	}
+	void put512_fp16()
+	{
+		put("vaddph", ZMM, ZMM, ZMM_ER);
 	}
 	void putMin()
 	{
@@ -3514,6 +3530,7 @@ public:
 		put512_AVX1();
 		separateFunc();
 		put512_cvt();
+		put512_fp16();
 #endif
 	}
 #endif

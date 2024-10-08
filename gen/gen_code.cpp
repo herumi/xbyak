@@ -1308,25 +1308,32 @@ void put()
 			uint8_t code;
 			const char *name;
 			bool only_pd_ps;
+			int mode; // 0 : none, 1 : er, 2 : sae
 		} tbl[] = {
-			{ 0x58, "add", false },
-			{ 0x5C, "sub", false },
-			{ 0x59, "mul", false },
-			{ 0x5E, "div", false },
-			{ 0x5F, "max", false },
-			{ 0x5D, "min", false },
-			{ 0x54, "and", true },
-			{ 0x55, "andn", true },
-			{ 0x56, "or", true },
-			{ 0x57, "xor", true },
+			{ 0x58, "add", false, 1 },
+			{ 0x5C, "sub", false, 1 },
+			{ 0x59, "mul", false, 1 },
+			{ 0x5E, "div", false, 1 },
+			{ 0x5F, "max", false, 2 },
+			{ 0x5D, "min", false, 2 },
+			{ 0x54, "and", true, 0 },
+			{ 0x55, "andn", true, 0 },
+			{ 0x56, "or", true, 0 },
+			{ 0x57, "xor", true, 0 },
+		};
+		const char *xTbl[] = {
+			"", " | T_ER_X", " | T_SAE_X"
+		};
+		const char *zTbl[] = {
+			"", " | T_ER_Z", " | T_SAE_Z"
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void v%spd(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX | T_ER_Z | T_B64, 0x%02X); }\n", p->name, p->code);
-			printf("void v%sps(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_EW0 | T_YMM | T_EVEX | T_ER_Z | T_B32, 0x%02X); }\n", p->name, p->code);
+			printf("void v%spd(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_66 | T_EW1 | T_YMM | T_EVEX%s | T_B64, 0x%02X); }\n", p->name, zTbl[p->mode], p->code);
+			printf("void v%sps(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_EW0 | T_YMM | T_EVEX%s | T_B32, 0x%02X); }\n", p->name, zTbl[p->mode], p->code);
 			if (p->only_pd_ps) continue;
-			printf("void v%ssd(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_F2 | T_EW1 | T_EVEX | T_ER_X | T_N8, 0x%02X); }\n", p->name, p->code);
-			printf("void v%sss(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_F3 | T_EW0 | T_EVEX | T_ER_X | T_N4, 0x%02X); }\n", p->name, p->code);
+			printf("void v%ssd(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_F2 | T_EW1 | T_EVEX%s | T_N8, 0x%02X); }\n", p->name, xTbl[p->mode], p->code);
+			printf("void v%sss(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_0F | T_F3 | T_EW0 | T_EVEX%s | T_N4, 0x%02X); }\n", p->name, xTbl[p->mode], p->code);
 		}
 	}
 	putX_X_XM(false);
@@ -1620,9 +1627,9 @@ void put()
 					if (tbl[i].supportYMM) t |= T_YMM;
 					const std::string suf = sufTbl[tbl[i].supportYMM ? 0 : 1][j];
 					if (suf == "pd") {
-						t |= T_B64;
+						t |= T_ER_Z | T_B64;
 					} else if (suf == "ps") {
-						t |= T_B32;
+						t |= T_ER_Z | T_B32;
 					} else if (suf == "sd") {
 						t |= T_ER_X | T_N8;
 					} else { // ss
@@ -1772,7 +1779,7 @@ void put()
 		puts("void vcvtpd2ps(const Xmm& x, const Operand& op) { opCvt2(x, op, T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_ER_Z, 0x5A); }");
 		puts("void vcvtpd2dq(const Xmm& x, const Operand& op) { opCvt2(x, op, T_0F | T_F2 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_ER_Z, 0xE6); }");
 
-		puts("void vcvttpd2dq(const Xmm& x, const Operand& op) { opCvt2(x, op, T_66 | T_0F | T_YMM | T_EVEX |T_EW1 | T_B64 | T_ER_Z, 0xE6); }");
+		puts("void vcvttpd2dq(const Xmm& x, const Operand& op) { opCvt2(x, op, T_66 | T_0F | T_YMM | T_EVEX |T_EW1 | T_B64 | T_SAE_Z, 0xE6); }");
 
 		puts("void vcvtph2ps(const Xmm& x, const Operand& op) { checkCvt1(x, op); opVex(x, 0, op, T_0F38 | T_66 | T_W0 | T_EVEX | T_EW0 | T_N8 | T_N_VL | T_SAE_Y, 0x13); }");
 		puts("void vcvtps2ph(const Operand& op, const Xmm& x, uint8_t imm) { checkCvt1(x, op); opVex(x, 0, op, T_0F3A | T_66 | T_W0 | T_EVEX | T_EW0 | T_N8 | T_N_VL | T_SAE_Y | T_M_K, 0x1D, imm); }");
