@@ -11,4 +11,7 @@ call test_misc
 echo *** test APX ***
 set FILE=apx
 call test_misc
+echo *** test AVX10 ***
+set FILE=avx10_test
+call test_misc
 echo *** all test end ***
