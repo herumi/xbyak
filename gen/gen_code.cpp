@@ -1620,9 +1620,9 @@ void put()
 					if (tbl[i].supportYMM) t |= T_YMM;
 					const std::string suf = sufTbl[tbl[i].supportYMM ? 0 : 1][j];
 					if (suf == "pd") {
-						t |= T_B64;
+						t |= T_ER_Z | T_B64;
 					} else if (suf == "ps") {
-						t |= T_B32;
+						t |= T_ER_Z | T_B32;
 					} else if (suf == "sd") {
 						t |= T_ER_X | T_N8;
 					} else { // ss
