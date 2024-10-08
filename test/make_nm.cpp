@@ -3465,6 +3465,11 @@ public:
 				put(p, _ZMM, _ZMM, mem);
 			}
 		}
+		put("vaddpd", ZMM, ZMM, ZMM_ER);
+		put("vmaxpd", ZMM, ZMM, ZMM_SAE);
+		put("vminps", ZMM, ZMM, ZMM_SAE);
+		put("vmaxsd", XMM, XMM, XMM_SAE);
+		put("vminss", XMM, XMM, XMM_SAE);
 #endif
 	}
 	void put512_cvt()
