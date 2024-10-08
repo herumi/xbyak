@@ -1,5 +1,6 @@
 # History
 
+* 2024/Oct/08 ver 7.09 support YMM embedded rounding of AVX10.2 and fix some nmemonics with {sae}/{er}.
 * 2024/Oct/07 ver 7.08 support rdfsbase etc.
 * 2024/Aug/29 ver 7.07.1 adapt to NASM 2.16.03 output of xchg (The functionality stays the same.)
 * 2024/Jun/11 ver 7.07 support xresldtrk/xsusldtrk
