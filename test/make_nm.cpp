@@ -3487,6 +3487,10 @@ public:
 		put("vcvtpd2dq", YMM_KZ, _ZMM | ZMM_ER | M_1to8);
 #endif
 	}
+	void put512_fp16()
+	{
+		put("vaddph", ZMM, ZMM, ZMM_ER);
+	}
 	void putMin()
 	{
 #ifdef XBYAK64
@@ -3526,6 +3530,7 @@ public:
 		put512_AVX1();
 		separateFunc();
 		put512_cvt();
+		put512_fp16();
 #endif
 	}
 #endif
