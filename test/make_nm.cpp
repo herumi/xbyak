@@ -2220,6 +2220,7 @@ class Test {
 			put("vcvtpd2ps", XMM, XMM | YMM | MEM);
 			put("vcvtpd2dq", XMM, XMM | YMM | MEM);
 			put("vcvttpd2dq", XMM, XMM | YMM | MEM);
+			put("vcvttpd2dq", YMM, MEM | ZMM_SAE);
 
 			put("vcvtph2ps", XMM | YMM, XMM | MEM);
 			put("vcvtps2ph", XMM | MEM, XMM | YMM, IMM8);
