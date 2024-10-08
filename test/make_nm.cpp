@@ -1335,6 +1335,10 @@ class Test {
 		put("cmpxchg16b", MEM);
 		put("fxrstor64", MEM);
 		put("xbegin", "0x12345678");
+		put("rdfsbase", REG32|REG64);
+		put("rdgsbase", REG32|REG64);
+		put("wrfsbase", REG32|REG64);
+		put("wrgsbase", REG32|REG64);
 #endif
 		{
 			const char tbl[][8] = {
