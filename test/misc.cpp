@@ -285,24 +285,24 @@ CYBOZU_TEST_AUTO(vpclmulqdq)
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
-CYBOZU_TEST_AUTO(vcompressb_w)
+CYBOZU_TEST_AUTO(vpcompressb_w)
 {
 	struct Code : Xbyak::CodeGenerator {
 		Code()
 		{
-			vcompressb(ptr[rax + 64], xmm1);
-			vcompressb(xmm30 | k5, xmm1);
-			vcompressb(ptr[rax + 64], ymm1);
-			vcompressb(ymm30 | k3 |T_z, ymm1);
-			vcompressb(ptr[rax + 64], zmm1);
-			vcompressb(zmm30 | k2 |T_z, zmm1);
+			vpcompressb(ptr[rax + 64], xmm1);
+			vpcompressb(xmm30 | k5, xmm1);
+			vpcompressb(ptr[rax + 64], ymm1);
+			vpcompressb(ymm30 | k3 |T_z, ymm1);
+			vpcompressb(ptr[rax + 64], zmm1);
+			vpcompressb(zmm30 | k2 |T_z, zmm1);
 
-			vcompressw(ptr[rax + 64], xmm1);
-			vcompressw(xmm30 | k5, xmm1);
-			vcompressw(ptr[rax + 64], ymm1);
-			vcompressw(ymm30 | k3 |T_z, ymm1);
-			vcompressw(ptr[rax + 64], zmm1);
-			vcompressw(zmm30 | k2 |T_z, zmm1);
+			vpcompressw(ptr[rax + 64], xmm1);
+			vpcompressw(xmm30 | k5, xmm1);
+			vpcompressw(ptr[rax + 64], ymm1);
+			vpcompressw(ymm30 | k3 |T_z, ymm1);
+			vpcompressw(ptr[rax + 64], zmm1);
+			vpcompressw(zmm30 | k2 |T_z, zmm1);
 		}
 	} c;
 	const uint8_t tbl[] = {
