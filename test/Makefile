@@ -60,9 +60,9 @@ apx: apx.cpp $(XBYAK_INC)
 avx10_test: avx10_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) avx10_test.cpp -o $@ -DXBYAK64
 
-TARGET=avx10.txt
+TEST_FILES=avx10.txt misc.txt
 xed_test:
-	@for target in $(addprefix target/, $(TARGET)); do ./test_by_xed.sh $$target; done
+	@for target in $(addprefix target/, $(TEST_FILES)); do ./test_by_xed.sh $$target; done
 
 test_nm: normalize_prefix $(TARGET)
 	$(MAKE) -C ../gen
