@@ -19,7 +19,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: apt -y update
-    - run: apt -y install g++-multilib libboost-dev make nasm yasm wget
+    - run: apt -y install g++-multilib libboost-dev make nasm yasm wget xz-utils
     - run: make test
     - run: make -C sample CXXFLAGS="-DXBYAK_NO_EXCEPTION"
     - run: |
