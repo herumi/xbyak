@@ -198,6 +198,8 @@ void putX_XM()
 		{ 0x7C, "vcvttph2w", T_66 | T_MAP5 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_SAE_Z },
 		{ 0x7D, "vcvtuw2ph", T_F2 | T_MAP5 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_ER_Z },
 		{ 0x7D, "vcvtw2ph", T_F3 | T_MAP5 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_ER_Z },
+
+		{ 0x51, "vsqrtnepbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -401,6 +403,30 @@ void putX_X_XM_IMM()
 		{ 0x5A, "vcvtsh2sd", T_F3 | T_MAP5 | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N2, false },
 		{ 0x13, "vcvtsh2ss", T_MAP6 | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N2, false },
 		{ 0x1D, "vcvtss2sh", T_MAP5 | T_MUST_EVEX | T_EW0 | T_ER_X | T_N4, false },
+
+		{ 0x58, "vaddnepbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x5E, "vdivnepbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x5F, "vmaxpbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x5D, "vminpbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x59, "vmulnepbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x2C, "vscalefpbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16,false },   
+		{ 0x5C, "vsubnepbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+
+		{ 0x98, "vfmadd132nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xA8, "vfmadd213nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xB8, "vfmadd231nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+
+		{ 0x9C, "vfnmadd132nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xAC, "vfnmadd213nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xBC, "vfnmadd231nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+
+		{ 0x9A, "vfmsub132nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xAA, "vfmsub213nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xBA, "vfmsub231nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+
+		{ 0x9E, "vfnmsub132nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xAE, "vfnmsub213nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xBE, "vfnmsub231nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -758,6 +784,15 @@ void putX_XM_IMM()
 
 		{ 0x62, "vpexpandb", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_N1, false },
 		{ 0x62, "vpexpandw", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_N2, false },
+
+		{ 0x2F, "vcomsbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_N2, false },
+		{ 0x42, "vgetexppbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x26, "vgetmantpbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
+		{ 0x4C, "vrcppbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x56, "vreducenepbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
+		{ 0x08, "vrndscalenepbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
+		{ 0x4E, "vrsqrtpbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x2C, "vscalefpbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -946,41 +981,6 @@ void putFP16_2()
 
 void putAVX10_BF16()
 {
-	// x, x, op : 8
-	const struct xxopTbl {
-		const char *name;
-		uint64_t type;
-		uint8_t code;
-	} tbl[] = {
-		{ "vaddnepbf16", T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, 0x58 },
-		{ "vdivnepbf16", T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, 0x5E },
-		{ "vmaxpbf16", T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, 0x5F },
-		{ "vminpbf16", T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, 0x5D },
-		{ "vmulnepbf16", T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, 0x59 },
-		{ "vscalefpbf16", T_MAP6 | T_EW0 | T_YMM | T_B16, 0x2C },
-		{ "vsubnepbf16", T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, 0x5C },
-
-		{ "vfmadd132nepbf16", T_MAP6 | T_EW0 | T_YMM | T_B16, 0x98 },
-		{ "vfmadd213nepbf16", T_MAP6 | T_EW0 | T_YMM | T_B16, 0xA8 },
-		{ "vfmadd231nepbf16", T_MAP6 | T_EW0 | T_YMM | T_B16, 0xB8 },
-
-		{ "vfnmadd132nepbf16", T_MAP6 | T_EW0 | T_YMM | T_B16, 0x9C },
-		{ "vfnmadd213nepbf16", T_MAP6 | T_EW0 | T_YMM | T_B16, 0xAC },
-		{ "vfnmadd231nepbf16", T_MAP6 | T_EW0 | T_YMM | T_B16, 0xBC },
-
-		{ "vfmsub132nepbf16", T_MAP6 | T_EW0 | T_YMM | T_B16, 0x9A },
-		{ "vfmsub213nepbf16", T_MAP6 | T_EW0 | T_YMM | T_B16, 0xAA },
-		{ "vfmsub231nepbf16", T_MAP6 | T_EW0 | T_YMM | T_B16, 0xBA },
-
-		{ "vfnmsub132nepbf16", T_MAP6 | T_EW0 | T_YMM | T_B16, 0x9E },
-		{ "vfnmsub213nepbf16", T_MAP6 | T_EW0 | T_YMM | T_B16, 0xAE },
-		{ "vfnmsub231nepbf16", T_MAP6 | T_EW0 | T_YMM | T_B16, 0xBE },
-	};
-	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-		const xxopTbl& p = tbl[i];
-		std::string s = type2String(p.type | T_MUST_EVEX);
-		printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, %s, 0x%2X); }\n" , p.name, s.c_str(), p.code);
-	}
 	puts("void vcmppbf16(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opVex(k, &x, op, T_MUST_EVEX|T_F2|T_0F3A|T_EW0|T_YMM|T_B16, 0xC2, imm); }");
 	puts("void vfpclasspbf16(const Opmask& k, const Operand& op, uint8_t imm) { opVex(k.changeBit(op.getBit()), 0, op, T_MUST_EVEX|T_F2|T_0F3A|T_EW0|T_YMM|T_B16, 0x66, imm); }");
 }
