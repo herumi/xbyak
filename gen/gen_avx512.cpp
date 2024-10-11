@@ -946,18 +946,26 @@ void putFP16_2()
 
 void putAVX10_BF16()
 {
-	const struct Tbl {
+	// x, x, op
+	const struct xxopTbl {
 		const char *name;
 		uint64_t type;
 		uint8_t code;
 	} tbl[] = {
 		{ "vaddnepbf16", T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, 0x58 },
+		{ "vdivnepbf16", T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, 0x5E },
+		{ "vmaxpbf16", T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, 0x5F },
+		{ "vminpbf16", T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, 0x5D },
+		{ "vmulnepbf16", T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, 0x59 },
+		{ "vscalefpbf16", T_MAP6 | T_EW0 | T_YMM | T_B16, 0x2C },
+		{ "vsubnepbf16", T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, 0x5C },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-		const Tbl& p = tbl[i];
+		const xxopTbl& p = tbl[i];
 		std::string s = type2String(p.type | T_MUST_EVEX);
 		printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, %s, 0x%2X); }\n" , p.name, s.c_str(), p.code);
 	}
+//		{ "vrcppbf16", T_66 | T_MAP6 | T_EW0 | T_YMM | T_B16, 0x4C },
 }
 
 void putFP16()

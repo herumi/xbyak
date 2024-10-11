@@ -2,3 +2,33 @@ vaddnepbf16(xm1, xm2, xm3);
 vaddnepbf16(ym1|k1, ym2, ptr[rax+128]);
 vaddnepbf16(ym1|k1, ym2, ptr_b[rax+128]);
 vaddnepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+
+vdivnepbf16(xm1, xm2, xm3);
+vdivnepbf16(ym1|k1, ym2, ptr[rax+128]);
+vdivnepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vdivnepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+
+vmaxpbf16(xm1, xm2, xm3);
+vmaxpbf16(ym1|k1, ym2, ptr[rax+128]);
+vmaxpbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vmaxpbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+
+vminpbf16(xm1, xm2, xm3);
+vminpbf16(ym1|k1, ym2, ptr[rax+128]);
+vminpbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vminpbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+
+vmulnepbf16(xm1, xm2, xm3);
+vmulnepbf16(ym1|k1, ym2, ptr[rax+128]);
+vmulnepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vmulnepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+
+vscalefpbf16(xm1, xm2, xm3);
+vscalefpbf16(ym1|k1, ym2, ptr[rax+128]);
+vscalefpbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vscalefpbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+
+vsubnepbf16(xm1, xm2, xm3);
+vsubnepbf16(ym1|k1, ym2, ptr[rax+128]);
+vsubnepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vsubnepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
