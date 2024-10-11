@@ -4,6 +4,7 @@ set -e
 XED=${XED:=xed}
 CXX=${CXX:=g++}
 PYTHON=${PYTHON:=python3}
+echo $XED
 
 if [ $# -ne 1 ]; then
   echo "./test_by_xed.sh <xbyak-cpp>"
