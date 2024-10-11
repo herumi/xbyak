@@ -2559,6 +2559,18 @@ private:
 		Operand::Kind kind = op.isBit(128) ? Operand::XMM : op.isBit(256) ? Operand::YMM : Operand::ZMM;
 		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
 	}
+	// (x, x, x/m), (x, y, y/m), (y, z, z/m)
+	void opCvt6(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code)
+	{
+		int b1 = x1.getBit();
+		int b2 = x2.getBit();
+		int b3 = op.getBit();
+		if ((b1 == 128 && (b2 == 128 || b2 == 256) && (b2 == b3 || op.isMEM())) || (b1 == 256 && b2 == 512 && (b3 == b2 || op.isMEM()))) {
+			opVex(x1, &x2, op, type, code);
+			return;
+		}
+		XBYAK_THROW(ERR_BAD_COMBINATION);
+	}
 	const Xmm& cvtIdx0(const Operand& x) const
 	{
 		return x.isZMM() ? zm0 : x.isYMM() ? ym0 : xm0;
