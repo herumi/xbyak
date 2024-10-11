@@ -3,8 +3,9 @@
 
 struct Code : Xbyak::CodeGenerator {
 	Code()
+		 : Xbyak::CodeGenerator(4096*8)
 	{
-#include "cpp.txt"
+#include "tmp.cpp"
 	}
 };
 
