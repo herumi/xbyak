@@ -60,6 +60,10 @@ apx: apx.cpp $(XBYAK_INC)
 avx10_test: avx10_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) avx10_test.cpp -o $@ -DXBYAK64
 
+TEST_FILES=avx10.txt misc.txt
+xed_test:
+	@for target in $(addprefix target/, $(TEST_FILES)); do ./test_by_xed.sh $$target; done
+
 test_nm: normalize_prefix $(TARGET)
 	$(MAKE) -C ../gen
 ifneq ($(ONLY_64BIT),1)
@@ -118,7 +122,7 @@ test: detect_x32
 	$(MAKE) test_avx512
 
 clean:
-	$(RM) a.asm *.lst *.obj *.o $(TARGET) lib_run nm.cpp nm_frame make_512 avx10_test
+	$(RM) a.asm *.lst *.obj *.o $(TARGET) lib_run nm.cpp nm_frame make_512 avx10_test detect_x32
 
 lib_run: lib_test.cpp lib_run.cpp lib.h
 	$(CXX) $(CFLAGS) lib_run.cpp lib_test.cpp -o lib_run
