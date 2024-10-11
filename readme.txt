@@ -404,6 +404,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2024/10/10 ver 7.09.1 vpcompressbとvpcompresswの名前修正
 2024/10/08 ver 7.09 AVX10.2のYMMレジスタの埋め込み丸め対応
 2024/10/07 ver 7.08 rdfabaseなどサポート
 2024/08/29 ver 7.07.1 xchgの仕様をnasm 2.16.03の挙動に合わせる。
