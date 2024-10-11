@@ -946,7 +946,7 @@ void putFP16_2()
 
 void putAVX10_BF16()
 {
-	// x, x, op
+	// x, x, op : 8
 	const struct xxopTbl {
 		const char *name;
 		uint64_t type;
@@ -981,7 +981,8 @@ void putAVX10_BF16()
 		std::string s = type2String(p.type | T_MUST_EVEX);
 		printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, %s, 0x%2X); }\n" , p.name, s.c_str(), p.code);
 	}
-//		{ "vrcppbf16", T_66 | T_MAP6 | T_EW0 | T_YMM | T_B16, 0x4C },
+	puts("void vcmppbf16(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opVex(k, &x, op, T_MUST_EVEX|T_F2|T_0F3A|T_EW0|T_YMM|T_B16, 0xC2, imm); }");
+	puts("void vfpclasspbf16(const Opmask& k, const Operand& op, uint8_t imm) { opVex(k.changeBit(op.getBit()), 0, op, T_MUST_EVEX|T_F2|T_0F3A|T_EW0|T_YMM|T_B16, 0x66, imm); }");
 }
 
 void putFP16()

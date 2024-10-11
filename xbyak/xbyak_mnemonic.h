@@ -2176,6 +2176,7 @@ void vcmpordpd(const Opmask& k, const Xmm& x, const Operand& op) { vcmppd(k, x, 
 void vcmpordps(const Opmask& k, const Xmm& x, const Operand& op) { vcmpps(k, x, op, 7); }
 void vcmpordsd(const Opmask& k, const Xmm& x, const Operand& op) { vcmpsd(k, x, op, 7); }
 void vcmpordss(const Opmask& k, const Xmm& x, const Operand& op) { vcmpss(k, x, op, 7); }
+void vcmppbf16(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opVex(k, &x, op, T_MUST_EVEX|T_F2|T_0F3A|T_EW0|T_YMM|T_B16, 0xC2, imm); }
 void vcmppd(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opAVX_K_X_XM(k, x, op, T_66|T_0F|T_EW1|T_YMM|T_SAE_Z|T_MUST_EVEX|T_B64, 0xC2, imm); }
 void vcmpph(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opAVX_K_X_XM(k, x, op, T_0F3A|T_EW0|T_YMM|T_SAE_Z|T_MUST_EVEX|T_B16, 0xC2, imm); }
 void vcmpps(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opAVX_K_X_XM(k, x, op, T_0F|T_EW0|T_YMM|T_SAE_Z|T_MUST_EVEX|T_B32, 0xC2, imm); }
@@ -2325,6 +2326,7 @@ void vfnmsub213sh(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_X
 void vfnmsub231nepbf16(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_MAP6|T_EW0|T_YMM|T_MUST_EVEX|T_B16, 0xBE); }
 void vfnmsub231ph(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66|T_MAP6|T_EW0|T_YMM|T_ER_Z|T_MUST_EVEX|T_B16, 0xBE); }
 void vfnmsub231sh(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_N2|T_66|T_MAP6|T_EW0|T_ER_X|T_MUST_EVEX, 0xBF); }
+void vfpclasspbf16(const Opmask& k, const Operand& op, uint8_t imm) { opVex(k.changeBit(op.getBit()), 0, op, T_MUST_EVEX|T_F2|T_0F3A|T_EW0|T_YMM|T_B16, 0x66, imm); }
 void vfpclasspd(const Opmask& k, const Operand& op, uint8_t imm) { if (!op.isBit(128|256|512)) XBYAK_THROW(ERR_BAD_MEM_SIZE) opVex(k.changeBit(op.getBit()), 0, op, T_66 | T_0F3A | T_MUST_EVEX | T_YMM | T_EW1 | T_B64, 0x66, imm); }
 void vfpclassph(const Opmask& k, const Operand& op, uint8_t imm) { if (!op.isBit(128|256|512)) XBYAK_THROW(ERR_BAD_MEM_SIZE) opVex(k.changeBit(op.getBit()), 0, op, T_0F3A | T_MUST_EVEX | T_YMM | T_EW0 | T_B16, 0x66, imm); }
 void vfpclassps(const Opmask& k, const Operand& op, uint8_t imm) { if (!op.isBit(128|256|512)) XBYAK_THROW(ERR_BAD_MEM_SIZE) opVex(k.changeBit(op.getBit()), 0, op, T_66 | T_0F3A | T_MUST_EVEX | T_YMM | T_EW0 | T_B32, 0x66, imm); }
