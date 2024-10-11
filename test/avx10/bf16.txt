@@ -32,3 +32,63 @@ vsubnepbf16(xm1, xm2, xm3);
 vsubnepbf16(ym1|k1, ym2, ptr[rax+128]);
 vsubnepbf16(ym1|k1, ym2, ptr_b[rax+128]);
 vsubnepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+// madd
+vfmadd132nepbf16(xm1, xm2, xm3);
+vfmadd132nepbf16(ym1|k1, ym2, ptr[rax+128]);
+vfmadd132nepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vfmadd132nepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+
+vfmadd213nepbf16(xm1, xm2, xm3);
+vfmadd213nepbf16(ym1|k1, ym2, ptr[rax+128]);
+vfmadd213nepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vfmadd213nepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+
+vfmadd231nepbf16(xm1, xm2, xm3);
+vfmadd231nepbf16(ym1|k1, ym2, ptr[rax+128]);
+vfmadd231nepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vfmadd231nepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+// nmadd
+vfnmadd132nepbf16(xm1, xm2, xm3);
+vfnmadd132nepbf16(ym1|k1, ym2, ptr[rax+128]);
+vfnmadd132nepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vfnmadd132nepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+
+vfnmadd213nepbf16(xm1, xm2, xm3);
+vfnmadd213nepbf16(ym1|k1, ym2, ptr[rax+128]);
+vfnmadd213nepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vfnmadd213nepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+
+vfnmadd231nepbf16(xm1, xm2, xm3);
+vfnmadd231nepbf16(ym1|k1, ym2, ptr[rax+128]);
+vfnmadd231nepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vfnmadd231nepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+// msub
+vfmsub132nepbf16(xm1, xm2, xm3);
+vfmsub132nepbf16(ym1|k1, ym2, ptr[rax+128]);
+vfmsub132nepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vfmsub132nepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+
+vfmsub213nepbf16(xm1, xm2, xm3);
+vfmsub213nepbf16(ym1|k1, ym2, ptr[rax+128]);
+vfmsub213nepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vfmsub213nepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+
+vfmsub231nepbf16(xm1, xm2, xm3);
+vfmsub231nepbf16(ym1|k1, ym2, ptr[rax+128]);
+vfmsub231nepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vfmsub231nepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+// nmsub
+vfnmsub132nepbf16(xm1, xm2, xm3);
+vfnmsub132nepbf16(ym1|k1, ym2, ptr[rax+128]);
+vfnmsub132nepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vfnmsub132nepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+
+vfnmsub213nepbf16(xm1, xm2, xm3);
+vfnmsub213nepbf16(ym1|k1, ym2, ptr[rax+128]);
+vfnmsub213nepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vfnmsub213nepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
+
+vfnmsub231nepbf16(xm1, xm2, xm3);
+vfnmsub231nepbf16(ym1|k1, ym2, ptr[rax+128]);
+vfnmsub231nepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vfnmsub231nepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);

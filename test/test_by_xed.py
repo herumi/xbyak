@@ -287,17 +287,18 @@ def removeExtraInfo(s):
 def run(cppText, xedText):
   cpp = loadFile(cppText)
   xed = loadFile(xedText)
-  if len(cpp) != len(xed):
-    raise Exception(f'different line {len(cpp)} {len(xed)}')
+  n = len(cpp)
+  if n != len(xed):
+    raise Exception(f'different line {n} {len(xed)}')
 
-  for i in range(len(cpp)):
+  for i in range(n):
     line1 = cpp[i]
     line2 = removeExtraInfo(xed[i])
     m1 = parseNmemonic(line1)
     m2 = parseNmemonic(line2)
 
     assertEqual(m1, m2, f'{i+1}')
-  print('run ok')
+  print('run ok', n)
 
 def assertEqualStr(a, b, msg=None):
   if str(a) != str(b):
