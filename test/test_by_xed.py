@@ -273,7 +273,7 @@ def loadFile(name):
     r = []
     for line in f.read().split('\n'):
       if line:
-        if line[0] == '#':
+        if line[0] == '#' or line.startswith('//'):
           continue
         r.append(line)
     return r
@@ -287,6 +287,9 @@ def removeExtraInfo(s):
 def run(cppText, xedText):
   cpp = loadFile(cppText)
   xed = loadFile(xedText)
+  if len(cpp) != len(xed):
+    raise Exception(f'different line {len(cpp)} {len(xed)}')
+
   for i in range(len(cpp)):
     line1 = cpp[i]
     line2 = removeExtraInfo(xed[i])

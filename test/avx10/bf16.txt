@@ -1,0 +1,4 @@
+vaddnepbf16(xm1, xm2, xm3);
+vaddnepbf16(ym1|k1, ym2, ptr[rax+128]);
+vaddnepbf16(ym1|k1, ym2, ptr_b[rax+128]);
+vaddnepbf16(zm1|k2|T_z, zm2, ptr_b[rax+128]);
