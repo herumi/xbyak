@@ -447,6 +447,13 @@ void putX_X_XM_IMM()
 		{ 0x1B, "vcvtne2ph2hf8s", T_MUST_EVEX | T_F2 | T_MAP5 | T_EW0 | T_YMM | T_B16 | T_N1, false },
 
 		{ 0x52, "vdpphps", T_MUST_EVEX | T_0F38 | T_EW0 | T_YMM | T_B32, false },
+		{ 0x52, "vminmaxnepbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
+		{ 0x52, "vminmaxpd", T_MUST_EVEX | T_66 | T_0F3A | T_EW1 | T_YMM | T_B64 | T_SAE_Y | T_SAE_Z, true },
+		{ 0x52, "vminmaxph", T_MUST_EVEX | T_0F3A | T_EW0 | T_YMM | T_B16 | T_SAE_Y | T_SAE_Z, true },
+		{ 0x52, "vminmaxps", T_MUST_EVEX | T_66 | T_0F3A | T_EW0 | T_YMM | T_B32 | T_SAE_Y | T_SAE_Z, true },
+		{ 0x53, "vminmaxsd", T_MUST_EVEX | T_66 | T_0F3A | T_EW1 | T_SAE_X | T_N8, true },
+		{ 0x53, "vminmaxsh", T_MUST_EVEX | T_0F3A | T_EW0 | T_SAE_X | T_N2, true },
+		{ 0x53, "vminmaxss", T_MUST_EVEX | T_66 | T_0F3A | T_EW0 | T_SAE_X | T_N4, true },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
