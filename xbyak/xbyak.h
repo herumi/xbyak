@@ -3170,9 +3170,11 @@ public:
 	#undef jnl
 #endif
 
-	// set default encoding to select Vex or Evex
-	void setDefaultEncoding(PreferredEncoding vnniEnc = EvexEncoding, PreferredEncoding mpsadbwEnc = VexEncoding)
-	{ defaultEncoding_[0] = vnniEnc; defaultEncoding_[1] = mpsadbwEnc; }
+	// set default encoding
+	// vnniEnc : control AVX512_VNNI (evex:default) or AVX-VNNI (vex)
+	// avx10Enc : control mpsadbw, AVX-VNNI-INT8 (vex:default) or AVX10.2 (evex)
+	void setDefaultEncoding(PreferredEncoding vnniEnc = EvexEncoding, PreferredEncoding avx10Enc = VexEncoding)
+	{ defaultEncoding_[0] = vnniEnc; defaultEncoding_[1] = avx10Enc; }
 
 	void sha1msg12(const Xmm& x, const Operand& op)
 	{

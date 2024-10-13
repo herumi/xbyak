@@ -121,15 +121,14 @@ vmpsadbw(xm1, xm3, xm15, 3); // evex(avx10.2)
 
 ```
 
-- `setDefaultEncoding(PreferredEncoding vnniEnc = EvexEncoding, PreferredEncoding mpsadbwEnc = VexEncoding)`
-  - 1st argument. Set the default encoding to select EVEX or VEX for VNNI
-    - The default value is EvexEncoding (AVX512_VNNI).
-    - encoded as AVX-VNNI if VexEncoding is set.
-    - This parameter affects to vpdpbusd, vpdpbusds, vpdpwssd, vpdpwssds.
-  - 2nd argument. Set the default encoding to select EVEX or VEX for vmpsadbw
-    - The default value is VexEncoding (AVX/AVX2).
-    - encoded as AVX10.2 if EvexEncoding is set.
-    - This parameter affects to vmpsadbw.
+- `setDefaultEncoding(PreferredEncoding vnniEnc = EvexEncoding, PreferredEncoding avx10Enc = VexEncoding)`
+
+param|vnniEnc|avx10Enc
+-|-|-
+EvexEncoding|AVX512_VNNI|AVX10.2
+VexEncoding|AVX/AVX2|AVX-VNNI-INT8
+default|EvexEncoding|VexEncoding
+mnemonic|vpdpbusd, vpdpbusds, vpdpwssd, vpdpwssds|vmpsadbw, vpdpbssd
 
 ### Remark
 * `k1`, ..., `k7` are opmask registers.
