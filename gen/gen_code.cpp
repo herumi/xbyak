@@ -1893,8 +1893,6 @@ void put()
 			{ 0x51, "vpdpbusds", T_66 | T_0F38 | T_YMM | T_EW0 | T_SAE_Z | T_B32},
 			{ 0x52, "vpdpwssd", T_66 | T_0F38 | T_YMM | T_EW0 | T_SAE_Z | T_B32},
 			{ 0x53, "vpdpwssds", T_66 | T_0F38 | T_YMM | T_EW0 | T_SAE_Z | T_B32},
-			{ 0xB4, "vpmadd52luq", T_66 | T_0F38 | T_YMM | T_EW1 | T_B64 },
-			{ 0xB5, "vpmadd52huq", T_66 | T_0F38 | T_YMM | T_EW1 | T_B64 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
