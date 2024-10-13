@@ -209,6 +209,28 @@ void putX_XM()
 		{ 0x2E, "vucomxsd", T_MUST_EVEX | T_F3 | T_0F | T_EW1 | T_SAE_X | T_N8 },
 		{ 0x2E, "vucomxsh", T_MUST_EVEX | T_F2 | T_MAP5 | T_EW0 | T_SAE_X | T_N2 },
 		{ 0x2E, "vucomxss", T_MUST_EVEX | T_F2 | T_0F | T_EW0  | T_SAE_X | T_N4 },
+
+		// 13.1
+		{ 0x69, "vcvtnebf162ibs", T_MUST_EVEX | T_YMM | T_F2 | T_MAP5 | T_EW0 | T_B16 },
+		{ 0x6B, "vcvtnebf162iubs", T_MUST_EVEX | T_YMM | T_F2 | T_MAP5 | T_EW0 | T_B16 },
+		{ 0x68, "vcvttnebf162ibs", T_MUST_EVEX | T_YMM | T_F2 | T_MAP5 | T_EW0 | T_B16 },
+		{ 0x6A, "vcvttnebf162iubs", T_MUST_EVEX | T_YMM | T_F2 | T_MAP5 | T_EW0 | T_B16 },
+		// 13.3
+		{ 0x6D, "vcvttpd2qqs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_EW1 | T_B64 | T_SAE_Y | T_SAE_Z },
+		// 13.5
+		{ 0x6C, "vcvttpd2uqqs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_EW1 | T_B64 | T_SAE_Y | T_SAE_Z },
+		// 13.6
+		{ 0x69, "vcvtph2ibs", T_MUST_EVEX | T_YMM | T_MAP5 | T_EW0 | T_B16 | T_ER_Y | T_ER_Z },
+		{ 0x6B, "vcvtph2iubs", T_MUST_EVEX | T_YMM | T_MAP5 | T_EW0 | T_B16 | T_ER_Y | T_ER_Z },
+		{ 0x68, "vcvttph2ibs", T_MUST_EVEX | T_YMM | T_MAP5 | T_EW0 | T_B16 | T_ER_Y | T_ER_Z },
+		{ 0x6A, "vcvttph2iubs", T_MUST_EVEX | T_YMM | T_MAP5 | T_EW0 | T_B16 | T_ER_Y | T_ER_Z },
+		// 13.7
+		{ 0x6D, "vcvttps2dqs", T_MUST_EVEX | T_YMM | T_MAP5 | T_EW0 | T_B32 | T_SAE_Y | T_SAE_Z },
+		// 13.8
+		{ 0x69, "vcvtps2ibs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_EW0 | T_B32 | T_ER_Y | T_ER_Z },
+		{ 0x6B, "vcvtps2iubs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_EW0 | T_B32 | T_ER_Y | T_ER_Z },
+		{ 0x68, "vcvttps2ibs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_EW0 | T_B32 | T_ER_Y | T_ER_Z },
+		{ 0x6A, "vcvttps2iubs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_EW0 | T_B32 | T_ER_Y | T_ER_Z },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
