@@ -2665,7 +2665,7 @@ private:
 	{
 		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(encoding, typeVex, typeEvex, sel), code, imm);
 	}
-	int orEvexIf(PreferredEncoding encoding, uint64_t typeVex, uint64_t typeEvex, int sel) {
+	uint64_t orEvexIf(PreferredEncoding encoding, uint64_t typeVex, uint64_t typeEvex, int sel) {
 		if (encoding == DefaultEncoding) {
 			encoding = defaultEncoding_[sel];
 		}
