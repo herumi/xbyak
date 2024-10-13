@@ -136,7 +136,7 @@ param|vnniEnc|avx10Enc
 EvexEncoding|AVX512-VNNI|AVX10.2
 VexEncoding|AVX-VNNI|AVX-VNNI-INT8
 default|EvexEncoding|VexEncoding
-mnemonic|vpdpbusd, vpdpbusds, vpdpwssd, vpdpwssds|vmpsadbw, vpdpbssd, vpdpbssds, vpdpbsud, vpdpbsuds, vpdpbuud, vpdpbuuds
+mnemonic|vpdpbusd, vpdpbusds, vpdpwssd, vpdpwssds|vmpsadbw, vpdpbssd, vpdpbssds, vpdpbsud, vpdpbsuds, vpdpbuud, vpdpbuuds, vpdpwsud vpdpwsuds vpdpwusd vpdpwusds vpdpwuud, vpdpwuuds
 
 ### Remark
 * `k1`, ..., `k7` are opmask registers.

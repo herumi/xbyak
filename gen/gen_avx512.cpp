@@ -467,16 +467,22 @@ void putX_X_XM_IMM_AVX10()
 		int sel;
 		bool hasIMM;
 	} tbl[] = {
+		// vpdpb[su,uu,ss]d[,s]
 		{ 0x50, "vpdpbssd", T_F2|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
 		{ 0x51, "vpdpbssds", T_F2|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
 		{ 0x50, "vpdpbsud", T_F3|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
 		{ 0x51, "vpdpbsuds", T_F3|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
 		{ 0x50, "vpdpbuud", T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
 		{ 0x51, "vpdpbuuds", T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
-#if 0
-		{ 0x50, "vpdpbuud", T_MUST_EVEX | T_YMM | T_0F38 | T_EW0 | T_B32, false },
-		{ 0x51, "vpdpbuuds", T_MUST_EVEX | T_YMM | T_0F38 | T_EW0 | T_B32, false },
-#endif
+
+		// vpdpw[su,us,uu]d[,s]
+		{ 0xD2, "vpdpwsud", T_F3|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0xD3, "vpdpwsuds", T_F3|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0xD2, "vpdpwusd", T_66|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0xD3, "vpdpwusds", T_66|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0xD2, "vpdpwuud", T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0xD3, "vpdpwuuds", T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+
 		{ 0x42, "vmpsadbw", T_0F3A|T_YMM, T_66|T_W0|T_YMM, T_F3|T_0F3A|T_EW0|T_B32, 1, true },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {

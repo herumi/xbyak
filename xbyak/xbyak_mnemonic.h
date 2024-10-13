@@ -1423,12 +1423,6 @@ void vpdpbusd(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding
 void vpdpbusds(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, T_66|T_0F38|T_EW0|T_YMM|T_SAE_Z|T_B32, 0x51, encoding); }
 void vpdpwssd(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, T_66|T_0F38|T_EW0|T_YMM|T_SAE_Z|T_B32, 0x52, encoding); }
 void vpdpwssds(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, T_66|T_0F38|T_EW0|T_YMM|T_SAE_Z|T_B32, 0x53, encoding); }
-void vpdpwsud(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_F3|T_0F38|T_W0|T_YMM, 0xD2); }
-void vpdpwsuds(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_F3|T_0F38|T_W0|T_YMM, 0xD3); }
-void vpdpwusd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66|T_0F38|T_W0|T_YMM, 0xD2); }
-void vpdpwusds(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66|T_0F38|T_W0|T_YMM, 0xD3); }
-void vpdpwuud(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38|T_W0|T_YMM, 0xD2); }
-void vpdpwuuds(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_0F38|T_W0|T_YMM, 0xD3); }
 void vperm2f128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8_t imm) { if (!(y1.isYMM() && y2.isYMM() && op.isYMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(y1, &y2, op, T_0F3A | T_66 | T_W0 | T_YMM, 0x06, imm); }
 void vperm2i128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8_t imm) { if (!(y1.isYMM() && y2.isYMM() && op.isYMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(y1, &y2, op, T_0F3A | T_66 | T_W0 | T_YMM, 0x46, imm); }
 void vpermd(const Ymm& y1, const Ymm& y2, const Operand& op) { opAVX_X_X_XM(y1, y2, op, T_66|T_0F38|T_W0|T_EW0|T_YMM|T_EVEX|T_B32, 0x36); }
@@ -2451,6 +2445,12 @@ void vpdpbsud(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding
 void vpdpbsuds(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, T_F3|T_0F38|T_YMM, 0x51, encoding, NONE, T_W0, T_EW0|T_B32, 1); }
 void vpdpbuud(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, T_0F38|T_YMM, 0x50, encoding, NONE, T_W0, T_EW0|T_B32, 1); }
 void vpdpbuuds(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, T_0F38|T_YMM, 0x51, encoding, NONE, T_W0, T_EW0|T_B32, 1); }
+void vpdpwsud(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, T_F3|T_0F38|T_YMM, 0xD2, encoding, NONE, T_W0, T_EW0|T_B32, 1); }
+void vpdpwsuds(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, T_F3|T_0F38|T_YMM, 0xD3, encoding, NONE, T_W0, T_EW0|T_B32, 1); }
+void vpdpwusd(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, T_66|T_0F38|T_YMM, 0xD2, encoding, NONE, T_W0, T_EW0|T_B32, 1); }
+void vpdpwusds(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, T_66|T_0F38|T_YMM, 0xD3, encoding, NONE, T_W0, T_EW0|T_B32, 1); }
+void vpdpwuud(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, T_0F38|T_YMM, 0xD2, encoding, NONE, T_W0, T_EW0|T_B32, 1); }
+void vpdpwuuds(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, T_0F38|T_YMM, 0xD3, encoding, NONE, T_W0, T_EW0|T_B32, 1); }
 void vpermb(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66|T_0F38|T_EW0|T_YMM|T_MUST_EVEX, 0x8D); }
 void vpermi2b(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66|T_0F38|T_EW0|T_YMM|T_MUST_EVEX, 0x75); }
 void vpermi2d(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66|T_0F38|T_EW0|T_YMM|T_MUST_EVEX|T_B32, 0x76); }

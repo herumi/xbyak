@@ -1901,6 +1901,7 @@ void put()
 	}
 	// avx-vnni-int8
 	// avx-vnni-int16
+#if 0
 	{
 		const struct Tbl {
 			uint8_t code;
@@ -1914,12 +1915,12 @@ void put()
 //			{ 0x50, "vpdpbuud", T_0F38 | T_W0 | T_YMM },
 //			{ 0x51, "vpdpbuuds", T_0F38 | T_W0 | T_YMM },
 
-			{ 0xD2, "vpdpwsud", T_F3 | T_0F38 | T_W0 | T_YMM },
-			{ 0xD3, "vpdpwsuds", T_F3 | T_0F38 | T_W0 | T_YMM },
-			{ 0xD2, "vpdpwusd", T_66 | T_0F38 | T_W0 | T_YMM },
-			{ 0xD3, "vpdpwusds", T_66 | T_0F38 | T_W0 | T_YMM },
-			{ 0xD2, "vpdpwuud", T_0F38 | T_W0 | T_YMM },
-			{ 0xD3, "vpdpwuuds", T_0F38 | T_W0 | T_YMM },
+//			{ 0xD2, "vpdpwsud", T_F3 | T_0F38 | T_W0 | T_YMM },
+//			{ 0xD3, "vpdpwsuds", T_F3 | T_0F38 | T_W0 | T_YMM },
+//			{ 0xD2, "vpdpwusd", T_66 | T_0F38 | T_W0 | T_YMM },
+//			{ 0xD3, "vpdpwusds", T_66 | T_0F38 | T_W0 | T_YMM },
+//			{ 0xD2, "vpdpwuud", T_0F38 | T_W0 | T_YMM },
+//			{ 0xD3, "vpdpwuuds", T_0F38 | T_W0 | T_YMM },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -1927,6 +1928,7 @@ void put()
 			printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X); }\n", p->name, s.c_str(), p->code);
 		}
 	}
+#endif
 }
 
 void put32()
