@@ -5,7 +5,7 @@
 project(
 	'xbyak',
 	'cpp',
-	version: '7.09.1',
+	version: '7.10',
 	license: 'BSD-3-Clause',
 	default_options: 'b_ndebug=if-release'
 )

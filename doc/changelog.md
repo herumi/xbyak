@@ -1,5 +1,6 @@
 # History
 
+* 2024/Oct/13 ver 7.10 support AVX10 integer and fp16 vnni, media new instructions. setDefaultEncoding is extended.
 * 2024/Oct/10 ver 7.09.1 fix the names of vpcompressb and vpcompressw
 * 2024/Oct/08 ver 7.09 support YMM embedded rounding of AVX10.2 and fix some mnemonics with {sae}/{er}.
 * 2024/Oct/07 ver 7.08 support rdfsbase etc.
