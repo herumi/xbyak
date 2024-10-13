@@ -155,7 +155,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7091 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7100 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -2559,6 +2559,18 @@ private:
 		Operand::Kind kind = op.isBit(128) ? Operand::XMM : op.isBit(256) ? Operand::YMM : Operand::ZMM;
 		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
 	}
+	// (x, x, x/m), (x, y, y/m), (y, z, z/m)
+	void opCvt6(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code)
+	{
+		int b1 = x1.getBit();
+		int b2 = x2.getBit();
+		int b3 = op.getBit();
+		if ((b1 == 128 && (b2 == 128 || b2 == 256) && (b2 == b3 || op.isMEM())) || (b1 == 256 && b2 == 512 && (b3 == b2 || op.isMEM()))) {
+			opVex(x1, &x2, op, type, code);
+			return;
+		}
+		XBYAK_THROW(ERR_BAD_COMBINATION);
+	}
 	const Xmm& cvtIdx0(const Operand& x) const
 	{
 		return x.isZMM() ? zm0 : x.isYMM() ? ym0 : xm0;
@@ -2649,21 +2661,21 @@ private:
 		if (addr.getRegExp().getIndex().getKind() != kind) XBYAK_THROW(ERR_BAD_VSIB_ADDRESSING)
 		opVex(x, 0, addr, type, code);
 	}
-	void opEncoding(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code, PreferredEncoding encoding)
+	void opEncoding(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code, PreferredEncoding encoding, int imm = NONE, uint64_t typeVex = 0, uint64_t typeEvex = 0, int sel = 0)
 	{
-		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(encoding), code);
+		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(encoding, typeVex, typeEvex, sel), code, imm);
 	}
-	int orEvexIf(PreferredEncoding encoding) {
+	int orEvexIf(PreferredEncoding encoding, uint64_t typeVex, uint64_t typeEvex, int sel) {
 		if (encoding == DefaultEncoding) {
-			encoding = defaultEncoding_;
+			encoding = defaultEncoding_[sel];
 		}
 		if (encoding == EvexEncoding) {
 #ifdef XBYAK_DISABLE_AVX512
 			XBYAK_THROW(ERR_EVEX_IS_INVALID)
 #endif
-			return T_MUST_EVEX;
+			return T_MUST_EVEX | typeEvex;
 		}
-		return 0;
+		return typeVex;
 	}
 	void opInOut(const Reg& a, const Reg& d, uint8_t code)
 	{
@@ -2833,7 +2845,7 @@ public:
 #endif
 private:
 	bool isDefaultJmpNEAR_;
-	PreferredEncoding defaultEncoding_;
+	PreferredEncoding defaultEncoding_[2]; // 0:vnni, 1:vmpsadbw
 public:
 	void L(const std::string& label) { labelMgr_.defineSlabel(label); }
 	void L(Label& label) { labelMgr_.defineClabel(label); }
@@ -3119,8 +3131,9 @@ public:
 		, es(Segment::es), cs(Segment::cs), ss(Segment::ss), ds(Segment::ds), fs(Segment::fs), gs(Segment::gs)
 #endif
 		, isDefaultJmpNEAR_(false)
-		, defaultEncoding_(EvexEncoding)
 	{
+		// select avx512-vnni, vmpsadbw(avx)
+		setDefaultEncoding();
 		labelMgr_.set(this);
 	}
 	void reset()
@@ -3157,8 +3170,11 @@ public:
 	#undef jnl
 #endif
 
-	// set default encoding to select Vex or Evex
-	void setDefaultEncoding(PreferredEncoding encoding) { defaultEncoding_ = encoding; }
+	// set default encoding
+	// vnniEnc : control AVX512_VNNI (evex:default) or AVX-VNNI (vex)
+	// avx10Enc : control mpsadbw, AVX-VNNI-INT8 (vex:default) or AVX10.2 (evex)
+	void setDefaultEncoding(PreferredEncoding vnniEnc = EvexEncoding, PreferredEncoding avx10Enc = VexEncoding)
+	{ defaultEncoding_[0] = vnniEnc; defaultEncoding_[1] = avx10Enc; }
 
 	void sha1msg12(const Xmm& x, const Operand& op)
 	{

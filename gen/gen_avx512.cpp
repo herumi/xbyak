@@ -137,8 +137,6 @@ void putVcmp()
 		printf("void %s(const Opmask& k, const Xmm& x, const Operand& op%s) { opAVX_K_X_XM(k, x, op, %s, 0x%02X%s); }\n"
 			, p->name, p->hasIMM ? ", uint8_t imm" : "", s.c_str(), p->code, p->hasIMM ? ", imm" : "");
 	}
-	puts("void vcomish(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_MAP5 | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N2, 0x2F); }");
-	puts("void vucomish(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_MAP5 | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N2, 0x2E); }");
 }
 
 void putVcmpAlias()
@@ -198,6 +196,19 @@ void putX_XM()
 		{ 0x7C, "vcvttph2w", T_66 | T_MAP5 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_SAE_Z },
 		{ 0x7D, "vcvtuw2ph", T_F2 | T_MAP5 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_ER_Z },
 		{ 0x7D, "vcvtw2ph", T_F3 | T_MAP5 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_ER_Z },
+
+		{ 0x51, "vsqrtnepbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16 },
+
+		{ 0x2F, "vcomish", T_MUST_EVEX | T_MAP5 | T_EW0 | T_SAE_X | T_N2 },
+		{ 0x2E, "vucomish", T_MUST_EVEX | T_MAP5 | T_EW0 | T_SAE_X | T_N2 },
+
+		{ 0x2F, "vcomxsd", T_MUST_EVEX | T_F3 | T_0F | T_EW1 | T_SAE_X | T_N8 },
+		{ 0x2F, "vcomxsh", T_MUST_EVEX | T_F2 | T_MAP5 | T_EW0 | T_SAE_X | T_N2 },
+		{ 0x2F, "vcomxss", T_MUST_EVEX | T_F2 | T_0F | T_EW0  | T_SAE_X | T_N4 },
+
+		{ 0x2E, "vucomxsd", T_MUST_EVEX | T_F3 | T_0F | T_EW1 | T_SAE_X | T_N8 },
+		{ 0x2E, "vucomxsh", T_MUST_EVEX | T_F2 | T_MAP5 | T_EW0 | T_SAE_X | T_N2 },
+		{ 0x2E, "vucomxss", T_MUST_EVEX | T_F2 | T_0F | T_EW0  | T_SAE_X | T_N4 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -316,6 +327,9 @@ void putX_X_XM_IMM()
 		{ 0x77, "vpermi2ps", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, false },
 		{ 0x77, "vpermi2pd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
 
+		{ 0xB4, "vpmadd52luq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
+		{ 0xB5, "vpmadd52huq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
+
 		{ 0x25, "vpternlogd", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW0 | T_B32, true },
 		{ 0x25, "vpternlogq", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, true },
 
@@ -401,12 +415,83 @@ void putX_X_XM_IMM()
 		{ 0x5A, "vcvtsh2sd", T_F3 | T_MAP5 | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N2, false },
 		{ 0x13, "vcvtsh2ss", T_MAP6 | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N2, false },
 		{ 0x1D, "vcvtss2sh", T_MAP5 | T_MUST_EVEX | T_EW0 | T_ER_X | T_N4, false },
+
+		{ 0x58, "vaddnepbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x5E, "vdivnepbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x5F, "vmaxpbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x5D, "vminpbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x59, "vmulnepbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x2C, "vscalefpbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16,false },
+		{ 0x5C, "vsubnepbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+
+		{ 0x98, "vfmadd132nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xA8, "vfmadd213nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xB8, "vfmadd231nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+
+		{ 0x9C, "vfnmadd132nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xAC, "vfnmadd213nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xBC, "vfnmadd231nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+
+		{ 0x9A, "vfmsub132nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xAA, "vfmsub213nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xBA, "vfmsub231nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+
+		{ 0x9E, "vfnmsub132nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xAE, "vfnmsub213nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xBE, "vfnmsub231nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+
+		{ 0x67, "vcvt2ps2phx", T_MUST_EVEX | T_66 | T_0F38 | T_EW0 | T_YMM | T_B32 | T_ER_Y | T_ER_Z, false },
+		{ 0x74, "vcvtne2ph2bf8", T_MUST_EVEX | T_F2 | T_0F38 | T_EW0 | T_YMM | T_B16 | T_N1, false },
+		{ 0x74, "vcvtne2ph2bf8s", T_MUST_EVEX | T_F2 | T_MAP5 | T_EW0 | T_YMM | T_B16 | T_N1, false },
+		{ 0x18, "vcvtne2ph2hf8", T_MUST_EVEX | T_F2 | T_MAP5 | T_EW0 | T_YMM | T_B16 | T_N1, false },
+		{ 0x1B, "vcvtne2ph2hf8s", T_MUST_EVEX | T_F2 | T_MAP5 | T_EW0 | T_YMM | T_B16 | T_N1, false },
+
+		{ 0x52, "vdpphps", T_MUST_EVEX | T_0F38 | T_EW0 | T_YMM | T_B32, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
 		std::string s = type2String(p->type);
 		printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op%s) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X%s); }\n"
 			, p->name, p->hasIMM ? ", uint8_t imm" : "", s.c_str(), p->code, p->hasIMM ? ", imm" : "");
+	}
+}
+
+void putX_X_XM_IMM_AVX10()
+{
+	const struct Tbl {
+		uint8_t code;
+		const char *name;
+		uint64_t type;
+		uint64_t typeVex;
+		uint64_t typeEvex;
+		int sel;
+		bool hasIMM;
+	} tbl[] = {
+		// vpdpb[su,uu,ss]d[,s]
+		{ 0x50, "vpdpbssd", T_F2|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0x51, "vpdpbssds", T_F2|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0x50, "vpdpbsud", T_F3|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0x51, "vpdpbsuds", T_F3|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0x50, "vpdpbuud", T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0x51, "vpdpbuuds", T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+
+		// vpdpw[su,us,uu]d[,s]
+		{ 0xD2, "vpdpwsud", T_F3|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0xD3, "vpdpwsuds", T_F3|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0xD2, "vpdpwusd", T_66|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0xD3, "vpdpwusds", T_66|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0xD2, "vpdpwuud", T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0xD3, "vpdpwuuds", T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+
+		{ 0x42, "vmpsadbw", T_0F3A|T_YMM, T_66|T_W0|T_YMM, T_F3|T_0F3A|T_EW0|T_B32, 1, true },
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		const Tbl *p = &tbl[i];
+		std::string s = type2String(p->type);
+		std::string sVex = type2String(p->typeVex);
+		std::string sEvex = type2String(p->typeEvex);
+		printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op%s, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, %s, 0x%02X, encoding, %s, %s, %s, %d); }\n"
+			, p->name, p->hasIMM ? ", uint8_t imm" : "", s.c_str(), p->code, p->hasIMM ? "imm" : "NONE", sVex.c_str(), sEvex.c_str(), p->sel);
 	}
 }
 
@@ -571,6 +656,8 @@ void putCvt()
 
 		{ 0x2A, "vcvtsi2sh", T_F3 | T_MAP5 | T_MUST_EVEX | T_ER_R | T_M_K, 6 },
 		{ 0x7B, "vcvtusi2sh", T_F3 | T_MAP5 | T_MUST_EVEX | T_ER_R | T_M_K, 6 },
+
+		{ 0x72, "vcvtneps2bf16", T_MUST_EVEX | T_F3 | T_0F38 | T_EW0 | T_YMM | T_SAE_Z | T_B32, 2 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& p = tbl[i];
@@ -758,6 +845,15 @@ void putX_XM_IMM()
 
 		{ 0x62, "vpexpandb", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_N1, false },
 		{ 0x62, "vpexpandw", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_N2, false },
+
+		{ 0x2F, "vcomsbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_N2, false },
+		{ 0x42, "vgetexppbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x26, "vgetmantpbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
+		{ 0x4C, "vrcppbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x56, "vreducenepbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
+		{ 0x08, "vrndscalenepbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
+		{ 0x4E, "vrsqrtpbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x2C, "vscalefpbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -952,6 +1048,41 @@ void putFP16()
 	putFP16_2();
 }
 
+void putAVX10_2()
+{
+	puts("void vcmppbf16(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opVex(k, &x, op, T_MUST_EVEX|T_F2|T_0F3A|T_EW0|T_YMM|T_B16, 0xC2, imm); }");
+	puts("void vfpclasspbf16(const Opmask& k, const Operand& op, uint8_t imm) { opVex(k.changeBit(op.getBit()), 0, op, T_MUST_EVEX|T_F2|T_0F3A|T_EW0|T_YMM|T_B16, 0x66, imm); }");
+
+	const struct Tbl {
+		uint8_t code;
+		const char *name;
+		uint64_t type;
+	} tbl1[] = {
+		{ 0x74, "vcvtbiasph2bf8", T_MUST_EVEX | T_0F38 | T_EW0 |T_YMM | T_B16 },
+		{ 0x74, "vcvtbiasph2bf8s", T_MUST_EVEX | T_MAP5 | T_EW0 |T_YMM | T_B16 },
+		{ 0x18, "vcvtbiasph2hf8", T_MUST_EVEX | T_MAP5 | T_EW0 | T_YMM | T_B16 },
+		{ 0x1B, "vcvtbiasph2hf8s", T_MUST_EVEX | T_MAP5 | T_EW0 | T_YMM | T_B16 },
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl1); i++) {
+		const Tbl *p = &tbl1[i];
+		std::string s = type2String(p->type);
+		printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt6(x1, x2, op, %s, 0x%02X); }\n" , p->name, s.c_str(), p->code);
+	}
+	puts("void vcvthf82ph(const Xmm& x, const Operand& op) { checkCvt1(x, op); opVex(x, 0, op, T_MUST_EVEX | T_F2 | T_MAP5 | T_EW0 | T_YMM | T_N1, 0x1E); }");
+
+	const Tbl tbl2[] = {
+		{ 0x74, "vcvtneph2bf8", T_MUST_EVEX | T_F3 | T_0F38 | T_EW0 | T_YMM | T_B16 },
+		{ 0x74, "vcvtneph2bf8s", T_MUST_EVEX | T_F3 |T_MAP5 | T_EW0 | T_YMM | T_B16 },
+		{ 0x18, "vcvtneph2hf8", T_MUST_EVEX | T_F3 |T_MAP5 | T_EW0 | T_YMM | T_B16 },
+		{ 0x1B, "vcvtneph2hf8s", T_MUST_EVEX | T_F3 |T_MAP5 | T_EW0 | T_YMM | T_B16 },
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl2); i++) {
+		const Tbl *p = &tbl2[i];
+		std::string s = type2String(p->type);
+		printf("void %s(const Xmm& x, const Operand& op) { opCvt2(x, op, %s, 0x%02X); }\n" , p->name, s.c_str(), p->code);
+	}
+}
+
 int main(int argc, char *[])
 {
 	bool only64bit = argc == 2;
@@ -966,6 +1097,7 @@ int main(int argc, char *[])
 	putM_X();
 	putXM_X();
 	putX_X_XM_IMM();
+	putX_X_XM_IMM_AVX10();
 	putShift();
 	putExtractInsert();
 	putCvt();
@@ -977,4 +1109,5 @@ int main(int argc, char *[])
 	putScatter();
 	putV4FMA();
 	putFP16();
+	putAVX10_2();
 }

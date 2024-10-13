@@ -57,7 +57,7 @@ void putX_X_XM(bool omitOnly)
 			{ 0x0C, "blendps", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 3 },
 			{ 0x41, "dppd", T_0F3A | T_66 | T_W0, true, true, 3 },
 			{ 0x40, "dpps", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 3 },
-			{ 0x42, "mpsadbw", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 3 },
+			{ 0x42, "mpsadbw", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 1 },
 			{ 0x0E, "pblendw", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 3 },
 			{ 0x02, "pblendd", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 2 },
 			{ 0x0B, "roundsd", T_0F3A | T_66 | T_W0, true, true, 3 },
@@ -1802,7 +1802,6 @@ void put()
 			const Tbl& p = tbl[i];
 			printf("void %s(const Xmm& x, const Address& addr) { opVex(x, 0, addr, %s, 0x%02X); }\n", p.name, type2String(p.type).c_str(), p.code);
 		}
-		printf("void vcvtneps2bf16(const Xmm& x, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opCvt2(x, op, %s|orEvexIf(encoding), 0x72); }\n", type2String(T_F3 | T_0F38 | T_EW0 | T_YMM | T_SAE_Z | T_B32).c_str());
 	}
 	// haswell gpr(reg, reg, r/m)
 	{
@@ -1893,8 +1892,6 @@ void put()
 			{ 0x51, "vpdpbusds", T_66 | T_0F38 | T_YMM | T_EW0 | T_SAE_Z | T_B32},
 			{ 0x52, "vpdpwssd", T_66 | T_0F38 | T_YMM | T_EW0 | T_SAE_Z | T_B32},
 			{ 0x53, "vpdpwssds", T_66 | T_0F38 | T_YMM | T_EW0 | T_SAE_Z | T_B32},
-			{ 0xB4, "vpmadd52luq", T_66 | T_0F38 | T_YMM | T_EW1 | T_B64 },
-			{ 0xB5, "vpmadd52huq", T_66 | T_0F38 | T_YMM | T_EW1 | T_B64 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -1904,25 +1901,26 @@ void put()
 	}
 	// avx-vnni-int8
 	// avx-vnni-int16
+#if 0
 	{
 		const struct Tbl {
 			uint8_t code;
 			const char *name;
 			uint64_t type;
 		} tbl[] = {
-			{ 0x50, "vpdpbssd", T_F2 | T_0F38 | T_W0 | T_YMM },
-			{ 0x51, "vpdpbssds", T_F2 | T_0F38 | T_W0 | T_YMM },
-			{ 0x50, "vpdpbsud", T_F3 | T_0F38 | T_W0 | T_YMM },
-			{ 0x51, "vpdpbsuds", T_F3 | T_0F38 | T_W0 | T_YMM },
-			{ 0x50, "vpdpbuud", T_0F38 | T_W0 | T_YMM },
-			{ 0x51, "vpdpbuuds", T_0F38 | T_W0 | T_YMM },
+//			{ 0x50, "vpdpbssd", T_F2 | T_0F38 | T_W0 | T_YMM },
+//			{ 0x51, "vpdpbssds", T_F2 | T_0F38 | T_W0 | T_YMM },
+//			{ 0x50, "vpdpbsud", T_F3 | T_0F38 | T_W0 | T_YMM },
+//			{ 0x51, "vpdpbsuds", T_F3 | T_0F38 | T_W0 | T_YMM },
+//			{ 0x50, "vpdpbuud", T_0F38 | T_W0 | T_YMM },
+//			{ 0x51, "vpdpbuuds", T_0F38 | T_W0 | T_YMM },
 
-			{ 0xD2, "vpdpwsud", T_F3 | T_0F38 | T_W0 | T_YMM },
-			{ 0xD3, "vpdpwsuds", T_F3 | T_0F38 | T_W0 | T_YMM },
-			{ 0xD2, "vpdpwusd", T_66 | T_0F38 | T_W0 | T_YMM },
-			{ 0xD3, "vpdpwusds", T_66 | T_0F38 | T_W0 | T_YMM },
-			{ 0xD2, "vpdpwuud", T_0F38 | T_W0 | T_YMM },
-			{ 0xD3, "vpdpwuuds", T_0F38 | T_W0 | T_YMM },
+//			{ 0xD2, "vpdpwsud", T_F3 | T_0F38 | T_W0 | T_YMM },
+//			{ 0xD3, "vpdpwsuds", T_F3 | T_0F38 | T_W0 | T_YMM },
+//			{ 0xD2, "vpdpwusd", T_66 | T_0F38 | T_W0 | T_YMM },
+//			{ 0xD3, "vpdpwusds", T_66 | T_0F38 | T_W0 | T_YMM },
+//			{ 0xD2, "vpdpwuud", T_0F38 | T_W0 | T_YMM },
+//			{ 0xD3, "vpdpwuuds", T_0F38 | T_W0 | T_YMM },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -1930,6 +1928,7 @@ void put()
 			printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X); }\n", p->name, s.c_str(), p->code);
 		}
 	}
+#endif
 }
 
 void put32()
