@@ -106,29 +106,37 @@ vcvtpd2dq xmm19, [eax+32]{1to4}         --> vcvtpd2dq(xmm19, yword_b [eax+32]); 
 vfpclassps k5{k3}, zword [rax+64], 5    --> vfpclassps(k5|k3, zword [rax+64], 5); // specify m512
 vfpclasspd k5{k3}, [rax+64]{1to2}, 5    --> vfpclasspd(k5|k3, xword_b [rax+64], 5); // broadcast 64-bit to 128-bit
 vfpclassps k5{k3}, [rax+64]{1to4}, 5    --> vfpclassps(k5|k3, yword_b [rax+64], 5); // broadcast 64-bit to 256-bit
+```
 
-vpdpbusd(xm0, xm1, xm2); // default encoding is EVEX
+## Selecting AVX512-VNNI, AVX-VNNI, AVX-VNNI-INT8 etc.
+Some mnemonics have two types of encodings: VEX and EVEX.
+The functions for these mnemonics include an optional parameter as the last argument to specify the encoding.
+The default behavior depends on the order in which the instruction was introduced (whether VEX or EVEX came first),
+and can be specified using setDefaultEncoding.
+
+```
+vpdpbusd(xm0, xm1, xm2); // default encoding: EVEX (AVX512-VNNI)
 vpdpbusd(xm0, xm1, xm2, EvexEncoding); // same as the above
-vpdpbusd(xm0, xm1, xm2, VexEncoding); // VEX encoding
+vpdpbusd(xm0, xm1, xm2, VexEncoding); // VEX (AVX-VNNI)
 setDefaultEncoding(VexEncoding); // default encoding is VEX
-vpdpbusd(xm0, xm1, xm2); // VEX encoding
+vpdpbusd(xm0, xm1, xm2); // VEX
 
-vmpsadbw(xm1, xm3, xm15, 3); // default encoding
-vmpsadbw(xm1, xm3, xm15, 3, VexEncoding); // vex(avx)
-vmpsadbw(xm1, xm3, xm15, 3, EvexEncoding); // evex(avx10.2)
+vmpsadbw(xm1, xm3, xm15, 3); // default encoding: VEX (AVX-VNNI)
+vmpsadbw(xm1, xm3, xm15, 3, VexEncoding); // same as the above
+vmpsadbw(xm1, xm3, xm15, 3, EvexEncoding); // EVEX (AVX10.2)
 setDefaultEncoding(VexEncoding, EvexEncoding); // use 2nd argument.
-vmpsadbw(xm1, xm3, xm15, 3); // evex(avx10.2)
-
+vmpsadbw(xm1, xm3, xm15, 3); // EVEX
 ```
 
 - `setDefaultEncoding(PreferredEncoding vnniEnc = EvexEncoding, PreferredEncoding avx10Enc = VexEncoding)`
+Control the default encoding of mnemonics with `Xbyak::PreferredEncoding` param.
 
 param|vnniEnc|avx10Enc
 -|-|-
-EvexEncoding|AVX512_VNNI|AVX10.2
-VexEncoding|AVX/AVX2|AVX-VNNI-INT8
+EvexEncoding|AVX512-VNNI|AVX10.2
+VexEncoding|AVX-VNNI|AVX-VNNI-INT8
 default|EvexEncoding|VexEncoding
-mnemonic|vpdpbusd, vpdpbusds, vpdpwssd, vpdpwssds|vmpsadbw, vpdpbssd
+mnemonic|vpdpbusd, vpdpbusds, vpdpwssd, vpdpwssds|vmpsadbw, vpdpbssd, vpdpbssds, vpdpbsud, vpdpbsuds, vpdpbuud, vpdpbuuds
 
 ### Remark
 * `k1`, ..., `k7` are opmask registers.

@@ -468,10 +468,12 @@ void putX_X_XM_IMM_AVX10()
 		bool hasIMM;
 	} tbl[] = {
 		{ 0x50, "vpdpbssd", T_F2|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0x51, "vpdpbssds", T_F2|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0x50, "vpdpbsud", T_F3|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0x51, "vpdpbsuds", T_F3|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0x50, "vpdpbuud", T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+		{ 0x51, "vpdpbuuds", T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
 #if 0
-		{ 0x51, "vpdpbssds", T_MUST_EVEX | T_YMM | T_F2 | T_0F38 | T_EW0 | T_B32, false },
-		{ 0x50, "vpdpbsud", T_MUST_EVEX | T_YMM | T_F3 | T_0F38 | T_EW0 | T_B32, false },
-		{ 0x51, "vpdpbsuds", T_MUST_EVEX | T_YMM | T_F3 | T_0F38 | T_EW0 | T_B32, false },
 		{ 0x50, "vpdpbuud", T_MUST_EVEX | T_YMM | T_0F38 | T_EW0 | T_B32, false },
 		{ 0x51, "vpdpbuuds", T_MUST_EVEX | T_YMM | T_0F38 | T_EW0 | T_B32, false },
 #endif

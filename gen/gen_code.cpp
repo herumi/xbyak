@@ -1908,11 +1908,11 @@ void put()
 			uint64_t type;
 		} tbl[] = {
 //			{ 0x50, "vpdpbssd", T_F2 | T_0F38 | T_W0 | T_YMM },
-			{ 0x51, "vpdpbssds", T_F2 | T_0F38 | T_W0 | T_YMM },
-			{ 0x50, "vpdpbsud", T_F3 | T_0F38 | T_W0 | T_YMM },
-			{ 0x51, "vpdpbsuds", T_F3 | T_0F38 | T_W0 | T_YMM },
-			{ 0x50, "vpdpbuud", T_0F38 | T_W0 | T_YMM },
-			{ 0x51, "vpdpbuuds", T_0F38 | T_W0 | T_YMM },
+//			{ 0x51, "vpdpbssds", T_F2 | T_0F38 | T_W0 | T_YMM },
+//			{ 0x50, "vpdpbsud", T_F3 | T_0F38 | T_W0 | T_YMM },
+//			{ 0x51, "vpdpbsuds", T_F3 | T_0F38 | T_W0 | T_YMM },
+//			{ 0x50, "vpdpbuud", T_0F38 | T_W0 | T_YMM },
+//			{ 0x51, "vpdpbuuds", T_0F38 | T_W0 | T_YMM },
 
 			{ 0xD2, "vpdpwsud", T_F3 | T_0F38 | T_W0 | T_YMM },
 			{ 0xD3, "vpdpwsuds", T_F3 | T_0F38 | T_W0 | T_YMM },

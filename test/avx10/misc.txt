@@ -9,7 +9,7 @@ vdpphps(ym1, ym2, ptr_b[rax+128]);
 vdpphps(zm1, zm2, zm3);
 vdpphps(zm1, zm2, ptr[rax+128]);
 vdpphps(zm1, zm2, ptr_b[rax+128]);
-
+//
 vmpsadbw(xm1, xm3, xm15, 3);
 vmpsadbw(xm1|T_z, xm4, ptr[rax+128], 5);
 
@@ -18,7 +18,7 @@ vmpsadbw(ym1, ym4, ptr[rax+128], 5);
 
 vmpsadbw(zm1|k4, zm3, zm15, 3);
 vmpsadbw(zm1, zm4, ptr[rax+128], 5);
-
+//
 vpdpbssd(xm1, xm2, xm3);
 vpdpbssd(xm1, xm2, ptr[rax+128]);
 vpdpbssd(xm1, xm2, ptr_b[rax+128]);
@@ -30,3 +30,64 @@ vpdpbssd(ym1, ym2, ptr_b[rax+128]);
 vpdpbssd(zm1, zm2, zm3);
 vpdpbssd(zm1, zm2, ptr[rax+128]);
 vpdpbssd(zm1, zm2, ptr_b[rax+128]);
+//
+vpdpbssds(xm1, xm2, xm3);
+vpdpbssds(xm1, xm2, ptr[rax+128]);
+vpdpbssds(xm1, xm2, ptr_b[rax+128]);
+
+vpdpbssds(ym1, ym2, ym3);
+vpdpbssds(ym1, ym2, ptr[rax+128]);
+vpdpbssds(ym1, ym2, ptr_b[rax+128]);
+
+vpdpbssds(zm1, zm2, zm3);
+vpdpbssds(zm1, zm2, ptr[rax+128]);
+vpdpbssds(zm1, zm2, ptr_b[rax+128]);
+//
+vpdpbsud(xm1, xm2, xm3);
+vpdpbsud(xm1, xm2, ptr[rax+128]);
+vpdpbsud(xm1, xm2, ptr_b[rax+128]);
+
+vpdpbsud(ym1, ym2, ym3);
+vpdpbsud(ym1, ym2, ptr[rax+128]);
+vpdpbsud(ym1, ym2, ptr_b[rax+128]);
+
+vpdpbsud(zm1, zm2, zm3);
+vpdpbsud(zm1, zm2, ptr[rax+128]);
+vpdpbsud(zm1, zm2, ptr_b[rax+128]);
+//
+vpdpbsuds(xm1, xm2, xm3);
+vpdpbsuds(xm1, xm2, ptr[rax+128]);
+vpdpbsuds(xm1, xm2, ptr_b[rax+128]);
+
+vpdpbsuds(ym1, ym2, ym3);
+vpdpbsuds(ym1, ym2, ptr[rax+128]);
+vpdpbsuds(ym1, ym2, ptr_b[rax+128]);
+
+vpdpbsuds(zm1, zm2, zm3);
+vpdpbsuds(zm1, zm2, ptr[rax+128]);
+vpdpbsuds(zm1, zm2, ptr_b[rax+128]);
+
+//
+vpdpbuud(xm1, xm2, xm3);
+vpdpbuud(xm1, xm2, ptr[rax+128]);
+vpdpbuud(xm1, xm2, ptr_b[rax+128]);
+
+vpdpbuud(ym1, ym2, ym3);
+vpdpbuud(ym1, ym2, ptr[rax+128]);
+vpdpbuud(ym1, ym2, ptr_b[rax+128]);
+
+vpdpbuud(zm1, zm2, zm3);
+vpdpbuud(zm1, zm2, ptr[rax+128]);
+vpdpbuud(zm1, zm2, ptr_b[rax+128]);
+//
+vpdpbuuds(xm1, xm2, xm3);
+vpdpbuuds(xm1, xm2, ptr[rax+128]);
+vpdpbuuds(xm1, xm2, ptr_b[rax+128]);
+
+vpdpbuuds(ym1, ym2, ym3);
+vpdpbuuds(ym1, ym2, ptr[rax+128]);
+vpdpbuuds(ym1, ym2, ptr_b[rax+128]);
+
+vpdpbuuds(zm1, zm2, zm3);
+vpdpbuuds(zm1, zm2, ptr[rax+128]);
+vpdpbuuds(zm1, zm2, ptr_b[rax+128]);
