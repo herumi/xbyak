@@ -18,3 +18,15 @@ vmpsadbw(ym1, ym4, ptr[rax+128], 5);
 
 vmpsadbw(zm1|k4, zm3, zm15, 3);
 vmpsadbw(zm1, zm4, ptr[rax+128], 5);
+
+vpdpbssd(xm1, xm2, xm3);
+vpdpbssd(xm1, xm2, ptr[rax+128]);
+vpdpbssd(xm1, xm2, ptr_b[rax+128]);
+
+vpdpbssd(ym1, ym2, ym3);
+vpdpbssd(ym1, ym2, ptr[rax+128]);
+vpdpbssd(ym1, ym2, ptr_b[rax+128]);
+
+vpdpbssd(zm1, zm2, zm3);
+vpdpbssd(zm1, zm2, ptr[rax+128]);
+vpdpbssd(zm1, zm2, ptr_b[rax+128]);

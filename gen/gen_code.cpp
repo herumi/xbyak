@@ -1907,7 +1907,7 @@ void put()
 			const char *name;
 			uint64_t type;
 		} tbl[] = {
-			{ 0x50, "vpdpbssd", T_F2 | T_0F38 | T_W0 | T_YMM },
+//			{ 0x50, "vpdpbssd", T_F2 | T_0F38 | T_W0 | T_YMM },
 			{ 0x51, "vpdpbssds", T_F2 | T_0F38 | T_W0 | T_YMM },
 			{ 0x50, "vpdpbsud", T_F3 | T_0F38 | T_W0 | T_YMM },
 			{ 0x51, "vpdpbsuds", T_F3 | T_0F38 | T_W0 | T_YMM },

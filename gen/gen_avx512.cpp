@@ -454,7 +454,37 @@ void putX_X_XM_IMM()
 		printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op%s) { opAVX_X_X_XM(x1, x2, op, %s, 0x%02X%s); }\n"
 			, p->name, p->hasIMM ? ", uint8_t imm" : "", s.c_str(), p->code, p->hasIMM ? ", imm" : "");
 	}
-	puts("void vmpsadbw(const Xmm& x1, const Xmm& x2, const Operand& op, uint8_t imm, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, T_0F3A | T_YMM, 0x42, encoding, imm, T_66 | T_W0 | T_YMM, T_F3 | T_0F3A | T_EW0 | T_B32, 1); }");
+}
+
+void putX_X_XM_IMM_AVX10()
+{
+	const struct Tbl {
+		uint8_t code;
+		const char *name;
+		uint64_t type;
+		uint64_t typeVex;
+		uint64_t typeEvex;
+		int sel;
+		bool hasIMM;
+	} tbl[] = {
+		{ 0x50, "vpdpbssd", T_F2|T_0F38|T_YMM, T_W0, T_EW0|T_B32, 1, false },
+#if 0
+		{ 0x51, "vpdpbssds", T_MUST_EVEX | T_YMM | T_F2 | T_0F38 | T_EW0 | T_B32, false },
+		{ 0x50, "vpdpbsud", T_MUST_EVEX | T_YMM | T_F3 | T_0F38 | T_EW0 | T_B32, false },
+		{ 0x51, "vpdpbsuds", T_MUST_EVEX | T_YMM | T_F3 | T_0F38 | T_EW0 | T_B32, false },
+		{ 0x50, "vpdpbuud", T_MUST_EVEX | T_YMM | T_0F38 | T_EW0 | T_B32, false },
+		{ 0x51, "vpdpbuuds", T_MUST_EVEX | T_YMM | T_0F38 | T_EW0 | T_B32, false },
+#endif
+		{ 0x42, "vmpsadbw", T_0F3A|T_YMM, T_66|T_W0|T_YMM, T_F3|T_0F3A|T_EW0|T_B32, 1, true },
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		const Tbl *p = &tbl[i];
+		std::string s = type2String(p->type);
+		std::string sVex = type2String(p->typeVex);
+		std::string sEvex = type2String(p->typeEvex);
+		printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op%s, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, %s, 0x%02X, encoding, %s, %s, %s, %d); }\n"
+			, p->name, p->hasIMM ? ", uint8_t imm" : "", s.c_str(), p->code, p->hasIMM ? "imm" : "NONE", sVex.c_str(), sEvex.c_str(), p->sel);
+	}
 }
 
 void putShift()
@@ -1059,6 +1089,7 @@ int main(int argc, char *[])
 	putM_X();
 	putXM_X();
 	putX_X_XM_IMM();
+	putX_X_XM_IMM_AVX10();
 	putShift();
 	putExtractInsert();
 	putCvt();
