@@ -2661,13 +2661,13 @@ private:
 		if (addr.getRegExp().getIndex().getKind() != kind) XBYAK_THROW(ERR_BAD_VSIB_ADDRESSING)
 		opVex(x, 0, addr, type, code);
 	}
-	void opEncoding(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code, PreferredEncoding encoding)
+	void opEncoding(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code, PreferredEncoding encoding, int sel = 0)
 	{
-		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(encoding), code);
+		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(encoding, sel), code);
 	}
-	int orEvexIf(PreferredEncoding encoding) {
+	int orEvexIf(PreferredEncoding encoding, int sel = 0) {
 		if (encoding == DefaultEncoding) {
-			encoding = defaultEncoding_;
+			encoding = defaultEncoding_[sel];
 		}
 		if (encoding == EvexEncoding) {
 #ifdef XBYAK_DISABLE_AVX512
@@ -2845,7 +2845,7 @@ public:
 #endif
 private:
 	bool isDefaultJmpNEAR_;
-	PreferredEncoding defaultEncoding_;
+	PreferredEncoding defaultEncoding_[2]; // 0:vnni, 1:vmpsadbw
 public:
 	void L(const std::string& label) { labelMgr_.defineSlabel(label); }
 	void L(Label& label) { labelMgr_.defineClabel(label); }
@@ -3131,8 +3131,9 @@ public:
 		, es(Segment::es), cs(Segment::cs), ss(Segment::ss), ds(Segment::ds), fs(Segment::fs), gs(Segment::gs)
 #endif
 		, isDefaultJmpNEAR_(false)
-		, defaultEncoding_(EvexEncoding)
 	{
+		defaultEncoding_[0] = EvexEncoding; // use avx512-vnni not avx-vnni
+		defaultEncoding_[1] = VexEncoding; // use vmpsadbw(avx) not avx10.2
 		labelMgr_.set(this);
 	}
 	void reset()
@@ -3170,7 +3171,8 @@ public:
 #endif
 
 	// set default encoding to select Vex or Evex
-	void setDefaultEncoding(PreferredEncoding encoding) { defaultEncoding_ = encoding; }
+	void setDefaultEncoding(PreferredEncoding vnniEnc, PreferredEncoding mpsadbwEnc = VexEncoding)
+	{ defaultEncoding_[0] = vnniEnc; defaultEncoding_[1] = mpsadbwEnc; }
 
 	void sha1msg12(const Xmm& x, const Operand& op)
 	{
