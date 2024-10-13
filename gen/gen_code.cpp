@@ -1802,7 +1802,6 @@ void put()
 			const Tbl& p = tbl[i];
 			printf("void %s(const Xmm& x, const Address& addr) { opVex(x, 0, addr, %s, 0x%02X); }\n", p.name, type2String(p.type).c_str(), p.code);
 		}
-		printf("void vcvtneps2bf16(const Xmm& x, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opCvt2(x, op, %s|orEvexIf(encoding), 0x72); }\n", type2String(T_F3 | T_0F38 | T_EW0 | T_YMM | T_SAE_Z | T_B32).c_str());
 	}
 	// haswell gpr(reg, reg, r/m)
 	{
