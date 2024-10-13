@@ -57,7 +57,7 @@ void putX_X_XM(bool omitOnly)
 			{ 0x0C, "blendps", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 3 },
 			{ 0x41, "dppd", T_0F3A | T_66 | T_W0, true, true, 3 },
 			{ 0x40, "dpps", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 3 },
-			{ 0x42, "mpsadbw", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 3 },
+			{ 0x42, "mpsadbw", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 1 },
 			{ 0x0E, "pblendw", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 3 },
 			{ 0x02, "pblendd", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 2 },
 			{ 0x0B, "roundsd", T_0F3A | T_66 | T_W0, true, true, 3 },

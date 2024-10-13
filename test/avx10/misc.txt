@@ -10,4 +10,11 @@ vdpphps(zm1, zm2, zm3);
 vdpphps(zm1, zm2, ptr[rax+128]);
 vdpphps(zm1, zm2, ptr_b[rax+128]);
 
-// skip vmpsadbw
+vmpsadbw(xm1, xm3, xm15, 3);
+vmpsadbw(xm1|T_z, xm4, ptr[rax+128], 5);
+
+vmpsadbw(ym1|k4, ym3, ym15, 3);
+vmpsadbw(ym1, ym4, ptr[rax+128], 5);
+
+vmpsadbw(zm1|k4, zm3, zm15, 3);
+vmpsadbw(zm1, zm4, ptr[rax+128], 5);

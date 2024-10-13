@@ -2661,11 +2661,11 @@ private:
 		if (addr.getRegExp().getIndex().getKind() != kind) XBYAK_THROW(ERR_BAD_VSIB_ADDRESSING)
 		opVex(x, 0, addr, type, code);
 	}
-	void opEncoding(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code, PreferredEncoding encoding, int sel = 0)
+	void opEncoding(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code, PreferredEncoding encoding, int imm = NONE, uint64_t typeVex = 0, uint64_t typeEvex = 0, int sel = 0)
 	{
-		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(encoding, sel), code);
+		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(encoding, typeVex, typeEvex, sel), code, imm);
 	}
-	int orEvexIf(PreferredEncoding encoding, int sel = 0) {
+	int orEvexIf(PreferredEncoding encoding, uint64_t typeVex, uint64_t typeEvex, int sel) {
 		if (encoding == DefaultEncoding) {
 			encoding = defaultEncoding_[sel];
 		}
@@ -2673,9 +2673,9 @@ private:
 #ifdef XBYAK_DISABLE_AVX512
 			XBYAK_THROW(ERR_EVEX_IS_INVALID)
 #endif
-			return T_MUST_EVEX;
+			return T_MUST_EVEX | typeEvex;
 		}
-		return 0;
+		return typeVex;
 	}
 	void opInOut(const Reg& a, const Reg& d, uint8_t code)
 	{
@@ -3132,8 +3132,8 @@ public:
 #endif
 		, isDefaultJmpNEAR_(false)
 	{
-		defaultEncoding_[0] = EvexEncoding; // use avx512-vnni not avx-vnni
-		defaultEncoding_[1] = VexEncoding; // use vmpsadbw(avx) not avx10.2
+		// select avx512-vnni, vmpsadbw(avx)
+		setDefaultEncoding();
 		labelMgr_.set(this);
 	}
 	void reset()
@@ -3171,7 +3171,7 @@ public:
 #endif
 
 	// set default encoding to select Vex or Evex
-	void setDefaultEncoding(PreferredEncoding vnniEnc, PreferredEncoding mpsadbwEnc = VexEncoding)
+	void setDefaultEncoding(PreferredEncoding vnniEnc = EvexEncoding, PreferredEncoding mpsadbwEnc = VexEncoding)
 	{ defaultEncoding_[0] = vnniEnc; defaultEncoding_[1] = mpsadbwEnc; }
 
 	void sha1msg12(const Xmm& x, const Operand& op)

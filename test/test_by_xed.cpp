@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <xbyak/xbyak.h>
 
+using namespace Xbyak;
+
 struct Code : Xbyak::CodeGenerator {
 	Code()
 		 : Xbyak::CodeGenerator(4096*8)
 	{
+		setDefaultEncoding(VexEncoding, EvexEncoding);
 #include "tmp.cpp"
 	}
 };

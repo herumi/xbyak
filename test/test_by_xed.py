@@ -210,6 +210,11 @@ def parseNmemonic(s):
   args = []
   attrs = []
 
+  # remove Xbyak::{Evex,Vex}Encoding
+  r = re.search(r'(,[^,]*Encoding)', s)
+  if r:
+    s = s.replace(r.group(1), '')
+
   (s, broadcast) = parseBroadcast(s)
 
   # replace xm0 with xmm0
