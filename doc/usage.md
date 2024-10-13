@@ -112,12 +112,24 @@ vpdpbusd(xm0, xm1, xm2, EvexEncoding); // same as the above
 vpdpbusd(xm0, xm1, xm2, VexEncoding); // VEX encoding
 setDefaultEncoding(VexEncoding); // default encoding is VEX
 vpdpbusd(xm0, xm1, xm2); // VEX encoding
+
+vmpsadbw(xm1, xm3, xm15, 3); // default encoding
+vmpsadbw(xm1, xm3, xm15, 3, VexEncoding); // vex(avx)
+vmpsadbw(xm1, xm3, xm15, 3, EvexEncoding); // evex(avx10.2)
+setDefaultEncoding(VexEncoding, EvexEncoding); // use 2nd argument.
+vmpsadbw(xm1, xm3, xm15, 3); // evex(avx10.2)
+
 ```
 
-- setDefaultEncoding(PreferredEncoding encoding);
-  - Set the default encoding to select EVEX or VEX.
-  - The default value is EvexEncoding.
-  - This function affects only an instruction that has a PreferredEncoding argument such as vpdpbusd.
+- `setDefaultEncoding(PreferredEncoding vnniEnc = EvexEncoding, PreferredEncoding mpsadbwEnc = VexEncoding)`
+  - 1st argument. Set the default encoding to select EVEX or VEX for VNNI
+    - The default value is EvexEncoding (AVX512_VNNI).
+    - encoded as AVX-VNNI if VexEncoding is set.
+    - This parameter affects to vpdpbusd, vpdpbusds, vpdpwssd, vpdpwssds.
+  - 2nd argument. Set the default encoding to select EVEX or VEX for vmpsadbw
+    - The default value is VexEncoding (AVX/AVX2).
+    - encoded as AVX10.2 if EvexEncoding is set.
+    - This parameter affects to vmpsadbw.
 
 ### Remark
 * `k1`, ..., `k7` are opmask registers.
