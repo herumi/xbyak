@@ -124,7 +124,7 @@ vpdpbusd(xm0, xm1, xm2); // VEX
 vmpsadbw(xm1, xm3, xm15, 3); // default encoding: VEX (AVX-VNNI)
 vmpsadbw(xm1, xm3, xm15, 3, VexEncoding); // same as the above
 vmpsadbw(xm1, xm3, xm15, 3, EvexEncoding); // EVEX (AVX10.2)
-setDefaultEncoding(VexEncoding, AVX10p2Encoding); // use 2nd argument.
+setDefaultEncoding(VexEncoding, AVX10v2Encoding); // use 2nd argument.
 vmpsadbw(xm1, xm3, xm15, 3); // EVEX (AVX10.2)
 ```
 
@@ -133,9 +133,10 @@ Control the default encoding of mnemonics with `Xbyak::PreferredEncoding` param.
 
 param|vnniEnc|avx10Enc
 -|-|-
-VexEncoding|AVX-VNNI|AVX-VNNI-INT8
+VexEncoding|AVX-VNNI|-
 EvexEncoding|AVX512-VNNI|-
-AVX10p2Encoding|-|AVX10.2
+PreAVX10v2Encoding|-|AVX-VNNI-INT8, AVX512-FP16
+AVX10v2Encoding|-|AVX10.2
 default|EvexEncoding|VexEncoding
 mnemonic|vpdpbusd, vpdpbusds, vpdpwssd, vpdpwssds|vmpsadbw, vpdpbssd, vpdpbssds, vpdpbsud, vpdpbsuds, vpdpbuud, vpdpbuuds, vpdpwsud vpdpwsuds vpdpwusd vpdpwusds vpdpwuud, vpdpwuuds, vmovd, vmovw
 

@@ -1,3 +1,4 @@
+// AVX10 integer and FP16 VNNI, media and zero-extending
 vdpphps(xm1, xm2, xm3);
 vdpphps(xm1, xm2, ptr[rax+128]);
 vdpphps(xm1, xm2, ptr_b[rax+128]);
@@ -168,5 +169,11 @@ vpdpwuuds(zm1, zm2, ptr_b[rax+128]);
 
 //
 vmovd(xm10, xm20);
+vmovd(xm1, xm2);
 vmovd(xm10, ptr[rax+128]);
 vmovd(ptr[rax+128], xm30);
+//
+vmovw(xm1, xm20);
+vmovw(xm1, xm2);
+vmovw(xm3, ptr [rax+0x40]);
+vmovw(ptr [rax+0x40], xm7);

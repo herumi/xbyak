@@ -7,7 +7,7 @@ struct Code : Xbyak::CodeGenerator {
 	Code()
 		 : Xbyak::CodeGenerator(4096*8)
 	{
-		setDefaultEncoding(EvexEncoding, AVX10p2Encoding);
+		setDefaultEncoding(EvexEncoding, AVX10v2Encoding);
 #include "tmp.cpp"
 	}
 };

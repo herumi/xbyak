@@ -1674,8 +1674,8 @@ typedef enum {
 	DefaultEncoding,
 	VexEncoding,
 	EvexEncoding,
-	AVX512Encoding = EvexEncoding,
-	AVX10p2Encoding
+	PreAVX10v2Encoding = EvexEncoding,
+	AVX10v2Encoding
 } PreferredEncoding;
 
 class CodeGenerator : public CodeArray {
@@ -3177,9 +3177,9 @@ public:
 #endif
 
 	// set default encoding
-	// vnniEnc : control AVX512_VNNI (evex:default) or AVX-VNNI (vex)
-	// avx10Enc : control mpsadbw, AVX-VNNI-INT8 (vex:default) or AVX10.2 (AVX10p2Encoding)
-	void setDefaultEncoding(PreferredEncoding vnniEnc = EvexEncoding, PreferredEncoding avx10Enc = VexEncoding)
+	// vnniEnc : AVX512_VNNI (default:EvexEncoding) or AVX-VNNI (VexEncoding)
+	// avx10Enc : mpsadbw etc., AVX-VNNI-INT8/AVX512-FP16 (default:PreAVX10v2Encoding) or AVX10.2 (AVX10v2Encoding)
+	void setDefaultEncoding(PreferredEncoding vnniEnc = EvexEncoding, PreferredEncoding avx10Enc = PreAVX10v2Encoding)
 	{ defaultEncoding_[0] = vnniEnc; defaultEncoding_[1] = avx10Enc; }
 
 	void bswap(const Reg32e& r)
@@ -3194,7 +3194,8 @@ public:
 		}
 		db(0xC8 + (idx & 7));
 	}
-	void vmovd(const Operand& op1, const Operand& op2, PreferredEncoding encoding = DefaultEncoding)
+	// AVX10 zero-extending for vmovd, vmovw
+	void opAVX10ZeroExt(const Operand& op1, const Operand& op2, const uint64_t typeTbl[4], const int codeTbl[4], PreferredEncoding encoding, int bit)
 	{
 		const Operand *p1 = &op1;
 		const Operand *p2 = &op2;
@@ -3208,18 +3209,32 @@ public:
 			std::swap(p1, p2);
 			rev = !rev;
 		}
-		if (getEncoding(encoding, 1) == AVX10p2Encoding) {
-			if ((p1->isXMM() || p1->isMEM()) && p2->isXMM()) {
-				opAVX_X_X_XM(*static_cast<const Xmm*>(p2), xm0, *p1, T_EVEX|(rev ? T_F3 : T_66)|T_MUST_EVEX|T_0F|T_EW0|T_N4, rev ? 0x7E : 0xD6);
-				return;
-			}
+		int sel = -1;
+		if (getEncoding(encoding, 1) == AVX10v2Encoding) {
+			if ((p1->isXMM() || p1->isMEM()) && p2->isXMM()) sel = 2 + int(rev);
 		} else {
-			if ((p1->isREG(32) || p1->isMEM()) && p2->isXMM()) {
-				opAVX_X_X_XM(*static_cast<const Xmm*>(p2), xm0, *p1, T_EVEX|T_66|T_0F|T_W0|T_N4, rev ? 0x6E : 0x7E);
-				return;
-			}
+			if ((p1->isREG(bit) || p1->isMEM()) && p2->isXMM()) sel = int(rev);
 		}
-		XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (sel == -1) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opAVX_X_X_XM(*static_cast<const Xmm*>(p2), xm0, *p1, typeTbl[sel], codeTbl[sel]);
+	}
+	void vmovd(const Operand& op1, const Operand& op2, PreferredEncoding encoding = DefaultEncoding)
+	{
+		const uint64_t typeTbl[] = {
+			T_EVEX|T_66|T_0F|T_W0|T_N4, T_EVEX|T_66|T_0F|T_W0|T_N4, // legacy, avx, avx512
+			T_MUST_EVEX|T_66|T_0F|T_EW0|T_N4, T_MUST_EVEX|T_F3|T_0F|T_EW0|T_N4, // avx10.2
+		};
+		const int codeTbl[] = { 0x7E, 0x6E, 0xD6, 0x7E };
+		opAVX10ZeroExt(op1, op2, typeTbl, codeTbl, encoding, 32);
+	}
+	void vmovw(const Operand& op1, const Operand& op2, PreferredEncoding encoding = DefaultEncoding)
+	{
+		const uint64_t typeTbl[] = {
+			T_MUST_EVEX|T_66|T_MAP5|T_N2, T_MUST_EVEX|T_66|T_MAP5|T_N2, // avx512-fp16
+			T_MUST_EVEX|T_F3|T_MAP5|T_EW0|T_N2, T_MUST_EVEX|T_F3|T_MAP5|T_EW0|T_N2, // avx10.2
+		};
+		const int codeTbl[] = { 0x7E, 0x6E, 0x7E, 0x6E };
+		opAVX10ZeroExt(op1, op2, typeTbl, codeTbl, encoding, 16|32|64);
 	}
 	/*
 		use single byte nop if useMultiByteNop = false
