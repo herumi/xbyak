@@ -109,7 +109,7 @@ vfpclassps k5{k3}, [rax+64]{1to4}, 5    --> vfpclassps(k5|k3, yword_b [rax+64], 
 ```
 
 ## Selecting AVX512-VNNI, AVX-VNNI, AVX-VNNI-INT8 etc.
-Some mnemonics have two types of encodings: VEX and EVEX.
+Some mnemonics have some types of encodings: VEX, EVEX, AVX10.2.
 The functions for these mnemonics include an optional parameter as the last argument to specify the encoding.
 The default behavior depends on the order in which the instruction was introduced (whether VEX or EVEX came first),
 and can be specified using setDefaultEncoding.
@@ -124,8 +124,8 @@ vpdpbusd(xm0, xm1, xm2); // VEX
 vmpsadbw(xm1, xm3, xm15, 3); // default encoding: VEX (AVX-VNNI)
 vmpsadbw(xm1, xm3, xm15, 3, VexEncoding); // same as the above
 vmpsadbw(xm1, xm3, xm15, 3, EvexEncoding); // EVEX (AVX10.2)
-setDefaultEncoding(VexEncoding, EvexEncoding); // use 2nd argument.
-vmpsadbw(xm1, xm3, xm15, 3); // EVEX
+setDefaultEncoding(VexEncoding, AVX10p2Encoding); // use 2nd argument.
+vmpsadbw(xm1, xm3, xm15, 3); // EVEX (AVX10.2)
 ```
 
 - `setDefaultEncoding(PreferredEncoding vnniEnc = EvexEncoding, PreferredEncoding avx10Enc = VexEncoding)`
@@ -133,10 +133,11 @@ Control the default encoding of mnemonics with `Xbyak::PreferredEncoding` param.
 
 param|vnniEnc|avx10Enc
 -|-|-
-EvexEncoding|AVX512-VNNI|AVX10.2
 VexEncoding|AVX-VNNI|AVX-VNNI-INT8
+EvexEncoding|AVX512-VNNI|-
+AVX10p2Encoding|-|AVX10.2
 default|EvexEncoding|VexEncoding
-mnemonic|vpdpbusd, vpdpbusds, vpdpwssd, vpdpwssds|vmpsadbw, vpdpbssd, vpdpbssds, vpdpbsud, vpdpbsuds, vpdpbuud, vpdpbuuds, vpdpwsud vpdpwsuds vpdpwusd vpdpwusds vpdpwuud, vpdpwuuds
+mnemonic|vpdpbusd, vpdpbusds, vpdpwssd, vpdpwssds|vmpsadbw, vpdpbssd, vpdpbssds, vpdpbsud, vpdpbsuds, vpdpbuud, vpdpbuuds, vpdpwsud vpdpwsuds vpdpwusd vpdpwusds vpdpwuud, vpdpwuuds, vmovd, vmovw
 
 ### Remark
 * `k1`, ..., `k7` are opmask registers.
