@@ -200,3 +200,111 @@ vcvttps2iubs(zm1, zm2);
 vcvttps2iubs(zm1, zm2|T_ru_sae);
 vcvttps2iubs(zm1, ptr[rax+128]);
 vcvttps2iubs(zm1, ptr_b[rax+128]);
+//
+vcvttps2udqs(xm1, xm2);
+vcvttps2udqs(xm1, ptr[rax+128]);
+vcvttps2udqs(xm1, ptr_b[rax+128]);
+
+vcvttps2udqs(ym1, ym2);
+vcvttps2udqs(ym1, ym2|T_sae);
+vcvttps2udqs(ym1, ptr[rax+128]);
+vcvttps2udqs(ym1, ptr_b[rax+128]);
+
+vcvttps2udqs(zm1, zm2);
+vcvttps2udqs(zm1, zm2|T_sae);
+vcvttps2udqs(zm1, ptr[rax+128]);
+vcvttps2udqs(zm1, ptr_b[rax+128]);
+
+//
+vcvttpd2dqs(xm1|k1|T_z, xm2);
+vcvttpd2dqs(xm1|k1|T_z, xword [rax+128]);
+vcvttpd2dqs(xm1|k1|T_z, xword_b[rax+128]);
+
+vcvttpd2dqs(xm1|k1|T_z, ym2);
+vcvttpd2dqs(xm1|k1|T_z, ym2|T_sae);
+vcvttpd2dqs(xm1|k1|T_z, yword [rax+128]);
+vcvttpd2dqs(xm1|k1|T_z, yword_b[rax+128]);
+
+vcvttpd2dqs(ym1|k1|T_z, zm2);
+vcvttpd2dqs(ym1|k1|T_z, zm2|T_sae);
+vcvttpd2dqs(ym1|k1|T_z, zword [rax+128]);
+vcvttpd2dqs(ym1|k1|T_z, zword_b[rax+128]);
+
+//
+vcvttpd2udqs(xm1|k1|T_z, xm2);
+vcvttpd2udqs(xm1|k1|T_z, xword [rax+128]);
+vcvttpd2udqs(xm1|k1|T_z, xword_b[rax+128]);
+
+vcvttpd2udqs(xm1|k1|T_z, ym2);
+vcvttpd2udqs(xm1|k1|T_z, ym2|T_sae);
+vcvttpd2udqs(xm1|k1|T_z, yword [rax+128]);
+vcvttpd2udqs(xm1|k1|T_z, yword_b[rax+128]);
+
+vcvttpd2udqs(ym1|k1|T_z, zm2);
+vcvttpd2udqs(ym1|k1|T_z, zm2|T_sae);
+vcvttpd2udqs(ym1|k1|T_z, zword [rax+128]);
+vcvttpd2udqs(ym1|k1|T_z, zword_b[rax+128]);
+//
+vcvttps2qqs(xm1|k1|T_z, xm2);
+vcvttps2qqs(xm1|k1|T_z, ptr [rax+128]);
+vcvttps2qqs(xm1|k1|T_z, ptr_b[rax+128]);
+
+vcvttps2qqs(ym1|k1|T_z, xm2);
+vcvttps2qqs(ym1|k1|T_z, xm2|T_sae);
+vcvttps2qqs(ym1|k1|T_z, ptr [rax+128]);
+vcvttps2qqs(ym1|k1|T_z, ptr_b[rax+128]);
+
+vcvttps2qqs(zm1, ym2);
+vcvttps2qqs(zm1|k1|T_z, ym2);
+vcvttps2qqs(zm1|k1|T_z|T_sae, ym2);
+vcvttps2qqs(zm1|k1|T_z, ptr [rax+128]);
+vcvttps2qqs(zm1|k1|T_z, ptr_b[rax+128]);
+
+//
+vcvttps2uqqs(xm1|k1|T_z, xm2);
+vcvttps2uqqs(xm1|k1|T_z, ptr [rax+128]);
+vcvttps2uqqs(xm1|k1|T_z, ptr_b[rax+128]);
+
+vcvttps2uqqs(ym1|k1|T_z, xm2);
+vcvttps2uqqs(ym1|k1|T_z, xm2|T_sae);
+vcvttps2uqqs(ym1|k1|T_z, ptr [rax+128]);
+vcvttps2uqqs(ym1|k1|T_z, ptr_b[rax+128]);
+
+vcvttps2uqqs(zm1, ym2);
+vcvttps2uqqs(zm1|k1|T_z, ym2);
+vcvttps2uqqs(zm1|k1|T_z|T_sae, ym2);
+vcvttps2uqqs(zm1|k1|T_z, ptr [rax+128]);
+vcvttps2uqqs(zm1|k1|T_z, ptr_b[rax+128]);
+
+//
+vcvttsd2sis(eax, xm1);
+vcvttsd2sis(eax, xm1|T_sae);
+vcvttsd2sis(eax, ptr[rax+128]);
+
+vcvttsd2sis(r30, xm1);
+vcvttsd2sis(r30, xm1|T_sae);
+vcvttsd2sis(r30, ptr[rax+128]);
+//
+vcvttsd2usis(eax, xm1);
+vcvttsd2usis(eax, xm1|T_sae);
+vcvttsd2usis(eax, ptr[rax+128]);
+
+vcvttsd2usis(r30, xm1);
+vcvttsd2usis(r30, xm1|T_sae);
+vcvttsd2usis(r30, ptr[rax+128]);
+//
+vcvttss2sis(eax, xm1);
+vcvttss2sis(eax, xm1|T_sae);
+vcvttss2sis(eax, ptr[rax+128]);
+
+vcvttss2sis(r30, xm1);
+vcvttss2sis(r30, xm1|T_sae);
+vcvttss2sis(r30, ptr[rax+128]);
+//
+vcvttss2usis(eax, xm1);
+vcvttss2usis(eax, xm1|T_sae);
+vcvttss2usis(eax, ptr[rax+128]);
+
+vcvttss2usis(r30, xm1);
+vcvttss2usis(r30, xm1|T_sae);
+vcvttss2usis(r30, ptr[rax+128]);

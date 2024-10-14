@@ -231,6 +231,8 @@ void putX_XM()
 		{ 0x6B, "vcvtps2iubs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_EW0 | T_B32 | T_ER_Y | T_ER_Z },
 		{ 0x68, "vcvttps2ibs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_EW0 | T_B32 | T_ER_Y | T_ER_Z },
 		{ 0x6A, "vcvttps2iubs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_EW0 | T_B32 | T_ER_Y | T_ER_Z },
+		// 13.10
+		{ 0x6C, "vcvttps2udqs", T_MUST_EVEX | T_YMM | T_MAP5 | T_EW0 | T_B32 | T_SAE_Y | T_SAE_Z },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -687,6 +689,22 @@ void putCvt()
 		{ 0x7B, "vcvtusi2sh", T_F3 | T_MAP5 | T_MUST_EVEX | T_ER_R | T_M_K, 6 },
 
 		{ 0x72, "vcvtneps2bf16", T_MUST_EVEX | T_F3 | T_0F38 | T_EW0 | T_YMM | T_SAE_Z | T_B32, 2 },
+		// 13.2
+		{ 0x6D, "vcvttpd2dqs", T_MUST_EVEX | T_YMM | T_MAP5 | T_EW1 | T_B64 | T_SAE_Y | T_SAE_Z, 2 },
+		// 13.4
+		{ 0x6C, "vcvttpd2udqs", T_MUST_EVEX | T_YMM | T_MAP5 | T_EW1 | T_B64 | T_SAE_Y | T_SAE_Z, 2 },
+		// 13.9
+		{ 0x6D, "vcvttps2qqs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_EW0 | T_B32 | T_SAE_X | T_SAE_Y | T_N8 | T_N_VL, 1 },
+		// 13.11
+		{ 0x6C, "vcvttps2uqqs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_EW0 | T_B32 | T_SAE_X | T_SAE_Y | T_N8 | T_N_VL, 1 },
+		// 13.12
+		{ 0x6D, "vcvttsd2sis", T_MUST_EVEX | T_F2 | T_MAP5 | T_EW0 | T_SAE_X | T_N8, 0 },
+		// 13.13
+		{ 0x6C, "vcvttsd2usis", T_MUST_EVEX | T_F2 | T_MAP5 | T_EW0 | T_SAE_X | T_N8, 0 },
+		// 13.14
+		{ 0x6D, "vcvttss2sis", T_MUST_EVEX | T_F3 | T_MAP5 | T_EW0 | T_SAE_X | T_N4, 0 },
+		// 13.15
+		{ 0x6C, "vcvttss2usis", T_MUST_EVEX | T_F3 | T_MAP5 | T_EW0 | T_SAE_X | T_N4, 0 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& p = tbl[i];
@@ -695,10 +713,10 @@ void putCvt()
 		case 0:
 			printf("void %s(const Reg32e& r, const Operand& op) { uint64_t type = (%s) | (r.isREG(64) ? T_EW1 : T_EW0); opVex(r, &xm0, op, type, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
-		case 1:
+		case 1: // (x, x/m), (y, x/m256), (z, y/m)
 			printf("void %s(const Xmm& x, const Operand& op) { checkCvt1(x, op); opVex(x, 0, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
-		case 2:
+		case 2: // (x, x/m), (x, y/m256), (y, z/m)
 			printf("void %s(const Xmm& x, const Operand& op) { opCvt2(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 3:
