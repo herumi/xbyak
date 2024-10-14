@@ -234,10 +234,10 @@ CYBOZU_TEST_AUTO(vmpsadbw)
 	struct Code : Xbyak::CodeGenerator {
 		Code()
 		{
-			setDefaultEncoding();
+			setDefaultEncodingAVX10();
 			vmpsadbw(xm1, xm3, xm15, 3); // vex(avx)
 			vmpsadbw(ym1, ym3, ptr[rax+128], 3); // vex(avx2)
-			setDefaultEncoding(VexEncoding, EvexEncoding);
+			setDefaultEncodingAVX10(AVX10v2Encoding);
 			vmpsadbw(ym1, ym3, ym15, 3); // evex(avx10.2)
 			vmpsadbw(ym1, ym3, ptr[rax+128], 3); // evex(avx10.2)
 		}

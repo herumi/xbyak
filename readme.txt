@@ -14,7 +14,7 @@
     xbyak.hをインクルードするだけですぐ利用することができます。
     C++の枠組み内で閉じているため、外部アセンブラは不要です。
     32bit/64bit両対応です。
-    対応ニーモニック:特権命令除くx86, MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(一部)/AVX/AVX2/FMA/VEX-encoded GPR
+    対応ニーモニック:特権命令除くx86, MMX/MMX2/SSE/SSE2/SSE3/SSSE3/SSE4/FPU(一部)/AVX/AVX2/FMA/AVX-512/APX/AVX10.2
 
 ・Windows Xp(32bit, 64bit), Windows 7/Linux(32bit, 64bit)/Intel Mac対応
     Windows Xp, Windows 7上ではVC2008, VC2010, VC2012
@@ -46,7 +46,7 @@ Linuxではmake installで/usr/local/include/xbyakにコピーされます。
 -----------------------------------------------------------------------------
 ◎新機能
 
-APX/AVX10対応
+APX/AVX10.2対応
 
 例外なしモード追加
 XBYAK_NO_EXCEPTIONを定義してコンパイルするとgcc/clangで-fno-exceptionsオプションでコンパイルできます。
@@ -404,6 +404,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2024/10/15 ver 7.11 AVX10.2完全サポート
 2024/10/13 ver 7.10 AVX10 integer and fp16 vnni, mediaの新命令対応. setDefaultEncodingの拡張.
 2024/10/10 ver 7.09.1 vpcompressbとvpcompresswの名前修正
 2024/10/08 ver 7.09 AVX10.2のYMMレジスタの埋め込み丸め対応

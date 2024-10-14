@@ -232,6 +232,7 @@ enum {
 	ERR_CANT_USE_REX2,
 	ERR_INVALID_DFV,
 	ERR_INVALID_REG_IDX,
+	ERR_BAD_ENCODING_MODE,
 	ERR_INTERNAL // Put it at last.
 };
 
@@ -290,6 +291,7 @@ inline const char *ConvertErrorToString(int err)
 		"can't use rex2",
 		"invalid dfv",
 		"invalid reg index",
+		"bad encoding mode",
 		"internal error"
 	};
 	assert(ERR_INTERNAL + 1 == sizeof(errTbl) / sizeof(*errTbl));
@@ -1674,7 +1676,7 @@ typedef enum {
 	DefaultEncoding,
 	VexEncoding,
 	EvexEncoding,
-	PreAVX10v2Encoding = EvexEncoding,
+	PreAVX10v2Encoding,
 	AVX10v2Encoding
 } PreferredEncoding;
 
@@ -2663,25 +2665,24 @@ private:
 		if (addr.getRegExp().getIndex().getKind() != kind) XBYAK_THROW(ERR_BAD_VSIB_ADDRESSING)
 		opVex(x, 0, addr, type, code);
 	}
-	void opEncoding(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code, PreferredEncoding encoding, int imm = NONE, uint64_t typeVex = 0, uint64_t typeEvex = 0, int sel = 0)
+	void opEncoding(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code, PreferredEncoding enc, int imm = NONE, uint64_t typeVex = 0, uint64_t typeEvex = 0, int sel = 0)
 	{
-		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(encoding, typeVex, typeEvex, sel), code, imm);
+		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(enc, typeVex, typeEvex, sel), code, imm);
 	}
-	PreferredEncoding getEncoding(PreferredEncoding encoding, int sel) const
+	PreferredEncoding getEncoding(PreferredEncoding enc, int sel) const
 	{
-		if (encoding == DefaultEncoding) {
-			encoding = defaultEncoding_[sel];
+		if (enc == DefaultEncoding) {
+			enc = defaultEncoding_[sel];
 		}
-		if (encoding == EvexEncoding) {
+		if ((sel == 0 && enc != VexEncoding && enc != EvexEncoding) || (sel == 1 && enc != PreAVX10v2Encoding && enc != AVX10v2Encoding)) XBYAK_THROW_RET(ERR_BAD_ENCODING_MODE, VexEncoding)
 #ifdef XBYAK_DISABLE_AVX512
-			XBYAK_THROW(ERR_EVEX_IS_INVALID)
+		if (enc == EvexEncoding || enc == AVX10v2Encoding) XBYAK_THROW(ERR_EVEX_IS_INVALID)
 #endif
-		}
-		return encoding;
+		return enc;
 	}
-	uint64_t orEvexIf(PreferredEncoding encoding, uint64_t typeVex, uint64_t typeEvex, int sel) {
-		bool isVex = getEncoding(encoding, sel) == VexEncoding;
-		return isVex ?  typeVex : T_MUST_EVEX | typeEvex;
+	uint64_t orEvexIf(PreferredEncoding enc, uint64_t typeVex, uint64_t typeEvex, int sel) {
+		enc = getEncoding(enc, sel);
+		return ((sel == 0 && enc == VexEncoding) || (sel == 1 && enc != AVX10v2Encoding)) ? typeVex : (T_MUST_EVEX | typeEvex);
 	}
 	void opInOut(const Reg& a, const Reg& d, uint8_t code)
 	{
@@ -3138,8 +3139,8 @@ public:
 #endif
 		, isDefaultJmpNEAR_(false)
 	{
-		// select avx512-vnni, vmpsadbw(avx)
 		setDefaultEncoding();
+		setDefaultEncodingAVX10();
 		labelMgr_.set(this);
 	}
 	void reset()
@@ -3176,11 +3177,19 @@ public:
 	#undef jnl
 #endif
 
-	// set default encoding
-	// vnniEnc : AVX512_VNNI (default:EvexEncoding) or AVX-VNNI (VexEncoding)
-	// avx10Enc : mpsadbw etc., AVX-VNNI-INT8/AVX512-FP16 (default:PreAVX10v2Encoding) or AVX10.2 (AVX10v2Encoding)
-	void setDefaultEncoding(PreferredEncoding vnniEnc = EvexEncoding, PreferredEncoding avx10Enc = PreAVX10v2Encoding)
-	{ defaultEncoding_[0] = vnniEnc; defaultEncoding_[1] = avx10Enc; }
+	// set default encoding of VNNI
+	// EvexEncoding : AVX512_VNNI, VexEncoding : AVX-VNNI
+	void setDefaultEncoding(PreferredEncoding enc = EvexEncoding)
+	{
+		if (enc != VexEncoding && enc != EvexEncoding) XBYAK_THROW(ERR_BAD_ENCODING_MODE)
+		defaultEncoding_[0] = enc;
+	}
+	// default : PreferredEncoding : AVX-VNNI-INT8/AVX512-FP16
+	void setDefaultEncodingAVX10(PreferredEncoding enc = PreAVX10v2Encoding)
+	{
+		if (enc != PreAVX10v2Encoding && enc != AVX10v2Encoding) XBYAK_THROW(ERR_BAD_ENCODING_MODE)
+		defaultEncoding_[1] = enc;
+	}
 
 	void bswap(const Reg32e& r)
 	{
@@ -3195,7 +3204,7 @@ public:
 		db(0xC8 + (idx & 7));
 	}
 	// AVX10 zero-extending for vmovd, vmovw
-	void opAVX10ZeroExt(const Operand& op1, const Operand& op2, const uint64_t typeTbl[4], const int codeTbl[4], PreferredEncoding encoding, int bit)
+	void opAVX10ZeroExt(const Operand& op1, const Operand& op2, const uint64_t typeTbl[4], const int codeTbl[4], PreferredEncoding enc, int bit)
 	{
 		const Operand *p1 = &op1;
 		const Operand *p2 = &op2;
@@ -3210,7 +3219,7 @@ public:
 			rev = !rev;
 		}
 		int sel = -1;
-		if (getEncoding(encoding, 1) == AVX10v2Encoding) {
+		if (getEncoding(enc, 1) == AVX10v2Encoding) {
 			if ((p1->isXMM() || p1->isMEM()) && p2->isXMM()) sel = 2 + int(rev);
 		} else {
 			if ((p1->isREG(bit) || p1->isMEM()) && p2->isXMM()) sel = int(rev);
@@ -3218,23 +3227,23 @@ public:
 		if (sel == -1) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opAVX_X_X_XM(*static_cast<const Xmm*>(p2), xm0, *p1, typeTbl[sel], codeTbl[sel]);
 	}
-	void vmovd(const Operand& op1, const Operand& op2, PreferredEncoding encoding = DefaultEncoding)
+	void vmovd(const Operand& op1, const Operand& op2, PreferredEncoding enc = DefaultEncoding)
 	{
 		const uint64_t typeTbl[] = {
 			T_EVEX|T_66|T_0F|T_W0|T_N4, T_EVEX|T_66|T_0F|T_W0|T_N4, // legacy, avx, avx512
 			T_MUST_EVEX|T_66|T_0F|T_EW0|T_N4, T_MUST_EVEX|T_F3|T_0F|T_EW0|T_N4, // avx10.2
 		};
 		const int codeTbl[] = { 0x7E, 0x6E, 0xD6, 0x7E };
-		opAVX10ZeroExt(op1, op2, typeTbl, codeTbl, encoding, 32);
+		opAVX10ZeroExt(op1, op2, typeTbl, codeTbl, enc, 32);
 	}
-	void vmovw(const Operand& op1, const Operand& op2, PreferredEncoding encoding = DefaultEncoding)
+	void vmovw(const Operand& op1, const Operand& op2, PreferredEncoding enc = DefaultEncoding)
 	{
 		const uint64_t typeTbl[] = {
 			T_MUST_EVEX|T_66|T_MAP5|T_N2, T_MUST_EVEX|T_66|T_MAP5|T_N2, // avx512-fp16
 			T_MUST_EVEX|T_F3|T_MAP5|T_EW0|T_N2, T_MUST_EVEX|T_F3|T_MAP5|T_EW0|T_N2, // avx10.2
 		};
 		const int codeTbl[] = { 0x7E, 0x6E, 0x7E, 0x6E };
-		opAVX10ZeroExt(op1, op2, typeTbl, codeTbl, encoding, 16|32|64);
+		opAVX10ZeroExt(op1, op2, typeTbl, codeTbl, enc, 16|32|64);
 	}
 	/*
 		use single byte nop if useMultiByteNop = false
