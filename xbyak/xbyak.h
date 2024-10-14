@@ -1673,7 +1673,9 @@ inline const uint8_t* Label::getAddress() const
 typedef enum {
 	DefaultEncoding,
 	VexEncoding,
-	EvexEncoding
+	EvexEncoding,
+	AVX512Encoding = EvexEncoding,
+	AVX10p2Encoding
 } PreferredEncoding;
 
 class CodeGenerator : public CodeArray {
@@ -2665,7 +2667,7 @@ private:
 	{
 		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(encoding, typeVex, typeEvex, sel), code, imm);
 	}
-	bool isVexEncoding(PreferredEncoding encoding, int sel) const
+	PreferredEncoding getEncoding(PreferredEncoding encoding, int sel) const
 	{
 		if (encoding == DefaultEncoding) {
 			encoding = defaultEncoding_[sel];
@@ -2674,12 +2676,11 @@ private:
 #ifdef XBYAK_DISABLE_AVX512
 			XBYAK_THROW(ERR_EVEX_IS_INVALID)
 #endif
-			return false;
 		}
-		return true;
+		return encoding;
 	}
 	uint64_t orEvexIf(PreferredEncoding encoding, uint64_t typeVex, uint64_t typeEvex, int sel) {
-		bool isVex = isVexEncoding(encoding, sel);
+		bool isVex = getEncoding(encoding, sel) == VexEncoding;
 		return isVex ?  typeVex : T_MUST_EVEX | typeEvex;
 	}
 	void opInOut(const Reg& a, const Reg& d, uint8_t code)
@@ -3177,7 +3178,7 @@ public:
 
 	// set default encoding
 	// vnniEnc : control AVX512_VNNI (evex:default) or AVX-VNNI (vex)
-	// avx10Enc : control mpsadbw, AVX-VNNI-INT8 (vex:default) or AVX10.2 (evex)
+	// avx10Enc : control mpsadbw, AVX-VNNI-INT8 (vex:default) or AVX10.2 (AVX10p2Encoding)
 	void setDefaultEncoding(PreferredEncoding vnniEnc = EvexEncoding, PreferredEncoding avx10Enc = VexEncoding)
 	{ defaultEncoding_[0] = vnniEnc; defaultEncoding_[1] = avx10Enc; }
 
@@ -3193,15 +3194,32 @@ public:
 		}
 		db(0xC8 + (idx & 7));
 	}
-	void opVmovd(const Xmm& x, const Operand& op, bool rev, PreferredEncoding encoding)
+	void vmovd(const Operand& op1, const Operand& op2, PreferredEncoding encoding = DefaultEncoding)
 	{
-		if (isVexEncoding(encoding, 1)) {
-			if (!op.isREG(32) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
-			uint64_t type = T_0F | T_66 | T_W0 | T_EVEX | T_N4;
-			int code = rev ? 0x7E : 0x6E;
-			opAVX_X_X_XM(x, xm0, op, type, code);
-		} else {
+		const Operand *p1 = &op1;
+		const Operand *p2 = &op2;
+		bool rev = false;
+		if (p1->isMEM()) {
+			std::swap(p1, p2);
+			rev = true;
 		}
+		if (p1->isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (p1->isXMM()) {
+			std::swap(p1, p2);
+			rev = !rev;
+		}
+		if (getEncoding(encoding, 1) == AVX10p2Encoding) {
+			if ((p1->isXMM() || p1->isMEM()) && p2->isXMM()) {
+				opAVX_X_X_XM(*static_cast<const Xmm*>(p2), xm0, *p1, T_EVEX|(rev ? T_F3 : T_66)|T_MUST_EVEX|T_0F|T_EW0|T_N4, rev ? 0x7E : 0xD6);
+				return;
+			}
+		} else {
+			if ((p1->isREG(32) || p1->isMEM()) && p2->isXMM()) {
+				opAVX_X_X_XM(*static_cast<const Xmm*>(p2), xm0, *p1, T_EVEX|T_66|T_0F|T_W0|T_N4, rev ? 0x6E : 0x7E);
+				return;
+			}
+		}
+		XBYAK_THROW(ERR_BAD_COMBINATION)
 	}
 	/*
 		use single byte nop if useMultiByteNop = false

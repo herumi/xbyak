@@ -165,3 +165,8 @@ vpdpwuuds(ym1, ym2, ptr_b[rax+128]);
 vpdpwuuds(zm1, zm2, zm3);
 vpdpwuuds(zm1, zm2, ptr[rax+128]);
 vpdpwuuds(zm1, zm2, ptr_b[rax+128]);
+
+//
+vmovd(xm10, xm20);
+vmovd(xm10, ptr[rax+128]);
+vmovd(ptr[rax+128], xm30);

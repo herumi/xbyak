@@ -1734,9 +1734,6 @@ void put()
 	}
 	// mov
 	{
-		puts("void vmovd(const Xmm& x, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opVmovd(x, op, false, encoding); }");
-		puts("void vmovd(const Operand& op, const Xmm& x, PreferredEncoding encoding = DefaultEncoding) { opVmovd(x, op, true, encoding); }");
-
 		printf("void vmovq(const Xmm& x, const Address& addr) { uint64_t type; uint8_t code; if (x.getIdx() < 16) { type = T_0F | T_F3; code = 0x7E; } else { type = T_0F | T_66 | T_EVEX | T_EW1 | T_N8; code = 0x6E; } opAVX_X_X_XM(x, xm0, addr, type, code); }\n");
 		printf("void vmovq(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, xm0, addr, T_0F | T_66 | T_EVEX | T_EW1 | T_N8, x.getIdx() < 16 ? 0xD6 : 0x7E); }\n");
 		printf("void vmovq(const Xmm& x1, const Xmm& x2) { opAVX_X_X_XM(x1, xm0, x2, T_0F | T_F3 | T_EVEX | T_EW1 | T_N8, 0x7E); }\n");
