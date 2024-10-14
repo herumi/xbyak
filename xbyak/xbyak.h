@@ -2665,7 +2665,8 @@ private:
 	{
 		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(encoding, typeVex, typeEvex, sel), code, imm);
 	}
-	uint64_t orEvexIf(PreferredEncoding encoding, uint64_t typeVex, uint64_t typeEvex, int sel) {
+	bool isVexEncoding(PreferredEncoding encoding, int sel) const
+	{
 		if (encoding == DefaultEncoding) {
 			encoding = defaultEncoding_[sel];
 		}
@@ -2673,9 +2674,13 @@ private:
 #ifdef XBYAK_DISABLE_AVX512
 			XBYAK_THROW(ERR_EVEX_IS_INVALID)
 #endif
-			return T_MUST_EVEX | typeEvex;
+			return false;
 		}
-		return typeVex;
+		return true;
+	}
+	uint64_t orEvexIf(PreferredEncoding encoding, uint64_t typeVex, uint64_t typeEvex, int sel) {
+		bool isVex = isVexEncoding(encoding, sel);
+		return isVex ?  typeVex : T_MUST_EVEX | typeEvex;
 	}
 	void opInOut(const Reg& a, const Reg& d, uint8_t code)
 	{
@@ -3187,6 +3192,16 @@ public:
 			db(0x0F);
 		}
 		db(0xC8 + (idx & 7));
+	}
+	void opVmovd(const Xmm& x, const Operand& op, bool rev, PreferredEncoding encoding)
+	{
+		if (isVexEncoding(encoding, 1)) {
+			if (!op.isREG(32) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
+			uint64_t type = T_0F | T_66 | T_W0 | T_EVEX | T_N4;
+			int code = rev ? 0x7E : 0x6E;
+			opAVX_X_X_XM(x, xm0, op, type, code);
+		} else {
+		}
 	}
 	/*
 		use single byte nop if useMultiByteNop = false
