@@ -1443,6 +1443,7 @@ void put()
 			printf("void %s(const Xmm& x, const Operand& op) { opSSE_APX(x, op, T_0F38, 0x%02X, T_MUST_EVEX, 0x%02X); }\n", p->name, p->code, p->code2);
 		}
 		puts("void sha1rnds4(const Xmm& x, const Operand& op, uint8_t imm) { opSSE_APX(x, op, T_0F3A, 0xCC, T_MUST_EVEX, 0xD4, imm); }");
+		puts("void sha1msg12(const Xmm& x, const Operand& op) { opROO(Reg(), op, x, T_MUST_EVEX, 0xD9); }");
 	}
 	// (m, x), (m, y)
 	{

@@ -988,6 +988,7 @@ void sets(const Operand& op) { opSetCC(op, 8); }//-V524
 void setz(const Operand& op) { opSetCC(op, 4); }//-V524
 void sfence() { db(0x0F); db(0xAE); db(0xF8); }
 void sha1msg1(const Xmm& x, const Operand& op) { opSSE_APX(x, op, T_0F38, 0xC9, T_MUST_EVEX, 0xD9); }
+void sha1msg12(const Xmm& x, const Operand& op) { opROO(Reg(), op, x, T_MUST_EVEX, 0xD9); }
 void sha1msg2(const Xmm& x, const Operand& op) { opSSE_APX(x, op, T_0F38, 0xCA, T_MUST_EVEX, 0xDA); }
 void sha1nexte(const Xmm& x, const Operand& op) { opSSE_APX(x, op, T_0F38, 0xC8, T_MUST_EVEX, 0xD8); }
 void sha1rnds4(const Xmm& x, const Operand& op, uint8_t imm) { opSSE_APX(x, op, T_0F3A, 0xCC, T_MUST_EVEX, 0xD4, imm); }

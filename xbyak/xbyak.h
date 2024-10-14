@@ -3176,10 +3176,6 @@ public:
 	void setDefaultEncoding(PreferredEncoding vnniEnc = EvexEncoding, PreferredEncoding avx10Enc = VexEncoding)
 	{ defaultEncoding_[0] = vnniEnc; defaultEncoding_[1] = avx10Enc; }
 
-	void sha1msg12(const Xmm& x, const Operand& op)
-	{
-		opROO(Reg(), op, x, T_MUST_EVEX, 0xD9);
-	}
 	void bswap(const Reg32e& r)
 	{
 		int idx = r.getIdx();
