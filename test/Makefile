@@ -62,7 +62,10 @@ avx10_test: avx10_test.cpp $(XBYAK_INC)
 
 TEST_FILES=old.txt new-ymm.txt bf16.txt comp.txt convert.txt minmax.txt saturation.txt
 xed_test:
-	@for target in $(addprefix avx10/, $(TEST_FILES)); do ./test_by_xed.sh $$target; done
+	@set -e; \
+	for target in $(addprefix avx10/, $(TEST_FILES)); do \
+		./test_by_xed.sh $$target || exit 1; \
+	done
 
 test_nm: normalize_prefix $(TARGET)
 	$(MAKE) -C ../gen
