@@ -404,6 +404,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2024/10/15 ver 7.20 setDefaultEncoding/setDefaultEncodingAVX10の仕様確定
 2024/10/15 ver 7.11 AVX10.2完全サポート
 2024/10/13 ver 7.10 AVX10 integer and fp16 vnni, mediaの新命令対応. setDefaultEncodingの拡張.
 2024/10/10 ver 7.09.1 vpcompressbとvpcompresswの名前修正
