@@ -2794,6 +2794,30 @@ private:
 		}
 		opSSE(x, op, type1, code1, isXMM_XMMorMEM, imm);
 	}
+	// AVX10 zero-extending for vmovd, vmovw
+	void opAVX10ZeroExt(const Operand& op1, const Operand& op2, const uint64_t typeTbl[4], const int codeTbl[4], PreferredEncoding enc, int bit)
+	{
+		const Operand *p1 = &op1;
+		const Operand *p2 = &op2;
+		bool rev = false;
+		if (p1->isMEM()) {
+			std::swap(p1, p2);
+			rev = true;
+		}
+		if (p1->isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (p1->isXMM()) {
+			std::swap(p1, p2);
+			rev = !rev;
+		}
+		int sel = -1;
+		if (getEncoding(enc, 1) == AVX10v2Encoding) {
+			if ((p1->isXMM() || p1->isMEM()) && p2->isXMM()) sel = 2 + int(rev);
+		} else {
+			if ((p1->isREG(bit) || p1->isMEM()) && p2->isXMM()) sel = int(rev);
+		}
+		if (sel == -1) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opAVX_X_X_XM(*static_cast<const Xmm*>(p2), xm0, *p1, typeTbl[sel], codeTbl[sel]);
+	}
 public:
 	unsigned int getVersion() const { return VERSION; }
 	using CodeArray::db;
@@ -3202,30 +3226,6 @@ public:
 			db(0x0F);
 		}
 		db(0xC8 + (idx & 7));
-	}
-	// AVX10 zero-extending for vmovd, vmovw
-	void opAVX10ZeroExt(const Operand& op1, const Operand& op2, const uint64_t typeTbl[4], const int codeTbl[4], PreferredEncoding enc, int bit)
-	{
-		const Operand *p1 = &op1;
-		const Operand *p2 = &op2;
-		bool rev = false;
-		if (p1->isMEM()) {
-			std::swap(p1, p2);
-			rev = true;
-		}
-		if (p1->isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
-		if (p1->isXMM()) {
-			std::swap(p1, p2);
-			rev = !rev;
-		}
-		int sel = -1;
-		if (getEncoding(enc, 1) == AVX10v2Encoding) {
-			if ((p1->isXMM() || p1->isMEM()) && p2->isXMM()) sel = 2 + int(rev);
-		} else {
-			if ((p1->isREG(bit) || p1->isMEM()) && p2->isXMM()) sel = int(rev);
-		}
-		if (sel == -1) XBYAK_THROW(ERR_BAD_COMBINATION)
-		opAVX_X_X_XM(*static_cast<const Xmm*>(p2), xm0, *p1, typeTbl[sel], codeTbl[sel]);
 	}
 	void vmovd(const Operand& op1, const Operand& op2, PreferredEncoding enc = DefaultEncoding)
 	{
