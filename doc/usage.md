@@ -148,6 +148,8 @@ feature|AVX-VNNI-INT8, AVX512-FP16|AVX10.2
 - Target functions: vmpsadbw, vpdpbssd, vpdpbssds, vpdpbsud, vpdpbsuds, vpdpbuud, vpdpbuuds, vpdpwsud vpdpwsuds vpdpwusd vpdpwusds vpdpwuud, vpdpwuuds, vmovd, vmovw
 
 - Remark: vmovd and vmovw several kinds of encoding such as AVX/AVX512F/AVX512-FP16/AVX10.2. 
+At first, I attempted to use EvexEncoding (resp. VexEncoding) instead of AVX10v2Encoding (resp. EvexEncoding) for `setDefaultEncodingAVX10`.
+But I abandoned this idea when I found that `vmovd` and `vmovw` had different EVEX encodings in AVX512 and AVX10.2
 
 ### Remark
 * `k1`, ..., `k7` are opmask registers.
