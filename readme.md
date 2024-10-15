@@ -1,7 +1,7 @@
 
 # Xbyak 7.20 [![Badge Build]][Build Status]
 
-*A C++ JIT assembler for x86 (IA32), x64 (AMD64, x86-64)*
+*A JIT assembler for x86/x64 architectures supporting advanced instruction sets up to AVX10.2*
 
 ## Menu
 
@@ -11,15 +11,15 @@
 
 ## Abstract
 
-Xbyak is a C++ header library that enables dynamically to assemble x86(IA32), x64(AMD64, x86-64) mnemonic.
+Xbyak is a C++ header-only library that enables dynamic assembly of x86/x64 instructions using mnemonics.
 
-The pronunciation of Xbyak is `kəi-bja-k`.
-It is named from a Japanese word [開闢](https://translate.google.com/?hl=ja&sl=ja&tl=en&text=%E9%96%8B%E9%97%A2&op=translate), which means the beginning of the world.
+The pronunciation of Xbyak is `/kʌɪbjæk/` (kai-byak).
 
-## Feature
+The name is derived from the Japanese word [開闢](https://translate.google.com/?hl=ja&sl=ja&tl=en&text=%E9%96%8B%E9%97%A2&op=translate) (kaibyaku), which means "the beginning of the world" or "creation".
 
-- header file only
-- Intel/MASM like syntax
+## Features
+- Header-only library
+- Intel/MASM-like syntax
 - Full support for AVX-512, APX, and AVX10.2
 
 **Note**:
@@ -32,22 +32,22 @@ If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 ### News
 
-- support AVX10.2
-- support xresldtrk/xsusldtrk
-- support RAO-INT for APX
-- support AVX10 detection, AESKLE, WIDE_KL, KEYLOCKER, KEYLOCKER_WIDE
-- support APX except for a few instructions
-- add amx_fp16/avx_vnni_int8/avx_ne_convert/avx-ifma
-- add movdiri, movdir64b, clwb, cldemote
+- Support AVX10.2
+- Support xresldtrk/xsusldtrk
+- Support RAO-INT for APX
+- Support AVX10 detection, AESKLE, WIDE_KL, KEYLOCKER, KEYLOCKER_WIDE
+- Support APX except for a few instructions
+- Add amx_fp16/avx_vnni_int8/avx_ne_convert/avx-ifma
+- Add movdiri, movdir64b, clwb, cldemote
 - WAITPKG instructions (tpause, umonitor, umwait) are supported.
 - MmapAllocator supports memfd with user-defined strings. see sample/memfd.cpp
-- strictly check address offset disp32 in a signed 32-bit integer. e.g., `ptr[(void*)0xffffffff]` causes an error.
-  - define `XBYAK_OLD_DISP_CHECK` if you need an old check, but the option will be remoevd.
-- add `jmp(mem, T_FAR)`, `call(mem, T_FAR)` `retf()` for far absolute indirect jump.
-- vnni instructions such as vpdpbusd supports vex encoding.
-- (break backward compatibility) `push(byte, imm)` (resp. `push(word, imm)`) forces to cast `imm` to 8(resp. 16) bit.
+- Strictly check address offset disp32 in a signed 32-bit integer. e.g., `ptr[(void*)0xffffffff]` causes an error.
+  - Define `XBYAK_OLD_DISP_CHECK` if you need an old check, but the option will be remoevd.
+- Add `jmp(mem, T_FAR)`, `call(mem, T_FAR)` `retf()` for far absolute indirect jump.
+- VNNI instructions such as vpdpbusd supports vex encoding.
+- (Break backward compatibility) `push(byte, imm)` (resp. `push(word, imm)`) forces to cast `imm` to 8(resp. 16) bit.
 - (Windows) `#include <winsock2.h>` has been removed from xbyak.h, so add it explicitly if you need it.
-- support exception-less mode see. [Exception-less mode](#exception-less-mode)
+- Support exception-less mode see. [Exception-less mode](#exception-less-mode)
 - `XBYAK_USE_MMAP_ALLOCATOR` will be defined on Linux/macOS unless `XBYAK_DONT_USE_MMAP_ALLOCATOR` is defined.
 
 ### Supported OS
