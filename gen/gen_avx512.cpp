@@ -202,13 +202,13 @@ void putX_XM()
 		{ 0x2F, "vcomish", T_MUST_EVEX | T_MAP5 | T_EW0 | T_SAE_X | T_N2 },
 		{ 0x2E, "vucomish", T_MUST_EVEX | T_MAP5 | T_EW0 | T_SAE_X | T_N2 },
 
-		{ 0x2F, "vcomxsd", T_MUST_EVEX | T_F3 | T_0F | T_EW1 | T_SAE_X | T_N8 },
-		{ 0x2F, "vcomxsh", T_MUST_EVEX | T_F2 | T_MAP5 | T_EW0 | T_SAE_X | T_N2 },
-		{ 0x2F, "vcomxss", T_MUST_EVEX | T_F2 | T_0F | T_EW0  | T_SAE_X | T_N4 },
+		{ 0x2F, "vcomxsd", T_MUST_EVEX | T_F2 | T_0F | T_EW1 | T_SAE_X | T_N8 },
+		{ 0x2F, "vcomxsh", T_MUST_EVEX | T_F3 | T_MAP5 | T_EW0 | T_SAE_X | T_N2 },
+		{ 0x2F, "vcomxss", T_MUST_EVEX | T_F3 | T_0F | T_EW0  | T_SAE_X | T_N4 },
 
-		{ 0x2E, "vucomxsd", T_MUST_EVEX | T_F3 | T_0F | T_EW1 | T_SAE_X | T_N8 },
-		{ 0x2E, "vucomxsh", T_MUST_EVEX | T_F2 | T_MAP5 | T_EW0 | T_SAE_X | T_N2 },
-		{ 0x2E, "vucomxss", T_MUST_EVEX | T_F2 | T_0F | T_EW0  | T_SAE_X | T_N4 },
+		{ 0x2E, "vucomxsd", T_MUST_EVEX | T_F2 | T_0F | T_EW1 | T_SAE_X | T_N8 },
+		{ 0x2E, "vucomxsh", T_MUST_EVEX | T_F3 | T_MAP5 | T_EW0 | T_SAE_X | T_N2 },
+		{ 0x2E, "vucomxss", T_MUST_EVEX | T_F3 | T_0F | T_EW0  | T_SAE_X | T_N4 },
 
 		// 13.1
 		{ 0x69, "vcvtnebf162ibs", T_MUST_EVEX | T_YMM | T_F2 | T_MAP5 | T_EW0 | T_B16 },
@@ -893,7 +893,7 @@ void putX_XM_IMM()
 		{ 0x62, "vpexpandw", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_N2, false },
 
 		{ 0x2F, "vcomsbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_N2, false },
-		{ 0x42, "vgetexppbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x42, "vgetexppbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
 		{ 0x26, "vgetmantpbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
 		{ 0x4C, "vrcppbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
 		{ 0x56, "vreducenepbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
