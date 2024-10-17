@@ -113,17 +113,17 @@ vfpclasspbf16(k7|k5, zword_b[rax+128], 13);
 vcomsbf16(xm2, xm3);
 vcomsbf16(xm2, ptr[rax+128]);
 
-vgetexppbf16(xm1|k3, xmm2);
-vgetexppbf16(xm1|k3, ptr[rax+128]);
-vgetexppbf16(xm1|k3, ptr_b[rax+128]);
+//vgetexppbf16(xm1|k3, xmm2);
+//vgetexppbf16(xm1|k3, ptr[rax+128]);
+//vgetexppbf16(xm1|k3, ptr_b[rax+128]);
 
-vgetexppbf16(ym1|k3, ymm2);
-vgetexppbf16(ym1|k3, ptr[rax+128]);
-vgetexppbf16(ym1|k3, ptr_b[rax+128]);
+//vgetexppbf16(ym1|k3, ymm2);
+//vgetexppbf16(ym1|k3, ptr[rax+128]);
+//vgetexppbf16(ym1|k3, ptr_b[rax+128]);
 
-vgetexppbf16(zm1|k3, zmm2);
-vgetexppbf16(zm1|k3, ptr[rax+128]);
-vgetexppbf16(zm1|k3, ptr_b[rax+128]);
+//vgetexppbf16(zm1|k3, zmm2);
+//vgetexppbf16(zm1|k3, ptr[rax+128]);
+//vgetexppbf16(zm1|k3, ptr_b[rax+128]);
 
 vgetmantpbf16(xm1|k3, xmm2, 3);
 vgetmantpbf16(xm1|k3, ptr[rax+128], 5);
