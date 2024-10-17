@@ -110,6 +110,15 @@ vfpclasspd k5{k3}, [rax+64]{1to2}, 5    --> vfpclasspd(k5|k3, xword_b [rax+64], 
 vfpclassps k5{k3}, [rax+64]{1to4}, 5    --> vfpclassps(k5|k3, yword_b [rax+64], 5); // broadcast 64-bit to 256-bit
 ```
 
+### Remark
+* `k1`, ..., `k7` are opmask registers.
+  - `k0` is dealt as no mask.
+  - e.g. `vmovaps(zmm0|k0, ptr[rax]);` and `vmovaps(zmm0|T_z, ptr[rax]);` are same to `vmovaps(zmm0, ptr[rax]);`.
+* use `| T_z`, `| T_sae`, `| T_rn_sae`, `| T_rd_sae`, `| T_ru_sae`, `| T_rz_sae` instead of `,{z}`, `,{sae}`, `,{rn-sae}`, `,{rd-sae}`, `,{ru-sae}`, `,{rz-sae}` respectively.
+* `k4 | k3` is different from `k3 | k4`.
+* use `ptr_b` for broadcast `{1toX}`. X is automatically determined.
+* specify `xword`/`yword`/`zword(_b)` for m128/m256/m512 if necessary.
+
 ## Selecting AVX512-VNNI, AVX-VNNI, AVX-VNNI-INT8, AVX10.2.
 Some mnemonics have some types of encodings: VEX, EVEX, AVX10.2.
 The functions for these mnemonics include an optional parameter as the last argument to specify the encoding.
@@ -150,15 +159,6 @@ feature|AVX-VNNI-INT8, AVX512-FP16|AVX10.2
 - Remark: vmovd and vmovw several kinds of encoding such as AVX/AVX512F/AVX512-FP16/AVX10.2. 
 At first, I attempted to use EvexEncoding (resp. VexEncoding) instead of AVX10v2Encoding (resp. EvexEncoding) for `setDefaultEncodingAVX10`.
 But I abandoned this idea when I found that `vmovd` and `vmovw` had different EVEX encodings in AVX512 and AVX10.2
-
-### Remark
-* `k1`, ..., `k7` are opmask registers.
-  - `k0` is dealt as no mask.
-  - e.g. `vmovaps(zmm0|k0, ptr[rax]);` and `vmovaps(zmm0|T_z, ptr[rax]);` are same to `vmovaps(zmm0, ptr[rax]);`.
-* use `| T_z`, `| T_sae`, `| T_rn_sae`, `| T_rd_sae`, `| T_ru_sae`, `| T_rz_sae` instead of `,{z}`, `,{sae}`, `,{rn-sae}`, `,{rd-sae}`, `,{ru-sae}`, `,{rz-sae}` respectively.
-* `k4 | k3` is different from `k3 | k4`.
-* use `ptr_b` for broadcast `{1toX}`. X is automatically determined.
-* specify `xword`/`yword`/`zword(_b)` for m128/m256/m512 if necessary.
 
 ## APX
 [Advanced Performance Extensions (APX) Architecture Specification](https://www.intel.com/content/www/us/en/content-details/786223/intel-advanced-performance-extensions-intel-apx-architecture-specification.html)
