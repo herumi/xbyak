@@ -2809,11 +2809,12 @@ private:
 			std::swap(p1, p2);
 			rev = !rev;
 		}
+		enc = getEncoding(enc, 1);
 		int sel = -1;
-		if (getEncoding(enc, 1) == AVX10v2Encoding) {
-			if ((p1->isXMM() || p1->isMEM()) && p2->isXMM()) sel = 2 + int(rev);
-		} else {
-			if ((p1->isREG(bit) || p1->isMEM()) && p2->isXMM()) sel = int(rev);
+		if (p1->isXMM() || (p1->isMEM() && enc == AVX10v2Encoding)) {
+			sel = 2 + int(rev);
+		} else if (p1->isREG(bit) || p1->isMEM()) {
+			sel = int(rev);
 		}
 		if (sel == -1) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opAVX_X_X_XM(*static_cast<const Xmm*>(p2), xm0, *p1, typeTbl[sel], codeTbl[sel]);
