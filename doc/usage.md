@@ -154,11 +154,17 @@ feature|AVX512-VNNI|AVX-VNNI
 -|-|-
 feature|AVX-VNNI-INT8, AVX512-FP16|AVX10.2
 
-- Target functions: vmpsadbw, vpdpbssd, vpdpbssds, vpdpbsud, vpdpbsuds, vpdpbuud, vpdpbuuds, vpdpwsud vpdpwsuds vpdpwusd vpdpwusds vpdpwuud, vpdpwuuds, vmovd, vmovw
+- Target functions: vmpsadbw, vpdpbssd, vpdpbssds, vpdpbsud, vpdpbsuds, vpdpbuud, vpdpbuuds, vpdpwsud vpdpwsuds vpdpwusd vpdpwusds vpdpwuud, vpdpwuuds and vmovd, vmovw with MEM-to-MEM.
 
-- Remark: vmovd and vmovw several kinds of encoding such as AVX/AVX512F/AVX512-FP16/AVX10.2. 
-At first, I attempted to use EvexEncoding (resp. VexEncoding) instead of AVX10v2Encoding (resp. EvexEncoding) for `setDefaultEncodingAVX10`.
-But I abandoned this idea when I found that `vmovd` and `vmovw` had different EVEX encodings in AVX512 and AVX10.2
+### Remark
+
+1. `vmovd` and `vmovw` instructions with REG-to-XMM or XMM-to-REG operands are always encoded using AVX10.1.
+When used with XMM-to-XMM operands, these instructions are always encoded using AVX10.2.
+
+2. `vmovd` and `vmovw` instructions with MEM-to-MEM operands support multiple encoding formats, including AVX, AVX512F, AVX512-FP16, and AVX10.2.
+
+Initially, I tried implementing `setDefaultEncodingAVX10` using `EvexEncoding` (resp. `VexEncoding`) instead of `AVX10v2Encoding` (resp. `EvexEncoding`).
+However, I abandoned this approach after discovering the complexity of the encoding requirements of `vmovd` and `vmovw`.
 
 ## APX
 [Advanced Performance Extensions (APX) Architecture Specification](https://www.intel.com/content/www/us/en/content-details/786223/intel-advanced-performance-extensions-intel-apx-architecture-specification.html)
