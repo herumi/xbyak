@@ -161,7 +161,7 @@ feature|AVX-VNNI-INT8, AVX512-FP16|AVX10.2
 1. `vmovd` and `vmovw` instructions with REG-to-XMM or XMM-to-REG operands are always encoded using AVX10.1.
 When used with XMM-to-XMM operands, these instructions are always encoded using AVX10.2.
 
-2. `vmovd` and `vmovw` instructions with MEM-to-MEM operands support multiple encoding formats, including AVX, AVX512F, AVX512-FP16, and AVX10.2.
+2. `vmovd` and `vmovw` instructions with XMM-to-MEM or MEM-to-XMM operands support multiple encoding formats, including AVX, AVX512F, AVX512-FP16, and AVX10.2.
 
 Initially, I tried implementing `setDefaultEncodingAVX10` using `EvexEncoding` (resp. `VexEncoding`) instead of `AVX10v2Encoding` (resp. `EvexEncoding`).
 However, I abandoned this approach after discovering the complexity of the encoding requirements of `vmovd` and `vmovw`.
