@@ -1739,6 +1739,10 @@ private:
 		// SSE instructions do not support XMM16 - XMM31
 		return !(op1.isXMM() && op1.getIdx() >= 16);
 	}
+	static inline void checkXMMUnder16(const Operand& op1)
+	{
+		if(op1.isXMM() && op1.getIdx() >= 16) XBYAK_THROW(ERR_NOT_SUPPORTED)
+	}
 	static inline uint8_t rexRXB(int bit, int bit3, const Reg& r, const Reg& b, const Reg& x = Reg())
 	{
 		int v = bit3 ? 8 : 0;
