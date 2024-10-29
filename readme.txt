@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.20
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.20.1
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -404,6 +404,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2024/10/17 ver 7.20.1 AVX10.2 rev 2.0仕様書の変更に追従
 2024/10/15 ver 7.20 setDefaultEncoding/setDefaultEncodingAVX10の仕様確定
 2024/10/15 ver 7.11 AVX10.2完全サポート
 2024/10/13 ver 7.10 AVX10 integer and fp16 vnni, mediaの新命令対応. setDefaultEncodingの拡張.
