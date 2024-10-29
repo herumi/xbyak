@@ -1,5 +1,6 @@
 # History
 
+* 2024/Oct/17 ver 7.20.1 Updated to comply with AVX10.2 specification rev 2.0
 * 2024/Oct/15 ver 7.20 Fixed the specification of setDefaultEncoding, setDefaultEncodingAVX10.
 * 2024/Oct/15 ver 7.11 Added full support for AVX10.2
 * 2024/Oct/13 ver 7.10 support AVX10 integer and fp16 vnni, media new instructions. setDefaultEncoding is extended.
