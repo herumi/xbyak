@@ -2172,7 +2172,7 @@ private:
 			}
 		}
 	}
-	void opSSE(const Reg& r, const Operand& op, uint64_t type, int code, bool isValid(const Operand&, const Operand&), int imm8 = NONE)
+	void opSSE(const Reg& r, const Operand& op, uint64_t type, int code, bool isValid(const Operand&, const Operand&) = 0, int imm8 = NONE)
 	{
 		if (isValid && !isValid(r, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		if (!isValidSSE(r) || !isValidSSE(op)) XBYAK_THROW(ERR_NOT_SUPPORTED)

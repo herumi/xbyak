@@ -1175,10 +1175,8 @@ void put()
 		puts("void movnti(const Address& addr, const Reg32e& reg) { opMR(addr, reg, T_0F, 0xC3); }");
 		puts("void movntq(const Address& addr, const Mmx& mmx) { if (!mmx.isMMX()) XBYAK_THROW(ERR_BAD_COMBINATION) opMR(addr, mmx, T_0F, 0xE7); }");
 
-		puts("void movd(const Address& addr, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opMR(addr, mmx, T_0F, 0x7E); }");
-		puts("void movd(const Reg32& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opRR(mmx, reg, T_0F, 0x7E); }");
-		puts("void movd(const Mmx& mmx, const Address& addr) { if (mmx.isXMM()) db(0x66); opMR(addr, mmx, T_0F, 0x6E); }");
-		puts("void movd(const Mmx& mmx, const Reg32& reg) { if (mmx.isXMM()) db(0x66); opRR(mmx, reg, T_0F, 0x6E); }");
+		puts("void movd(const Operand& op, const Mmx& mmx) { if (!(op.isMEM() || op.isREG(32))) XBYAK_THROW(ERR_BAD_COMBINATION) if (mmx.isXMM()) db(0x66); opRO(mmx, op, T_0F, 0x7E); }");
+		puts("void movd(const Mmx& mmx, const Operand& op) { if (!(op.isMEM() || op.isREG(32))) XBYAK_THROW(ERR_BAD_COMBINATION) if (mmx.isXMM()) db(0x66); opRO(mmx, op, T_0F, 0x6E); }");
 		puts("void movq2dq(const Xmm& xmm, const Mmx& mmx) { opRR(xmm, mmx, T_F3 | T_0F, 0xD6); }");
 		puts("void movdq2q(const Mmx& mmx, const Xmm& xmm) { opRR(mmx, xmm, T_F2 | T_0F, 0xD6); }");
 		puts("void movq(const Mmx& mmx, const Operand& op) { if (mmx.isXMM()) db(0xF3); opRO(mmx, op, T_0F, mmx.isXMM() ? 0x7E : 0x6F, mmx.getKind() == op.getKind()); }");
