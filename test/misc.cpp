@@ -35,6 +35,42 @@ CYBOZU_TEST_AUTO(badSSE)
 			CYBOZU_TEST_EXCEPTION(movapd(xm16, xm1), Xbyak::Error);
 			CYBOZU_TEST_EXCEPTION(movhpd(xm16, ptr[eax]), Xbyak::Error);
 			CYBOZU_TEST_EXCEPTION(pextrb(eax, xm16, 1), Xbyak::Error);
+
+			CYBOZU_TEST_EXCEPTION(lddqu(xm16, ptr[rax]), Error);
+			CYBOZU_TEST_EXCEPTION(maskmovdqu(xm16, xm1), Error);
+			CYBOZU_TEST_EXCEPTION(maskmovq(xm16, xm1), Error);
+			CYBOZU_TEST_EXCEPTION(movapd(ptr[rax], xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movaps(ptr[rax], xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movd(ptr[rax], xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movd(xm16, ptr[rax]), Error);
+			CYBOZU_TEST_EXCEPTION(movd(eax, xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movd(xm16, eax), Error);
+			CYBOZU_TEST_EXCEPTION(movdq2q(mm1, xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movdqa(ptr[rax], xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movdqu(ptr[rax], xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movhlps(xm16, xm1), Error);
+			CYBOZU_TEST_EXCEPTION(movlhps(xm16, xm1), Error);
+			CYBOZU_TEST_EXCEPTION(movmskpd(rax, xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movmskps(rax, xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movntdq(ptr[rax], xmm16), Error);
+			CYBOZU_TEST_EXCEPTION(movntdqa(xm16, ptr[rax]), Error);
+			CYBOZU_TEST_EXCEPTION(movntpd(ptr[rax], xmm16), Error);
+			CYBOZU_TEST_EXCEPTION(movntps(ptr[rax], xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movntq(ptr[rax], xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movq(ptr[rax], xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movq(xm16, ptr[rax]), Error);
+			CYBOZU_TEST_EXCEPTION(movq(rax, xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movq(xm16, rax), Error);
+			CYBOZU_TEST_EXCEPTION(movq2dq(xm16, mm1), Error);
+			CYBOZU_TEST_EXCEPTION(movsd(ptr[rax], xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movss(ptr[rax], xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movupd(ptr[rax], xm16), Error);
+			CYBOZU_TEST_EXCEPTION(movups(ptr[rax], xm16), Error);
+			CYBOZU_TEST_EXCEPTION(extractps(ptr[rax], xm16, 3), Error);
+			CYBOZU_TEST_EXCEPTION(pextrb(ptr[rax], xm16, 3), Error);
+			CYBOZU_TEST_EXCEPTION(pextrd(ptr[rax], xm16, 3), Error);
+			CYBOZU_TEST_EXCEPTION(pextrw(ptr[rax], xm16, 3), Error);
+			CYBOZU_TEST_EXCEPTION(pmovmskb(eax, xm16), Error);
 		}
 	} code;
 }

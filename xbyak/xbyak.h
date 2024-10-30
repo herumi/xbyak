@@ -1734,10 +1734,10 @@ private:
 	{
 		return op1.isREG(i32e) && ((op2.isREG(i32e) && op1.getBit() == op2.getBit()) || op2.isMEM());
 	}
-	static inline bool isValidSSE(const Operand& op1)
+	static inline bool isValidSSE(const Operand& op)
 	{
 		// SSE instructions do not support XMM16 - XMM31
-		return !(op1.isXMM() && op1.getIdx() >= 16);
+		return !(op.isXMM() && op.getIdx() >= 16);
 	}
 	static inline uint8_t rexRXB(int bit, int bit3, const Reg& r, const Reg& b, const Reg& x = Reg())
 	{
