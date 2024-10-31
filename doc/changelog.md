@@ -1,5 +1,6 @@
 # History
 
+* 2024/Oct/31 ver 7.21 Enhance XMM register validation in SSE instructions
 * 2024/Oct/17 ver 7.20.1 Updated to comply with AVX10.2 specification rev 2.0
 * 2024/Oct/15 ver 7.20 Fixed the specification of setDefaultEncoding, setDefaultEncodingAVX10.
 * 2024/Oct/15 ver 7.11 Added full support for AVX10.2
