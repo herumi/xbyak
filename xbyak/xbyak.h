@@ -155,7 +155,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7201 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7210 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1734,10 +1734,10 @@ private:
 	{
 		return op1.isREG(i32e) && ((op2.isREG(i32e) && op1.getBit() == op2.getBit()) || op2.isMEM());
 	}
-	static inline bool isValidSSE(const Operand& op1)
+	static inline bool isValidSSE(const Operand& op)
 	{
 		// SSE instructions do not support XMM16 - XMM31
-		return !(op1.isXMM() && op1.getIdx() >= 16);
+		return !(op.isXMM() && op.getIdx() >= 16);
 	}
 	static inline uint8_t rexRXB(int bit, int bit3, const Reg& r, const Reg& b, const Reg& x = Reg())
 	{
@@ -2172,7 +2172,7 @@ private:
 			}
 		}
 	}
-	void opSSE(const Reg& r, const Operand& op, uint64_t type, int code, bool isValid(const Operand&, const Operand&), int imm8 = NONE)
+	void opSSE(const Reg& r, const Operand& op, uint64_t type, int code, bool isValid(const Operand&, const Operand&) = 0, int imm8 = NONE)
 	{
 		if (isValid && !isValid(r, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		if (!isValidSSE(r) || !isValidSSE(op)) XBYAK_THROW(ERR_NOT_SUPPORTED)
