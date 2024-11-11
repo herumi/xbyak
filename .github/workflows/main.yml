@@ -26,7 +26,7 @@ jobs:
         cd test
         #wget https://downloadmirror.intel.com/831748/sde-external-9.44.0-2024-08-22-lin.tar.xz
         #tar xvf sde-external-9.44.0-2024-08-22-lin.tar.xz
-        wget https://github.com/herumi/xed-bin/raw/refs/heads/main/xed
-        chmod +x ./xed
+        wget https://github.com/herumi/xed-bin/raw/refs/heads/main/xed.tgz
+        tar xvf xed.tgz
         ./xed -version
         env XED=./xed make xed_test
