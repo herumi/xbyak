@@ -786,6 +786,9 @@ class Label;
 struct Reg8;
 struct Reg16;
 struct Reg32;
+struct Xmm;
+struct Ymm;
+struct Zmm;
 #ifdef XBYAK64
 struct Reg64;
 #endif
@@ -801,6 +804,9 @@ public:
 #ifdef XBYAK64
 	Reg64 cvt64() const;
 #endif
+	Xmm cvt128() const;
+	Ymm cvt256() const;
+	Zmm cvt512() const;
 	Reg operator|(const ApxFlagNF&) const { Reg r(*this); r.setNF(); return r; }
 	Reg operator|(const ApxFlagZU&) const { Reg r(*this); r.setZU(); return r; }
 };
@@ -836,17 +842,12 @@ struct EvexModifierRounding {
 };
 struct EvexModifierZero{ XBYAK_CONSTEXPR EvexModifierZero() {}};
 
-struct Ymm;
-struct Zmm;
 struct Xmm : public Mmx {
 	explicit XBYAK_CONSTEXPR Xmm(int idx = 0, Kind kind = Operand::XMM, int bit = 128) : Mmx(idx, kind, bit) { }
 	XBYAK_CONSTEXPR Xmm(Kind kind, int idx) : Mmx(idx, kind, kind == XMM ? 128 : kind == YMM ? 256 : 512) { }
 	Xmm operator|(const EvexModifierRounding& emr) const { Xmm r(*this); r.setRounding(emr.rounding); return r; }
 	Xmm copyAndSetIdx(int idx) const { Xmm ret(*this); ret.setIdx(idx); return ret; }
 	Xmm copyAndSetKind(Operand::Kind kind) const { Xmm ret(*this); ret.setKind(kind); return ret; }
-	Xmm cvt128() const;
-	Ymm cvt256() const;
-	Zmm cvt512() const;
 };
 
 struct Ymm : public Xmm {
@@ -943,17 +944,17 @@ inline Reg64 Reg::cvt64() const
 }
 #endif
 
-inline Xmm Xmm::cvt128() const
+inline Xmm Reg::cvt128() const
 {
 	return Xmm(changeBit(128).getIdx());
 }
 
-inline Ymm Xmm::cvt256() const
+inline Ymm Reg::cvt256() const
 {
 	return Ymm(changeBit(256).getIdx());
 }
 
-inline Zmm Xmm::cvt512() const
+inline Zmm Reg::cvt512() const
 {
 	return Zmm(changeBit(512).getIdx());
 }
