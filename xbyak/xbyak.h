@@ -953,7 +953,7 @@ inline Ymm Xmm::cvt256() const
 	return Ymm(changeBit(256).getIdx());
 }
 
-inline Zmm Xmm::cvt512() const 
+inline Zmm Xmm::cvt512() const
 {
 	return Zmm(changeBit(512).getIdx());
 }
