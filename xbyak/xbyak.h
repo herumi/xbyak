@@ -2697,7 +2697,7 @@ private:
 		}
 		if ((sel == 0 && enc != VexEncoding && enc != EvexEncoding) || (sel == 1 && enc != PreAVX10v2Encoding && enc != AVX10v2Encoding)) XBYAK_THROW_RET(ERR_BAD_ENCODING_MODE, VexEncoding)
 #ifdef XBYAK_DISABLE_AVX512
-		if (enc == EvexEncoding || enc == AVX10v2Encoding) XBYAK_THROW(ERR_EVEX_IS_INVALID)
+		if (enc == EvexEncoding || enc == AVX10v2Encoding) XBYAK_THROW_RET(ERR_EVEX_IS_INVALID, VexEncoding)
 #endif
 		return enc;
 	}
