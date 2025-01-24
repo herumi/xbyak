@@ -1,7 +1,7 @@
 # To compile with -m32
 # apt install g++-multilib
 TARGET = make_nm normalize_prefix bad_address misc cvt_test cvt_test32 noexception misc32 detect_x32 avx10_test
-XBYAK_INC=../xbyak/xbyak.h ../xbyak/xbyak_mnemonic.h
+XBYAK_INC=../xbyak/xbyak.h ../xbyak/xbyak_mnemonic.h ../xbyak/xbyak_util.h
 UNAME_S=$(shell uname -s)
 ifeq ($(shell ./detect_x32),x32)
 X32?=1
