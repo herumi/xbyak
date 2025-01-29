@@ -2382,7 +2382,7 @@ private:
 		if (op.isREG() && op.hasRex2()) {
 			const Reg& r = static_cast<const Reg&>(op);
 			rex2(0, rexRXB(3, 0, Reg(), r), Reg(), r);
-			db(alt);
+			db(alt | (r.getIdx() & 7));
 			return;
 		}
 		int bit = op.getBit();
