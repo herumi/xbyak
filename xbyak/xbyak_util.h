@@ -903,7 +903,6 @@ class StackFrame {
 	bool useRcx_;
 	bool useRdx_;
 	bool makeEpilog_;
-	bool closed_;
 	StackFrame(const StackFrame&);
 	void operator=(const StackFrame&);
 public:
@@ -934,7 +933,6 @@ public:
 		, useRcx_((tNum & UseRCX) != 0)
 		, useRdx_((tNum & UseRDX) != 0)
 		, makeEpilog_(makeEpilog)
-		, closed_(false)
 		, p(p_)
 		, t(t_)
 	{
@@ -984,9 +982,9 @@ public:
 	// It is not called if close() is explicitly called before.
 	void close(bool callRet = true)
 	{
-		if (closed_) return;
+		if (!makeEpilog_) return;
 		makeEpilog(callRet);
-		closed_ = true;
+		makeEpilog_ = false;
 	}
 	~StackFrame()
 	{
