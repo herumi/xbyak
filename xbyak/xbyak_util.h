@@ -988,7 +988,6 @@ public:
 	}
 	~StackFrame()
 	{
-		if (!makeEpilog_) return;
 		close();
 	}
 private:
