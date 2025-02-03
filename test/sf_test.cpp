@@ -404,6 +404,8 @@ struct CloseCode : Xbyak::CodeGenerator {
 			{
 				StackFrame sf(this, 0);
 				sf.close(); // Explicitly call close().
+				setProtectModeRE(); // Ensure that no writes occur in destructor by setting read-exec
+				sf.close();
 			}
 			break;
 
