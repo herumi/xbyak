@@ -2066,7 +2066,6 @@ private:
 		}
 	}
 	LabelManager labelMgr_;
-	bool isInDisp16(uint32_t x) const { return 0xFFFF8000 <= x || x <= 0x7FFF; }
 	void writeCode(uint64_t type, const Reg& r, int code, bool rex2 = false)
 	{
 		if (!(type&T_APX || rex2)) {
@@ -2325,10 +2324,13 @@ private:
 			opRO(static_cast<const Reg&>(op2), op1, 0, code, op1.getKind() == op2.getKind());
 		}
 	}
+	bool isInDisp16(uint32_t x) const { return 0xFFFF8000 <= x || x <= 0x7FFF; }
+	// allow add(ax, 0x8000);
+	bool isInDisp16relaxed(uint32_t x) const { uint32_t v = x & 0xffff0000; return v == 0 || v == 0xffff0000; }
 	uint32_t getImmBit(const Operand& op, uint32_t imm)
 	{
 		verifyMemHasSize(op);
-		uint32_t immBit = inner::IsInDisp8(imm) ? 8 : isInDisp16(imm) ? 16 : 32;
+		uint32_t immBit = inner::IsInDisp8(imm) ? 8 : isInDisp16relaxed(imm) ? 16 : 32;
 		if (op.isBit(8)) immBit = 8;
 		if (op.getBit() < immBit) XBYAK_THROW_RET(ERR_IMM_IS_TOO_BIG, 0)
 		if (op.isBit(32|64) && immBit == 16) immBit = 32; /* don't use MEM16 if 32/64bit mode */

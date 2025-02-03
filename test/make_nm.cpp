@@ -1099,6 +1099,7 @@ class Test {
 				put(p, REG64|RAX, "0x12345678", "0x12345678");
 				put(p, REG64|RAX, "192", "192");
 				put(p, REG64|RAX, "0x1234", "0x1234");
+				put(p, AX, "0x8000", "0x8000");
 				put(p, REG32|EAX, IMM8|IMM32|NEG8);
 				put(p, REG16|AX, IMM8|IMM16|NEG8|NEG16);
 				put(p, REG8|REG8_3|AL, IMM|NEG8);
