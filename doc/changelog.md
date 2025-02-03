@@ -1,5 +1,6 @@
 # History
 
+* 2025/Feb/03 ver 7.23 stricter checking of register size, improve handling of 16-bit immediates, change spec of StackFrame::close(), fix push/pop to support APX.
 * 2024/Nov/11 ver 7.22 add Reg::cvt{128,256,512}(). tested by xed 2024.11.04
 * 2024/Oct/31 ver 7.21 Enhance XMM register validation in SSE instructions
 * 2024/Oct/17 ver 7.20.1 Updated to comply with AVX10.2 specification rev 2.0

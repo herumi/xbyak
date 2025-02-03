@@ -1,5 +1,7 @@
+# To compile with -m32
+# apt install g++-multilib
 TARGET = make_nm normalize_prefix bad_address misc cvt_test cvt_test32 noexception misc32 detect_x32 avx10_test
-XBYAK_INC=../xbyak/xbyak.h ../xbyak/xbyak_mnemonic.h
+XBYAK_INC=../xbyak/xbyak.h ../xbyak/xbyak_mnemonic.h ../xbyak/xbyak_util.h
 UNAME_S=$(shell uname -s)
 ifeq ($(shell ./detect_x32),x32)
 X32?=1
@@ -22,6 +24,7 @@ endif
 
 ifeq ($(BIT),64)
 	TARGET += jmp64 address64 apx
+	TARGET += sf_test
 endif
 
 all: $(TARGET)
@@ -36,19 +39,19 @@ normalize_prefix: normalize_prefix.cpp $(XBYAK_INC)
 test_mmx: test_mmx.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) test_mmx.cpp -o $@ -lpthread
 jmp: jmp.cpp $(XBYAK_INC)
-	$(CXX) $(CFLAGS) jmp.cpp -o $@ -m32
+	$(CXX) $(CFLAGS) $< -o $@ -m32
 jmp64: jmp.cpp $(XBYAK_INC)
-	$(CXX) $(CFLAGS) jmp.cpp -o $@ -m64
+	$(CXX) $(CFLAGS) $< -o $@ -m64
 address: address.cpp $(XBYAK_INC)
-	$(CXX) $(CFLAGS) address.cpp -o $@ -m32
+	$(CXX) $(CFLAGS) $< -o $@ -m32
 address64: address.cpp $(XBYAK_INC)
-	$(CXX) $(CFLAGS) address.cpp -o $@ -m64
+	$(CXX) $(CFLAGS) $< -o $@ -m64
 bad_address: bad_address.cpp $(XBYAK_INC)
-	$(CXX) $(CFLAGS) bad_address.cpp -o $@
+	$(CXX) $(CFLAGS) $< -o $@
 misc: misc.cpp $(XBYAK_INC)
-	$(CXX) $(CFLAGS) misc.cpp -o $@
+	$(CXX) $(CFLAGS) $< -o $@
 misc32: misc.cpp $(XBYAK_INC)
-	$(CXX) $(CFLAGS) misc.cpp -o $@ -DXBYAK32
+	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK32
 cvt_test: cvt_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@
 cvt_test32: cvt_test.cpp $(XBYAK_INC)
@@ -56,9 +59,11 @@ cvt_test32: cvt_test.cpp $(XBYAK_INC)
 noexception: noexception.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@ -fno-exceptions
 apx: apx.cpp $(XBYAK_INC)
-	$(CXX) $(CFLAGS) apx.cpp -o $@
+	$(CXX) $(CFLAGS) $< -o $@
 avx10_test: avx10_test.cpp $(XBYAK_INC)
-	$(CXX) $(CFLAGS) avx10_test.cpp -o $@ -DXBYAK64
+	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK64
+sf_test: sf_test.cpp $(XBYAK_INC)
+	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK64
 
 TEST_FILES=old.txt new-ymm.txt bf16.txt comp.txt misc.txt convert.txt minmax.txt saturation.txt
 xed_test:

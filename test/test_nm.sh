@@ -47,7 +47,7 @@ noexcept)
 	;;
 esac
 
-CFLAGS="-Wall -I../ $OPT2"
+CFLAGS="-Wall -g -I../ $OPT2"
 echo "compile make_nm.cpp with $CFLAGS"
 $CXX $CFLAGS make_nm.cpp -o make_nm
 
