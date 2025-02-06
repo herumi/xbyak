@@ -402,35 +402,18 @@ struct CloseCode : Xbyak::CodeGenerator {
 
 		case 1:
 			{
-				StackFrame sf(this, 0);
+				StackFrame sf(this, 0, 0, 0, false);
 				sf.close(); // Explicitly call close().
 				setProtectModeRE(); // Ensure that no writes occur in destructor by setting read-exec
-				sf.close();
 			}
 			break;
 
 		case 2:
 			{
-				StackFrame sf(this, 0);
-				sf.close();
-				sf.close(); // The second call is ignored.
-			}
-			break;
-
-		case 3:
-			{
-				StackFrame sf(this, 0);
-				sf.makeEpilog(); // Explicitly call makeEpilog.
-				// close() is automatically called.
-			}
-			break;
-
-		case 4:
-			{
-				StackFrame sf(this, 0);
-				sf.makeEpilog(); // Explicitly call makeEpilog.
-				sf.makeEpilog(); // The second call is also valid.
-				// close() is automatically called.
+				StackFrame sf(this, 0, 0, 0, false);
+				sf.close(); // Explicitly call close().
+				sf.close(); // Explicitly call close().
+				setProtectModeRE(); // Ensure that no writes occur in destructor by setting read-exec
 			}
 			break;
 		default:
@@ -442,7 +425,7 @@ struct CloseCode : Xbyak::CodeGenerator {
 CYBOZU_TEST_AUTO(close)
 {
 	const size_t expectedTbl[] = {
-		1, 1, 1, 2, 3,
+		1, 1, 2,
 	};
 	for (size_t i = 0; i < sizeof(expectedTbl)/sizeof(expectedTbl[0]); i++) {
 		CloseCode c(i);
