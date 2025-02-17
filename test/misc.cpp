@@ -135,8 +135,21 @@ CYBOZU_TEST_AUTO(mov_const)
 			CYBOZU_TEST_EXCEPTION(mov(cx, al), Xbyak::Error);
 			CYBOZU_TEST_EXCEPTION(mov(al, cx), Xbyak::Error);
 			CYBOZU_TEST_EXCEPTION(mov(eax, cx), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(mov(eax, byte[eax]), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(mov(word[eax], al), Xbyak::Error);
 #ifdef XBYAK64
+			CYBOZU_TEST_EXCEPTION(mov(word[rax], rax), Xbyak::Error);
 			CYBOZU_TEST_NO_EXCEPTION(mov(rax, ptr[(void*)0x7fffffff]));
+			for (int i = 4; i < 8; i++) {
+				CYBOZU_TEST_EXCEPTION(add(ah, Reg8(i, true)), Xbyak::Error);
+				CYBOZU_TEST_EXCEPTION(add(Reg8(i, true), dh), Xbyak::Error);
+			}
+			for (int i = 8; i < 32; i++) {
+				CYBOZU_TEST_EXCEPTION(add(ah, Reg8(i)), Xbyak::Error);
+				CYBOZU_TEST_EXCEPTION(add(Reg8(i), dh), Xbyak::Error);
+			}
+			CYBOZU_TEST_EXCEPTION(mov(ah, cx), Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(mov(al, cx), Xbyak::Error);
 			if (sizeof(void*) != 4) { // sizeof(void*) == 4 on x32
 				CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0x17fffffff]), Xbyak::Error);
 			}
