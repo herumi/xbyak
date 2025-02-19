@@ -209,8 +209,9 @@ struct Code2 : Xbyak::CodeGenerator {
 };
 
 
-void verify(const uint8_t *f, int pNum)
+void verify(const uint8_t *_f, int pNum)
 {
+	uint8_t *f = const_cast<uint8_t*>(_f);
 	switch (pNum) {
 	case 0:
 		CYBOZU_TEST_EQUAL(1, reinterpret_cast<int (*)()>(f)());

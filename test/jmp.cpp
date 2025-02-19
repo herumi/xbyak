@@ -364,7 +364,7 @@ CYBOZU_TEST_AUTO(test3)
 		printf("dummySize=%d\n", dummySize);
 		Grow g(dummySize);
 		g.ready();
-		int (*f)() = (int (*)())g.getCode();
+		int (*f)() = g.getCode<int (*)()>();
 		int x = f();
 		const int ok = 107;
 		CYBOZU_TEST_EQUAL(x, ok);
@@ -466,12 +466,12 @@ CYBOZU_TEST_AUTO(test5)
 	const int count = 50;
 	int ret;
 	Test5 fc(1024 * 64, count, 0);
-	ret = ((int (*)())fc.getCode())();
+	ret = fc.getCode<int (*)()>()();
 	CYBOZU_TEST_EQUAL(ret, count * count);
 	fm.assign((const char*)fc.getCode(), fc.getSize());
 	Test5 gc(10, count, Xbyak::AutoGrow);
 	gc.ready();
-	ret = ((int (*)())gc.getCode())();
+	ret = gc.getCode<int (*)()>()();
 	CYBOZU_TEST_EQUAL(ret, count * count);
 	gm.assign((const char*)gc.getCode(), gc.getSize());
 	CYBOZU_TEST_EQUAL(fm, gm);

@@ -79,13 +79,12 @@ const uint64_t XMM = _XMM | _XMM2;
 const uint64_t YMM = _YMM | _YMM2;
 const uint64_t K = 1ULL << 43;
 const uint64_t _ZMM = 1ULL << 44;
-const uint64_t _ZMM2 = 1ULL << 45;
 #ifdef XBYAK64
+const uint64_t _ZMM2 = 1ULL << 45;
 const uint64_t ZMM = _ZMM | _ZMM2;
 const uint64_t _YMM3 = 1ULL << 46;
 #else
 const uint64_t ZMM = _ZMM;
-const uint64_t _YMM3 = 0;
 #endif
 const uint64_t K2 = 1ULL << 47;
 const uint64_t ZMM_SAE = 1ULL << 48;
@@ -98,10 +97,6 @@ const uint64_t XMM_SAE = 1ULL << 51;
 const uint64_t XMM_KZ = 1ULL << 52;
 const uint64_t YMM_KZ = 1ULL << 53;
 const uint64_t ZMM_KZ = 1ULL << 54;
-#else
-const uint64_t XMM_KZ = 0;
-const uint64_t YMM_KZ = 0;
-const uint64_t ZMM_KZ = 0;
 #endif
 const uint64_t MEM_K = 1ULL << 55;
 const uint64_t M_1to2 = 1ULL << 56;
