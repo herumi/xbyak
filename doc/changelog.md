@@ -1,5 +1,6 @@
 # History
 
+* 2025/Feb/26 ver 7.24.1 fix 3-op shift APX instructions with NDD format.
 * 2025/Feb/17 ver 7.24 feat: add error check for invalid REX prefix with AH/BH/CH/DH registers. enhance size mismatch detection for mem-reg operations like 'add eax, byte[rax]'
 * 2025/Feb/07 ver 7.23.1 revert the behavior of StackFrame::close().
 * 2025/Feb/03 ver 7.23 stricter checking of register size, improve handling of 16-bit immediates, change spec of StackFrame::close(), fix push/pop to support APX.
