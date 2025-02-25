@@ -204,6 +204,11 @@ def parseMemory(s, broadcast=0):
 
   return Memory(size, base, index, scale, disp, broadcast)
 
+def normalizeName(s):
+  if s == 'sal':
+    return 'shl'
+  return s
+
 class Nmemonic:
   def __init__(self, name, args=[], attrs=[]):
     self.name = name
@@ -221,7 +226,7 @@ class Nmemonic:
     s += ');'
     return s
   def __eq__(self, rhs):
-    return self.name == rhs.name and self.args == rhs.args and self.attrs == rhs.attrs
+    return normalizeName(self.name) == normalizeName(rhs.name) and self.args == rhs.args and self.attrs == rhs.attrs
 
 def parseNmemonic(s):
   args = []

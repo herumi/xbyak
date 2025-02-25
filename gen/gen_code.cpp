@@ -933,6 +933,7 @@ void put()
 			}
 		}
 		printf("void imul(const Reg& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF, 0xAF)) return; opRO(reg, op, T_0F, 0xAF, reg.getKind() == op.getKind()); }\n");
+		printf("void imul(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1|T_NF, 0xAF); }\n");
 	}
 	{
 		const struct Tbl {
