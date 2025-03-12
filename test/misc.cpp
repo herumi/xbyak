@@ -838,6 +838,12 @@ CYBOZU_TEST_AUTO(bf16)
 			vdpbf16ps(xmm0 | k1, xmm1, ptr [rax + 64]);
 			vdpbf16ps(ymm0 | k1, ymm1, ptr [rax + 64]);
 			vdpbf16ps(zmm0 | k1, zmm1, ptr [rax + 64]);
+
+			// AVX_NE_CONVERT
+			vcvtneps2bf16(xmm15, xmm2, VexEncoding);
+			vcvtneps2bf16(xmm15, xword[rax], VexEncoding);
+			vcvtneps2bf16(xmm15, ymm2, VexEncoding);
+			vcvtneps2bf16(xmm15, yword[rax], VexEncoding);
 		}
 	} c;
 	const uint8_t tbl[] = {
@@ -853,6 +859,11 @@ CYBOZU_TEST_AUTO(bf16)
 		0x62, 0xf2, 0x76, 0x09, 0x52, 0x40, 0x04,
 		0x62, 0xf2, 0x76, 0x29, 0x52, 0x40, 0x02,
 		0x62, 0xf2, 0x76, 0x49, 0x52, 0x40, 0x01,
+
+		0xc4, 0x62, 0x7a, 0x72, 0xfa,
+		0xc4, 0x62, 0x7a, 0x72, 0x38,
+		0xc4, 0x62, 0x7e, 0x72, 0xfa,
+		0xc4, 0x62, 0x7e, 0x72, 0x38,
 	};
 	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
