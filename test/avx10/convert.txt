@@ -174,3 +174,27 @@ vcvtneph2hf8s(xmm1|k2|T_z, yword_b[rax+128]);
 vcvtneph2hf8s(ymm1|k2|T_z, zmm2);
 vcvtneph2hf8s(ymm1|k2|T_z, zword[rax+128]);
 vcvtneph2hf8s(ymm1|k2|T_z, zword_b[rax+128]);
+
+// AVX-NE-CONVERT
+vbcstnebf162ps(xmm15, ptr[rax+128]);
+vbcstnebf162ps(xmm15, ptr[rax+128]);
+
+vbcstnesh2ps(ymm15, ptr[rax+128]);
+vbcstnesh2ps(ymm15, ptr[rax+128]);
+
+vcvtneebf162ps(xmm15, ptr[rax+128]);
+vcvtneebf162ps(ymm15, ptr[rax+128]);
+
+vcvtneeph2ps(xmm15, ptr[rax+128]);
+vcvtneeph2ps(ymm15, ptr[rax+128]);
+
+vcvtneobf162ps(xmm15, ptr[rax+128]);
+vcvtneobf162ps(ymm15, ptr[rax+128]);
+
+vcvtneoph2ps(xmm15, ptr[rax+128]);
+vcvtneoph2ps(ymm15, ptr[rax+128]);
+
+vcvtneps2bf16(xmm15, xmm3, VexEncoding);
+vcvtneps2bf16(xmm15, ptr[rax+128], VexEncoding);
+vcvtneps2bf16(xmm15, ymm3, VexEncoding);
+vcvtneps2bf16(xmm15, ptr[rax+128], VexEncoding);

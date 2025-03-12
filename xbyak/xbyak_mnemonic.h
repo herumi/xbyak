@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "7.24.1"; }
+const char *getVersionString() const { return "7.24.2"; }
 void aadd(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38, 0x0FC, T_APX); }
 void aand(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38|T_66, 0x0FC, T_APX|T_66); }
 void adc(const Operand& op, uint32_t imm) { opOI(op, imm, 0x10, 2); }
@@ -1212,6 +1212,7 @@ void vcvtneebf162ps(const Xmm& x, const Address& addr) { opVex(x, 0, addr, T_F3|
 void vcvtneeph2ps(const Xmm& x, const Address& addr) { opVex(x, 0, addr, T_66|T_0F38|T_W0|T_YMM, 0xB0); }
 void vcvtneobf162ps(const Xmm& x, const Address& addr) { opVex(x, 0, addr, T_F2|T_0F38|T_W0|T_YMM, 0xB0); }
 void vcvtneoph2ps(const Xmm& x, const Address& addr) { opVex(x, 0, addr, T_0F38|T_W0|T_YMM, 0xB0); }
+void vcvtneps2bf16(const Xmm& x, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opCvt2(x, op, T_F3|T_0F38|T_EW0|T_YMM|T_SAE_Z|T_B32|orEvexIf(encoding, 0, T_MUST_EVEX, 0), 0x72); }
 void vcvtpd2dq(const Xmm& x, const Operand& op) { opCvt2(x, op, T_0F | T_F2 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_ER_Z, 0xE6); }
 void vcvtpd2ps(const Xmm& x, const Operand& op) { opCvt2(x, op, T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_ER_Z, 0x5A); }
 void vcvtph2ps(const Xmm& x, const Operand& op) { checkCvt1(x, op); opVex(x, 0, op, T_0F38 | T_66 | T_W0 | T_EVEX | T_EW0 | T_N8 | T_N_VL | T_SAE_Y, 0x13); }
@@ -2205,7 +2206,6 @@ void vcvtneph2bf8(const Xmm& x, const Operand& op) { opCvt2(x, op, T_F3|T_0F38|T
 void vcvtneph2bf8s(const Xmm& x, const Operand& op) { opCvt2(x, op, T_F3|T_MAP5|T_EW0|T_YMM|T_MUST_EVEX|T_B16, 0x74); }
 void vcvtneph2hf8(const Xmm& x, const Operand& op) { opCvt2(x, op, T_F3|T_MAP5|T_EW0|T_YMM|T_MUST_EVEX|T_B16, 0x18); }
 void vcvtneph2hf8s(const Xmm& x, const Operand& op) { opCvt2(x, op, T_F3|T_MAP5|T_EW0|T_YMM|T_MUST_EVEX|T_B16, 0x1B); }
-void vcvtneps2bf16(const Xmm& x, const Operand& op) { opCvt2(x, op, T_F3|T_0F38|T_EW0|T_YMM|T_SAE_Z|T_MUST_EVEX|T_B32, 0x72); }
 void vcvtpd2ph(const Xmm& x, const Operand& op) { opCvt5(x, op, T_N16|T_N_VL|T_66|T_MAP5|T_EW1|T_ER_Z|T_MUST_EVEX|T_B64, 0x5A); }
 void vcvtpd2qq(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66|T_0F|T_EW1|T_YMM|T_ER_Z|T_MUST_EVEX|T_B64, 0x7B); }
 void vcvtpd2udq(const Xmm& x, const Operand& op) { opCvt2(x, op, T_0F|T_EW1|T_YMM|T_ER_Z|T_MUST_EVEX|T_B64, 0x79); }
