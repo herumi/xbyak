@@ -1,5 +1,7 @@
 # To compile with -m32
 # apt install g++-multilib
+CXX_32 = $(CXX) -m32
+CXX_64 = $(CXX) -m64
 TARGET = make_nm normalize_prefix bad_address misc cvt_test cvt_test32 noexception misc32 detect_x32 avx10_test
 XBYAK_INC=../xbyak/xbyak.h ../xbyak/xbyak_mnemonic.h ../xbyak/xbyak_util.h
 UNAME_S=$(shell uname -s)
@@ -39,13 +41,13 @@ normalize_prefix: normalize_prefix.cpp $(XBYAK_INC)
 test_mmx: test_mmx.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) test_mmx.cpp -o $@ -lpthread
 jmp: jmp.cpp $(XBYAK_INC)
-	$(CXX) $(CFLAGS) $< -o $@ -m32
+	$(CXX_32) $(CFLAGS) $< -o $@
 jmp64: jmp.cpp $(XBYAK_INC)
-	$(CXX) $(CFLAGS) $< -o $@ -m64
+	$(CXX_64) $(CFLAGS) $< -o $@
 address: address.cpp $(XBYAK_INC)
-	$(CXX) $(CFLAGS) $< -o $@ -m32
+	$(CXX_32) $(CFLAGS) $< -o $@
 address64: address.cpp $(XBYAK_INC)
-	$(CXX) $(CFLAGS) $< -o $@ -m64
+	$(CXX_64) $(CFLAGS) $< -o $@
 bad_address: bad_address.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@
 misc: misc.cpp $(XBYAK_INC)
