@@ -1,5 +1,7 @@
 XBYAK_INC=../xbyak/xbyak.h
 CXX?=g++
+CXX_32=$(CXX) -m32
+CXX_64=$(CXX) -m64
 
 BOOST_EXIST=$(shell echo "#include <boost/spirit/core.hpp>" | $(CXX) -x c++ -c - 2>/dev/null && echo 1)
 UNAME_M=$(shell uname -m)
@@ -56,49 +58,49 @@ CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -W
 CFLAGS=-g -O2 -fomit-frame-pointer -Wall -I../ $(CFLAGS_WARN) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
 
 test:
-	$(CXX) $(CFLAGS) test0.cpp -o $@ -m32
+	$(CXX_32) $(CFLAGS) test0.cpp -o $@
 
 quantize:
-	$(CXX) $(CFLAGS) quantize.cpp -o $@ -m32
+	$(CXX_32) $(CFLAGS) quantize.cpp -o $@
 
 calc:
-	$(CXX) $(CFLAGS) calc.cpp -o $@ -m32
+	$(CXX_32) $(CFLAGS) calc.cpp -o $@
 calc64:
-	$(CXX) $(CFLAGS) calc.cpp -o $@ -m64
+	$(CXX_64) $(CFLAGS) calc.cpp -o $@
 calc2:
-	$(CXX) $(CFLAGS) calc2.cpp -o $@ -m32
+	$(CXX_32) $(CFLAGS) calc2.cpp -o $@
 calc2_64:
-	$(CXX) $(CFLAGS) calc2.cpp -o $@ -m64
+	$(CXX_64) $(CFLAGS) calc2.cpp -o $@
 
 bf:
-	$(CXX) $(CFLAGS) bf.cpp -o $@ -m32
+	$(CXX_32) $(CFLAGS) bf.cpp -o $@
 bf64:
-	$(CXX) $(CFLAGS) bf.cpp -o $@ -m64
+	$(CXX_64) $(CFLAGS) bf.cpp -o $@
 
 memfunc:
-	$(CXX) $(CFLAGS) memfunc.cpp -o $@ -m32
+	$(CXX_32) $(CFLAGS) memfunc.cpp -o $@
 memfunc64:
-	$(CXX) $(CFLAGS) memfunc.cpp -o $@ -m64
+	$(CXX_64) $(CFLAGS) memfunc.cpp -o $@
 
 toyvm:
-	$(CXX) $(CFLAGS) toyvm.cpp -o $@ -m32
+	$(CXX_32) $(CFLAGS) toyvm.cpp -o $@
 
 test64:
-	$(CXX) $(CFLAGS) test0.cpp -o $@ -m64
+	$(CXX_64) $(CFLAGS) test0.cpp -o $@
 test_util:
-	$(CXX) $(CFLAGS) test_util.cpp -o $@ -m32
+	$(CXX_32) $(CFLAGS) test_util.cpp -o $@
 test_util64:
-	$(CXX) $(CFLAGS) test_util.cpp -o $@ -m64
+	$(CXX_64) $(CFLAGS) test_util.cpp -o $@
 static_buf:
-	$(CXX) $(CFLAGS) static_buf.cpp -o $@ -m32
+	$(CXX_32) $(CFLAGS) static_buf.cpp -o $@
 static_buf64:
-	$(CXX) $(CFLAGS) static_buf.cpp -o $@ -m64
+	$(CXX_64) $(CFLAGS) static_buf.cpp -o $@
 jmp_table:
-	$(CXX) $(CFLAGS) jmp_table.cpp -o $@ -m32
+	$(CXX_32) $(CFLAGS) jmp_table.cpp -o $@
 jmp_table64:
-	$(CXX) $(CFLAGS) jmp_table.cpp -o $@ -m64
+	$(CXX_64) $(CFLAGS) jmp_table.cpp -o $@
 memfd:
-	$(CXX) $(CFLAGS) memfd.cpp -o $@ -m64
+	$(CXX_64) $(CFLAGS) memfd.cpp -o $@
 profiler: profiler.cpp ../xbyak/xbyak_util.h
 	$(CXX) $(CFLAGS) profiler.cpp -o $@
 profiler-vtune: profiler.cpp ../xbyak/xbyak_util.h
