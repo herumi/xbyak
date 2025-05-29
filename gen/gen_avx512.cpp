@@ -469,7 +469,7 @@ void putX_X_XM_IMM()
 		{ 0x18, "vcvt2ph2hf8", T_MUST_EVEX | T_F2 | T_MAP5 | T_EW0 | T_YMM | T_B16 | T_N1, false },
 		{ 0x1B, "vcvt2ph2hf8s", T_MUST_EVEX | T_F2 | T_MAP5 | T_EW0 | T_YMM | T_B16 | T_N1, false },
 
-		{ 0x52, "vdpphps", T_MUST_EVEX | T_0F38 | T_EW0 | T_YMM | T_B32, false },
+		{ 0x52, "vdpphps", T_MUST_EVEX | T_0F38 | T_EW0 | T_YMM | T_SAE_Z | T_B32, false },
 		{ 0x52, "vminmaxnepbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
 		{ 0x52, "vminmaxpd", T_MUST_EVEX | T_66 | T_0F3A | T_EW1 | T_YMM | T_B64 | T_SAE_Y | T_SAE_Z, true },
 		{ 0x52, "vminmaxph", T_MUST_EVEX | T_0F3A | T_EW0 | T_YMM | T_B16 | T_SAE_Y | T_SAE_Z, true },
