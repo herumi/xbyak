@@ -17,7 +17,7 @@
 	static const uint64_t T_0F = 1ull << 8;
 	static const uint64_t T_0F38 = 1ull << 9;
 	static const uint64_t T_0F3A = 1ull << 10;
-	static const uint64_t T_L0 = 1ull << 11;
+	static const uint64_t T_MAP5 = 1ull << 11;
 	static const uint64_t T_L1 = 1ull << 12;
 	static const uint64_t T_W0 = 1ull << 13;
 	static const uint64_t T_W1 = 1ull << 14;
@@ -38,9 +38,7 @@
 	static const uint64_t T_M_K = 1ull << 28; // mem{k}
 	static const uint64_t T_VSIB = 1ull << 29;
 	static const uint64_t T_MEM_EVEX = 1ull << 30; // use evex if mem
-	static const uint64_t T_FP16 = 1ull << 31; // avx512-fp16
-	static const uint64_t T_MAP5 = T_FP16 | T_0F;
-	static const uint64_t T_MAP6 = T_FP16 | T_0F38;
+	static const uint64_t T_MAP6 = 1ull << 31;
 	static const uint64_t T_NF = 1ull << 32; // T_nf
 	static const uint64_t T_CODE1_IF1 = 1ull << 33; // code|=1 if !r.isBit(8)
 
@@ -50,7 +48,6 @@
 	static const uint64_t T_SENTRY = (1ull << 38)-1; // attribute(>=T_SENTRY) is for error check
 	static const uint64_t T_ALLOW_DIFF_SIZE = 1ull << 38; // allow difference reg size
 	static const uint64_t T_ALLOW_ABCDH = 1ull << 39; // allow [abcd]h reg
-	static const uint64_t T_FP8 = 1ull << 40; // amx bf8 and hf8
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
 	// @@@end of avx_type_def.h

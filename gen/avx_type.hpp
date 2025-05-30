@@ -21,22 +21,11 @@ std::string type2String(uint64_t type)
 	if (type & T_66) str += "|T_66";
 	if (type & T_F3) str += "|T_F3";
 	if (type & T_F2) str += "|T_F2";
-	if (type & T_0F) {
-		if (type & T_FP16) {
-			str += "|T_MAP5";
-		} else {
-			str += "|T_0F";
-		}
-	}
-	if (type & T_0F38) {
-		if (type & T_FP16) {
-			str += "|T_MAP6";
-		} else {
-			str += "|T_0F38";
-		}
-	}
+	if (type & T_MAP5) str += "|T_MAP5";
+	if (type & T_0F) str += "|T_0F";
+	if (type & T_MAP6) str += "|T_MAP6";
+	if (type & T_0F38) str += "|T_0F38";
 	if (type & T_0F3A) str += "|T_0F3A";
-	if (type & T_L0) str += "|T_L0";
 	if (type & T_L1) str += "|T_L1";
 	if (type & T_W0) str += "|T_W0";
 	if (type & T_W1) str += "|T_W1";
