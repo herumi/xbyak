@@ -1,4 +1,5 @@
 @echo off
+set XED=xed
 set CFLAGS=-I ../ /EHsc /nologo
 copy %1% tmp.cpp
 cl %CFLAGS% test_by_xed.cpp && test_by_xed.exe
