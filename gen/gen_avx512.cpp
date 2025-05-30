@@ -197,7 +197,7 @@ void putX_XM()
 		{ 0x7D, "vcvtuw2ph", T_F2 | T_MAP5 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_ER_Z },
 		{ 0x7D, "vcvtw2ph", T_F3 | T_MAP5 | T_MUST_EVEX | T_YMM | T_EW0 | T_B16 | T_ER_Z },
 
-		{ 0x51, "vsqrtnepbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16 },
+		{ 0x51, "vsqrtbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16 },
 
 		{ 0x2F, "vcomish", T_MUST_EVEX | T_MAP5 | T_EW0 | T_SAE_X | T_N2 },
 		{ 0x2E, "vucomish", T_MUST_EVEX | T_MAP5 | T_EW0 | T_SAE_X | T_N2 },
@@ -213,8 +213,8 @@ void putX_XM()
 		// 13.1
 		{ 0x69, "vcvtbf162ibs", T_MUST_EVEX | T_YMM | T_F2 | T_MAP5 | T_EW0 | T_B16 },
 		{ 0x6B, "vcvtbf162iubs", T_MUST_EVEX | T_YMM | T_F2 | T_MAP5 | T_EW0 | T_B16 },
-		{ 0x68, "vcvttnebf162ibs", T_MUST_EVEX | T_YMM | T_F2 | T_MAP5 | T_EW0 | T_B16 },
-		{ 0x6A, "vcvttnebf162iubs", T_MUST_EVEX | T_YMM | T_F2 | T_MAP5 | T_EW0 | T_B16 },
+		{ 0x68, "vcvttbf162ibs", T_MUST_EVEX | T_YMM | T_F2 | T_MAP5 | T_EW0 | T_B16 },
+		{ 0x6A, "vcvttbf162iubs", T_MUST_EVEX | T_YMM | T_F2 | T_MAP5 | T_EW0 | T_B16 },
 		// 13.3
 		{ 0x6D, "vcvttpd2qqs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_EW1 | T_B64 | T_SAE_Y | T_SAE_Z },
 		// 13.5
@@ -439,29 +439,29 @@ void putX_X_XM_IMM()
 		{ 0x13, "vcvtsh2ss", T_MAP6 | T_MUST_EVEX | T_EW0 | T_SAE_X | T_N2, false },
 		{ 0x1D, "vcvtss2sh", T_MAP5 | T_MUST_EVEX | T_EW0 | T_ER_X | T_N4, false },
 
-		{ 0x58, "vaddnepbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
-		{ 0x5E, "vdivnepbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
-		{ 0x5F, "vmaxpbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
-		{ 0x5D, "vminpbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
-		{ 0x59, "vmulnepbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
-		{ 0x2C, "vscalefpbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16,false },
-		{ 0x5C, "vsubnepbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x58, "vaddbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x5E, "vdivbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x5F, "vmaxbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x5D, "vminbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x59, "vmulbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x2C, "vscalefbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16,false },
+		{ 0x5C, "vsubbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_YMM | T_B16, false },
 
-		{ 0x98, "vfmadd132nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
-		{ 0xA8, "vfmadd213nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
-		{ 0xB8, "vfmadd231nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x98, "vfmadd132bf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xA8, "vfmadd213bf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xB8, "vfmadd231bf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
 
-		{ 0x9C, "vfnmadd132nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
-		{ 0xAC, "vfnmadd213nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
-		{ 0xBC, "vfnmadd231nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x9C, "vfnmadd132bf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xAC, "vfnmadd213bf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xBC, "vfnmadd231bf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
 
-		{ 0x9A, "vfmsub132nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
-		{ 0xAA, "vfmsub213nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
-		{ 0xBA, "vfmsub231nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x9A, "vfmsub132bf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xAA, "vfmsub213bf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xBA, "vfmsub231bf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
 
-		{ 0x9E, "vfnmsub132nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
-		{ 0xAE, "vfnmsub213nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
-		{ 0xBE, "vfnmsub231nepbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x9E, "vfnmsub132bf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xAE, "vfnmsub213bf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0xBE, "vfnmsub231bf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
 
 		{ 0x67, "vcvt2ps2phx", T_MUST_EVEX | T_66 | T_0F38 | T_EW0 | T_YMM | T_B32 | T_ER_Y | T_ER_Z, false },
 		{ 0x74, "vcvt2ph2bf8", T_MUST_EVEX | T_F2 | T_0F38 | T_EW0 | T_YMM | T_B16 | T_N1, false },
@@ -470,7 +470,7 @@ void putX_X_XM_IMM()
 		{ 0x1B, "vcvt2ph2hf8s", T_MUST_EVEX | T_F2 | T_MAP5 | T_EW0 | T_YMM | T_B16 | T_N1, false },
 
 		{ 0x52, "vdpphps", T_MUST_EVEX | T_0F38 | T_EW0 | T_YMM | T_SAE_Z | T_B32, false },
-		{ 0x52, "vminmaxnepbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
+		{ 0x52, "vminmaxbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
 		{ 0x52, "vminmaxpd", T_MUST_EVEX | T_66 | T_0F3A | T_EW1 | T_YMM | T_B64 | T_SAE_Y | T_SAE_Z, true },
 		{ 0x52, "vminmaxph", T_MUST_EVEX | T_0F3A | T_EW0 | T_YMM | T_B16 | T_SAE_Y | T_SAE_Z, true },
 		{ 0x52, "vminmaxps", T_MUST_EVEX | T_66 | T_0F3A | T_EW0 | T_YMM | T_B32 | T_SAE_Y | T_SAE_Z, true },
@@ -891,14 +891,14 @@ void putX_XM_IMM()
 		{ 0x62, "vpexpandb", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW0 | T_SAE_Z | T_N1, false },
 		{ 0x62, "vpexpandw", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_N2, false },
 
-		{ 0x2F, "vcomsbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_N2, false },
-		{ 0x42, "vgetexppbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
-		{ 0x26, "vgetmantpbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
-		{ 0x4C, "vrcppbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
-		{ 0x56, "vreducenepbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
-		{ 0x08, "vrndscalenepbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
-		{ 0x4E, "vrsqrtpbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
-		{ 0x2C, "vscalefpbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x2F, "vcomisbf16", T_MUST_EVEX | T_66 | T_MAP5 | T_EW0 | T_N2, false },
+		{ 0x42, "vgetexpbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x26, "vgetmantbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
+		{ 0x4C, "vrcpbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x56, "vreducebf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
+		{ 0x08, "vrndscalebf16", T_MUST_EVEX | T_F2 | T_0F3A | T_EW0 | T_YMM | T_B16, true },
+		{ 0x4E, "vrsqrtbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
+		{ 0x2C, "vscalefbf16", T_MUST_EVEX | T_MAP6 | T_EW0 | T_YMM | T_B16, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -1089,8 +1089,8 @@ void putFP16()
 
 void putAVX10_2()
 {
-	puts("void vcmppbf16(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opVex(k, &x, op, T_MUST_EVEX|T_F2|T_0F3A|T_EW0|T_YMM|T_B16, 0xC2, imm); }");
-	puts("void vfpclasspbf16(const Opmask& k, const Operand& op, uint8_t imm) { opVex(k.changeBit(op.getBit()), 0, op, T_MUST_EVEX|T_F2|T_0F3A|T_EW0|T_YMM|T_B16, 0x66, imm); }");
+	puts("void vcmpbf16(const Opmask& k, const Xmm& x, const Operand& op, uint8_t imm) { opVex(k, &x, op, T_MUST_EVEX|T_F2|T_0F3A|T_EW0|T_YMM|T_B16, 0xC2, imm); }");
+	puts("void vfpclassbf16(const Opmask& k, const Operand& op, uint8_t imm) { opVex(k.changeBit(op.getBit()), 0, op, T_MUST_EVEX|T_F2|T_0F3A|T_EW0|T_YMM|T_B16, 0x66, imm); }");
 
 	const struct Tbl {
 		uint8_t code;
