@@ -4,6 +4,7 @@ set -e
 
 FILTER="grep -v warning"
 CXX=${CXX:=g++}
+CFLAGS_USER=${CFLAGS}
 
 case $1 in
 64)
@@ -21,7 +22,7 @@ case $1 in
 	;;
 esac
 
-CFLAGS="-Wall -I../ $OPT2 -DUSE_AVX512"
+CFLAGS="$CFLAGS_USER -Wall -I../ $OPT2 -DUSE_AVX512"
 echo "compile make_512.cpp"
 $CXX $CFLAGS make_512.cpp -o make_512
 

@@ -4,6 +4,7 @@ set -e
 
 FILTER=cat
 CXX=${CXX:=g++}
+CFLAGS_USER=${CFLAGS}
 
 case $1 in
 Y)
@@ -47,7 +48,7 @@ noexcept)
 	;;
 esac
 
-CFLAGS="-Wall -g -I../ $OPT2"
+CFLAGS="$CFLAGS_USER -Wall -g -I../ -I./ $OPT2"
 echo "compile make_nm.cpp with $CFLAGS"
 $CXX $CFLAGS make_nm.cpp -o make_nm
 
