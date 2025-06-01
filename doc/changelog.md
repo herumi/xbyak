@@ -1,5 +1,6 @@
 # History
 
+* 2025/Jun/02 ver 7.25 rename BF16 operations according to new AVX10.2 specification
 * 2025/Mar/12 ver 7.24.2 fix. vcvtneps2bf16 should support AVX-NE-CONVERT (revert 749aa31)
 * 2025/Feb/26 ver 7.24.1 fix 3-op shift APX instructions with NDD format.
 * 2025/Feb/17 ver 7.24 feat: add error check for invalid REX prefix with AH/BH/CH/DH registers. enhance size mismatch detection for mem-reg operations like 'add eax, byte[rax]'
