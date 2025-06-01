@@ -17,7 +17,7 @@
 	static const uint64_t T_0F = 1ull << 8;
 	static const uint64_t T_0F38 = 1ull << 9;
 	static const uint64_t T_0F3A = 1ull << 10;
-	static const uint64_t T_L0 = 1ull << 11;
+	static const uint64_t T_MAP5 = 1ull << 11;
 	static const uint64_t T_L1 = 1ull << 12;
 	static const uint64_t T_W0 = 1ull << 13;
 	static const uint64_t T_W1 = 1ull << 14;
@@ -38,9 +38,7 @@
 	static const uint64_t T_M_K = 1ull << 28; // mem{k}
 	static const uint64_t T_VSIB = 1ull << 29;
 	static const uint64_t T_MEM_EVEX = 1ull << 30; // use evex if mem
-	static const uint64_t T_FP16 = 1ull << 31; // avx512-fp16
-	static const uint64_t T_MAP5 = T_FP16 | T_0F;
-	static const uint64_t T_MAP6 = T_FP16 | T_0F38;
+	static const uint64_t T_MAP6 = 1ull << 31;
 	static const uint64_t T_NF = 1ull << 32; // T_nf
 	static const uint64_t T_CODE1_IF1 = 1ull << 33; // code|=1 if !r.isBit(8)
 

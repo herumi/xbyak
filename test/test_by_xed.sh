@@ -3,6 +3,7 @@
 set -e
 XED=${XED:=xed}
 CXX=${CXX:=g++}
+CFLAGS_USER=${CFLAGS}
 PYTHON=${PYTHON:=python3}
 echo $XED
 
@@ -13,7 +14,7 @@ fi
 
 TARGET=$1
 
-CFLAGS="-Wall -Wextra -I ../"
+CFLAGS="$CFLAGS_USER -Wall -Wextra -I ../"
 
 echo "test:" $TARGET
 cp $TARGET tmp.cpp

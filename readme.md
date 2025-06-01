@@ -1,5 +1,5 @@
 
-# Xbyak 7.24.2 [![Badge Build]][Build Status]
+# Xbyak 7.25 [![Badge Build]][Build Status]
 
 *A JIT assembler for x86/x64 architectures supporting advanced instruction sets up to AVX10.2*
 
@@ -59,6 +59,14 @@ If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 ### Supported Compilers
 
 Almost C++03 or later compilers for x86/x64 such as Visual Studio, g++, clang++, Intel C++ compiler and g++ on mingw/cygwin.
+
+
+### References
+- [Intel 64 and IA-32 Architectures Software Developer Manuals](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html)
+- [Intel Advanced Performance Extensions (Intel APX) Architecture Specification](https://www.intel.com/content/www/us/en/content-details/836198/intel-advanced-performance-extensions-intel-apx-architecture-specification.html)
+- [Intel Advanced Vector Extensions 10.2 (Intel AVX10.2) Architecture Specification](https://www.intel.com/content/www/us/en/content-details/855340/intel-advanced-vector-extensions-10-2-intel-avx10-2-architecture-specification.html)
+- [Intel Architecture Instruction Set Extensions Programming Reference](https://www.intel.com/content/www/us/en/content-details/851355/intel-architecture-instruction-set-extensions-programming-reference.html)
+- [Intel Software Development Emulator](https://www.intel.com/content/www/us/en/download/684897/intel-software-development-emulator.html)
 
 ## License
 
