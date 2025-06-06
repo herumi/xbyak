@@ -29,7 +29,6 @@ std::string type2String(uint64_t type)
 	if (type & T_L1) str += "|T_L1";
 	if (type & T_W0) str += "|T_W0";
 	if (type & T_W1) str += "|T_W1";
-	if (type & T_EW0) str += "|T_EW0";
 	if (type & T_EW1) str += "|T_EW1";
 	if (type & T_YMM) str += "|T_YMM";
 	if (type & T_EVEX) str += "|T_EVEX";
