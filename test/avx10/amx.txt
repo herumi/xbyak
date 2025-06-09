@@ -32,14 +32,26 @@ tdphf8ps(tmm1, tmm2, tmm3);
 
 tmmultf32ps(tmm1, tmm2, tmm3);
 
-t2rpntlvwz0(tmm1, ptr[rax+rax*2+0x80]);
-t2rpntlvwz0(tmm7, ptr[r30+rax*2+0x80]);
+t2rpntlvwz0(tmm1, ptr[rax+r8*2+0x80]);
+t2rpntlvwz0(tmm7, ptr[r30+r8*2+0x80]);
 
-t2rpntlvwz0t1(tmm1, ptr[rax+rax*2+0x80]);
-t2rpntlvwz0t1(tmm7, ptr[r30+rax*2+0x80]);
+t2rpntlvwz0t1(tmm1, ptr[rax+r8*2+0x80]);
+t2rpntlvwz0t1(tmm7, ptr[r30+r8*2+0x80]);
 
-t2rpntlvwz1(tmm1, ptr[rax+rax*2+0x80]);
-t2rpntlvwz1(tmm7, ptr[r30+rax*2+0x80]);
+t2rpntlvwz1(tmm1, ptr[rax+r8*2+0x80]);
+t2rpntlvwz1(tmm7, ptr[r30+r8*2+0x80]);
 
-t2rpntlvwz1t1(tmm1, ptr[rax+rax*2+0x80]);
-t2rpntlvwz1t1(tmm7, ptr[r30+rax*2+0x80]);
+t2rpntlvwz1t1(tmm1, ptr[rax+r8*2+0x80]);
+t2rpntlvwz1t1(tmm7, ptr[r30+r8*2+0x80]);
+
+t2rpntlvwz0rs(tmm1, ptr[rax+r8*2+0x80]);
+t2rpntlvwz0rs(tmm7, ptr[r30+r8*2+0x80]);
+
+t2rpntlvwz0rst1(tmm1, ptr[rax+r8*2+0x80]);
+t2rpntlvwz0rst1(tmm7, ptr[r30+r8*2+0x80]);
+
+t2rpntlvwz1rs(tmm1, ptr[rax+r8*2+0x80]);
+t2rpntlvwz1rs(tmm7, ptr[r30+r8*2+0x80]);
+
+t2rpntlvwz1rst1(tmm1, ptr[rax+r8*2+0x80]);
+t2rpntlvwz1rst1(tmm7, ptr[r30+r8*2+0x80]);

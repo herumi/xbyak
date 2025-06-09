@@ -2066,6 +2066,10 @@ void putAMX_TM()
 		{ "t2rpntlvwz0t1", T_0F38 | T_W0, 0x6F },
 		{ "t2rpntlvwz1", T_66 | T_0F38 | T_W0, 0x6E },
 		{ "t2rpntlvwz1t1", T_66 | T_0F38 | T_W0, 0x6F },
+		{ "t2rpntlvwz0rs", T_MAP5 | T_W0, 0xF8 },
+		{ "t2rpntlvwz0rst1", T_MAP5 | T_W0, 0xF9 },
+		{ "t2rpntlvwz1rs", T_66 | T_MAP5 | T_W0, 0xF8 },
+		{ "t2rpntlvwz1rst1", T_66 | T_MAP5 | T_W0, 0xF9 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& t = tbl[i];
