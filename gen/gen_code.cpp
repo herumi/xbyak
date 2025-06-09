@@ -2095,7 +2095,9 @@ void putAMX_TTT()
 		{ "tdpbhf8ps", T_F2 | T_MAP5 | T_W0, 0xFD },
 		{ "tdphbf8ps", T_F3 | T_MAP5 | T_W0, 0xFD },
 		{ "tdphf8ps", T_66 | T_MAP5 | T_W0, 0xFD },
-		{ "tmmultf32ps", T_66 | T_0F38 | T_W0, 0x48 }
+		{ "tmmultf32ps", T_66 | T_0F38 | T_W0, 0x48 },
+		{ "tcmmimfp16ps", T_66 | T_0F38 | T_W0, 0x6C },
+		{ "tcmmrlfp16ps", T_0F38 | T_W0, 0x6C },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& t = tbl[i];

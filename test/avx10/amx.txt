@@ -55,3 +55,7 @@ t2rpntlvwz1rs(tmm7, ptr[r30+r8*2+0x80]);
 
 t2rpntlvwz1rst1(tmm1, ptr[rax+r8*2+0x80]);
 t2rpntlvwz1rst1(tmm7, ptr[r30+r8*2+0x80]);
+
+tcmmimfp16ps(tmm1, tmm2, tmm3);
+tcmmrlfp16ps(tmm1, tmm2, tmm3);
+
