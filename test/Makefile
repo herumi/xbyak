@@ -70,7 +70,7 @@ sf_test: sf_test.cpp $(XBYAK_INC)
 TEST_FILES=old.txt new-ymm.txt bf16.txt comp.txt misc.txt convert.txt minmax.txt saturation.txt apx.txt amx.txt
 xed_test:
 	@set -e; \
-	for target in $(addprefix avx10/, $(TEST_FILES)); do \
+	for target in $(addprefix dataset/, $(TEST_FILES)); do \
 		./test_by_xed.sh $$target || exit 1; \
 	done
 

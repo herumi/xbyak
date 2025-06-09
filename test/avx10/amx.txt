@@ -1,9 +1,0 @@
-tileloaddrs(tmm3, ptr[rdi + rdx * 2 + 8]);
-tileloaddrst1(tmm4, ptr[r8 + r9 + 32]);
-
-tdpbf8ps(tmm1, tmm2, tmm3);
-tdpbhf8ps(tmm1, tmm2, tmm3);
-tdphbf8ps(tmm1, tmm2, tmm3);
-tdphf8ps(tmm1, tmm2, tmm3);
-
-tmmultf32ps(tmm1, tmm2, tmm3);

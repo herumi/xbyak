@@ -27,6 +27,10 @@ zmm16 zmm17 zmm18 zmm19 zmm20 zmm21 zmm22 zmm23
 zmm24 zmm25 zmm26 zmm27 zmm28 zmm29 zmm30 zmm31
 '''.split()
 
+g_tmmTbl = '''
+tmm0 tmm1 tmm2 tmm3 tmm4 tmm5 tmm6 tmm7
+'''.split()
+
 g_regTbl = '''
 eax ecx edx ebx esp ebp esi edi
 ax cx dx bx sp bp si di
@@ -41,8 +45,7 @@ r16w r17w r18w r19w r20w r21w r22w r23w r24w r25w r26w r27w r28w r29w r30w r31w
 r8b r9b r10b r11b r12b r13b r14b r15b
 r16b r17b r18b r19b r20b r21b r22b r23b r24b r25b r26b r27b r28b r29b r30b r31b
 spl bpl sil dil
-tmm0 tmm1 tmm2 tmm3 tmm4 tmm5 tmm6 tmm7
-'''.split()+g_xmmTbl
+'''.split()+g_tmmTbl+g_xmmTbl
 
 # define global constants
 for e in g_regTbl:
@@ -290,6 +293,9 @@ def parseNmemonic(s):
       args.append(Reg(e))
     # xed special format : xmm8+3
     elif e[:-2] in g_xmmTbl and e.endswith('+3'):
+      args.append(Reg(e[:-2]))
+    # tmm?+1
+    elif e[:-2] in g_tmmTbl and e.endswith('+1'):
       args.append(Reg(e[:-2]))
     else:
       args.append(parseMemory(e, broadcast))

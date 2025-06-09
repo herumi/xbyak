@@ -161,7 +161,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7250 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7260 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1850,10 +1850,9 @@ private:
 	static const uint64_t T_0F3A = 1ull << 10;
 	static const uint64_t T_MAP5 = 1ull << 11;
 	static const uint64_t T_L1 = 1ull << 12;
-	static const uint64_t T_W0 = 1ull << 13;
-	static const uint64_t T_W1 = 1ull << 14;
-	static const uint64_t T_EW0 = 1ull << 15;
-	static const uint64_t T_EW1 = 1ull << 16;
+	static const uint64_t T_W0 = 1ull << 13; // T_EW0 = T_W0
+	static const uint64_t T_W1 = 1ull << 14; // for VEX
+	static const uint64_t T_EW1 = 1ull << 16; // for EVEX
 	static const uint64_t T_YMM = 1ull << 17; // support YMM, ZMM
 	static const uint64_t T_EVEX = 1ull << 18;
 	static const uint64_t T_ER_X = 1ull << 19; // xmm{er}
@@ -1957,7 +1956,7 @@ private:
 		} else {
 			if (v) VL = (std::max)(VL, v->getBit());
 			VL = (std::max)((std::max)(reg.getBit(), base.getBit()), VL);
-			LL = (VL == 512) ? 2 : (VL == 256) ? 1 : 0;
+			LL = (VL >= 512 /* tmm */) ? 2 : (VL == 256) ? 1 : 0;
 			if (b) {
 				disp8N = ((type & T_B16) == T_B16) ? 2 : (type & T_B32) ? 4 : 8;
 			} else if ((type & T_NX_MASK) == T_DUP) {
@@ -3279,7 +3278,7 @@ public:
 	{
 		const uint64_t typeTbl[] = {
 			T_EVEX|T_66|T_0F|T_W0|T_N4, T_EVEX|T_66|T_0F|T_W0|T_N4, // legacy, avx, avx512
-			T_MUST_EVEX|T_66|T_0F|T_EW0|T_N4, T_MUST_EVEX|T_F3|T_0F|T_EW0|T_N4, // avx10.2
+			T_MUST_EVEX|T_66|T_0F|T_N4, T_MUST_EVEX|T_F3|T_0F|T_N4, // avx10.2
 		};
 		const int codeTbl[] = { 0x7E, 0x6E, 0xD6, 0x7E };
 		opAVX10ZeroExt(op1, op2, typeTbl, codeTbl, enc, 32);
@@ -3288,7 +3287,7 @@ public:
 	{
 		const uint64_t typeTbl[] = {
 			T_MUST_EVEX|T_66|T_MAP5|T_N2, T_MUST_EVEX|T_66|T_MAP5|T_N2, // avx512-fp16
-			T_MUST_EVEX|T_F3|T_MAP5|T_EW0|T_N2, T_MUST_EVEX|T_F3|T_MAP5|T_EW0|T_N2, // avx10.2
+			T_MUST_EVEX|T_F3|T_MAP5|T_N2, T_MUST_EVEX|T_F3|T_MAP5|T_N2, // avx10.2
 		};
 		const int codeTbl[] = { 0x7E, 0x6E, 0x7E, 0x6E };
 		opAVX10ZeroExt(op1, op2, typeTbl, codeTbl, enc, 16|32|64);
