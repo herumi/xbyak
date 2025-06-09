@@ -2101,6 +2101,7 @@ void putAMX_TTT()
 		{ "tcmmimfp16ps", T_66 | T_0F38 | T_W0, 0x6C },
 		{ "tcmmrlfp16ps", T_0F38 | T_W0, 0x6C },
 		{ "tconjtcmmimfp16ps", T_0F38 | T_W0, 0x6B },
+
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& t = tbl[i];

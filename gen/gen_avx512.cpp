@@ -1139,6 +1139,9 @@ void putAMX_TTRorI()
 		{ "tcvtrowps2phh", T_0F3A|T_MUST_EVEX|T_W0, 0x07, true },
 		{ "tcvtrowps2phl", T_66|T_0F38|T_MUST_EVEX|T_W0, 0x6D, false },
 		{ "tcvtrowps2phl", T_F2|T_0F3A|T_MUST_EVEX|T_W0, 0x77, true },
+
+		{ "tilemovrow", T_66|T_0F3A|T_MUST_EVEX|T_W0, 0x07, true },
+		{ "tilemovrow", T_66|T_0F38|T_MUST_EVEX|T_W0, 0x4A, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& t = tbl[i];
