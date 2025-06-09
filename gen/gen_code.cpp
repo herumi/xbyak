@@ -2062,7 +2062,7 @@ void putAMX_TM()
 		{ "tileloaddt1", T_66 | T_0F38 | T_W0, 0x4B },
 		{ "tileloaddrs", T_F2 | T_0F38 | T_W0, 0x4A },
 		{ "tileloaddrst1", T_66 | T_0F38 | T_W0, 0x4A },
-//		{ "t2rpntlvwz0", T_0F38 | T_W0, 0x6E },
+		{ "t2rpntlvwz0", T_0F38 | T_W0, 0x6E },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& t = tbl[i];
