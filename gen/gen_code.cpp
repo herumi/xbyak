@@ -2051,6 +2051,7 @@ void putAMX_MISC()
 	puts("void tilezero(const Tmm& t) { opVex(t, &tmm0, tmm0, T_F2|T_0F38|T_W0, 0x49); }");
 
 	puts("void tconjtfp16(const Tmm& t1, const Tmm& t2) { opVex(t1, 0, t2, T_66|T_0F38|T_W0, 0x6B); }");
+	puts("void ttransposed(const Tmm& t1, const Tmm& t2) { opVex(t1, 0, t2, T_F3|T_0F38|T_W0, 0x5F); }");
 }
 
 void putAMX_TM()
@@ -2101,7 +2102,11 @@ void putAMX_TTT()
 		{ "tcmmimfp16ps", T_66 | T_0F38 | T_W0, 0x6C },
 		{ "tcmmrlfp16ps", T_0F38 | T_W0, 0x6C },
 		{ "tconjtcmmimfp16ps", T_0F38 | T_W0, 0x6B },
-
+		{ "ttcmmimfp16ps", T_F2 | T_0F38 | T_W0, 0x6B },
+		{ "ttcmmrlfp16ps", T_F3 | T_0F38 | T_W0, 0x6B },
+		{ "ttdpbf16ps", T_F3 | T_0F38 | T_W0, 0x6C },
+		{ "ttdpfp16ps", T_F2 | T_0F38 | T_W0, 0x6C },
+		{ "ttmmultf32ps", T_0F38 | T_W0, 0x48 },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& t = tbl[i];
