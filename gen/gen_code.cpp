@@ -2041,14 +2041,16 @@ void put64()
 	}
 }
 
-void putAMX_TILE()
+void putAMX_MISC()
 {
 	puts("void ldtilecfg(const Address& addr) { opAMX(tmm0, addr, T_0F38|T_W0, 0x49); }");
 	puts("void sttilecfg(const Address& addr) { opAMX(tmm0, addr,  T_66|T_0F38|T_W0, 0x49); }");
 	puts("void tilestored(const Address& addr, const Tmm& tm) { opAMX(tm, addr, T_F3|T_0F38|T_W0, 0x4B); }");
 
 	puts("void tilerelease() { db(0xc4); db(0xe2); db(0x78); db(0x49); db(0xc0); }");
-	puts("void tilezero(const Tmm& Tmm) { opVex(Tmm, &tmm0, tmm0, T_F2 | T_0F38 | T_W0, 0x49); }");
+	puts("void tilezero(const Tmm& t) { opVex(t, &tmm0, tmm0, T_F2|T_0F38|T_W0, 0x49); }");
+
+	puts("void tconjtfp16(const Tmm& t1, const Tmm& t2) { opVex(t1, 0, t2, T_66|T_0F38|T_W0, 0x6B); }");
 }
 
 void putAMX_TM()
@@ -2098,6 +2100,7 @@ void putAMX_TTT()
 		{ "tmmultf32ps", T_66 | T_0F38 | T_W0, 0x48 },
 		{ "tcmmimfp16ps", T_66 | T_0F38 | T_W0, 0x6C },
 		{ "tcmmrlfp16ps", T_0F38 | T_W0, 0x6C },
+		{ "tconjtcmmimfp16ps", T_0F38 | T_W0, 0x6B },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& t = tbl[i];
@@ -2110,9 +2113,9 @@ void putFixed()
 {
 	puts("#ifdef XBYAK64");
 	put64();
-	putAMX_TILE();
 	putAMX_TTT();
 	putAMX_TM();
+	putAMX_MISC();
 	puts("#else");
 	put32();
 	puts("#endif");
