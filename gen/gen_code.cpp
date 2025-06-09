@@ -2045,36 +2045,54 @@ void putAMX_TILE()
 {
 	puts("void ldtilecfg(const Address& addr) { if (opROO(Reg(), addr, tmm0, T_APX|T_0F38|T_W0, 0x49)) return; opVex(tmm0, &tmm0, addr, T_0F38|T_W0, 0x49); }");
 	puts("void sttilecfg(const Address& addr) { if (opROO(Reg(), addr, tmm0, T_APX|T_66|T_0F38|T_W0, 0x49)) return; opVex(tmm0, &tmm0, addr, T_66|T_0F38 | T_W0, 0x49); }");
-	puts("void tileloadd(const Tmm& tm, const Address& addr) { opAMX(tm, addr, T_F2|T_0F38|T_W0, 0x4B); }");
-	puts("void tileloaddt1(const Tmm& tm, const Address& addr) { opAMX(tm, addr, T_66|T_0F38|T_W0, 0x4B); }");
 	puts("void tilerelease() { db(0xc4); db(0xe2); db(0x78); db(0x49); db(0xc0); }");
 	puts("void tilestored(const Address& addr, const Tmm& tm) { if (opROO(Reg(), addr, tm, T_APX|T_F3|T_0F38|T_W0, 0x4B)) return; opVex(tm, &tmm0, addr, T_F3|T_0F38|T_W0, 0x4B); }");
 	puts("void tilezero(const Tmm& Tmm) { opVex(Tmm, &tmm0, tmm0, T_F2 | T_0F38 | T_W0, 0x49); }");
 }
-void putAMX_INT8()
+
+void putAMX_TM()
 {
-	puts("void tdpbssd(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, T_F2 | T_0F38 | T_W0, 0x5e); }");
-	puts("void tdpbsud(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, T_F3 | T_0F38 | T_W0, 0x5e); }");
-	puts("void tdpbusd(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, T_66 | T_0F38 | T_W0, 0x5e); }");
-	puts("void tdpbuud(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, T_0F38 | T_W0, 0x5e); }");
-	puts("void tdpfp16ps(const Tmm &x1, const Tmm &x2, const Tmm &x3) { opVex(x1, &x3, x2, T_F2 | T_0F38 | T_W0, 0x5c); }");
+	const struct Tbl {
+		const char *name;
+		uint64_t type;
+		uint8_t code;
+	} tbl[] = {
+		{ "tileloadd", T_F2 | T_0F38 | T_W0, 0x4B },
+		{ "tileloaddt1", T_66 | T_0F38 | T_W0, 0x4B },
+		{ "tileloaddrs", T_F2 | T_0F38 | T_W0, 0x4A },
+		{ "tileloaddrst1", T_66 | T_0F38 | T_W0, 0x4A }
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		const Tbl& t = tbl[i];
+		std::string s = type2String(t.type);
+		printf("void %s(const Tmm& tm, const Address& addr) { opAMX(tm, addr, %s, 0x%02X); }\n", t.name, s.c_str(), t.code);
+	}
 }
-void putAMX_BF16()
+
+void putAMX_TTT()
 {
-	puts("void tdpbf16ps(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, T_F3 | T_0F38 | T_W0, 0x5c); }");
-}
-
-void putAMX_rev54()
-{
-	puts("void tileloaddrs(const Tmm& tm, const Address& addr) { opAMX(tm, addr, T_F2|T_0F38|T_W0, 0x4A); }");
-	puts("void tileloaddrst1(const Tmm& tm, const Address& addr) { opAMX(tm, addr, T_66|T_0F38|T_W0, 0x4A); }");
-
-	puts("void tdpbf8ps(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, T_MAP5|T_W0, 0xFD); }");
-	puts("void tdpbhf8ps(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, T_F2|T_MAP5|T_W0, 0xFD); }");
-	puts("void tdphbf8ps(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, T_F3|T_MAP5|T_W0, 0xFD); }");
-	puts("void tdphf8ps(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, T_66|T_MAP5|T_W0, 0xFD); }");
-
-	puts("void tmmultf32ps(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, T_66 | T_0F38 | T_W0, 0x48); }");
+	const struct Tbl {
+		const char *name;
+		uint64_t type;
+		uint8_t code;
+	} tbl[] = {
+		{ "tdpbssd", T_F2 | T_0F38 | T_W0, 0x5e },
+		{ "tdpbsud", T_F3 | T_0F38 | T_W0, 0x5e },
+		{ "tdpbusd", T_66 | T_0F38 | T_W0, 0x5e },
+		{ "tdpbuud", T_0F38 | T_W0, 0x5e },
+		{ "tdpfp16ps", T_F2 | T_0F38 | T_W0, 0x5c },
+		{ "tdpbf16ps", T_F3 | T_0F38 | T_W0, 0x5c },
+		{ "tdpbf8ps", T_MAP5 | T_W0, 0xFD },
+		{ "tdpbhf8ps", T_F2 | T_MAP5 | T_W0, 0xFD },
+		{ "tdphbf8ps", T_F3 | T_MAP5 | T_W0, 0xFD },
+		{ "tdphf8ps", T_66 | T_MAP5 | T_W0, 0xFD },
+		{ "tmmultf32ps", T_66 | T_0F38 | T_W0, 0x48 }
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		const Tbl& t = tbl[i];
+		std::string s = type2String(t.type);
+		printf("void %s(const Tmm& x1, const Tmm& x2, const Tmm& x3) { opVex(x1, &x3, x2, %s, 0x%02X); }\n", t.name, s.c_str(), t.code);
+	}
 }
 
 void putFixed()
@@ -2082,9 +2100,8 @@ void putFixed()
 	puts("#ifdef XBYAK64");
 	put64();
 	putAMX_TILE();
-	putAMX_INT8();
-	putAMX_BF16();
-	putAMX_rev54();
+	putAMX_TTT();
+	putAMX_TM();
 	puts("#else");
 	put32();
 	puts("#endif");
