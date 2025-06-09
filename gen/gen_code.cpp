@@ -2043,10 +2043,11 @@ void put64()
 
 void putAMX_TILE()
 {
-	puts("void ldtilecfg(const Address& addr) { if (opROO(Reg(), addr, tmm0, T_APX|T_0F38|T_W0, 0x49)) return; opVex(tmm0, &tmm0, addr, T_0F38|T_W0, 0x49); }");
-	puts("void sttilecfg(const Address& addr) { if (opROO(Reg(), addr, tmm0, T_APX|T_66|T_0F38|T_W0, 0x49)) return; opVex(tmm0, &tmm0, addr, T_66|T_0F38 | T_W0, 0x49); }");
+	puts("void ldtilecfg(const Address& addr) { opAMX(tmm0, addr, T_0F38|T_W0, 0x49); }");
+	puts("void sttilecfg(const Address& addr) { opAMX(tmm0, addr,  T_66|T_0F38|T_W0, 0x49); }");
+	puts("void tilestored(const Address& addr, const Tmm& tm) { opAMX(tm, addr, T_F3|T_0F38|T_W0, 0x4B); }");
+
 	puts("void tilerelease() { db(0xc4); db(0xe2); db(0x78); db(0x49); db(0xc0); }");
-	puts("void tilestored(const Address& addr, const Tmm& tm) { if (opROO(Reg(), addr, tm, T_APX|T_F3|T_0F38|T_W0, 0x4B)) return; opVex(tm, &tmm0, addr, T_F3|T_0F38|T_W0, 0x4B); }");
 	puts("void tilezero(const Tmm& Tmm) { opVex(Tmm, &tmm0, tmm0, T_F2 | T_0F38 | T_W0, 0x49); }");
 }
 
@@ -2060,7 +2061,8 @@ void putAMX_TM()
 		{ "tileloadd", T_F2 | T_0F38 | T_W0, 0x4B },
 		{ "tileloaddt1", T_66 | T_0F38 | T_W0, 0x4B },
 		{ "tileloaddrs", T_F2 | T_0F38 | T_W0, 0x4A },
-		{ "tileloaddrst1", T_66 | T_0F38 | T_W0, 0x4A }
+		{ "tileloaddrst1", T_66 | T_0F38 | T_W0, 0x4A },
+//		{ "t2rpntlvwz0", T_0F38 | T_W0, 0x6E },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl& t = tbl[i];
