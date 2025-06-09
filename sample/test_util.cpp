@@ -117,6 +117,7 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tAMX_TF32, "amx_tf32" },
 		{ Cpu::tAMX_AVX512, "amx_avx512" },
 		{ Cpu::tAMX_MOVRS, "amx_movrs" },
+		{ Cpu::tMOVRS, "movrs" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
