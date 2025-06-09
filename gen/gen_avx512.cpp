@@ -1122,12 +1122,35 @@ void putAVX10_2()
 	}
 }
 
+void putAMX_TTRorI()
+{
+	const struct Tbl {
+		const char *name;
+		uint64_t type;
+		uint8_t code;
+		bool imm;
+	} tbl[] = {
+		{ "tcvtrowps2bf16h", T_F2|T_0F38|T_MUST_EVEX|T_W0, 0x6D, false },
+		{ "tcvtrowps2bf16h", T_F2|T_0F3A|T_MUST_EVEX|T_W0, 0x07, true },
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		const Tbl& t = tbl[i];
+		std::string s = type2String(t.type);
+		if (t.imm) {
+			printf("void %s(const Zmm& z, const Tmm& t, uint8_t imm) { opVex(z, 0, t, %s, 0x%02X, imm); }\n", t.name, s.c_str(), t.code);
+		} else {
+			printf("void %s(const Zmm& z, const Tmm& t, const Reg32& r) { opVex(z, &r, t, %s, 0x%02X); }\n", t.name, s.c_str(), t.code);
+		}
+	}
+}
+
 int main(int argc, char *[])
 {
 	bool only64bit = argc == 2;
 	putOpmask(only64bit);
 	putBroadcast(only64bit);
 	if (only64bit) {
+		putAMX_TTRorI();
 		return 0;
 	}
 	putVcmp();
