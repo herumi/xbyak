@@ -1,7 +1,9 @@
 ldtilecfg(ptr[rax + rcx * 4 + 64]);
 ldtilecfg(ptr [r30+r29*4+0x12]);
+ldtilecfg(ptr [rax]);
 sttilecfg(ptr[rsp + rax * 8 + 128]);
 sttilecfg(ptr [r30+r29*4+0x12]);
+sttilecfg(ptr [r30]);
 tileloadd(tmm3, ptr[rdi + rdx * 2 + 8]);
 tileloadd(tmm2, ptr [r30+r29*4+0x12]);
 tileloaddt1(tmm4, ptr[r8 + r9 + 32]);
