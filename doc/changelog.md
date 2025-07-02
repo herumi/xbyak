@@ -1,5 +1,6 @@
 # History
 
+* 2025/Jul/02 ver 7.27 disable embedded rounding and sae for YMM according to AVX10.2 rev 4.0
 * 2025/Jun/06 ver 7.26 support AMX-{MOVRS,AVX512,FP8,TF32,TRANSPOSE} for Diamond Rapids
 * 2025/Jun/02 ver 7.25 rename BF16 operations according to new AVX10.2 specification
 * 2025/Mar/12 ver 7.24.2 fix. vcvtneps2bf16 should support AVX-NE-CONVERT (revert 749aa31)
