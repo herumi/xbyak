@@ -17,7 +17,13 @@ CYBOZU_TEST_AUTO(ymm_with_sae)
 		{
 			CYBOZU_TEST_EXCEPTION(vaddpd(ymm1, ymm2, ymm3 |T_rn_sae), std::exception);
 			CYBOZU_TEST_EXCEPTION(vcvtph2ibs(xmm1, xmm31 | T_rd_sae), std::exception);
-//			CYBOZU_TEST_EXCEPTION(vcvtph2ibs(ymm1, ymm31 | T_rd_sae), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvtph2ibs(ymm1, ymm31 | T_rd_sae), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvt2ps2phx(ymm1, ymm2, ymm3 | T_rd_sae), std::exception);
+			CYBOZU_TEST_EXCEPTION(vminmaxpd(ymm1, ymm2, ymm3 | T_sae, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vminmaxph(ymm1, ymm2, ymm3 | T_sae, 2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vminmaxps(ymm1, ymm2, ymm3 | T_sae, 3), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvtps2ibs(ym1, ym2|T_rd_sae), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvtps2ibs(xm1, xm2|T_rd_sae), std::exception);
 		}
 	} c;
 }

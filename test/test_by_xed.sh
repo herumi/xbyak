@@ -14,7 +14,7 @@ fi
 
 TARGET=$1
 
-CFLAGS="$CFLAGS_USER -Wall -Wextra -I ../"
+CFLAGS="$CFLAGS_USER -g -Wall -Wextra -I ../"
 
 echo "test:" $TARGET
 cp $TARGET tmp.cpp

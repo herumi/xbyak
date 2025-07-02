@@ -67,7 +67,7 @@ avx10_test: avx10_test.cpp $(XBYAK_INC)
 sf_test: sf_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK64
 
-TEST_FILES=old.txt new-ymm.txt bf16.txt comp.txt misc.txt convert.txt minmax.txt saturation.txt apx.txt amx.txt
+TEST_FILES=old.txt bf16.txt comp.txt misc.txt convert.txt minmax.txt saturation.txt apx.txt amx.txt
 xed_test:
 	@set -e; \
 	for target in $(addprefix dataset/, $(TEST_FILES)); do \

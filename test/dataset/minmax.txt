@@ -15,7 +15,6 @@ vminmaxpd(xm1|k3|T_z, xm2, ptr[rax+128], 5);
 vminmaxpd(xm1|k3|T_z, xm2, ptr_b[rax+128], 5);
 
 vminmaxpd(ym1|k3|T_z, ym2, ym3, 5);
-vminmaxpd(ym1|k3|T_z, ym2, ym3|T_sae, 5);
 vminmaxpd(ym1|k3|T_z, ym2, ptr[rax+128], 5);
 vminmaxpd(ym1|k3|T_z, ym2, ptr_b[rax+128], 5);
 
@@ -30,7 +29,6 @@ vminmaxph(xm1|k3|T_z, xm2, ptr[rax+128], 5);
 vminmaxph(xm1|k3|T_z, xm2, ptr_b[rax+128], 5);
 
 vminmaxph(ym1|k3|T_z, ym2, ym3, 5);
-vminmaxph(ym1|k3|T_z, ym2, ym3|T_sae, 5);
 vminmaxph(ym1|k3|T_z, ym2, ptr[rax+128], 5);
 vminmaxph(ym1|k3|T_z, ym2, ptr_b[rax+128], 5);
 
@@ -44,7 +42,6 @@ vminmaxps(xm1|k3|T_z, xm2, ptr[rax+128], 5);
 vminmaxps(xm1|k3|T_z, xm2, ptr_b[rax+128], 5);
 
 vminmaxps(ym1|k3|T_z, ym2, ym3, 5);
-vminmaxps(ym1|k3|T_z, ym2, ym3|T_sae, 5);
 vminmaxps(ym1|k3|T_z, ym2, ptr[rax+128], 5);
 vminmaxps(ym1|k3|T_z, ym2, ptr_b[rax+128], 5);
 
