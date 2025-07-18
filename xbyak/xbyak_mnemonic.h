@@ -714,7 +714,6 @@ void movntq(const Address& addr, const Mmx& mmx) { if (!mmx.isMMX()) XBYAK_THROW
 void movq(const Address& addr, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opSSE(mmx, addr, T_0F | T_ALLOW_DIFF_SIZE, mmx.isXMM() ? 0xD6 : 0x7F); }
 void movq(const Mmx& mmx, const Operand& op) { if (!op.isMEM() && mmx.getKind() != op.getKind()) XBYAK_THROW(ERR_BAD_COMBINATION) if (mmx.isXMM()) db(0xF3); opSSE(mmx, op, T_0F | T_ALLOW_DIFF_SIZE, mmx.isXMM() ? 0x7E : 0x6F); }
 void movq2dq(const Xmm& xmm, const Mmx& mmx) { opSSE(xmm, mmx, T_F3 | T_0F, 0xD6); }
-void movrs(const Reg& reg, const Address& addr) { opMR(addr, reg, T_0F38, reg.isBit(8) ? 0x8A : 0x8B); }
 void movsb() { db(0xA4); }
 void movsd() { db(0xA5); }
 void movsd(const Address& addr, const Xmm& xmm) { opSSE(xmm, addr, T_0F|T_F2, 0x11); }
@@ -1879,6 +1878,7 @@ void cmpxchg16b(const Address& addr) { opMR(addr, Reg64(1), T_0F, 0xC7); }
 void fxrstor64(const Address& addr) { opMR(addr, Reg64(1), T_0F, 0xAE); }
 void movq(const Reg64& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opSSE(mmx, reg, T_0F, 0x7E); }
 void movq(const Mmx& mmx, const Reg64& reg) { if (mmx.isXMM()) db(0x66); opSSE(mmx, reg, T_0F, 0x6E); }
+void movrs(const Reg& reg, const Address& addr) { opMR(addr, reg, T_0F38, reg.isBit(8) ? 0x8A : 0x8B); }
 void movsxd(const Reg64& reg, const Operand& op) { if (!op.isBit(32)) XBYAK_THROW(ERR_BAD_COMBINATION) opRO(reg, op, T_ALLOW_DIFF_SIZE, 0x63); }
 void pextrq(const Operand& op, const Xmm& xmm, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opSSE(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x16, 0, imm); }
 void pinsrq(const Xmm& xmm, const Operand& op, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opSSE(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x22, 0, imm); }
