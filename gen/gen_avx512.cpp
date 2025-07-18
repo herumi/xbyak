@@ -1154,6 +1154,23 @@ void putAMX_TTRorI()
 	}
 }
 
+void putVmovrs()
+{
+	const struct {
+		char suf;
+		uint64_t type;
+	} tbl[] = {
+		{ 'b', T_F2|T_W0 },
+		{ 'd', T_F3|T_W0 },
+		{ 'q', T_F3|T_EW1 },
+		{ 'w', T_F2|T_EW1 },
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		std::string s = type2String(tbl[i].type|T_MAP5|T_MUST_EVEX);
+		printf("void vmovrs%c(const Xmm& x, const Address& addr) { opVex(x, 0, addr, %s, 0x6F); }\n", tbl[i].suf, s.c_str());
+	}
+}
+
 int main(int argc, char *[])
 {
 	bool only64bit = argc == 2;
@@ -1161,6 +1178,7 @@ int main(int argc, char *[])
 	putBroadcast(only64bit);
 	if (only64bit) {
 		putAMX_TTRorI();
+		putVmovrs();
 		return 0;
 	}
 	putVcmp();

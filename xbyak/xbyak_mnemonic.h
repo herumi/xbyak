@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "7.27"; }
+const char *getVersionString() const { return "7.28"; }
 void aadd(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38, 0x0FC, T_APX); }
 void aand(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38|T_66, 0x0FC, T_APX|T_66); }
 void adc(const Operand& op, uint32_t imm) { opOI(op, imm, 0x10, 2); }
@@ -714,6 +714,7 @@ void movntq(const Address& addr, const Mmx& mmx) { if (!mmx.isMMX()) XBYAK_THROW
 void movq(const Address& addr, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opSSE(mmx, addr, T_0F | T_ALLOW_DIFF_SIZE, mmx.isXMM() ? 0xD6 : 0x7F); }
 void movq(const Mmx& mmx, const Operand& op) { if (!op.isMEM() && mmx.getKind() != op.getKind()) XBYAK_THROW(ERR_BAD_COMBINATION) if (mmx.isXMM()) db(0xF3); opSSE(mmx, op, T_0F | T_ALLOW_DIFF_SIZE, mmx.isXMM() ? 0x7E : 0x6F); }
 void movq2dq(const Xmm& xmm, const Mmx& mmx) { opSSE(xmm, mmx, T_F3 | T_0F, 0xD6); }
+void movrs(const Reg& reg, const Address& addr) { opMR(addr, reg, T_0F38, reg.isBit(8) ? 0x8A : 0x8B); }
 void movsb() { db(0xA4); }
 void movsd() { db(0xA5); }
 void movsd(const Address& addr, const Xmm& xmm) { opSSE(xmm, addr, T_0F|T_F2, 0x11); }
@@ -2694,6 +2695,10 @@ void tcvtrowps2phl(const Zmm& z, const Tmm& t, const Reg32& r) { opVex(z, &r, t,
 void tcvtrowps2phl(const Zmm& z, const Tmm& t, uint8_t imm) { opVex(z, 0, t, T_F2|T_0F3A|T_W0|T_MUST_EVEX, 0x77, imm); }
 void tilemovrow(const Zmm& z, const Tmm& t, const Reg32& r) { opVex(z, &r, t, T_66|T_0F38|T_W0|T_MUST_EVEX, 0x4A); }
 void tilemovrow(const Zmm& z, const Tmm& t, uint8_t imm) { opVex(z, 0, t, T_66|T_0F3A|T_W0|T_MUST_EVEX, 0x07, imm); }
+void vmovrsb(const Xmm& x, const Address& addr) { opVex(x, 0, addr, T_F2|T_MAP5|T_W0|T_MUST_EVEX, 0x6F); }
+void vmovrsd(const Xmm& x, const Address& addr) { opVex(x, 0, addr, T_F3|T_MAP5|T_W0|T_MUST_EVEX, 0x6F); }
+void vmovrsq(const Xmm& x, const Address& addr) { opVex(x, 0, addr, T_F3|T_MAP5|T_EW1|T_MUST_EVEX, 0x6F); }
+void vmovrsw(const Xmm& x, const Address& addr) { opVex(x, 0, addr, T_F2|T_MAP5|T_EW1|T_MUST_EVEX, 0x6F); }
 void vpbroadcastq(const Xmm& x, const Reg64& r) { opVex(x, 0, r, T_66|T_0F38|T_EW1|T_YMM|T_MUST_EVEX, 0x7C); }
 #endif
 #endif
