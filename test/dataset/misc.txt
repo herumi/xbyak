@@ -242,3 +242,8 @@ pop(r28);
 pop(r29);
 pop(r30);
 pop(r31);
+
+movrs(rcx, ptr[rax]);
+movrs(ecx, ptr[rax]);
+movrs(cx, ptr[rax]);
+movrs(cl, ptr[rax+rdx*4]);
