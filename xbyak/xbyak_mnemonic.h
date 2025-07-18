@@ -720,6 +720,7 @@ void movsd(const Address& addr, const Xmm& xmm) { opSSE(xmm, addr, T_0F|T_F2, 0x
 void movsd(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x10, T_0F, T_F2); }
 void movshdup(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_F3|T_0F|T_W0|T_YMM|T_EVEX, 0x16, isXMM_XMMorMEM, NONE); }
 void movsldup(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_F3|T_0F|T_W0|T_YMM|T_EVEX, 0x12, isXMM_XMMorMEM, NONE); }
+void movrs(const Reg& reg, const Address& addr) { opSSE(reg, addr, T_W0|T_0F38|T_EVEX, reg.isBit(8) ? 0x8A : 0x8B); };
 void movss(const Address& addr, const Xmm& xmm) { opSSE(xmm, addr, T_0F|T_F3, 0x11); }
 void movss(const Xmm& xmm, const Operand& op) { opMMX(xmm, op, 0x10, T_0F, T_F3); }
 void movsw() { db(0x66); db(0xA5); }
