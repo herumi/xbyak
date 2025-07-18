@@ -247,3 +247,19 @@ movrs(rcx, ptr[rax]);
 movrs(ecx, ptr[rax]);
 movrs(cx, ptr[rax]);
 movrs(cl, ptr[rax+rdx*4]);
+
+vmovrsb(xm1|k1|T_z, ptr[rax+128]);
+vmovrsb(ym1|k1|T_z, ptr[rax+128]);
+vmovrsb(zm1|k1|T_z, ptr[rax+128]);
+
+vmovrsd(xm1|k1|T_z, ptr[rax+128]);
+vmovrsd(ym1|k1|T_z, ptr[rax+128]);
+vmovrsd(zm1|k1|T_z, ptr[rax+128]);
+
+vmovrsq(xm1|k1|T_z, ptr[rax+128]);
+vmovrsq(ym1|k1|T_z, ptr[rax+128]);
+vmovrsq(zm1|k1|T_z, ptr[rax+128]);
+
+vmovrsw(xm1|k1|T_z, ptr[rax+128]);
+vmovrsw(ym1|k1|T_z, ptr[rax+128]);
+vmovrsw(zm1|k1|T_z, ptr[rax+128]);
