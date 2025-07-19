@@ -994,10 +994,11 @@ public:
 #else
 	enum { i32e = 32 };
 #endif
-	XBYAK_CONSTEXPR RegExp(size_t disp = 0) : scale_(0), disp_(disp) { }
+	XBYAK_CONSTEXPR RegExp(size_t disp = 0) : scale_(0), disp_(disp), label_(0) { }
 	XBYAK_CONSTEXPR RegExp(const Reg& r, int scale = 1)
 		: scale_(scale)
 		, disp_(0)
+		, label_(0)
 	{
 		if (!r.isREG(i32e) && !r.is(Reg::XMM|Reg::YMM|Reg::ZMM|Reg::TMM)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
 		if (scale == 0) return;
@@ -1007,6 +1008,12 @@ public:
 		} else {
 			base_ = r;
 		}
+	}
+	RegExp(Label& label)
+		: scale_(1)
+		, disp_(0)
+		, label_(&label)
+	{
 	}
 	bool isVsib(int bit = 128 | 256 | 512) const { return index_.isBit(bit); }
 	RegExp optimize() const
@@ -1046,6 +1053,7 @@ private:
 	Reg index_;
 	int scale_;
 	size_t disp_;
+	Label *label_;
 };
 
 inline RegExp operator+(const RegExp& a, const RegExp& b)
@@ -1410,6 +1418,7 @@ public:
 	{
 		return Address(bit_, broadcast_, RegExp(reinterpret_cast<size_t>(disp)));
 	}
+	Address operator[](Label& label) const;
 #ifdef XBYAK64
 	Address operator[](uint64_t disp) const { return Address(disp); }
 	Address operator[](const RegRip& addr) const { return Address(bit_, broadcast_, addr); }
@@ -1456,6 +1465,16 @@ public:
 		return buf;
 	}
 };
+
+inline Address AddressFrame::operator[](Label& label) const
+{
+	const uint8_t *addr = label.getAddress();
+	if (addr) {
+		return operator[](addr);
+	} else {
+		return Address(bit_, broadcast_, RegExp(label));
+	}
+}
 
 class LabelManager {
 	// for string label
