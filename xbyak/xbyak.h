@@ -1440,6 +1440,7 @@ public:
 	~Label();
 	void clear() { mgr = 0; id = 0; }
 	int getId() const { return id; }
+	bool isDefined() const;
 	const uint8_t *getAddress() const;
 
 	// backward compatibility
@@ -1673,8 +1674,13 @@ public:
 	bool hasUndefClabel() const { return hasUndefinedLabel_inner(clabelUndefList_); }
 	const uint8_t *getCode() const { return base_->getCode(); }
 	bool isReady() const { return !base_->isAutoGrow() || base_->isCalledCalcJmpAddress(); }
+	bool isDefined(const Label& label) const { return clabelDefList_.find(label.id) != clabelDefList_.end(); }
 };
 
+inline bool Label::isDefined() const
+{
+	return mgr && mgr->isDefined(*this);
+}
 inline Label::Label(const Label& rhs)
 {
 	id = rhs.id;

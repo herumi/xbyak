@@ -1384,6 +1384,25 @@ CYBOZU_TEST_AUTO(setDefaultJmpNEAR)
 	}
 }
 
+CYBOZU_TEST_AUTO(isDefined)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			Label L1, L2;
+			CYBOZU_TEST_ASSERT(!L1.isDefined());
+			CYBOZU_TEST_ASSERT(!L2.isDefined());
+			L(L1);
+			jmp(L2);
+			CYBOZU_TEST_ASSERT(L1.isDefined());
+			CYBOZU_TEST_ASSERT(!L2.isDefined());
+			L(L2);
+			CYBOZU_TEST_ASSERT(L1.isDefined());
+			CYBOZU_TEST_ASSERT(L2.isDefined());
+		}
+	} code;
+}
+
 CYBOZU_TEST_AUTO(ambiguousFarJmp)
 {
 	struct Code : Xbyak::CodeGenerator {
