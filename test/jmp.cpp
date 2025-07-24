@@ -370,6 +370,57 @@ CYBOZU_TEST_AUTO(test3)
 		CYBOZU_TEST_EQUAL(x, ok);
 	}
 }
+
+CYBOZU_TEST_AUTO(addr_label_backward_ref1)
+{
+	const int c1 = 123;
+	const int c2 = 567;
+	const int c3 = 999;
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			Label L1, L2;
+			jmp(L2);
+		L(L1);
+			dd(c1);
+			dd(c2);
+		L(L2);
+			mov(eax, ptr[L1]);
+			add(dword[L1+4], c3);
+			add(eax, ptr[L1+4]);
+			ret();
+		}
+	} code;
+	int v = code.getCode<int (*)()>()();
+	CYBOZU_TEST_EQUAL(v, c1 + c2 + c3);
+}
+
+CYBOZU_TEST_AUTO(addr_label_backward_ref2)
+{
+	const int c = 123;
+	const int N = 3;
+
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			Label L1, L2;
+			jmp(L2);
+		L(L1);
+			for (int i = 0; i < N; i++) {
+				dd(c + i);
+			}
+		L(L2);
+			xor_(ecx, ecx);
+			mov(eax, ptr[L1+ecx]);
+			for (int i = 1; i < N; i++) {
+				add(eax, ptr[L1+ecx+i*4]);
+			}
+			ret();
+		}
+	} code;
+	int v = code.getCode<int (*)()>()();
+	CYBOZU_TEST_EQUAL(v, c * N + N * (N-1)/2);
+}
 #endif
 
 uint8_t bufL[4096 * 32];
