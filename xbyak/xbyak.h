@@ -1520,8 +1520,8 @@ inline RegExp::RegExp(Label& label)
 {
 	const uint8_t *addr = label.getAddress();
 	if (addr) {
-		disp_ = 0;//size_t(addr);
-		label_ = &label;
+		disp_ = size_t(addr);
+		label_ = 0;
 	} else {
 		label_ = &label;
 	}
