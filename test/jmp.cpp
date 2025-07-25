@@ -411,9 +411,10 @@ CYBOZU_TEST_AUTO(addr_label_backward_ref2)
 			}
 		L(L2);
 			xor_(ecx, ecx);
+			mov(edx, 1);
 			mov(eax, ptr[L1+ecx]);
 			for (int i = 1; i < N; i++) {
-				add(eax, ptr[L1+ecx+i*4]);
+				add(eax, ptr[L1+ecx+i*4 + edx*4-4]);
 			}
 			ret();
 		}
@@ -472,6 +473,19 @@ CYBOZU_TEST_AUTO(addr_label_forward_ref1)
 	code1.test();
 	Code code2(4096, Xbyak::AutoGrow);
 	code2.test();
+}
+
+CYBOZU_TEST_AUTO(badAddress)
+{
+	using namespace Xbyak;
+	struct Code : CodeGenerator {
+		Code()
+		{
+			Label L1, L2;
+			CYBOZU_TEST_EXCEPTION(L1 + L2, Error);
+		}
+	};
+	Code code;
 }
 
 #endif
@@ -1286,6 +1300,10 @@ CYBOZU_TEST_AUTO(rip)
 
 			// error
 			CYBOZU_TEST_EXCEPTION(rip + label1 + label2, Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(rip + rax, Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(rax + rip, Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(rax + rbx + rcx, Xbyak::Error);
+			CYBOZU_TEST_EXCEPTION(rip + rip, Xbyak::Error);
 		}
 	} code(a, b);
 	int ret = code.getCode<int (*)()>()();

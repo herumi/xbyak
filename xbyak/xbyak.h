@@ -915,28 +915,6 @@ struct RegRip {
 	const Label* label_;
 	bool isAddr_;
 	explicit XBYAK_CONSTEXPR RegRip(int64_t disp = 0, const Label* label = 0, bool isAddr = false) : disp_(disp), label_(label), isAddr_(isAddr) {}
-#if 0
-	friend const RegRip operator+(const RegRip& r, int disp) {
-		return RegRip(r.disp_ + disp, r.label_, r.isAddr_);
-	}
-	friend const RegRip operator-(const RegRip& r, int disp) {
-		return RegRip(r.disp_ - disp, r.label_, r.isAddr_);
-	}
-	friend const RegRip operator+(const RegRip& r, int64_t disp) {
-		return RegRip(r.disp_ + disp, r.label_, r.isAddr_);
-	}
-	friend const RegRip operator-(const RegRip& r, int64_t disp) {
-		return RegRip(r.disp_ - disp, r.label_, r.isAddr_);
-	}
-	friend const RegRip operator+(const RegRip& r, const Label& label) {
-		if (r.label_ || r.isAddr_) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegRip());
-		return RegRip(r.disp_, &label);
-	}
-	friend const RegRip operator+(const RegRip& r, const void *addr) {
-		if (r.label_ || r.isAddr_) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegRip());
-		return RegRip(r.disp_ + (int64_t)addr, 0, true);
-	}
-#endif
 };
 #endif
 
@@ -1105,6 +1083,7 @@ inline RegExp operator+(const RegExp& a, const RegExp& b)
 	if (a.index_.getBit() && b.index_.getBit()) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegExp())
 	if (a.label_ && b.label_) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegExp())
 	if (b.rip_) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegExp())
+	if (a.rip_ && !b.isOnlyDisp()) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegExp())
 	if (a.setLabel_ && b.setLabel_) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegExp())
 	RegExp ret = a;
 	if (ret.label_ == 0) ret.label_ = b.label_;
