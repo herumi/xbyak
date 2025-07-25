@@ -421,6 +421,59 @@ CYBOZU_TEST_AUTO(addr_label_backward_ref2)
 	int v = code.getCode<int (*)()>()();
 	CYBOZU_TEST_EQUAL(v, c * N + N * (N-1)/2);
 }
+
+CYBOZU_TEST_AUTO(addr_label_forward_ref1)
+{
+	using namespace Xbyak;
+	static const int c1 = 10;
+	static const int c2 = 100;
+	static const int c3 = 1000;
+	static const int c4 = 10000;
+	static const int c5 = 100000;
+	struct Code : CodeGenerator {
+		Code(size_t size, void *mode)
+			: CodeGenerator(size, mode)
+		{
+			Label L1, L2, L3;
+			mov(eax, ptr[L1]); // c1
+			mov(ecx, ptr[L1+4]); // c2
+			add(eax, ecx);
+			add(eax, ptr[L2]); // c2
+			add(eax, ptr[L2+4]); // c3
+			call(L3);
+//			call(L3 + 32);
+			ret();
+			for (int i = 0; i < 4096; i++) {
+				db(0);
+			}
+		L(L1);
+			dd(c1);
+		L(L2);
+			dd(c2);
+			dd(c3);
+			align(32);
+		L(L3);
+			add(eax, c4);
+			ret();
+			align(32);
+//		L(L4);
+			add(eax, c5);
+			ret();
+
+			ready();
+		}
+		void test()
+		{
+			int v = getCode<int (*)()>()();
+			CYBOZU_TEST_EQUAL(v, c1 + c2 * 2 + c3 + c4 /*+ c5*/);
+		}
+	};
+	Code code1(8096, 0);
+	code1.test();
+	Code code2(4096, Xbyak::AutoGrow);
+	code2.test();
+}
+
 #endif
 
 uint8_t bufL[4096 * 32];
