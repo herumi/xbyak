@@ -1381,18 +1381,31 @@ CYBOZU_TEST_AUTO(rip_addr)
 	CYBOZU_TEST_ASSERT(size_t(buf) < 0x100000000);
 	int *px = (int*)buf;
 	{
+		const int v0 = 1;
+		const int v1 = 3;
+		const int v2 = 9;
 		struct Code : Xbyak::CodeGenerator {
 			Code(uint8_t *p, int *data)
 				: Xbyak::CodeGenerator(size, p)
 			{
-				mov(eax, 123);
+				Label L1, L2, L3;
+				jmp(L1);
+			L(L2);
+				dd(v0);
+			L(L1);
+				mov(eax, v1);
 				mov(ptr[rip + data], eax);
+				mov(eax, ptr[L2]);
+				add(eax, ptr[L3]);
 				ret();
+			L(L3);
+				dd(v2);
 			}
 		} code(buf + size, (int*)buf);
 		code.setProtectModeRE();
-		code.getCode<void (*)()>()();
-		CYBOZU_TEST_EQUAL(*px, 123);
+		int v = code.getCode<int (*)()>()();
+		CYBOZU_TEST_EQUAL(*px, v1);
+		CYBOZU_TEST_EQUAL(v, v0 + v2);
 	}
 	free32bitAddress(buf, size * 2);
 }

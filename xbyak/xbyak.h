@@ -2135,7 +2135,7 @@ private:
 			db(disp);
 		} else if (mod == mod10 || (mod == mod00 && !baseBit)) {
 			if (label) {
-				putL_inner(*label, false, e.getDisp() - addr.immSize);
+				putL_inner(*label, false, e.getDisp() - addr.immSize, 4);
 			} else {
 				dd(disp);
 			}
@@ -2262,7 +2262,7 @@ private:
 		} else if (addr.getMode() == inner::M_rip || addr.getMode() == inner::M_ripAddr) {
 			setModRM(0, reg, 5);
 			if (addr.getLabel()) { // [rip + Label]
-				putL_inner(*addr.getLabel(), true, addr.getDisp() - addr.immSize);
+				putL_inner(*addr.getLabel(), true, addr.getDisp() - addr.immSize, 4);
 			} else {
 				size_t disp = addr.getDisp();
 				if (addr.getMode() == inner::M_ripAddr) {
@@ -2517,9 +2517,9 @@ private:
 		return bit / 8;
 	}
 	template<class T>
-	void putL_inner(T& label, bool relative = false, size_t disp = 0)
+	void putL_inner(T& label, bool relative = false, size_t disp = 0, int jmpSize = (int)sizeof(size_t))
 	{
-		const int jmpSize = relative ? 4 : (int)sizeof(size_t);
+		if (relative) jmpSize = 4;
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory();
 		size_t offset = 0;
 		if (labelMgr_.getOffset(&offset, label)) {
