@@ -1384,6 +1384,7 @@ CYBOZU_TEST_AUTO(rip_addr)
 		const int v0 = 1;
 		const int v1 = 3;
 		const int v2 = 9;
+		const int v3 = 10;
 		struct Code : Xbyak::CodeGenerator {
 			Code(uint8_t *p, int *data)
 				: Xbyak::CodeGenerator(size, p)
@@ -1396,16 +1397,20 @@ CYBOZU_TEST_AUTO(rip_addr)
 				mov(eax, v1);
 				mov(ptr[rip + data], eax);
 				mov(eax, ptr[L2]);
+				mov(edx, eax);
+				mov(eax, ptr[L3+4]);
 				add(eax, ptr[L3]);
+				add(eax, edx);
 				ret();
 			L(L3);
 				dd(v2);
+				dd(v3);
 			}
 		} code(buf + size, (int*)buf);
 		code.setProtectModeRE();
 		int v = code.getCode<int (*)()>()();
 		CYBOZU_TEST_EQUAL(*px, v1);
-		CYBOZU_TEST_EQUAL(v, v0 + v2);
+		CYBOZU_TEST_EQUAL(v, v0 + v2 + v3);
 	}
 	free32bitAddress(buf, size * 2);
 }
