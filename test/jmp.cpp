@@ -1341,25 +1341,61 @@ CYBOZU_TEST_AUTO(rip_jmp)
 	CYBOZU_TEST_EQUAL(ret, ret1234() + ret9999());
 }
 
-#if 0
+#ifdef _WIN32
+#include <windows.h>
+// get address in 32bit
+void *get32bitAddress(uint32_t size)
+{
+	size_t expectedAddress = 0x10000000;
+	return VirtualAlloc((void*)expectedAddress, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+}
+
+void free32bitAddress(void *p, uint32_t)
+{
+	if (p == 0) return;
+	VirtualFree(p, 0, MEM_RELEASE);
+}
+
+#else
+#include <sys/mman.h>
+void *get32bitAddress(uint32_t size)
+{
+	return mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_32BIT, -1, 0);
+}
+
+void free32bitAddress(void *p, uint32_t size)
+{
+	munmap(p, size);
+}
+#endif
+
 CYBOZU_TEST_AUTO(rip_addr)
 {
 	/*
 		we can't assume |&x - &code| < 2GiB anymore
 	*/
-	static int x = 5;
-	struct Code : Xbyak::CodeGenerator {
-		Code()
-		{
-			mov(eax, 123);
-			mov(ptr[rip + &x], eax);
-			ret();
-		}
-	} code;
-	code.getCode<void (*)()>()();
-	CYBOZU_TEST_EQUAL(x, 123);
+	const uint32_t size = 4096;
+	uint8_t *buf = (uint8_t*)get32bitAddress(size * 2);
+	printf("buf=%p\n", buf);
+	CYBOZU_TEST_ASSERT(buf);
+	CYBOZU_TEST_ASSERT(size_t(buf) < 0x100000000);
+	int *px = (int*)buf;
+	{
+		struct Code : Xbyak::CodeGenerator {
+			Code(uint8_t *p, int *data)
+				: Xbyak::CodeGenerator(size, p)
+			{
+				mov(eax, 123);
+				mov(ptr[rip + data], eax);
+				ret();
+			}
+		} code(buf + size, (int*)buf);
+		code.setProtectModeRE();
+		code.getCode<void (*)()>()();
+		CYBOZU_TEST_EQUAL(*px, 123);
+	}
+	free32bitAddress(buf, size * 2);
 }
-#endif
 
 #ifndef __APPLE__
 CYBOZU_TEST_AUTO(rip_addr_with_fixed_buf)
