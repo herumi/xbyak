@@ -354,6 +354,24 @@ int x;
   mov(eax, ptr[rip + &x]); // throw exception if the difference between &x and current position is larger than 2GiB
 ```
 
+### Addressing with Label
+The Label class can be used for addressing displacement.
+However, in 64-bit mode, `dataL.getAddress()` must be 2GiB or less.
+
+```cpp
+Label dataL;
+
+  mov(eax, ptr[dataL+ecx*4]);
+  ...
+L(dataL);
+  for (int i = 0; i < 10; i++) {
+    dd(i);
+  }
+  ...
+```
+
+Only the form `mov((al|ax|eax|rax), ptr[label])` can be used even if the label exceeds 2GiB.
+
 ## Far jump
 
 Use `word|dword|qword` instead of `ptr` to specify the address size.
