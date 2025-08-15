@@ -1368,7 +1368,14 @@ public:
 		if (e.rip_) {
 			mode_ = (e.label_ || e.setLabel_) ? inner::M_ripAddr : inner::M_rip;
 		} else {
-			mode_ = inner::M_ModRM;
+#ifdef XBYAK64
+			if (e.isOnlyDisp() && (0x80000000 <= e.getDisp() || e.getLabel())) {
+				mode_ = inner::M_64bitDisp;
+			} else
+#endif
+			{
+				mode_ = inner::M_ModRM;
+			}
 		}
 		e_.verify();
 	}
@@ -3097,7 +3104,11 @@ public:
 			if (code) {
 				rex(*reg);
 				db(op1.isREG(8) ? 0xA0 : op1.isREG() ? 0xA1 : op2.isREG(8) ? 0xA2 : 0xA3);
-				db(addr->getDisp(), 8);
+				if (addr->getLabel()) {
+					putL_inner(*addr->getLabel(), false, addr->getDisp() - addr->immSize, 8);
+				} else {
+					db(addr->getDisp(), 8);
+				}
 			} else {
 				XBYAK_THROW(ERR_BAD_COMBINATION)
 			}
