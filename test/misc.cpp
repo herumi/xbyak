@@ -150,22 +150,44 @@ CYBOZU_TEST_AUTO(mov_const)
 			}
 			CYBOZU_TEST_EXCEPTION(mov(ah, cx), Xbyak::Error);
 			CYBOZU_TEST_EXCEPTION(mov(al, cx), Xbyak::Error);
-			if (sizeof(void*) != 4) { // sizeof(void*) == 4 on x32
-				CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0x17fffffff]), Xbyak::Error);
-			}
 #ifdef XBYAK_OLD_DISP_CHECK
 			CYBOZU_TEST_NO_EXCEPTION(mov(rax, ptr[(void*)0x80000000]));
 			CYBOZU_TEST_NO_EXCEPTION(mov(rax, ptr[(void*)0xffffffff]));
-#else
-			if (sizeof(void*) != 4) { // sizeof(void*) == 4 on x32
-				CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0x80000000ull]), Xbyak::Error);
-				CYBOZU_TEST_EXCEPTION(mov(rax, ptr[(void*)0xffffffffull]), Xbyak::Error);
-			}
 #endif
 #endif
 		}
 	} code;
 }
+
+#ifdef XBYAK64
+CYBOZU_TEST_AUTO(mov_8byte)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			mov(rax, ptr[(void*)0x17fffffff]);
+			mov(rax, ptr[(void*)0x80000000ull]);
+			mov(rax, ptr[(void*)0xffffffffull]);
+
+			mov(rax, ptr[0x17fffffff]);
+			mov(rax, ptr[0x80000000ull]);
+			mov(rax, ptr[0xffffffffull]);
+		}
+	} c;
+	const uint8_t tbl[] = {
+		0x48, 0xa1, 0xff, 0xff, 0xff, 0x7f, 0x01, 0x00, 0x00, 0x00,
+		0x48, 0xa1, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00,
+		0x48, 0xa1, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00,
+
+		0x48, 0xa1, 0xff, 0xff, 0xff, 0x7f, 0x01, 0x00, 0x00, 0x00,
+		0x48, 0xa1, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00,
+		0x48, 0xa1, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00,
+	};
+	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
+#endif
 
 CYBOZU_TEST_AUTO(align)
 {
