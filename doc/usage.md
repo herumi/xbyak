@@ -1,6 +1,6 @@
 # Usage
 
-Inherit `Xbyak::CodeGenerator` class and make the class method.
+Inherit the `Xbyak::CodeGenerator` class and define a class method.
 ```cpp
 #include <xbyak/xbyak.h>
 
@@ -12,7 +12,7 @@ struct Code : Xbyak::CodeGenerator {
     }
 };
 ```
-Or you can pass the instance of CodeGenerator without inheriting.
+Alternatively, you can pass an instance of `CodeGenerator` without inheriting.
 ```cpp
 void genCode(Xbyak::CodeGenerator& code, int x) {
     using namespace Xbyak::util;
@@ -21,8 +21,7 @@ void genCode(Xbyak::CodeGenerator& code, int x) {
 }
 ```
 
-Make an instance of the class and get the function
-pointer by calling `getCode()` and call it.
+Create an instance of the class, obtain the function pointer by calling `getCode()`, and invoke it.
 ```cpp
 Code c(5);
 int (*f)() = c.getCode<int (*)()>();
@@ -30,7 +29,7 @@ printf("ret=%d\n", f()); // ret = 5
 ```
 
 ## Syntax
-Similar to MASM/NASM syntax with parentheses.
+The syntax is similar to MASM/NASM, but uses parentheses for function-like expressions.
 
 ```cpp
 NASM              Xbyak
@@ -40,8 +39,7 @@ ret           --> ret();
 ```
 
 ## Addressing
-Use `qword`, `dword`, `word` and `byte` if it is necessary to specify the size of memory,
-otherwise use `ptr`.
+Use `qword`, `dword`, `word`, or `byte` to specify the memory size explicitly. If the size is not specified, `ptr` is used by default.
 
 ```cpp
 (ptr|qword|dword|word|byte) [base + index * (1|2|4|8) + displacement]
@@ -74,7 +72,7 @@ vgatherdpd(xmm1, ptr [ebp + 256 + xmm2*4], xmm3);
 ```
 
 **Note**:
-If `XBYAK_ENABLE_OMITTED_OPERAND` is defined, then you can use two operand version for backward compatibility.
+If `XBYAK_ENABLE_OMITTED_OPERAND` is defined, you can use the two-operand version for backward compatibility.
 But the newer version will not support it.
 ```cpp
 vaddps(xmm2, xmm3); // xmm2 <- xmm2 + xmm3
@@ -195,7 +193,7 @@ However, I abandoned this approach after discovering the complexity of the encod
 
 
 ## Label
-Two kinds of Label are supported. (String literal and Label class).
+Two types of labels are supported: string literals and the `Label` class.
 
 ### String literal
 ```cpp
@@ -392,7 +390,7 @@ The same applies to `call`.
 
 ## Code size
 The default max code size is 4096 bytes.
-Specify the size in constructor of `CodeGenerator()` if necessary.
+Specify the size in the constructor of `CodeGenerator()` if needed.
 
 ```cpp
 class Quantize : public Xbyak::CodeGenerator {
