@@ -1369,7 +1369,8 @@ public:
 			mode_ = (e.label_ || e.setLabel_) ? inner::M_ripAddr : inner::M_rip;
 		} else {
 #ifdef XBYAK64
-			if (e.isOnlyDisp() && (0x80000000 <= e.getDisp() || e.getLabel())) {
+			uint64_t disp = e.getDisp();
+			if (e.isOnlyDisp() && ((0x80000000 <= disp && disp <= 0xffffffff80000000) || e.getLabel())) {
 				mode_ = inner::M_64bitDisp;
 			} else
 #endif
