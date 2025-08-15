@@ -45,6 +45,43 @@ void dump(const std::string& m)
 	putchar('\n');
 }
 
+#if defined(_WIN64) || defined(__x86_64__)
+// 64bit
+
+#ifdef _WIN32
+#include <windows.h>
+// get address in 32bit
+void *get32bitAddress(uint32_t size)
+{
+	size_t expectedAddress = 0x10000000;
+	return VirtualAlloc((void*)expectedAddress, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+}
+
+void free32bitAddress(void *p, uint32_t)
+{
+	if (p == 0) return;
+	VirtualFree(p, 0, MEM_RELEASE);
+}
+
+#else
+#include <sys/mman.h>
+void *get32bitAddress(uint32_t size)
+{
+	return mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_32BIT, -1, 0);
+}
+
+void free32bitAddress(void *p, uint32_t size)
+{
+	munmap(p, size);
+}
+#endif
+
+#else
+// 32bit
+void *get32bitAddress(uint32_t size) { return malloc(size); }
+void free32bitAddress(void *p, uint32_t) { free(p); }
+#endif
+
 CYBOZU_TEST_AUTO(test1)
 {
 	struct TestJmp : public Xbyak::CodeGenerator {
@@ -337,92 +374,112 @@ CYBOZU_TEST_AUTO(test2)
 	}
 }
 
-#ifdef XBYAK32
-int add5(int x) { return x + 5; }
-int add2(int x) { return x + 2; }
-
-CYBOZU_TEST_AUTO(test3)
+CYBOZU_TEST_AUTO(badAddress)
 {
-	struct Grow : Xbyak::CodeGenerator {
-		Grow(int dummySize)
-			: Xbyak::CodeGenerator(128, Xbyak::AutoGrow)
-		{
-			mov(eax, 100);
-			push(eax);
-			call((void*)add5);
-			add(esp, 4);
-			push(eax);
-			call((void*)add2);
-			add(esp, 4);
-			ret();
-			for (int i = 0; i < dummySize; i++) {
-				db(0);
-			}
-		}
-	};
-	for (int dummySize = 0; dummySize < 40000; dummySize += 10000) {
-		printf("dummySize=%d\n", dummySize);
-		Grow g(dummySize);
-		g.ready();
-		int (*f)() = g.getCode<int (*)()>();
-		int x = f();
-		const int ok = 107;
-		CYBOZU_TEST_EQUAL(x, ok);
-	}
-}
-
-CYBOZU_TEST_AUTO(addr_label_backward_ref1)
-{
-	const int c1 = 123;
-	const int c2 = 567;
-	const int c3 = 999;
-	struct Code : Xbyak::CodeGenerator {
+	using namespace Xbyak;
+	struct Code : CodeGenerator {
 		Code()
 		{
 			Label L1, L2;
-			jmp(L2);
-		L(L1);
-			dd(c1);
-			dd(c2);
-		L(L2);
-			mov(eax, ptr[L1]);
-			add(dword[L1+4], c3);
-			add(eax, ptr[L1+4]);
-			ret();
+			CYBOZU_TEST_EXCEPTION(L1 + L2, Error);
 		}
-	} code;
-	int v = code.getCode<int (*)()>()();
-	CYBOZU_TEST_EQUAL(v, c1 + c2 + c3);
+	};
+	Code code;
+}
+
+CYBOZU_TEST_AUTO(addr_in_2GiB)
+{
+	const uint32_t size = 4096;
+	uint8_t *buf = (uint8_t*)get32bitAddress(size);
+	printf("buf=%p\n", buf);
+	CYBOZU_TEST_ASSERT(buf);
+	CYBOZU_TEST_ASSERT(size_t(buf) < 0x80000000);
+	{
+		const int v0 = 1;
+		const int v1 = 10;
+		const int v2 = 100;
+		const int v3 = 1000;
+		struct Code : Xbyak::CodeGenerator {
+			Code(uint8_t *p)
+				: Xbyak::CodeGenerator(size, p)
+			{
+				Label L1, L2, L3;
+				jmp(L1);
+			L(L2);
+				dd(v0);
+				dd(v1);
+			L(L1);
+				mov(ecx, 1);
+				// backward reference
+				mov(eax, ptr[L2]); // v0
+				mov(edx, eax);
+				mov(eax, ptr[L2+ecx*4-4]); // v0
+				add(eax, edx); // v0 + v0
+				add(eax, ptr[L2+ecx*4]); // v0 + v0 + v1
+				add(eax, ptr[L2+ecx*8-4]); // 2(v0 + v1)
+				mov(edx, eax);
+
+				// forward reference
+				mov(eax, ptr[L3]); // v2
+				add(edx, eax); // 2(v0 + v1) + v2
+				mov(eax, ptr[L3+4]); // v3
+				add(eax, ptr[L3+ecx*4-4]); // v2 + v3
+				add(eax, edx); // 2(v0 + v1 + v2) + v3
+				add(eax, ptr[L3+ecx*8-4]); // 2(v0 + v1 + v2 + v3)
+				ret();
+			L(L3);
+				dd(v2);
+				dd(v3);
+			}
+		} code(buf);
+		code.setProtectModeRE();
+		int v = code.getCode<int (*)()>()();
+		code.setProtectModeRW();
+		CYBOZU_TEST_EQUAL(v, 2 * (v0 + v1 + v2 + v3));
+	}
+	free32bitAddress(buf, size);
 }
 
 CYBOZU_TEST_AUTO(addr_label_backward_ref2)
 {
 	const int c = 123;
-	const int N = 3;
+	const int N = 4;
 
-	struct Code : Xbyak::CodeGenerator {
-		Code()
-		{
-			Label L1, L2;
-			jmp(L2);
-		L(L1);
-			for (int i = 0; i < N; i++) {
-				dd(c + i);
+	const uint32_t size = 4096;
+	uint8_t *buf = (uint8_t*)get32bitAddress(size);
+	printf("buf=%p\n", buf);
+	CYBOZU_TEST_ASSERT(buf);
+	CYBOZU_TEST_ASSERT(size_t(buf) < 0x80000000);
+	{
+		struct Code : Xbyak::CodeGenerator {
+			Code(uint8_t *p)
+				: Xbyak::CodeGenerator(size, p)
+			{
+				Label L1, L2;
+				jmp(L2);
+			L(L1);
+				for (int i = 0; i < N; i++) {
+					dd(c + i);
+				}
+			L(L2);
+				xor_(ecx, ecx);
+				mov(edx, 1);
+				mov(eax, ptr[L1+ecx]);
+				for (int i = 1; i < N; i++) {
+					add(eax, ptr[L1+ecx+i*4 + edx*4-4]);
+				}
+				ret();
 			}
-		L(L2);
-			xor_(ecx, ecx);
-			mov(edx, 1);
-			mov(eax, ptr[L1+ecx]);
-			for (int i = 1; i < N; i++) {
-				add(eax, ptr[L1+ecx+i*4 + edx*4-4]);
-			}
-			ret();
-		}
-	} code;
-	int v = code.getCode<int (*)()>()();
-	CYBOZU_TEST_EQUAL(v, c * N + N * (N-1)/2);
+		} code(buf);
+		code.setProtectModeRE();
+		int v = code.getCode<int (*)()>()();
+		code.setProtectModeRW();
+		CYBOZU_TEST_EQUAL(v, c * N + N * (N-1)/2);
+	}
+	free32bitAddress(buf, size);
 }
 
+#ifdef XBYAK32
 CYBOZU_TEST_AUTO(addr_label_forward_ref1)
 {
 	using namespace Xbyak;
@@ -474,20 +531,6 @@ CYBOZU_TEST_AUTO(addr_label_forward_ref1)
 	Code code2(4096, Xbyak::AutoGrow);
 	code2.test();
 }
-
-CYBOZU_TEST_AUTO(badAddress)
-{
-	using namespace Xbyak;
-	struct Code : CodeGenerator {
-		Code()
-		{
-			Label L1, L2;
-			CYBOZU_TEST_EXCEPTION(L1 + L2, Error);
-		}
-	};
-	Code code;
-}
-
 #endif
 
 uint8_t bufL[4096 * 32];
@@ -1273,7 +1316,43 @@ CYBOZU_TEST_AUTO(getAddress2)
 	}
 }
 
-#ifdef XBYAK64
+#ifdef XBYAK32
+
+int add5(int x) { return x + 5; }
+int add2(int x) { return x + 2; }
+
+CYBOZU_TEST_AUTO(test3)
+{
+	struct Grow : Xbyak::CodeGenerator {
+		Grow(int dummySize)
+			: Xbyak::CodeGenerator(128, Xbyak::AutoGrow)
+		{
+			mov(eax, 100);
+			push(eax);
+			call((void*)add5);
+			add(esp, 4);
+			push(eax);
+			call((void*)add2);
+			add(esp, 4);
+			ret();
+			for (int i = 0; i < dummySize; i++) {
+				db(0);
+			}
+		}
+	};
+	for (int dummySize = 0; dummySize < 40000; dummySize += 10000) {
+		printf("dummySize=%d\n", dummySize);
+		Grow g(dummySize);
+		g.ready();
+		int (*f)() = g.getCode<int (*)()>();
+		int x = f();
+		const int ok = 107;
+		CYBOZU_TEST_EQUAL(x, ok);
+	}
+}
+
+#else // XBYAK32
+
 CYBOZU_TEST_AUTO(rip)
 {
 	int a[] = { 1, 10 };
@@ -1341,78 +1420,34 @@ CYBOZU_TEST_AUTO(rip_jmp)
 	CYBOZU_TEST_EQUAL(ret, ret1234() + ret9999());
 }
 
-#ifdef _WIN32
-#include <windows.h>
-// get address in 32bit
-void *get32bitAddress(uint32_t size)
-{
-	size_t expectedAddress = 0x10000000;
-	return VirtualAlloc((void*)expectedAddress, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-}
-
-void free32bitAddress(void *p, uint32_t)
-{
-	if (p == 0) return;
-	VirtualFree(p, 0, MEM_RELEASE);
-}
-
-#else
-#include <sys/mman.h>
-void *get32bitAddress(uint32_t size)
-{
-	return mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_32BIT, -1, 0);
-}
-
-void free32bitAddress(void *p, uint32_t size)
-{
-	munmap(p, size);
-}
-#endif
-
 CYBOZU_TEST_AUTO(rip_addr)
 {
-	/*
-		we can't assume |&x - &code| < 2GiB anymore
-	*/
-	const uint32_t size = 4096;
-	uint8_t *buf = (uint8_t*)get32bitAddress(size * 2);
-	printf("buf=%p\n", buf);
-	CYBOZU_TEST_ASSERT(buf);
-	CYBOZU_TEST_ASSERT(size_t(buf) < 0x100000000);
-	int *px = (int*)buf;
-	{
-		const int v0 = 1;
-		const int v1 = 3;
-		const int v2 = 9;
-		const int v3 = 10;
-		struct Code : Xbyak::CodeGenerator {
-			Code(uint8_t *p, int *data)
-				: Xbyak::CodeGenerator(size, p)
-			{
-				Label L1, L2, L3;
-				jmp(L1);
-			L(L2);
-				dd(v0);
-			L(L1);
-				mov(eax, v1);
-				mov(ptr[rip + data], eax);
-				mov(eax, ptr[L2]);
-				mov(edx, eax);
-				mov(eax, ptr[L3+4]);
-				add(eax, ptr[L3]);
-				add(eax, edx);
-				ret();
-			L(L3);
-				dd(v2);
-				dd(v3);
-			}
-		} code(buf + size, (int*)buf);
-		code.setProtectModeRE();
-		int v = code.getCode<int (*)()>()();
-		CYBOZU_TEST_EQUAL(*px, v1);
-		CYBOZU_TEST_EQUAL(v, v0 + v2 + v3);
-	}
-	free32bitAddress(buf, size * 2);
+	const int v0 = 1;
+	const int v1 = 3;
+	const int v2 = 9;
+	const int v3 = 10;
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			Label L1, L2, L3;
+			jmp(L1);
+		L(L2);
+			dd(v0);
+			dd(v1);
+		L(L1);
+			mov(eax, ptr[rip + L2]);
+			mov(edx, ptr[rip + L2 + 4]);
+			add(eax, ptr[rip + L3]);
+			add(edx, ptr[rip + L3 + 4]);
+			add(eax, edx);
+			ret();
+		L(L3);
+			dd(v2);
+			dd(v3);
+		}
+	} code;
+	int v = code.getCode<int (*)()>()();
+	CYBOZU_TEST_EQUAL(v, v0 + v1 + v2 + v3);
 }
 
 #ifndef __APPLE__
@@ -1513,7 +1548,8 @@ CYBOZU_TEST_AUTO(ripLabel)
 	CYBOZU_TEST_EQUAL(sizeof(ok), c.getSize());
 	CYBOZU_TEST_EQUAL_ARRAY(ok, c.getCode(), sizeof(ok));
 }
-#endif
+
+#endif // XBYAK32
 
 struct ReleaseTestCode : Xbyak::CodeGenerator {
 	ReleaseTestCode(Label& L1, Label& L2, Label& L3)
