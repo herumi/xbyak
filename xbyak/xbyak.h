@@ -2097,7 +2097,7 @@ private:
 			mod00 = 0, mod01 = 1, mod10 = 2
 		};
 		int mod = mod10; // disp32
-		if (!baseBit || ((baseIdx & 7) != Operand::EBP && disp == 0)) {
+		if (!baseBit || ((baseIdx & 7) != Operand::EBP && (label == 0 && disp == 0))) {
 			mod = mod00;
 		} else if (label) {
 			// always disp32
