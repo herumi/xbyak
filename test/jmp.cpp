@@ -387,6 +387,57 @@ CYBOZU_TEST_AUTO(badAddress)
 	Code code;
 }
 
+/*
+	mov(eax, ptr[8byte offset]) is supported on 64-bit mode
+*/
+CYBOZU_TEST_AUTO(mov_eax_offset)
+{
+	const int v0 = 1;
+	const int v1 = 10;
+	const int v2 = 100;
+	const int v3 = 1000;
+
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			Label L1, L2, L3;
+			jmp(L1);
+		L(L2);
+			dd(v0);
+			dd(v1);
+			align(32);
+		L(L1);
+			xor_(ecx, ecx);
+			mov(eax, ptr[L2.getAddress()]); // v0, backward ref
+			add(ecx, eax);
+
+			mov(eax, ptr[size_t(L2.getAddress())]); // v0, backward ref
+			add(ecx, eax);
+
+			mov(eax, ptr[L2]); // v0, backward ref
+			add(ecx, eax);
+
+			mov(eax, ptr[L2+4]); // v1, backward ref
+			add(ecx, eax);
+
+			mov(eax, ptr[L3]); // v2,forward ref
+			add(ecx, eax);
+
+			mov(eax, ptr[L3+4]); // v3,forward ref
+			add(ecx, eax);
+
+			mov(eax, ecx);
+			ret();
+			align(32);
+		L(L3);
+			dd(v2);
+			dd(v3);
+		}
+	} code;
+	int v = code.getCode<int (*)()>()();
+	CYBOZU_TEST_EQUAL(v, v0 * 3 + v1 + v2 + v3);
+}
+
 CYBOZU_TEST_AUTO(addr_in_2GiB)
 {
 	const uint32_t size = 4096;
