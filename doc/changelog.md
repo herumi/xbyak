@@ -1,5 +1,7 @@
 # History
 
+* 2025/Aug/16 ver 7.29.1 support ptr[integer value]
+* 2025/Aug/15 ver 7.29 support addressing with label
 * 2025/Jul/19 ver 7.28 support movrs, vmovrs{b,w,d,q}
 * 2025/Jul/02 ver 7.27 disable embedded rounding and sae for YMM according to AVX10.2 rev 4.0
 * 2025/Jun/06 ver 7.26 support AMX-{MOVRS,AVX512,FP8,TF32,TRANSPOSE} for Diamond Rapids

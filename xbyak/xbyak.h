@@ -161,7 +161,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7280 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7291 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1380,10 +1380,6 @@ public:
 		}
 		e_.verify();
 	}
-#ifdef XBYAK64
-	explicit XBYAK_CONSTEXPR Address(size_t disp)
-		: Operand(0, MEM, 64), e_(disp), label_(0), mode_(inner::M_64bitDisp), immSize(0), disp8N(0), permitVsib(false), broadcast_(false), optimize_(true) { }
-#endif
 	RegExp getRegExp() const
 	{
 		return optimize_ ? e_.optimize() : e_;
@@ -1450,12 +1446,6 @@ public:
 	{
 		return Address(bit_, broadcast_, e);
 	}
-#ifdef XBYAK64
-	Address operator[](size_t disp) const
-	{
-		return Address(disp);
-	}
-#endif
 };
 
 struct JmpLabel {
