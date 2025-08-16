@@ -189,6 +189,26 @@ CYBOZU_TEST_AUTO(mov_8byte)
 }
 #endif
 
+CYBOZU_TEST_AUTO(const_addressing)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			mov(dword[0x7fffffff], edx);
+		}
+	} c;
+	const uint8_t tbl[] = {
+#ifdef XBYAK64
+		0x89, 0x14, 0x25, 0xff, 0xff, 0xff, 0x7f
+#else
+		0x89, 0x15, 0xff, 0xff, 0xff, 0x7f
+#endif
+	};
+	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
+
 CYBOZU_TEST_AUTO(align)
 {
 	struct Code : Xbyak::CodeGenerator {
