@@ -123,8 +123,10 @@
 	#define XBYAK_TLS thread_local
 	#define XBYAK_VARIADIC_TEMPLATE
 	#define XBYAK_NOEXCEPT noexcept
+	#define XBYAK_OVERRIDE override
 #else
 	#define XBYAK_NOEXCEPT throw()
+	#define XBYAK_OVERRIDE
 #endif
 
 // require c++14 or later
@@ -340,7 +342,7 @@ public:
 		}
 	}
 	operator int() const { return err_; }
-	const char *what() const XBYAK_NOEXCEPT
+	const char *what() const XBYAK_NOEXCEPT XBYAK_OVERRIDE
 	{
 		return ConvertErrorToString(err_);
 	}
@@ -495,7 +497,7 @@ class MmapAllocator : public Allocator {
 	AllocationList allocList_;
 public:
 	explicit MmapAllocator(const std::string& name = "xbyak") : name_(name) {}
-	uint8_t *alloc(size_t size)
+	uint8_t *alloc(size_t size) XBYAK_OVERRIDE
 	{
 		const size_t alignedSizeM1 = inner::getPageSize() - 1;
 		size = (size + alignedSizeM1) & ~alignedSizeM1;
@@ -534,7 +536,7 @@ public:
 #endif
 		return (uint8_t*)p;
 	}
-	void free(uint8_t *p)
+	void free(uint8_t *p) XBYAK_OVERRIDE
 	{
 		if (p == 0) return;
 		AllocationList::iterator i = allocList_.find((uintptr_t)p);

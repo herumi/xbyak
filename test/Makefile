@@ -31,7 +31,7 @@ endif
 
 all: $(TARGET)
 
-CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wwrite-strings -Wfloat-equal -Wpointer-arith
+CFLAGS_WARN=-Wall -Wextra -Wsuggest-override -Wformat=2 -Wcast-qual -Wwrite-strings -Wfloat-equal -Wpointer-arith
 
 CFLAGS=-O2 -Wall -I.. -I. $(CFLAGS_WARN) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) #-std=c++0x
 make_nm:

@@ -588,7 +588,7 @@ uint8_t bufL[4096 * 32];
 uint8_t bufS[4096 * 2];
 
 struct MyAllocator : Xbyak::Allocator {
-	uint8_t *alloc(size_t size)
+	uint8_t *alloc(size_t size) XBYAK_OVERRIDE
 	{
 		if (size < sizeof(bufS)) {
 			printf("test use bufS(%d)\n", (int)size);
@@ -601,7 +601,7 @@ struct MyAllocator : Xbyak::Allocator {
 		fprintf(stderr, "no memory %d\n", (int)size);
 		exit(1);
 	}
-	void free(uint8_t *)
+	void free(uint8_t *) XBYAK_OVERRIDE
 	{
 	}
 } myAlloc;
