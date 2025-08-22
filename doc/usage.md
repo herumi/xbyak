@@ -28,6 +28,8 @@ int (*f)() = c.getCode<int (*)()>();
 printf("ret=%d\n", f()); // ret = 5
 ```
 
+**Note**: For security considerations and memory protection modes, see the [Read/Exec mode](#readexec-mode) section.
+
 ## Syntax
 The syntax is similar to MASM/NASM, but uses parentheses for function-like expressions.
 
