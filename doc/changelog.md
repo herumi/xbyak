@@ -1,5 +1,6 @@
 # History
 
+* 2025/Aug/22 ver 7.29.2 add override specifiers to virtual methods
 * 2025/Aug/16 ver 7.29.1 support ptr[integer value]
 * 2025/Aug/15 ver 7.29 support addressing with label
 * 2025/Jul/19 ver 7.28 support movrs, vmovrs{b,w,d,q}

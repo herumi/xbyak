@@ -123,8 +123,10 @@
 	#define XBYAK_TLS thread_local
 	#define XBYAK_VARIADIC_TEMPLATE
 	#define XBYAK_NOEXCEPT noexcept
+	#define XBYAK_OVERRIDE override
 #else
 	#define XBYAK_NOEXCEPT throw()
+	#define XBYAK_OVERRIDE
 #endif
 
 // require c++14 or later
@@ -161,7 +163,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7291 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7292 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -340,7 +342,7 @@ public:
 		}
 	}
 	operator int() const { return err_; }
-	const char *what() const XBYAK_NOEXCEPT
+	const char *what() const XBYAK_NOEXCEPT XBYAK_OVERRIDE
 	{
 		return ConvertErrorToString(err_);
 	}
@@ -495,7 +497,7 @@ class MmapAllocator : public Allocator {
 	AllocationList allocList_;
 public:
 	explicit MmapAllocator(const std::string& name = "xbyak") : name_(name) {}
-	uint8_t *alloc(size_t size)
+	uint8_t *alloc(size_t size) XBYAK_OVERRIDE
 	{
 		const size_t alignedSizeM1 = inner::getPageSize() - 1;
 		size = (size + alignedSizeM1) & ~alignedSizeM1;
@@ -534,7 +536,7 @@ public:
 #endif
 		return (uint8_t*)p;
 	}
-	void free(uint8_t *p)
+	void free(uint8_t *p) XBYAK_OVERRIDE
 	{
 		if (p == 0) return;
 		AllocationList::iterator i = allocList_.find((uintptr_t)p);
@@ -911,10 +913,6 @@ struct Reg64 : public Reg32e {
 	explicit XBYAK_CONSTEXPR Reg64(int idx = 0) : Reg32e(idx, 64) {}
 };
 struct RegRip {
-	int64_t disp_;
-	const Label* label_;
-	bool isAddr_;
-	explicit XBYAK_CONSTEXPR RegRip(int64_t disp = 0, const Label* label = 0, bool isAddr = false) : disp_(disp), label_(label), isAddr_(isAddr) {}
 };
 #endif
 
@@ -991,13 +989,12 @@ public:
 #else
 	enum { i32e = 32 };
 #endif
-	XBYAK_CONSTEXPR RegExp() : scale_(0), disp_(0), label_(0), mode_(inner::M_none), rip_(false), setLabel_(false) { }
-	XBYAK_CONSTEXPR RegExp(size_t disp) : scale_(0), disp_(disp), label_(0), mode_(inner::M_none), rip_(false), setLabel_(false) { }
+	XBYAK_CONSTEXPR RegExp() : scale_(0), disp_(0), label_(0), rip_(false), setLabel_(false) { }
+	XBYAK_CONSTEXPR RegExp(size_t disp) : scale_(0), disp_(disp), label_(0), rip_(false), setLabel_(false) { }
 	XBYAK_CONSTEXPR RegExp(const Reg& r, int scale = 1)
 		: scale_(scale)
 		, disp_(0)
 		, label_(0)
-		, mode_(inner::M_none)
 		, rip_(false)
 		, setLabel_(false)
 	{
@@ -1016,7 +1013,6 @@ public:
 		: scale_(1)
 		, disp_(size_t(addr))
 		, label_(0)
-		, mode_(inner::M_none)
 		, rip_(false)
 		, setLabel_(true)
 	{
@@ -1026,7 +1022,6 @@ public:
 		: scale_(0)
 		, disp_(0)
 		, label_(0)
-		, mode_(inner::M_rip)
 		, rip_(true)
 		, setLabel_(false)
 	{
@@ -1073,7 +1068,6 @@ private:
 	int scale_;
 	size_t disp_; // absolute address
 	Label *label_;
-	inner::AddressMode mode_;
 	bool rip_;
 	bool setLabel_; // disp_ contains the address of label
 };
@@ -1493,7 +1487,6 @@ inline RegExp::RegExp(Label& label)
 	: scale_(1)
 	, disp_(0)
 	, label_(0)
-	, mode_(inner::M_none)
 	, rip_(false)
 	, setLabel_(true)
 {

@@ -53,7 +53,7 @@ endif
 
 all: $(TARGET)
 
-CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith #-pedantic
+CFLAGS_WARN=$(shell cat ../test/CFLAGS_WARN.cfg)
 
 CFLAGS=-g -O2 -fomit-frame-pointer -Wall -I../ $(CFLAGS_WARN) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
 
