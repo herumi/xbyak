@@ -23,6 +23,10 @@
 	#pragma warning(disable:4514)
 	#pragma warning(disable:4786)
 #endif
+#ifdef __GNUC__
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wmaybe-uninitialized" // wrong detection in recompile()
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
