@@ -1130,6 +1130,8 @@ void putAMX_TTRorI()
 		uint8_t code;
 		bool imm;
 	} tbl[] = {
+		{ "tcvtrowd2ps", T_F3|T_0F38|T_MUST_EVEX|T_W0, 0x4A, false },
+		{ "tcvtrowd2ps", T_F3|T_0F3A|T_MUST_EVEX|T_W0, 0x07, true },
 		{ "tcvtrowps2bf16h", T_F2|T_0F38|T_MUST_EVEX|T_W0, 0x6D, false },
 		{ "tcvtrowps2bf16h", T_F2|T_0F3A|T_MUST_EVEX|T_W0, 0x07, true },
 		{ "tcvtrowps2bf16l", T_F3|T_0F38|T_MUST_EVEX|T_W0, 0x6D, false },

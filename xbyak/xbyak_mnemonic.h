@@ -2685,6 +2685,8 @@ void vucomxsh(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_N2|T_F3
 void vucomxss(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_N4|T_F3|T_0F|T_W0|T_SAE_X|T_MUST_EVEX, 0x2E); }
 #ifdef XBYAK64
 void kmovq(const Reg64& r, const Opmask& k) { opKmov(k, r, true, 64); }
+void tcvtrowd2ps(const Zmm& z, const Tmm& t, const Reg32& r) { opVex(z, &r, t, T_F3|T_0F38|T_W0|T_MUST_EVEX, 0x4A); }
+void tcvtrowd2ps(const Zmm& z, const Tmm& t, uint8_t imm) { opVex(z, 0, t, T_F3|T_0F3A|T_W0|T_MUST_EVEX, 0x07, imm); }
 void tcvtrowps2bf16h(const Zmm& z, const Tmm& t, const Reg32& r) { opVex(z, &r, t, T_F2|T_0F38|T_W0|T_MUST_EVEX, 0x6D); }
 void tcvtrowps2bf16h(const Zmm& z, const Tmm& t, uint8_t imm) { opVex(z, 0, t, T_F2|T_0F3A|T_W0|T_MUST_EVEX, 0x07, imm); }
 void tcvtrowps2bf16l(const Zmm& z, const Tmm& t, const Reg32& r) { opVex(z, &r, t, T_F3|T_0F38|T_W0|T_MUST_EVEX, 0x6D); }
