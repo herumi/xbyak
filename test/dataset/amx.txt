@@ -90,3 +90,5 @@ ttmmultf32ps(tmm1, tmm2, tmm3);
 
 ttransposed(tmm1, tmm2);
 
+tcvtrowd2ps(zmm20, tmm1, r30d);
+tcvtrowd2ps(zmm20, tmm1, 0x12);

@@ -11,7 +11,7 @@ fi
 
 make -C ../ test_util64
 
-cpus=(p4p mrm pnr nhm wsm snb ivb hsw bdw slt slm glm glp tnt skl cnl icl skx clx cpx icx tgl adl mtl rpl spr emr gnr gnr256 dmr srf arl lnl ptl cwf)
+cpus=(p4p mrm pnr nhm wsm snb ivb hsw bdw slt slm glm glp tnt skl cnl icl skx clx cpx icx tgl adl mtl rpl spr emr gnr dmr srf arl lnl ptl cwf)
 
 for cpu in ${cpus[@]} ; do
   echo $cpu
