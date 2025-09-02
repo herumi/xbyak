@@ -386,11 +386,6 @@ inline void AlignedFree(void *p)
 #endif
 }
 
-template<class To, class From>
-inline const To CastTo(From p) XBYAK_NOEXCEPT
-{
-	return (const To)(size_t)(p);
-}
 namespace inner {
 
 #ifdef _WIN32

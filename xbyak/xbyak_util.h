@@ -114,6 +114,10 @@ inline T min_(T x, T y) { return x < y ? x : y; }
 	CPU detection class
 	@note static inline const member is supported by c++17 or later, so use template hack
 */
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable : 4459)
+#endif
 class Cpu {
 public:
 	class Type {
@@ -752,6 +756,9 @@ public:
 	}
 	int getAVX10version() const { return avx10version_; }
 };
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 #ifndef XBYAK_ONLY_CLASS_CPU
 class Clock {
