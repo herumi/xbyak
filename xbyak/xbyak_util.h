@@ -558,6 +558,7 @@ public:
 	XBYAK_DEFINE_TYPE(94, tAMX_MOVRS);
 	XBYAK_DEFINE_TYPE(95, tAMX_FP8);
 	XBYAK_DEFINE_TYPE(96, tMOVRS);
+	XBYAK_DEFINE_TYPE(97, tHYBRID);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -695,6 +696,7 @@ public:
 			if (ecx & (1U << 28)) type_ |= tMOVDIR64B;
 			if (edx & (1U << 5)) type_ |= tUINTR;
 			if (edx & (1U << 14)) type_ |= tSERIALIZE;
+			if (edx & (1U << 15)) type_ |= tHYBRID;
 			if (edx & (1U << 16)) type_ |= tTSXLDTRK;
 			if (edx & (1U << 22)) type_ |= tAMX_BF16;
 			if (edx & (1U << 24)) type_ |= tAMX_TILE;
