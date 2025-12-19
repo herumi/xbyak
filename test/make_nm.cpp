@@ -1310,19 +1310,6 @@ class Test {
 #endif
 			put("mov", EAX, "ptr [eax + ecx * 0]", "[eax + ecx * 0]"); // ignore scale = 0
 		}
-		{
-			const char tbl[][8] = {
-				"movsx",
-				"movzx",
-			};
-			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-				const char *p = tbl[i];
-				put(p, REG64, REG16|REG8|MEM8|MEM16);
-				put(p, REG32, REG16|REG8|MEM8|MEM16);
-				put(p, REG16, REG8|MEM8);
-				put(p, "eax, ah");
-			}
-		}
 #ifdef XBYAK64
 		put("movsxd", REG64, REG32|MEM32);
 #endif
@@ -1350,13 +1337,9 @@ class Test {
 			}
 		}
 
-		put("xchg", AL|REG8, AL|REG8|MEM);
 		put("xchg", MEM, AL|REG8);
-		put("xchg", AX|REG16, AX|REG16|MEM);
 		put("xchg", MEM, AX|REG16);
-		put("xchg", EAX|REG32, EAX|REG32|MEM);
 		put("xchg", MEM, EAX|REG32);
-		put("xchg", REG64, REG64|MEM);
 		put("xabort", IMM8);
 	}
 	void putShift() const
@@ -2529,8 +2512,37 @@ public:
 			}
 		}
 	}
+	// NASM 3 changes some encoding of movsx, xchg, so test them by YASM
+	void putNASMtoYASM()
+	{
+		{
+			const char tbl[][8] = {
+				"movsx",
+				"movzx",
+			};
+			for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+				const char *p = tbl[i];
+				put(p, REG64, REG16|REG8|MEM8|MEM16);
+				put(p, REG32, REG16|REG8|MEM8|MEM16);
+				put(p, REG16, REG8|MEM8);
+				put(p, "eax, ah");
+			}
+		}
+		put("xchg", REG8, REG8|MEM);
+		put("xchg", REG16, REG16|MEM);
+		put("xchg", REG32, REG32|MEM);
+		put("xchg", REG64, REG64|MEM);
+		put("xchg", "cl, bl");
+		put("xchg", "cl, al");
+		put("xchg", "al, bl");
+		put("xchg", "di, si");
+		put("xchg", "ecx, ebp");
+	}
 	void put()
 	{
+#ifdef USE_YASM
+		putNASMtoYASM();
+#endif
 #ifdef USE_AVX512
 		putAVX512();
 #else
