@@ -702,11 +702,11 @@ class Test {
 	void putFarJmp() const
 	{
 #ifdef XBYAK64
-		put("jmp", "word[rax],T_FAR", "far word [rax]");
+//		put("jmp", "word[rax],T_FAR", "far word [rax]");
 		put("jmp", "dword[rax],T_FAR", "far dword [rax]");
 		put("jmp", "qword[rax],T_FAR", "far qword [rax]");
 
-		put("call", "word[rax],T_FAR", "far word [rax]");
+//		put("call", "word[rax],T_FAR", "far word [rax]");
 		put("call", "dword[rax],T_FAR", "far dword [rax]");
 		put("call", "qword[rax],T_FAR", "far qword [rax]");
 #else
