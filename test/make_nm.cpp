@@ -1311,9 +1311,6 @@ class Test {
 #endif
 			put("mov", EAX, "ptr [eax + ecx * 0]", "[eax + ecx * 0]"); // ignore scale = 0
 		}
-#ifdef XBYAK64
-		put("movsxd", REG64, REG32|MEM32);
-#endif
 		put("cmpxchg8b", MEM);
 #ifdef XBYAK64
 		put("cmpxchg16b", MEM);
@@ -2529,6 +2526,9 @@ public:
 				put(p, "eax, ah");
 			}
 		}
+#ifdef XBYAK64
+		put("movsxd", REG64, REG32|MEM32);
+#endif
 		put("xchg", REG8, REG8|MEM);
 		put("xchg", REG16, REG16|MEM);
 		put("xchg", REG32, REG32|MEM);
