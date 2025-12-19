@@ -1165,7 +1165,6 @@ class Test {
 			reduce 2-byte stack, so I can't support it
 		*/
 
-		put("push", IMM8|IMM32);
 		if (isXbyak_) {
 			puts("push(word, 1000);dump();");
 		} else {
@@ -1175,9 +1174,11 @@ class Test {
 		put("push", REG16|MEM16);
 		put("pop", REG16|MEM16);
 #ifdef XBYAK64
-		put("push", REG64|IMM32|MEM64);
+		put("push", IMM8);
+		put("push", REG64|MEM64);
 		put("pop", REG64|MEM64);
 #else
+		put("push", IMM8|IMM32);
 		put("push", REG32|IMM32|MEM32);
 		put("pop", REG32|MEM32);
 #endif
