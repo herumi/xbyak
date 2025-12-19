@@ -297,7 +297,7 @@ class Test {
 		case MEM64:
 			return "qword [eax+ecx*8]";
 		case MEM_ONLY_DISP:
-			return isXbyak_ ? "ptr[(void*)0x123]" : "[0x123]";
+			return isXbyak_ ? "ptr[(void*)0x123]" : "[abs 0x123]";
 		case _REG16: // not ax
 			{
 				static const char Reg16Tbl[][4] = {
@@ -678,8 +678,8 @@ class Test {
 #endif
 
 #ifdef XBYAK64
-		put("jmp", "ptr[(void*)0x12345678]", "[0x12345678]");
-		put("call", "ptr[(void*)0x12345678]", "[0x12345678]");
+		put("jmp", "ptr[(void*)0x12345678]", "[abs 0x12345678]");
+		put("call", "ptr[(void*)0x12345678]", "[abs 0x12345678]");
 #ifdef USE_YASM
 		put("jmp", "ptr[rip + 0x12345678]", "[rip+0x12345678]");
 		put("call", "ptr[rip + 0x12345678]", "[rip+0x12345678]");
@@ -1274,9 +1274,9 @@ class Test {
 		put("mov", REG64, "0xffffffff12345678LL", "0xffffffff12345678");
 		put("mov", REG32e|REG16|REG8|RAX|EAX|AX|AL, IMM);
 
-		put("mov", EAX, "ptr[(void*)-1]", "[-1]");
-		put("mov", EAX, "ptr[(void*)0x7fffffff]", "[0x7fffffff]");
-		put("mov", EAX, "ptr[(void*)0xffffffffffffffff]", "[0xffffffffffffffff]");
+		put("mov", EAX, "ptr[(void*)-1]", "[abs -1]");
+		put("mov", EAX, "ptr[(void*)0x7fffffff]", "[abs 0x7fffffff]");
+		put("mov", EAX, "ptr[(void*)0xffffffffffffffff]", "[abs 0xffffffffffffffff]");
 	}
 	void putEtc() const
 	{
@@ -1298,8 +1298,8 @@ class Test {
 			put("movbe", REG16|REG32e, MEM);
 			put("movbe", MEM, REG16|REG32e);
 #if defined(XBYAK64) && !defined(__ILP32__)
-			put(p, RAX|EAX|AX|AL, "ptr [0x1234567890abcdefLL]", "[qword 0x1234567890abcdef]");
-			put(p, "ptr [0x1234567890abcdefLL]", "[qword 0x1234567890abcdef]", RAX|EAX|AX|AL);
+			put(p, RAX|EAX|AX|AL, "ptr [0x1234567890abcdefLL]", "[abs qword 0x1234567890abcdef]");
+			put(p, "ptr [0x1234567890abcdefLL]", "[abs qword 0x1234567890abcdef]", RAX|EAX|AX|AL);
 			put(p, "qword [rax], 0");
 			put(p, "qword [rax], 0x12");
 			put(p, "qword [rax], 0x1234");
