@@ -1313,6 +1313,7 @@ class Test {
 		}
 		put("cmpxchg8b", MEM);
 #ifdef XBYAK64
+		put("xchg", RAX, RAX);
 		put("cmpxchg16b", MEM);
 		put("fxrstor64", MEM);
 		put("xbegin", "0x12345678");
@@ -2532,7 +2533,7 @@ public:
 		put("xchg", REG8, REG8|MEM);
 		put("xchg", REG16, REG16|MEM);
 		put("xchg", REG32, REG32|MEM);
-		put("xchg", REG64, REG64|MEM);
+		put("xchg", _REG64|_REG64_2, REG64|MEM);
 		put("xchg", "cl, bl");
 		put("xchg", "cl, al");
 		put("xchg", "al, bl");
