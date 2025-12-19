@@ -20,6 +20,8 @@ jobs:
     - uses: actions/checkout@v4
     - run: apt -y update
     - run: apt -y install g++-multilib libboost-dev make nasm yasm wget python3 #xz-utils
+    - run: nasm -v
+    - run: yasm --version
     - run: make test
     - run: make -C sample CXXFLAGS="-DXBYAK_NO_EXCEPTION"
     - run: |
