@@ -94,6 +94,11 @@ typedef enum {
 } CpuTopologyLevel;
 typedef CpuTopologyLevel IntelCpuTopologyLevel; // for backward compatibility
 
+typedef enum {
+	Pcore = 0, // Performance core
+	Ecore =1   // Efficiency core
+} HybridCoreType;
+
 namespace local {
 
 template<uint64_t L, uint64_t H = 0>
@@ -142,12 +147,13 @@ private:
 	Type type_;
 	//system topology
 	static const size_t maxTopologyLevels = 2;
-	uint32_t numCores_[maxTopologyLevels];
+	static const size_t maxCoreTypes = 2;
+	uint32_t numCores_[maxCoreTypes * maxTopologyLevels];
 
 	static const uint32_t maxNumberCacheLevels = 10;
-	uint32_t dataCacheSize_[maxNumberCacheLevels];
-	uint32_t coresSharingDataCache_[maxNumberCacheLevels];
-	uint32_t dataCacheLevels_;
+	uint32_t dataCacheSize_[maxCoreTypes * maxNumberCacheLevels];
+	uint32_t coresSharingDataCache_[maxCoreTypes * maxNumberCacheLevels];
+	uint32_t dataCacheLevels_[maxCoreTypes];
 	uint32_t avx10version_;
 
 	uint32_t get32bitAsBE(const char *x) const
@@ -188,10 +194,39 @@ private:
 			displayModel = model;
 		}
 	}
-	void setNumCores()
+
+	HybridCoreType getCoreType()
+	{
+		// if hybrid is not supported default to Pcore
+		if (!has(tHYBRID)) return HybridCoreType::Pcore;
+
+		// These correspond to values returned in CPUID leaf 0x1A core-type field.
+		constexpr uint32_t CPUID_CORE_TYPE_ATOM = 0x20; // Intel Atom / E-core
+		constexpr uint32_t CPUID_CORE_TYPE_CORE = 0x40; // Intel Core / P-core
+		uint32_t data[4] = {};
+
+		// Get max basic CPUID leaf
+		getCpuidEx(0x0, 0, data);
+		uint32_t max_basic_leaf = data[0];
+		// If 0x1A is not supported, default to P-core
+		if (max_basic_leaf < 0x1A) return HybridCoreType::Pcore;
+
+		getCpuidEx(0x1A, 0, data);
+		uint32_t coreTypeField = (data[0] >> 24) & 0xFF;
+		switch (coreTypeField) {
+			case CPUID_CORE_TYPE_ATOM: return HybridCoreType::Ecore;
+			case CPUID_CORE_TYPE_CORE: return HybridCoreType::Pcore;
+			default: return HybridCoreType::Pcore;
+		}
+
+	}
+
+	// Start setNumCores using CPUID
+	void setNumCoresCpuid(HybridCoreType coreType)
 	{
 		if (!has(tINTEL) && !has(tAMD)) return;
 
+		size_t coreTypeIndex = coreType * maxCoreTypes;
 		uint32_t data[4] = {};
 		getCpuid(0x0, data);
 		if (data[0] >= 0xB) {
@@ -208,14 +243,14 @@ private:
 					getCpuidEx(0xB, i, data);
 					CpuTopologyLevel level = (CpuTopologyLevel)extractBit(data[2], 8, 15);
 					if (level == SmtLevel || level == CoreLevel) {
-						numCores_[level - 1] = extractBit(data[1], 0, 15);
+						numCores_[coreTypeIndex + level - 1] = extractBit(data[1], 0, 15);
 					}
 				}
 				/*
 					Fallback values in case a hypervisor has the leaf zeroed-out.
 				*/
-				numCores_[SmtLevel - 1] = local::max_(1u, numCores_[SmtLevel - 1]);
-				numCores_[CoreLevel - 1] = local::max_(numCores_[SmtLevel - 1], numCores_[CoreLevel - 1]);
+				numCores_[coreTypeIndex + SmtLevel - 1] = local::max_(1u, numCores_[coreTypeIndex + SmtLevel - 1]);
+				numCores_[coreTypeIndex + CoreLevel - 1] = local::max_(numCores_[coreTypeIndex + SmtLevel - 1], numCores_[coreTypeIndex + CoreLevel - 1]);
 				return;
 			}
 		}
@@ -235,8 +270,8 @@ private:
 				physicalThreadCount = extractBit(data[2], 0, 7) + 1;
 			}
 			if (htt == 0) {
-				numCores_[SmtLevel - 1] = 1;
-				numCores_[CoreLevel - 1] = 1;
+				numCores_[coreTypeIndex + SmtLevel - 1] = 1;
+				numCores_[coreTypeIndex + CoreLevel - 1] = 1;
 			} else if (physicalThreadCount > 1) {
 				if ((displayFamily >= 0x17) && (highestExtendedLeaf >= 0x8000001E)) {
 					// Zen overreports its core count by a factor of two.
@@ -244,11 +279,11 @@ private:
 					int threadsPerComputeUnit = extractBit(data[1], 8, 15) + 1;
 					physicalThreadCount /= threadsPerComputeUnit;
 				}
-				numCores_[SmtLevel - 1] = logicalProcessorCount / physicalThreadCount;
-				numCores_[CoreLevel - 1] = logicalProcessorCount;
+				numCores_[coreTypeIndex + SmtLevel - 1] = logicalProcessorCount / physicalThreadCount;
+				numCores_[coreTypeIndex + CoreLevel - 1] = logicalProcessorCount;
 			} else {
-				numCores_[SmtLevel - 1] = 1;
-				numCores_[CoreLevel - 1] = logicalProcessorCount > 1 ? logicalProcessorCount : 2;
+				numCores_[coreTypeIndex + SmtLevel - 1] = 1;
+				numCores_[coreTypeIndex + CoreLevel - 1] = logicalProcessorCount > 1 ? logicalProcessorCount : 2;
 			}
 		} else {
 			/*
@@ -264,26 +299,296 @@ private:
 				physicalThreadCount = extractBit(data[0], 26, 31) + 1;
 			}
 			if (htt == 0) {
-				numCores_[SmtLevel - 1] = 1;
-				numCores_[CoreLevel - 1] = 1;
+				numCores_[coreTypeIndex + SmtLevel - 1] = 1;
+				numCores_[coreTypeIndex + CoreLevel - 1] = 1;
 			} else if (physicalThreadCount > 1) {
-				numCores_[SmtLevel - 1] = logicalProcessorCount / physicalThreadCount;
-				numCores_[CoreLevel - 1] = logicalProcessorCount;
+				numCores_[coreTypeIndex + SmtLevel - 1] = logicalProcessorCount / physicalThreadCount;
+				numCores_[coreTypeIndex + CoreLevel - 1] = logicalProcessorCount;
 			} else {
-				numCores_[SmtLevel - 1] = 1;
-				numCores_[CoreLevel - 1] = logicalProcessorCount > 0 ? logicalProcessorCount : 1;
+				numCores_[coreTypeIndex + SmtLevel - 1] = 1;
+				numCores_[coreTypeIndex + CoreLevel - 1] = logicalProcessorCount > 0 ? logicalProcessorCount : 1;
 			}
 		}
 	}
-	void setCacheHierarchy()
+
+	void setNumCoresCpuid()
+	{
+		if (!has(tHYBRID)) {
+			setNumCoresCpuid(Pcore);
+		} else {
+#if defined(_WIN32)
+			SYSTEM_INFO sysinfo;
+			GetSystemInfo(&sysinfo);
+			int pcore_count = 0;
+			int ecore_count = 0;
+
+			DWORD num_processors = sysinfo.dwNumberOfProcessors;
+			for (DWORD cpu = 0; cpu < num_processors; cpu++) {
+				HANDLE current_thread = GetCurrentThread();
+				DWORD_PTR cpu_mask = 1ULL << cpu;
+				DWORD_PTR oldMask = SetThreadAffinityMask(current_thread, cpu_mask);
+
+				if (oldMask != 0) {
+					auto ct = getCoreType();
+					if (ct == Pcore) { pcore_count++; }
+					else if (ct == Ecore) { ecore_count++; }
+					setNumCoresCpuid(getCoreType());
+				}
+				SetThreadAffinityMask(current_thread, oldMask);
+			}
+#elif defined(__linux__)
+			int num_processors = (int)sysconf(_SC_NPROCESSORS_CONF);
+			if (num_processors < 1) num_processors = 1;
+
+			cpu_set_t orignal_mask;
+			CPU_ZERO(&orignal_mask);
+			sched_getaffinity(0, sizeof(cpu_set_t), &orignal_mask);
+
+			for (int cpu =0; cpu < num_processors; cpu++) {
+				cpu_set_t cpu_mask;
+				CPU_ZERO(&cpu_mask);
+				CPU_SET(cpu, &cpu_mask);
+				if (sched_setaffinity(0, sizeof(cpu_set_t), &cpu_mask) == 0) {
+					setNumCoresCpuid(getCoreType());
+				}
+			}
+			// Restore original affinity mask
+			sched_setaffinity(0, sizeof(cpu_set_t), &orignal_mask);
+#else
+			setNumCoresCpuid(Pcore);
+#endif
+		}
+	}
+	// End setNumCores using CPUID
+	// Start setNumCores using Windows
+	#if defined(_WIN32)
+	// inline helper to coun bits in the KAFFINITY processor mask
+	inline unsigned countBitsInMask(KAFFINITY mask)
+	{
+		return static_cast<unsigned>(__popcnt64(mask));
+	}
+
+	HybridCoreType getCoreTypeFromProcessorInfo(const SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX& procInfo)
+	{
+		// For hybrid CPUs, we need to distinguish between P-cores and E-cores
+		// On Intel 12th gen+, EfficiencyClass in PROCESSOR_RELATIONSHIP indicates core type:
+		//   0 = E-core (efficiency)
+		//   1 = P-core (performance)
+		if ( has(tHYBRID) && procInfo.Relationship == RelationProcessorCore) {
+			const auto &proc = procInfo.Processor;
+			// EfficiencyClass is only available on Windows 10 1903+ / Windows 11
+#if defined(NTDDI_WIN10_VB) && NTDDI_VERSION >= NTDDI_WIN10_VB
+			if (proc.EfficiencyClass == 0)
+				return Ecore;
+			else if (proc.EfficiencyClass == 1)
+				return Pcore;
+#endif
+		}
+		// Default to p_core if we can't determine the core_type
+		return Pcore;
+	}
+	// 1. Use GetLogicalProcessorInformationEx to enumerate all processor cores
+	//    and find their core type (P-core or E-core)
+	void setNumCoresWin()
+	{
+		// Query buffer size
+		DWORD bufferSize = 0;
+		GetLogicalProcessorInformationEx(RelationAll, nullptr, &bufferSize);
+		if (bufferSize == 0)
+		{
+			// Fallback to CPUID-based method if Windows API fails
+			setNumCoresCpuid();
+			return;
+		}
+
+		//allocate buffer
+		LPBYTE buffer = new BYTE[bufferSize];
+		if (!buffer) {
+			// Fallback to CPUID-based method if memory allocation fails
+			setNumCoresCpuid();
+			return;
+		}
+
+		// Retrieve processor information
+		if (!GetLogicalProcessorInformationEx(RelationAll, (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX)buffer, &bufferSize)) {
+			// Fallback to CPUID-based method if Windows API fails
+			delete[] buffer;
+			setNumCoresCpuid();
+			return;
+		}
+
+		// First pass: collect all processor cores with their types and masks
+		// this will create a list of all cores with their core type and group affinity mask
+		// std::vector<std::pair<HybridCoreType, GROUP_AFFINITY>> core_info;
+
+		uint32_t pcoreCount = 0;
+		uint32_t ecoreCount = 0;
+		GROUP_AFFINITY pCoreAffinity = {};
+		GROUP_AFFINITY eCoreAffinity = {};
+
+		// Process the processor information here
+		DWORD offset = 0;
+		while(offset < bufferSize)
+		{
+			auto *info = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX)(buffer + offset);
+			if (info->Relationship == RelationProcessorCore)
+			{
+				HybridCoreType coreType = getCoreTypeFromProcessorInfo(*info);
+
+				if ( coreType == Pcore ) {
+					pcoreCount++;
+					// Combine group masks for all P-cores
+					for (WORD i = 0; i < info->Processor.GroupCount; i++) {
+						pCoreAffinity.Mask |= info->Processor.GroupMask[i].Mask;
+						pCoreAffinity.Group |= info->Processor.GroupMask[i].Group;
+					}
+				} else if ( coreType == Ecore ) {
+					ecoreCount++;
+					// Combine group masks for all E-cores
+					for (WORD i = 0; i < info->Processor.GroupCount; i++) {
+						eCoreAffinity.Mask |= info->Processor.GroupMask[i].Mask;
+						eCoreAffinity.Group |= info->Processor.GroupMask[i].Group;
+					}
+				}
+			}
+			offset += info->Size;
+		}
+
+		// Set the number of cores for each core type
+		numCores_[Pcore * maxCoreTypes + SmtLevel - 1] = countBitsInMask(pCoreAffinity.Mask) / pcoreCount;
+		numCores_[Pcore * maxCoreTypes + CoreLevel - 1] = pcoreCount * numCores_[Pcore * maxCoreTypes + SmtLevel - 1];
+		numCores_[Ecore * maxCoreTypes + SmtLevel - 1] = countBitsInMask(eCoreAffinity.Mask) / ecoreCount;
+		numCores_[Ecore * maxCoreTypes + CoreLevel - 1] = ecoreCount * numCores_[Ecore * maxCoreTypes + SmtLevel - 1];
+
+		// Free the allocated buffer
+		delete[] buffer;
+	}
+	#endif // _WIN32
+	// End setNumCores using Windows
+	// Start setNumCores using Linux
+	#if defined(__linux__)
+	void setNumCoresLinux()
 	{
 		uint32_t data[4] = {};
+		char node_path[] = "/sys/devices/system/node/online";
+		uint32_t num_nodes = 0; // Default to 1 NUMA node
+		FILE* f = fopen(node_path, "r");
+		if (f) {
+			char buf[256];
+			if (fgets(buf, sizeof(buf), f)) {
+				char buf_copy[256];
+				strcpy(buf_copy, buf);
+				char *token = strtok(buf_copy, ",\n");
+				while (token) {
+					// Trim whitespace
+					while (*token == ' ')
+						token++;
+					if (strchr(token, '-')) {
+						// Range format like "0-3"
+						int start, end;
+						if (sscanf(token, "%d-%d", &start, &end) == 2) {
+							num_nodes += (end - start + 1);
+						}
+					} else {
+						// Single Node
+						num_nodes++;
+					}
+					token = strtok(nullptr, ",\n");
+				}
+			}
+			fclose(f);
+		}
+
+		if (num_nodes == 0) num_nodes = 1; // Fallback to 1 if parsing failed
+
+		int num_processors = (int)sysconf(_SC_NPROCESSORS_CONF);
+		if (num_processors < 1) num_processors = 1;
+
+		if (!has(tHYBRID) ) {
+			// If hybrid is not supported, set all cores as P-cores
+			// Get SMT level core count from CPUID
+			getCpuid(0x1, data);
+			int logicalProcessorCount = extractBit(data[1], 16, 23);
+			// For SMT level, we need logical processors per physical core
+			// This requires checking if hyper-threading is enabled
+			int htt = extractBit(data[3], 28, 28);
+			uint32_t smtCount = 1; // Default to 1 (no SMT)
+			if (htt) {
+				// Get physical core count to calculate SMT count
+				getCpuid(0x4, data);
+				int physicalCores = extractBit(data[0], 26, 31) + 1;
+				if (physicalCores > 0) {
+					smtCount = logicalProcessorCount / physicalCores;
+				}
+			}
+			numCores_[Pcore * maxCoreTypes + SmtLevel - 1] = smtCount; // Assume no hyperthreading
+			numCores_[Pcore * maxCoreTypes + CoreLevel - 1] = num_processors / num_nodes;
+
+			// E-cores are set to 0 as they are not present
+			numCores_[Ecore * maxCoreTypes + SmtLevel - 1] = 0;
+			numCores_[Ecore * maxCoreTypes + CoreLevel - 1] = 0;
+		} else {
+			// TODO this needs to be replaced with actual detection logic
+			// Hybrid CPU handling
+			// For simplicity, we will assume equal distribution of P-cores and E-cores
+			uint32_t pcoreCount = num_processors / (2 * num_nodes); // Assume half are P-cores
+			uint32_t ecoreCount = num_processors / (2 * num_nodes); // Assume half are E-cores
+
+			// Get SMT level core count from CPUID for P-cores
+			getCpuid(0x1, data);
+			int logicalProcessorCount = extractBit(data[1], 16, 23);
+			int htt = extractBit(data[3], 28, 28);
+			uint32_t smtCount = 1; // Default to 1 (no SMT)
+			if (htt) {
+				getCpuid(0x4, data);
+				int physicalCores = extractBit(data[0], 26, 31) + 1;
+				if (physicalCores > 0) {
+					smtCount = logicalProcessorCount / physicalCores;
+				}
+			}
+
+			numCores_[Pcore * maxCoreTypes + SmtLevel - 1] = smtCount;
+			numCores_[Pcore * maxCoreTypes + CoreLevel - 1] = pcoreCount;
+
+			numCores_[Ecore * maxCoreTypes + SmtLevel - 1] = smtCount; // Assuming same SMT for E-cores
+			numCores_[Ecore * maxCoreTypes + CoreLevel - 1] = ecoreCount;
+		}
+	}
+	#endif // __linux__
+	// End setNumCores using Linux
+
+	void setNumCores()
+	{
+		// initialize all numCores_ to 0.
+		for (size_t i = 0; i < maxCoreTypes * maxTopologyLevels; i++) {
+					numCores_[i] = 1;
+		}
+		#if defined(_WIN32)
+		setNumCoresWin();
+		//setNumCoresCpuid();
+#elif defined(__linux__)
+		setNumCoresLinux();
+		//setNumCoresCpuid();
+#else
+		// Fallback: use CPUID-based method
+		setNumCoresCpuid();
+#endif
+	}
+
+	// Start setCacheHierarchy using CPUID
+	void setCacheHierarchyCpuid(HybridCoreType coreType)
+	{
+		if (!has(tHYBRID) ){
+			coreType = Pcore;
+		}
+		uint32_t data[4] = {};
+		dataCacheLevels_[coreType] = 0;
 		if (has(tAMD)) {
 			getCpuid(0x80000000, data);
 			if (data[0] >= 0x8000001D) {
 				// For modern AMD CPUs.
-				dataCacheLevels_ = 0;
-				for (uint32_t subLeaf = 0; dataCacheLevels_ < maxNumberCacheLevels; subLeaf++) {
+				dataCacheLevels_[coreType] = 0;
+				for (uint32_t subLeaf = 0; dataCacheLevels_[coreType] < maxNumberCacheLevels; subLeaf++) {
 					getCpuidEx(0x8000001D, subLeaf, data);
 					int cacheType = extractBit(data[0], 0, 4);
 					/*
@@ -302,23 +607,23 @@ private:
 					int cachePhysPartitions = extractBit(data[1], 12, 21) + 1;
 					int cacheLineSize = extractBit(data[1], 0, 11) + 1;
 					int cacheNumSets = data[2] + 1;
-					dataCacheSize_[dataCacheLevels_] =
+					dataCacheSize_[dataCacheLevels_[coreType]] =
 						cacheLineSize * cachePhysPartitions * cacheNumWays;
 					if (fullyAssociative == 0) {
-						dataCacheSize_[dataCacheLevels_] *= cacheNumSets;
+						dataCacheSize_[dataCacheLevels_[coreType]] *= cacheNumSets;
 					}
 					if (subLeaf > 0) {
 						numSharingCache = local::min_(numSharingCache, (int)numCores_[1]);
 						numSharingCache /= local::max_(1u, coresSharingDataCache_[0]);
 					}
-					coresSharingDataCache_[dataCacheLevels_] = numSharingCache;
-					dataCacheLevels_ += 1;
+					coresSharingDataCache_[dataCacheLevels_[coreType]] = numSharingCache;
+					dataCacheLevels_[coreType] += 1;
 				}
 				coresSharingDataCache_[0] = local::min_(1u, coresSharingDataCache_[0]);
 			} else if (data[0] >= 0x80000006) {
 				// For legacy AMD CPUs, use leaf 0x80000005 for L1 cache
 				// and 0x80000006 for L2 and L3 cache.
-				dataCacheLevels_ = 1;
+				dataCacheLevels_[coreType] = 1;
 				getCpuid(0x80000005, data);
 				int l1dc_size = extractBit(data[2], 24, 31);
 				dataCacheSize_[0] = l1dc_size * 1024;
@@ -327,7 +632,7 @@ private:
 				// L2 cache
 				int l2_assoc = extractBit(data[2], 12, 15);
 				if (l2_assoc > 0) {
-					dataCacheLevels_ = 2;
+					dataCacheLevels_[coreType] = 2;
 					int l2_size = extractBit(data[2], 16, 31);
 					dataCacheSize_[1] = l2_size * 1024;
 					coresSharingDataCache_[1] = 1;
@@ -335,7 +640,7 @@ private:
 				// L3 cache
 				int l3_assoc = extractBit(data[3], 12, 15);
 				if (l3_assoc > 0) {
-					dataCacheLevels_ = 3;
+					dataCacheLevels_[coreType] = 3;
 					int l3_size = extractBit(data[3], 18, 31);
 					dataCacheSize_[2] = l3_size * 512 * 1024;
 					coresSharingDataCache_[2] = numCores_[1];
@@ -362,7 +667,7 @@ private:
 				on socket reported by leaf 11, then it is a correct number
 				of cores not an upperbound.
 			*/
-			for (int i = 0; dataCacheLevels_ < maxNumberCacheLevels; i++) {
+			for (int i = 0; dataCacheLevels_[coreType] < maxNumberCacheLevels; i++) {
 				getCpuidEx(0x4, i, data);
 				uint32_t cacheType = extractBit(data[0], 0, 4);
 				if (cacheType == NO_CACHE) break;
@@ -372,20 +677,391 @@ private:
 						actual_logical_cores = local::min_(actual_logical_cores, logical_cores);
 					}
 					assert(actual_logical_cores != 0);
-					dataCacheSize_[dataCacheLevels_] =
+					dataCacheSize_[dataCacheLevels_[coreType]] =
 						(extractBit(data[1], 22, 31) + 1)
 						* (extractBit(data[1], 12, 21) + 1)
 						* (extractBit(data[1], 0, 11) + 1)
 						* (data[2] + 1);
 					if (cacheType == DATA_CACHE && smt_width == 0) smt_width = actual_logical_cores;
 					assert(smt_width != 0);
-					coresSharingDataCache_[dataCacheLevels_] = local::max_(actual_logical_cores / smt_width, 1u);
-					dataCacheLevels_++;
+					coresSharingDataCache_[dataCacheLevels_[coreType]] = local::max_(actual_logical_cores / smt_width, 1u);
+					dataCacheLevels_[coreType]++;
 				}
 			}
 		}
 	}
 
+	void setCacheHierarchyCpuid()
+	{
+		if (!has(tHYBRID) ){
+			setCacheHierarchyCpuid(Pcore);
+		} else {
+#if defined(_WIN32)
+			SYSTEM_INFO sysinfo;
+			GetSystemInfo(&sysinfo);
+
+			DWORD num_processors = sysinfo.dwNumberOfProcessors;
+			for (DWORD cpu = 0; cpu < num_processors; cpu++) {
+				HANDLE current_thread = GetCurrentThread();
+				DWORD_PTR cpu_mask = 1ULL << cpu;
+				DWORD_PTR oldMask = SetThreadAffinityMask(current_thread, cpu_mask);
+
+				if (oldMask != 0) {
+					auto ct = getCoreType();
+					setCacheHierarchyCpuid(getCoreType());
+				}
+				SetThreadAffinityMask(current_thread, oldMask);
+			}
+#elif defined(__linux__)
+			int num_processors = (int)sysconf(_SC_NPROCESSORS_CONF);
+			if (num_processors < 1) num_processors = 1;
+
+			cpu_set_t orignal_mask;
+			CPU_ZERO(&orignal_mask);
+			sched_getaffinity(0, sizeof(cpu_set_t), &orignal_mask);
+
+			for (int cpu =0; cpu < num_processors; cpu++) {
+				cpu_set_t cpu_mask;
+				CPU_ZERO(&cpu_mask);
+				CPU_SET(cpu, &cpu_mask);
+				if (sched_setaffinity(0, sizeof(cpu_set_t), &cpu_mask) == 0) {
+					setCacheHierarchyCpuid(getCoreType());
+				}
+			}
+			// Restore original affinity mask
+			sched_setaffinity(0, sizeof(cpu_set_t), &orignal_mask);
+#else
+			setNumCoresCpuid(Pcore);
+#endif
+		}
+	}
+	// End setCacheHierarchy using CPUID
+	// Start setCacheHierarchy using Windows
+#if defined(_WIN32)
+	void setCacheHierarchyWin()
+	{
+		// Query buffer size
+		DWORD bufferSize = 0;
+		GetLogicalProcessorInformationEx(RelationAll, nullptr, &bufferSize);
+		if (bufferSize == 0){
+			// Fallback to CPUID-based method if Windows API fails
+			setCacheHierarchyCpuid();
+			return;
+		}
+
+		//allocate buffer
+		LPBYTE buffer = new BYTE[bufferSize];
+		if (!buffer) {
+			// Fallback to CPUID-based method if memory allocation fails
+			setCacheHierarchyCpuid();
+			return;
+		}
+
+		// Retrieve processor information
+		if (!GetLogicalProcessorInformationEx(RelationAll, (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX)buffer, &bufferSize)) {
+			// Fallback to CPUID-based method if Windows API fails
+			delete[] buffer;
+			setCacheHierarchyCpuid();
+			return;
+		}
+
+		// collect all the processor cores with their types and GROUP_AFFINITY masks
+		// The core type is stored in the RelationProcessorCore info structures,
+		// while the cache size and sharing information is stored in the RlationCache structures.
+		// this will be used to indirectly map caches from the RelationCache structures
+		// to core types by checking which core types intersect with the cache's processor affinity mask
+		std::vector<std::pair<HybridCoreType, GROUP_AFFINITY>> core_info;
+
+		DWORD offset = 0;
+		while(offset < bufferSize)
+		{
+			auto *info = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX)(buffer + offset);
+			if (info->Relationship == RelationProcessorCore)
+			{
+				HybridCoreType coreType = getCoreTypeFromProcessorInfo(*info);
+
+				for (WORD i = 0; i < info->Processor.GroupCount; i++) {
+					core_info.emplace_back(coreType, info->Processor.GroupMask[i]);
+				}
+			}
+			offset += info->Size;
+		}
+
+		offset = 0;
+		while(offset < bufferSize)
+		{
+			auto *info = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX)(buffer + offset);
+			if (info->Relationship == RelationCache)
+			{
+				const auto &cache = info->Cache;
+				bool cacheUsedByPcore = false;
+				bool cacheUsedByEcore = false;
+				for (size_t i = 0; i < core_info.size(); i++) {
+					const auto& ct = core_info[i].first;
+					const auto& ga = core_info[i].second;
+					// Check if this core type's group affinity intersects with
+					// the cache's group affinity mask.  The mask can
+					// intersect with multiple core types since some cache's are
+					// shared with cores of different types.
+					if (ga.Group == cache.GroupMask.Group &&
+						(ga.Mask & cache.GroupMask.Mask) != 0) {
+						if (ct == Pcore) {
+							cacheUsedByPcore = true;
+						} else if (ct == Ecore) {
+							cacheUsedByEcore = true;
+						}
+					}
+				}
+
+				if ( cache.Type == CacheData || cache.Type == CacheUnified ) {
+					size_t level = cache.Level - 1;
+					if (cacheUsedByPcore) {
+						size_t pcoreIndex = Pcore * maxNumberCacheLevels;
+						dataCacheSize_[pcoreIndex + level] = cache.CacheSize;
+						coresSharingDataCache_[pcoreIndex + level] = countBitsInMask(cache.GroupMask.Mask);
+						if (dataCacheLevels_[Pcore] < cache.Level) {
+							dataCacheLevels_[Pcore] = cache.Level;
+						}
+					}
+					if (cacheUsedByEcore) {
+						size_t ecoreIndex = Ecore * maxNumberCacheLevels;
+						dataCacheSize_[ecoreIndex + level] = cache.CacheSize;
+						coresSharingDataCache_[ecoreIndex + level] = countBitsInMask(cache.GroupMask.Mask);
+						if (dataCacheLevels_[Ecore] < cache.Level) {
+							dataCacheLevels_[Ecore] = cache.Level;
+						}
+					}
+				}
+			}
+			offset += info->Size;
+		}
+		// Free the allocated buffer
+		delete[] buffer;
+	}
+#endif // _WIN32
+#if defined(__linux__)
+	// Helper function to parse cache information from sysfs for a specific CPU and core type
+	bool parseCacheFromSysfs(int cpu, HybridCoreType coreType) {
+		bool success = false;
+		char cache_base_path[64];
+		snprintf(cache_base_path, sizeof(cache_base_path), "/sys/devices/system/cpu/cpu%d/cache", cpu);
+		// Try to read cache information from sysfs
+		for (int cache_idx = 0; cache_idx < 10; cache_idx++) {
+			char cache_path[96];
+			snprintf(cache_path, sizeof(cache_path), "%s/index%d", cache_base_path, cache_idx);
+
+			// Read cache type - skip if not Data or Unified
+			char type_path[128];
+			snprintf(type_path, sizeof(type_path), "%s/type", cache_path);
+			FILE* type_file = fopen(type_path, "r");
+			if (!type_file) continue;
+
+			char cache_type_str[64] = {0};
+			bool valid_type = false;
+			if (fgets(cache_type_str, sizeof(cache_type_str), type_file)) {
+				// Remove newline
+				char* newline = strchr(cache_type_str, '\n');
+				if (newline) *newline = '\0';
+				// Only process Data and Unified caches (skip Instruction)
+				if (strstr(cache_type_str, "Instruction") == nullptr) {
+					valid_type = true;
+				}
+			}
+			fclose(type_file);
+			if (!valid_type) continue;
+
+			// Read cache level
+			char level_path[128];
+			snprintf(level_path, sizeof(level_path), "%s/level", cache_path);
+			FILE* level_file = fopen(level_path, "r");
+			int cache_level = 0;
+			if (level_file) {
+				if (fscanf(level_file, "%d", &cache_level) == 1) {
+					if (cache_level > 0 && cache_level <= (int)maxNumberCacheLevels) {
+						// Valid level
+					} else {
+						cache_level = 0;
+					}
+				}
+				fclose(level_file);
+			}
+			if (cache_level == 0) continue;
+
+			// Read cache size
+			char size_path[128];
+			snprintf(size_path, sizeof(size_path), "%s/size", cache_path);
+			FILE* size_file = fopen(size_path, "r");
+			uint32_t cache_size = 0;
+			if (size_file) {
+				char size_str[64];
+				if (fgets(size_str, sizeof(size_str), size_file)) {
+					int size_val;
+					char size_unit = ' ';
+					if (sscanf(size_str, "%d%c", &size_val, &size_unit) >= 1) {
+						cache_size = size_val;
+						if (size_unit == 'K' || size_unit == 'k') {
+							cache_size *= 1024;
+						} else if (size_unit == 'M' || size_unit == 'm') {
+							cache_size *= 1024 * 1024;
+						}
+					}
+				}
+				fclose(size_file);
+			}
+			if (cache_size == 0) continue;
+
+			// Read shared CPU list to determine sharing count
+			char shared_path[128];
+			snprintf(shared_path, sizeof(shared_path), "%s/shared_cpu_list", cache_path);
+			uint32_t num_sharing_cores = 1;
+			FILE* shared_file = fopen(shared_path, "r");
+			if (shared_file) {
+				char shared_str[256];
+				if (fgets(shared_str, sizeof(shared_str), shared_file)) {
+					// Count logical processors in the shared list
+					num_sharing_cores = 0;
+					char shared_str_copy[256];
+					strncpy(shared_str_copy, shared_str, sizeof(shared_str_copy) - 1);
+					shared_str_copy[sizeof(shared_str_copy) - 1] = '\0';
+					char* token = strtok(shared_str_copy, ",\n");
+					while (token) {
+						// Trim whitespace
+						while (*token == ' ') token++;
+						if (strchr(token, '-')) {
+							// Range format like "0-3"
+							int start, end;
+							if (sscanf(token, "%d-%d", &start, &end) == 2) {
+								num_sharing_cores += (end - start + 1);
+							}
+						} else {
+							// Single CPU
+							num_sharing_cores++;
+						}
+						token = strtok(nullptr, ",\n");
+					}
+					if (num_sharing_cores == 0) num_sharing_cores = 1;
+				}
+				fclose(shared_file);
+			}
+
+			// Store the cache information for the specified core type
+			size_t idx = coreType * maxNumberCacheLevels + (cache_level - 1);
+			dataCacheSize_[idx] = cache_size;
+			coresSharingDataCache_[idx] = num_sharing_cores / getNumCores(SmtLevel, coreType);
+			if (dataCacheLevels_[coreType] < (uint32_t)cache_level) {
+				dataCacheLevels_[coreType] = (uint32_t)cache_level;
+			}
+			success = true;
+		}
+		return success;
+	}
+
+	inline bool setCpuAffinityLinux(int cpu) {
+	#ifdef __linux__
+		cpu_set_t cpuset;
+		CPU_ZERO(&cpuset);
+		CPU_SET(cpu, &cpuset);
+	return sched_setaffinity(0, sizeof(cpu_set_t), &cpuset) == 0;
+	#else
+		return false;
+	#endif
+	}
+
+	// Helper function to restore original CPU affinity
+	inline void restoreCpuAffinityLinux(const cpu_set_t *original_affinity_mask) {
+	#ifdef __linux__
+		sched_setaffinity(0, sizeof(cpu_set_t), original_affinity_mask);
+	#endif
+	}
+
+	void setCacheHierarchyLinux()
+	{
+		// Linux implementation to set cache hierarchy per core type
+		// For simplicity, we will assume all cores are P-cores in this example
+		// A more complete implementation would parse /sys/devices/system/cpu/cpu*/cache/index*/ files
+		if (!has(tHYBRID) ) {
+			// Parse cache information from sysfs for cpu0 as P-core
+			bool success = parseCacheFromSysfs(0, Pcore);
+
+			// If we couldn't read any cache info from sysfs, fall back to CPUID
+			if (!success || dataCacheLevels_[Pcore] == 0) {
+				setCacheHierarchyCpuid(Pcore);
+			}
+		} else {
+			// Hybrid CPU handling - iterate through CPUs to detect cache for each core type
+			int num_processors = (int)sysconf(_SC_NPROCESSORS_CONF);
+			if (num_processors < 1) num_processors = 1;
+
+			// Save original affinity to restore later
+			cpu_set_t original_mask;
+			CPU_ZERO(&original_mask);
+			sched_getaffinity(0, sizeof(cpu_set_t), &original_mask);
+
+			// Track which core types have been processed
+			bool pcore_found = false;
+			bool ecore_found = false;
+			bool pcore_success = false;
+			bool ecore_success = false;
+
+			// Iterate through all CPUs until all core types are found
+			for (int cpu = 0; cpu < num_processors && !(pcore_found && ecore_found); cpu++) {
+				// Set affinity to this CPU
+				if (!setCpuAffinityLinux(cpu)) {
+					continue; // Skip if affinity setting fails
+				}
+
+				// Get the core type for this CPU
+				HybridCoreType coreType = getCoreType();
+
+				// Check if we've already processed this core type
+				if (coreType == Pcore && !pcore_found) {
+					if (parseCacheFromSysfs(cpu, Pcore)) {
+						pcore_found = true;
+						pcore_success = true;
+					}
+				} else if (coreType == Ecore && !ecore_found) {
+					if (parseCacheFromSysfs(cpu, Ecore)) {
+						ecore_found = true;
+						ecore_success = true;
+					}
+				}
+			}
+
+			// Restore original affinity
+			restoreCpuAffinityLinux(&original_mask);
+
+			// If we couldn't read cache info from sysfs, fall back to CPUID
+			if (!pcore_success || dataCacheLevels_[Pcore] == 0) {
+				setCacheHierarchyCpuid(Pcore);
+			}
+			if (!ecore_success || dataCacheLevels_[Ecore] == 0) {
+				setCacheHierarchyCpuid(Ecore);
+			}
+		}
+	}
+#endif // __linux__
+
+	void setCacheHierarchy()
+	{
+		// Initialize all cache hierarchy arrays to 0
+		for (size_t i = 0; i < maxCoreTypes * maxNumberCacheLevels; i++) {
+			dataCacheSize_[i] = 0;
+			coresSharingDataCache_[i] = 0;
+		}
+		for (size_t i = 0; i < maxCoreTypes; i++) {
+			dataCacheLevels_[i] = 0;
+		}
+		#if defined(_WIN32)
+		setCacheHierarchyWin();
+		//setCacheHierarchyCpuid();
+#elif defined(__linux__)
+		setCacheHierarchyLinux();
+		// setCacheHierarchyCpuid();
+#else
+		// Fallback: use CPUID-based method
+		setCacheHierarchyCpuid();
+#endif
+	}
 public:
 	int model;
 	int family;
@@ -395,24 +1071,70 @@ public:
 	int displayFamily; // family + extFamily
 	int displayModel; // model + extModel
 
-	uint32_t getNumCores(CpuTopologyLevel level) const {
-		switch (level) {
-		case SmtLevel: return numCores_[level - 1];
-		case CoreLevel: return numCores_[level - 1] / numCores_[SmtLevel - 1];
-		default: XBYAK_THROW_RET(ERR_X2APIC_IS_NOT_SUPPORTED, 0)
+		uint32_t getNumCores(CpuTopologyLevel level, HybridCoreType coreType) const {
+		if (!has(tHYBRID)) {
+			coreType = Pcore;
+		}
+		size_t coreTypeIndex = coreType * maxCoreTypes;
+			switch (level) {
+			case SmtLevel: return numCores_[coreTypeIndex + level - 1];
+			case CoreLevel: return numCores_[coreTypeIndex + level - 1] / numCores_[coreTypeIndex + SmtLevel - 1];
+			default: XBYAK_THROW_RET(ERR_X2APIC_IS_NOT_SUPPORTED, 0)
+
 		}
 	}
 
-	uint32_t getDataCacheLevels() const { return dataCacheLevels_; }
+	uint32_t getNumCores(CpuTopologyLevel level) {
+		if (has(tHYBRID)) {
+			switch (level) {
+			case SmtLevel: return local::max_(getNumCores(SmtLevel, Pcore), getNumCores(SmtLevel, Ecore));
+			case CoreLevel: return getNumCores(CoreLevel, Pcore) + getNumCores(CoreLevel, Ecore);
+			default: XBYAK_THROW_RET(ERR_X2APIC_IS_NOT_SUPPORTED, 0)
+			}
+		} else {
+			switch (level) {
+			case SmtLevel: return numCores_[Pcore * maxCoreTypes + level - 1];
+			case CoreLevel: return numCores_[Pcore * maxCoreTypes + level - 1] / numCores_[Pcore * maxCoreTypes + SmtLevel - 1];
+			default: XBYAK_THROW_RET(ERR_X2APIC_IS_NOT_SUPPORTED, 0)
+			}
+		}
+	}
+
+	uint32_t getDataCacheLevels(HybridCoreType coreType) const {
+		if (!has(tHYBRID)) {
+			coreType = Pcore;
+		}
+		return dataCacheLevels_[coreType];
+	}
+	uint32_t getDataCacheLevels() const { return dataCacheLevels_[Pcore]; }
 	uint32_t getCoresSharingDataCache(uint32_t i) const
 	{
-		if (i >= dataCacheLevels_) XBYAK_THROW_RET(ERR_BAD_PARAMETER, 0)
+		if (i >= dataCacheLevels_[Pcore]) XBYAK_THROW_RET(ERR_BAD_PARAMETER, 0)
 		return coresSharingDataCache_[i];
 	}
+
+	uint32_t getCoresSharingDataCache(uint32_t i, HybridCoreType coreType) const
+	{
+		if (!has(tHYBRID)) {
+			coreType = Pcore;
+		}
+		if (i >= dataCacheLevels_[coreType]) XBYAK_THROW_RET(ERR_BAD_PARAMETER, 0)
+		return coresSharingDataCache_[coreType * maxNumberCacheLevels + i];
+	}
+
 	uint32_t getDataCacheSize(uint32_t i) const
 	{
-		if (i >= dataCacheLevels_) XBYAK_THROW_RET(ERR_BAD_PARAMETER, 0)
+		if (i >= dataCacheLevels_[Pcore]) XBYAK_THROW_RET(ERR_BAD_PARAMETER, 0)
 		return dataCacheSize_[i];
+	}
+
+	uint32_t getDataCacheSize(uint32_t i, HybridCoreType coreType) const
+	{
+		if (!has(tHYBRID)) {
+			coreType = Pcore;
+		}
+		if (i >= dataCacheLevels_[coreType]) XBYAK_THROW_RET(ERR_BAD_PARAMETER, 0)
+		return dataCacheSize_[coreType * maxNumberCacheLevels + i];
 	}
 
 	/*
@@ -568,7 +1290,7 @@ public:
 		, numCores_()
 		, dataCacheSize_()
 		, coresSharingDataCache_()
-		, dataCacheLevels_(0)
+		, dataCacheLevels_()
 		, avx10version_(0)
 	{
 		uint32_t data[4] = {};
