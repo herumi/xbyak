@@ -115,6 +115,9 @@ const uint64_t MY_1to4 = 1ULL << 18;
 
 const uint64_t NOPARA = 1ULL << (bitEnd - 1);
 
+// dirty hack for bug of NASM 3.x
+bool g_disableXMM_ER_SAE;
+
 class Test {
 	Test(const Test&);
 	void operator=(const Test&);
@@ -127,6 +130,7 @@ class Test {
 			if ((op1 & (1ULL << i)) == 0) continue;
 			for (int j = 0; j < bitEnd; j++) {
 				if ((op2 & (1ULL << j)) == 0) continue;
+//				if (g_disableXMM_ER_SAE && (op2 & (XMM_ER|XMM_SAE))) continue;
 				for (int k = 0; k < bitEnd; k++) {
 					if ((op3 & (1ULL << k)) == 0) continue;
 					for (int s = 0; s < bitEnd; s++) {
@@ -1478,6 +1482,7 @@ public:
 		put("vcvtqq2ps", XMM_KZ, _YMM | M_yword | MY_1to4);
 		put("vcvtqq2ps", YMM_KZ, ZMM | _MEM | M_1to8 | ZMM_ER);
 
+//		g_disableXMM_ER_SAE = true;
 		put("vcvtsd2si", REG32 | REG64, XMM | _MEM | XMM_ER);
 
 		put("vcvtsd2usi", REG32 | REG64, XMM | _MEM | XMM_ER);
@@ -1535,6 +1540,7 @@ public:
 		put("vcvttss2si", REG32 | REG64, XMM | _MEM | XMM_SAE);
 
 		put("vcvttss2usi", REG32 | REG64, XMM | _MEM | XMM_SAE);
+//		g_disableXMM_ER_SAE = false;
 
 		put("vcvtudq2pd", XMM_KZ, _XMM | _MEM | M_1to2);
 		put("vcvtudq2pd", YMM_KZ, _XMM | _MEM | M_1to4);
