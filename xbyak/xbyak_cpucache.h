@@ -62,7 +62,7 @@ struct CpuCache {
 #include <windows.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <memory>
+#include <vector>
 
 namespace Xbyak { namespace util { namespace intel { namespace impl {
 
@@ -84,20 +84,19 @@ bool getCoreIdx(int *PcoreIdx, int *EcoreIdx, int *physicalCoreNum, int *logical
 	typedef SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX Info;
 	DWORD len = 0;
 	GetLogicalProcessorInformationEx(RelationProcessorCore, nullptr, &len);
-	std::unique_ptr<Info, decltype(&free)> buf(static_cast<Info*>(malloc(len)), &free);
-	if (!buf) return false;
-	if (!GetLogicalProcessorInformationEx(RelationProcessorCore, buf.get(), &len)) return false;
+	std::vector<char> buf(len);
+	if (!GetLogicalProcessorInformationEx(RelationProcessorCore, reinterpret_cast<Info*>(buf.data()), &len)) return false;
 	// get core indices
 	*PcoreIdx = -1;
 	*EcoreIdx = -1;
-	char *ptr = reinterpret_cast<char*>(buf.get());
+	const char *ptr = buf.data();
 	const char *end = ptr + len;
 	*physicalCoreNum = 0;
 	*logicalCoreNum = 0;
 	*PcoreNum = 0;
 	*EcoreNum = 0;
 	while (ptr < end) {
-		const auto& entry = *reinterpret_cast<Info*>(ptr);
+		const auto& entry = *reinterpret_cast<const Info*>(ptr);
 		const PROCESSOR_RELATIONSHIP& core = entry.Processor;
 		uint64_t mask = core.GroupMask[0].Mask;
 		if (core.EfficiencyClass > 0) {
@@ -123,13 +122,12 @@ bool CpuCache::init() {
 	if (!getCoreIdx(&PcoreIdx_, &EcoreIdx_, &physicalCoreNum_, &logicalCoreNum_, &PcoreNum_, &EcoreNum_)) return false;
 	DWORD len = 0;
 	GetLogicalProcessorInformationEx(RelationCache, nullptr, &len);
-	std::unique_ptr<Info, decltype(&free)> buf(static_cast<Info*>(malloc(len)), &free);
-	if (!buf) return false;
-	if (!GetLogicalProcessorInformationEx(RelationCache, buf.get(), &len)) return false;
-	char *ptr = reinterpret_cast<char*>(buf.get());
+	std::vector<char> buf(len);
+	if (!GetLogicalProcessorInformationEx(RelationCache, reinterpret_cast<Info*>(buf.data()), &len)) return false;
+	const char *ptr = buf.data();
 	const char *end = ptr + len;
 	while (ptr < end) {
-		const auto& entry = *reinterpret_cast<Info*>(ptr);
+		const auto& entry = *reinterpret_cast<const Info*>(ptr);
 		if (entry.Relationship == RelationCache) {
 			const CACHE_RELATIONSHIP& cache = entry.Cache;
 			uint64_t mask = cache.GroupMask.Mask;
