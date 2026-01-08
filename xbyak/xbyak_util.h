@@ -500,10 +500,8 @@ private:
 		}
 
 		if (num_nodes == 0) num_nodes = 1; // Fallback to 1 if parsing failed
-
 		int num_processors = (int)sysconf(_SC_NPROCESSORS_CONF);
 		if (num_processors < 1) num_processors = 1;
-
 		if (!has(tHYBRID) ) {
 			// If hybrid is not supported, set all cores as P-cores
 			// Get SMT level core count from CPUID
@@ -528,11 +526,26 @@ private:
 			numCores_[Ecore * maxCoreTypes + SmtLevel - 1] = 0;
 			numCores_[Ecore * maxCoreTypes + CoreLevel - 1] = 0;
 		} else {
-			// TODO this needs to be replaced with actual detection logic
 			// Hybrid CPU handling
-			// For simplicity, we will assume equal distribution of P-cores and E-cores
-			uint32_t pcoreCount = num_processors / (2 * num_nodes); // Assume half are P-cores
-			uint32_t ecoreCount = num_processors / (2 * num_nodes); // Assume half are E-cores
+			uint32_t pcoreCount = 0;
+			uint32_t ecoreCount = 0;
+
+			cpu_set_t original_mask;
+			CPU_ZERO(&original_mask);
+			sched_getaffinity(0, sizeof(cpu_set_t), &original_mask);
+
+			for (int cpu = 0; cpu < num_processors; cpu++) {
+				cpu_set_t cpu_mask;
+				CPU_ZERO(&cpu_mask);
+				CPU_SET(cpu, &cpu_mask);
+				if (sched_setaffinity(0, sizeof(cpu_set_t), &cpu_mask) == 0) {
+					HybridCoreType coreType = getCoreType();
+					if (coreType == Pcore) pcoreCount++;
+					else if (coreType == Ecore) ecoreCount++;
+				}
+			}
+			// Restore original affinity mask
+			sched_setaffinity(0, sizeof(cpu_set_t), &original_mask);
 
 			// Get SMT level core count from CPUID for P-cores
 			getCpuid(0x1, data);
@@ -550,7 +563,7 @@ private:
 			numCores_[Pcore * maxCoreTypes + SmtLevel - 1] = smtCount;
 			numCores_[Pcore * maxCoreTypes + CoreLevel - 1] = pcoreCount;
 
-			numCores_[Ecore * maxCoreTypes + SmtLevel - 1] = smtCount; // Assuming same SMT for E-cores
+			numCores_[Ecore * maxCoreTypes + SmtLevel - 1] = 1; // E-cores don't have SMT cores, so set to 1
 			numCores_[Ecore * maxCoreTypes + CoreLevel - 1] = ecoreCount;
 		}
 	}
@@ -743,7 +756,7 @@ private:
 		// Query buffer size
 		DWORD bufferSize = 0;
 		GetLogicalProcessorInformationEx(RelationAll, nullptr, &bufferSize);
-		if (bufferSize == 0){
+		if (bufferSize == 0) {
 			// Fallback to CPUID-based method if Windows API fails
 			setCacheHierarchyCpuid();
 			return;
@@ -845,11 +858,11 @@ private:
 		bool success = false;
 		char cache_base_path[64];
 		snprintf(cache_base_path, sizeof(cache_base_path), "/sys/devices/system/cpu/cpu%d/cache", cpu);
+
 		// Try to read cache information from sysfs
 		for (int cache_idx = 0; cache_idx < 10; cache_idx++) {
 			char cache_path[96];
 			snprintf(cache_path, sizeof(cache_path), "%s/index%d", cache_base_path, cache_idx);
-
 			// Read cache type - skip if not Data or Unified
 			char type_path[128];
 			snprintf(type_path, sizeof(type_path), "%s/type", cache_path);
@@ -947,12 +960,23 @@ private:
 			// Store the cache information for the specified core type
 			size_t idx = coreType * maxNumberCacheLevels + (cache_level - 1);
 			dataCacheSize_[idx] = cache_size;
-			coresSharingDataCache_[idx] = num_sharing_cores / getNumCores(SmtLevel, coreType);
+
+			// Work around solution for a way to determin the number of physical cores sharing
+			// the L3 cache on hybrid CPUs. This solution assumes the L3 cache is shared by all
+			// the P-cores and if the core is an SMT (hyperthreaded) core this will subtract
+			// the number of SMT P-cores from the total number of cores sharing the cache to get
+			// the number of physical cores sharing the cache.
+			if (cache_level == 3 && getNumCores(SmtLevel, Pcore) > 1) {
+				coresSharingDataCache_[idx] = num_sharing_cores - getNumCores(CoreLevel, Pcore);
+			} else {
+				coresSharingDataCache_[idx] = num_sharing_cores;
+			}
 			if (dataCacheLevels_[coreType] < (uint32_t)cache_level) {
 				dataCacheLevels_[coreType] = (uint32_t)cache_level;
 			}
 			success = true;
 		}
+		
 		return success;
 	}
 
@@ -991,7 +1015,7 @@ private:
 			// Hybrid CPU handling - iterate through CPUs to detect cache for each core type
 			int num_processors = (int)sysconf(_SC_NPROCESSORS_CONF);
 			if (num_processors < 1) num_processors = 1;
-
+			
 			// Save original affinity to restore later
 			cpu_set_t original_mask;
 			CPU_ZERO(&original_mask);
