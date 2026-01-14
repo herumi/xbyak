@@ -722,7 +722,7 @@ private:
 
 				if (oldMask != 0) {
 					auto ct = getCoreType();
-					setCacheHierarchyCpuid(getCoreType());
+					setCacheHierarchyCpuid(ct);
 				}
 				SetThreadAffinityMask(current_thread, oldMask);
 			}
@@ -977,7 +977,7 @@ private:
 			}
 			success = true;
 		}
-		
+
 		return success;
 	}
 
@@ -1016,7 +1016,7 @@ private:
 			// Hybrid CPU handling - iterate through CPUs to detect cache for each core type
 			int num_processors = (int)sysconf(_SC_NPROCESSORS_CONF);
 			if (num_processors < 1) num_processors = 1;
-			
+
 			// Save original affinity to restore later
 			cpu_set_t original_mask;
 			CPU_ZERO(&original_mask);
