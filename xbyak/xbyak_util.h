@@ -84,6 +84,7 @@
 #endif
 #ifdef __linux__
 	#define XBYAK_USE_PERF
+	#include <sched.h>
 #endif
 
 namespace Xbyak { namespace util {
