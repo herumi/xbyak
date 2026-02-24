@@ -1,3 +1,5 @@
+//#define XBYAK_CPUMASK_COMPACT 0
+#define XBYAK_NO_EXCEPTION
 #define XBYAK_CPUMASK_N 8
 #define XBYAK_CPUMASK_BITN 3
 #include <xbyak/xbyak_util.h>
@@ -31,6 +33,22 @@ CYBOZU_TEST_AUTO(append)
 	CYBOZU_TEST_EQUAL(m.get(1), 4u);
 	CYBOZU_TEST_EQUAL(m.get(2), 7u);
 	CYBOZU_TEST_EQUAL(m.getStr(), "2,4,7");
+
+	m.clear();
+	CYBOZU_TEST_ASSERT(m.append(1));
+	CYBOZU_TEST_ASSERT(m.append(2));
+	CYBOZU_TEST_ASSERT(m.append(3));
+	CYBOZU_TEST_EQUAL(m.getStr(), "1-3");
+	CYBOZU_TEST_ASSERT(m.append(5));
+	CYBOZU_TEST_ASSERT(m.append(6));
+	CYBOZU_TEST_ASSERT(m.append(7));
+	CYBOZU_TEST_EQUAL(m.getStr(), "1-3,5-7");
+
+	m.clear();
+	CYBOZU_TEST_ASSERT(m.appendRange(1, 3));
+	CYBOZU_TEST_EQUAL(m.getStr(), "1-3");
+	CYBOZU_TEST_ASSERT(m.appendRange(5, 7));
+	CYBOZU_TEST_EQUAL(m.getStr(), "1-3,5-7");
 }
 
 CYBOZU_TEST_AUTO(str)
