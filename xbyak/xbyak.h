@@ -1019,7 +1019,7 @@ public:
 	}
 	RegExp(Label& label);
 
-	RegExp(const void *addr)
+	explicit RegExp(const void *addr)
 		: scale_(1)
 		, disp_(size_t(addr))
 		, label_(0)
