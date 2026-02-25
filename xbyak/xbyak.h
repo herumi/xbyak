@@ -1366,8 +1366,12 @@ public:
 
 class Address : public Operand {
 public:
+	XBYAK_CONSTEXPR Address()
+		: Operand(0, MEM, 0), e_(), label_(nullptr), mode_(inner::M_ModRM), immSize(0),
+		  disp8N(0), permitVsib(false), broadcast_(false), optimize_(true) { }
 	XBYAK_CONSTEXPR Address(uint32_t sizeBit, bool broadcast, const RegExp& e)
-		: Operand(0, MEM, sizeBit), e_(e), label_(e.label_), mode_(), immSize(0), disp8N(0), permitVsib(false), broadcast_(broadcast), optimize_(true)
+		: Operand(0, MEM, sizeBit), e_(e), label_(e.label_), mode_(), immSize(0),
+		  disp8N(0), permitVsib(false), broadcast_(broadcast), optimize_(true)
 	{
 		if (e.rip_) {
 			mode_ = (e.label_ || e.setLabel_) ? inner::M_ripAddr : inner::M_rip;
