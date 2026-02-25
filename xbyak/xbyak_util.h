@@ -1424,7 +1424,7 @@ inline bool initCpuTopology(CpuTopology& cpuTopo)
 	return true;
 }
 
-#elif __linux__ // Linux
+#elif defined(__linux__) // Linux
 
 struct WrapFILE {
 	FILE *f;
