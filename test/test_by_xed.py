@@ -79,15 +79,18 @@ def newReg(s):
   return s
 
 class Memory:
-  def __init__(self, size=0, base=None, index=None, scale=0, disp=0, broadcast=0):
+  def __init__(self, size=0, base=None, index=None, scale=0, disp=0, broadcast=0, rip=False):
     self.size = size
     self.base = newReg(base)
     self.index = newReg(index)
     self.scale = scale
     self.disp = disp
     self.broadcast = broadcast
+    self.rip = rip
 
   def __str__(self):
+    if self.rip:
+      return f'[rip+{hex(self.disp)}]'
     if self.size == 0:
       s = 'ptr'
     else:
@@ -185,8 +188,16 @@ def parseMemory(s, broadcast=0):
   if not r:
     raise ValueError(f'bad format {org_s=}')
 
+  # check rip
+  expr = r.group(1)
+  r = re.match(r'rip\+([a-fx0-9]+)', expr)
+  if r:
+    b = 16 if r.group(1).startswith('0x') else 10
+    disp = int(r.group(1), b)
+    return Memory(size, base, index, scale, disp, broadcast, True)
+
   # Parse components
-  elems = re.findall(r'([a-z0-9]+)(?:\*([0-9]+))?|([+-])', r.group(1))
+  elems = re.findall(r'([a-z0-9]+)(?:\*([0-9]+))?|([+-])', expr)
 
   for i, e in enumerate(elems):
     if e[2]: # This is a '+' or '-' sign
