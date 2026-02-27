@@ -248,6 +248,14 @@ movrs(ecx, ptr[rax]);
 movrs(cx, ptr[rax]);
 movrs(cl, ptr[rax+rdx*4]);
 
+prefetchnta(ptr[rcx]);
+prefetcht0(ptr[rcx]);
+prefetcht1(ptr[rcx]);
+prefetcht2(ptr[rcx]);
+prefetchit1(ptr[rip+64]);
+prefetchit0(ptr[rip+64]);
+prefetchrst2(ptr[rcx]);
+
 vmovrsb(xm1|k1|T_z, ptr[rax+128]);
 vmovrsb(ym1|k1|T_z, ptr[rax+128]);
 vmovrsb(zm1|k1|T_z, ptr[rax+128]);

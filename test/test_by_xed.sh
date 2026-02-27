@@ -2,6 +2,7 @@
 
 set -e
 XED=${XED:=xed}
+XED_OPT=${XED_OPT:-64 -set PREFETCHIT 1 -set PREFETCHRST 1}
 CXX=${CXX:=g++}
 CFLAGS_USER=${CFLAGS}
 CFLAGS_WARN="$(cat CFLAGS_WARN.cfg)"
@@ -21,6 +22,6 @@ echo "test:" $TARGET
 cp $TARGET tmp.cpp
 $CXX $CFLAGS test_by_xed.cpp -o test_by_xed
 ./test_by_xed
-$XED -64 -ir bin > out.txt
+$XED ${XED_OPT} -ir bin > out.txt
 $PYTHON test_by_xed.py $TARGET out.txt
 
