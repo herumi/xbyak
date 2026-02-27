@@ -1369,6 +1369,10 @@ public:
 	XBYAK_CONSTEXPR Address()
 		: Operand(0, MEM, 0), e_(), label_(NULL), mode_(inner::M_ModRM), immSize(0),
 		  disp8N(0), permitVsib(false), broadcast_(false), optimize_(true) { }
+#ifdef XBYAK64
+	explicit XBYAK_CONSTEXPR Address(size_t disp)
+		: Operand(0, MEM, 64), e_(disp), label_(0), mode_(inner::M_64bitDisp), immSize(0), disp8N(0), permitVsib(false), broadcast_(false), optimize_(true) { }
+#endif
 	XBYAK_CONSTEXPR Address(uint32_t sizeBit, bool broadcast, const RegExp& e)
 		: Operand(0, MEM, sizeBit), e_(e), label_(e.label_), mode_(), immSize(0),
 		  disp8N(0), permitVsib(false), broadcast_(broadcast), optimize_(true)
