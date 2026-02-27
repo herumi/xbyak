@@ -848,6 +848,7 @@ void por(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xEB); }
 void prefetchit0(const Address& addr) { opMR(addr, Reg32(7), T_0F, 0x18); }
 void prefetchit1(const Address& addr) { opMR(addr, Reg32(6), T_0F, 0x18); }
 void prefetchnta(const Address& addr) { opMR(addr, Reg32(0), T_0F, 0x18); }
+void prefetchrst2(const Address& addr) { opMR(addr, Reg32(4), T_0F, 0x18); }
 void prefetcht0(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0x18); }
 void prefetcht1(const Address& addr) { opMR(addr, Reg32(2), T_0F, 0x18); }
 void prefetcht2(const Address& addr) { opMR(addr, Reg32(3), T_0F, 0x18); }

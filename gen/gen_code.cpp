@@ -561,6 +561,7 @@ void put()
 			{ 1, "w", 0x0D},
 			{ 7, "it0", 0x18},
 			{ 6, "it1", 0x18},
+			{ 4, "rst2", 0x18},
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
