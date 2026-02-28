@@ -2,7 +2,8 @@
 
 set -e
 XED=${XED:=xed}
-XED_OPT="-64 -set PREFETCHIT 1 -set PREFETCHRST 1"
+#XED_OPT="-64 -set PREFETCHIT 1 -set PREFETCHRST 1"
+XED_OPT=${XED_OPT:=-64 -chip-set FUTURE}
 CXX=${CXX:=g++}
 CFLAGS_USER=${CFLAGS}
 CFLAGS_WARN="$(cat CFLAGS_WARN.cfg)"
