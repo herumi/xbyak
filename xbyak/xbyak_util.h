@@ -845,32 +845,29 @@ inline void appendStr(std::string& s, uint32_t v)
 
 // str = "(int|range)[,(int|range)]*"
 // range = int-int
-// e.g. "0-3,5,7,10-12"
+// e.g. "1,3,5", "0-3,5-7", ""
 template<class T>
 bool setStr(T& x, const char *str)
 {
 	const char *p = str;
 	while (*p) {
-		if (p != str && *p == ',') p++;
+		if (p != str) {
+			if (*p != ',') return false;
+			p++;
+		}
 		char *endp;
 		uint32_t v = uint32_t(strtoul(p, &endp, 10));
 		if (endp == p) return false;
-		if (!x.append(v)) return false;
-		switch (*endp) {
-		case '-': {
-			uint32_t next = uint32_t(strtoul(endp + 1, &endp, 10));
-			if (next <= v) return false;
-			while (v < next) {
-				if (!x.append(++v)) return false;
-			}
-			p = endp;
-			if (*p == '\0') return true;
-			break;
+		if (*endp == '-') {
+			const char *rangeStart = endp + 1;
+			uint32_t next = uint32_t(strtoul(rangeStart, &endp, 10));
+			if (endp == rangeStart) return false;
+			if (!x.appendRange(v, next)) return false;
+		} else {
+			if (!x.append(v)) return false;
 		}
-		case ',': { p = endp; break; }
-		case '\0': return true;
-		default: return false;
-		}
+		if (*endp == '\0') return true;
+		p = endp;
 	}
 	return true;
 }
@@ -1015,6 +1012,17 @@ public:
 		}
 	ERR:
 		XBYAK_THROW_RET(ERR_INVALID_CPUMASK_INDEX, false)
+	}
+	// add range [a, b] which means a, a+1, ..., b
+	bool appendRange(uint32_t a, uint32_t b)
+	{
+		if ((empty() || (range_ && n_ < N - 1)) && (a <= b && b <= mask)) {
+			range_ = true;
+			n_ += n_ == 0 ? 1 : 2;
+			set_a(n_ - 1, a);
+			set_a(n_, b - a);
+			return true;
+		}
 		return false;
 	}
 	// str = "(int|range)[,(int|range)]*"
@@ -1113,6 +1121,16 @@ public:
 		if (idx >= (1u << XBYAK_CPUMASK_BITN)) return false;
 		if (!indices_.empty() && *indices_.rbegin() >= idx) return false;
 		indices_.insert(idx);
+		return true;
+	}
+	// add range [a, b] which means a, a+1, ..., b
+	bool appendRange(uint32_t a, uint32_t b)
+	{
+		if (a > b) return false;
+		while (a <= b) {
+			if (!append(a)) return false;
+			a++;
+		}
 		return true;
 	}
 	bool setStr(const char *str)
@@ -1424,7 +1442,7 @@ inline bool initCpuTopology(CpuTopology& cpuTopo)
 	return true;
 }
 
-#elif __linux__ // Linux
+#elif defined(__linux__) // Linux
 
 struct WrapFILE {
 	FILE *f;

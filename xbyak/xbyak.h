@@ -174,7 +174,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7333 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7340 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1019,7 +1019,7 @@ public:
 	}
 	RegExp(Label& label);
 
-	RegExp(const void *addr)
+	explicit RegExp(const void *addr)
 		: scale_(1)
 		, disp_(size_t(addr))
 		, label_(0)
@@ -1117,7 +1117,7 @@ inline RegExp operator*(int scale, const Reg& r)
 	return r * scale;
 }
 // backward compatibility for eax+0
-inline RegExp operator+(const RegExp& a, size_t b) { return a + RegExp(b); }
+inline RegExp operator+(const RegExp& a, const void *b) { return a + RegExp(b); }
 
 inline RegExp operator-(const RegExp& e, size_t disp)
 {
@@ -1366,8 +1366,12 @@ public:
 
 class Address : public Operand {
 public:
+	XBYAK_CONSTEXPR Address()
+		: Operand(0, MEM, 0), e_(), label_(NULL), mode_(inner::M_ModRM), immSize(0),
+		  disp8N(0), permitVsib(false), broadcast_(false), optimize_(true) { }
 	XBYAK_CONSTEXPR Address(uint32_t sizeBit, bool broadcast, const RegExp& e)
-		: Operand(0, MEM, sizeBit), e_(e), label_(e.label_), mode_(), immSize(0), disp8N(0), permitVsib(false), broadcast_(broadcast), optimize_(true)
+		: Operand(0, MEM, sizeBit), e_(e), label_(e.label_), mode_(), immSize(0),
+		  disp8N(0), permitVsib(false), broadcast_(broadcast), optimize_(true)
 	{
 		if (e.rip_) {
 			mode_ = (e.label_ || e.setLabel_) ? inner::M_ripAddr : inner::M_rip;
@@ -1449,6 +1453,14 @@ public:
 	Address operator[](const RegExp& e) const
 	{
 		return Address(bit_, broadcast_, e);
+	}
+	Address operator[](const void *addr) const
+	{
+		return operator[](RegExp(addr));
+	}
+	Address operator[](uint64_t offset) const
+	{
+		return operator[](RegExp(offset));
 	}
 };
 
@@ -3368,11 +3380,14 @@ public:
 		opAVX10ZeroExt(op1, op2, typeTbl, codeTbl, enc, 16|32|64);
 	}
 	/*
-		use single byte nop if useMultiByteNop = false
+		useMultiByteNop
+		= 0: use only single byte nop
+		= 1: recommended multi-byte
+		= 2: better for newer CPUs
 	*/
-	void nop(size_t size = 1, bool useMultiByteNop = true)
+	void nop(size_t size = 1, int useMultiByteNop = 2)
 	{
-		if (!useMultiByteNop) {
+		if (useMultiByteNop == 0) {
 			for (size_t i = 0; i < size; i++) {
 				db(0x90);
 			}
@@ -3383,8 +3398,9 @@ public:
 			recommended multi-byte sequence of NOP instruction
 			AMD and Intel seem to agree on the same sequences for up to 9 bytes:
 			https://support.amd.com/TechDocs/55723_SOG_Fam_17h_Processors_3.00.pdf
+			10~15 byte nop in Software Optimization Guide for the AMD Zen4 Microarchitecture No. 57647
 		*/
-		static const uint8_t nopTbl[9][9] = {
+		static const uint8_t nopTbl[][15] = {
 			{0x90},
 			{0x66, 0x90},
 			{0x0F, 0x1F, 0x00},
@@ -3393,9 +3409,15 @@ public:
 			{0x66, 0x0F, 0x1F, 0x44, 0x00, 0x00},
 			{0x0F, 0x1F, 0x80, 0x00, 0x00, 0x00, 0x00},
 			{0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00},
-			{0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00},
+			{0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00}, // 9
+			{0x66, 0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00},
+			{0x66, 0x66, 0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00}, // 11
+			{0x66, 0x66, 0x66, 0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00},
+			{0x66, 0x66, 0x66, 0x66, 0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00},
+			{0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00},
+			{0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00},
 		};
-		const size_t n = sizeof(nopTbl) / sizeof(nopTbl[0]);
+		const size_t n = useMultiByteNop == 2 ? sizeof(nopTbl) / sizeof(nopTbl[0]) : 9;
 		while (size > 0) {
 			size_t len = (std::min)(n, size);
 			const uint8_t *seq = nopTbl[len - 1];
@@ -3406,9 +3428,9 @@ public:
 #ifndef XBYAK_DONT_READ_LIST
 #include "xbyak_mnemonic.h"
 	/*
-		use single byte nop if useMultiByteNop = false
+		use single byte nop if useMultiByteNop = 0
 	*/
-	void align(size_t x = 16, bool useMultiByteNop = true)
+	void align(size_t x = 16, int useMultiByteNop = 2)
 	{
 		if (x == 1) return;
 		if (x < 1 || (x & (x - 1))) XBYAK_THROW(ERR_BAD_ALIGN)
