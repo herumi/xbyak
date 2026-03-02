@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.33.3
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.34
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -404,6 +404,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2026/03/03 ver 7.34 prefetchrst2, 10-15byte multi-byte nop対応 Address/RegExp周りの後方互換性向上
 2026/02/13 ver 7.33.3 UWP (Windows) 環境対応
 2026/02/10 ver 7.33.2 cmpxchg16bでxwordを使えるようにする
 2026/02/10 ver 7.33 CpuMaskの文字列フォーマットの変更
