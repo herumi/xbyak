@@ -1117,7 +1117,7 @@ inline RegExp operator*(int scale, const Reg& r)
 	return r * scale;
 }
 // backward compatibility for eax+0
-inline RegExp operator+(const RegExp& a, const void *b) { return a + RegExp(b); }
+inline RegExp operator+(const RegExp& a, size_t b) { return a + RegExp(b); }
 
 inline RegExp operator-(const RegExp& e, size_t disp)
 {
@@ -1453,14 +1453,6 @@ public:
 	Address operator[](const RegExp& e) const
 	{
 		return Address(bit_, broadcast_, e);
-	}
-	Address operator[](const void *addr) const
-	{
-		return operator[](RegExp(addr));
-	}
-	Address operator[](uint64_t offset) const
-	{
-		return operator[](RegExp(offset));
 	}
 };
 

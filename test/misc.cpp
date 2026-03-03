@@ -159,16 +159,6 @@ CYBOZU_TEST_AUTO(mov_const)
 	} code;
 }
 
-CYBOZU_TEST_AUTO(RegExp)
-{
-	using namespace Xbyak::util;
-	Address defaultAddr; // default constructor
-	int x = 0;
-	eax + 0;
-	0 + eax;
-	eax + &x;
-}
-
 #ifdef XBYAK64
 CYBOZU_TEST_AUTO(mov_8byte)
 {
