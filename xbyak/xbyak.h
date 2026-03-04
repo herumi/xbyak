@@ -1020,11 +1020,11 @@ public:
 	RegExp(Label& label);
 
 	explicit RegExp(const void *addr)
-		: scale_(1)
+		: scale_(0)
 		, disp_(size_t(addr))
 		, label_(0)
 		, rip_(false)
-		, setLabel_(true)
+		, setLabel_(addr != NULL) // treat zero as an integer
 	{
 	}
 #ifdef XBYAK64
@@ -1457,10 +1457,6 @@ public:
 	Address operator[](const void *addr) const
 	{
 		return operator[](RegExp(addr));
-	}
-	Address operator[](uint64_t offset) const
-	{
-		return operator[](RegExp(offset));
 	}
 };
 
