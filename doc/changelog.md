@@ -1,5 +1,6 @@
 # History
 
+* 2026/Mar/05 ver 7.35 treat rip+0 as integer offset not pointer. add 'Offset in Addressing (RegExp) is in bytes' in doc/usage.md
 * 2026/Mar/03 ver 7.34 support prefetchrst2, 10-15 multi-byte nop. Improved backward compatibility around Address/RegExp.
 * 2026/Feb/13 ver 7.33.3 CpuTopology supports UWP (Windows)
 * 2026/Feb/10 ver 7.33.2 allow cmpxchg16b with xword
