@@ -5,6 +5,7 @@
 #include <xbyak/xbyak.h>
 #include <cybozu/inttype.hpp>
 #include <cybozu/test.hpp>
+#include <fstream>
 
 using namespace Xbyak;
 
@@ -583,6 +584,133 @@ CYBOZU_TEST_AUTO(addr_label_forward_ref1)
 	code2.test();
 }
 #endif
+
+#ifdef XBYAK64
+CYBOZU_TEST_AUTO(RegExp_offset)
+{
+	const uint32_t size = 4096;
+	uint8_t *buf = (uint8_t*)get32bitAddress(size);
+	printf("buf=%p\n", buf);
+	CYBOZU_TEST_ASSERT(buf);
+	CYBOZU_TEST_ASSERT(size_t(buf) < 0x80000000);
+	{
+		struct Code : Xbyak::CodeGenerator {
+			Code(uint8_t *p)
+				: Xbyak::CodeGenerator(size, p)
+			{
+				printf("p=%p\n", p);
+				const int *large = reinterpret_cast<const int*>(0x123456789abcd);
+				const int& g_x = *large;
+				Label lp;
+				mov(eax, ptr[rax+0]); // m64
+				mov(eax, ptr[rax+0+4]); // m64
+				mov(eax, ptr[rax-0-4]); // m64
+				mov(eax, ptr[rax+(void*)0x12345678]); // m64
+				mov(eax, ptr[rax+(size_t)0x12345678]); // m64 (same as above)
+				mov(eax, ptr[(void*)0x12345678]); // m64
+				mov(eax, ptr[(void*)0x123456789]); // moffset64
+				mov(eax, ptr[large]); // moffset64
+				mov(eax, ptr[(size_t)&g_x]); // moffset64 (same as above)
+				mov(eax, ptr[size_t(&g_x)+4]); // moffset64
+				mov(eax, ptr[rip+4]); // offset
+				mov(eax, ptr[rip+0+4]); // offset (same as above)
+				mov(eax, ptr[rip+lp]); // relative to lp
+				mov(eax, ptr[rip+lp+4]); // relative to lp+4
+				mov(eax, ptr[rip+lp+0+4]); // relative to lp+4 (same as above)
+				mov(eax, ptr[rip+p]); // relative to p
+				mov(eax, ptr[rip+p+4]); // relative to p+4
+			L(lp);
+			}
+		} c(buf);
+#if 0
+		std::ofstream ofs("bin", std::ios::binary);
+		ofs.write((const char*)c.getCode(), c.getSize());
+		ofs.close();
+
+		const uint8_t *p = c.getCode();
+		printf("p=%p\n", p);
+		for (size_t i = 0; i < c.getSize(); i++) {
+			printf("0x%02x, ", p[i]);
+			if ((i & 15) == 15) putchar('\n');
+		}
+		printf("\n");
+#endif
+		const uint8_t tbl[] = {
+			0x8b, 0x00, // mov, eax,[rax+0]
+			0x8b, 0x40, 0x04, // mov eax, [rax+0+4]
+			0x8b, 0x40, 0xfc,  // mov eax, [rax-0-4]
+			0x8b, 0x80, 0x78, 0x56, 0x34, 0x12, // mov eax, [rax+(void*)0x12345678]
+			0x8b, 0x80, 0x78, 0x56, 0x34, 0x12, // mov eax, [rax+(size_t)0x12345678]
+			0x8b, 0x04, 0x25, 0x78, 0x56, 0x34, 0x12,             // mov eax, [(void*)0x12345678]
+			0xa1, 0x89, 0x67, 0x45, 0x23, 0x01, 0x00, 0x00, 0x00, // mov eax, [(void*)0x123456789]
+			0xa1, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01, 0x00, // mov eax, [large]
+			0xa1, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01, 0x00, // mov eax, [&g_x]
+			0xa1, 0xd1, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01, 0x00, // mov eax, [size_t(&g_x)+4]
+			0x8b, 0x05, 0x04, 0x00, 0x00, 0x00, // mov eax, [rip+4]
+			0x8b, 0x05, 0x04, 0x00, 0x00, 0x00, // mov eax, [rip+0+4]
+			0x8b, 0x05, 0x18, 0x00, 0x00, 0x00, // mov eax, [rip+lp]
+			0x8b, 0x05, 0x16, 0x00, 0x00, 0x00, // mov eax, [rip+lp+4]
+			0x8b, 0x05, 0x10, 0x00, 0x00, 0x00, // mov eax, [rip+lp+0+4]
+			0x8b, 0x05, 0x9d, 0xff, 0xff, 0xff, // mov eax, [rip+p]
+			0x8b, 0x05, 0x9b, 0xff, 0xff, 0xff, // mov eax, [rip+p+4]
+		};
+		const size_t n = sizeof(tbl) / sizeof(tbl[0]);
+		CYBOZU_TEST_EQUAL(c.getSize(), n);
+		CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+	}
+	free32bitAddress(buf, size);
+}
+#endif
+
+CYBOZU_TEST_AUTO(RegExp_sample)
+{
+	const int d1 = 1;
+	const int d2 = 10;
+	const int d3 = 100;
+	const int d4 = 1000;
+
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			Label codeL, data0L, data1L;
+			jmp(codeL);
+		L(data0L);
+			const int *p1 = getCurr<const int*>();
+			dd(d1);
+			dd(d2);
+		L(codeL);
+#ifdef XBYAK64
+			mov(eax, ptr[rip+data0L]); // d1
+			add(eax, ptr[rip+p1]); // d1
+			add(eax, ptr[rip+data0L+sizeof(int)]); // d2
+			add(eax, ptr[rip+p1+sizeof(int)]); // d2
+			add(eax, ptr[(rip+p1)+sizeof(int)]); // d2
+			add(eax, ptr[rip+(p1+1)]); // d2
+			add(eax, ptr[rip+data1L]); // d3
+			add(eax, ptr[rip+data1L+sizeof(int)]); // d4
+#else
+			mov(eax, ptr[data0L]); // d1
+			add(eax, ptr[p1]); // d1
+			add(eax, ptr[data0L+sizeof(int)]); // d2
+			add(eax, ptr[p1+1]); // d2
+			add(eax, ptr[size_t(p1)+sizeof(int)]); // d2
+			add(eax, ptr[data1L]); // d3
+			add(eax, ptr[data1L+sizeof(int)]); // d4
+#endif
+			ret();
+		L(data1L);
+			dd(d3);
+			dd(d4);
+		}
+	} c;
+	int v = c.getCode<int (*)()>()();
+#ifdef XBYAK64
+	const int expected = d1 * 2 + d2 * 4 + d3 + d4;
+#else
+	const int expected = d1 * 2 + d2 * 3 + d3 + d4;
+#endif
+	CYBOZU_TEST_EQUAL(v, expected);
+}
 
 uint8_t bufL[4096 * 32];
 uint8_t bufS[4096 * 2];

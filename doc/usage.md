@@ -372,6 +372,59 @@ L(dataL);
 
 Only the form `mov((al|ax|eax|rax), ptr[label])` can be used even if the label exceeds 2GiB.
 
+### Offset in Addressing (RegExp) is in bytes
+
+The `+imm` offset in Xbyak's addressing expression (RegExp) is always in **bytes**, just like x86 displacement.
+
+Using `Label` is the simplest and most consistent way to address data with byte offsets:
+
+```cpp
+Label dataL;
+jmp(codeL);
+L(dataL);
+dd(123); // dataL + 0
+dd(456); // dataL + sizeof(int)
+
+Label codeL;
+L(codeL);
+// 64-bit
+mov(eax, ptr[rip + dataL]);                // load 123
+add(eax, ptr[rip + dataL + sizeof(int)]);  // load 456 ; +sizeof(int) is a byte offset
+// 32-bit
+mov(eax, ptr[dataL]);                      // load 123
+add(eax, ptr[dataL + sizeof(int)]);        // load 456 ; +sizeof(int) is a byte offset
+```
+
+With `Label`, `+imm` is always a byte offset, so there is no ambiguity.
+
+#### Caution with C++ pointers
+
+When using a C++ pointer (e.g., obtained by `getCurr()`) instead of `Label`,
+be careful about the difference between RegExp byte offsets and C++ pointer arithmetic.
+
+```cpp
+const int *p = getCurr<const int*>();
+dd(123);
+dd(456);
+```
+
+```cpp
+// 64-bit examples
+mov(eax, ptr[rip + p]);                  // load 123
+add(eax, ptr[rip + p + sizeof(*p)]);    // load 456 ; +sizeof(*p) is a byte offset in RegExp
+add(eax, ptr[(rip + p) + sizeof(*p)]);  // load 456 ; same the above
+add(eax, ptr[rip + (p + 1)]);            // load 456 ; (p+1) is C++ pointer arithmetic (advances by sizeof(*p))
+```
+
+```cpp
+// 32-bit examples
+mov(eax, ptr[p]);                        // load 123
+add(eax, ptr[size_t(p) + sizeof(*p)]);  // load 456 ; cast to size_t, then +sizeof(*p) is a byte offset
+add(eax, ptr[p + 1]);                    // load 456 ; C++ pointer arithmetic (advances by sizeof(*p))
+```
+
+See [test/jmp.cpp](../test/jmp.cpp) `RegExp_sample` for a complete example.
+
 ## Far jump
 
 Use `word|dword|qword` instead of `ptr` to specify the address size.
