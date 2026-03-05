@@ -163,6 +163,7 @@ CYBOZU_TEST_AUTO(RegExp)
 {
 	using namespace Xbyak::util;
 	Address defaultAddr; // default constructor
+	(void)defaultAddr;
 	int x = 0;
 	eax + 0;
 	0 + eax;
