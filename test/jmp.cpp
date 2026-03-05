@@ -662,6 +662,56 @@ CYBOZU_TEST_AUTO(RegExp_offset)
 }
 #endif
 
+CYBOZU_TEST_AUTO(RegExp_sample)
+{
+	const int d1 = 1;
+	const int d2 = 10;
+	const int d3 = 100;
+	const int d4 = 1000;
+
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			Label codeL, data0L, data1L;
+			jmp(codeL);
+		L(data0L);
+			const int *p1 = getCurr<const int*>();
+			dd(d1);
+			dd(d2);
+		L(codeL);
+#ifdef XBYAK64
+			mov(eax, ptr[rip+data0L]); // d1
+			add(eax, ptr[rip+p1]); // d1
+			add(eax, ptr[rip+data0L+sizeof(int)]); // d2
+			add(eax, ptr[rip+p1+sizeof(int)]); // d2
+			add(eax, ptr[(rip+p1)+sizeof(int)]); // d2
+			add(eax, ptr[rip+(p1+1)]); // d2
+			add(eax, ptr[rip+data1L]); // d3
+			add(eax, ptr[rip+data1L+sizeof(int)]); // d4
+#else
+			mov(eax, ptr[data0L]); // d1
+			add(eax, ptr[p1]); // d1
+			add(eax, ptr[data0L+sizeof(int)]); // d2
+			add(eax, ptr[p1+1]); // d2
+			add(eax, ptr[size_t(p1)+sizeof(int)]); // d2
+			add(eax, ptr[data1L]); // d3
+			add(eax, ptr[data1L+sizeof(int)]); // d4
+#endif
+			ret();
+		L(data1L);
+			dd(d3);
+			dd(d4);
+		}
+	} c;
+	int v = c.getCode<int (*)()>()();
+#ifdef XBYAK64
+	const int expected = d1 * 2 + d2 * 4 + d3 + d4;
+#else
+	const int expected = d1 * 2 + d2 * 3 + d3 + d4;
+#endif
+	CYBOZU_TEST_EQUAL(v, expected);
+}
+
 uint8_t bufL[4096 * 32];
 uint8_t bufS[4096 * 2];
 
