@@ -174,7 +174,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7350 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7351 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1019,7 +1019,7 @@ public:
 	}
 	RegExp(Label& label);
 
-	explicit XBYAK_CONSTEXPR RegExp(const void *addr)
+	explicit RegExp(const void *addr)
 		: scale_(0)
 		, disp_(size_t(addr))
 		, label_(0)
