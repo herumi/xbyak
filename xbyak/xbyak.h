@@ -1030,7 +1030,7 @@ public:
 		, disp_(size_t(addr))
 		, label_(0)
 		, rip_(false)
-		, asPtr_(addr != NULL) // treat zero as an integer
+		, asPtr_(true) // treat zero as an integer
 	{
 	}
 #ifdef XBYAK64
@@ -1073,6 +1073,7 @@ public:
 		}
 	}
 	friend RegExp operator+(const RegExp& a, const RegExp& b);
+	friend RegExp operator+(const RegExp& e, size_t disp);
 	friend RegExp operator-(const RegExp& e, size_t disp);
 private:
 	/*
@@ -1122,8 +1123,19 @@ inline RegExp operator*(int scale, const Reg& r)
 {
 	return r * scale;
 }
-// backward compatibility for eax+0
-inline RegExp operator+(const RegExp& a, const void *b) { return a + RegExp(b); }
+
+// backward compatibility for eax+&x (pointer address)
+inline RegExp operator+(const RegExp& a, const void* b) { return a + RegExp(b); }
+
+// overload for integer literals (e.g. eax+0) to avoid ambiguity with the void* overload
+inline RegExp operator+(const RegExp& e, int disp) { return e + size_t(disp); }
+
+inline RegExp operator+(const RegExp& e, size_t disp)
+{
+	RegExp ret = e;
+	ret.disp_ += disp;
+	return ret;
+}
 
 inline RegExp operator-(const RegExp& e, size_t disp)
 {
