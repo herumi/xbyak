@@ -999,14 +999,14 @@ public:
 #else
 	enum { i32e = 32 };
 #endif
-	XBYAK_CONSTEXPR RegExp() : scale_(0), disp_(0), label_(0), rip_(false), setLabel_(false) { }
-	XBYAK_CONSTEXPR RegExp(size_t disp) : scale_(0), disp_(disp), label_(0), rip_(false), setLabel_(false) { }
+	XBYAK_CONSTEXPR RegExp() : scale_(0), disp_(0), label_(0), rip_(false), asPtr_(false) { }
+	XBYAK_CONSTEXPR RegExp(size_t disp) : scale_(0), disp_(disp), label_(0), rip_(false), asPtr_(false) { }
 	XBYAK_CONSTEXPR RegExp(const Reg& r, int scale = 1)
 		: scale_(scale)
 		, disp_(0)
 		, label_(0)
 		, rip_(false)
-		, setLabel_(false)
+		, asPtr_(false)
 	{
 		if (!r.isREG(i32e) && !r.is(Reg::XMM|Reg::YMM|Reg::ZMM|Reg::TMM)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
 		if (scale == 0) return;
@@ -1019,21 +1019,21 @@ public:
 	}
 	RegExp(Label& label);
 
-	explicit RegExp(const void *addr)
+	explicit XBYAK_CONSTEXPR RegExp(const void *addr)
 		: scale_(0)
 		, disp_(size_t(addr))
 		, label_(0)
 		, rip_(false)
-		, setLabel_(addr != NULL) // treat zero as an integer
+		, asPtr_(addr != NULL) // treat zero as an integer
 	{
 	}
 #ifdef XBYAK64
-	RegExp(const RegRip& /*rip*/)
+	XBYAK_CONSTEXPR RegExp(const RegRip& /*rip*/)
 		: scale_(0)
 		, disp_(0)
 		, label_(0)
 		, rip_(true)
-		, setLabel_(false)
+		, asPtr_(false)
 	{
 	}
 #endif
@@ -1079,7 +1079,7 @@ private:
 	size_t disp_; // absolute address
 	Label *label_;
 	bool rip_;
-	bool setLabel_; // disp_ contains the address of label
+	bool asPtr_; // disp_ contains a pointer
 };
 
 inline RegExp operator+(const RegExp& a, const RegExp& b)
@@ -1088,10 +1088,10 @@ inline RegExp operator+(const RegExp& a, const RegExp& b)
 	if (a.label_ && b.label_) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegExp())
 	if (b.rip_) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegExp())
 	if (a.rip_ && !b.isOnlyDisp()) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegExp())
-	if (a.setLabel_ && b.setLabel_) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegExp())
+	if (a.asPtr_ && b.asPtr_) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegExp())
 	RegExp ret = a;
 	if (ret.label_ == 0) ret.label_ = b.label_;
-	if (ret.setLabel_ == 0) ret.setLabel_ = b.setLabel_;
+	if (ret.asPtr_ == 0) ret.asPtr_ = b.asPtr_;
 	if (!ret.index_.getBit()) { ret.index_ = b.index_; ret.scale_ = b.scale_; }
 	if (b.base_.getBit()) {
 		if (ret.base_.getBit()) {
@@ -1374,7 +1374,7 @@ public:
 		  disp8N(0), permitVsib(false), broadcast_(broadcast), optimize_(true)
 	{
 		if (e.rip_) {
-			mode_ = (e.label_ || e.setLabel_) ? inner::M_ripAddr : inner::M_rip;
+			mode_ = (e.label_ || e.asPtr_) ? inner::M_ripAddr : inner::M_rip;
 		} else {
 #ifdef XBYAK64
 			uint64_t disp = e.getDisp();
@@ -1506,7 +1506,7 @@ inline RegExp::RegExp(Label& label)
 	, disp_(0)
 	, label_(0)
 	, rip_(false)
-	, setLabel_(true)
+	, asPtr_(true)
 {
 	const uint8_t *addr = label.getAddress();
 	if (addr) {
@@ -2276,6 +2276,7 @@ private:
 				size_t disp = addr.getDisp();
 				if (addr.getMode() == inner::M_ripAddr) {
 					if (isAutoGrow()) XBYAK_THROW(ERR_INVALID_RIP_IN_AUTO_GROW)
+					// compute the relative offset to the pointer address
 					disp -= (size_t)getCurr() + 4 + addr.immSize;
 				}
 				dd(inner::VerifyInInt32(disp));
