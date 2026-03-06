@@ -1323,7 +1323,7 @@ public:
 	*/
 	void rewrite(size_t offset, uint64_t disp, size_t size)
 	{
-		assert(offset < maxSize_);
+		if (offset >= maxSize_ || size > maxSize_ - offset) XBYAK_THROW(ERR_OFFSET_IS_TOO_BIG)
 		if (size != 1 && size != 2 && size != 4 && size != 8) XBYAK_THROW(ERR_BAD_PARAMETER)
 		uint8_t *const data = top_ + offset;
 		for (size_t i = 0; i < size; i++) {
