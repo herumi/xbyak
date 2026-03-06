@@ -19,7 +19,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: apt -y update
-    - run: apt -y install g++-multilib libboost-dev make yasm wget python3 #xz-utils nasm
+    - run: apt -y install g++-multilib clang libboost-dev make yasm wget python3 #xz-utils nasm
     - run: yasm --version
     - name: Install xed and nasm
       run: |
@@ -45,3 +45,5 @@ jobs:
         make -C sample CXXFLAGS="-DXBYAK_NO_EXCEPTION"
         cd test
         make xed_test
+        rm -rf jmp64
+        env CXX=""clang++ -std=c++20"" make jmp64 && ./jmp64
