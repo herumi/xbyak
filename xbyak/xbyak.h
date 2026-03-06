@@ -1317,15 +1317,15 @@ public:
 		@param disp [in] offset from the next of jmp
 		@param size [in] write size(1, 2, 4, 8)
 	*/
-	void rewrite(size_t offset, uint64_t disp, size_t size)
-	{
-		assert(offset < maxSize_);
-		if (size != 1 && size != 2 && size != 4 && size != 8) XBYAK_THROW(ERR_BAD_PARAMETER)
-		uint8_t *const data = top_ + offset;
-		for (size_t i = 0; i < size; i++) {
-			data[i] = static_cast<uint8_t>(disp >> (i * 8));
-		}
-	}
+  	void rewrite(size_t offset, uint64_t disp, size_t size)
+  	{
+  	    if (size != 1 && size != 2 && size != 4 && size != 8) XBYAK_THROW(ERR_BAD_PARAMETER)
+  	    if (offset > maxSize_ || size > maxSize_ - offset) XBYAK_THROW(ERR_OFFSET_IS_TOO_BIG)
+  	    uint8_t *const data = top_ + offset;
+  	    for (size_t i = 0; i < size; i++) {
+  	        data[i] = static_cast<uint8_t>(disp >> (i * 8));
+  	    }
+  	}
 	void save(size_t offset, size_t val, int size, inner::LabelMode mode)
 	{
 		addrInfoList_.push_back(AddrInfo(offset, val, size, mode));
