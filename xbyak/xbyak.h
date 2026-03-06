@@ -536,9 +536,8 @@ public:
 		int prot = PROT_READ | PROT_WRITE;
 #ifdef PROT_MPROTECT
 		// Some NetBSD systems have this protection turned on by default
-        // https://man.netbsd.org/mprotect.2 specifies that an mprotect() that is LESS
-        // restrictive than the original mapping MUST fail
-        prot |= PROT_MPROTECT(PROT_READ) | PROT_MPROTECT(PROT_WRITE) | PROT_MPROTECT(PROT_EXEC);
+		// https://man.netbsd.org/mprotect.2
+		prot |= PROT_MPROTECT(PROT_READ | PROT_WRITE | PROT_EXEC);
 #endif
 		void *p = mmap(NULL, size, prot, mode, fd, 0);
 		if (p == MAP_FAILED) {
