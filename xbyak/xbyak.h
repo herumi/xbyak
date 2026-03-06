@@ -1025,12 +1025,13 @@ public:
 	}
 	RegExp(Label& label);
 
+	// can't use constexpr to const void *
 	explicit RegExp(const void *addr)
 		: scale_(0)
 		, disp_(size_t(addr))
 		, label_(0)
 		, rip_(false)
-		, asPtr_(true) // treat zero as an integer
+		, asPtr_(true)
 	{
 	}
 #ifdef XBYAK64
