@@ -174,7 +174,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7351 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7352 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -533,7 +533,13 @@ public:
 			}
 		}
 #endif
-		void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, mode, fd, 0);
+		int prot = PROT_READ | PROT_WRITE;
+#ifdef PROT_MPROTECT
+		// Some NetBSD systems have this protection turned on by default
+		// https://man.netbsd.org/mprotect.2
+		prot |= PROT_MPROTECT(PROT_READ | PROT_WRITE | PROT_EXEC);
+#endif
+		void *p = mmap(NULL, size, prot, mode, fd, 0);
 		if (p == MAP_FAILED) {
 			if (fd != -1) close(fd);
 			XBYAK_THROW_RET(ERR_CANT_ALLOC, 0)
@@ -1019,12 +1025,13 @@ public:
 	}
 	RegExp(Label& label);
 
+	// can't use constexpr to const void *
 	explicit RegExp(const void *addr)
 		: scale_(0)
 		, disp_(size_t(addr))
 		, label_(0)
 		, rip_(false)
-		, asPtr_(addr != NULL) // treat zero as an integer
+		, asPtr_(true)
 	{
 	}
 #ifdef XBYAK64
@@ -1067,6 +1074,7 @@ public:
 		}
 	}
 	friend RegExp operator+(const RegExp& a, const RegExp& b);
+	friend RegExp operator+(const RegExp& e, size_t disp);
 	friend RegExp operator-(const RegExp& e, size_t disp);
 private:
 	/*
@@ -1116,8 +1124,19 @@ inline RegExp operator*(int scale, const Reg& r)
 {
 	return r * scale;
 }
-// backward compatibility for eax+0
-inline RegExp operator+(const RegExp& a, const void *b) { return a + RegExp(b); }
+
+// backward compatibility for eax+&x (pointer address)
+inline RegExp operator+(const RegExp& a, const void* b) { return a + RegExp(b); }
+
+// overload for integer literals (e.g. eax+0) to avoid ambiguity with the void* overload
+inline RegExp operator+(const RegExp& e, int disp) { return e + size_t(disp); }
+
+inline RegExp operator+(const RegExp& e, size_t disp)
+{
+	RegExp ret = e;
+	ret.disp_ += disp;
+	return ret;
+}
 
 inline RegExp operator-(const RegExp& e, size_t disp)
 {
