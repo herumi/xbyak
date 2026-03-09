@@ -1074,12 +1074,7 @@ public:
 		}
 	}
 	friend RegExp operator+(const RegExp& a, const RegExp& b);
-	friend RegExp operator+(const RegExp& e, int disp);
-	friend RegExp operator+(const RegExp& e, unsigned int disp);
-	friend RegExp operator+(const RegExp& e, long disp);
-	friend RegExp operator+(const RegExp& e, unsigned long disp);
-	friend RegExp operator+(const RegExp& e, long long disp);
-	friend RegExp operator+(const RegExp& e, unsigned long long dist);
+	friend RegExp operator+(const RegExp& e, unsigned long long disp);
 	friend RegExp operator-(const RegExp& e, size_t disp);
 private:
 	/*
@@ -1133,43 +1128,19 @@ inline RegExp operator*(int scale, const Reg& r)
 // backward compatibility for eax+&x (pointer address)
 inline RegExp operator+(const RegExp& a, const void* b) { return a + RegExp(b); }
 
-// overload for integer literals (e.g. eax+0) to avoid ambiguity with the void* overload
-inline RegExp operator+(const RegExp& e, int disp)
-{
-	RegExp ret = e;
-	ret.disp_ += static_cast<size_t>(disp);
-	return ret;
-}
-inline RegExp operator+(const RegExp& e, unsigned int disp)
-{
-	RegExp ret = e;
-	ret.disp_ += static_cast<size_t>(disp);
-	return ret;
-}
-inline RegExp operator+(const RegExp& e, long disp)
-{
-	RegExp ret = e;
-	ret.disp_ += static_cast<size_t>(disp);
-	return ret;
-}
-inline RegExp operator+(const RegExp& e, unsigned long disp)
-{
-	RegExp ret = e;
-	ret.disp_ += static_cast<size_t>(disp);
-	return ret;
-}
-inline RegExp operator+(const RegExp& e, long long disp)
-{
-	RegExp ret = e;
-	ret.disp_ += static_cast<size_t>(disp);
-	return ret;
-}
+// since what size_t is typedef'd to depends on the implementation, use unsigned long long (assume u64) for the implementation.
 inline RegExp operator+(const RegExp& e, unsigned long long disp)
 {
 	RegExp ret = e;
 	ret.disp_ += static_cast<size_t>(disp);
 	return ret;
 }
+// overload for integer literals (e.g. eax+0) to avoid ambiguity with the void* overload
+inline RegExp operator+(const RegExp& e, int disp) { return e + static_cast<unsigned long long>(disp); }
+inline RegExp operator+(const RegExp& e, long disp) { return e + static_cast<unsigned long long>(disp); }
+inline RegExp operator+(const RegExp& e, long long disp) { return e + static_cast<unsigned long long>(disp); }
+inline RegExp operator+(const RegExp& e, unsigned int disp) { return e + static_cast<unsigned long long>(disp); }
+inline RegExp operator+(const RegExp& e, unsigned long disp) { return e + static_cast<unsigned long long>(disp); }
 
 inline RegExp operator-(const RegExp& e, size_t disp)
 {
