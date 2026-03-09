@@ -174,7 +174,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7352 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7353 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1074,7 +1074,7 @@ public:
 		}
 	}
 	friend RegExp operator+(const RegExp& a, const RegExp& b);
-	friend RegExp operator+(const RegExp& e, size_t disp);
+	friend RegExp operator+(const RegExp& e, unsigned long long disp);
 	friend RegExp operator-(const RegExp& e, size_t disp);
 private:
 	/*
@@ -1128,15 +1128,19 @@ inline RegExp operator*(int scale, const Reg& r)
 // backward compatibility for eax+&x (pointer address)
 inline RegExp operator+(const RegExp& a, const void* b) { return a + RegExp(b); }
 
-// overload for integer literals (e.g. eax+0) to avoid ambiguity with the void* overload
-inline RegExp operator+(const RegExp& e, int disp) { return e + size_t(disp); }
-
-inline RegExp operator+(const RegExp& e, size_t disp)
+// since what size_t is typedef'd to depends on the implementation, use unsigned long long (assume u64) for the implementation.
+inline RegExp operator+(const RegExp& e, unsigned long long disp)
 {
 	RegExp ret = e;
-	ret.disp_ += disp;
+	ret.disp_ += static_cast<size_t>(disp);
 	return ret;
 }
+// overload for integer literals (e.g. eax+0) to avoid ambiguity with the void* overload
+inline RegExp operator+(const RegExp& e, int disp) { return e + static_cast<unsigned long long>(disp); }
+inline RegExp operator+(const RegExp& e, long disp) { return e + static_cast<unsigned long long>(disp); }
+inline RegExp operator+(const RegExp& e, long long disp) { return e + static_cast<unsigned long long>(disp); }
+inline RegExp operator+(const RegExp& e, unsigned int disp) { return e + static_cast<unsigned long long>(disp); }
+inline RegExp operator+(const RegExp& e, unsigned long disp) { return e + static_cast<unsigned long long>(disp); }
 
 inline RegExp operator-(const RegExp& e, size_t disp)
 {
@@ -1319,7 +1323,7 @@ public:
 	*/
 	void rewrite(size_t offset, uint64_t disp, size_t size)
 	{
-		assert(offset < maxSize_);
+		if (offset >= maxSize_ || size > maxSize_ - offset) XBYAK_THROW(ERR_OFFSET_IS_TOO_BIG)
 		if (size != 1 && size != 2 && size != 4 && size != 8) XBYAK_THROW(ERR_BAD_PARAMETER)
 		uint8_t *const data = top_ + offset;
 		for (size_t i = 0; i < size; i++) {

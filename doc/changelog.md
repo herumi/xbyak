@@ -1,5 +1,6 @@
 # History
 
+* 2026/Mar/10 ver 7.35.3 append override of RegExp::operator+()/check the size parameter of rewrite()
 * 2026/Mar/06 ver 7.35.2 use PROT_MPROTECT for NetBSD. Define explicit RegExp::operator+
 * 2026/Mar/05 ver 7.35.1 remove constexpr of RegExp for clang++ -std=c++14 or later
 * 2026/Mar/05 ver 7.35 treat rip+0 as integer offset not pointer. add 'Offset in Addressing (RegExp) is in bytes' in doc/usage.md

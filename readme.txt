@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.35.2
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.35.3
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -404,6 +404,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2026/03/10 ver 7.35.3 RegExp::operator+()のオーバーロード追加/rewrite()のサイズチェック追加
 2026/03/06 ver 7.35.2 NetBSDのためにPROT_MPROTECTを使う/RegExpの明示的なoperator+を定義
 2026/03/05 ver 7.35.1 clang++ -std=c++14のためにRegExpのconstexprを削除
 2026/03/05 ver 7.35 rip+0をint offsetとして扱うよう修正 doc/usage.mdのOffset in Addressing (RegExp) is in bytesの加筆
