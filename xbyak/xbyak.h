@@ -16,6 +16,7 @@
 #include <stdio.h> // for debug print
 #include <assert.h>
 #include <list>
+#include <vector>
 #include <string>
 #include <algorithm>
 #ifndef NDEBUG
@@ -1176,7 +1177,7 @@ class CodeArray {
 			return disp;
 		}
 	};
-	typedef std::list<AddrInfo> AddrInfoList;
+	typedef std::vector<AddrInfo> AddrInfoList;
 	AddrInfoList addrInfoList_;
 	const Type type_;
 #ifdef XBYAK_USE_MMAP_ALLOCATOR
