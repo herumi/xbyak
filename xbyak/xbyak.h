@@ -1553,7 +1553,7 @@ class LabelManager {
 		SlabelDefList defList;
 		SlabelUndefList undefList;
 	};
-	typedef std::list<SlabelState> StateList;
+	typedef std::vector<SlabelState> StateList;
 	// for Label class
 	struct ClabelVal {
 		ClabelVal(size_t offset = 0) : offset(offset), refCount(1) {}
