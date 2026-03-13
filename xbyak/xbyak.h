@@ -16,6 +16,7 @@
 #include <stdio.h> // for debug print
 #include <assert.h>
 #include <list>
+#include <vector>
 #include <string>
 #include <algorithm>
 #ifndef NDEBUG
