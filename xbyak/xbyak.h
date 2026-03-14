@@ -15,7 +15,6 @@
 
 #include <stdio.h> // for debug print
 #include <assert.h>
-#include <list>
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -803,6 +802,7 @@ inline void Operand::setBit(int bit)
 		case 256: kind = YMM; break;
 		case 512: kind = ZMM; break;
 		case 8192: kind = TMM; break;
+		default: goto ERR;
 		}
 		idx_ = idx;
 		kind_ = kind;
@@ -1553,7 +1553,7 @@ class LabelManager {
 		SlabelDefList defList;
 		SlabelUndefList undefList;
 	};
-	typedef std::list<SlabelState> StateList;
+	typedef std::vector<SlabelState> StateList;
 	// for Label class
 	struct ClabelVal {
 		ClabelVal(size_t offset = 0) : offset(offset), refCount(1) {}
