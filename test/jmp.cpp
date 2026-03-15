@@ -840,9 +840,9 @@ CYBOZU_TEST_AUTO(MovLabel)
 			: Xbyak::CodeGenerator(grow ? 128 : 4096, grow ? Xbyak::AutoGrow : 0)
 		{
 #ifdef XBYAK64
-			const Reg64& a = rax;
+			const Reg64 a = rax;
 #else
-			const Reg32& a = eax;
+			const Reg32 a = eax;
 #endif
 			if (useNewLabel) {
 				nop(); // 0x90
@@ -933,11 +933,11 @@ CYBOZU_TEST_AUTO(testMovLabel2)
 		MovLabel2Code()
 		{
 #ifdef XBYAK64
-			const Reg64& a = rax;
-			const Reg64& c = rcx;
+			const Reg64 a = rax;
+			const Reg64 c = rcx;
 #else
-			const Reg32& a = eax;
-			const Reg32& c = ecx;
+			const Reg32 a = eax;
+			const Reg32 c = ecx;
 #endif
 			xor_(a, a);
 			xor_(c, c);
@@ -1400,14 +1400,14 @@ struct CodeLabelTable : Xbyak::CodeGenerator {
 	{
 		using namespace Xbyak;
 #ifdef XBYAK64_WIN
-		const Reg64& p0 = rcx;
-		const Reg64& a = rax;
+		const Reg64 p0 = rcx;
+		const Reg64 a = rax;
 #elif defined (XBYAK64_GCC)
-		const Reg64& p0 = rdi;
-		const Reg64& a = rax;
+		const Reg64 p0 = rdi;
+		const Reg64 a = rax;
 #else
-		const Reg32& p0 = edx;
-		const Reg32& a = eax;
+		const Reg32 p0 = edx;
+		const Reg32 a = eax;
 		mov(edx, ptr [esp + 4]);
 #endif
 		Label labelTbl, L0, L1, L2;

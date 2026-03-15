@@ -31,15 +31,15 @@ struct Code : public Xbyak::CodeGenerator {
 #endif
 		const struct {
 #ifdef XBYAK32
-			const Reg32& self;
+			const Reg32 self;
 #else
-			const Reg64& self;
+			const Reg64 self;
 #endif
-			const Operand& a;
-			const Operand& b;
-			const Operand& c;
-			const Operand& d;
-			const Operand& e;
+			const Operand a;
+			const Operand b;
+			const Operand c;
+			const Operand d;
+			const Operand e;
 		} para = {
 #if defined(XBYAK64_WIN)
 			rcx,
