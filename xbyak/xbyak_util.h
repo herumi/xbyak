@@ -1805,7 +1805,7 @@ public:
 		if (pNum < 0 || pNum > 4) XBYAK_THROW(ERR_BAD_PNUM)
 		const int allRegNum = pNum + tNum_ + (useRcx_ ? 1 : 0) + (useRdx_ ? 1 : 0);
 		if (tNum_ < 0 || allRegNum > maxRegNum) XBYAK_THROW(ERR_BAD_TNUM)
-		const Reg64 _rsp = code->rsp;
+		const Reg64& _rsp = code->rsp;
 		saveNum_ = local::max_(0, allRegNum - noSaveNum);
 		const int *tbl = getOrderTbl() + noSaveNum;
 		for (int i = 0; i < saveNum_; i++) {
@@ -1834,7 +1834,7 @@ public:
 	void close(bool callRet = true)
 	{
 		using namespace Xbyak;
-		const Reg64 _rsp = code_->rsp;
+		const Reg64& _rsp = code_->rsp;
 		const int *tbl = getOrderTbl() + noSaveNum;
 		if (P_ > 0) code_->add(_rsp, P_);
 		for (int i = 0; i < saveNum_; i++) {

@@ -6,13 +6,13 @@ struct Reg {
 	Reg(int r) : r_(r) {}
 };
 
-inline const Reg getReg0() { static const Reg r(0); return r; }
-inline const Reg getReg1() { static const Reg r(1); return r; }
-inline const Reg getReg2() { static const Reg r(2); return r; }
+inline const Reg& getReg0() { static const Reg r(0); return r; }
+inline const Reg& getReg1() { static const Reg r(1); return r; }
+inline const Reg& getReg2() { static const Reg r(2); return r; }
 
-static const Reg r0 = getReg0();
-static const Reg r1 = getReg1();
-static const Reg r2 = getReg2();
+static const Reg& r0 = getReg0();
+static const Reg& r1 = getReg1();
+static const Reg& r2 = getReg2();
 
 inline void putReg()
 {

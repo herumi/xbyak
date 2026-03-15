@@ -26,9 +26,9 @@ public:
 		// void (*)(void* putchar, void* getchar, int *stack)
 		using namespace Xbyak;
 #ifdef XBYAK32
-		const Reg32 pPutchar(esi);
-		const Reg32 pGetchar(edi);
-		const Reg32 stack(ebp);
+		const Reg32& pPutchar(esi);
+		const Reg32& pGetchar(edi);
+		const Reg32& stack(ebp);
 		const Address cur = byte [stack];
 		push(ebp); // stack
 		push(esi);
@@ -38,9 +38,9 @@ public:
 		mov(pGetchar, ptr[esp + P_ + 8]); // getchar
 		mov(stack, ptr[esp + P_ + 12]); // stack
 #elif defined(XBYAK64_WIN)
-		const Reg64 pPutchar(rsi);
-		const Reg64 pGetchar(rdi);
-		const Reg64 stack(rbp); // stack
+		const Reg64& pPutchar(rsi);
+		const Reg64& pGetchar(rdi);
+		const Reg64& stack(rbp); // stack
 		const Address cur = byte [stack];
 		push(rsi);
 		push(rdi);
@@ -49,9 +49,9 @@ public:
 		mov(pGetchar, rdx); // getchar
 		mov(stack, r8); // stack
 #else
-		const Reg64 pPutchar(rbx);
-		const Reg64 pGetchar(rbp);
-		const Reg64 stack(r12); // stack
+		const Reg64& pPutchar(rbx);
+		const Reg64& pGetchar(rbp);
+		const Reg64& stack(r12); // stack
 		const Address cur = byte [stack];
 		push(rbx);
 		push(rbp);
