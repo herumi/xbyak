@@ -1552,6 +1552,7 @@ class LabelManager {
 		SlabelDefList defList;
 		SlabelUndefList undefList;
 	};
+	// SlabelState is cheap to move, so std::vector is preferred over std::list.
 	typedef std::vector<SlabelState> StateList;
 	// for Label class
 	struct ClabelVal {
