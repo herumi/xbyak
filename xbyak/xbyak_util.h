@@ -526,15 +526,11 @@ public:
 	XBYAK_DEFINE_TYPE(36, tAVX512DQ);
 	XBYAK_DEFINE_TYPE(37, tAVX512_IFMA);
 	XBYAK_DEFINE_TYPE(37, tAVX512IFMA);// = tAVX512_IFMA;
-	XBYAK_DEFINE_TYPE(38, tAVX512PF);
-	XBYAK_DEFINE_TYPE(39, tAVX512ER);
 	XBYAK_DEFINE_TYPE(40, tAVX512CD);
 	XBYAK_DEFINE_TYPE(41, tAVX512BW);
 	XBYAK_DEFINE_TYPE(42, tAVX512VL);
 	XBYAK_DEFINE_TYPE(43, tAVX512_VBMI);
 	XBYAK_DEFINE_TYPE(43, tAVX512VBMI); // = tAVX512_VBMI; // changed by Intel's manual
-	XBYAK_DEFINE_TYPE(44, tAVX512_4VNNIW);
-	XBYAK_DEFINE_TYPE(45, tAVX512_4FMAPS);
 	XBYAK_DEFINE_TYPE(46, tPREFETCHWT1);
 	XBYAK_DEFINE_TYPE(47, tPREFETCHW);
 	XBYAK_DEFINE_TYPE(48, tSHA);
@@ -679,8 +675,6 @@ public:
 					if (type_ & tAVX512F) {
 						if (ebx & (1U << 17)) type_ |= tAVX512DQ;
 						if (ebx & (1U << 21)) type_ |= tAVX512_IFMA;
-						if (ebx & (1U << 26)) type_ |= tAVX512PF;
-						if (ebx & (1U << 27)) type_ |= tAVX512ER;
 						if (ebx & (1U << 28)) type_ |= tAVX512CD;
 						if (ebx & (1U << 30)) type_ |= tAVX512BW;
 						if (ebx & (1U << 31)) type_ |= tAVX512VL;
@@ -689,8 +683,6 @@ public:
 						if (ecx & (1U << 11)) type_ |= tAVX512_VNNI;
 						if (ecx & (1U << 12)) type_ |= tAVX512_BITALG;
 						if (ecx & (1U << 14)) type_ |= tAVX512_VPOPCNTDQ;
-						if (edx & (1U << 2)) type_ |= tAVX512_4VNNIW;
-						if (edx & (1U << 3)) type_ |= tAVX512_4FMAPS;
 						if (edx & (1U << 8)) type_ |= tAVX512_VP2INTERSECT;
 						if ((type_ & tAVX512BW) && (edx & (1U << 23))) type_ |= tAVX512_FP16;
 					}
