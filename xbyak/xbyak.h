@@ -15,7 +15,7 @@
 
 #include <stdio.h> // for debug print
 #include <assert.h>
-#include <list>
+#include <vector>
 #include <string>
 #include <algorithm>
 #ifndef NDEBUG
@@ -1176,7 +1176,7 @@ class CodeArray {
 			return disp;
 		}
 	};
-	typedef std::list<AddrInfo> AddrInfoList;
+	typedef std::vector<AddrInfo> AddrInfoList;
 	AddrInfoList addrInfoList_;
 	const Type type_;
 #ifdef XBYAK_USE_MMAP_ALLOCATOR
@@ -1552,7 +1552,8 @@ class LabelManager {
 		SlabelDefList defList;
 		SlabelUndefList undefList;
 	};
-	typedef std::list<SlabelState> StateList;
+	// SlabelState is cheap to move, so std::vector is preferred over std::list.
+	typedef std::vector<SlabelState> StateList;
 	// for Label class
 	struct ClabelVal {
 		ClabelVal(size_t offset = 0) : offset(offset), refCount(1) {}
