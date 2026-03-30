@@ -464,10 +464,10 @@ void putX_X_XM_IMM()
 		{ 0xBE, "vfnmsub231bf16", T_MUST_EVEX | T_MAP6 | T_W0 | T_YMM | T_B16, false },
 
 		{ 0x67, "vcvt2ps2phx", T_MUST_EVEX | T_66 | T_0F38 | T_W0 | T_YMM | T_B32 | T_ER_Z, false },
-		{ 0x74, "vcvt2ph2bf8", T_MUST_EVEX | T_F2 | T_0F38 | T_W0 | T_YMM | T_B16 | T_N1, false },
-		{ 0x74, "vcvt2ph2bf8s", T_MUST_EVEX | T_F2 | T_MAP5 | T_W0 | T_YMM | T_B16 | T_N1, false },
-		{ 0x18, "vcvt2ph2hf8", T_MUST_EVEX | T_F2 | T_MAP5 | T_W0 | T_YMM | T_B16 | T_N1, false },
-		{ 0x1B, "vcvt2ph2hf8s", T_MUST_EVEX | T_F2 | T_MAP5 | T_W0 | T_YMM | T_B16 | T_N1, false },
+		{ 0x74, "vcvt2ph2bf8", T_MUST_EVEX | T_F2 | T_0F38 | T_W0 | T_YMM | T_B16 | T_N16 | T_N_VL, false },
+		{ 0x74, "vcvt2ph2bf8s", T_MUST_EVEX | T_F2 | T_MAP5 | T_W0 | T_YMM | T_B16 | T_N16 | T_N_VL, false },
+		{ 0x18, "vcvt2ph2hf8", T_MUST_EVEX | T_F2 | T_MAP5 | T_W0 | T_YMM | T_B16 | T_N16 | T_N_VL, false },
+		{ 0x1B, "vcvt2ph2hf8s", T_MUST_EVEX | T_F2 | T_MAP5 | T_W0 | T_YMM | T_B16 | T_N16 | T_N_VL, false },
 
 		{ 0x52, "vdpphps", T_MUST_EVEX | T_0F38 | T_W0 | T_YMM | T_SAE_Z | T_B32, false },
 		{ 0x52, "vminmaxbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_W0 | T_YMM | T_B16, true },
@@ -1107,7 +1107,7 @@ void putAVX10_2()
 		std::string s = type2String(p->type);
 		printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt6(x1, x2, op, %s, 0x%02X); }\n" , p->name, s.c_str(), p->code);
 	}
-	puts("void vcvthf82ph(const Xmm& x, const Operand& op) { checkCvt1(x, op); opVex(x, 0, op, T_MUST_EVEX | T_F2 | T_MAP5 | T_W0 | T_YMM | T_N1, 0x1E); }");
+	puts("void vcvthf82ph(const Xmm& x, const Operand& op) { checkCvt1(x, op); opVex(x, 0, op, T_MUST_EVEX|T_F2|T_MAP5|T_W0|T_YMM|T_N8|T_N_VL, 0x1E); }");
 
 	const Tbl tbl2[] = {
 		{ 0x74, "vcvtph2bf8", T_MUST_EVEX | T_F3 | T_0F38 | T_W0 | T_YMM | T_B16 },
