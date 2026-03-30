@@ -1,5 +1,6 @@
 # History
 
+* 2026/Mar/30 ver 7.35.4 fix the encoding of disp8N for vcvthf82ph/vcvt2ph2{b,h}f8[,s]
 * 2026/Mar/10 ver 7.35.3 append override of RegExp::operator+()/check the size parameter of rewrite()
 * 2026/Mar/06 ver 7.35.2 use PROT_MPROTECT for NetBSD. Define explicit RegExp::operator+
 * 2026/Mar/05 ver 7.35.1 remove constexpr of RegExp for clang++ -std=c++14 or later

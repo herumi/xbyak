@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.35.3
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.35.4
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -404,6 +404,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2026/03/30 ver 7.35.4 vcvthf82ph/vcvt2ph2{b,h}f8[,s]のdisp8Nのエンコーディングミス修正
 2026/03/10 ver 7.35.3 RegExp::operator+()のオーバーロード追加/rewrite()のサイズチェック追加
 2026/03/06 ver 7.35.2 NetBSDのためにPROT_MPROTECTを使う/RegExpの明示的なoperator+を定義
 2026/03/05 ver 7.35.1 clang++ -std=c++14のためにRegExpのconstexprを削除
