@@ -17,7 +17,7 @@ jobs:
     container:
       image: debian:testing
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - run: apt -y update
     - run: apt -y install g++-multilib clang libboost-dev make yasm wget python3 #xz-utils nasm
     - run: yasm --version
