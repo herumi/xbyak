@@ -19,7 +19,8 @@ jobs:
     steps:
     - uses: actions/checkout@v5
     - run: apt -y update
-    - run: apt -y install g++-multilib clang libboost-dev make yasm wget python3 #xz-utils nasm
+    - run: apt -y install ca-certificates g++-multilib clang libboost-dev make yasm wget python3 #xz-utils nasm
+    - run: update-ca-certificates
     - run: yasm --version
     - name: Install xed and nasm
       run: |
