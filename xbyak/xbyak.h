@@ -419,7 +419,7 @@ inline size_t getPageSize()
 	static const SystemInfo si;
 	return si.info.dwPageSize;
 #else
-#if defined(__GNUC__) && !defined(__OPENORBIS__)
+#if defined(__GNUC__)
 	static const long pageSize = sysconf(_SC_PAGESIZE);
 	if (pageSize > 0) {
 		return (size_t)pageSize;
