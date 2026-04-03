@@ -89,7 +89,7 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tUINTR, "uintr" },
 		{ Cpu::tSERIALIZE, "serialize" },
 		{ Cpu::tCLZERO, "clzero" },
-		{ Cpu::tAMX_FP16, "amx_fp16" },
+		{ Cpu::tAMX_FP16, "amx(fp16)" },
 		{ Cpu::tAVX_VNNI_INT8, "avx_vnni_int8" },
 		{ Cpu::tAVX_NE_CONVERT, "avx_ne_convert" },
 		{ Cpu::tAVX_IFMA, "avx_ifma" },
@@ -107,14 +107,13 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tKEYLOCKER, "keylocker" },
 		{ Cpu::tKEYLOCKER_WIDE, "keylocker_wide" },
 		{ Cpu::tTSXLDTRK, "tsxldtrk" },
-		{ Cpu::tAMX_FP8, "amx_fp8" },
-		{ Cpu::tAMX_TRANSPOSE, "amx_transpose" },
-		{ Cpu::tAMX_TF32, "amx_tf32" },
-		{ Cpu::tAMX_AVX512, "amx_avx512" },
-		{ Cpu::tAMX_MOVRS, "amx_movrs" },
+		{ Cpu::tAMX_TF32, "amx(tf32)" },
+		{ Cpu::tAMX_AVX512, "amx(avx512)" },
+		{ Cpu::tAMX_MOVRS, "amx(movrs)" },
+		{ Cpu::tAMX_FP8, "amx(fp8)" },
 		{ Cpu::tMOVRS, "movrs" },
 		{ Cpu::tHYBRID, "hybrid" },
-		{ Cpu::tAMX_COMPLEX, "amx_complex" },
+		{ Cpu::tAMX_COMPLEX, "amx(complex)" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
