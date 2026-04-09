@@ -1647,6 +1647,7 @@ private:
 #ifdef XBYAK64
 const int UseRCX = 1 << 6;
 const int UseRDX = 1 << 7;
+const int UseFramePointer = 1 << 8;
 
 class Pack {
 	static const size_t maxTblNum = 15;
@@ -1767,7 +1768,10 @@ class StackFrame {
 	int P_;
 	bool useRcx_;
 	bool useRdx_;
+	bool useFramePointer_;
 	bool makeEpilog_;
+	int calleeSavedRegs_[maxRegNum];
+	int calleeSavedCount_;
 	StackFrame(const StackFrame&);
 	void operator=(const StackFrame&);
 public:
@@ -1777,7 +1781,7 @@ public:
 		make stack frame
 		@param sf [in] this
 		@param pNum [in] num of function parameter(0 <= pNum <= 4)
-		@param tNum [in] num of temporary register(0 <= tNum, with UseRCX, UseRDX) #{pNum + tNum [+rcx] + [rdx]} <= 14
+		@param tNum [in] num of temporary register(0 <= tNum, with UseRCX, UseRDX, UseFramePointer) #{pNum + tNum [+rcx] [+rdx] [+fp]} <= 14
 		@param stackSizeByte [in] local stack size
 		@param makeEpilog [in] automatically call close() if true
 
@@ -1787,32 +1791,49 @@ public:
 		gt0, ..., gt(tNum-1)
 		rcx if tNum & UseRCX
 		rdx if tNum & UseRDX
+		rbp is reserved as frame pointer if tNum & UseFramePointer
 		rsp[0..stackSizeByte - 1]
 	*/
 	StackFrame(Xbyak::CodeGenerator *code, int pNum, int tNum = 0, int stackSizeByte = 0, bool makeEpilog = true)
 		: code_(code)
 		, pNum_(pNum)
-		, tNum_(tNum & ~(UseRCX | UseRDX))
+		, tNum_(tNum & ~(UseRCX | UseRDX | UseFramePointer))
 		, saveNum_(0)
 		, P_(0)
 		, useRcx_((tNum & UseRCX) != 0)
 		, useRdx_((tNum & UseRDX) != 0)
+		, useFramePointer_((tNum & UseFramePointer) != 0)
 		, makeEpilog_(makeEpilog)
+		, calleeSavedCount_(0)
 		, p(p_)
 		, t(t_)
 	{
 		using namespace Xbyak;
 		if (pNum < 0 || pNum > 4) XBYAK_THROW(ERR_BAD_PNUM)
-		const int allRegNum = pNum + tNum_ + (useRcx_ ? 1 : 0) + (useRdx_ ? 1 : 0);
+		const int allRegNum = pNum + tNum_ + (useRcx_ ? 1 : 0) + (useRdx_ ? 1 : 0) + (useFramePointer_ ? 1 : 0);
 		if (tNum_ < 0 || allRegNum > maxRegNum) XBYAK_THROW(ERR_BAD_TNUM)
 		const Reg64& _rsp = code->rsp;
+		// Emit frame pointer prologue before callee-saved pushes
+		if (useFramePointer_) {
+			code->push(code->rbp);
+			code->mov(code->rbp, code->rsp);
+		}
+		// saveNum_ = number of callee-saved registers to push/pop.
+		// With useFramePointer_, RBP is already saved above and skipped
+		// in getRegIdx(), so it is NOT counted in saveNum_.
 		saveNum_ = local::max_(0, allRegNum - noSaveNum);
 		const int *tbl = getOrderTbl() + noSaveNum;
-		for (int i = 0; i < saveNum_; i++) {
+		calleeSavedCount_ = 0;
+		for (int i = 0; calleeSavedCount_ < saveNum_; i++) {
+			assert(i < maxRegNum - noSaveNum);
+			if (useFramePointer_ && tbl[i] == Operand::RBP) continue;
+			calleeSavedRegs_[calleeSavedCount_] = tbl[i];
 			code->push(Reg64(tbl[i]));
+			calleeSavedCount_++;
 		}
 		P_ = (stackSizeByte + 7) / 8;
-		if (P_ > 0 && (P_ & 1) == (saveNum_ & 1)) P_++; // (rsp % 16) == 8, then increment P_ for 16 byte alignment
+		const int totalPushCount = calleeSavedCount_ + (useFramePointer_ ? 1 : 0);
+		if (P_ > 0 && (P_ & 1) == (totalPushCount & 1)) P_++; // ensure 16-byte alignment
 		P_ *= 8;
 		if (P_ > 0) code->sub(_rsp, P_);
 		int pos = 0;
@@ -1835,12 +1856,13 @@ public:
 	{
 		using namespace Xbyak;
 		const Reg64& _rsp = code_->rsp;
-		const int *tbl = getOrderTbl() + noSaveNum;
 		if (P_ > 0) code_->add(_rsp, P_);
-		for (int i = 0; i < saveNum_; i++) {
-			code_->pop(Reg64(tbl[saveNum_ - 1 - i]));
+		for (int i = calleeSavedCount_ - 1; i >= 0; i--) {
+			code_->pop(Reg64(calleeSavedRegs_[i]));
 		}
-
+		if (useFramePointer_) {
+			code_->pop(code_->rbp);
+		}
 		if (callRet) code_->ret();
 	}
 	~StackFrame()
@@ -1870,11 +1892,14 @@ private:
 		int r = tbl[pos++];
 		if (useRcx_) {
 			if (r == Operand::RCX) { return Operand::R10; }
-			if (r == Operand::R10) { r = tbl[pos++]; }
+			if (r == Operand::R10) { assert(pos < maxRegNum); r = tbl[pos++]; }
 		}
 		if (useRdx_) {
 			if (r == Operand::RDX) { return Operand::R11; }
-			if (r == Operand::R11) { return tbl[pos++]; }
+			if (r == Operand::R11) { assert(pos < maxRegNum); r = tbl[pos++]; }
+		}
+		if (useFramePointer_) {
+			if (r == Operand::RBP) { assert(pos < maxRegNum); r = tbl[pos++]; }
 		}
 		return r;
 	}
