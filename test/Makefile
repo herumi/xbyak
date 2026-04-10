@@ -65,7 +65,7 @@ apx: apx.cpp $(XBYAK_INC)
 avx10_test: avx10_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK64
 sf_test: sf_test.cpp $(XBYAK_INC)
-	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK64
+	$(CXX) $(CFLAGS) $< -o $@ #-DXBYAK64
 cpumask_test: cpumask_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@
 
@@ -133,7 +133,7 @@ test: detect_x32
 	$(MAKE) test_avx
 	$(MAKE) test_avx512
 
-sf_test_update: sf_test.cpp
+update_sf_test: sf_test.cpp
 	$(CXX) $(CFLAGS) sf_test.cpp -DXBYAK64_WIN -o sf_test && ./sf_test 1 > sf_test_win.h
 	$(CXX) $(CFLAGS) sf_test.cpp -DXBYAK64_GCC -o sf_test && ./sf_test 1 > sf_test_gcc.h
 

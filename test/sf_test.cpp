@@ -4,9 +4,15 @@
 #include <vector>
 #include <map>
 
-
 #ifdef XBYAK32
 	#error "this sample is for only 64-bit mode"
+#endif
+
+#ifdef XBYAK64_WIN
+#include "sf_test_win.h"
+#endif
+#ifdef XBYAK64_GCC
+#include "sf_test_gcc.h"
 #endif
 
 using namespace Xbyak::util;
@@ -455,7 +461,8 @@ void stackFrameTest(bool dump)
 		ParamId paramId;
 		Bytes code;
 	};
-	std::vector<Data> dataVec;
+	typedef std::map<uint32_t, Data> DataMap;
+	DataMap dataMap;
 
 	struct Code : Xbyak::CodeGenerator {
 		Code(int pNum, int tNum, int useRegs, int stackSizeByte)
@@ -501,7 +508,7 @@ void stackFrameTest(bool dump)
 					d.paramId.param.useRegs = uint8_t(useRegs);
 					d.paramId.param.stackSizeByte = stackSizeByte;
 					d.code.assign(c.getCode(), c.getCode() + c.getSize());
-					dataVec.push_back(d);
+					dataMap[d.paramId.id] = d;
 					switch (pNum) {
 					case 0:
 						{
@@ -538,28 +545,48 @@ void stackFrameTest(bool dump)
 			}
 		}
 	}
-	if (!dump) return;
-	for (size_t i = 0; i < dataVec.size(); i++) {
-		const Data& d = dataVec[i];
-		printf("static const uint8_t code_%08x[] = {", d.paramId.id);
-		for (size_t j = 0; j < d.code.size(); j++) {
-			if (j % 16 == 0) {
-				printf("\n    ");
+	if (dump) {
+		for (DataMap::const_iterator it = dataMap.begin(); it != dataMap.end(); ++it) {
+			const Data& d = it->second;
+			printf("static const uint8_t code_%08x[] = {", d.paramId.id);
+			for (size_t j = 0; j < d.code.size(); j++) {
+				if (j % 16 == 0) {
+					printf("\n    ");
+				}
+				printf("0x%02x, ", d.code[j]);
 			}
-			printf("0x%02x, ", d.code[j]);
+			printf("\n};\n");
 		}
-		printf("\n};\n");
+		printf("static const struct {\n");
+		printf("\tuint32_t paramId;\n");
+		printf("\tconst uint8_t *code;\n");
+		printf("\tsize_t codeSize;\n");
+		printf("} g_dataVec[] = {\n");
+		for (DataMap::const_iterator it = dataMap.begin(); it != dataMap.end(); ++it) {
+			const Data& d = it->second;
+			printf("    { 0x%08x, code_%08x, %zu },\n", d.paramId.id, d.paramId.id, d.code.size());
+		}
+		printf("};\n");
+	} else {
+		DataMap dataMapExpected;
+		for (size_t i = 0; i < sizeof(g_dataVec) / sizeof(*g_dataVec); i++) {
+			const uint32_t id = g_dataVec[i].paramId;
+			Data d;
+			d.paramId.id = id;
+			d.code.assign(g_dataVec[i].code, g_dataVec[i].code + g_dataVec[i].codeSize);
+			dataMapExpected[id] = d;
+		}
+		CYBOZU_TEST_EQUAL(dataMap.size(), dataMapExpected.size());
+		for (DataMap::const_iterator it = dataMapExpected.begin(); it != dataMapExpected.end(); ++it) {
+			const uint32_t id = it->first;
+			DataMap::const_iterator it2 = dataMap.find(id);
+			CYBOZU_TEST_ASSERT(it2 != dataMap.end());
+			const Data& d = it2->second;
+			const Data& dExpected = it->second;
+			CYBOZU_TEST_EQUAL(d.code.size(), dExpected.code.size());
+			CYBOZU_TEST_EQUAL_ARRAY(d.code.data(), dExpected.code.data(), d.code.size());
+		}
 	}
-	printf("static const struct {\n");
-	printf("\tuint32_t paramId;\n");
-	printf("\tconst uint8_t *code;\n");
-	printf("\tsize_t codeSize;\n");
-	printf("} dataVec[] = {\n");
-	for (size_t i = 0; i < dataVec.size(); i++) {
-		const Data& d = dataVec[i];
-		printf("    { 0x%08x, code_%08x, %zu },\n", d.paramId.id, d.paramId.id, d.code.size());
-	}
-	printf("};\n");
 }
 
 CYBOZU_TEST_AUTO(stackFrame)
