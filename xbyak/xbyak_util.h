@@ -1645,8 +1645,6 @@ private:
 };
 
 #ifdef XBYAK64
-const int UseRCX = 1 << 6;
-const int UseRDX = 1 << 7;
 
 class Pack {
 	static const size_t maxTblNum = 15;
@@ -1745,15 +1743,25 @@ public:
 	}
 };
 
+const int UseRCX = 1 << 6;
+const int UseRDX = 1 << 7;
+const int UseRSI = 1 << 8;
+const int UseRDI = 1 << 9;
+const int UseRBP = 1 << 10;
+
 class StackFrame {
 #ifdef XBYAK64_WIN
 	static const int noSaveNum = 6;
 	static const int rcxPos = 0;
 	static const int rdxPos = 1;
+	static const int rdiPos = 6;
+	static const int rsiPos = 7;
 #else
 	static const int noSaveNum = 8;
 	static const int rcxPos = 3;
 	static const int rdxPos = 2;
+	static const int rdiPos = 0;
+	static const int rsiPos = 1;
 #endif
 	static const int maxRegNum = 14; // maxRegNum = 16 - rsp - rax
 	Xbyak::CodeGenerator *code_;
@@ -1767,6 +1775,9 @@ class StackFrame {
 	int P_;
 	bool useRcx_;
 	bool useRdx_;
+	bool useRsi_;
+	bool useRdi_;
+	bool useRbp_;
 	bool makeEpilog_;
 	StackFrame(const StackFrame&);
 	void operator=(const StackFrame&);
@@ -1792,21 +1803,31 @@ public:
 	StackFrame(Xbyak::CodeGenerator *code, int pNum, int tNum = 0, int stackSizeByte = 0, bool makeEpilog = true)
 		: code_(code)
 		, pNum_(pNum)
-		, tNum_(tNum & ~(UseRCX | UseRDX))
+		, tNum_(tNum & ~(UseRCX | UseRDX | UseRSI | UseRDI | UseRBP))
 		, saveNum_(0)
 		, P_(0)
 		, useRcx_((tNum & UseRCX) != 0)
 		, useRdx_((tNum & UseRDX) != 0)
+		, useRsi_((tNum & UseRSI) != 0)
+		, useRdi_((tNum & UseRDI) != 0)
+		, useRbp_((tNum & UseRBP) != 0)
 		, makeEpilog_(makeEpilog)
 		, p(p_)
 		, t(t_)
 	{
 		using namespace Xbyak;
 		if (pNum < 0 || pNum > 4) XBYAK_THROW(ERR_BAD_PNUM)
-		const int allRegNum = pNum + tNum_ + (useRcx_ ? 1 : 0) + (useRdx_ ? 1 : 0);
+		const int allRegNum = pNum + tNum_ + (useRcx_ ? 1 : 0) + (useRdx_ ? 1 : 0) + (useRsi_ ? 1 : 0) + (useRdi_ ? 1 : 0) + (useRbp_ ? 1 : 0);
 		if (tNum_ < 0 || allRegNum > maxRegNum) XBYAK_THROW(ERR_BAD_TNUM)
 		const Reg64& _rsp = code->rsp;
 		saveNum_ = local::max_(0, allRegNum - noSaveNum);
+#ifdef XBYAK64_WIN
+		if (useRdi_) saveNum_ = local::max_(saveNum_, 1);
+		if (useRsi_) saveNum_ = local::max_(saveNum_, 2);
+		if (useRbp_) saveNum_ = local::max_(saveNum_, 4);
+#else
+		if (useRbp_) saveNum_ = local::max_(saveNum_, 2);
+#endif
 		const int *tbl = getOrderTbl() + noSaveNum;
 		for (int i = 0; i < saveNum_; i++) {
 			code->push(Reg64(tbl[i]));
@@ -1824,6 +1845,10 @@ public:
 		}
 		if (useRcx_ && rcxPos < pNum) code_->mov(code_->r10, code_->rcx);
 		if (useRdx_ && rdxPos < pNum) code_->mov(code_->r11, code_->rdx);
+#ifndef XBYAK64_WIN
+		if (useRdi_ && rdiPos < pNum) code_->mov(code_->r8, code_->rdi);
+		if (useRsi_ && rsiPos < pNum) code_->mov(code_->r9, code_->rsi);
+#endif
 		p_.init(pTbl_, pNum);
 		t_.init(tTbl_, tNum_);
 	}
@@ -1862,21 +1887,45 @@ private:
 		};
 		return &tbl[0];
 	}
+	// return backup reg for reserved reg r, or -1 if no backup
+	int getBackupReg(int r) const
+	{
+		using namespace Xbyak;
+		if (useRcx_ && r == Operand::RCX) return Operand::R10;
+		if (useRdx_ && r == Operand::RDX) return Operand::R11;
+#ifndef XBYAK64_WIN
+		if (useRdi_ && r == Operand::RDI) return Operand::R8;
+		if (useRsi_ && r == Operand::RSI) return Operand::R9;
+#endif
+		return -1;
+	}
+	// return true if r should be skipped (backup reg in use, or reserved reg without backup)
+	bool isSkipReg(int r) const
+	{
+		using namespace Xbyak;
+		if (useRcx_ && r == Operand::R10) return true;
+		if (useRdx_ && r == Operand::R11) return true;
+#ifdef XBYAK64_WIN
+		if (useRdi_ && r == Operand::RDI) return true;
+		if (useRsi_ && r == Operand::RSI) return true;
+#else
+		if (useRdi_ && r == Operand::R8) return true;
+		if (useRsi_ && r == Operand::R9) return true;
+#endif
+		if (useRbp_ && r == Operand::RBP) return true;
+		return false;
+	}
 	int getRegIdx(int& pos) const
 	{
-		assert(pos < maxRegNum);
-		using namespace Xbyak;
 		const int *tbl = getOrderTbl();
-		int r = tbl[pos++];
-		if (useRcx_) {
-			if (r == Operand::RCX) { return Operand::R10; }
-			if (r == Operand::R10) { r = tbl[pos++]; }
+		for (;;) {
+			assert(pos < maxRegNum);
+			int r = tbl[pos++];
+			int backup = getBackupReg(r);
+			if (backup >= 0) return backup;
+			if (isSkipReg(r)) continue;
+			return r;
 		}
-		if (useRdx_) {
-			if (r == Operand::RDX) { return Operand::R11; }
-			if (r == Operand::R11) { return tbl[pos++]; }
-		}
-		return r;
 	}
 };
 #endif
