@@ -1,5 +1,9 @@
 #include <xbyak/xbyak_util.h>
+#define CYBOZU_TEST_DISABLE_AUTO_RUN
 #include <cybozu/test.hpp>
+#include <vector>
+#include <map>
+
 
 #ifdef XBYAK32
 	#error "this sample is for only 64-bit mode"
@@ -170,7 +174,7 @@ struct Code : public Xbyak::CodeGenerator {
 		Pack t = sf.t;
 		t.append(rax);
 		for (int i = 0; i < 15; i++) {
-			mov(t[i], 1 << i);
+			mov(t[i], uint64_t(1) << i);
 		}
 		mov(qword[rsp], 0);
 		for (int i = 0; i < 15; i++) {
@@ -432,4 +436,142 @@ CYBOZU_TEST_AUTO(close)
 		CloseCode c(i);
 		CYBOZU_TEST_EQUAL(c.getSize(), expectedTbl[i]);
 	}
+}
+
+union ParamId {
+	struct Param {
+		uint8_t pNum;
+		uint8_t tNum;
+		uint8_t useRegs;
+		uint8_t stackSizeByte;
+	} param;
+	uint32_t id;
+};
+
+void stackFrameTest(bool dump)
+{
+	typedef std::vector<uint8_t> Bytes;
+	struct Data {
+		ParamId paramId;
+		Bytes code;
+	};
+	std::vector<Data> dataVec;
+
+	struct Code : Xbyak::CodeGenerator {
+		Code(int pNum, int tNum, int useRegs, int stackSizeByte)
+		{
+			StackFrame sf(this, pNum, tNum|useRegs, stackSizeByte);
+			// modify
+			for (int i = 0; i < tNum; i++) {
+				mov(sf.t[i], 12345);
+			}
+			if (useRegs & UseRCX) {
+				mov(rcx, 12345);
+			}
+			if (useRegs & UseRDX) {
+				mov(rdx, 12345);
+			}
+			// eax is sum of all params and (esp & 15) if stackSizeByte > 0
+			if (stackSizeByte > 0) {
+				mov(eax, esp);
+				and_(eax, 15);
+			} else {
+				xor_(eax, eax);
+			}
+			for (int i = 0; i < pNum; i++) {
+				add(rax, sf.p[i]);
+			}
+		}
+	};
+	static const uint8_t stackSizeTbl[] = { 0, 33 };
+	for (int pNum = 0; pNum <= 4; pNum++) {
+		for (int tNum = 0; tNum <= 14; tNum++) {
+			int totalNum = pNum + tNum;
+			for (int i = 0; i < (1<<2); i++) {
+				int useRegs = 0;
+				if (i & 1) { useRegs |= UseRCX; totalNum++; }
+				if (i & 2) { useRegs |= UseRDX; totalNum++; }
+				if (totalNum > 14) continue;
+				for (size_t j = 0; j < sizeof(stackSizeTbl)/sizeof(stackSizeTbl[0]); j++) {
+					uint8_t stackSizeByte = stackSizeTbl[j];
+					Code c(pNum, tNum, useRegs, stackSizeByte);
+					Data d;
+					d.paramId.param.pNum = uint8_t(pNum);
+					d.paramId.param.tNum = uint8_t(tNum);
+					d.paramId.param.useRegs = uint8_t(useRegs);
+					d.paramId.param.stackSizeByte = stackSizeByte;
+					d.code.assign(c.getCode(), c.getCode() + c.getSize());
+					dataVec.push_back(d);
+					switch (pNum) {
+					case 0:
+						{
+							int (*f)() = c.getCode<int (*)()>();
+							CYBOZU_TEST_EQUAL(0, f());
+							break;
+						}
+					case 1:
+						{
+							int (*f1)(int) = c.getCode<int (*)(int)>();
+							CYBOZU_TEST_EQUAL(1, f1(1));
+							break;
+						}
+					case 2:
+						{
+							int (*f2)(int, int) = c.getCode<int (*)(int, int)>();
+							CYBOZU_TEST_EQUAL(11, f2(1, 10));
+							break;
+						}
+					case 3:
+						{
+							int (*f3)(int, int, int) = c.getCode<int (*)(int, int, int)>();
+							CYBOZU_TEST_EQUAL(111, f3(1, 10, 100));
+							break;
+						}
+					case 4:
+						{
+							int (*f4)(int, int, int, int) = c.getCode<int (*)(int, int, int, int)>();
+							CYBOZU_TEST_EQUAL(1111, f4(1, 10, 100, 1000));
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	if (!dump) return;
+	for (size_t i = 0; i < dataVec.size(); i++) {
+		const Data& d = dataVec[i];
+		printf("static const uint8_t code_%08x[] = {", d.paramId.id);
+		for (size_t j = 0; j < d.code.size(); j++) {
+			if (j % 16 == 0) {
+				printf("\n    ");
+			}
+			printf("0x%02x, ", d.code[j]);
+		}
+		printf("\n};\n");
+	}
+	printf("static const struct {\n");
+	printf("\tuint32_t paramId;\n");
+	printf("\tconst uint8_t *code;\n");
+	printf("\tsize_t codeSize;\n");
+	printf("} dataVec[] = {\n");
+	for (size_t i = 0; i < dataVec.size(); i++) {
+		const Data& d = dataVec[i];
+		printf("    { 0x%08x, code_%08x, %zu },\n", d.paramId.id, d.paramId.id, d.code.size());
+	}
+	printf("};\n");
+}
+
+CYBOZU_TEST_AUTO(stackFrame)
+{
+	stackFrameTest(false);
+}
+
+int main(int argc, char *argv[])
+{
+	if (argc > 1) {
+		stackFrameTest(true);
+		return 0;
+	}
+	return cybozu::test::autoRun.run(argc, argv);
 }

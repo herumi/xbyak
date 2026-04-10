@@ -133,6 +133,10 @@ test: detect_x32
 	$(MAKE) test_avx
 	$(MAKE) test_avx512
 
+sf_test_update: sf_test.cpp
+	$(CXX) $(CFLAGS) sf_test.cpp -DXBYAK64_WIN -o sf_test && ./sf_test 1 > sf_test_win.h
+	$(CXX) $(CFLAGS) sf_test.cpp -DXBYAK64_GCC -o sf_test && ./sf_test 1 > sf_test_gcc.h
+
 clean:
 	$(RM) a.asm *.lst *.obj *.o $(TARGET) lib_run nm.cpp nm_frame make_512 avx10_test detect_x32
 
