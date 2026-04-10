@@ -1,6 +1,4 @@
 #include <xbyak/xbyak_util.h>
-#define CYBOZU_TEST_DISABLE_AUTO_RUN
-#include <cybozu/test.hpp>
 #include <vector>
 #include <map>
 
@@ -8,14 +6,17 @@
 	#error "this sample is for only 64-bit mode"
 #endif
 
+using namespace Xbyak::util;
+
+#ifndef DUMP
+#include <cybozu/test.hpp>
+
 #ifdef XBYAK64_WIN
 #include "sf_test_win.h"
 #endif
 #ifdef XBYAK64_GCC
 #include "sf_test_gcc.h"
 #endif
-
-using namespace Xbyak::util;
 
 struct Code : public Xbyak::CodeGenerator {
 	void gen1()
@@ -443,6 +444,7 @@ CYBOZU_TEST_AUTO(close)
 		CYBOZU_TEST_EQUAL(c.getSize(), expectedTbl[i]);
 	}
 }
+#endif
 
 union ParamId {
 	struct Param {
@@ -454,7 +456,7 @@ union ParamId {
 	uint32_t id;
 };
 
-void stackFrameTest(bool dump)
+void stackFrameTest()
 {
 	typedef std::vector<uint8_t> Bytes;
 	struct Data {
@@ -509,6 +511,7 @@ void stackFrameTest(bool dump)
 					d.paramId.param.stackSizeByte = stackSizeByte;
 					d.code.assign(c.getCode(), c.getCode() + c.getSize());
 					dataMap[d.paramId.id] = d;
+#ifndef DUMP
 					switch (pNum) {
 					case 0:
 						{
@@ -541,11 +544,12 @@ void stackFrameTest(bool dump)
 							break;
 						}
 					}
+#endif
 				}
 			}
 		}
 	}
-	if (dump) {
+#ifdef DUMP
 		for (DataMap::const_iterator it = dataMap.begin(); it != dataMap.end(); ++it) {
 			const Data& d = it->second;
 			printf("static const uint8_t code_%08x[] = {", d.paramId.id);
@@ -567,7 +571,7 @@ void stackFrameTest(bool dump)
 			printf("    { 0x%08x, code_%08x, %zu },\n", d.paramId.id, d.paramId.id, d.code.size());
 		}
 		printf("};\n");
-	} else {
+#else
 		DataMap dataMapExpected;
 		for (size_t i = 0; i < sizeof(g_dataVec) / sizeof(*g_dataVec); i++) {
 			const uint32_t id = g_dataVec[i].paramId;
@@ -586,19 +590,14 @@ void stackFrameTest(bool dump)
 			CYBOZU_TEST_EQUAL(d.code.size(), dExpected.code.size());
 			CYBOZU_TEST_EQUAL_ARRAY(d.code.data(), dExpected.code.data(), d.code.size());
 		}
-	}
+#endif
 }
 
+#ifdef DUMP
+int main()
+#else
 CYBOZU_TEST_AUTO(stackFrame)
+#endif
 {
-	stackFrameTest(false);
-}
-
-int main(int argc, char *argv[])
-{
-	if (argc > 1) {
-		stackFrameTest(true);
-		return 0;
-	}
-	return cybozu::test::autoRun.run(argc, argv);
+	stackFrameTest();
 }
