@@ -1743,6 +1743,7 @@ public:
 	}
 };
 
+// start from a bit position larger than the number of GPRs
 const int UseRCX = 1 << 6;
 const int UseRDX = 1 << 7;
 const int UseRSI = 1 << 8;
@@ -1771,16 +1772,20 @@ class StackFrame {
 	Pack t_;
 	int pNum_;
 	int tNum_;
+	int useRegs_;
 	int saveNum_;
 	int P_;
-	bool useRcx_;
-	bool useRdx_;
-	bool useRsi_;
-	bool useRdi_;
-	bool useRbp_;
 	bool makeEpilog_;
 	StackFrame(const StackFrame&);
 	void operator=(const StackFrame&);
+	int popcnt(int x) const
+	{
+#ifdef _MSC_VER
+		return __popcnt(x);
+#else
+		return __builtin_popcount(x);
+#endif
+	}
 public:
 	const Pack& p;
 	const Pack& t;
@@ -1804,29 +1809,26 @@ public:
 		: code_(code)
 		, pNum_(pNum)
 		, tNum_(tNum & ~(UseRCX | UseRDX | UseRSI | UseRDI | UseRBP))
+		, useRegs_(tNum & (UseRCX | UseRDX | UseRSI | UseRDI | UseRBP))
 		, saveNum_(0)
 		, P_(0)
-		, useRcx_((tNum & UseRCX) != 0)
-		, useRdx_((tNum & UseRDX) != 0)
-		, useRsi_((tNum & UseRSI) != 0)
-		, useRdi_((tNum & UseRDI) != 0)
-		, useRbp_((tNum & UseRBP) != 0)
 		, makeEpilog_(makeEpilog)
 		, p(p_)
 		, t(t_)
 	{
 		using namespace Xbyak;
 		if (pNum < 0 || pNum > 4) XBYAK_THROW(ERR_BAD_PNUM)
-		const int allRegNum = pNum + tNum_ + (useRcx_ ? 1 : 0) + (useRdx_ ? 1 : 0) + (useRsi_ ? 1 : 0) + (useRdi_ ? 1 : 0) + (useRbp_ ? 1 : 0);
+		const int useRegN = popcnt(useRegs_);
+		const int allRegNum = pNum + tNum_ + useRegN;
 		if (tNum_ < 0 || allRegNum > maxRegNum) XBYAK_THROW(ERR_BAD_TNUM)
 		const Reg64& _rsp = code->rsp;
 		saveNum_ = local::max_(0, allRegNum - noSaveNum);
 #ifdef XBYAK64_WIN
-		if (useRdi_) saveNum_ = local::max_(saveNum_, 1);
-		if (useRsi_) saveNum_ = local::max_(saveNum_, 2);
-		if (useRbp_) saveNum_ = local::max_(saveNum_, 4);
+		if (useRegs_ & UseRDI) saveNum_ = local::max_(saveNum_, 1);
+		if (useRegs_ & UseRSI) saveNum_ = local::max_(saveNum_, 2);
+		if (useRegs_ & UseRBP) saveNum_ = local::max_(saveNum_, 4);
 #else
-		if (useRbp_) saveNum_ = local::max_(saveNum_, 2);
+		if (useRegs_ & UseRBP) saveNum_ = local::max_(saveNum_, 2);
 #endif
 		const int *tbl = getOrderTbl() + noSaveNum;
 		for (int i = 0; i < saveNum_; i++) {
@@ -1843,11 +1845,11 @@ public:
 		for (int i = 0; i < tNum_; i++) {
 			tTbl_[i] = Xbyak::Reg64(getRegIdx(pos));
 		}
-		if (useRcx_ && rcxPos < pNum) code_->mov(code_->r10, code_->rcx);
-		if (useRdx_ && rdxPos < pNum) code_->mov(code_->r11, code_->rdx);
+		if ((useRegs_ & UseRCX) && rcxPos < pNum) code_->mov(code_->r10, code_->rcx);
+		if ((useRegs_ & UseRDX) && rdxPos < pNum) code_->mov(code_->r11, code_->rdx);
 #ifndef XBYAK64_WIN
-		if (useRdi_ && rdiPos < pNum) code_->mov(code_->r8, code_->rdi);
-		if (useRsi_ && rsiPos < pNum) code_->mov(code_->r9, code_->rsi);
+		if ((useRegs_ & UseRDI) && rdiPos < pNum) code_->mov(code_->r8, code_->rdi);
+		if ((useRegs_ & UseRSI) && rsiPos < pNum) code_->mov(code_->r9, code_->rsi);
 #endif
 		p_.init(pTbl_, pNum);
 		t_.init(tTbl_, tNum_);
@@ -1890,12 +1892,11 @@ private:
 	// return backup reg for reserved reg r, or -1 if no backup
 	int getBackupReg(int r) const
 	{
-		using namespace Xbyak;
-		if (useRcx_ && r == Operand::RCX) return Operand::R10;
-		if (useRdx_ && r == Operand::RDX) return Operand::R11;
+		if ((useRegs_ & UseRCX) && r == Operand::RCX) return Operand::R10;
+		if ((useRegs_ & UseRDX) && r == Operand::RDX) return Operand::R11;
 #ifndef XBYAK64_WIN
-		if (useRdi_ && r == Operand::RDI) return Operand::R8;
-		if (useRsi_ && r == Operand::RSI) return Operand::R9;
+		if ((useRegs_ & UseRDI) && r == Operand::RDI) return Operand::R8;
+		if ((useRegs_ & UseRSI) && r == Operand::RSI) return Operand::R9;
 #endif
 		return -1;
 	}
@@ -1903,16 +1904,16 @@ private:
 	bool isSkipReg(int r) const
 	{
 		using namespace Xbyak;
-		if (useRcx_ && r == Operand::R10) return true;
-		if (useRdx_ && r == Operand::R11) return true;
+		if ((useRegs_ & UseRCX) && r == Operand::R10) return true;
+		if ((useRegs_ & UseRDX) && r == Operand::R11) return true;
 #ifdef XBYAK64_WIN
-		if (useRdi_ && r == Operand::RDI) return true;
-		if (useRsi_ && r == Operand::RSI) return true;
+		if ((useRegs_ & UseRDI) && r == Operand::RDI) return true;
+		if ((useRegs_ & UseRSI) && r == Operand::RSI) return true;
 #else
-		if (useRdi_ && r == Operand::R8) return true;
-		if (useRsi_ && r == Operand::R9) return true;
+		if ((useRegs_ & UseRDI) && r == Operand::R8) return true;
+		if ((useRegs_ & UseRSI) && r == Operand::R9) return true;
 #endif
-		if (useRbp_ && r == Operand::RBP) return true;
+		if ((useRegs_ & UseRBP) && r == Operand::RBP) return true;
 		return false;
 	}
 	int getRegIdx(int& pos) const
