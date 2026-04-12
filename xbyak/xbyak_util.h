@@ -1753,20 +1753,13 @@ const int UseRBP = 1 << 10;
 class StackFrame {
 #ifdef XBYAK64_WIN
 	static const int noSaveNum = 6;
-	static const int rcxPos = 0;
-	static const int rdxPos = 1;
-	static const int rdiPos = 6;
-	static const int rsiPos = 7;
 #else
 	static const int noSaveNum = 8;
-	static const int rcxPos = 3;
-	static const int rdxPos = 2;
-	static const int rdiPos = 0;
-	static const int rsiPos = 1;
 #endif
+	static const int maxPnum = 4;
 	static const int maxRegNum = 14; // maxRegNum = 16 - rsp - rax
 	Xbyak::CodeGenerator *code_;
-	Xbyak::Reg64 pTbl_[4];
+	Xbyak::Reg64 pTbl_[maxPnum];
 	Xbyak::Reg64 tTbl_[maxRegNum];
 	Pack p_;
 	Pack t_;
@@ -1778,32 +1771,25 @@ class StackFrame {
 	bool makeEpilog_;
 	StackFrame(const StackFrame&);
 	void operator=(const StackFrame&);
-	int popcnt(int x) const
-	{
-#ifdef _MSC_VER
-		return __popcnt(x);
-#else
-		return __builtin_popcount(x);
-#endif
-	}
 public:
 	const Pack& p;
 	const Pack& t;
 	/*
 		make stack frame
 		@param sf [in] this
-		@param pNum [in] num of function parameter(0 <= pNum <= 4)
-		@param tNum [in] num of temporary register(0 <= tNum, with UseRCX, UseRDX) #{pNum + tNum [+rcx] + [rdx]} <= 14
+		@param pNum [in] number of function parameters(0 <= pNum <= 4)
+		@param tNum [in] number of temporary registers(0 <= tNum, can be OR-ed with Use{RCX,RDX,RSI,RDI,RBP}, e.g., 3|UseRCX)
 		@param stackSizeByte [in] local stack size
 		@param makeEpilog [in] automatically call close() if true
 
+		pNum + tNum + #Use must be <= 14
+
 		you can use
 		rax
-		gp0, ..., gp(pNum - 1)
-		gt0, ..., gt(tNum-1)
-		rcx if tNum & UseRCX
-		rdx if tNum & UseRDX
-		rsp[0..stackSizeByte - 1]
+		p[0], ..., p[pNum-1] as function parameters
+		t[0], ..., t[tNum-1] as temporary registers
+		{rcx,rdx,rsi,rdi,rbp} are explicitly available by specifying Use{RCX,RDX,RSI,RDI,RBP} in tNum
+		rsp[0..stackSizeByte-1] if stackSizeByte > 0
 	*/
 	StackFrame(Xbyak::CodeGenerator *code, int pNum, int tNum = 0, int stackSizeByte = 0, bool makeEpilog = true)
 		: code_(code)
@@ -1830,7 +1816,7 @@ public:
 #else
 		if (useRegs_ & UseRBP) saveNum_ = local::max_(saveNum_, 2);
 #endif
-		const int *tbl = getOrderTbl() + noSaveNum;
+		const int *tbl = getRegEntryTbl() + noSaveNum;
 		for (int i = 0; i < saveNum_; i++) {
 			code->push(Reg64(tbl[i]));
 		}
@@ -1845,12 +1831,13 @@ public:
 		for (int i = 0; i < tNum_; i++) {
 			tTbl_[i] = Xbyak::Reg64(getRegIdx(pos));
 		}
-		if ((useRegs_ & UseRCX) && rcxPos < pNum) code_->mov(code_->r10, code_->rcx);
-		if ((useRegs_ & UseRDX) && rdxPos < pNum) code_->mov(code_->r11, code_->rdx);
-#ifndef XBYAK64_WIN
-		if ((useRegs_ & UseRDI) && rdiPos < pNum) code_->mov(code_->r8, code_->rdi);
-		if ((useRegs_ & UseRSI) && rsiPos < pNum) code_->mov(code_->r9, code_->rsi);
-#endif
+		// replace reserved reg with backup reg if needed
+		for (size_t i = 0; i < maxPnum; i++) {
+			const RegSlot& rp = getRegSlotTbl()[i];
+			if ((useRegs_ & rp.use) && rp.pos < pNum && rp.alt >= 0) {
+				code->mov(Xbyak::Reg64(rp.alt), Xbyak::Reg64(rp.target));
+			}
+		}
 		p_.init(pTbl_, pNum);
 		t_.init(tTbl_, tNum_);
 	}
@@ -1862,7 +1849,7 @@ public:
 	{
 		using namespace Xbyak;
 		const Reg64& _rsp = code_->rsp;
-		const int *tbl = getOrderTbl() + noSaveNum;
+		const int *tbl = getRegEntryTbl() + noSaveNum;
 		if (P_ > 0) code_->add(_rsp, P_);
 		for (int i = 0; i < saveNum_; i++) {
 			code_->pop(Reg64(tbl[saveNum_ - 1 - i]));
@@ -1876,9 +1863,44 @@ public:
 		close();
 	}
 private:
-	const int *getOrderTbl() const
+	int popcnt(int x) const
 	{
-		using namespace Xbyak;
+#ifdef _MSC_VER
+		return __popcnt(x);
+#else
+		return __builtin_popcount(x);
+#endif
+	}
+	// Register allocation for the first 4 function parameters
+	struct RegSlot {
+		int use;
+		int target;
+		int pos; // position of target in getRegEntryTbl()
+		int alt; // alternative if target is used for parameter. -1 means no alternative.
+	};
+	const RegSlot *getRegSlotTbl() const
+	{
+		// Win: p[] = rcx(r10), rdx(r11), r8, r9:
+		// Linux: p[] = rdi(r8), rsi(r9), rdx(r11), rcx(r10)
+		// reg(alt) means a reserved reg if Use<reg> is used.
+
+		static const RegSlot tbl[maxPnum] = {
+#ifdef XBYAK64_WIN
+			{ UseRCX, Operand::RCX, 0, Operand::R10 },
+			{ UseRDX, Operand::RDX, 1, Operand::R11 },
+			{ UseRDI, Operand::RDI, 6, -1 },
+			{ UseRSI, Operand::RSI, 7, -1 },
+#else
+			{ UseRCX, Operand::RCX, 3, Operand::R10 },
+			{ UseRDX, Operand::RDX, 2, Operand::R11 },
+			{ UseRDI, Operand::RDI, 0, Operand::R8 },
+			{ UseRSI, Operand::RSI, 1, Operand::R9 },
+#endif
+		};
+		return tbl;
+	}
+	const int *getRegEntryTbl() const
+	{
 		static const int tbl[] = {
 #ifdef XBYAK64_WIN
 			Operand::RCX, Operand::RDX, Operand::R8, Operand::R9, Operand::R10, Operand::R11, Operand::RDI, Operand::RSI,
@@ -1889,36 +1911,34 @@ private:
 		};
 		return &tbl[0];
 	}
+	/*
+	*/
 	// return backup reg for reserved reg r, or -1 if no backup
 	int getBackupReg(int r) const
 	{
-		if ((useRegs_ & UseRCX) && r == Operand::RCX) return Operand::R10;
-		if ((useRegs_ & UseRDX) && r == Operand::RDX) return Operand::R11;
-#ifndef XBYAK64_WIN
-		if ((useRegs_ & UseRDI) && r == Operand::RDI) return Operand::R8;
-		if ((useRegs_ & UseRSI) && r == Operand::RSI) return Operand::R9;
-#endif
+		const RegSlot *tbl = getRegSlotTbl();
+		for (size_t i = 0; i < maxPnum; i++) {
+			if ((useRegs_ & tbl[i].use) && r == tbl[i].target) {
+				int alt = tbl[i].alt;
+				if (alt >= 0) return alt;
+			}
+		}
 		return -1;
 	}
 	// return true if r should be skipped (backup reg in use, or reserved reg without backup)
 	bool isSkipReg(int r) const
 	{
-		using namespace Xbyak;
-		if ((useRegs_ & UseRCX) && r == Operand::R10) return true;
-		if ((useRegs_ & UseRDX) && r == Operand::R11) return true;
-#ifdef XBYAK64_WIN
-		if ((useRegs_ & UseRDI) && r == Operand::RDI) return true;
-		if ((useRegs_ & UseRSI) && r == Operand::RSI) return true;
-#else
-		if ((useRegs_ & UseRDI) && r == Operand::R8) return true;
-		if ((useRegs_ & UseRSI) && r == Operand::R9) return true;
-#endif
+		const RegSlot *tbl = getRegSlotTbl();
+		for (size_t i = 0; i < maxPnum; i++) {
+			int alt = tbl[i].alt;
+			if ((useRegs_ & tbl[i].use) && (r == alt || (alt == -1 && r == tbl[i].target))) return true;
+		}
 		if ((useRegs_ & UseRBP) && r == Operand::RBP) return true;
 		return false;
 	}
 	int getRegIdx(int& pos) const
 	{
-		const int *tbl = getOrderTbl();
+		const int *tbl = getRegEntryTbl();
 		for (;;) {
 			assert(pos < maxRegNum);
 			int r = tbl[pos++];

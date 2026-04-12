@@ -122,6 +122,7 @@
 	#elif defined(__x86_64__)
 		#define XBYAK64_GCC
 	#endif
+	#define XBYAK64
 #endif
 #if !defined(XBYAK64) && !defined(XBYAK32)
 	#if defined(XBYAK64_GCC) || defined(XBYAK64_WIN)
