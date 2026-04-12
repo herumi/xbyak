@@ -567,12 +567,14 @@ void stackFrameTest()
 #ifdef DUMP
 		for (DataMap::const_iterator it = dataMap.begin(); it != dataMap.end(); ++it) {
 			const Data& d = it->second;
-			printf("static const uint8_t code_%08x[] = {", d.paramId.id);
+			printf("static const uint8_t code_%08x[] = {\n", d.paramId.id);
 			for (size_t j = 0; j < d.code.size(); j++) {
 				if (j % 16 == 0) {
-					printf("\n    ");
+					if (j > 0) printf("\n");
+					printf("\t");
 				}
-				printf("0x%02x, ", d.code[j]);
+				if (j > 0) printf(" ");
+				printf("0x%02x,", d.code[j]);
 			}
 			printf("\n};\n");
 		}
@@ -583,7 +585,7 @@ void stackFrameTest()
 		printf("} g_dataVec[] = {\n");
 		for (DataMap::const_iterator it = dataMap.begin(); it != dataMap.end(); ++it) {
 			const Data& d = it->second;
-			printf("    { 0x%08x, code_%08x, %zu },\n", d.paramId.id, d.paramId.id, d.code.size());
+			printf("\t{ 0x%08x, code_%08x, %zu },\n", d.paramId.id, d.paramId.id, d.code.size());
 		}
 		printf("};\n");
 #else
