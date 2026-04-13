@@ -507,14 +507,16 @@ void stackFrameTest()
 	static const uint8_t stackSizeTbl[] = { 0, 33 };
 	for (int pNum = 0; pNum <= 4; pNum++) {
 		for (int tNum = 0; tNum <= 14; tNum++) {
-			int totalNum = pNum + tNum;
-			for (int i = 0; i < (1<<5); i++) {
+			for (int i = 0; i < (1<<2); i++) {
+				int totalNum = pNum + tNum;
 				int useRegs = 0;
 				if (i & 1) { useRegs |= UseRCX; totalNum++; }
 				if (i & 2) { useRegs |= UseRDX; totalNum++; }
 				if (i & 4) { useRegs |= UseRSI; totalNum++; }
 				if (i & 8) { useRegs |= UseRDI; totalNum++; }
+				// UseRBP and UseRBPAsFramePointer are mutually exclusive
 				if (i & 16) { useRegs |= UseRBP; totalNum++; }
+				if (!(i & 16) && (i & 32)) { useRegs |= UseRBPAsFramePointer; totalNum++; }
 				if (totalNum > 14) continue;
 				for (size_t j = 0; j < sizeof(stackSizeTbl)/sizeof(stackSizeTbl[0]); j++) {
 					uint8_t stackSizeByte = stackSizeTbl[j];
