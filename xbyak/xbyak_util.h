@@ -1749,6 +1749,7 @@ const int UseRDX = 1 << 7;
 const int UseRSI = 1 << 8;
 const int UseRDI = 1 << 9;
 const int UseRBP = 1 << 10;
+const int UseRBPAsFramePointer = UseRBP | (1 << 11);
 
 class StackFrame {
 #ifdef XBYAK64_WIN
@@ -1758,6 +1759,7 @@ class StackFrame {
 #endif
 	static const int maxPnum = 4;
 	static const int maxRegNum = 14; // maxRegNum = 16 - rsp - rax
+	static const int UseMASK = UseRCX | UseRDX | UseRSI | UseRDI | UseRBP;
 	Xbyak::CodeGenerator *code_;
 	Xbyak::Reg64 pTbl_[maxPnum];
 	Xbyak::Reg64 tTbl_[maxRegNum];
@@ -1794,8 +1796,8 @@ public:
 	StackFrame(Xbyak::CodeGenerator *code, int pNum, int tNum = 0, int stackSizeByte = 0, bool makeEpilog = true)
 		: code_(code)
 		, pNum_(pNum)
-		, tNum_(tNum & ~(UseRCX | UseRDX | UseRSI | UseRDI | UseRBP))
-		, useRegs_(tNum & (UseRCX | UseRDX | UseRSI | UseRDI | UseRBP))
+		, tNum_(tNum & ~UseMASK)
+		, useRegs_(tNum & UseMASK) // drop UseRBPAsFramePointer bit
 		, saveNum_(0)
 		, P_(0)
 		, makeEpilog_(makeEpilog)
@@ -1804,21 +1806,25 @@ public:
 	{
 		using namespace Xbyak;
 		if (pNum < 0 || pNum > 4) XBYAK_THROW(ERR_BAD_PNUM)
-		const int useRegN = popcnt(useRegs_);
-		const int allRegNum = pNum + tNum_ + useRegN;
+		const int allRegNum = pNum + tNum_ + popcnt(useRegs_ & ~UseRBPAsFramePointer);
 		if (tNum_ < 0 || allRegNum > maxRegNum) XBYAK_THROW(ERR_BAD_TNUM)
 		const Reg64& _rsp = code->rsp;
 		saveNum_ = local::max_(0, allRegNum - noSaveNum);
 #ifdef XBYAK64_WIN
 		if (useRegs_ & UseRDI) saveNum_ = local::max_(saveNum_, 1);
 		if (useRegs_ & UseRSI) saveNum_ = local::max_(saveNum_, 2);
-		if (useRegs_ & UseRBP) saveNum_ = local::max_(saveNum_, 4);
-#else
-		if (useRegs_ & UseRBP) saveNum_ = local::max_(saveNum_, 2);
 #endif
 		const int *tbl = getRegEntryTbl() + noSaveNum;
+		if (useRegs_ & UseRBP) {
+			code->push(rbp);
+			if ((tNum & UseRBPAsFramePointer) == UseRBPAsFramePointer) {
+				code->mov(rbp, rsp);
+			}
+		}
 		for (int i = 0; i < saveNum_; i++) {
-			code->push(Reg64(tbl[i]));
+			if (!((useRegs_ & UseRBP) && tbl[i] == Operand::RBP)) {
+				code->push(Reg64(tbl[i]));
+			}
 		}
 		P_ = (stackSizeByte + 7) / 8;
 		if (P_ > 0 && (P_ & 1) == (saveNum_ & 1)) P_++; // (rsp % 16) == 8, then increment P_ for 16 byte alignment
@@ -1852,9 +1858,14 @@ public:
 		const int *tbl = getRegEntryTbl() + noSaveNum;
 		if (P_ > 0) code_->add(_rsp, P_);
 		for (int i = 0; i < saveNum_; i++) {
-			code_->pop(Reg64(tbl[saveNum_ - 1 - i]));
+			int regIdx = saveNum_ - 1 - i;
+			if (!((useRegs_ & UseRBP) && tbl[regIdx] == Operand::RBP)) {
+				code_->pop(Reg64(tbl[regIdx]));
+			}
 		}
-
+		if (useRegs_ & UseRBP) {
+			code_->pop(rbp);
+		}
 		if (callRet) code_->ret();
 	}
 	~StackFrame()
