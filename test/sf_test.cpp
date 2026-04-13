@@ -522,7 +522,8 @@ void stackFrameTest()
 			if (useRegs & UseRDI) {
 				mov(rdi, 2000);
 			}
-			if ((useRegs & UseRBP) == UseRBP) {
+			// use rbp if UseRBP and !UseRBPAsFramePointer
+			if ((useRegs & UseRBPAsFramePointer) == UseRBP) {
 				mov(rbp, 3000);
 			}
 			// eax is sum of all params and (esp & 15) if stackSizeByte > 0
@@ -549,7 +550,7 @@ void stackFrameTest()
 				if (i & 8) { useRegs |= UseRDI; totalNum++; }
 				// UseRBP and UseRBPAsFramePointer are mutually exclusive
 				if (i & 16) { useRegs |= UseRBP; totalNum++; }
-//				if (!(i & 16) && (i & 32)) { useRegs |= UseRBPAsFramePointer; totalNum++; }
+				if (!(i & 16) && (i & 32)) { useRegs |= UseRBPAsFramePointer; totalNum++; }
 				if (totalNum > 14) continue;
 				for (size_t j = 0; j < sizeof(stackSizeTbl)/sizeof(stackSizeTbl[0]); j++) {
 					int stackSizeByte = stackSizeTbl[j];
