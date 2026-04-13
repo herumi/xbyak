@@ -1369,7 +1369,7 @@ public:
 		DWORD oldProtect;
 		return VirtualProtect(const_cast<void*>(addr), size, mode, &oldProtect) != 0;
 #elif defined(__GNUC__)
-		size_t pageSize = sysconf(_SC_PAGESIZE);
+		size_t pageSize = inner::getPageSize();
 		size_t iaddr = reinterpret_cast<size_t>(addr);
 		size_t roundAddr = iaddr & ~(pageSize - static_cast<size_t>(1));
 		return mprotect(reinterpret_cast<void*>(roundAddr), size + (iaddr - roundAddr), mode) == 0;
