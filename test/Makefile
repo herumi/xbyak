@@ -64,7 +64,7 @@ apx: apx.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@
 avx10_test: avx10_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK64
-sf_test: sf_test.cpp $(XBYAK_INC)
+sf_test: sf_test.cpp $(XBYAK_INC) sf_test_win.h sf_test_gcc.h
 	$(CXX) $(CFLAGS) $< -o $@ #-DXBYAK64
 cpumask_test: cpumask_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@

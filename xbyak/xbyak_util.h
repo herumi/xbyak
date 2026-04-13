@@ -1744,12 +1744,12 @@ public:
 };
 
 // start from a bit position larger than the number of GPRs
+const int UseRBP = 1 << 5;
 const int UseRCX = 1 << 6;
 const int UseRDX = 1 << 7;
 const int UseRSI = 1 << 8;
 const int UseRDI = 1 << 9;
-const int UseRBP = 1 << 10;
-const int UseRBPAsFramePointer = UseRBP | (1 << 11);
+const int UseRBPAsFramePointer = UseRBP | (1 << 10);
 
 class StackFrame {
 #ifdef XBYAK64_WIN
@@ -1759,7 +1759,7 @@ class StackFrame {
 #endif
 	static const int maxPnum = 4;
 	static const int maxRegNum = 14; // maxRegNum = 16 - rsp - rax
-	static const int UseMASK = UseRCX | UseRDX | UseRSI | UseRDI | UseRBP;
+	static const int UseMASK = UseRCX|UseRDX|UseRSI|UseRDI|UseRBP;
 	Xbyak::CodeGenerator *code_;
 	Xbyak::Reg64 pTbl_[maxPnum];
 	Xbyak::Reg64 tTbl_[maxRegNum];
@@ -1770,6 +1770,7 @@ class StackFrame {
 	int useRegs_;
 	int saveNum_;
 	int P_;
+	bool useFramePointer_;
 	bool makeEpilog_;
 	StackFrame(const StackFrame&);
 	void operator=(const StackFrame&);
@@ -1796,38 +1797,43 @@ public:
 	StackFrame(Xbyak::CodeGenerator *code, int pNum, int tNum = 0, int stackSizeByte = 0, bool makeEpilog = true)
 		: code_(code)
 		, pNum_(pNum)
-		, tNum_(tNum & ~UseMASK)
+		, tNum_(tNum & ~(UseMASK|UseRBPAsFramePointer))
 		, useRegs_(tNum & UseMASK) // drop UseRBPAsFramePointer bit
 		, saveNum_(0)
 		, P_(0)
+		, useFramePointer_((tNum & UseRBPAsFramePointer) == UseRBPAsFramePointer)
 		, makeEpilog_(makeEpilog)
 		, p(p_)
 		, t(t_)
 	{
-		using namespace Xbyak;
 		if (pNum < 0 || pNum > 4) XBYAK_THROW(ERR_BAD_PNUM)
-		const int allRegNum = pNum + tNum_ + popcnt(useRegs_ & ~UseRBPAsFramePointer);
+		const int allRegNum = pNum + tNum_ + popcnt(useRegs_);
 		if (tNum_ < 0 || allRegNum > maxRegNum) XBYAK_THROW(ERR_BAD_TNUM)
 		const Reg64& _rsp = code->rsp;
 		saveNum_ = local::max_(0, allRegNum - noSaveNum);
 #ifdef XBYAK64_WIN
+        // rdi, rsi are callee-save on Windows, so ensure they are saved if explicitly used
 		if (useRegs_ & UseRDI) saveNum_ = local::max_(saveNum_, 1);
 		if (useRegs_ & UseRSI) saveNum_ = local::max_(saveNum_, 2);
 #endif
 		const int *tbl = getRegEntryTbl() + noSaveNum;
+		int pushNum = 0;
 		if (useRegs_ & UseRBP) {
 			code->push(rbp);
-			if ((tNum & UseRBPAsFramePointer) == UseRBPAsFramePointer) {
-				code->mov(rbp, rsp);
-			}
+			pushNum++;
 		}
 		for (int i = 0; i < saveNum_; i++) {
-			if (!((useRegs_ & UseRBP) && tbl[i] == Operand::RBP)) {
+			if (!shouldSkipRBP(tbl[i])) {
 				code->push(Reg64(tbl[i]));
+				pushNum++;
 			}
 		}
+		if (useFramePointer_) {
+			code->mov(rbp, rsp);
+		}
 		P_ = (stackSizeByte + 7) / 8;
-		if (P_ > 0 && (P_ & 1) == (saveNum_ & 1)) P_++; // (rsp % 16) == 8, then increment P_ for 16 byte alignment
+		// (rsp % 16) == 8, then increment P_ for 16 byte alignment
+		if (P_ > 0 && (P_ & 1) == (pushNum & 1)) P_++;
 		P_ *= 8;
 		if (P_ > 0) code->sub(_rsp, P_);
 		int pos = 0;
@@ -1853,19 +1859,17 @@ public:
 	*/
 	void close(bool callRet = true)
 	{
-		using namespace Xbyak;
-		const Reg64& _rsp = code_->rsp;
 		const int *tbl = getRegEntryTbl() + noSaveNum;
-		if (P_ > 0) code_->add(_rsp, P_);
+		if (useFramePointer_) {
+			code_->mov(code_->rsp, code_->rbp);
+		} else {
+			if (P_ > 0) code_->add(code_->rsp, P_);
+		}
 		for (int i = 0; i < saveNum_; i++) {
 			int regIdx = saveNum_ - 1 - i;
-			if (!((useRegs_ & UseRBP) && tbl[regIdx] == Operand::RBP)) {
-				code_->pop(Reg64(tbl[regIdx]));
-			}
+			if (!shouldSkipRBP(tbl[regIdx])) code_->pop(Reg64(tbl[regIdx]));
 		}
-		if (useRegs_ & UseRBP) {
-			code_->pop(rbp);
-		}
+		if (useRegs_ & UseRBP) code_->pop(rbp);
 		if (callRet) code_->ret();
 	}
 	~StackFrame()
@@ -1882,6 +1886,7 @@ private:
 		return __builtin_popcount(x);
 #endif
 	}
+	bool shouldSkipRBP(int r) const { return (useRegs_ & UseRBP) && r == Operand::RBP; }
 	// Register allocation for the first 4 function parameters
 	struct RegSlot {
 		int use;

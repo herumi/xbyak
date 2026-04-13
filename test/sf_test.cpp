@@ -478,9 +478,23 @@ struct ParamId {
 	}
 };
 
+typedef std::vector<uint8_t> Bytes;
+
+#ifndef DUMP
+void cmpAndDumpIfFailed(int rhs, int lhs, const Bytes& d)
+{
+	CYBOZU_TEST_EQUAL(rhs, lhs);
+	if (rhs != lhs) {
+		FILE *fp = fopen("dump.bin", "wb");
+		fwrite(d.data(), 1, d.size(), fp);
+		fclose(fp);
+		exit(1);
+	}
+}
+#endif
+
 void stackFrameTest()
 {
-	typedef std::vector<uint8_t> Bytes;
 	struct Data {
 		ParamId paramId;
 		Bytes code;
@@ -502,17 +516,15 @@ void stackFrameTest()
 			if (useRegs & UseRDX) {
 				mov(rdx, 12345);
 			}
-#if 0
 			if (useRegs & UseRSI) {
-				mov(rsi, 12345);
+				mov(rsi, 1000);
 			}
 			if (useRegs & UseRDI) {
-				mov(rdi, 12345);
+				mov(rdi, 2000);
 			}
 			if ((useRegs & UseRBP) == UseRBP) {
-				mov(rbp, 12345);
+				mov(rbp, 3000);
 			}
-#endif
 			// eax is sum of all params and (esp & 15) if stackSizeByte > 0
 			if (stackSizeByte > 0) {
 				mov(eax, esp);
@@ -528,20 +540,20 @@ void stackFrameTest()
 	static const uint8_t stackSizeTbl[] = { 0, 33 };
 	for (int pNum = 0; pNum <= 4; pNum++) {
 		for (int tNum = 0; tNum <= 14; tNum++) {
-			for (int i = 0; i < (1<<2); i++) {
+			for (int i = 0; i < (1<<6); i++) {
 				int totalNum = pNum + tNum;
 				int useRegs = 0;
 				if (i & 1) { useRegs |= UseRCX; totalNum++; }
 				if (i & 2) { useRegs |= UseRDX; totalNum++; }
-//				if (i & 4) { useRegs |= UseRSI; totalNum++; }
-//				if (i & 8) { useRegs |= UseRDI; totalNum++; }
+				if (i & 4) { useRegs |= UseRSI; totalNum++; }
+				if (i & 8) { useRegs |= UseRDI; totalNum++; }
 				// UseRBP and UseRBPAsFramePointer are mutually exclusive
-//				if (i & 16) { useRegs |= UseRBP; totalNum++; }
+				if (i & 16) { useRegs |= UseRBP; totalNum++; }
 //				if (!(i & 16) && (i & 32)) { useRegs |= UseRBPAsFramePointer; totalNum++; }
 				if (totalNum > 14) continue;
 				for (size_t j = 0; j < sizeof(stackSizeTbl)/sizeof(stackSizeTbl[0]); j++) {
 					int stackSizeByte = stackSizeTbl[j];
-//fprintf(stderr, "pNum=%d, tNum=%d, useRegs=0x%02x, stackSizeByte=%d\n", pNum, tNum, useRegs, stackSizeByte);
+//fprintf(stderr, "pNum=%d, tNum=%d, useRegs=0x%X stackSizeByte=%d\n", pNum, tNum, useRegs, stackSizeByte);
 					Code c(pNum, tNum, useRegs, stackSizeByte);
 					Data d;
 					d.paramId.pNum = pNum;
@@ -556,6 +568,7 @@ void stackFrameTest()
 						{
 							int (*f)() = c.getCode<int (*)()>();
 							CYBOZU_TEST_EQUAL(0, f());
+//							cmpAndDumpIfFailed(0, f(), d.code);
 							break;
 						}
 					case 1:
