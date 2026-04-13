@@ -9,6 +9,9 @@
 using namespace Xbyak::util;
 
 #ifndef DUMP
+#ifdef _MSC_VER
+	#pragma warning(disable : 4459)
+#endif
 #include <cybozu/test.hpp>
 
 #ifdef XBYAK64_WIN
