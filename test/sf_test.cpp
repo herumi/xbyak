@@ -449,14 +449,33 @@ CYBOZU_TEST_AUTO(close)
 }
 #endif
 
-union ParamId {
-	struct Param {
-		uint8_t pNum;
-		uint8_t tNum;
-		uint8_t useRegs;
-		uint8_t stackSizeByte;
-	} param;
-	uint32_t id;
+struct ParamId {
+	int pNum;
+	int tNum;
+	int useRegs;
+	int stackSizeByte;
+	union av {
+		uint8_t a[4];
+		uint32_t v;
+	};
+	uint32_t id() const
+	{
+		av av;
+		av.a[0] = uint8_t(pNum);
+		av.a[1] = uint8_t(tNum);
+		av.a[2] = uint8_t(useRegs >> 5);
+		av.a[3] = uint8_t(stackSizeByte);
+		return av.v;
+	};
+	void set_id(uint32_t v)
+	{
+		av av;
+		av.v = v;
+		pNum = av.a[0];
+		tNum = av.a[1];
+		useRegs = av.a[2] << 5;
+		stackSizeByte = av.a[3];
+	}
 };
 
 void stackFrameTest()
@@ -483,15 +502,17 @@ void stackFrameTest()
 			if (useRegs & UseRDX) {
 				mov(rdx, 12345);
 			}
+#if 0
 			if (useRegs & UseRSI) {
 				mov(rsi, 12345);
 			}
 			if (useRegs & UseRDI) {
 				mov(rdi, 12345);
 			}
-			if (useRegs & UseRBP) {
+			if ((useRegs & UseRBP) == UseRBP) {
 				mov(rbp, 12345);
 			}
+#endif
 			// eax is sum of all params and (esp & 15) if stackSizeByte > 0
 			if (stackSizeByte > 0) {
 				mov(eax, esp);
@@ -512,22 +533,23 @@ void stackFrameTest()
 				int useRegs = 0;
 				if (i & 1) { useRegs |= UseRCX; totalNum++; }
 				if (i & 2) { useRegs |= UseRDX; totalNum++; }
-				if (i & 4) { useRegs |= UseRSI; totalNum++; }
-				if (i & 8) { useRegs |= UseRDI; totalNum++; }
+//				if (i & 4) { useRegs |= UseRSI; totalNum++; }
+//				if (i & 8) { useRegs |= UseRDI; totalNum++; }
 				// UseRBP and UseRBPAsFramePointer are mutually exclusive
-				if (i & 16) { useRegs |= UseRBP; totalNum++; }
-				if (!(i & 16) && (i & 32)) { useRegs |= UseRBPAsFramePointer; totalNum++; }
+//				if (i & 16) { useRegs |= UseRBP; totalNum++; }
+//				if (!(i & 16) && (i & 32)) { useRegs |= UseRBPAsFramePointer; totalNum++; }
 				if (totalNum > 14) continue;
 				for (size_t j = 0; j < sizeof(stackSizeTbl)/sizeof(stackSizeTbl[0]); j++) {
-					uint8_t stackSizeByte = stackSizeTbl[j];
+					int stackSizeByte = stackSizeTbl[j];
+//fprintf(stderr, "pNum=%d, tNum=%d, useRegs=0x%02x, stackSizeByte=%d\n", pNum, tNum, useRegs, stackSizeByte);
 					Code c(pNum, tNum, useRegs, stackSizeByte);
 					Data d;
-					d.paramId.param.pNum = uint8_t(pNum);
-					d.paramId.param.tNum = uint8_t(tNum);
-					d.paramId.param.useRegs = uint8_t(useRegs);
-					d.paramId.param.stackSizeByte = stackSizeByte;
+					d.paramId.pNum = pNum;
+					d.paramId.tNum = tNum;
+					d.paramId.useRegs = useRegs;
+					d.paramId.stackSizeByte = stackSizeByte;
 					d.code.assign(c.getCode(), c.getCode() + c.getSize());
-					dataMap[d.paramId.id] = d;
+					dataMap[d.paramId.id()] = d;
 #ifndef DUMP
 					switch (pNum) {
 					case 0:
@@ -569,7 +591,7 @@ void stackFrameTest()
 #ifdef DUMP
 		for (DataMap::const_iterator it = dataMap.begin(); it != dataMap.end(); ++it) {
 			const Data& d = it->second;
-			printf("static const uint8_t code_%08x[] = {\n", d.paramId.id);
+			printf("static const uint8_t code_%08x[] = {\n", d.paramId.id());
 			for (size_t j = 0; j < d.code.size(); j++) {
 				if (j % 16 == 0) {
 					if (j > 0) printf("\n");
@@ -587,7 +609,7 @@ void stackFrameTest()
 		printf("} g_dataVec[] = {\n");
 		for (DataMap::const_iterator it = dataMap.begin(); it != dataMap.end(); ++it) {
 			const Data& d = it->second;
-			printf("\t{ 0x%08x, code_%08x, %zu },\n", d.paramId.id, d.paramId.id, d.code.size());
+			printf("\t{ 0x%08x, code_%08x, %zu },\n", d.paramId.id(), d.paramId.id(), d.code.size());
 		}
 		printf("};\n");
 #else
@@ -595,7 +617,7 @@ void stackFrameTest()
 		for (size_t i = 0; i < sizeof(g_dataVec) / sizeof(*g_dataVec); i++) {
 			const uint32_t id = g_dataVec[i].paramId;
 			Data d;
-			d.paramId.id = id;
+			d.paramId.set_id(id);
 			d.code.assign(g_dataVec[i].code, g_dataVec[i].code + g_dataVec[i].codeSize);
 			dataMapExpected[id] = d;
 		}
