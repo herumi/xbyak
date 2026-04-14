@@ -11,6 +11,7 @@ using namespace Xbyak::util;
 #ifndef DUMP
 #ifdef _MSC_VER
 	#pragma warning(disable : 4459)
+	#pragma warning(disable : 4996)
 #endif
 #include <cybozu/test.hpp>
 
@@ -556,6 +557,7 @@ void stackFrameTest()
 					int stackSizeByte = stackSizeTbl[j];
 //fprintf(stderr, "pNum=%d, tNum=%d, useRegs=0x%X stackSizeByte=%d\n", pNum, tNum, useRegs, stackSizeByte);
 					Code c(pNum, tNum, useRegs, stackSizeByte);
+//fprintf(stderr, "code size = %d\n", int(c.getSize()));
 					Data d;
 					d.paramId.pNum = pNum;
 					d.paramId.tNum = tNum;

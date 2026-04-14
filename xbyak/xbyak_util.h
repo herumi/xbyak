@@ -1759,6 +1759,7 @@ class StackFrame {
 #endif
 	static const int maxPnum = 4;
 	static const int maxRegNum = 14; // maxRegNum = 16 - rsp - rax
+	static const int calleeSaveNum = maxRegNum - noSaveNum;
 	static const int UseMASK = UseRCX|UseRDX|UseRSI|UseRDI|UseRBP;
 	Xbyak::CodeGenerator *code_;
 	Xbyak::Reg64 pTbl_[maxPnum];
@@ -1769,6 +1770,7 @@ class StackFrame {
 	int tNum_;
 	int useRegs_;
 	int saveNum_;
+	int saveRegs_[calleeSaveNum];
 	int P_;
 	bool useFramePointer_;
 	bool makeEpilog_;
@@ -1807,35 +1809,35 @@ public:
 		, t(t_)
 	{
 		if (pNum < 0 || pNum > 4) XBYAK_THROW(ERR_BAD_PNUM)
-		const int allRegNum = pNum + tNum_ + popcnt(useRegs_);
-		if (tNum_ < 0 || allRegNum > maxRegNum) XBYAK_THROW(ERR_BAD_TNUM)
-		const Reg64& _rsp = code->rsp;
-		saveNum_ = local::max_(0, allRegNum - noSaveNum);
-#ifdef XBYAK64_WIN
-        // rdi, rsi are callee-save on Windows, so ensure they are saved if explicitly used
-		if (useRegs_ & UseRDI) saveNum_ = local::max_(saveNum_, 1);
-		if (useRegs_ & UseRSI) saveNum_ = local::max_(saveNum_, 2);
-#endif
-		const int *tbl = getRegEntryTbl() + noSaveNum;
-		int pushNum = 0;
-		if (useRegs_ & UseRBP) {
-			code->push(rbp);
-			pushNum++;
-		}
-		for (int i = 0; i < saveNum_; i++) {
-			if (!shouldSkipRBP(tbl[i])) {
-				code->push(Reg64(tbl[i]));
-				pushNum++;
+		if (tNum < 0) XBYAK_THROW(ERR_BAD_TNUM)
+		const int *const fullTbl = getRegEntryTbl();
+		const int *const calleeTbl = fullTbl + noSaveNum;
+		int callerUseNum = 0;
+		int calleeUseNum = 0;
+		for (int i = 0; i < 15; i++) {
+			if (useRegs_ & useFlagOf(fullTbl[i])) {
+				if (i < noSaveNum) {
+					callerUseNum++;
+				} else {
+					calleeUseNum++;
+				}
 			}
 		}
-		if (useFramePointer_) {
-			code->mov(rbp, rsp);
+		const int useNum = callerUseNum + calleeUseNum;
+		if (pNum + tNum_ + useNum > maxRegNum) XBYAK_THROW(ERR_BAD_TNUM)
+		const int baseSaveNum = local::max_(0, pNum + tNum_ + useNum - noSaveNum);
+		for (int i = 0; i < calleeSaveNum; i++) {
+			if (i < baseSaveNum || (useRegs_ & useFlagOf(calleeTbl[i]))) {
+				saveRegs_[saveNum_++] = calleeTbl[i];
+				code->push(Reg64(calleeTbl[i]));
+			}
 		}
+		if (useFramePointer_) code->mov(rbp, rsp);
 		P_ = (stackSizeByte + 7) / 8;
 		// (rsp % 16) == 8, then increment P_ for 16 byte alignment
-		if (P_ > 0 && (P_ & 1) == (pushNum & 1)) P_++;
+		if (P_ > 0 && (P_ & 1) == (saveNum_ & 1)) P_++;
 		P_ *= 8;
-		if (P_ > 0) code->sub(_rsp, P_);
+		if (P_ > 0) code->sub(rsp, P_);
 		int pos = 0;
 		for (int i = 0; i < pNum; i++) {
 			pTbl_[i] = Xbyak::Reg64(getRegIdx(pos));
@@ -1846,7 +1848,7 @@ public:
 		// replace reserved reg with backup reg if needed
 		for (size_t i = 0; i < maxPnum; i++) {
 			const RegSlot& rp = getRegSlotTbl()[i];
-			if ((useRegs_ & rp.use) && rp.pos < pNum && rp.alt >= 0) {
+			if (isUseReg(rp.target) && rp.pos < pNum && rp.alt >= 0) {
 				code->mov(Xbyak::Reg64(rp.alt), Xbyak::Reg64(rp.target));
 			}
 		}
@@ -1859,17 +1861,14 @@ public:
 	*/
 	void close(bool callRet = true)
 	{
-		const int *tbl = getRegEntryTbl() + noSaveNum;
 		if (useFramePointer_) {
 			code_->mov(code_->rsp, code_->rbp);
 		} else {
 			if (P_ > 0) code_->add(code_->rsp, P_);
 		}
-		for (int i = 0; i < saveNum_; i++) {
-			int regIdx = saveNum_ - 1 - i;
-			if (!shouldSkipRBP(tbl[regIdx])) code_->pop(Reg64(tbl[regIdx]));
+		for (int i = saveNum_ - 1; i >= 0; i--) {
+			code_->pop(Reg64(saveRegs_[i]));
 		}
-		if (useRegs_ & UseRBP) code_->pop(rbp);
 		if (callRet) code_->ret();
 	}
 	~StackFrame()
@@ -1878,18 +1877,20 @@ public:
 		close();
 	}
 private:
-	int popcnt(int x) const
+	static int useFlagOf(int r)
 	{
-#ifdef _MSC_VER
-		return __popcnt(x);
-#else
-		return __builtin_popcount(x);
-#endif
+		switch (r) {
+		case Operand::RCX: return UseRCX;
+		case Operand::RDX: return UseRDX;
+		case Operand::RSI: return UseRSI;
+		case Operand::RDI: return UseRDI;
+		case Operand::RBP: return UseRBP;
+		default: return 0;
+		}
 	}
-	bool shouldSkipRBP(int r) const { return (useRegs_ & UseRBP) && r == Operand::RBP; }
+	bool isUseReg(int r) const { return (useRegs_ & useFlagOf(r)) != 0; }
 	// Register allocation for the first 4 function parameters
 	struct RegSlot {
-		int use;
 		int target;
 		int pos; // position of target in getRegEntryTbl()
 		int alt; // alternative if target is used for parameter. -1 means no alternative.
@@ -1902,15 +1903,15 @@ private:
 
 		static const RegSlot tbl[maxPnum] = {
 #ifdef XBYAK64_WIN
-			{ UseRCX, Operand::RCX, 0, Operand::R10 },
-			{ UseRDX, Operand::RDX, 1, Operand::R11 },
-			{ UseRDI, Operand::RDI, 6, -1 },
-			{ UseRSI, Operand::RSI, 7, -1 },
+			{ Operand::RCX, 0, Operand::R10 },
+			{ Operand::RDX, 1, Operand::R11 },
+			{ Operand::RDI, 6, -1 },
+			{ Operand::RSI, 7, -1 },
 #else
-			{ UseRCX, Operand::RCX, 3, Operand::R10 },
-			{ UseRDX, Operand::RDX, 2, Operand::R11 },
-			{ UseRDI, Operand::RDI, 0, Operand::R8 },
-			{ UseRSI, Operand::RSI, 1, Operand::R9 },
+			{ Operand::RCX, 3, Operand::R10 },
+			{ Operand::RDX, 2, Operand::R11 },
+			{ Operand::RDI, 0, Operand::R8 },
+			{ Operand::RSI, 1, Operand::R9 },
 #endif
 		};
 		return tbl;
@@ -1927,41 +1928,27 @@ private:
 		};
 		return &tbl[0];
 	}
-	/*
-	*/
-	// return backup reg for reserved reg r, or -1 if no backup
-	int getBackupReg(int r) const
-	{
-		const RegSlot *tbl = getRegSlotTbl();
-		for (size_t i = 0; i < maxPnum; i++) {
-			if ((useRegs_ & tbl[i].use) && r == tbl[i].target) {
-				int alt = tbl[i].alt;
-				if (alt >= 0) return alt;
-			}
-		}
-		return -1;
-	}
-	// return true if r should be skipped (backup reg in use, or reserved reg without backup)
-	bool isSkipReg(int r) const
-	{
-		const RegSlot *tbl = getRegSlotTbl();
-		for (size_t i = 0; i < maxPnum; i++) {
-			int alt = tbl[i].alt;
-			if ((useRegs_ & tbl[i].use) && (r == alt || (alt == -1 && r == tbl[i].target))) return true;
-		}
-		if ((useRegs_ & UseRBP) && r == Operand::RBP) return true;
-		return false;
-	}
+	// get an available register index from tbl, skipping reserved registers
 	int getRegIdx(int& pos) const
 	{
 		const int *tbl = getRegEntryTbl();
+		const RegSlot *slotTbl = getRegSlotTbl();
 		for (;;) {
+		NEXT:;
 			assert(pos < maxRegNum);
 			int r = tbl[pos++];
-			int backup = getBackupReg(r);
-			if (backup >= 0) return backup;
-			if (isSkipReg(r)) continue;
-			return r;
+			// if r is a Use*** target with alt, return alt as backup
+			// otherwise skip Use*** targets, their alts, and UseRBP's rbp
+			for (size_t i = 0; i < maxPnum; i++) {
+				const RegSlot& slot = slotTbl[i];
+				if (!isUseReg(slot.target)) continue;
+				if (r == slot.alt) goto NEXT;
+				if (r == slot.target) {
+					if (slot.alt >= 0) return slot.alt;
+					goto NEXT;
+				}
+			}
+			if (!isUseReg(r)) return r;
 		}
 	}
 };
