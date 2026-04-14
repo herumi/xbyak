@@ -1814,7 +1814,7 @@ public:
 		const int *const calleeTbl = fullTbl + noSaveNum;
 		int callerUseNum = 0;
 		int calleeUseNum = 0;
-		for (int i = 0; i < 15; i++) {
+		for (int i = 0; i < maxRegNum; i++) {
 			if (useRegs_ & useFlagOf(fullTbl[i])) {
 				if (i < noSaveNum) {
 					callerUseNum++;
@@ -1918,7 +1918,7 @@ private:
 	}
 	const int *getRegEntryTbl() const
 	{
-		static const int tbl[] = {
+		static const int tbl[maxRegNum] = {
 #ifdef XBYAK64_WIN
 			Operand::RCX, Operand::RDX, Operand::R8, Operand::R9, Operand::R10, Operand::R11, Operand::RDI, Operand::RSI,
 #else
