@@ -548,6 +548,65 @@ The status will not be changed automatically, then you should reset it by `Xbyak
 * define **XBYAK_USE_MEMFD** on Linux then /proc/self/maps shows the area used by xbyak.
 * define **XBYAK_OLD_DISP_CHECK** if the old disp check is necessary (deprecated in the future).
 
+## StackFrame (64bit only)
+
+`StackFrame` simplifies writing functions with automatic register save/restore and stack alignment.
+
+```cpp
+StackFrame(CodeGenerator *code, int pNum, int tNum = 0, int stackSizeByte = 0, bool makeEpilog = true);
+```
+
+### Parameters
+
+- `pNum` : number of function parameters (0 <= pNum <= 4).
+- `tNum` : number of temporary registers (0 <= tNum). Can be OR-ed with `UseRCX`, `UseRDX`, `UseRSI`, `UseRDI`, `UseRBP`.
+- `stackSizeByte` : local stack size in bytes.
+- `makeEpilog` : automatically generate epilog in the destructor if true.
+
+The constraint is `pNum + tNum + #UseRegs <= 14`.
+
+### Available registers
+
+- `rax` : free to use (not managed by StackFrame).
+- `sf.p[0]`, ..., `sf.p[pNum-1]` : function parameters.
+- `sf.t[0]`, ..., `sf.t[tNum-1]` : temporary registers.
+- `rcx`, `rdx`, `rsi`, `rdi`, `rbp` : explicitly available by specifying `UseRCX`, `UseRDX`, `UseRSI`, `UseRDI`, `UseRBP` in `tNum`.
+- `rsp[0..stackSizeByte-1]` : local stack area if `stackSizeByte > 0`.
+
+### UseRBP as frame pointer
+
+Use `UseRBPAsFramePointer` instead of `UseRBP` to additionally emit `mov rbp, rsp` after `push rbp`.
+
+### Example
+
+```cpp
+struct Code : Xbyak::CodeGenerator {
+    Code() {
+        // int func(int a, int b);
+        StackFrame sf(this, 2, 1); // 2 params, 1 temp
+        mov(sf.t[0], sf.p[0]);
+        add(sf.t[0], sf.p[1]);
+        mov(rax, sf.t[0]);
+    }
+};
+```
+
+```cpp
+struct Code : Xbyak::CodeGenerator {
+    Code() {
+        // use rcx explicitly and 3 temps with local stack
+        StackFrame sf(this, 0, 3 | UseRCX, 32);
+        mov(rcx, ptr[rsp]);
+        mov(sf.t[0], rcx);
+    }
+};
+```
+
+The stack is automatically 16-byte aligned.
+Callee-save registers are pushed/popped as needed.
+
+See [stackframe.cpp](../sample/stackframe.cpp) for more examples.
+
 ## Sample
 
 * [test0.cpp](../sample/test0.cpp) ; tiny sample (x86, x64)

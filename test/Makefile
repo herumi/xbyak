@@ -64,8 +64,8 @@ apx: apx.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@
 avx10_test: avx10_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK64
-sf_test: sf_test.cpp $(XBYAK_INC)
-	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK64
+sf_test: sf_test.cpp $(XBYAK_INC) sf_test_win.h sf_test_gcc.h
+	$(CXX) $(CFLAGS) $< -o $@ #-DXBYAK64
 cpumask_test: cpumask_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@
 
@@ -133,8 +133,12 @@ test: detect_x32
 	$(MAKE) test_avx
 	$(MAKE) test_avx512
 
+update_sf_test: sf_test.cpp
+	$(CXX) $(CFLAGS) sf_test.cpp -DXBYAK64_WIN -DDUMP -o sf_test_dump && ./sf_test_dump > sf_test_win.h
+	$(CXX) $(CFLAGS) sf_test.cpp -DXBYAK64_GCC -DDUMP -o sf_test_dump && ./sf_test_dump > sf_test_gcc.h
+
 clean:
-	$(RM) a.asm *.lst *.obj *.o $(TARGET) lib_run nm.cpp nm_frame make_512 avx10_test detect_x32
+	$(RM) a.asm *.lst *.obj *.o $(TARGET) lib_run nm.cpp nm_frame make_512 avx10_test detect_x32 sf_test sf_test_dump
 
 lib_run: lib_test.cpp lib_run.cpp lib.h
 	$(CXX) $(CFLAGS) lib_run.cpp lib_test.cpp -o lib_run
