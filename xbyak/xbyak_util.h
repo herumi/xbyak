@@ -1772,7 +1772,6 @@ class StackFrame {
 	int saveNum_;
 	int saveRegs_[calleeSaveNum];
 	int P_;
-	bool useFramePointer_;
 	bool makeEpilog_;
 	StackFrame(const StackFrame&);
 	void operator=(const StackFrame&);
@@ -1803,7 +1802,6 @@ public:
 		, useRegs_(tNum & UseMASK) // drop UseRBPAsFramePointer bit
 		, saveNum_(0)
 		, P_(0)
-		, useFramePointer_((tNum & UseRBPAsFramePointer) == UseRBPAsFramePointer)
 		, makeEpilog_(makeEpilog)
 		, p(p_)
 		, t(t_)
@@ -1814,7 +1812,7 @@ public:
 		const int *const calleeTbl = fullTbl + noSaveNum;
 		int callerUseNum = 0;
 		int calleeUseNum = 0;
-		for (int i = 0; i < 15; i++) {
+		for (int i = 0; i < maxRegNum; i++) {
 			if (useRegs_ & useFlagOf(fullTbl[i])) {
 				if (i < noSaveNum) {
 					callerUseNum++;
@@ -1826,13 +1824,21 @@ public:
 		const int useNum = callerUseNum + calleeUseNum;
 		if (pNum + tNum_ + useNum > maxRegNum) XBYAK_THROW(ERR_BAD_TNUM)
 		const int baseSaveNum = local::max_(0, pNum + tNum_ + useNum - noSaveNum);
+		bool pushedRbp = false;
+		if (useRegs_ & UseRBP) {
+			code->push(rbp);
+			saveRegs_[saveNum_++] = Operand::RBP;
+			pushedRbp = true;
+			if ((tNum & UseRBPAsFramePointer) == UseRBPAsFramePointer) code->mov(rbp, rsp);
+		}
 		for (int i = 0; i < calleeSaveNum; i++) {
-			if (i < baseSaveNum || (useRegs_ & useFlagOf(calleeTbl[i]))) {
-				saveRegs_[saveNum_++] = calleeTbl[i];
-				code->push(Reg64(calleeTbl[i]));
+			int r = calleeTbl[i];
+			if (i < baseSaveNum || isUseReg(r)) {
+				if (pushedRbp && r == Operand::RBP) continue;
+				saveRegs_[saveNum_++] = r;
+				code->push(Reg64(r));
 			}
 		}
-		if (useFramePointer_) code->mov(rbp, rsp);
 		P_ = (stackSizeByte + 7) / 8;
 		// (rsp % 16) == 8, then increment P_ for 16 byte alignment
 		if (P_ > 0 && (P_ & 1) == (saveNum_ & 1)) P_++;
@@ -1861,11 +1867,7 @@ public:
 	*/
 	void close(bool callRet = true)
 	{
-		if (useFramePointer_) {
-			code_->mov(code_->rsp, code_->rbp);
-		} else {
-			if (P_ > 0) code_->add(code_->rsp, P_);
-		}
+		if (P_ > 0) code_->add(code_->rsp, P_);
 		for (int i = saveNum_ - 1; i >= 0; i--) {
 			code_->pop(Reg64(saveRegs_[i]));
 		}
@@ -1918,7 +1920,7 @@ private:
 	}
 	const int *getRegEntryTbl() const
 	{
-		static const int tbl[] = {
+		static const int tbl[maxRegNum] = {
 #ifdef XBYAK64_WIN
 			Operand::RCX, Operand::RDX, Operand::R8, Operand::R9, Operand::R10, Operand::R11, Operand::RDI, Operand::RSI,
 #else

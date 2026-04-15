@@ -1,5 +1,6 @@
 # History
 
+* 2026/Apr/16 ver 7.36.1 fix the construction of StackFrame
 * 2026/Apr/14 ver 7.36 util::StackFrame supports Use{RSI,RDI,RBP,RBPAsFramePointer}
 * 2026/Mar/30 ver 7.35.4 fix the encoding of disp8N for vcvthf82ph/vcvt2ph2{b,h}f8[,s]
 * 2026/Mar/10 ver 7.35.3 append override of RegExp::operator+()/check the size parameter of rewrite()
