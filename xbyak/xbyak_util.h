@@ -101,6 +101,8 @@
 #endif
 #ifdef _WIN32
 #include <windows.h>
+#else
+#include <sched.h>
 #endif
 namespace Xbyak { namespace util {
 class CpuTopology;
@@ -1589,14 +1591,14 @@ inline bool initCpuTopology(CpuTopology& cpuTopo)
 		}
 		// Fallback: if sysfs paths are unavailable, detect core type per-CPU
 		// via CPUID leaf 0x1A (Hybrid Information) by pinning each logical CPU.
-		if (!hasPCoreSysfs || !hasECoreSysfs) {
+		if (!hasPCoreSysfs && !hasECoreSysfs) {
+			// CPUID leaf 0x1A EAX[31:24] core type identifiers
+			const uint32_t Cpuid_StandardCoreType = 0x40; // P-core (Performance)
+			const uint32_t Cpuid_AtomCoreType = 0x20; // E-core (Efficient)
+
 			cpu_set_t originalMask;
 			CPU_ZERO(&originalMask);
-			sched_getaffinity(0, sizeof(cpu_set_t), &originalMask);
-
-			// CPUID leaf 0x1A EAX[31:24] core type identifiers
-			static constexpr uint32_t Cpuid_StandardCoreType = 0x40; // P-core (Performance)
-			static constexpr uint32_t Cpuid_AtomCoreType = 0x20; // E-core (Efficient)
+			if (sched_getaffinity(0, sizeof(cpu_set_t), &originalMask) != 0) goto SKIP_FALLBACK;
 
 			for (uint32_t cpu = 0; cpu < logicalCpuNum; cpu++) {
 				cpu_set_t cpuMask;
@@ -1617,6 +1619,7 @@ inline bool initCpuTopology(CpuTopology& cpuTopo)
 
 			// Restore the original CPU affinity mask
 			sched_setaffinity(0, sizeof(cpu_set_t), &originalMask);
+		SKIP_FALLBACK:;
 		}
 	}
 
