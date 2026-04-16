@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.36.1
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.36.2
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -404,6 +404,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2026/04/17 ver 7.36.2 /sys/devices/cpu_{core,atom}/cpusが存在しないときのfallbackを追加
 2026/04/16 ver 7.36.1 StackFrameの構築方法を修正
 2026/04/14 ver 7.36 util::StackFrameがUse{RSI,RDI,RBP,RBPAsFramePointer}対応
 2026/03/30 ver 7.35.4 vcvthf82ph/vcvt2ph2{b,h}f8[,s]のdisp8Nのエンコーディングミス修正
