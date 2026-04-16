@@ -1589,9 +1589,9 @@ inline bool initCpuTopology(CpuTopology& cpuTopo)
 				}
 			}
 		}
-		// Fallback: if sysfs paths are unavailable, detect core type per-CPU
+		// Fallback: if either sysfs paths are unavailable, detect both core type per-CPU
 		// via CPUID leaf 0x1A (Hybrid Information) by pinning each logical CPU.
-		if (!hasPCoreSysfs && !hasECoreSysfs) {
+		if (!hasPCoreSysfs || !hasECoreSysfs) {
 			// CPUID leaf 0x1A EAX[31:24] core type identifiers
 			const uint32_t Cpuid_StandardCoreType = 0x40; // P-core (Performance)
 			const uint32_t Cpuid_AtomCoreType = 0x20; // E-core (Efficient)
