@@ -56,7 +56,6 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tRTM, "rtm" },
 		{ Cpu::tMPX, "mpx" },
 		{ Cpu::tSHA, "sha" },
-		{ Cpu::tPREFETCHWT1, "prefetchwt1" },
 		{ Cpu::tF16C, "f16c" },
 		{ Cpu::tMOVBE, "movbe" },
 		{ Cpu::tAVX512F, "avx512f" },

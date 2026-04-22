@@ -731,7 +731,7 @@ class Test {
 		put("prefetcht1", MEM);
 		put("prefetcht2", MEM);
 		put("prefetchnta", MEM);
-		put("prefetchwt1", MEM);
+//		put("prefetchwt1", MEM);
 		put("prefetchw", MEM);
 
 		// SSE2 misc

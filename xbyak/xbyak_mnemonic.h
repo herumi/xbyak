@@ -853,7 +853,6 @@ void prefetcht0(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0x18); }
 void prefetcht1(const Address& addr) { opMR(addr, Reg32(2), T_0F, 0x18); }
 void prefetcht2(const Address& addr) { opMR(addr, Reg32(3), T_0F, 0x18); }
 void prefetchw(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0x0D); }
-void prefetchwt1(const Address& addr) { opMR(addr, Reg32(2), T_0F, 0x0D); }
 void psadbw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF6); }
 void pshufb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x00, T_0F38, T_66); }
 void pshufd(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX(mmx, op, 0x70, T_0F, T_66, imm8); }
@@ -2433,8 +2432,6 @@ void vmulph(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) 
 void vmulsh(const Xmm& xmm, const Operand& op1, const Operand& op2 = Operand()) { opAVX_X_X_XM(xmm, op1, op2, T_MAP5 | T_F3 | T_W0 | T_MUST_EVEX | T_ER_X | T_N2, 0x59); }
 void vp2intersectd(const Opmask& k, const Xmm& x, const Operand& op) { if (k.getOpmaskIdx() != 0) XBYAK_THROW(ERR_OPMASK_IS_ALREADY_SET) opAVX_K_X_XM(k, x, op, T_F2 | T_0F38 | T_YMM | T_EVEX | T_W0 | T_B32, 0x68); }
 void vp2intersectq(const Opmask& k, const Xmm& x, const Operand& op) { if (k.getOpmaskIdx() != 0) XBYAK_THROW(ERR_OPMASK_IS_ALREADY_SET) opAVX_K_X_XM(k, x, op, T_F2 | T_0F38 | T_YMM | T_EVEX | T_EW1 | T_B64, 0x68); }
-void vp4dpwssd(const Zmm& z1, const Zmm& z2, const Address& addr) { opAVX_X_X_XM(z1, z2, addr, T_0F38 | T_F2 | T_W0 | T_YMM | T_MUST_EVEX | T_N16, 0x52); }
-void vp4dpwssds(const Zmm& z1, const Zmm& z2, const Address& addr) { opAVX_X_X_XM(z1, z2, addr, T_0F38 | T_F2 | T_W0 | T_YMM | T_MUST_EVEX | T_N16, 0x53); }
 void vpabsq(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_B64 | T_YMM, 0x1F); }
 void vpandd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66|T_0F|T_W0|T_YMM|T_MUST_EVEX|T_B32, 0xDB); }
 void vpandnd(const Xmm& x1, const Xmm& x2, const Operand& op) { opAVX_X_X_XM(x1, x2, op, T_66|T_0F|T_W0|T_YMM|T_MUST_EVEX|T_B32, 0xDF); }
