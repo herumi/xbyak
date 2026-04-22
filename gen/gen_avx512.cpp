@@ -961,16 +961,6 @@ void putMisc()
 	puts("void vp2intersectq(const Opmask& k, const Xmm& x, const Operand& op) { if (k.getOpmaskIdx() != 0) XBYAK_THROW(ERR_OPMASK_IS_ALREADY_SET) opAVX_K_X_XM(k, x, op, T_F2 | T_0F38 | T_YMM | T_EVEX | T_EW1 | T_B64, 0x68); }");
 }
 
-void putV4FMA()
-{
-	puts("void v4fmaddps(const Zmm& z1, const Zmm& z2, const Address& addr) { opAVX_X_X_XM(z1, z2, addr, T_0F38 | T_F2 | T_W0 | T_YMM | T_MUST_EVEX | T_N16, 0x9A); }");
-	puts("void v4fnmaddps(const Zmm& z1, const Zmm& z2, const Address& addr) { opAVX_X_X_XM(z1, z2, addr, T_0F38 | T_F2 | T_W0 | T_YMM | T_MUST_EVEX | T_N16, 0xAA); }");
-	puts("void v4fmaddss(const Xmm& x1, const Xmm& x2, const Address& addr) { opAVX_X_X_XM(x1, x2, addr, T_0F38 | T_F2 | T_W0 | T_MUST_EVEX | T_N16, 0x9B); }");
-	puts("void v4fnmaddss(const Xmm& x1, const Xmm& x2, const Address& addr) { opAVX_X_X_XM(x1, x2, addr, T_0F38 | T_F2 | T_W0 | T_MUST_EVEX | T_N16, 0xAB); }");
-	puts("void vp4dpwssd(const Zmm& z1, const Zmm& z2, const Address& addr) { opAVX_X_X_XM(z1, z2, addr, T_0F38 | T_F2 | T_W0 | T_YMM | T_MUST_EVEX | T_N16, 0x52); }");
-	puts("void vp4dpwssds(const Zmm& z1, const Zmm& z2, const Address& addr) { opAVX_X_X_XM(z1, z2, addr, T_0F38 | T_F2 | T_W0 | T_YMM | T_MUST_EVEX | T_N16, 0x53); }");
-}
-
 void putFP16_1()
 {
 	const struct Tbl {
@@ -1199,7 +1189,6 @@ int main(int argc, char *[])
 	putX_XM_IMM();
 	putMisc();
 	putScatter();
-	putV4FMA();
 	putFP16();
 	putAVX10_2();
 }
