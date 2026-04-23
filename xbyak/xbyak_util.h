@@ -589,6 +589,7 @@ public:
 	XBYAK_DEFINE_TYPE(95, tAMX_FP8);
 	XBYAK_DEFINE_TYPE(96, tMOVRS);
 	XBYAK_DEFINE_TYPE(97, tHYBRID);
+	XBYAK_DEFINE_TYPE(98, tAMX_COMPLEX);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -742,6 +743,7 @@ public:
 				if (eax & (1U << 31)) type_ |= tMOVRS;
 				if (edx & (1U << 4)) type_ |= tAVX_VNNI_INT8;
 				if (edx & (1U << 5)) type_ |= tAVX_NE_CONVERT;
+				if (edx & (1U << 8)) type_ |= tAMX_COMPLEX;
 				if (edx & (1U << 10)) type_ |= tAVX_VNNI_INT16;
 				if (edx & (1U << 14)) type_ |= tPREFETCHITI;
 				if (edx & (1U << 19)) type_ |= tAVX10;
