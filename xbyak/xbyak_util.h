@@ -1301,7 +1301,53 @@ inline uint32_t popcnt(uint64_t mask)
 #ifdef _WIN32
 
 typedef std::vector<uint32_t> U32Vec;
+
+#if (defined(NTDDI_VERSION) && NTDDI_VERSION >= 0x06010000) || (defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0601)
+	#define XBYAK_WINSDK_HAS_RELATIONSHIP_GROUP_AFFINITY 1
+#else
+	#define XBYAK_WINSDK_HAS_RELATIONSHIP_GROUP_AFFINITY 0
+#endif
+
+#if (defined(NTDDI_VERSION) && NTDDI_VERSION >= 0x0A000000) || (defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0A00)
+	#define XBYAK_WINSDK_HAS_EFFICIENCY_CLASS 1
+#else
+	#define XBYAK_WINSDK_HAS_EFFICIENCY_CLASS 0
+#endif
+
+// GroupMasks[] / GroupCount on CACHE_RELATIONSHIP added in Win10 20H1 (SDK 10.0.19041, NTDDI_WIN10_VB)
+// NOTE: _WIN32_WINNT has no sub-version granularity for Win10, so only
+// NTDDI_VERSION can distinguish 20H1 (0x0A00000C) from earlier Win10 builds.
+// If NTDDI_VERSION is not set, this macro will be 0 (safe/conservative fallback).
+#if defined(NTDDI_VERSION) && NTDDI_VERSION >= 0x0A00000C
+	#define XBYAK_WINSDK_HAS_CACHE_RELATIONSHIP_GROUPMASKS 1
+#else
+	#define XBYAK_WINSDK_HAS_CACHE_RELATIONSHIP_GROUPMASKS 0
+#endif
+
+#if XBYAK_WINSDK_HAS_RELATIONSHIP_GROUP_AFFINITY
 typedef SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX ProcInfo;
+
+// Fallback P/E-core detection via CPUID leaf 0x1A (Intel Hybrid Information).
+// Pins the calling thread to the given GROUP_AFFINITY, reads the core type
+// field from EAX[31:24], then restores the original affinity.
+inline CoreType getCoreTypeViaCpuid(const GROUP_AFFINITY& affinity)
+{
+	// CPUID leaf 0x1A EAX[31:24] core type identifiers (Intel Hybrid Information)
+	const uint32_t Cpuid_StandardCoreType = 0x40; // P-core (Performance)
+	const uint32_t Cpuid_AtomCoreType     = 0x20; // E-core (Efficient)
+
+	GROUP_AFFINITY previousMask = {};
+	if (!SetThreadGroupAffinity(GetCurrentThread(), &affinity, &previousMask)) {
+		return Standard;
+	}
+	uint32_t data[4] = {};
+	Cpu::getCpuidEx(0x1A, 0, data);
+	SetThreadGroupAffinity(GetCurrentThread(), &previousMask, NULL);
+	const uint32_t coreTypeField = (data[0] >> 24) & 0xFF;
+	if (coreTypeField == Cpuid_StandardCoreType) return Performance;
+	if (coreTypeField == Cpuid_AtomCoreType) return Efficient;
+	return Standard;
+}
 
 // return total logical cpus if sucessful, 0 if failed
 inline uint32_t getGroupAcc(U32Vec& v)
@@ -1348,10 +1394,13 @@ static inline uint32_t getCores(std::vector<LogicalCpu>& cpus, bool isHybrid, co
 			cpu.coreId = coreIdx++;
 			if (!isHybrid) {
 				cpu.coreType = Standard;
-			} else if (core.EfficiencyClass > 0) {
-				cpu.coreType = Performance;
 			} else {
-				cpu.coreType = Efficient;
+#if XBYAK_WINSDK_HAS_EFFICIENCY_CLASS
+				cpu.coreType = core.EfficiencyClass > 0 ? Performance : Efficient;
+#else
+				// EfficiencyClass unavailable in this SDK; fall back to CPUID leaf 0x1A
+				cpu.coreType = getCoreTypeViaCpuid(core.GroupMask[0]);
+#endif
 			}
 
 			const GROUP_AFFINITY* masks = core.GroupMask;
@@ -1376,19 +1425,29 @@ static inline uint32_t getCores(std::vector<LogicalCpu>& cpus, bool isHybrid, co
 
 inline bool convertMask(CpuMask& mask, const U32Vec& groupAcc, const CACHE_RELATIONSHIP& cache)
 {
+#if XBYAK_WINSDK_HAS_CACHE_RELATIONSHIP_GROUPMASKS
 	const GROUP_AFFINITY* masks = cache.GroupMasks;
-
 	for (WORD i = 0; i < cache.GroupCount; i++) {
 		const WORD group = masks[i].Group;
 		const KAFFINITY m = masks[i].Mask;
 		const uint32_t base = groupAcc[group];
-
 		for (uint32_t b = 0; b < sizeof(KAFFINITY) * 8; b++) {
 			if (m & (KAFFINITY(1) << b)) {
 				if (!mask.append(base + b)) return false;
 			}
 		}
 	}
+#else
+	// Older SDKs have a single GroupMask field instead of GroupMasks[]
+	const WORD group = cache.GroupMask.Group;
+	const KAFFINITY m = cache.GroupMask.Mask;
+	const uint32_t base = groupAcc[group];
+	for (uint32_t b = 0; b < sizeof(KAFFINITY) * 8; b++) {
+		if (m & (KAFFINITY(1) << b)) {
+			if (!mask.append(base + b)) return false;
+		}
+	}
+#endif
 	return true;
 }
 
@@ -1443,7 +1502,17 @@ inline bool initCpuTopology(CpuTopology& cpuTopo)
 	}
 	return true;
 }
-
+#else
+inline bool initCpuTopology(CpuTopology& cpuTopo)
+{
+	(void)cpuTopo;
+	return false;
+}
+#endif
+// unset WinSDK version macros to avoid Macro pollution
+#undef XBYAK_WINSDK_HAS_RELATIONSHIP_GROUP_AFFINITY
+#undef XBYAK_WINSDK_HAS_EFFICIENCY_CLASS
+#undef XBYAK_WINSDK_HAS_CACHE_RELATIONSHIP_GROUPMASKS
 #elif defined(__linux__) // Linux
 
 struct WrapFILE {
