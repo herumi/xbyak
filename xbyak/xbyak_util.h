@@ -1422,28 +1422,24 @@ static inline uint32_t getCores(std::vector<LogicalCpu>& cpus, bool isHybrid, co
 inline bool convertMask(CpuMask& mask, const U32Vec& groupAcc, const CACHE_RELATIONSHIP& cache)
 {
 #if XBYAK_WINSDK_HAS_CACHE_RELATIONSHIP_GROUPMASKS
-	const GROUP_AFFINITY* masks = cache.GroupMasks;
-	for (WORD i = 0; i < cache.GroupCount; i++) {
-		const WORD group = masks[i].Group;
-		const KAFFINITY m = masks[i].Mask;
-		const uint32_t base = groupAcc[group];
+	const WORD count = cache.GroupCount;
+#else
+	const WORD count = 1;
+#endif
+	for (WORD i = 0; i < count; i++) {
+#if XBYAK_WINSDK_HAS_CACHE_RELATIONSHIP_GROUPMASKS
+		const GROUP_AFFINITY& cg = cache.GroupMasks[i];
+#else
+		const GROUP_AFFINITY& cg = cache.GroupMask;
+#endif
+		const KAFFINITY m = cg.Mask;
+		const uint32_t base = groupAcc[cg.Group];
 		for (uint32_t b = 0; b < sizeof(KAFFINITY) * 8; b++) {
 			if (m & (KAFFINITY(1) << b)) {
 				if (!mask.append(base + b)) return false;
 			}
 		}
 	}
-#else
-	// Older SDKs have a single GroupMask field instead of GroupMasks[]
-	const WORD group = cache.GroupMask.Group;
-	const KAFFINITY m = cache.GroupMask.Mask;
-	const uint32_t base = groupAcc[group];
-	for (uint32_t b = 0; b < sizeof(KAFFINITY) * 8; b++) {
-		if (m & (KAFFINITY(1) << b)) {
-			if (!mask.append(base + b)) return false;
-		}
-	}
-#endif
 	return true;
 }
 
