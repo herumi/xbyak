@@ -1295,6 +1295,17 @@ inline uint32_t popcnt(uint64_t mask)
 #endif
 }
 
+// fall back to CPUID leaf 0x1A
+inline CoreType getCoreType()
+{
+	uint32_t data[4] = {};
+	Cpu::getCpuidEx(0x1A, 0, data);
+	const uint32_t coreTypeField = (data[0] >> 24) & 0xFF;
+	if (coreTypeField == 0x40) return Performance; // P-core
+	if (coreTypeField == 0x20) return Efficient; // E-core
+	return Standard;
+}
+
 #ifdef _WIN32
 
 typedef std::vector<uint32_t> U32Vec;
@@ -1324,26 +1335,15 @@ typedef std::vector<uint32_t> U32Vec;
 #if XBYAK_WINSDK_HAS_RELATIONSHIP_GROUP_AFFINITY
 typedef SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX ProcInfo;
 
-// Fallback P/E-core detection via CPUID leaf 0x1A (Intel Hybrid Information).
-// Pins the calling thread to the given GROUP_AFFINITY, reads the core type
-// field from EAX[31:24], then restores the original affinity.
-inline CoreType getCoreTypeViaCpuid(const GROUP_AFFINITY& affinity)
+inline CoreType getCoreTypeForAffinity(const GROUP_AFFINITY& affinity)
 {
-	// CPUID leaf 0x1A EAX[31:24] core type identifiers (Intel Hybrid Information)
-	const uint32_t Cpuid_StandardCoreType = 0x40; // P-core (Performance)
-	const uint32_t Cpuid_AtomCoreType     = 0x20; // E-core (Efficient)
-
 	GROUP_AFFINITY previousMask = {};
 	if (!SetThreadGroupAffinity(GetCurrentThread(), &affinity, &previousMask)) {
 		return Standard;
 	}
-	uint32_t data[4] = {};
-	Cpu::getCpuidEx(0x1A, 0, data);
+	CoreType type = impl::getCoreType();
 	SetThreadGroupAffinity(GetCurrentThread(), &previousMask, NULL);
-	const uint32_t coreTypeField = (data[0] >> 24) & 0xFF;
-	if (coreTypeField == Cpuid_StandardCoreType) return Performance;
-	if (coreTypeField == Cpuid_AtomCoreType) return Efficient;
-	return Standard;
+	return type;
 }
 
 // return total logical cpus if sucessful, 0 if failed
@@ -1395,8 +1395,7 @@ static inline uint32_t getCores(std::vector<LogicalCpu>& cpus, bool isHybrid, co
 #if XBYAK_WINSDK_HAS_EFFICIENCY_CLASS
 				cpu.coreType = core.EfficiencyClass > 0 ? Performance : Efficient;
 #else
-				// EfficiencyClass unavailable in this SDK; fall back to CPUID leaf 0x1A
-				cpu.coreType = getCoreTypeViaCpuid(core.GroupMask[0]);
+				cpu.coreType = getCoreTypeForAffinity(core.GroupMask[0]);
 #endif
 			}
 
@@ -1656,12 +1655,7 @@ inline bool initCpuTopology(CpuTopology& cpuTopo)
 			}
 		}
 		// Fallback: if either sysfs paths are unavailable, detect both core type per-CPU
-		// via CPUID leaf 0x1A (Hybrid Information) by pinning each logical CPU.
 		if (!hasPCoreSysfs || !hasECoreSysfs) {
-			// CPUID leaf 0x1A EAX[31:24] core type identifiers
-			const uint32_t Cpuid_StandardCoreType = 0x40; // P-core (Performance)
-			const uint32_t Cpuid_AtomCoreType = 0x20; // E-core (Efficient)
-
 			cpu_set_t originalMask;
 			CPU_ZERO(&originalMask);
 			if (sched_getaffinity(0, sizeof(cpu_set_t), &originalMask) != 0) goto SKIP_FALLBACK;
@@ -1671,15 +1665,7 @@ inline bool initCpuTopology(CpuTopology& cpuTopo)
 				CPU_ZERO(&cpuMask);
 				CPU_SET(cpu, &cpuMask);
 				if (sched_setaffinity(0, sizeof(cpu_set_t), &cpuMask) == 0) {
-					// CPUID leaf 0x1A: Hybrid Information
-					uint32_t data[4] = {};
-					Cpu::getCpuidEx(0x1A, 0, data);
-					const uint32_t coreTypeField = (data[0] >> 24) & 0xFF;
-					if (coreTypeField == Cpuid_StandardCoreType) {
-						cpuTopo.logicalCpus_[cpu].coreType = Performance;
-					} else if (coreTypeField == Cpuid_AtomCoreType) {
-						cpuTopo.logicalCpus_[cpu].coreType = Efficient;
-					}
+					cpuTopo.logicalCpus_[cpu].coreType = impl::getCoreType();
 				}
 			}
 
