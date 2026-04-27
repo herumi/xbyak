@@ -1,5 +1,6 @@
 # History
 
+* 2026/Apr/27 ver 7.37 remove Xeon Phi-specific instructions/AMX_COMPLEX detection/CpuTopology old Win SDK support
 * 2026/Apr/17 ver 7.36.2 add fallback when "/sys/devices/cpu_{core,atom}/cpus" does not exist
 * 2026/Apr/16 ver 7.36.1 fix the construction of StackFrame
 * 2026/Apr/14 ver 7.36 util::StackFrame supports Use{RSI,RDI,RBP,RBPAsFramePointer}
