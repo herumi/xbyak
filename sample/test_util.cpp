@@ -56,20 +56,15 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tRTM, "rtm" },
 		{ Cpu::tMPX, "mpx" },
 		{ Cpu::tSHA, "sha" },
-		{ Cpu::tPREFETCHWT1, "prefetchwt1" },
 		{ Cpu::tF16C, "f16c" },
 		{ Cpu::tMOVBE, "movbe" },
 		{ Cpu::tAVX512F, "avx512f" },
 		{ Cpu::tAVX512DQ, "avx512dq" },
 		{ Cpu::tAVX512IFMA, "avx512_ifma" },
-		{ Cpu::tAVX512PF, "avx512pf" },
-		{ Cpu::tAVX512ER, "avx512er" },
 		{ Cpu::tAVX512CD, "avx512cd" },
 		{ Cpu::tAVX512BW, "avx512bw" },
 		{ Cpu::tAVX512VL, "avx512vl" },
 		{ Cpu::tAVX512VBMI, "avx512_vbmi" },
-		{ Cpu::tAVX512_4VNNIW, "avx512_4vnniw" },
-		{ Cpu::tAVX512_4FMAPS, "avx512_4fmaps" },
 
 		{ Cpu::tAVX512_VBMI2, "avx512_vbmi2" },
 		{ Cpu::tGFNI, "gfni" },
@@ -119,6 +114,7 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tAMX_MOVRS, "amx_movrs" },
 		{ Cpu::tMOVRS, "movrs" },
 		{ Cpu::tHYBRID, "hybrid" },
+		{ Cpu::tAMX_COMPLEX, "amx_complex" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);

@@ -528,16 +528,16 @@ public:
 	XBYAK_DEFINE_TYPE(36, tAVX512DQ);
 	XBYAK_DEFINE_TYPE(37, tAVX512_IFMA);
 	XBYAK_DEFINE_TYPE(37, tAVX512IFMA);// = tAVX512_IFMA;
-	XBYAK_DEFINE_TYPE(38, tAVX512PF);
-	XBYAK_DEFINE_TYPE(39, tAVX512ER);
+//	XBYAK_DEFINE_TYPE(38, tAVX512PF); // Xeon Phi only
+//	XBYAK_DEFINE_TYPE(39, tAVX512ER);
 	XBYAK_DEFINE_TYPE(40, tAVX512CD);
 	XBYAK_DEFINE_TYPE(41, tAVX512BW);
 	XBYAK_DEFINE_TYPE(42, tAVX512VL);
 	XBYAK_DEFINE_TYPE(43, tAVX512_VBMI);
 	XBYAK_DEFINE_TYPE(43, tAVX512VBMI); // = tAVX512_VBMI; // changed by Intel's manual
-	XBYAK_DEFINE_TYPE(44, tAVX512_4VNNIW);
-	XBYAK_DEFINE_TYPE(45, tAVX512_4FMAPS);
-	XBYAK_DEFINE_TYPE(46, tPREFETCHWT1);
+//	XBYAK_DEFINE_TYPE(44, tAVX512_4VNNIW);
+//	XBYAK_DEFINE_TYPE(45, tAVX512_4FMAPS);
+//	XBYAK_DEFINE_TYPE(46, tPREFETCHWT1);
 	XBYAK_DEFINE_TYPE(47, tPREFETCHW);
 	XBYAK_DEFINE_TYPE(48, tSHA);
 	XBYAK_DEFINE_TYPE(49, tMPX);
@@ -589,6 +589,7 @@ public:
 	XBYAK_DEFINE_TYPE(95, tAMX_FP8);
 	XBYAK_DEFINE_TYPE(96, tMOVRS);
 	XBYAK_DEFINE_TYPE(97, tHYBRID);
+	XBYAK_DEFINE_TYPE(98, tAMX_COMPLEX);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -681,8 +682,6 @@ public:
 					if (type_ & tAVX512F) {
 						if (ebx & (1U << 17)) type_ |= tAVX512DQ;
 						if (ebx & (1U << 21)) type_ |= tAVX512_IFMA;
-						if (ebx & (1U << 26)) type_ |= tAVX512PF;
-						if (ebx & (1U << 27)) type_ |= tAVX512ER;
 						if (ebx & (1U << 28)) type_ |= tAVX512CD;
 						if (ebx & (1U << 30)) type_ |= tAVX512BW;
 						if (ebx & (1U << 31)) type_ |= tAVX512VL;
@@ -691,8 +690,6 @@ public:
 						if (ecx & (1U << 11)) type_ |= tAVX512_VNNI;
 						if (ecx & (1U << 12)) type_ |= tAVX512_BITALG;
 						if (ecx & (1U << 14)) type_ |= tAVX512_VPOPCNTDQ;
-						if (edx & (1U << 2)) type_ |= tAVX512_4VNNIW;
-						if (edx & (1U << 3)) type_ |= tAVX512_4FMAPS;
 						if (edx & (1U << 8)) type_ |= tAVX512_VP2INTERSECT;
 						if ((type_ & tAVX512BW) && (edx & (1U << 23))) type_ |= tAVX512_FP16;
 					}
@@ -715,7 +712,6 @@ public:
 			if (ebx & (1U << 23)) type_ |= tCLFLUSHOPT;
 			if (ebx & (1U << 24)) type_ |= tCLWB;
 			if (ebx & (1U << 29)) type_ |= tSHA;
-			if (ecx & (1U << 0)) type_ |= tPREFETCHWT1;
 			if (ecx & (1U << 5)) type_ |= tWAITPKG;
 			if (ecx & (1U << 8)) type_ |= tGFNI;
 			if (ecx & (1U << 9)) type_ |= tVAES;
@@ -747,6 +743,7 @@ public:
 				if (eax & (1U << 31)) type_ |= tMOVRS;
 				if (edx & (1U << 4)) type_ |= tAVX_VNNI_INT8;
 				if (edx & (1U << 5)) type_ |= tAVX_NE_CONVERT;
+				if (edx & (1U << 8)) type_ |= tAMX_COMPLEX;
 				if (edx & (1U << 10)) type_ |= tAVX_VNNI_INT16;
 				if (edx & (1U << 14)) type_ |= tPREFETCHITI;
 				if (edx & (1U << 19)) type_ |= tAVX10;
@@ -1298,10 +1295,56 @@ inline uint32_t popcnt(uint64_t mask)
 #endif
 }
 
+// fall back to CPUID leaf 0x1A
+inline CoreType getCoreType()
+{
+	uint32_t data[4] = {};
+	Cpu::getCpuidEx(0x1A, 0, data);
+	const uint32_t coreTypeField = (data[0] >> 24) & 0xFF;
+	if (coreTypeField == 0x40) return Performance; // P-core
+	if (coreTypeField == 0x20) return Efficient; // E-core
+	return Standard;
+}
+
 #ifdef _WIN32
 
 typedef std::vector<uint32_t> U32Vec;
+
+#if (defined(NTDDI_VERSION) && NTDDI_VERSION >= 0x06010000) || (defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0601)
+	#define XBYAK_WINSDK_HAS_RELATIONSHIP_GROUP_AFFINITY 1
+#else
+	#define XBYAK_WINSDK_HAS_RELATIONSHIP_GROUP_AFFINITY 0
+#endif
+
+#if (defined(NTDDI_VERSION) && NTDDI_VERSION >= 0x0A000000) || (defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0A00)
+	#define XBYAK_WINSDK_HAS_EFFICIENCY_CLASS 1
+#else
+	#define XBYAK_WINSDK_HAS_EFFICIENCY_CLASS 0
+#endif
+
+// GroupMasks[] / GroupCount on CACHE_RELATIONSHIP added in Win10 20H1 (SDK 10.0.19041, NTDDI_WIN10_VB)
+// NOTE: _WIN32_WINNT has no sub-version granularity for Win10, so only
+// NTDDI_VERSION can distinguish 20H1 (0x0A00000C) from earlier Win10 builds.
+// If NTDDI_VERSION is not set, this macro will be 0 (safe/conservative fallback).
+#if defined(NTDDI_VERSION) && NTDDI_VERSION >= 0x0A00000C
+	#define XBYAK_WINSDK_HAS_CACHE_RELATIONSHIP_GROUPMASKS 1
+#else
+	#define XBYAK_WINSDK_HAS_CACHE_RELATIONSHIP_GROUPMASKS 0
+#endif
+
+#if XBYAK_WINSDK_HAS_RELATIONSHIP_GROUP_AFFINITY
 typedef SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX ProcInfo;
+
+inline CoreType getCoreTypeForAffinity(const GROUP_AFFINITY& affinity)
+{
+	GROUP_AFFINITY previousMask = {};
+	if (!SetThreadGroupAffinity(GetCurrentThread(), &affinity, &previousMask)) {
+		return Standard;
+	}
+	CoreType type = impl::getCoreType();
+	SetThreadGroupAffinity(GetCurrentThread(), &previousMask, NULL);
+	return type;
+}
 
 // return total logical cpus if sucessful, 0 if failed
 inline uint32_t getGroupAcc(U32Vec& v)
@@ -1348,10 +1391,12 @@ static inline uint32_t getCores(std::vector<LogicalCpu>& cpus, bool isHybrid, co
 			cpu.coreId = coreIdx++;
 			if (!isHybrid) {
 				cpu.coreType = Standard;
-			} else if (core.EfficiencyClass > 0) {
-				cpu.coreType = Performance;
 			} else {
-				cpu.coreType = Efficient;
+#if XBYAK_WINSDK_HAS_EFFICIENCY_CLASS
+				cpu.coreType = core.EfficiencyClass > 0 ? Performance : Efficient;
+#else
+				cpu.coreType = getCoreTypeForAffinity(core.GroupMask[0]);
+#endif
 			}
 
 			const GROUP_AFFINITY* masks = core.GroupMask;
@@ -1376,13 +1421,19 @@ static inline uint32_t getCores(std::vector<LogicalCpu>& cpus, bool isHybrid, co
 
 inline bool convertMask(CpuMask& mask, const U32Vec& groupAcc, const CACHE_RELATIONSHIP& cache)
 {
-	const GROUP_AFFINITY* masks = cache.GroupMasks;
-
-	for (WORD i = 0; i < cache.GroupCount; i++) {
-		const WORD group = masks[i].Group;
-		const KAFFINITY m = masks[i].Mask;
-		const uint32_t base = groupAcc[group];
-
+#if XBYAK_WINSDK_HAS_CACHE_RELATIONSHIP_GROUPMASKS
+	const WORD count = cache.GroupCount;
+#else
+	const WORD count = 1;
+#endif
+	for (WORD i = 0; i < count; i++) {
+#if XBYAK_WINSDK_HAS_CACHE_RELATIONSHIP_GROUPMASKS
+		const GROUP_AFFINITY& cg = cache.GroupMasks[i];
+#else
+		const GROUP_AFFINITY& cg = cache.GroupMask;
+#endif
+		const KAFFINITY m = cg.Mask;
+		const uint32_t base = groupAcc[cg.Group];
 		for (uint32_t b = 0; b < sizeof(KAFFINITY) * 8; b++) {
 			if (m & (KAFFINITY(1) << b)) {
 				if (!mask.append(base + b)) return false;
@@ -1443,7 +1494,17 @@ inline bool initCpuTopology(CpuTopology& cpuTopo)
 	}
 	return true;
 }
-
+#else
+inline bool initCpuTopology(CpuTopology& cpuTopo)
+{
+	(void)cpuTopo;
+	return false;
+}
+#endif
+// unset WinSDK version macros to avoid Macro pollution
+#undef XBYAK_WINSDK_HAS_RELATIONSHIP_GROUP_AFFINITY
+#undef XBYAK_WINSDK_HAS_EFFICIENCY_CLASS
+#undef XBYAK_WINSDK_HAS_CACHE_RELATIONSHIP_GROUPMASKS
 #elif defined(__linux__) // Linux
 
 struct WrapFILE {
@@ -1471,6 +1532,15 @@ inline bool parseCpuList(CpuMask& mask, const char* path) {
 	size_t n = strlen(buf);
 	if (n > 0 && buf[n - 1] == '\n') buf[n - 1] = '\0';
 	return setStr(mask, buf);
+}
+
+inline CoreType setAffinityAndGetCoreType(uint32_t cpu)
+{
+	cpu_set_t cpuMask;
+	CPU_ZERO(&cpuMask);
+	CPU_SET(cpu, &cpuMask);
+	if (sched_setaffinity(0, sizeof(cpu_set_t), &cpuMask)) return Standard;
+	return impl::getCoreType();
 }
 
 inline bool initCpuTopology(CpuTopology& cpuTopo)
@@ -1590,36 +1660,15 @@ inline bool initCpuTopology(CpuTopology& cpuTopo)
 			}
 		}
 		// Fallback: if either sysfs paths are unavailable, detect both core type per-CPU
-		// via CPUID leaf 0x1A (Hybrid Information) by pinning each logical CPU.
 		if (!hasPCoreSysfs || !hasECoreSysfs) {
-			// CPUID leaf 0x1A EAX[31:24] core type identifiers
-			const uint32_t Cpuid_StandardCoreType = 0x40; // P-core (Performance)
-			const uint32_t Cpuid_AtomCoreType = 0x20; // E-core (Efficient)
-
 			cpu_set_t originalMask;
 			CPU_ZERO(&originalMask);
-			if (sched_getaffinity(0, sizeof(cpu_set_t), &originalMask) != 0) goto SKIP_FALLBACK;
-
-			for (uint32_t cpu = 0; cpu < logicalCpuNum; cpu++) {
-				cpu_set_t cpuMask;
-				CPU_ZERO(&cpuMask);
-				CPU_SET(cpu, &cpuMask);
-				if (sched_setaffinity(0, sizeof(cpu_set_t), &cpuMask) == 0) {
-					// CPUID leaf 0x1A: Hybrid Information
-					uint32_t data[4] = {};
-					Cpu::getCpuidEx(0x1A, 0, data);
-					const uint32_t coreTypeField = (data[0] >> 24) & 0xFF;
-					if (coreTypeField == Cpuid_StandardCoreType) {
-						cpuTopo.logicalCpus_[cpu].coreType = Performance;
-					} else if (coreTypeField == Cpuid_AtomCoreType) {
-						cpuTopo.logicalCpus_[cpu].coreType = Efficient;
-					}
+			if (sched_getaffinity(0, sizeof(cpu_set_t), &originalMask) == 0) {
+				for (uint32_t cpu = 0; cpu < logicalCpuNum; cpu++) {
+					cpuTopo.logicalCpus_[cpu].coreType = impl::setAffinityAndGetCoreType(cpu);
 				}
+				sched_setaffinity(0, sizeof(cpu_set_t), &originalMask);
 			}
-
-			// Restore the original CPU affinity mask
-			sched_setaffinity(0, sizeof(cpu_set_t), &originalMask);
-		SKIP_FALLBACK:;
 		}
 	}
 
