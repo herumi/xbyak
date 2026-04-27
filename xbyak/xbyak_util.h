@@ -1534,6 +1534,15 @@ inline bool parseCpuList(CpuMask& mask, const char* path) {
 	return setStr(mask, buf);
 }
 
+inline CoreType setAffinityAndGetCoreType(uint32_t cpu)
+{
+	cpu_set_t cpuMask;
+	CPU_ZERO(&cpuMask);
+	CPU_SET(cpu, &cpuMask);
+	if (sched_setaffinity(0, sizeof(cpu_set_t), &cpuMask)) return Standard;
+	return impl::getCoreType();
+}
+
 inline bool initCpuTopology(CpuTopology& cpuTopo)
 {
 	const uint32_t logicalCpuNum = sysconf(_SC_NPROCESSORS_ONLN);
@@ -1654,20 +1663,12 @@ inline bool initCpuTopology(CpuTopology& cpuTopo)
 		if (!hasPCoreSysfs || !hasECoreSysfs) {
 			cpu_set_t originalMask;
 			CPU_ZERO(&originalMask);
-			if (sched_getaffinity(0, sizeof(cpu_set_t), &originalMask) != 0) goto SKIP_FALLBACK;
-
-			for (uint32_t cpu = 0; cpu < logicalCpuNum; cpu++) {
-				cpu_set_t cpuMask;
-				CPU_ZERO(&cpuMask);
-				CPU_SET(cpu, &cpuMask);
-				if (sched_setaffinity(0, sizeof(cpu_set_t), &cpuMask) == 0) {
-					cpuTopo.logicalCpus_[cpu].coreType = impl::getCoreType();
+			if (sched_getaffinity(0, sizeof(cpu_set_t), &originalMask) == 0) {
+				for (uint32_t cpu = 0; cpu < logicalCpuNum; cpu++) {
+					cpuTopo.logicalCpus_[cpu].coreType = impl::setAffinityAndGetCoreType(cpu);
 				}
+				sched_setaffinity(0, sizeof(cpu_set_t), &originalMask);
 			}
-
-			// Restore the original CPU affinity mask
-			sched_setaffinity(0, sizeof(cpu_set_t), &originalMask);
-		SKIP_FALLBACK:;
 		}
 	}
 
