@@ -156,11 +156,11 @@ void cfcmovz(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2,
 void cfcmovz(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x44); }
 void clc() { db(0xF8); }
 void cld() { db(0xFC); }
-void cldemote(const Address& addr) { opMR(addr, eax, T_0F, 0x1C); }
-void clflush(const Address& addr) { opMR(addr, Reg32(7), T_0F, 0xAE); }
-void clflushopt(const Address& addr) { opMR(addr, Reg32(7), T_66 | T_0F, 0xAE); }
+void cldemote(const Address& addr) { opMR(addr, eax, T_0F|T_ALLOW_DIFF_SIZE, 0x1C); }
+void clflush(const Address& addr) { opMR(addr, Reg32(7), T_0F|T_ALLOW_DIFF_SIZE, 0xAE); }
+void clflushopt(const Address& addr) { opMR(addr, Reg32(7), T_66|T_0F|T_ALLOW_DIFF_SIZE, 0xAE); }
 void cli() { db(0xFA); }
-void clwb(const Address& addr) { opMR(addr, esi, T_66 | T_0F, 0xAE); }
+void clwb(const Address& addr) { opMR(addr, esi, T_66|T_0F|T_ALLOW_DIFF_SIZE, 0xAE); }
 void clzero() { db(0x0F); db(0x01); db(0xFC); }
 void cmc() { db(0xF5); }
 void cmova(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 7); }//-V524
@@ -845,14 +845,14 @@ void pmuludq(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF4); }
 void popcnt(const Reg&reg, const Operand& op) { opCnt(reg, op, 0xB8); }
 void popf() { db(0x9D); }
 void por(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xEB); }
-void prefetchit0(const Address& addr) { opMR(addr, Reg32(7), T_0F, 0x18); }
-void prefetchit1(const Address& addr) { opMR(addr, Reg32(6), T_0F, 0x18); }
-void prefetchnta(const Address& addr) { opMR(addr, Reg32(0), T_0F, 0x18); }
-void prefetchrst2(const Address& addr) { opMR(addr, Reg32(4), T_0F, 0x18); }
-void prefetcht0(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0x18); }
-void prefetcht1(const Address& addr) { opMR(addr, Reg32(2), T_0F, 0x18); }
-void prefetcht2(const Address& addr) { opMR(addr, Reg32(3), T_0F, 0x18); }
-void prefetchw(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0x0D); }
+void prefetchit0(const Address& addr) { opMR(addr, Reg32(7), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }
+void prefetchit1(const Address& addr) { opMR(addr, Reg32(6), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }
+void prefetchnta(const Address& addr) { opMR(addr, Reg32(0), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }
+void prefetchrst2(const Address& addr) { opMR(addr, Reg32(4), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }
+void prefetcht0(const Address& addr) { opMR(addr, Reg32(1), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }
+void prefetcht1(const Address& addr) { opMR(addr, Reg32(2), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }
+void prefetcht2(const Address& addr) { opMR(addr, Reg32(3), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }
+void prefetchw(const Address& addr) { opMR(addr, Reg32(1), T_0F|T_ALLOW_DIFF_SIZE, 0x0D); }
 void psadbw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF6); }
 void pshufb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x00, T_0F38, T_66); }
 void pshufd(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX(mmx, op, 0x70, T_0F, T_66, imm8); }
