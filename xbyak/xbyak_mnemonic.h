@@ -265,7 +265,7 @@ void cmpunordps(const Xmm& x, const Operand& op) { cmpps(x, op, 3); }
 void cmpunordsd(const Xmm& x, const Operand& op) { cmpsd(x, op, 3); }
 void cmpunordss(const Xmm& x, const Operand& op) { cmpss(x, op, 3); }
 void cmpxchg(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xB0 | (reg.isBit(8) ? 0 : 1), op.getBit() == reg.getBit()); }
-void cmpxchg8b(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0xC7); }
+void cmpxchg8b(const Address& addr) { opMR(addr, Reg32(1), T_0F|T_ALLOW_DIFF_SIZE, 0xC7); }
 void comisd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F, 0x2F, isXMM_XMMorMEM); }
 void comiss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x2F, isXMM_XMMorMEM); }
 void cpuid() { db(0x0F); db(0xA2); }
