@@ -166,7 +166,8 @@
 	#pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 
-// Define this macro as 0 to disable strict checking of memory operand and register size matching.
+// Heuristically check general-purpose register and memory operand size matching such as add(dword[eax], al);
+// Not exact but useful to find mistakes. Define as 0 to disable.
 // This macro may be removed in future versions.
 #ifndef XBYAK_STRICT_CHECK_MEM_REG_SIZE
 	#define XBYAK_STRICT_CHECK_MEM_REG_SIZE 1
