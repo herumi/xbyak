@@ -166,7 +166,8 @@
 	#pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 
-// Define this macro as 0 to disable strict checking of memory operand and register size matching.
+// Heuristically check general-purpose register and memory operand size matching such as add(dword[eax], al);
+// Not exact but useful to find mistakes. Define as 0 to disable.
 // This macro may be removed in future versions.
 #ifndef XBYAK_STRICT_CHECK_MEM_REG_SIZE
 	#define XBYAK_STRICT_CHECK_MEM_REG_SIZE 1
@@ -176,7 +177,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7370 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7371 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED

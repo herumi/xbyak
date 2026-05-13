@@ -565,7 +565,7 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void prefetch%s(const Address& addr) { opMR(addr, Reg32(%d), T_0F, 0x%02X); }\n", p->name, p->ext, p->code);
+			printf("void prefetch%s(const Address& addr) { opMR(addr, Reg32(%d), T_0F|T_ALLOW_DIFF_SIZE, 0x%02X); }\n", p->name, p->ext, p->code);
 		}
 	}
 	{
@@ -1062,22 +1062,22 @@ void put()
 		} tbl[] = {
 			{ "T_0F", 0xAE, 2, "ldmxcsr", false },
 			{ "T_0F", 0xAE, 3, "stmxcsr", false },
-			{ "T_0F", 0xAE, 7, "clflush", false },
-			{ "T_66 | T_0F", 0xAE, 7, "clflushopt", false},
-			{ "0", 0xDF, 4, "fbld", false },
-			{ "0", 0xDF, 6, "fbstp", false },
-			{ "0", 0xD9, 5, "fldcw", false },
-			{ "0", 0xD9, 4, "fldenv", false },
-			{ "0", 0xDD, 4, "frstor", false },
-			{ "0", 0xDD, 6, "fsave", true  },
-			{ "0", 0xDD, 6, "fnsave", false },
-			{ "0", 0xD9, 7, "fstcw", true },
-			{ "0", 0xD9, 7, "fnstcw", false },
-			{ "0", 0xD9, 6, "fstenv", true },
-			{ "0", 0xD9, 6, "fnstenv", false },
-			{ "0", 0xDD, 7, "fstsw", true },
-			{ "0", 0xDD, 7, "fnstsw", false },
-			{ "T_0F", 0xAE, 1, "fxrstor", false },
+			{ "T_0F|T_ALLOW_DIFF_SIZE", 0xAE, 7, "clflush", false },
+			{ "T_66|T_0F|T_ALLOW_DIFF_SIZE", 0xAE, 7, "clflushopt", false},
+			{ "T_ALLOW_DIFF_SIZE", 0xDF, 4, "fbld", false },
+			{ "T_ALLOW_DIFF_SIZE", 0xDF, 6, "fbstp", false },
+			{ "T_ALLOW_DIFF_SIZE", 0xD9, 5, "fldcw", false },
+			{ "T_ALLOW_DIFF_SIZE", 0xD9, 4, "fldenv", false },
+			{ "T_ALLOW_DIFF_SIZE", 0xDD, 4, "frstor", false },
+			{ "T_ALLOW_DIFF_SIZE", 0xDD, 6, "fsave", true  },
+			{ "T_ALLOW_DIFF_SIZE", 0xDD, 6, "fnsave", false },
+			{ "T_ALLOW_DIFF_SIZE", 0xD9, 7, "fstcw", true },
+			{ "T_ALLOW_DIFF_SIZE", 0xD9, 7, "fnstcw", false },
+			{ "T_ALLOW_DIFF_SIZE", 0xD9, 6, "fstenv", true },
+			{ "T_ALLOW_DIFF_SIZE", 0xD9, 6, "fnstenv", false },
+			{ "T_ALLOW_DIFF_SIZE", 0xDD, 7, "fstsw", true },
+			{ "T_ALLOW_DIFF_SIZE", 0xDD, 7, "fnstsw", false },
+			{ "T_0F|T_ALLOW_DIFF_SIZE", 0xAE, 1, "fxrstor", false },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -1146,7 +1146,7 @@ void put()
 	}
 	// misc
 	{
-		puts("void lea(const Reg& reg, const Address& addr) { if (!reg.isBit(16 | i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opMR(addr, reg, 0, 0x8D); }");
+		puts("void lea(const Reg& reg, const Address& addr) { if (!reg.isBit(16 | i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opMR(addr, reg, T_ALLOW_DIFF_SIZE, 0x8D); }");
 		puts("void ret(int imm = 0) { if (imm) { db(0xC2); dw(imm); } else { db(0xC3); } }");
 		puts("void retf(int imm = 0) { if (imm) { db(0xCA); dw(imm); } else { db(0xCB); } }");
 
@@ -1155,8 +1155,8 @@ void put()
 		puts("void movbe(const Reg& reg, const Address& addr) { opMR(addr, reg, T_0F38, 0xF0, T_APX, 0x60); }");
 		puts("void movbe(const Address& addr, const Reg& reg) { opMR(addr, reg, T_0F38, 0xF1, T_APX, 0x61); }");
 		puts("void movdiri(const Address& addr, const Reg32e& reg) { opMR(addr, reg, T_0F38, 0xF9, T_APX); }");
-		puts("void movdir64b(const Reg& reg, const Address& addr) { opMR(addr, reg.cvt32(), T_66|T_0F38, 0xF8, T_APX|T_66); }");
-		puts("void cmpxchg8b(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0xC7); }");
+		puts("void movdir64b(const Reg& reg, const Address& addr) { opMR(addr, reg.cvt32(), T_66|T_0F38|T_ALLOW_DIFF_SIZE, 0xF8, T_APX|T_66); }");
+		puts("void cmpxchg8b(const Address& addr) { opMR(addr, Reg32(1), T_0F|T_ALLOW_DIFF_SIZE, 0xC7); }");
 
 		puts("void pextrw(const Operand& op, const Mmx& xmm, uint8_t imm) { opExt(op, xmm, 0x15, imm, true); }");
 		puts("void pextrb(const Operand& op, const Xmm& xmm, uint8_t imm) { opExt(op, xmm, 0x14, imm); }");
@@ -1189,8 +1189,8 @@ void put()
 		puts("void tpause(const Reg32& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) db(0x66); db(0x0F); db(0xAE); setModRM(3, 6, idx); }");
 		puts("void umonitor(const Reg& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) int bit = r.getBit(); if (BIT != bit) { if ((BIT == 32 && bit == 16) || (BIT == 64 && bit == 32)) { db(0x67); } else { XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) } } db(0xF3); db(0x0F); db(0xAE); setModRM(3, 6, idx); }");
 		puts("void umwait(const Reg32& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) db(0xF2); db(0x0F); db(0xAE); setModRM(3, 6, idx); }");
-		puts("void clwb(const Address& addr) { opMR(addr, esi, T_66 | T_0F, 0xAE); }");
-		puts("void cldemote(const Address& addr) { opMR(addr, eax, T_0F, 0x1C); }");
+		puts("void clwb(const Address& addr) { opMR(addr, esi, T_66|T_0F|T_ALLOW_DIFF_SIZE, 0xAE); }");
+		puts("void cldemote(const Address& addr) { opMR(addr, eax, T_0F|T_ALLOW_DIFF_SIZE, 0x1C); }");
 		puts("void xabort(uint8_t imm) { db(0xC6); db(0xF8); db(imm); }");
 		puts("void xbegin(uint32_t rel) { db(0xC7); db(0xF8); dd(rel); }");
 
@@ -1951,7 +1951,7 @@ void put64()
 	}
 
 	putMemOp("cmpxchg16b", "T_0F|T_ALLOW_DIFF_SIZE", 1, 0xC7, 64);
-	putMemOp("fxrstor64", "T_0F", 1, 0xAE, 64);
+	putMemOp("fxrstor64", "T_0F|T_ALLOW_DIFF_SIZE", 1, 0xAE, 64);
 	puts("void movq(const Reg64& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opSSE(mmx, reg, T_0F, 0x7E); }");
 	puts("void movq(const Mmx& mmx, const Reg64& reg) { if (mmx.isXMM()) db(0x66); opSSE(mmx, reg, T_0F, 0x6E); }");
 	puts("void movrs(const Reg& reg, const Address& addr) { opMR(addr, reg, T_0F38, reg.isBit(8) ? 0x8A : 0x8B); }");

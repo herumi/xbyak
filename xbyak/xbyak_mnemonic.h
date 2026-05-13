@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "7.37"; }
+const char *getVersionString() const { return "7.37.1"; }
 void aadd(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38, 0x0FC, T_APX); }
 void aand(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38|T_66, 0x0FC, T_APX|T_66); }
 void adc(const Operand& op, uint32_t imm) { opOI(op, imm, 0x10, 2); }
@@ -156,11 +156,11 @@ void cfcmovz(const Operand& op1, const Operand& op2) { opCfcmov(Reg(), op1, op2,
 void cfcmovz(const Reg& d, const Reg& r, const Operand& op) { opCfcmov(d|T_nf, op, r, 0x44); }
 void clc() { db(0xF8); }
 void cld() { db(0xFC); }
-void cldemote(const Address& addr) { opMR(addr, eax, T_0F, 0x1C); }
-void clflush(const Address& addr) { opMR(addr, Reg32(7), T_0F, 0xAE); }
-void clflushopt(const Address& addr) { opMR(addr, Reg32(7), T_66 | T_0F, 0xAE); }
+void cldemote(const Address& addr) { opMR(addr, eax, T_0F|T_ALLOW_DIFF_SIZE, 0x1C); }
+void clflush(const Address& addr) { opMR(addr, Reg32(7), T_0F|T_ALLOW_DIFF_SIZE, 0xAE); }
+void clflushopt(const Address& addr) { opMR(addr, Reg32(7), T_66|T_0F|T_ALLOW_DIFF_SIZE, 0xAE); }
 void cli() { db(0xFA); }
-void clwb(const Address& addr) { opMR(addr, esi, T_66 | T_0F, 0xAE); }
+void clwb(const Address& addr) { opMR(addr, esi, T_66|T_0F|T_ALLOW_DIFF_SIZE, 0xAE); }
 void clzero() { db(0x0F); db(0x01); db(0xFC); }
 void cmc() { db(0xF5); }
 void cmova(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1, 0x40 | 7); }//-V524
@@ -265,7 +265,7 @@ void cmpunordps(const Xmm& x, const Operand& op) { cmpps(x, op, 3); }
 void cmpunordsd(const Xmm& x, const Operand& op) { cmpsd(x, op, 3); }
 void cmpunordss(const Xmm& x, const Operand& op) { cmpss(x, op, 3); }
 void cmpxchg(const Operand& op, const Reg& reg) { opRO(reg, op, T_0F, 0xB0 | (reg.isBit(8) ? 0 : 1), op.getBit() == reg.getBit()); }
-void cmpxchg8b(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0xC7); }
+void cmpxchg8b(const Address& addr) { opMR(addr, Reg32(1), T_0F|T_ALLOW_DIFF_SIZE, 0xC7); }
 void comisd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F, 0x2F, isXMM_XMMorMEM); }
 void comiss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x2F, isXMM_XMMorMEM); }
 void cpuid() { db(0x0F); db(0xA2); }
@@ -372,8 +372,8 @@ void fadd(const Fpu& reg1, const Fpu& reg2) { opFpuFpu(reg1, reg2, 0xD8C0, 0xDCC
 void faddp() { db(0xDE); db(0xC1); }
 void faddp(const Fpu& reg1) { opFpuFpu(reg1, st0, 0x0000, 0xDEC0); }
 void faddp(const Fpu& reg1, const Fpu& reg2) { opFpuFpu(reg1, reg2, 0x0000, 0xDEC0); }
-void fbld(const Address& addr) { opMR(addr, Reg32(4), 0, 0xDF); }
-void fbstp(const Address& addr) { opMR(addr, Reg32(6), 0, 0xDF); }
+void fbld(const Address& addr) { opMR(addr, Reg32(4), T_ALLOW_DIFF_SIZE, 0xDF); }
+void fbstp(const Address& addr) { opMR(addr, Reg32(6), T_ALLOW_DIFF_SIZE, 0xDF); }
 void fchs() { db(0xD9); db(0xE0); }
 void fclex() { db(0x9B); db(0xDB); db(0xE2); }
 void fcmovb(const Fpu& reg1) { opFpuFpu(st0, reg1, 0xDAC0, 0x00C0); }
@@ -435,8 +435,8 @@ void fisubr(const Address& addr) { opFpuMem(addr, 0xDE, 0xDA, 0x00, 5, 0); }
 void fld(const Address& addr) { opFpuMem(addr, 0x00, 0xD9, 0xDD, 0, 0); }
 void fld(const Fpu& reg) { opFpu(reg, 0xD9, 0xC0); }
 void fld1() { db(0xD9); db(0xE8); }
-void fldcw(const Address& addr) { opMR(addr, Reg32(5), 0, 0xD9); }
-void fldenv(const Address& addr) { opMR(addr, Reg32(4), 0, 0xD9); }
+void fldcw(const Address& addr) { opMR(addr, Reg32(5), T_ALLOW_DIFF_SIZE, 0xD9); }
+void fldenv(const Address& addr) { opMR(addr, Reg32(4), T_ALLOW_DIFF_SIZE, 0xD9); }
 void fldl2e() { db(0xD9); db(0xEA); }
 void fldl2t() { db(0xD9); db(0xE9); }
 void fldlg2() { db(0xD9); db(0xEC); }
@@ -452,29 +452,29 @@ void fmulp(const Fpu& reg1, const Fpu& reg2) { opFpuFpu(reg1, reg2, 0x0000, 0xDE
 void fnclex() { db(0xDB); db(0xE2); }
 void fninit() { db(0xDB); db(0xE3); }
 void fnop() { db(0xD9); db(0xD0); }
-void fnsave(const Address& addr) { opMR(addr, Reg32(6), 0, 0xDD); }
-void fnstcw(const Address& addr) { opMR(addr, Reg32(7), 0, 0xD9); }
-void fnstenv(const Address& addr) { opMR(addr, Reg32(6), 0, 0xD9); }
-void fnstsw(const Address& addr) { opMR(addr, Reg32(7), 0, 0xDD); }
+void fnsave(const Address& addr) { opMR(addr, Reg32(6), T_ALLOW_DIFF_SIZE, 0xDD); }
+void fnstcw(const Address& addr) { opMR(addr, Reg32(7), T_ALLOW_DIFF_SIZE, 0xD9); }
+void fnstenv(const Address& addr) { opMR(addr, Reg32(6), T_ALLOW_DIFF_SIZE, 0xD9); }
+void fnstsw(const Address& addr) { opMR(addr, Reg32(7), T_ALLOW_DIFF_SIZE, 0xDD); }
 void fnstsw(const Reg16& r) { if (r.getIdx() != Operand::AX) XBYAK_THROW(ERR_BAD_PARAMETER) db(0xDF); db(0xE0); }
 void fpatan() { db(0xD9); db(0xF3); }
 void fprem() { db(0xD9); db(0xF8); }
 void fprem1() { db(0xD9); db(0xF5); }
 void fptan() { db(0xD9); db(0xF2); }
 void frndint() { db(0xD9); db(0xFC); }
-void frstor(const Address& addr) { opMR(addr, Reg32(4), 0, 0xDD); }
-void fsave(const Address& addr) { db(0x9B); opMR(addr, Reg32(6), 0, 0xDD); }
+void frstor(const Address& addr) { opMR(addr, Reg32(4), T_ALLOW_DIFF_SIZE, 0xDD); }
+void fsave(const Address& addr) { db(0x9B); opMR(addr, Reg32(6), T_ALLOW_DIFF_SIZE, 0xDD); }
 void fscale() { db(0xD9); db(0xFD); }
 void fsin() { db(0xD9); db(0xFE); }
 void fsincos() { db(0xD9); db(0xFB); }
 void fsqrt() { db(0xD9); db(0xFA); }
 void fst(const Address& addr) { opFpuMem(addr, 0x00, 0xD9, 0xDD, 2, 0); }
 void fst(const Fpu& reg) { opFpu(reg, 0xDD, 0xD0); }
-void fstcw(const Address& addr) { db(0x9B); opMR(addr, Reg32(7), 0, 0xD9); }
-void fstenv(const Address& addr) { db(0x9B); opMR(addr, Reg32(6), 0, 0xD9); }
+void fstcw(const Address& addr) { db(0x9B); opMR(addr, Reg32(7), T_ALLOW_DIFF_SIZE, 0xD9); }
+void fstenv(const Address& addr) { db(0x9B); opMR(addr, Reg32(6), T_ALLOW_DIFF_SIZE, 0xD9); }
 void fstp(const Address& addr) { opFpuMem(addr, 0x00, 0xD9, 0xDD, 3, 0); }
 void fstp(const Fpu& reg) { opFpu(reg, 0xDD, 0xD8); }
-void fstsw(const Address& addr) { db(0x9B); opMR(addr, Reg32(7), 0, 0xDD); }
+void fstsw(const Address& addr) { db(0x9B); opMR(addr, Reg32(7), T_ALLOW_DIFF_SIZE, 0xDD); }
 void fstsw(const Reg16& r) { if (r.getIdx() != Operand::AX) XBYAK_THROW(ERR_BAD_PARAMETER) db(0x9B); db(0xDF); db(0xE0); }
 void fsub(const Address& addr) { opFpuMem(addr, 0x00, 0xD8, 0xDC, 4, 0); }
 void fsub(const Fpu& reg1) { opFpuFpu(st0, reg1, 0xD8E0, 0xDCE8); }
@@ -502,7 +502,7 @@ void fwait() { db(0x9B); }
 void fxam() { db(0xD9); db(0xE5); }
 void fxch() { db(0xD9); db(0xC9); }
 void fxch(const Fpu& reg) { opFpu(reg, 0xD9, 0xC8); }
-void fxrstor(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0xAE); }
+void fxrstor(const Address& addr) { opMR(addr, Reg32(1), T_0F|T_ALLOW_DIFF_SIZE, 0xAE); }
 void fxtract() { db(0xD9); db(0xF4); }
 void fyl2x() { db(0xD9); db(0xF1); }
 void fyl2xp1() { db(0xD9); db(0xF9); }
@@ -648,7 +648,7 @@ void jz(std::string label, LabelType type = T_AUTO) { opJmp(label, type, 0x74, 0
 void lahf() { db(0x9F); }
 void lddqu(const Xmm& xmm, const Address& addr) { opSSE(xmm, addr, T_F2 | T_0F, 0xF0); }
 void ldmxcsr(const Address& addr) { opMR(addr, Reg32(2), T_0F, 0xAE); }
-void lea(const Reg& reg, const Address& addr) { if (!reg.isBit(16 | i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opMR(addr, reg, 0, 0x8D); }
+void lea(const Reg& reg, const Address& addr) { if (!reg.isBit(16 | i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opMR(addr, reg, T_ALLOW_DIFF_SIZE, 0x8D); }
 void leave() { db(0xC9); }
 void lfence() { db(0x0F); db(0xAE); db(0xE8); }
 void lfs(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_0F, 0xB4); }
@@ -690,7 +690,7 @@ void movbe(const Reg& reg, const Address& addr) { opMR(addr, reg, T_0F38, 0xF0, 
 void movd(const Mmx& mmx, const Operand& op) { if (!(op.isMEM() || op.isREG(32))) XBYAK_THROW(ERR_BAD_COMBINATION) if (mmx.isXMM()) db(0x66); opSSE(mmx, op, T_0F | T_ALLOW_DIFF_SIZE, 0x6E); }
 void movd(const Operand& op, const Mmx& mmx) { if (!(op.isMEM() || op.isREG(32))) XBYAK_THROW(ERR_BAD_COMBINATION) if (mmx.isXMM()) db(0x66); opSSE(mmx, op, T_0F | T_ALLOW_DIFF_SIZE, 0x7E); }
 void movddup(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_DUP|T_F2|T_0F|T_EW1|T_YMM|T_EVEX, 0x12, isXMM_XMMorMEM, NONE); }
-void movdir64b(const Reg& reg, const Address& addr) { opMR(addr, reg.cvt32(), T_66|T_0F38, 0xF8, T_APX|T_66); }
+void movdir64b(const Reg& reg, const Address& addr) { opMR(addr, reg.cvt32(), T_66|T_0F38|T_ALLOW_DIFF_SIZE, 0xF8, T_APX|T_66); }
 void movdiri(const Address& addr, const Reg32e& reg) { opMR(addr, reg, T_0F38, 0xF9, T_APX); }
 void movdq2q(const Mmx& mmx, const Xmm& xmm) { opSSE(mmx, xmm, T_F2 | T_0F, 0xD6); }
 void movdqa(const Address& addr, const Xmm& xmm) { opSSE(xmm, addr, T_0F|T_66, 0x7F); }
@@ -845,14 +845,14 @@ void pmuludq(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF4); }
 void popcnt(const Reg&reg, const Operand& op) { opCnt(reg, op, 0xB8); }
 void popf() { db(0x9D); }
 void por(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xEB); }
-void prefetchit0(const Address& addr) { opMR(addr, Reg32(7), T_0F, 0x18); }
-void prefetchit1(const Address& addr) { opMR(addr, Reg32(6), T_0F, 0x18); }
-void prefetchnta(const Address& addr) { opMR(addr, Reg32(0), T_0F, 0x18); }
-void prefetchrst2(const Address& addr) { opMR(addr, Reg32(4), T_0F, 0x18); }
-void prefetcht0(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0x18); }
-void prefetcht1(const Address& addr) { opMR(addr, Reg32(2), T_0F, 0x18); }
-void prefetcht2(const Address& addr) { opMR(addr, Reg32(3), T_0F, 0x18); }
-void prefetchw(const Address& addr) { opMR(addr, Reg32(1), T_0F, 0x0D); }
+void prefetchit0(const Address& addr) { opMR(addr, Reg32(7), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }
+void prefetchit1(const Address& addr) { opMR(addr, Reg32(6), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }
+void prefetchnta(const Address& addr) { opMR(addr, Reg32(0), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }
+void prefetchrst2(const Address& addr) { opMR(addr, Reg32(4), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }
+void prefetcht0(const Address& addr) { opMR(addr, Reg32(1), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }
+void prefetcht1(const Address& addr) { opMR(addr, Reg32(2), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }
+void prefetcht2(const Address& addr) { opMR(addr, Reg32(3), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }
+void prefetchw(const Address& addr) { opMR(addr, Reg32(1), T_0F|T_ALLOW_DIFF_SIZE, 0x0D); }
 void psadbw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF6); }
 void pshufb(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0x00, T_0F38, T_66); }
 void pshufd(const Mmx& mmx, const Operand& op, uint8_t imm8) { opMMX(mmx, op, 0x70, T_0F, T_66, imm8); }
@@ -1875,7 +1875,7 @@ void stui() { db(0xF3); db(0x0F); db(0x01); db(0xEF); }
 void testui() { db(0xF3); db(0x0F); db(0x01); db(0xED); }
 void uiret() { db(0xF3); db(0x0F); db(0x01); db(0xEC); }
 void cmpxchg16b(const Address& addr) { opMR(addr, Reg64(1), T_0F|T_ALLOW_DIFF_SIZE, 0xC7); }
-void fxrstor64(const Address& addr) { opMR(addr, Reg64(1), T_0F, 0xAE); }
+void fxrstor64(const Address& addr) { opMR(addr, Reg64(1), T_0F|T_ALLOW_DIFF_SIZE, 0xAE); }
 void movq(const Reg64& reg, const Mmx& mmx) { if (mmx.isXMM()) db(0x66); opSSE(mmx, reg, T_0F, 0x7E); }
 void movq(const Mmx& mmx, const Reg64& reg) { if (mmx.isXMM()) db(0x66); opSSE(mmx, reg, T_0F, 0x6E); }
 void movrs(const Reg& reg, const Address& addr) { opMR(addr, reg, T_0F38, reg.isBit(8) ? 0x8A : 0x8B); }
