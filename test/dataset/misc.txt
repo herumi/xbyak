@@ -298,3 +298,7 @@ umonitor(eax);
 umonitor(r31d);
 umonitor(rax);
 umonitor(r31);
+
+tpause(eax);
+tpause(r8d);
+tpause(r31d);
