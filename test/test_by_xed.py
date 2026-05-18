@@ -246,6 +246,12 @@ def parseNmemonic(s):
   args = []
   attrs = []
 
+  # ignore addr32
+  ignoreTbl = ['addr32']
+  for w in ignoreTbl:
+    if s.startswith(w):
+      s = s[len(w):]
+
   # remove Xbyak::{Evex,Vex}Encoding
   r = re.search(r'(,[^,]*Encoding)', s)
   if r:

@@ -293,3 +293,8 @@ umwait(eax);
 umwait(ebx);
 umwait(r8d);
 umwait(r31d);
+
+umonitor(eax);
+umonitor(r31d);
+umonitor(rax);
+umonitor(r31);
