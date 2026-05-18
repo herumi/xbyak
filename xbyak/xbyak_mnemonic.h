@@ -1040,7 +1040,7 @@ void tzcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T
 void ucomisd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F, 0x2E, isXMM_XMMorMEM); }
 void ucomiss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x2E, isXMM_XMMorMEM); }
 void ud2() { db(0x0F); db(0x0B); }
-void umonitor(const Reg& r) { int bit = r.getBit(); if (bit == 8) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER); if (BIT == 32 && r.getIdx() > 7) XBYAK_THROW(ERR_INVALID_REG_IDX); if (BIT == bit * 2) db(0x67); opRR(esi, r.cvt32(), T_F3|T_0F, 0xAE); }
+void umonitor(const Reg& r) { int bit = r.getBit(); if (bit == 8) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER); if (BIT == bit * 2) db(0x67); opRR(esi, r.cvt32(), T_F3|T_0F, 0xAE); }
 void umwait(const Reg32& r) { opRR(esi, r, T_F2|T_0F, 0xAE); }
 void unpckhpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x15, isXMM_XMMorMEM); }
 void unpckhps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x15, isXMM_XMMorMEM); }

@@ -1866,6 +1866,9 @@ private:
 	}
 	static inline uint8_t rexRXB(int bit, int bit3, const Reg& r, const Reg& b, const Reg& x = Reg())
 	{
+#ifdef XBYAK32
+		if (r.getIdx() >= 8 || b.getIdx() >= 8 || x.getIdx() >= 8) XBYAK_THROW_RET(ERR_INVALID_REG_IDX, 0)
+#endif
 		int v = bit3 ? 8 : 0;
 		if (r.hasIdxBit(bit)) v |= 4;
 		if (x.hasIdxBit(bit)) v |= 2;
