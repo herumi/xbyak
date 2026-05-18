@@ -1035,7 +1035,7 @@ void subsd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F2, 0x5C
 void subss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F3, 0x5C, isXMM_XMMorMEM); }
 void sysenter() { db(0x0F); db(0x34); }
 void sysexit() { db(0x0F); db(0x35); }
-void tpause(const Reg32& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) db(0x66); db(0x0F); db(0xAE); setModRM(3, 6, idx); }
+void tpause(const Reg32& r) { opRR(esi, r, T_66 | T_0F, 0xAE); }
 void tzcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF, 0xF4)) return; opCnt(reg, op, 0xBC); }
 void ucomisd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F, 0x2E, isXMM_XMMorMEM); }
 void ucomiss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x2E, isXMM_XMMorMEM); }
