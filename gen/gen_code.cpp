@@ -1187,7 +1187,7 @@ void put()
 		puts("void rdseed(const Reg& r) { if (r.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opRR(Reg(7, Operand::REG, r.getBit()), r, T_0F, 0xC7); }");
 		puts("void crc32(const Reg32e& r, const Operand& op) { if (!((r.isBit(32) && op.isBit(8|16|32)) || (r.isBit(64) && op.isBit(8|64)))) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) int code = 0xF0 | (op.isBit(8) ? 0 : 1); uint64_t type = op.isBit(16) ? T_66:0; type |= T_ALLOW_DIFF_SIZE; if (opROO(Reg(), op, static_cast<const Reg&>(r), T_APX|type, code)) return; opRO(r, op, T_F2|T_0F38|type, code); }");
 		puts("void tpause(const Reg32& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) db(0x66); db(0x0F); db(0xAE); setModRM(3, 6, idx); }");
-		puts("void umonitor(const Reg& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) int bit = r.getBit(); if (BIT != bit) { if ((BIT == 32 && bit == 16) || (BIT == 64 && bit == 32)) { db(0x67); } else { XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) } } db(0xF3); db(0x0F); db(0xAE); setModRM(3, 6, idx); }");
+		puts("void umonitor(const Reg& r) { int bit = r.getBit(); if (bit == 8) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER); if (BIT == 32 && r.getIdx() > 7) XBYAK_THROW(ERR_INVALID_REG_IDX); if (BIT == bit * 2) db(0x67); opRR(esi, r.cvt32(), T_F3|T_0F, 0xAE); }");
 		puts("void umwait(const Reg32& r) { opRR(esi, r, T_F2|T_0F, 0xAE); }");
 		puts("void clwb(const Address& addr) { opMR(addr, esi, T_66|T_0F|T_ALLOW_DIFF_SIZE, 0xAE); }");
 		puts("void cldemote(const Address& addr) { opMR(addr, eax, T_0F|T_ALLOW_DIFF_SIZE, 0x1C); }");
