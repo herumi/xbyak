@@ -1041,7 +1041,7 @@ void ucomisd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F, 0x2E
 void ucomiss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x2E, isXMM_XMMorMEM); }
 void ud2() { db(0x0F); db(0x0B); }
 void umonitor(const Reg& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) int bit = r.getBit(); if (BIT != bit) { if ((BIT == 32 && bit == 16) || (BIT == 64 && bit == 32)) { db(0x67); } else { XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) } } db(0xF3); db(0x0F); db(0xAE); setModRM(3, 6, idx); }
-void umwait(const Reg32& r) { int idx = r.getIdx(); if (idx > 7) XBYAK_THROW(ERR_BAD_PARAMETER) db(0xF2); db(0x0F); db(0xAE); setModRM(3, 6, idx); }
+void umwait(const Reg32& r) { opRR(esi, r, T_F2|T_0F, 0xAE); }
 void unpckhpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x15, isXMM_XMMorMEM); }
 void unpckhps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x15, isXMM_XMMorMEM); }
 void unpcklpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x14, isXMM_XMMorMEM); }
