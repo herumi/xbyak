@@ -288,3 +288,8 @@ vcvttss2si(esp, xmm25|T_sae);
 vcvttss2si(r11, xmm25|T_sae);
 vcvttss2usi(edi, xmm25|T_sae);
 vcvttss2usi(r14, xmm25|T_sae);
+
+umwait(eax);
+umwait(ebx);
+umwait(r8d);
+umwait(r31d);
