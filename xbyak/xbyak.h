@@ -1436,6 +1436,8 @@ public:
 	}
 	bool operator!=(const Address& rhs) const { return !operator==(rhs); }
 	bool isVsib() const { return e_.isVsib(); }
+	// change byte to dword etc.
+	Address changeBit(int bit) const { Address addr(*this); addr.setBit(bit); return addr; }
 private:
 	RegExp e_;
 	const Label* label_;
