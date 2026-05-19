@@ -632,6 +632,9 @@ public:
 		, bit_(bit)
 		, zero_(0), mask_(0), rounding_(0), NF_(0), ZU_(0)
 	{
+#ifdef XBYAK32
+		if (idx >= 8) XBYAK_THROW(ERR_INVALID_REG_IDX)
+#endif
 		assert((bit_ & (bit_ - 1)) == 0); // bit must be power of two
 	}
 	XBYAK_CONSTEXPR Kind getKind() const { return static_cast<Kind>(kind_); }
@@ -1866,9 +1869,6 @@ private:
 	}
 	static inline uint8_t rexRXB(int bit, int bit3, const Reg& r, const Reg& b, const Reg& x = Reg())
 	{
-#ifdef XBYAK32
-		if (r.getIdx() >= 8 || b.getIdx() >= 8 || x.getIdx() >= 8) XBYAK_THROW_RET(ERR_INVALID_REG_IDX, 0)
-#endif
 		int v = bit3 ? 8 : 0;
 		if (r.hasIdxBit(bit)) v |= 4;
 		if (x.hasIdxBit(bit)) v |= 2;
