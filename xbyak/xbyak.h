@@ -177,7 +177,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7371 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7372 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -632,6 +632,9 @@ public:
 		, bit_(bit)
 		, zero_(0), mask_(0), rounding_(0), NF_(0), ZU_(0)
 	{
+#ifdef XBYAK32
+		if (idx >= 8) XBYAK_THROW(ERR_INVALID_REG_IDX)
+#endif
 		assert((bit_ & (bit_ - 1)) == 0); // bit must be power of two
 	}
 	XBYAK_CONSTEXPR Kind getKind() const { return static_cast<Kind>(kind_); }
@@ -1433,6 +1436,8 @@ public:
 	}
 	bool operator!=(const Address& rhs) const { return !operator==(rhs); }
 	bool isVsib() const { return e_.isVsib(); }
+	// change byte to dword etc.
+	Address changeBit(int bit) const { Address addr(*this); addr.setBit(bit); return addr; }
 private:
 	RegExp e_;
 	const Label* label_;
