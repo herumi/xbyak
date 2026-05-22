@@ -1894,6 +1894,8 @@ void push2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_APX|T_N
 void push2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_APX|T_ND1|T_W1, 0xFF); }
 void pop2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_APX|T_ND1|T_W0, 0x8F); }
 void pop2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_APX|T_ND1|T_W1, 0x8F); }
+void pushp(const Reg64& r) { opPushPopP(r, 0x50); }
+void popp(const Reg64& r) { opPushPopP(r, 0x58); }
 void cmpbexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE6); }
 void cmpbxadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE2); }
 void cmplexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xEE); }

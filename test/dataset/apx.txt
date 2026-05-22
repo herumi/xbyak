@@ -19,3 +19,13 @@ ror(rcx, qword[r15], 60);
 imul(rax, rdx, r10);
 imul(rcx, r15, qword[rdi]);
 
+pushp(rax);
+pushp(r8);
+pushp(r16);
+pushp(r24);
+pushp(r31);
+popp(rax);
+popp(r8);
+popp(r16);
+popp(r24);
+popp(r31);

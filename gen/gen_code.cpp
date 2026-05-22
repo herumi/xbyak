@@ -1972,6 +1972,8 @@ void put64()
 	puts("void push2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_APX|T_ND1|T_W1, 0xFF); }");
 	puts("void pop2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_APX|T_ND1|T_W0, 0x8F); }");
 	puts("void pop2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_APX|T_ND1|T_W1, 0x8F); }");
+	puts("void pushp(const Reg64& r) { opPushPopP(r, 0x50); }");
+	puts("void popp(const Reg64& r) { opPushPopP(r, 0x58); }");
 	// CMPccXADD
 	{
 		const struct Tbl {
