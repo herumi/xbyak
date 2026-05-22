@@ -1839,7 +1839,7 @@ const int UseRCX = 1 << 6;
 const int UseRDX = 1 << 7;
 const int UseRSI = 1 << 8;
 const int UseRDI = 1 << 9;
-const int UseRBPAsFramePointer = UseRBP | (1 << 10);
+const int UseRBPAsFramePointer = UseRBP | (1 << 30);
 
 class StackFrame {
 #ifdef XBYAK64_WIN
