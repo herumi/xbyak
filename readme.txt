@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.37.2
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.37.3
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -404,6 +404,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2026/05/23 ver 7.37.3 mesond.buildがサブプロジェクトとして使用される場合pkgconfig/cmakeの生成をスキップするように修正
 2026/05/20 ver 7.37.2 tpause/umonitor/umwaitのAPX encoding対応修正
 2026/05/14 ver 7.37.1 正しいメモリオペランドサイズのチェックエラーを修正
 2026/04/27 ver 7.37 Xeon Phi専用命令の削除/AMX_COMPLEX検出対応/CpuTopologyの古いWin SDK対応
