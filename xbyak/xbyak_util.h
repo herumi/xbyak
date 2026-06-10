@@ -748,10 +748,11 @@ public:
 				if (edx & (1U << 14)) type_ |= tPREFETCHITI;
 				if (edx & (1U << 19)) type_ |= tAVX10;
 				if (edx & (1U << 21)) type_ |= tAPX_F;
-
+			}
+			if (maxNum >= 0x1e) {
 				getCpuidEx(0x1e, 1, data);
 				if (eax & (1U << 4)) type_ |= tAMX_FP8;
-				if (eax & (1U << 5)) type_ |= tAMX_TRANSPOSE;
+//				if (eax & (1U << 5)) type_ |= tAMX_TRANSPOSE; // removed at 319433-059
 				if (eax & (1U << 6)) type_ |= tAMX_TF32;
 				if (eax & (1U << 7)) type_ |= tAMX_AVX512;
 				if (eax & (1U << 8)) type_ |= tAMX_MOVRS;
