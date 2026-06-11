@@ -750,12 +750,16 @@ public:
 				if (edx & (1U << 21)) type_ |= tAPX_F;
 			}
 			if (maxNum >= 0x1e) {
-				getCpuidEx(0x1e, 1, data);
-				if (eax & (1U << 4)) type_ |= tAMX_FP8;
-//				if (eax & (1U << 5)) type_ |= tAMX_TRANSPOSE; // removed at 319433-059
-				if (eax & (1U << 6)) type_ |= tAMX_TF32;
-				if (eax & (1U << 7)) type_ |= tAMX_AVX512;
-				if (eax & (1U << 8)) type_ |= tAMX_MOVRS;
+				getCpuidEx(0x1e, 0, data);
+				if (eax /* maxNumSubLeaves */ >= 1) { // 0 on SPR/EMR
+					getCpuidEx(0x1e, 1, data);
+					// eax bits 0-3 (AMX-INT8/BF16/COMPLEX/FP16) mirror the leaf 7 bits, so use leaf 7
+					if (eax & (1U << 4)) type_ |= tAMX_FP8;
+//					if (eax & (1U << 5)) type_ |= tAMX_TRANSPOSE; // removed at 319433-059
+					if (eax & (1U << 6)) type_ |= tAMX_TF32;
+					if (eax & (1U << 7)) type_ |= tAMX_AVX512;
+					if (eax & (1U << 8)) type_ |= tAMX_MOVRS;
+				}
 			}
 		}
 		if (maxNum >= 0x19) {
