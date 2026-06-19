@@ -582,7 +582,7 @@ public:
 	XBYAK_DEFINE_TYPE(88, tSSE4a);
 	XBYAK_DEFINE_TYPE(89, tCLWB);
 	XBYAK_DEFINE_TYPE(90, tTSXLDTRK);
-	XBYAK_DEFINE_TYPE(91, tAMX_TRANSPOSE);
+//	XBYAK_DEFINE_TYPE(91, tAMX_TRANSPOSE);
 	XBYAK_DEFINE_TYPE(92, tAMX_TF32);
 	XBYAK_DEFINE_TYPE(93, tAMX_AVX512);
 	XBYAK_DEFINE_TYPE(94, tAMX_MOVRS);
@@ -748,13 +748,18 @@ public:
 				if (edx & (1U << 14)) type_ |= tPREFETCHITI;
 				if (edx & (1U << 19)) type_ |= tAVX10;
 				if (edx & (1U << 21)) type_ |= tAPX_F;
-
-				getCpuidEx(0x1e, 1, data);
-				if (eax & (1U << 4)) type_ |= tAMX_FP8;
-				if (eax & (1U << 5)) type_ |= tAMX_TRANSPOSE;
-				if (eax & (1U << 6)) type_ |= tAMX_TF32;
-				if (eax & (1U << 7)) type_ |= tAMX_AVX512;
-				if (eax & (1U << 8)) type_ |= tAMX_MOVRS;
+			}
+			if (maxNum >= 0x1e) {
+				getCpuidEx(0x1e, 0, data);
+				if (eax /* maxNumSubLeaves */ >= 1) { // 0 on SPR/EMR
+					getCpuidEx(0x1e, 1, data);
+					// eax bits 0-3 (AMX-INT8/BF16/COMPLEX/FP16) mirror the leaf 7 bits, so use leaf 7
+					if (eax & (1U << 4)) type_ |= tAMX_FP8;
+//					if (eax & (1U << 5)) type_ |= tAMX_TRANSPOSE; // removed at 319433-059
+					if (eax & (1U << 6)) type_ |= tAMX_TF32;
+					if (eax & (1U << 7)) type_ |= tAMX_AVX512;
+					if (eax & (1U << 8)) type_ |= tAMX_MOVRS;
+				}
 			}
 		}
 		if (maxNum >= 0x19) {

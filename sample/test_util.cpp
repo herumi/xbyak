@@ -108,7 +108,7 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tKEYLOCKER_WIDE, "keylocker_wide" },
 		{ Cpu::tTSXLDTRK, "tsxldtrk" },
 		{ Cpu::tAMX_FP8, "amx_fp8" },
-		{ Cpu::tAMX_TRANSPOSE, "amx_transpose" },
+//		{ Cpu::tAMX_TRANSPOSE, "amx_transpose" },
 		{ Cpu::tAMX_TF32, "amx_tf32" },
 		{ Cpu::tAMX_AVX512, "amx_avx512" },
 		{ Cpu::tAMX_MOVRS, "amx_movrs" },

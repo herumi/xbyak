@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ "${SDE:=sde}"
+
 UPDATE=0
 if [ $# -eq 1 ]; then
 UPDATE=1
@@ -16,9 +18,9 @@ cpus=(p4p mrm pnr nhm wsm snb ivb hsw bdw slt slm glm glp tnt skl cnl icl skx cl
 for cpu in ${cpus[@]} ; do
   echo $cpu
   if [ $UPDATE == 1 ]; then
-    ~/bin/sde -$cpu -- ../test_util64 -cpuid > $cpu.txt
+    ${SDE} -$cpu -- ../test_util64 -cpuid > $cpu.txt
   else
-    ~/bin/sde -$cpu -- ../test_util64 -cpuid > tmp.txt
+    ${SDE} -$cpu -- ../test_util64 -cpuid > tmp.txt
     diff $cpu.txt tmp.txt
   fi
 done
