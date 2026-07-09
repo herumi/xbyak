@@ -2471,4 +2471,42 @@ CYBOZU_TEST_AUTO(vmovw)
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
 
+CYBOZU_TEST_AUTO(segment)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			mov(eax, ptr[es + rax]);
+			mov(eax, ptr[cs + rax]);
+			mov(eax, ptr[ss + rax]);
+			mov(eax, ptr[ds + rax]);
+			mov(eax, ptr[fs + rax]);
+			mov(eax, ptr[gs + rax]);
+			vmovdqu(ymm0, ptr[fs + rax + rbx * 4]);
+			vmovdqu32(zm0 | k1, ptr[gs + rax]);
+			putSeg(es); mov(eax, ptr[eax]);
+			putSeg(cs); mov(eax, ptr[eax]);
+			putSeg(ss); mov(eax, ptr[eax]);
+			putSeg(ds); mov(eax, ptr[eax]);
+		}
+	} c;
+	const uint8_t tbl[] = {
+		0x26, 0x8B, 0x00, // mov(eax, ptr[es+rax])
+		0x2E, 0x8B, 0x00, // mov(eax, ptr[cs+rax])
+		0x36, 0x8B, 0x00, // mov(eax, ptr[ss+rax])
+		0x3E, 0x8B, 0x00, // mov(eax, ptr[ds+rax])
+		0x64, 0x8B, 0x00, // mov(eax, ptr[fs+rax])
+		0x65, 0x8B, 0x00, // mov(eax, ptr[gs+rax])
+		0x64, 0xC5, 0xFE, 0x6F, 0x04, 0x98, // vmovdqu(ymm0, ptr[fs+rax+rbx*4])
+		0x65, 0x62, 0xF1, 0x7E, 0x49, 0x6F, 0x00, // vmovdqu32(zm0|k1, ptr[gs+rax])
+		0x26, 0x67, 0x8B, 0x00, // putSeg(es); mov(eax, ptr[eax])
+		0x2E, 0x67, 0x8B, 0x00, // putSeg(cs); mov(eax, ptr[eax])
+		0x36, 0x67, 0x8B, 0x00, // putSeg(ss); mov(eax, ptr[eax])
+		0x3E, 0x67, 0x8B, 0x00, // putSeg(ds); mov(eax, ptr[eax])
+	};
+	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
+
 #endif

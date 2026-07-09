@@ -1063,7 +1063,7 @@ public:
 	}
 	bool operator==(const RegExp& rhs) const
 	{
-		return base_ == rhs.base_ && index_ == rhs.index_ && disp_ == rhs.disp_ && scale_ == rhs.scale_;
+		return base_ == rhs.base_ && index_ == rhs.index_ && disp_ == rhs.disp_ && scale_ == rhs.scale_ && seg_ == rhs.seg_;
 	}
 	const Reg& getBase() const { return base_; }
 	const Reg& getIndex() const { return index_; }
@@ -1071,6 +1071,8 @@ public:
 	bool isOnlyDisp() const { return !base_.getBit() && !index_.getBit(); } // for mov eax
 	int getScale() const { return scale_; }
 	size_t getDisp() const { return disp_; }
+	bool hasSeg() const { return seg_ >= 0; }
+	int getSeg() const { return seg_; }
 	XBYAK_CONSTEXPR void verify() const
 	{
 		if (base_.getBit() >= 128) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
@@ -1082,6 +1084,9 @@ public:
 	friend RegExp operator+(const RegExp& a, const RegExp& b);
 	friend RegExp operator+(const RegExp& e, unsigned long long disp);
 	friend RegExp operator-(const RegExp& e, size_t disp);
+#ifndef XBYAK_DISABLE_SEGMENT
+	friend RegExp operator+(const Segment& seg, const RegExp& e);
+#endif
 private:
 	/*
 		[base_ + index_ * scale_ + disp_]
@@ -1094,6 +1099,7 @@ private:
 	Label *label_;
 	bool rip_;
 	bool asPtr_; // disp_ contains a pointer
+	int seg_ = -1; // Segment::(es|cs|...), -1 = none
 };
 
 inline RegExp operator+(const RegExp& a, const RegExp& b)
@@ -1103,7 +1109,9 @@ inline RegExp operator+(const RegExp& a, const RegExp& b)
 	if (b.rip_) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegExp())
 	if (a.rip_ && !b.isOnlyDisp()) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegExp())
 	if (a.asPtr_ && b.asPtr_) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegExp())
+	if (a.seg_ >= 0 && b.seg_ >= 0) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegExp())
 	RegExp ret = a;
+	if (ret.seg_ < 0) ret.seg_ = b.seg_;
 	if (ret.label_ == 0) ret.label_ = b.label_;
 	if (ret.asPtr_ == 0) ret.asPtr_ = b.asPtr_;
 	if (!ret.index_.getBit()) { ret.index_ = b.index_; ret.scale_ = b.scale_; }
@@ -1122,6 +1130,15 @@ inline RegExp operator+(const RegExp& a, const RegExp& b)
 	ret.disp_ += b.disp_;
 	return ret;
 }
+#ifndef XBYAK_DISABLE_SEGMENT
+inline RegExp operator+(const Segment& seg, const RegExp& e)
+{
+	if (e.seg_ >= 0) XBYAK_THROW_RET(ERR_BAD_ADDRESSING, RegExp())
+	RegExp ret = e;
+	ret.seg_ = seg.getIdx();
+	return ret;
+}
+#endif
 inline RegExp operator*(const Reg& r, int scale)
 {
 	return RegExp(r, scale);
@@ -1436,6 +1453,8 @@ public:
 	}
 	bool operator!=(const Address& rhs) const { return !operator==(rhs); }
 	bool isVsib() const { return e_.isVsib(); }
+	bool hasSeg() const { return e_.hasSeg(); }
+	int getSeg() const { return e_.getSeg(); }
 	// change byte to dword etc.
 	Address changeBit(int bit) const { Address addr(*this); addr.setBit(bit); return addr; }
 private:
@@ -1891,6 +1910,9 @@ private:
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) std::swap(p1, p2);
 		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
+#ifndef XBYAK_DISABLE_SEGMENT
+		if (p2->isMEM() && p2->getAddress().hasSeg()) putSeg(Segment(p2->getAddress().getSeg()));
+#endif
 		// except movsx(16bit, 32/64bit)
 		bool p66 = (op1.isBit(16) && !op2.isBit(i32e)) || (op2.isBit(16) && !op1.isBit(i32e));
 		if ((type & T_66) || p66) db(0x66);
@@ -2616,6 +2638,9 @@ private:
 			const RegExp& regExp = addr.getRegExp();
 			const Reg& base = regExp.getBase();
 			const Reg& index = regExp.getIndex();
+#ifndef XBYAK_DISABLE_SEGMENT
+			if (addr.hasSeg()) putSeg(Segment(addr.getSeg()));
+#endif
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			int disp8N = 0;
 			if ((type & (T_MUST_EVEX|T_MEM_EVEX)) || r.hasEvex() || (p1 && p1->hasEvex()) || addr.isBroadcast() || addr.getOpmaskIdx() || addr.hasRex2()) {
@@ -3244,10 +3269,10 @@ public:
 	void putSeg(const Segment& seg)
 	{
 		switch (seg.getIdx()) {
-		case Segment::es: db(0x2E); break;
-		case Segment::cs: db(0x36); break;
-		case Segment::ss: db(0x3E); break;
-		case Segment::ds: db(0x26); break;
+		case Segment::es: db(0x26); break;
+		case Segment::cs: db(0x2E); break;
+		case Segment::ss: db(0x36); break;
+		case Segment::ds: db(0x3E); break;
 		case Segment::fs: db(0x64); break;
 		case Segment::gs: db(0x65); break;
 		default:
