@@ -930,13 +930,6 @@ CYBOZU_TEST_AUTO(AMX)
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
 
-// Regression test: Xbyak::util::tmm0-tmm7 were once declared as type Zmm
-// instead of Tmm in xbyak.h's `namespace util` block, while CodeGenerator's
-// own tmm0-tmm7 members (what every unqualified "tmmN" call in the tests
-// above actually resolves to) were always correctly typed Tmm. The mistake
-// was invisible under the normal CodeGenerator-inheritance style: inside a
-// CodeGenerator member function, unqualified "tmmN" always binds to the
-// class's own member first and never reaches the namespace copy.
 CYBOZU_TEST_AUTO(util_tmm)
 {
 	const uint8_t b[] = {
