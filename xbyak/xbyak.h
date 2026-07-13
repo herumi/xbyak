@@ -3244,10 +3244,10 @@ public:
 	void putSeg(const Segment& seg)
 	{
 		switch (seg.getIdx()) {
-		case Segment::es: db(0x2E); break;
-		case Segment::cs: db(0x36); break;
-		case Segment::ss: db(0x3E); break;
-		case Segment::ds: db(0x26); break;
+		case Segment::es: db(0x26); break;
+		case Segment::cs: db(0x2E); break;
+		case Segment::ss: db(0x36); break;
+		case Segment::ds: db(0x3E); break;
 		case Segment::fs: db(0x64); break;
 		case Segment::gs: db(0x65); break;
 		default:
