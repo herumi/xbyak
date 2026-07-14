@@ -177,7 +177,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7374 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7375 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -3244,10 +3244,10 @@ public:
 	void putSeg(const Segment& seg)
 	{
 		switch (seg.getIdx()) {
-		case Segment::es: db(0x2E); break;
-		case Segment::cs: db(0x36); break;
-		case Segment::ss: db(0x3E); break;
-		case Segment::ds: db(0x26); break;
+		case Segment::es: db(0x26); break;
+		case Segment::cs: db(0x2E); break;
+		case Segment::ss: db(0x36); break;
+		case Segment::ds: db(0x3E); break;
 		case Segment::fs: db(0x64); break;
 		case Segment::gs: db(0x65); break;
 		default:
@@ -3513,7 +3513,7 @@ static const XBYAK_CONSTEXPR Ymm ymm24(24), ymm25(25), ymm26(26), ymm27(27), ymm
 static const XBYAK_CONSTEXPR Zmm zmm8(8), zmm9(9), zmm10(10), zmm11(11), zmm12(12), zmm13(13), zmm14(14), zmm15(15);
 static const XBYAK_CONSTEXPR Zmm zmm16(16), zmm17(17), zmm18(18), zmm19(19), zmm20(20), zmm21(21), zmm22(22), zmm23(23);
 static const XBYAK_CONSTEXPR Zmm zmm24(24), zmm25(25), zmm26(26), zmm27(27), zmm28(28), zmm29(29), zmm30(30), zmm31(31);
-static const XBYAK_CONSTEXPR Zmm tmm0(0), tmm1(1), tmm2(2), tmm3(3), tmm4(4), tmm5(5), tmm6(6), tmm7(7);
+static const XBYAK_CONSTEXPR Tmm tmm0(0), tmm1(1), tmm2(2), tmm3(3), tmm4(4), tmm5(5), tmm6(6), tmm7(7);
 static const XBYAK_CONSTEXPR RegRip rip;
 static const XBYAK_CONSTEXPR ApxFlagNF T_nf;
 static const XBYAK_CONSTEXPR ApxFlagZU T_zu;

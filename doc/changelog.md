@@ -1,5 +1,5 @@
 # History
-
+* 2026/Jul/14 ver 7.37.5 fix type of util::tmm? and putSegment()
 * 2026/Jun/19 ver 7.37.4 strict check of TMUL information
 * 2026/May/23 ver 7.37.3 fix meson.build to skip pkgconfig/cmake generation when used as a subproject
 * 2026/May/20 ver 7.37.2 fix APX encoding for tpause/umonitor/umwait
