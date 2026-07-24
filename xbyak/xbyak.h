@@ -382,6 +382,11 @@ inline const char *ConvertErrorToString(const Error& err)
 
 inline void *AlignedMalloc(size_t size, size_t alignment)
 {
+	// Round size up to a multiple of alignment. protect()/setProtectMode()
+	// change permissions for the whole [alignment]-sized region starting
+	// at the returned pointer, so we must not let the underlying allocator
+	// place anything else of ours in the same region.
+	size = (size + alignment - 1) & ~(alignment - 1);
 #ifdef __MINGW32__
 	return __mingw_aligned_malloc(size, alignment);
 #elif defined(_WIN32)
