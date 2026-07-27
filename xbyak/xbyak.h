@@ -2809,6 +2809,8 @@ private:
 		} else {
 			if (!op.isMEM() && !op.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION)
 		}
+		// zeroing-masking has no meaning when the destination is memory
+		if (op.isMEM() && (op.hasZero() || x.hasZero())) XBYAK_THROW(ERR_INVALID_ZERO)
 		opVex(x, 0, op, type, code);
 	}
 	void opGatherFetch(const Address& addr, const Xmm& x, uint64_t type, uint8_t code, Operand::Kind kind)

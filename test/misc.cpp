@@ -272,6 +272,24 @@ CYBOZU_TEST_AUTO(kmask)
 	} c;
 }
 
+// {z} (zeroing-masking) has no architectural meaning when the destination of a
+// downconvert store-form instruction (dispatched via opVmov) is memory; only
+// merge-masking ({k} without {z}) is valid there.
+CYBOZU_TEST_AUTO(vpmov_store_zero)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			// mode=false family (narrow dest is byte-sized relative to source)
+			CYBOZU_TEST_NO_EXCEPTION(vpmovdb(ptr[eax], xmm3|k4));
+			CYBOZU_TEST_EXCEPTION(vpmovdb(ptr[eax], xmm3|k4|T_z), std::exception);
+			// mode=true family (narrow dest is word/dword-sized relative to source)
+			CYBOZU_TEST_NO_EXCEPTION(vpmovqd(ptr[eax], xmm3|k4));
+			CYBOZU_TEST_EXCEPTION(vpmovqd(ptr[eax], xmm3|k4|T_z), std::exception);
+		}
+	} c;
+}
+
 CYBOZU_TEST_AUTO(gather)
 {
 	struct Code : Xbyak::CodeGenerator {
