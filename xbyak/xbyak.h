@@ -177,7 +177,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7375 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7376 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -461,10 +461,17 @@ enum AddressMode {
 
 /*
 	custom allocator
+	alloc() must allocate the buffer with size rounded up to a multiple of
+	the page size because protect() works at page granularity.
 */
 struct Allocator {
 	explicit Allocator(const std::string& = "") {} // same interface with MmapAllocator
-	virtual uint8_t *alloc(size_t size) { return reinterpret_cast<uint8_t*>(AlignedMalloc(size, inner::getPageSize())); }
+	virtual uint8_t *alloc(size_t size)
+	{
+		const size_t alignedSizeM1 = inner::getPageSize() - 1;
+		size = (size + alignedSizeM1) & ~alignedSizeM1;
+		return reinterpret_cast<uint8_t*>(AlignedMalloc(size, inner::getPageSize()));
+	}
 	virtual void free(uint8_t *p) { AlignedFree(p); }
 	virtual ~Allocator() {}
 	/* override to return false if you call protect() manually */
@@ -2612,6 +2619,8 @@ private:
 	void opVex(const Reg& r, const Operand *p1, const Operand& op2, uint64_t type, int code, int imm8 = NONE)
 	{
 		if (op2.isMEM()) {
+			// zeroing-masking has no meaning when the destination is memory
+			if ((type & T_M_K) && (r.hasZero() || (p1 && p1->hasZero()) || op2.hasZero())) XBYAK_THROW(ERR_INVALID_ZERO)
 			Address addr = op2.getAddress();
 			const RegExp& regExp = addr.getRegExp();
 			const Reg& base = regExp.getBase();
