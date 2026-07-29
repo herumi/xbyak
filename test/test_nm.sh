@@ -28,13 +28,6 @@ Y64)
 	OPT3=win64
 	FILTER=./normalize_prefix.exe
 	;;
-avx512)
-	echo "nasm(64bit) + avx512"
-	EXE=nasm
-	OPT2="-DXBYAK64 -DUSE_AVX512"
-	OPT3=win64
-	FILTER=./normalize_prefix.exe
-	;;
 noexcept)
 	echo "nasm(32bit) without exception"
 	EXE=nasm

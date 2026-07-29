@@ -232,7 +232,8 @@ public:
 			put(name, MEM, ZMM);
 			put(name, ZMM, MEM);
 #ifdef XBYAK64
-			put(name, MEM, XMM);
+			put(name, MEM, XMM|YMM);
+			put(name, MEM_K, ZMM|XMM|YMM);
 			put(name, XMM, MEM);
 #endif
 		}
@@ -681,7 +682,7 @@ public:
 		}
 #ifdef XBYAK64
 		put("vpextrb", _REG64 | _MEM, XMM, IMM8);
-		put("vpextrw", _REG64 | _MEM, XMM, IMM8);
+		put("vpextrw", _REG64 | MEM, XMM, IMM8);
 		put("vpextrd", _REG32 | _MEM, XMM, IMM8);
 		put("vpextrq", _REG64 | _MEM, XMM, IMM8);
 		put("vpinsrb", XMM, _XMM3, _REG32 | _MEM, IMM8);
@@ -746,6 +747,8 @@ public:
 				}
 			}
 		}
+		put("vfmadd132pd", ZMM, ZMM, ZMM_ER);
+		put("vfmadd132ps", ZMM, ZMM, ZMM_ER);
 	}
 	void put512_Y_XM()
 	{
@@ -830,6 +833,11 @@ public:
 		}
 		put("vaddss", XMM, _XMM, XMM_ER);
 		put("vaddsd", XMM, _XMM, XMM_ER);
+		put("vaddpd", ZMM, ZMM, ZMM_ER);
+		put("vmaxpd", ZMM, ZMM, ZMM_SAE);
+		put("vminps", ZMM, ZMM, ZMM_SAE);
+		put("vmaxsd", XMM, XMM, XMM_SAE);
+		put("vminss", XMM, XMM, XMM_SAE);
 #endif
 	}
 	void putAVX1()
@@ -1596,6 +1604,10 @@ public:
 		put("vfmadd231ps", "zmm8, zmm31, ptr_b[r14+rbp-0x1e4]", "zmm8, zmm31, [r14+rbp-0x1e4]{1to16}");
 #endif
 	}
+	void put512_fp16()
+	{
+		put("vaddph", ZMM, ZMM, ZMM_ER);
+	}
 	void putAVX512()
 	{
 #ifdef MIN_TEST
@@ -1628,6 +1640,7 @@ public:
 		put512_AVX1();
 		separateFunc();
 		put512_cvt();
+		put512_fp16();
 		separateFunc();
 		putMisc1();
 		separateFunc();

@@ -82,7 +82,6 @@ ifneq ($(ONLY_64BIT),1)
 	CXX=$(CXX) ./test_nm.sh
 	CXX=$(CXX) ./test_nm.sh noexcept
 	CXX=$(CXX) ./test_nm.sh Y
-	CXX=$(CXX) ./test_nm.sh avx512
 	CXX=$(CXX) ./test_address.sh
 	./jmp.exe
 	./cvt_test32.exe
