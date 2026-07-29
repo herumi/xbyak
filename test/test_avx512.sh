@@ -13,7 +13,7 @@ case $1 in
 	EXE=nasm
 	OPT2=-DXBYAK64
 	OPT3=win64
-	FILTER=./normalize_prefix
+	FILTER=./normalize_prefix.exe
 	;;
 *)
 	echo "nasm(32bit)"
@@ -25,16 +25,16 @@ esac
 
 CFLAGS="$CFLAGS_USER $CFLAGS_WARN -I../ $OPT2 -DUSE_AVX512"
 echo "compile make_512.cpp"
-$CXX $CFLAGS make_512.cpp -o make_512
+$CXX $CFLAGS make_512.cpp -o make_512.exe
 
-./make_512 > a.asm
+./make_512.exe > a.asm
 echo "asm"
 $EXE -f$OPT3 a.asm -l a.lst
 awk '{printf "%s", sub(/-$/, "", $3) ? $3 : $3 ORS}' a.lst | $FILTER > ok.lst
 
 echo "xbyak"
-./make_512 jit > nm.cpp
+./make_512.exe jit > nm.cpp
 echo "compile nm_frame.cpp"
-$CXX $CFLAGS -DXBYAK_TEST nm_frame.cpp -o nm_frame -DXBYAK_AVX512
-./nm_frame | $FILTER > x.lst
+$CXX $CFLAGS -DXBYAK_TEST nm_frame.cpp -o nm_frame.exe -DXBYAK_AVX512
+./nm_frame.exe | $FILTER > x.lst
 diff -bB ok.lst x.lst && echo "ok"

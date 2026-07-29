@@ -46,5 +46,5 @@ jobs:
         make -C sample CXXFLAGS="-DXBYAK_NO_EXCEPTION"
         cd test
         make xed_test
-        rm -rf jmp64
-        env CXX=""clang++ -std=c++20"" make jmp64 && ./jmp64
+        rm -rf jmp64.exe
+        env CXX=""clang++ -std=c++20"" make jmp64.exe && ./jmp64.exe
