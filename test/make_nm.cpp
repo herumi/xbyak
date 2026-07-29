@@ -63,64 +63,6 @@ private:
 				};
 				return MmxTbl[idx];
 			}
-		case _XMM:
-			{
-				static const char tbl[][6] = {
-					"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7",
-				};
-				return tbl[idx];
-			}
-		case _YMM:
-			{
-				static const char tbl[][6] = {
-					"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7"
-				};
-				return tbl[idx];
-			}
-		case _ZMM:
-			{
-				static const char tbl[][6] = {
-					"zmm0", "zmm1", "zmm2", "zmm3", "zmm4", "zmm5", "zmm6", "zmm7"
-				};
-				return tbl[idx];
-			}
-#ifdef XBYAK64
-		case _XMM2:
-			{
-				static const char tbl[][6] = {
-					"xmm8", "xmm9", "xmm10", "xmm11", "xmm12", "xmm13", "xmm14", "xmm15"
-				};
-				return tbl[idx];
-			}
-		case _XMM3:
-			{
-				static const char tbl[][6] = {
-					"xmm16", "xmm17", "xmm18", "xmm19", "xmm20", "xmm21", "xmm22", "xmm23"
-				};
-				return tbl[idx];
-			}
-		case _YMM2:
-			{
-				static const char tbl[][6] = {
-					"ymm8", "ymm9", "ymm10", "ymm11", "ymm12", "ymm13", "ymm14", "ymm15",
-				};
-				return tbl[idx];
-			}
-		case _YMM3:
-			{
-				static const char tbl[][6] = {
-					"ymm16", "ymm17", "ymm18", "ymm19", "ymm20", "ymm21", "ymm22", "ymm23",
-				};
-				return tbl[idx];
-			}
-		case _ZMM2:
-			{
-				static const char tbl[][6] = {
-					"zmm8", "zmm9", "zmm10", "zmm11", "zmm28", "zmm29", "zmm30", "zmm31",
-				};
-				return tbl[idx];
-			}
-#endif
 		case _MEM:
 			{
 				return isXbyak_ ? "ptr[eax+ecx+3]" : "[eax+ecx+3]"; // QQQ : disp8N
@@ -135,150 +77,36 @@ private:
 				}
 */
 			}
-		case _MEMe:
-			{
-				static int ccc = 1;
-#ifdef USE_YASM
-				ccc++;
-#endif
-				if (ccc & 1) {
-					return isXbyak_ ? "ptr[rdx+r15+0x12]" : "[rdx+r15+0x12]";
-				} else {
-					return isXbyak_ ? "ptr[rip - 0x13456+1-3]" : "[rip - 0x13456+1-3]";
-				}
-			}
-		case MEM8:
-			return "byte [eax+edx]";
-		case MEM16:
-			return "word [esi]";
 		case MEM32:
 			return "dword [ebp*2]";
 		case MEM64:
 			return "qword [eax+ecx*8]";
 		case MEM_ONLY_DISP:
 			return isXbyak_ ? "ptr[(void*)0x123]" : "[abs 0x123]";
-		case _REG16: // not ax
-			{
-				static const char Reg16Tbl[][4] = {
-					"ax", "cx", "dx", "bx", "sp", "bp", "si", "di"
-				};
-				return Reg16Tbl[(idx % 7) + 1];
-			}
-		case _REG8: // not al
-			{
-				static const char Reg8Tbl[][4] = {
-#ifdef XBYAK64 // QQQ
-					"al", "cl", "dl", "bl", "al", "cl", "dl", "bl"
-#else
-					"al", "cl", "dl", "bl", "ah", "ch", "dh", "bh"
-#endif
-				};
-				return Reg8Tbl[(idx % 7) + 1];
-			}
-		case _REG32: // not eax
-			{
-				static const char Reg32Tbl[][4] = {
-					"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"
-				};
-				return Reg32Tbl[(idx % 7) + 1];
-			}
 #ifdef XBYAK64
-		case _REG64: // not rax
-			{
-				static const char Reg64Tbl[][4] = {
-					"rax", "rcx", "rdx", "rbx", "rsp", "rbp", "rsi", "rdi"
-				};
-				return Reg64Tbl[(idx % 7) + 1];
-			}
-		case _REG64_2:
-			{
-				static const char Reg64_2Tbl[][4] = {
-					"r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15"
-				};
-				return Reg64_2Tbl[idx];
-			}
-		case REG32_2:
-			{
-				static const char Reg32eTbl[][5] = {
-					"r8d", "r9d", "r10d", "r11d", "r12d", "r13d", "r14d", "r15d"
-				};
-				return Reg32eTbl[idx];
-			}
-		case REG16_2:
-			{
-				static const char Reg16eTbl[][5] = {
-					"r8w", "r9w", "r10w", "r11w", "r12w", "r13w", "r14w", "r15w"
-				};
-				return Reg16eTbl[idx];
-			}
-		case REG8_2:
-			{
-				static const char Reg8_2Tbl[][5] = {
-					"r8b", "r9b", "r10b", "r11b", "r12b", "r13b", "r14b", "r15b"
-				};
-				return Reg8_2Tbl[idx];
-			}
-		case REG8_3:
-			{
-				static const char Reg8_3Tbl[][5] = {
-					"spl", "bpl", "sil", "dil", "spl", "bpl", "sil", "dil"
-				};
-				return Reg8_3Tbl[idx];
-			}
 		case RAX:
 			return "rax";
 #endif
-		case EAX:
-			return "eax";
-		case AX:
-			return "ax";
-		case AL:
-			return "al";
 		case CL:
 			return "cl";
 		case ONE:
 			return "1";
-		case IMM32:
-			return isXbyak_ ? "12345678" : "dword 12345678";
 		case IMM16:
 			return isXbyak_ ? "1000" : "word 1000";
-		case IMM8:
-			return isXbyak_ ? "4" : "byte 4";
 		case NEG8:
 			return isXbyak_ ? "-30" : "byte -30";
 		case NEG16:
 			return isXbyak_ ? "-1000" : "word -1000";
 		case NEG32:
 			return isXbyak_ ? "-100000" : "dword -100000";
-		case IMM_1:
-			return "4";
-		case IMM_2:
-			return isXbyak_ ? "0xda" : "0xda";
 		case VM32X_32:
 			return isXbyak_ ? "ptr [ebp+4+xmm1*8]" : "[ebp+4+xmm1*8]";
 		case VM32X_64:
 			return isXbyak_ ? "ptr [12345+xmm13*2]" : "[12345+xmm13*2]";
-		case VM32Y_32:
-			return isXbyak_ ? "ptr [ymm4]" : "[ymm4]";
 		case VM32Y_64:
 			return isXbyak_ ? "ptr [12345+ymm13*2+r13]" : "[12345+ymm13*2+r13]";
-		case M_1to2: return isXbyak_ ? "ptr_b [eax+32]" : "[eax+32]{1to2}";
-		case M_1to4: return isXbyak_ ? "ptr_b [eax+32]" : "[eax+32]{1to4}";
-		case M_1to8: return isXbyak_ ? "ptr_b [eax+32]" : "[eax+32]{1to8}";
-		case M_1to16: return isXbyak_ ? "ptr_b [eax+32]" : "[eax+32]{1to16}";
-
 		case M_xword: return isXbyak_ ? "ptr [eax+33]" : "oword [eax+33]";
 		case M_yword: return isXbyak_ ? "yword [eax+33]" : "yword [eax+33]";
-		case MY_1to4: return isXbyak_ ? "yword_b [eax+32]" : "[eax+32]{1to4}";
-		case K:
-			{
-				static const char kTbl[][5] = {
-					"k1", "k2", "k3", "k4", "k5", "k6", "k7",
-				};
-				return kTbl[idx % 7];
-			}
-		case K2:
-			return isXbyak_ ? "k3 | k5" : "k3{k5}";
 		case BNDREG:
 			{
 				static const char tbl[][5] = {
@@ -286,37 +114,8 @@ private:
 				};
 				return tbl[idx % 4];
 			}
-#ifdef XBYAK64
-		case XMM_SAE:
-			return isXbyak_ ? "xmm25 | T_sae" : "xmm25, {sae}";
-		case ZMM_SAE:
-			return isXbyak_ ? "zmm25 | T_sae" : "zmm25, {sae}";
-		case XMM_ER:
-			return isXbyak_ ? "xmm4 | T_rd_sae" : "xmm4, {rd-sae}";
-		case ZMM_ER:
-			return isXbyak_ ? "zmm20 | T_rd_sae" : "zmm20, {rd-sae}";
-		case XMM_KZ:
-			return isXbyak_ ? "xmm5 | k5" : "xmm5{k5}";
-		case YMM_KZ:
-			return isXbyak_ ? "ymm2 |k3|T_z" : "ymm2{k3}{z}";
-		case ZMM_KZ:
-			return isXbyak_ ? "zmm7|k1" : "zmm7{k1}";
-		case MEM_K:
-			return isXbyak_ ? "ptr [rax] | k1" : "[rax]{k1}";
-#else
-		case XMM_SAE:
-			return isXbyak_ ? "xmm5 | T_sae" : "xmm5, {sae}";
-		case ZMM_SAE:
-			return isXbyak_ ? "zmm5 | T_sae" : "zmm5, {sae}";
-		case XMM_ER:
-			return isXbyak_ ? "xmm30 | T_rd_sae" : "xmm30, {rd-sae}";
-		case ZMM_ER:
-			return isXbyak_ ? "zmm2 | T_rd_sae" : "zmm2, {rd-sae}";
-		case MEM_K:
-			return isXbyak_ ? "ptr [eax] | k1" : "[eax]{k1}";
-#endif
 		}
-		return 0;
+		return getCommon(type, idx);
 	}
 	void putSIMPLE() const
 	{
