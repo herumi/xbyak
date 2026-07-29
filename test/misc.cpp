@@ -273,9 +273,9 @@ CYBOZU_TEST_AUTO(kmask)
 }
 
 // {z} (zeroing-masking) has no architectural meaning when the destination of a
-// downconvert store-form instruction (dispatched via opVmov) is memory; only
-// merge-masking ({k} without {z}) is valid there.
-CYBOZU_TEST_AUTO(vpmov_store_zero)
+// store-form instruction is memory; only merge-masking ({k} without {z}) is
+// valid there.
+CYBOZU_TEST_AUTO(store_zero)
 {
 	struct Code : Xbyak::CodeGenerator {
 		Code()
@@ -286,6 +286,25 @@ CYBOZU_TEST_AUTO(vpmov_store_zero)
 			// mode=true family (narrow dest is word/dword-sized relative to source)
 			CYBOZU_TEST_NO_EXCEPTION(vpmovqd(ptr[eax], xmm3|k4));
 			CYBOZU_TEST_EXCEPTION(vpmovqd(ptr[eax], xmm3|k4|T_z), std::exception);
+			// store forms dispatched via opVex with T_M_K
+			CYBOZU_TEST_NO_EXCEPTION(vmovaps(ptr[eax], zmm3|k4));
+			CYBOZU_TEST_EXCEPTION(vmovaps(ptr[eax], zmm3|k4|T_z), std::exception);
+			CYBOZU_TEST_EXCEPTION(vmovaps(ptr[eax]|k4|T_z, zmm3), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vmovdqu8(ptr[eax], zmm3|k4));
+			CYBOZU_TEST_EXCEPTION(vmovdqu8(ptr[eax], zmm3|k4|T_z), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vcompressps(ptr[eax], zmm3|k4));
+			CYBOZU_TEST_EXCEPTION(vcompressps(ptr[eax], zmm3|k4|T_z), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vpcompressd(ptr[eax], zmm3|k4));
+			CYBOZU_TEST_EXCEPTION(vpcompressd(ptr[eax], zmm3|k4|T_z), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vextractf32x4(ptr[eax], zmm3|k4, 1));
+			CYBOZU_TEST_EXCEPTION(vextractf32x4(ptr[eax], zmm3|k4|T_z, 1), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vcvtps2ph(ptr[eax], zmm3|k4, 0));
+			CYBOZU_TEST_EXCEPTION(vcvtps2ph(ptr[eax], zmm3|k4|T_z, 0), std::exception);
+			// register destination still accepts {z}
+			CYBOZU_TEST_NO_EXCEPTION(vmovaps(zmm1|k4|T_z, ptr[eax]));
+			CYBOZU_TEST_NO_EXCEPTION(vpmovdb(xmm1|k4|T_z, xmm3));
+			CYBOZU_TEST_NO_EXCEPTION(vpcompressd(xmm1|k4|T_z, xmm3));
+			CYBOZU_TEST_NO_EXCEPTION(vextractf32x4(xmm1|k4|T_z, zmm3, 1));
 		}
 	} c;
 }

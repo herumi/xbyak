@@ -2612,6 +2612,8 @@ private:
 	void opVex(const Reg& r, const Operand *p1, const Operand& op2, uint64_t type, int code, int imm8 = NONE)
 	{
 		if (op2.isMEM()) {
+			// zeroing-masking has no meaning when the destination is memory
+			if ((type & T_M_K) && (r.hasZero() || (p1 && p1->hasZero()) || op2.hasZero())) XBYAK_THROW(ERR_INVALID_ZERO)
 			Address addr = op2.getAddress();
 			const RegExp& regExp = addr.getRegExp();
 			const Reg& base = regExp.getBase();
@@ -2809,8 +2811,6 @@ private:
 		} else {
 			if (!op.isMEM() && !op.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION)
 		}
-		// zeroing-masking has no meaning when the destination is memory
-		if (op.isMEM() && (op.hasZero() || x.hasZero())) XBYAK_THROW(ERR_INVALID_ZERO)
 		opVex(x, 0, op, type, code);
 	}
 	void opGatherFetch(const Address& addr, const Xmm& x, uint64_t type, uint8_t code, Operand::Kind kind)
