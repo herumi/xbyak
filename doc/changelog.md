@@ -1,4 +1,5 @@
 # History
+* 2026/Jul/29 ver 7.37.6 Allocator::alloc rounds up size to a multiple of the page size. improve T_z validation for memory operands
 * 2026/Jul/14 ver 7.37.5 fix type of util::tmm? and putSegment()
 * 2026/Jun/19 ver 7.37.4 strict check of TMUL information
 * 2026/May/23 ver 7.37.3 fix meson.build to skip pkgconfig/cmake generation when used as a subproject
