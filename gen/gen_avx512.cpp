@@ -279,14 +279,14 @@ void putXM_X()
 		const char *name;
 		uint64_t type;
 	} tbl[] = {
-		{ 0x8A, "vcompresspd", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N8 },
-		{ 0x8A, "vcompressps", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_W0 | T_N4 },
+		{ 0x8A, "vcompresspd", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N8 | T_M_K },
+		{ 0x8A, "vcompressps", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_W0 | T_N4 | T_M_K },
 
-		{ 0x8B, "vpcompressd", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_W0 | T_N4 },
-		{ 0x8B, "vpcompressq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N8 },
+		{ 0x8B, "vpcompressd", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_W0 | T_N4 | T_M_K },
+		{ 0x8B, "vpcompressq", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N8 | T_M_K },
 
-		{ 0x63, "vpcompressb", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_W0 | T_N1 },
-		{ 0x63, "vpcompressw", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N2 },
+		{ 0x63, "vpcompressb", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_W0 | T_N1 | T_M_K },
+		{ 0x63, "vpcompressw", T_66 | T_0F38 | T_MUST_EVEX | T_YMM | T_EW1 | T_N2 | T_M_K },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
@@ -555,15 +555,15 @@ void putExtractInsert()
 			uint64_t type;
 			bool isZMM;
 		} tbl[] = {
-			{ "vextractf32x4", 0x19, T_66 | T_0F3A | T_MUST_EVEX | T_W0 | T_YMM | T_N16, false },
-			{ "vextractf64x2", 0x19, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N16, false },
-			{ "vextractf32x8", 0x1B, T_66 | T_0F3A | T_MUST_EVEX | T_W0 | T_YMM | T_N32, true },
-			{ "vextractf64x4", 0x1B, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N32, true },
+			{ "vextractf32x4", 0x19, T_66 | T_0F3A | T_MUST_EVEX | T_W0 | T_YMM | T_N16 | T_M_K, false },
+			{ "vextractf64x2", 0x19, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N16 | T_M_K, false },
+			{ "vextractf32x8", 0x1B, T_66 | T_0F3A | T_MUST_EVEX | T_W0 | T_YMM | T_N32 | T_M_K, true },
+			{ "vextractf64x4", 0x1B, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N32 | T_M_K, true },
 
-			{ "vextracti32x4", 0x39, T_66 | T_0F3A | T_MUST_EVEX | T_W0 | T_YMM | T_N16, false },
-			{ "vextracti64x2", 0x39, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N16, false },
-			{ "vextracti32x8", 0x3B, T_66 | T_0F3A | T_MUST_EVEX | T_W0 | T_YMM | T_N32, true },
-			{ "vextracti64x4", 0x3B, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N32, true },
+			{ "vextracti32x4", 0x39, T_66 | T_0F3A | T_MUST_EVEX | T_W0 | T_YMM | T_N16 | T_M_K, false },
+			{ "vextracti64x2", 0x39, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N16 | T_M_K, false },
+			{ "vextracti32x8", 0x3B, T_66 | T_0F3A | T_MUST_EVEX | T_W0 | T_YMM | T_N32 | T_M_K, true },
+			{ "vextracti64x4", 0x3B, T_66 | T_0F3A | T_MUST_EVEX | T_EW1 | T_YMM | T_N32 | T_M_K, true },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
