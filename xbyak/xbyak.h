@@ -382,11 +382,6 @@ inline const char *ConvertErrorToString(const Error& err)
 
 inline void *AlignedMalloc(size_t size, size_t alignment)
 {
-	// Round size up to a multiple of alignment. protect()/setProtectMode()
-	// change permissions for the whole [alignment]-sized region starting
-	// at the returned pointer, so we must not let the underlying allocator
-	// place anything else of ours in the same region.
-	size = (size + alignment - 1) & ~(alignment - 1);
 #ifdef __MINGW32__
 	return __mingw_aligned_malloc(size, alignment);
 #elif defined(_WIN32)
@@ -466,10 +461,17 @@ enum AddressMode {
 
 /*
 	custom allocator
+	alloc() must allocate the buffer with size rounded up to a multiple of
+	the page size because protect() works at page granularity.
 */
 struct Allocator {
 	explicit Allocator(const std::string& = "") {} // same interface with MmapAllocator
-	virtual uint8_t *alloc(size_t size) { return reinterpret_cast<uint8_t*>(AlignedMalloc(size, inner::getPageSize())); }
+	virtual uint8_t *alloc(size_t size)
+	{
+		const size_t alignedSizeM1 = inner::getPageSize() - 1;
+		size = (size + alignedSizeM1) & ~alignedSizeM1;
+		return reinterpret_cast<uint8_t*>(AlignedMalloc(size, inner::getPageSize()));
+	}
 	virtual void free(uint8_t *p) { AlignedFree(p); }
 	virtual ~Allocator() {}
 	/* override to return false if you call protect() manually */
