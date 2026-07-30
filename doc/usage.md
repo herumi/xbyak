@@ -559,7 +559,7 @@ StackFrame(CodeGenerator *code, int pNum, int tNum = 0, int stackSizeByte = 0, b
 ### Parameters
 
 - `pNum` : number of function parameters (0 <= pNum <= 4).
-- `tNum` : number of temporary registers (0 <= tNum). Can be OR-ed with `UseRCX`, `UseRDX`, `UseRSI`, `UseRDI`, `UseRBP`.
+- `tNum` : number of temporary registers (0 <= tNum). Can be OR-ed with `UseRCX`, `UseRDX`, `UseRSI`, `UseRDI`, `UseRBP`, `UseR30R31`, and the push-optimization flags below.
 - `stackSizeByte` : local stack size in bytes.
 - `makeEpilog` : automatically generate epilog in the destructor if true.
 
@@ -571,7 +571,16 @@ The constraint is `pNum + tNum + #UseRegs <= 14`.
 - `sf.p[0]`, ..., `sf.p[pNum-1]` : function parameters.
 - `sf.t[0]`, ..., `sf.t[tNum-1]` : temporary registers.
 - `rcx`, `rdx`, `rsi`, `rdi`, `rbp` : explicitly available by specifying `UseRCX`, `UseRDX`, `UseRSI`, `UseRDI`, `UseRBP` in `tNum`.
+- `r30`, `r31` : explicitly available by specifying `UseR30R31` in `tNum`. These APX registers are considered callee-saved, so StackFrame always pushes/pops them when reserved.
 - `rsp[0..stackSizeByte-1]` : local stack area if `stackSizeByte > 0`.
+
+### Push optimization flags
+
+These flags can be OR-ed into `tNum` to influence how callee-saved registers are pushed and popped:
+
+- `UsePUSH2` : use `push2`/`pop2` (APX) where RSP is 16-byte aligned, falling back to `push`/`pop` otherwise.
+- `UsePPX` : use `pushp`/`popp` with the PPX store-forwarding hint (APX).
+- `UsePUSH2|UsePPX` : use `push2p`/`pop2p` where RSP is 16-byte aligned, falling back to `pushp`/`popp` otherwise.
 
 ### UseRBP as frame pointer
 

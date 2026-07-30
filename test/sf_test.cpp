@@ -661,11 +661,172 @@ void stackFrameTest()
 #endif
 }
 
+/*
+	Test StackFrame APX flag combinations.
+	Covers UsePUSH2, UsePPX, UsePUSH2|UsePPX, UseR30R31 and combinations.
+	A small parameter/register subset keeps the golden file manageable.
+*/
+void apxStackFrameTest()
+{
+	struct Data {
+		ParamId paramId;
+		Bytes code;
+	};
+	typedef std::map<uint64_t, Data> DataMap;
+	DataMap dataMap;
+
+	struct Code : Xbyak::CodeGenerator {
+		Code(int pNum, int tNum, int useRegs, int stackSizeByte)
+		{
+			StackFrame sf(this, pNum, tNum|useRegs, stackSizeByte);
+			for (int i = 0; i < tNum; i++) {
+				mov(sf.t[i], 12345);
+			}
+			if (useRegs & UseRCX) mov(rcx, 12345);
+			if (useRegs & UseRDX) mov(rdx, 12345);
+			if (useRegs & UseRSI) mov(rsi, 1000);
+			if (useRegs & UseRDI) mov(rdi, 2000);
+			if ((useRegs & UseRBPAsFramePointer) == UseRBP) mov(rbp, 3000);
+			if (useRegs & UseR30R31) {
+				mov(r30, 4321);
+				mov(r31, 8765);
+			}
+			if (stackSizeByte > 0) {
+				mov(eax, esp);
+				and_(eax, 15);
+			} else {
+				xor_(eax, eax);
+			}
+			for (int i = 0; i < pNum; i++) {
+				add(rax, sf.p[i]);
+			}
+		}
+	};
+	static const int apxFlagCombos[] = {
+		UsePUSH2,
+		UsePPX,
+		UsePUSH2 | UsePPX,
+		UseR30R31,
+		UseR30R31 | UsePUSH2 | UsePPX,
+	};
+	static const uint8_t stackSizeTbl[] = { 0, 33 };
+	for (size_t ai = 0; ai < sizeof(apxFlagCombos)/sizeof(apxFlagCombos[0]); ai++) {
+		const int apxFlags = apxFlagCombos[ai];
+		// Limit pNum/tNum/useRegs to a representative subset to keep the golden file small.
+		for (int pNum = 0; pNum <= 2; pNum++) {
+			for (int tNum = 0; tNum <= 4; tNum++) {
+				// First 16 useRegs combos (bits 0..3: UseRCX, UseRDX, UseRSI, UseRDI)
+				for (int i = 0; i < 16; i++) {
+					int totalNum = pNum + tNum;
+					int useRegs = apxFlags;
+					if (i & 1) { useRegs |= UseRCX; totalNum++; }
+					if (i & 2) { useRegs |= UseRDX; totalNum++; }
+					if (i & 4) { useRegs |= UseRSI; totalNum++; }
+					if (i & 8) { useRegs |= UseRDI; totalNum++; }
+					// UseR30R31 doesn't consume any of the 14 managed slots (r30/r31 are
+					// outside StackFrame's allocation table); this accounting is only a
+					// heuristic to keep the golden file from growing too large.
+					if (useRegs & UseR30R31) totalNum += 2;
+					if (totalNum > 14) continue;
+					for (size_t j = 0; j < sizeof(stackSizeTbl)/sizeof(stackSizeTbl[0]); j++) {
+						int stackSizeByte = stackSizeTbl[j];
+						Code c(pNum, tNum, useRegs, stackSizeByte);
+						Data d;
+						d.paramId.pNum = pNum;
+						d.paramId.tNum = tNum;
+						d.paramId.useRegs = useRegs;
+						d.paramId.stackSizeByte = stackSizeByte;
+						d.code.assign(c.getCode(), c.getCode() + c.getSize());
+						dataMap[d.paramId.id()] = d;
+#ifndef DUMP
+						// APX instructions (push2, push2p, pushp etc.) require APX_F; skip execution otherwise.
+						static const bool hasApx = Xbyak::util::Cpu().has(Xbyak::util::Cpu::tAPX_F);
+						if (!hasApx) continue;
+						switch (pNum) {
+						case 0:
+							{
+								int (*f)() = c.getCode<int (*)()>();
+								CYBOZU_TEST_EQUAL(0, f());
+								break;
+							}
+						case 1:
+							{
+								int (*f1)(int) = c.getCode<int (*)(int)>();
+								CYBOZU_TEST_EQUAL(1, f1(1));
+								break;
+							}
+						case 2:
+							{
+								int (*f2)(int, int) = c.getCode<int (*)(int, int)>();
+								CYBOZU_TEST_EQUAL(11, f2(1, 10));
+								break;
+							}
+						}
+#endif
+					}
+				}
+			}
+		}
+	}
+#ifdef DUMP
+	for (DataMap::const_iterator it = dataMap.begin(); it != dataMap.end(); ++it) {
+		const Data& d = it->second;
+		printf("static const uint8_t apx_code_%08" PRIx64 "[] = {\n", d.paramId.id());
+		for (size_t j = 0; j < d.code.size(); j++) {
+			if (j % 16 == 0) {
+				if (j > 0) printf("\n");
+				printf("\t");
+			}
+			if (j > 0) printf(" ");
+			printf("0x%02x,", d.code[j]);
+		}
+		printf("\n};\n");
+	}
+	printf("static const struct {\n");
+	printf("\tuint64_t paramId;\n");
+	printf("\tconst uint8_t *code;\n");
+	printf("\tsize_t codeSize;\n");
+	printf("} g_apxDataVec[] = {\n");
+	for (DataMap::const_iterator it = dataMap.begin(); it != dataMap.end(); ++it) {
+		const Data& d = it->second;
+		printf("\t{ 0x%08" PRIx64 ", apx_code_%08" PRIx64 ", %zu },\n", d.paramId.id(), d.paramId.id(), d.code.size());
+	}
+	printf("};\n");
+#else
+	DataMap dataMapExpected;
+	for (size_t i = 0; i < sizeof(g_apxDataVec) / sizeof(*g_apxDataVec); i++) {
+		const uint64_t id = g_apxDataVec[i].paramId;
+		Data d;
+		d.paramId.set_id(id);
+		d.code.assign(g_apxDataVec[i].code, g_apxDataVec[i].code + g_apxDataVec[i].codeSize);
+		dataMapExpected[id] = d;
+	}
+	CYBOZU_TEST_EQUAL(dataMap.size(), dataMapExpected.size());
+	for (DataMap::const_iterator it = dataMapExpected.begin(); it != dataMapExpected.end(); ++it) {
+		const uint64_t id = it->first;
+		DataMap::const_iterator it2 = dataMap.find(id);
+		CYBOZU_TEST_ASSERT(it2 != dataMap.end());
+		const Data& d = it2->second;
+		const Data& dExpected = it->second;
+		CYBOZU_TEST_EQUAL(d.code.size(), dExpected.code.size());
+		CYBOZU_TEST_EQUAL_ARRAY(d.code.data(), dExpected.code.data(), d.code.size());
+	}
+#endif
+}
+
 #ifdef DUMP
 int main()
+{
+	stackFrameTest();
+	apxStackFrameTest();
+}
 #else
 CYBOZU_TEST_AUTO(stackFrame)
-#endif
 {
 	stackFrameTest();
 }
+CYBOZU_TEST_AUTO(stackFrameApx)
+{
+	apxStackFrameTest();
+}
+#endif

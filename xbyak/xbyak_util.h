@@ -1839,7 +1839,10 @@ const int UseRCX = 1 << 6;
 const int UseRDX = 1 << 7;
 const int UseRSI = 1 << 8;
 const int UseRDI = 1 << 9;
+const int UseR30R31 = 1 << 10; // reserve r30/r31 (APX EGPRs), pushed/popped unconditionally
 const int UseRBPAsFramePointer = UseRBP | (1 << 30);
+const int UsePUSH2 = 1 << 28; // use push2/pop2 where RSP is 16-byte aligned, push/pop otherwise
+const int UsePPX   = 1 << 29; // use pushp/popp (or push2p/pop2p with UsePUSH2) with the PPX store-forwarding hint
 
 class StackFrame {
 #ifdef XBYAK64_WIN
@@ -1850,7 +1853,8 @@ class StackFrame {
 	static const int maxPnum = 4;
 	static const int maxRegNum = 14; // maxRegNum = 16 - rsp - rax
 	static const int calleeSaveNum = maxRegNum - noSaveNum;
-	static const int UseMASK = UseRCX|UseRDX|UseRSI|UseRDI|UseRBP;
+	static const int maxSaveRegNum = calleeSaveNum + 2; // +2 for r30/r31 (UseR30R31)
+	static const int UseMASK = UseRCX|UseRDX|UseRSI|UseRDI|UseRBP|UseR30R31|UsePUSH2|UsePPX;
 	Xbyak::CodeGenerator *code_;
 	Xbyak::Reg64 pTbl_[maxPnum];
 	Xbyak::Reg64 tTbl_[maxRegNum];
@@ -1860,7 +1864,7 @@ class StackFrame {
 	int tNum_;
 	int useRegs_;
 	int saveNum_;
-	int saveRegs_[calleeSaveNum];
+	int saveRegs_[maxSaveRegNum];
 	int P_;
 	bool makeEpilog_;
 	StackFrame(const StackFrame&);
@@ -1872,7 +1876,7 @@ public:
 		make stack frame
 		@param sf [in] this
 		@param pNum [in] number of function parameters(0 <= pNum <= 4)
-		@param tNum [in] number of temporary registers(0 <= tNum, can be OR-ed with Use{RCX,RDX,RSI,RDI,RBP}, e.g., 3|UseRCX)
+		@param tNum [in] number of temporary registers(0 <= tNum, can be OR-ed with Use{RCX,RDX,RSI,RDI,RBP,R30R31}, e.g., 3|UseRCX)
 		@param stackSizeByte [in] local stack size
 		@param makeEpilog [in] automatically call close() if true
 
@@ -1883,6 +1887,7 @@ public:
 		p[0], ..., p[pNum-1] as function parameters
 		t[0], ..., t[tNum-1] as temporary registers
 		{rcx,rdx,rsi,rdi,rbp} are explicitly available by specifying Use{RCX,RDX,RSI,RDI,RBP} in tNum
+		r30, r31 are explicitly available by specifying UseR30R31 in tNum
 		rsp[0..stackSizeByte-1] if stackSizeByte > 0
 	*/
 	StackFrame(Xbyak::CodeGenerator *code, int pNum, int tNum = 0, int stackSizeByte = 0, bool makeEpilog = true)
@@ -1897,7 +1902,7 @@ public:
 		, t(t_)
 	{
 		if (pNum < 0 || pNum > 4) XBYAK_THROW(ERR_BAD_PNUM)
-		if (tNum < 0) XBYAK_THROW(ERR_BAD_TNUM)
+		if (tNum_ < 0) XBYAK_THROW(ERR_BAD_TNUM)
 		const int *const fullTbl = getRegEntryTbl();
 		const int *const calleeTbl = fullTbl + noSaveNum;
 		int callerUseNum = 0;
@@ -1921,12 +1926,31 @@ public:
 			pushedRbp = true;
 			if ((tNum & UseRBPAsFramePointer) == UseRBPAsFramePointer) code->mov(rbp, rsp);
 		}
+		if (useRegs_ & UseR30R31) {
+			saveRegs_[saveNum_++] = Operand::R30;
+			saveRegs_[saveNum_++] = Operand::R31;
+		}
 		for (int i = 0; i < calleeSaveNum; i++) {
 			int r = calleeTbl[i];
 			if (i < baseSaveNum || isUseReg(r)) {
 				if (pushedRbp && r == Operand::RBP) continue;
 				saveRegs_[saveNum_++] = r;
-				code->push(Reg64(r));
+			}
+		}
+		// RSP is 8 mod 16 at function entry; each push subtracts 8, so an odd
+		// loop index means RSP is 16-byte aligned before saveRegs_[i] is pushed.
+		for (int i = pushedRbp ? 1 : 0; i < saveNum_; i++) {
+			if ((useRegs_ & UsePUSH2) && (i & 1) && i + 1 < saveNum_) {
+				if (useRegs_ & UsePPX) {
+					code->push2p(Reg64(saveRegs_[i]), Reg64(saveRegs_[i + 1]));
+				} else {
+					code->push2(Reg64(saveRegs_[i]), Reg64(saveRegs_[i + 1]));
+				}
+				i++;
+			} else if (useRegs_ & UsePPX) {
+				code->pushp(Reg64(saveRegs_[i]));
+			} else {
+				code->push(Reg64(saveRegs_[i]));
 			}
 		}
 		P_ = (stackSizeByte + 7) / 8;
@@ -1958,8 +1982,20 @@ public:
 	void close(bool callRet = true)
 	{
 		if (P_ > 0) code_->add(code_->rsp, P_);
+		const int start = (useRegs_ & UseRBP) ? 1 : 0;
 		for (int i = saveNum_ - 1; i >= 0; i--) {
-			code_->pop(Reg64(saveRegs_[i]));
+			if ((useRegs_ & UsePUSH2) && !(i & 1) && i - 1 >= start) {
+				if (useRegs_ & UsePPX) {
+					code_->pop2p(Reg64(saveRegs_[i]), Reg64(saveRegs_[i - 1]));
+				} else {
+					code_->pop2(Reg64(saveRegs_[i]), Reg64(saveRegs_[i - 1]));
+				}
+				i--;
+			} else if (useRegs_ & UsePPX) {
+				code_->popp(Reg64(saveRegs_[i]));
+			} else {
+				code_->pop(Reg64(saveRegs_[i]));
+			}
 		}
 		if (callRet) code_->ret();
 	}
