@@ -3241,9 +3241,7 @@ private:
 	void opCvt3(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, uint64_t type64, uint64_t type32, uint8_t code)
 	{
 		if (!(x1.isXMM() && x2.isXMM() && (op.isREG(i32e) || op.isMEM()))) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
-		Xmm x(op.getIdx());
-		const Operand *p = op.isREG() ? &x : &op;
-		opVex(x1, &x2, *p, type | (op.isBit(64) ? type64 : type32), code);
+		opVex(x1, &x2, op, type | (op.isBit(64) ? type64 : type32), code);
 	}
 	// (x, x/y/xword/yword), (y, z/m)
 	void checkCvt4(const Xmm& x, const Operand& op) const
