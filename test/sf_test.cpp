@@ -827,4 +827,23 @@ CYBOZU_TEST_AUTO(stackFrameApx)
 {
 	apxStackFrameTest();
 }
+// rbp must be pushed with pushp (not push) when UsePPX is specified
+// so that the pushp/popp pair is matched for the PPX hint
+CYBOZU_TEST_AUTO(rbpWithPpx)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			StackFrame sf(this, 0, UseRBP|UsePPX);
+		}
+	} c;
+	const uint8_t tbl[] = {
+		0xd5, 0x08, 0x55, // pushp rbp
+		0xd5, 0x08, 0x5d, // popp rbp
+		0xc3, // ret
+	};
+	const size_t n = sizeof(tbl);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
 #endif

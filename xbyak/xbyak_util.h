@@ -1921,7 +1921,12 @@ public:
 		const int baseSaveNum = local::max_(0, pNum + tNum_ + useNum - noSaveNum);
 		bool pushedRbp = false;
 		if (useRegs_ & UseRBP) {
-			code->push(rbp);
+			// keep the pushp/popp pair matched because close() pops rbp with popp
+			if (useRegs_ & UsePPX) {
+				code->pushp(rbp);
+			} else {
+				code->push(rbp);
+			}
 			saveRegs_[saveNum_++] = Operand::RBP;
 			pushedRbp = true;
 			if ((tNum & UseRBPAsFramePointer) == UseRBPAsFramePointer) code->mov(rbp, rsp);
