@@ -620,7 +620,7 @@ void stackFrameTest()
 #ifdef DUMP
 		for (DataMap::const_iterator it = dataMap.begin(); it != dataMap.end(); ++it) {
 			const Data& d = it->second;
-			printf("static const uint8_t code_%08" PRIx64 "[] = {\n", d.paramId.id());
+			printf("static const uint8_t code_%" PRIx64 "[] = {\n", d.paramId.id());
 			for (size_t j = 0; j < d.code.size(); j++) {
 				if (j % 16 == 0) {
 					if (j > 0) printf("\n");
@@ -638,7 +638,7 @@ void stackFrameTest()
 		printf("} g_dataVec[] = {\n");
 		for (DataMap::const_iterator it = dataMap.begin(); it != dataMap.end(); ++it) {
 			const Data& d = it->second;
-			printf("\t{ 0x%08" PRIx64 ", code_%08" PRIx64 ", %zu },\n", d.paramId.id(), d.paramId.id(), d.code.size());
+			printf("\t{ 0x%" PRIx64 ", code_%" PRIx64 ", %zu },\n", d.paramId.id(), d.paramId.id(), d.code.size());
 		}
 		printf("};\n");
 #else
@@ -773,7 +773,7 @@ void apxStackFrameTest()
 #ifdef DUMP
 	for (DataMap::const_iterator it = dataMap.begin(); it != dataMap.end(); ++it) {
 		const Data& d = it->second;
-		printf("static const uint8_t apx_code_%08" PRIx64 "[] = {\n", d.paramId.id());
+		printf("static const uint8_t apx_code_%" PRIx64 "[] = {\n", d.paramId.id());
 		for (size_t j = 0; j < d.code.size(); j++) {
 			if (j % 16 == 0) {
 				if (j > 0) printf("\n");
@@ -791,7 +791,7 @@ void apxStackFrameTest()
 	printf("} g_apxDataVec[] = {\n");
 	for (DataMap::const_iterator it = dataMap.begin(); it != dataMap.end(); ++it) {
 		const Data& d = it->second;
-		printf("\t{ 0x%08" PRIx64 ", apx_code_%08" PRIx64 ", %zu },\n", d.paramId.id(), d.paramId.id(), d.code.size());
+		printf("\t{ 0x%" PRIx64 ", apx_code_%" PRIx64 ", %zu },\n", d.paramId.id(), d.paramId.id(), d.code.size());
 	}
 	printf("};\n");
 #else
