@@ -553,6 +553,8 @@ void stackFrameTest()
 	static const uint8_t stackSizeTbl[] = { 0, 33 };
 	for (int pNum = 0; pNum <= 4; pNum++) {
 		for (int tNum = 0; tNum <= 14; tNum++) {
+			// skip middle middle values of tNum to keep the headers small
+			if (3 < tNum && tNum < 13) continue;
 			for (int i = 0; i < (1<<6); i++) {
 				int totalNum = pNum + tNum;
 				int useRegs = 0;
