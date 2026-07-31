@@ -505,13 +505,14 @@ void cmpAndDumpIfFailed(int rhs, int lhs, const Bytes& d)
 }
 #endif
 
+struct Data {
+	ParamId paramId;
+	Bytes code;
+};
+typedef std::map<uint64_t, Data> DataMap;
+
 void stackFrameTest()
 {
-	struct Data {
-		ParamId paramId;
-		Bytes code;
-	};
-	typedef std::map<uint64_t, Data> DataMap;
 	DataMap dataMap;
 
 	struct Code : Xbyak::CodeGenerator {
@@ -670,11 +671,6 @@ void stackFrameTest()
 */
 void apxStackFrameTest()
 {
-	struct Data {
-		ParamId paramId;
-		Bytes code;
-	};
-	typedef std::map<uint64_t, Data> DataMap;
 	DataMap dataMap;
 
 	struct Code : Xbyak::CodeGenerator {
