@@ -177,7 +177,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7376 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7380 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -2539,6 +2539,15 @@ private:
 		}
 		XBYAK_THROW(ERR_BAD_COMBINATION)
 	}
+#ifdef XBYAK64
+	// PUSHP/POPP : REX2 is mandatory (carries the W=1 PPX hint),
+	// unlike ordinary push/pop where REX2 is only emitted for R16-31.
+	void opPushPopP(const Reg64& r, int alt)
+	{
+		rex2(0, rexRXB(3, 1, Reg(), r), Reg(), r);
+		db(alt | (r.getIdx() & 7));
+	}
+#endif
 	void verifyMemHasSize(const Operand& op) const
 	{
 		if (op.isMEM() && op.getBit() == 0) XBYAK_THROW(ERR_MEM_SIZE_IS_NOT_SPECIFIED)

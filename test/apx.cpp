@@ -1475,6 +1475,43 @@ CYBOZU_TEST_AUTO(push2_pop2)
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
 
+CYBOZU_TEST_AUTO(pushp_popp)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			pushp(rax);
+			pushp(r8);
+			pushp(r16);
+			pushp(r24);
+			pushp(r31);
+
+			popp(rax);
+			popp(r8);
+			popp(r16);
+			popp(r24);
+			popp(r31);
+		}
+	} c;
+	const uint8_t tbl[] = {
+		// pushp
+		0xd5, 0x08, 0x50, // pushp(rax)
+		0xd5, 0x09, 0x50, // pushp(r8)
+		0xd5, 0x18, 0x50, // pushp(r16)
+		0xd5, 0x19, 0x50, // pushp(r24)
+		0xd5, 0x19, 0x57, // pushp(r31)
+		// popp
+		0xd5, 0x08, 0x58, // popp(rax)
+		0xd5, 0x09, 0x58, // popp(r8)
+		0xd5, 0x18, 0x58, // popp(r16)
+		0xd5, 0x19, 0x58, // popp(r24)
+		0xd5, 0x19, 0x5f, // popp(r31)
+	};
+	const size_t n = sizeof(tbl);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
+
 CYBOZU_TEST_AUTO(ccmp)
 {
 	struct Code : Xbyak::CodeGenerator {
