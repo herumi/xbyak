@@ -147,10 +147,13 @@
 // g++-6 or later
 #if ((__cplusplus >= 201402L) && !(!defined(__clang__) && defined(__GNUC__) && (__GNUC__ <= 5))) || (defined(_MSC_VER) && _MSC_VER >= 1910)
 	#define XBYAK_CONSTEXPR constexpr
-	#define XBYAK_REGISTER static constexpr
 #else
 	#define XBYAK_CONSTEXPR
-	#define XBYAK_REGISTER const
+#endif
+
+// static constexpr member variables of CodeGenerator require inline variables (c++17)
+#if (__cplusplus >= 201703L) || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
+	#define XBYAK_INLINE_VARIABLE
 #endif
 
 #ifdef _MSC_VER
@@ -2996,59 +2999,115 @@ private:
 public:
 	unsigned int getVersion() const { return VERSION; }
 	using CodeArray::db;
-	XBYAK_REGISTER Mmx mm0{0}, mm1{1}, mm2{2}, mm3{3}, mm4{4}, mm5{5}, mm6{6}, mm7{7};
-	XBYAK_REGISTER Xmm xmm0{0}, xmm1{1}, xmm2{2}, xmm3{3}, xmm4{4}, xmm5{5}, xmm6{6}, xmm7{7};
-	XBYAK_REGISTER Ymm ymm0{0}, ymm1{1}, ymm2{2}, ymm3{3}, ymm4{4}, ymm5{5}, ymm6{6}, ymm7{7};
-	XBYAK_REGISTER Zmm zmm0{0}, zmm1{1}, zmm2{2}, zmm3{3}, zmm4{4}, zmm5{5}, zmm6{6}, zmm7{7};
-	XBYAK_REGISTER Xmm xm0{0}, xm1{1}, xm2{2}, xm3{3}, xm4{4}, xm5{5}, xm6{6}, xm7{7};
-	XBYAK_REGISTER Ymm ym0{0}, ym1{1}, ym2{2}, ym3{3}, ym4{4}, ym5{5}, ym6{6}, ym7{7};
-	XBYAK_REGISTER Zmm zm0{0}, zm1{1}, zm2{2}, zm3{3}, zm4{4}, zm5{5}, zm6{6}, zm7{7};
-	XBYAK_REGISTER Reg32 eax{Operand::EAX}, ecx{Operand::ECX}, edx{Operand::EDX}, ebx{Operand::EBX}, esp{Operand::ESP}, ebp{Operand::EBP}, esi{Operand::ESI}, edi{Operand::EDI};
-	XBYAK_REGISTER Reg16 ax{Operand::AX}, cx{Operand::CX}, dx{Operand::DX}, bx{Operand::BX}, sp{Operand::SP}, bp{Operand::BP}, si{Operand::SI}, di{Operand::DI};
-	XBYAK_REGISTER Reg8 al{Operand::AL}, cl{Operand::CL}, dl{Operand::DL}, bl{Operand::BL}, ah{Operand::AH}, ch{Operand::CH}, dh{Operand::DH}, bh{Operand::BH};
-	XBYAK_REGISTER AddressFrame ptr{0}, byte{8}, word{16}, dword{32}, qword{64}, xword{128}, yword{256}, zword{512}; // xword is same as oword of NASM
-	XBYAK_REGISTER AddressFrame ptr_b{0, true}, xword_b{128, true}, yword_b{256, true}, zword_b{512, true}; // broadcast such as {1to2}, {1to4}, {1to8}, {1to16}, {b}
-	XBYAK_REGISTER Fpu st0{0}, st1{1}, st2{2}, st3{3}, st4{4}, st5{5}, st6{6}, st7{7};
-	XBYAK_REGISTER Opmask k0{0}, k1{1}, k2{2}, k3{3}, k4{4}, k5{5}, k6{6}, k7{7};
-	XBYAK_REGISTER BoundsReg bnd0{0}, bnd1{1}, bnd2{2}, bnd3{3};
-	XBYAK_REGISTER EvexModifierRounding T_sae{EvexModifierRounding::T_SAE}, T_rn_sae{EvexModifierRounding::T_RN_SAE}, T_rd_sae{EvexModifierRounding::T_RD_SAE}, T_ru_sae{EvexModifierRounding::T_RU_SAE}, T_rz_sae{EvexModifierRounding::T_RZ_SAE}; // {sae}, {rn-sae}, {rd-sae}, {ru-sae}, {rz-sae}
-	XBYAK_REGISTER EvexModifierZero T_z{};	// {z}
+#ifdef XBYAK_INLINE_VARIABLE
+	static constexpr Mmx mm0{0}, mm1{1}, mm2{2}, mm3{3}, mm4{4}, mm5{5}, mm6{6}, mm7{7};
+	static constexpr Xmm xmm0{0}, xmm1{1}, xmm2{2}, xmm3{3}, xmm4{4}, xmm5{5}, xmm6{6}, xmm7{7};
+	static constexpr Ymm ymm0{0}, ymm1{1}, ymm2{2}, ymm3{3}, ymm4{4}, ymm5{5}, ymm6{6}, ymm7{7};
+	static constexpr Zmm zmm0{0}, zmm1{1}, zmm2{2}, zmm3{3}, zmm4{4}, zmm5{5}, zmm6{6}, zmm7{7};
+	static constexpr Xmm xm0{0}, xm1{1}, xm2{2}, xm3{3}, xm4{4}, xm5{5}, xm6{6}, xm7{7};
+	static constexpr Ymm ym0{0}, ym1{1}, ym2{2}, ym3{3}, ym4{4}, ym5{5}, ym6{6}, ym7{7};
+	static constexpr Zmm zm0{0}, zm1{1}, zm2{2}, zm3{3}, zm4{4}, zm5{5}, zm6{6}, zm7{7};
+	static constexpr Reg32 eax{Operand::EAX}, ecx{Operand::ECX}, edx{Operand::EDX}, ebx{Operand::EBX}, esp{Operand::ESP}, ebp{Operand::EBP}, esi{Operand::ESI}, edi{Operand::EDI};
+	static constexpr Reg16 ax{Operand::AX}, cx{Operand::CX}, dx{Operand::DX}, bx{Operand::BX}, sp{Operand::SP}, bp{Operand::BP}, si{Operand::SI}, di{Operand::DI};
+	static constexpr Reg8 al{Operand::AL}, cl{Operand::CL}, dl{Operand::DL}, bl{Operand::BL}, ah{Operand::AH}, ch{Operand::CH}, dh{Operand::DH}, bh{Operand::BH};
+	static constexpr AddressFrame ptr{0}, byte{8}, word{16}, dword{32}, qword{64}, xword{128}, yword{256}, zword{512}; // xword is same as oword of NASM
+	static constexpr AddressFrame ptr_b{0, true}, xword_b{128, true}, yword_b{256, true}, zword_b{512, true}; // broadcast such as {1to2}, {1to4}, {1to8}, {1to16}, {b}
+	static constexpr Fpu st0{0}, st1{1}, st2{2}, st3{3}, st4{4}, st5{5}, st6{6}, st7{7};
+	static constexpr Opmask k0{0}, k1{1}, k2{2}, k3{3}, k4{4}, k5{5}, k6{6}, k7{7};
+	static constexpr BoundsReg bnd0{0}, bnd1{1}, bnd2{2}, bnd3{3};
+	static constexpr EvexModifierRounding T_sae{EvexModifierRounding::T_SAE}, T_rn_sae{EvexModifierRounding::T_RN_SAE}, T_rd_sae{EvexModifierRounding::T_RD_SAE}, T_ru_sae{EvexModifierRounding::T_RU_SAE}, T_rz_sae{EvexModifierRounding::T_RZ_SAE}; // {sae}, {rn-sae}, {rd-sae}, {ru-sae}, {rz-sae}
+	static constexpr EvexModifierZero T_z{};	// {z}
+	static constexpr ApxFlagNF T_nf{};
+	static constexpr ApxFlagZU T_zu{};
 #ifdef XBYAK64
-	XBYAK_REGISTER Reg64 rax{Operand::RAX}, rcx{Operand::RCX}, rdx{Operand::RDX}, rbx{Operand::RBX}, rsp{Operand::RSP}, rbp{Operand::RBP}, rsi{Operand::RSI}, rdi{Operand::RDI}, r8{Operand::R8}, r9{Operand::R9}, r10{Operand::R10}, r11{Operand::R11}, r12{Operand::R12}, r13{Operand::R13}, r14{Operand::R14}, r15{Operand::R15};
-	XBYAK_REGISTER Reg64 r16{16}, r17{17}, r18{18}, r19{19}, r20{20}, r21{21}, r22{22}, r23{23}, r24{24}, r25{25}, r26{26}, r27{27}, r28{28}, r29{29}, r30{30}, r31{31};
-	XBYAK_REGISTER Reg32 r8d{8}, r9d{9}, r10d{10}, r11d{11}, r12d{12}, r13d{13}, r14d{14}, r15d{15};
-	XBYAK_REGISTER Reg32 r16d{16}, r17d{17}, r18d{18}, r19d{19}, r20d{20}, r21d{21}, r22d{22}, r23d{23}, r24d{24}, r25d{25}, r26d{26}, r27d{27}, r28d{28}, r29d{29}, r30d{30}, r31d{31};
-	XBYAK_REGISTER Reg16 r8w{8}, r9w{9}, r10w{10}, r11w{11}, r12w{12}, r13w{13}, r14w{14}, r15w{15};
-	XBYAK_REGISTER Reg16 r16w{16}, r17w{17}, r18w{18}, r19w{19}, r20w{20}, r21w{21}, r22w{22}, r23w{23}, r24w{24}, r25w{25}, r26w{26}, r27w{27}, r28w{28}, r29w{29}, r30w{30}, r31w{31};
-	XBYAK_REGISTER Reg8 r8b{8}, r9b{9}, r10b{10}, r11b{11}, r12b{12}, r13b{13}, r14b{14}, r15b{15};
-	XBYAK_REGISTER Reg8 spl{Operand::SPL, true}, bpl{Operand::BPL, true}, sil{Operand::SIL, true}, dil{Operand::DIL, true};
-	XBYAK_REGISTER Reg8 r16b{16}, r17b{17}, r18b{18}, r19b{19}, r20b{20}, r21b{21}, r22b{22}, r23b{23}, r24b{24}, r25b{25}, r26b{26}, r27b{27}, r28b{28}, r29b{29}, r30b{30}, r31b{31};
-	XBYAK_REGISTER Xmm xmm8{8}, xmm9{9}, xmm10{10}, xmm11{11}, xmm12{12}, xmm13{13}, xmm14{14}, xmm15{15};
-	XBYAK_REGISTER Xmm xmm16{16}, xmm17{17}, xmm18{18}, xmm19{19}, xmm20{20}, xmm21{21}, xmm22{22}, xmm23{23};
-	XBYAK_REGISTER Xmm xmm24{24}, xmm25{25}, xmm26{26}, xmm27{27}, xmm28{28}, xmm29{29}, xmm30{30}, xmm31{31};
-	XBYAK_REGISTER Ymm ymm8{8}, ymm9{9}, ymm10{10}, ymm11{11}, ymm12{12}, ymm13{13}, ymm14{14}, ymm15{15};
-	XBYAK_REGISTER Ymm ymm16{16}, ymm17{17}, ymm18{18}, ymm19{19}, ymm20{20}, ymm21{21}, ymm22{22}, ymm23{23};
-	XBYAK_REGISTER Ymm ymm24{24}, ymm25{25}, ymm26{26}, ymm27{27}, ymm28{28}, ymm29{29}, ymm30{30}, ymm31{31};
-	XBYAK_REGISTER Zmm zmm8{8}, zmm9{9}, zmm10{10}, zmm11{11}, zmm12{12}, zmm13{13}, zmm14{14}, zmm15{15};
-	XBYAK_REGISTER Zmm zmm16{16}, zmm17{17}, zmm18{18}, zmm19{19}, zmm20{20}, zmm21{21}, zmm22{22}, zmm23{23};
-	XBYAK_REGISTER Zmm zmm24{24}, zmm25{25}, zmm26{26}, zmm27{27}, zmm28{28}, zmm29{29}, zmm30{30}, zmm31{31};
-	XBYAK_REGISTER Tmm tmm0{0}, tmm1{1}, tmm2{2}, tmm3{3}, tmm4{4}, tmm5{5}, tmm6{6}, tmm7{7};
-	XBYAK_REGISTER Xmm xm8{8}, xm9{9}, xm10{10}, xm11{11}, xm12{12}, xm13{13}, xm14{14}, xm15{15};
-	XBYAK_REGISTER Xmm xm16{16}, xm17{17}, xm18{18}, xm19{19}, xm20{20}, xm21{21}, xm22{22}, xm23{23};
-	XBYAK_REGISTER Xmm xm24{24}, xm25{25}, xm26{26}, xm27{27}, xm28{28}, xm29{29}, xm30{30}, xm31{31};
-	XBYAK_REGISTER Ymm ym8{8}, ym9{9}, ym10{10}, ym11{11}, ym12{12}, ym13{13}, ym14{14}, ym15{15};
-	XBYAK_REGISTER Ymm ym16{16}, ym17{17}, ym18{18}, ym19{19}, ym20{20}, ym21{21}, ym22{22}, ym23{23};
-	XBYAK_REGISTER Ymm ym24{24}, ym25{25}, ym26{26}, ym27{27}, ym28{28}, ym29{29}, ym30{30}, ym31{31};
-	XBYAK_REGISTER Zmm zm8{8}, zm9{9}, zm10{10}, zm11{11}, zm12{12}, zm13{13}, zm14{14}, zm15{15};
-	XBYAK_REGISTER Zmm zm16{16}, zm17{17}, zm18{18}, zm19{19}, zm20{20}, zm21{21}, zm22{22}, zm23{23};
-	XBYAK_REGISTER Zmm zm24{24}, zm25{25}, zm26{26}, zm27{27}, zm28{28}, zm29{29}, zm30{30}, zm31{31};
-	XBYAK_REGISTER RegRip rip{};
-	XBYAK_REGISTER ApxFlagNF T_nf{};
-	XBYAK_REGISTER ApxFlagZU T_zu{};
+	static constexpr Reg64 rax{Operand::RAX}, rcx{Operand::RCX}, rdx{Operand::RDX}, rbx{Operand::RBX}, rsp{Operand::RSP}, rbp{Operand::RBP}, rsi{Operand::RSI}, rdi{Operand::RDI}, r8{Operand::R8}, r9{Operand::R9}, r10{Operand::R10}, r11{Operand::R11}, r12{Operand::R12}, r13{Operand::R13}, r14{Operand::R14}, r15{Operand::R15};
+	static constexpr Reg64 r16{16}, r17{17}, r18{18}, r19{19}, r20{20}, r21{21}, r22{22}, r23{23}, r24{24}, r25{25}, r26{26}, r27{27}, r28{28}, r29{29}, r30{30}, r31{31};
+	static constexpr Reg32 r8d{8}, r9d{9}, r10d{10}, r11d{11}, r12d{12}, r13d{13}, r14d{14}, r15d{15};
+	static constexpr Reg32 r16d{16}, r17d{17}, r18d{18}, r19d{19}, r20d{20}, r21d{21}, r22d{22}, r23d{23}, r24d{24}, r25d{25}, r26d{26}, r27d{27}, r28d{28}, r29d{29}, r30d{30}, r31d{31};
+	static constexpr Reg16 r8w{8}, r9w{9}, r10w{10}, r11w{11}, r12w{12}, r13w{13}, r14w{14}, r15w{15};
+	static constexpr Reg16 r16w{16}, r17w{17}, r18w{18}, r19w{19}, r20w{20}, r21w{21}, r22w{22}, r23w{23}, r24w{24}, r25w{25}, r26w{26}, r27w{27}, r28w{28}, r29w{29}, r30w{30}, r31w{31};
+	static constexpr Reg8 r8b{8}, r9b{9}, r10b{10}, r11b{11}, r12b{12}, r13b{13}, r14b{14}, r15b{15};
+	static constexpr Reg8 spl{Operand::SPL, true}, bpl{Operand::BPL, true}, sil{Operand::SIL, true}, dil{Operand::DIL, true};
+	static constexpr Reg8 r16b{16}, r17b{17}, r18b{18}, r19b{19}, r20b{20}, r21b{21}, r22b{22}, r23b{23}, r24b{24}, r25b{25}, r26b{26}, r27b{27}, r28b{28}, r29b{29}, r30b{30}, r31b{31};
+	static constexpr Xmm xmm8{8}, xmm9{9}, xmm10{10}, xmm11{11}, xmm12{12}, xmm13{13}, xmm14{14}, xmm15{15};
+	static constexpr Xmm xmm16{16}, xmm17{17}, xmm18{18}, xmm19{19}, xmm20{20}, xmm21{21}, xmm22{22}, xmm23{23};
+	static constexpr Xmm xmm24{24}, xmm25{25}, xmm26{26}, xmm27{27}, xmm28{28}, xmm29{29}, xmm30{30}, xmm31{31};
+	static constexpr Ymm ymm8{8}, ymm9{9}, ymm10{10}, ymm11{11}, ymm12{12}, ymm13{13}, ymm14{14}, ymm15{15};
+	static constexpr Ymm ymm16{16}, ymm17{17}, ymm18{18}, ymm19{19}, ymm20{20}, ymm21{21}, ymm22{22}, ymm23{23};
+	static constexpr Ymm ymm24{24}, ymm25{25}, ymm26{26}, ymm27{27}, ymm28{28}, ymm29{29}, ymm30{30}, ymm31{31};
+	static constexpr Zmm zmm8{8}, zmm9{9}, zmm10{10}, zmm11{11}, zmm12{12}, zmm13{13}, zmm14{14}, zmm15{15};
+	static constexpr Zmm zmm16{16}, zmm17{17}, zmm18{18}, zmm19{19}, zmm20{20}, zmm21{21}, zmm22{22}, zmm23{23};
+	static constexpr Zmm zmm24{24}, zmm25{25}, zmm26{26}, zmm27{27}, zmm28{28}, zmm29{29}, zmm30{30}, zmm31{31};
+	static constexpr Tmm tmm0{0}, tmm1{1}, tmm2{2}, tmm3{3}, tmm4{4}, tmm5{5}, tmm6{6}, tmm7{7};
+	static constexpr Xmm xm8{8}, xm9{9}, xm10{10}, xm11{11}, xm12{12}, xm13{13}, xm14{14}, xm15{15};
+	static constexpr Xmm xm16{16}, xm17{17}, xm18{18}, xm19{19}, xm20{20}, xm21{21}, xm22{22}, xm23{23};
+	static constexpr Xmm xm24{24}, xm25{25}, xm26{26}, xm27{27}, xm28{28}, xm29{29}, xm30{30}, xm31{31};
+	static constexpr Ymm ym8{8}, ym9{9}, ym10{10}, ym11{11}, ym12{12}, ym13{13}, ym14{14}, ym15{15};
+	static constexpr Ymm ym16{16}, ym17{17}, ym18{18}, ym19{19}, ym20{20}, ym21{21}, ym22{22}, ym23{23};
+	static constexpr Ymm ym24{24}, ym25{25}, ym26{26}, ym27{27}, ym28{28}, ym29{29}, ym30{30}, ym31{31};
+	static constexpr Zmm zm8{8}, zm9{9}, zm10{10}, zm11{11}, zm12{12}, zm13{13}, zm14{14}, zm15{15};
+	static constexpr Zmm zm16{16}, zm17{17}, zm18{18}, zm19{19}, zm20{20}, zm21{21}, zm22{22}, zm23{23};
+	static constexpr Zmm zm24{24}, zm25{25}, zm26{26}, zm27{27}, zm28{28}, zm29{29}, zm30{30}, zm31{31};
+	static constexpr RegRip rip{};
 #endif
 #ifndef XBYAK_DISABLE_SEGMENT
-	XBYAK_REGISTER Segment es{Segment::es}, cs{Segment::cs}, ss{Segment::ss}, ds{Segment::ds}, fs{Segment::fs}, gs{Segment::gs};
+	static constexpr Segment es{Segment::es}, cs{Segment::cs}, ss{Segment::ss}, ds{Segment::ds}, fs{Segment::fs}, gs{Segment::gs};
 #endif
+#else // XBYAK_INLINE_VARIABLE
+	const Mmx mm0, mm1, mm2, mm3, mm4, mm5, mm6, mm7;
+	const Xmm xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7;
+	const Ymm ymm0, ymm1, ymm2, ymm3, ymm4, ymm5, ymm6, ymm7;
+	const Zmm zmm0, zmm1, zmm2, zmm3, zmm4, zmm5, zmm6, zmm7;
+	const Xmm &xm0, &xm1, &xm2, &xm3, &xm4, &xm5, &xm6, &xm7;
+	const Ymm &ym0, &ym1, &ym2, &ym3, &ym4, &ym5, &ym6, &ym7;
+	const Zmm &zm0, &zm1, &zm2, &zm3, &zm4, &zm5, &zm6, &zm7;
+	const Reg32 eax, ecx, edx, ebx, esp, ebp, esi, edi;
+	const Reg16 ax, cx, dx, bx, sp, bp, si, di;
+	const Reg8 al, cl, dl, bl, ah, ch, dh, bh;
+	const AddressFrame ptr, byte, word, dword, qword, xword, yword, zword; // xword is same as oword of NASM
+	const AddressFrame ptr_b, xword_b, yword_b, zword_b; // broadcast such as {1to2}, {1to4}, {1to8}, {1to16}, {b}
+	const Fpu st0, st1, st2, st3, st4, st5, st6, st7;
+	const Opmask k0, k1, k2, k3, k4, k5, k6, k7;
+	const BoundsReg bnd0, bnd1, bnd2, bnd3;
+	const EvexModifierRounding T_sae, T_rn_sae, T_rd_sae, T_ru_sae, T_rz_sae; // {sae}, {rn-sae}, {rd-sae}, {ru-sae}, {rz-sae}
+	const EvexModifierZero T_z; // {z}
+	const ApxFlagNF T_nf;
+	const ApxFlagZU T_zu;
+#ifdef XBYAK64
+	const Reg64 rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15;
+	const Reg64 r16, r17, r18, r19, r20, r21, r22, r23, r24, r25, r26, r27, r28, r29, r30, r31;
+	const Reg32 r8d, r9d, r10d, r11d, r12d, r13d, r14d, r15d;
+	const Reg32 r16d, r17d, r18d, r19d, r20d, r21d, r22d, r23d, r24d, r25d, r26d, r27d, r28d, r29d, r30d, r31d;
+	const Reg16 r8w, r9w, r10w, r11w, r12w, r13w, r14w, r15w;
+	const Reg16 r16w, r17w, r18w, r19w, r20w, r21w, r22w, r23w, r24w, r25w, r26w, r27w, r28w, r29w, r30w, r31w;
+	const Reg8 r8b, r9b, r10b, r11b, r12b, r13b, r14b, r15b;
+	const Reg8 r16b, r17b, r18b, r19b, r20b, r21b, r22b, r23b, r24b, r25b, r26b, r27b, r28b, r29b, r30b, r31b;
+	const Reg8 spl, bpl, sil, dil;
+	const Xmm xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
+	const Xmm xmm16, xmm17, xmm18, xmm19, xmm20, xmm21, xmm22, xmm23;
+	const Xmm xmm24, xmm25, xmm26, xmm27, xmm28, xmm29, xmm30, xmm31;
+	const Ymm ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14, ymm15;
+	const Ymm ymm16, ymm17, ymm18, ymm19, ymm20, ymm21, ymm22, ymm23;
+	const Ymm ymm24, ymm25, ymm26, ymm27, ymm28, ymm29, ymm30, ymm31;
+	const Zmm zmm8, zmm9, zmm10, zmm11, zmm12, zmm13, zmm14, zmm15;
+	const Zmm zmm16, zmm17, zmm18, zmm19, zmm20, zmm21, zmm22, zmm23;
+	const Zmm zmm24, zmm25, zmm26, zmm27, zmm28, zmm29, zmm30, zmm31;
+	const Tmm tmm0, tmm1, tmm2, tmm3, tmm4, tmm5, tmm6, tmm7;
+	const Xmm &xm8, &xm9, &xm10, &xm11, &xm12, &xm13, &xm14, &xm15; // for my convenience
+	const Xmm &xm16, &xm17, &xm18, &xm19, &xm20, &xm21, &xm22, &xm23;
+	const Xmm &xm24, &xm25, &xm26, &xm27, &xm28, &xm29, &xm30, &xm31;
+	const Ymm &ym8, &ym9, &ym10, &ym11, &ym12, &ym13, &ym14, &ym15;
+	const Ymm &ym16, &ym17, &ym18, &ym19, &ym20, &ym21, &ym22, &ym23;
+	const Ymm &ym24, &ym25, &ym26, &ym27, &ym28, &ym29, &ym30, &ym31;
+	const Zmm &zm8, &zm9, &zm10, &zm11, &zm12, &zm13, &zm14, &zm15;
+	const Zmm &zm16, &zm17, &zm18, &zm19, &zm20, &zm21, &zm22, &zm23;
+	const Zmm &zm24, &zm25, &zm26, &zm27, &zm28, &zm29, &zm30, &zm31;
+	const RegRip rip;
+#endif
+#ifndef XBYAK_DISABLE_SEGMENT
+	const Segment es, cs, ss, ds, fs, gs;
+#endif
+#endif // XBYAK_INLINE_VARIABLE
 private:
 	bool isDefaultJmpNEAR_;
 	PreferredEncoding defaultEncoding_[2]; // 0:vnni, 1:vmpsadbw
@@ -3288,6 +3347,64 @@ public:
 	// constructor
 	CodeGenerator(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0, Allocator *allocator = 0)
 		: CodeArray(maxSize, userPtr, allocator)
+#ifndef XBYAK_INLINE_VARIABLE
+		, mm0(0), mm1(1), mm2(2), mm3(3), mm4(4), mm5(5), mm6(6), mm7(7)
+		, xmm0(0), xmm1(1), xmm2(2), xmm3(3), xmm4(4), xmm5(5), xmm6(6), xmm7(7)
+		, ymm0(0), ymm1(1), ymm2(2), ymm3(3), ymm4(4), ymm5(5), ymm6(6), ymm7(7)
+		, zmm0(0), zmm1(1), zmm2(2), zmm3(3), zmm4(4), zmm5(5), zmm6(6), zmm7(7)
+		// for my convenience
+		, xm0(xmm0), xm1(xmm1), xm2(xmm2), xm3(xmm3), xm4(xmm4), xm5(xmm5), xm6(xmm6), xm7(xmm7)
+		, ym0(ymm0), ym1(ymm1), ym2(ymm2), ym3(ymm3), ym4(ymm4), ym5(ymm5), ym6(ymm6), ym7(ymm7)
+		, zm0(zmm0), zm1(zmm1), zm2(zmm2), zm3(zmm3), zm4(zmm4), zm5(zmm5), zm6(zmm6), zm7(zmm7)
+
+		, eax(Operand::EAX), ecx(Operand::ECX), edx(Operand::EDX), ebx(Operand::EBX), esp(Operand::ESP), ebp(Operand::EBP), esi(Operand::ESI), edi(Operand::EDI)
+		, ax(Operand::AX), cx(Operand::CX), dx(Operand::DX), bx(Operand::BX), sp(Operand::SP), bp(Operand::BP), si(Operand::SI), di(Operand::DI)
+		, al(Operand::AL), cl(Operand::CL), dl(Operand::DL), bl(Operand::BL), ah(Operand::AH), ch(Operand::CH), dh(Operand::DH), bh(Operand::BH)
+		, ptr(0), byte(8), word(16), dword(32), qword(64), xword(128), yword(256), zword(512)
+		, ptr_b(0, true), xword_b(128, true), yword_b(256, true), zword_b(512, true)
+		, st0(0), st1(1), st2(2), st3(3), st4(4), st5(5), st6(6), st7(7)
+		, k0(0), k1(1), k2(2), k3(3), k4(4), k5(5), k6(6), k7(7)
+		, bnd0(0), bnd1(1), bnd2(2), bnd3(3)
+		, T_sae(EvexModifierRounding::T_SAE), T_rn_sae(EvexModifierRounding::T_RN_SAE), T_rd_sae(EvexModifierRounding::T_RD_SAE), T_ru_sae(EvexModifierRounding::T_RU_SAE), T_rz_sae(EvexModifierRounding::T_RZ_SAE)
+		, T_z()
+		, T_nf()
+		, T_zu()
+#ifdef XBYAK64
+		, rax(Operand::RAX), rcx(Operand::RCX), rdx(Operand::RDX), rbx(Operand::RBX), rsp(Operand::RSP), rbp(Operand::RBP), rsi(Operand::RSI), rdi(Operand::RDI), r8(Operand::R8), r9(Operand::R9), r10(Operand::R10), r11(Operand::R11), r12(Operand::R12), r13(Operand::R13), r14(Operand::R14), r15(Operand::R15)
+		, r16(Operand::R16), r17(Operand::R17), r18(Operand::R18), r19(Operand::R19), r20(Operand::R20), r21(Operand::R21), r22(Operand::R22), r23(Operand::R23), r24(Operand::R24), r25(Operand::R25), r26(Operand::R26), r27(Operand::R27), r28(Operand::R28), r29(Operand::R29), r30(Operand::R30), r31(Operand::R31)
+		, r8d(8), r9d(9), r10d(10), r11d(11), r12d(12), r13d(13), r14d(14), r15d(15)
+		, r16d(Operand::R16D), r17d(Operand::R17D), r18d(Operand::R18D), r19d(Operand::R19D), r20d(Operand::R20D), r21d(Operand::R21D), r22d(Operand::R22D), r23d(Operand::R23D), r24d(Operand::R24D), r25d(Operand::R25D), r26d(Operand::R26D), r27d(Operand::R27D), r28d(Operand::R28D), r29d(Operand::R29D), r30d(Operand::R30D), r31d(Operand::R31D)
+		, r8w(8), r9w(9), r10w(10), r11w(11), r12w(12), r13w(13), r14w(14), r15w(15)
+		, r16w(Operand::R16W), r17w(Operand::R17W), r18w(Operand::R18W), r19w(Operand::R19W), r20w(Operand::R20W), r21w(Operand::R21W), r22w(Operand::R22W), r23w(Operand::R23W), r24w(Operand::R24W), r25w(Operand::R25W), r26w(Operand::R26W), r27w(Operand::R27W), r28w(Operand::R28W), r29w(Operand::R29W), r30w(Operand::R30W), r31w(Operand::R31W)
+		, r8b(8), r9b(9), r10b(10), r11b(11), r12b(12), r13b(13), r14b(14), r15b(15)
+		, r16b(Operand::R16B), r17b(Operand::R17B), r18b(Operand::R18B), r19b(Operand::R19B), r20b(Operand::R20B), r21b(Operand::R21B), r22b(Operand::R22B), r23b(Operand::R23B), r24b(Operand::R24B), r25b(Operand::R25B), r26b(Operand::R26B), r27b(Operand::R27B), r28b(Operand::R28B), r29b(Operand::R29B), r30b(Operand::R30B), r31b(Operand::R31B)
+		, spl(Operand::SPL, true), bpl(Operand::BPL, true), sil(Operand::SIL, true), dil(Operand::DIL, true)
+		, xmm8(8), xmm9(9), xmm10(10), xmm11(11), xmm12(12), xmm13(13), xmm14(14), xmm15(15)
+		, xmm16(16), xmm17(17), xmm18(18), xmm19(19), xmm20(20), xmm21(21), xmm22(22), xmm23(23)
+		, xmm24(24), xmm25(25), xmm26(26), xmm27(27), xmm28(28), xmm29(29), xmm30(30), xmm31(31)
+		, ymm8(8), ymm9(9), ymm10(10), ymm11(11), ymm12(12), ymm13(13), ymm14(14), ymm15(15)
+		, ymm16(16), ymm17(17), ymm18(18), ymm19(19), ymm20(20), ymm21(21), ymm22(22), ymm23(23)
+		, ymm24(24), ymm25(25), ymm26(26), ymm27(27), ymm28(28), ymm29(29), ymm30(30), ymm31(31)
+		, zmm8(8), zmm9(9), zmm10(10), zmm11(11), zmm12(12), zmm13(13), zmm14(14), zmm15(15)
+		, zmm16(16), zmm17(17), zmm18(18), zmm19(19), zmm20(20), zmm21(21), zmm22(22), zmm23(23)
+		, zmm24(24), zmm25(25), zmm26(26), zmm27(27), zmm28(28), zmm29(29), zmm30(30), zmm31(31)
+		, tmm0(0), tmm1(1), tmm2(2), tmm3(3), tmm4(4), tmm5(5), tmm6(6), tmm7(7)
+		// for my convenience
+		, xm8(xmm8), xm9(xmm9), xm10(xmm10), xm11(xmm11), xm12(xmm12), xm13(xmm13), xm14(xmm14), xm15(xmm15)
+		, xm16(xmm16), xm17(xmm17), xm18(xmm18), xm19(xmm19), xm20(xmm20), xm21(xmm21), xm22(xmm22), xm23(xmm23)
+		, xm24(xmm24), xm25(xmm25), xm26(xmm26), xm27(xmm27), xm28(xmm28), xm29(xmm29), xm30(xmm30), xm31(xmm31)
+		, ym8(ymm8), ym9(ymm9), ym10(ymm10), ym11(ymm11), ym12(ymm12), ym13(ymm13), ym14(ymm14), ym15(ymm15)
+		, ym16(ymm16), ym17(ymm17), ym18(ymm18), ym19(ymm19), ym20(ymm20), ym21(ymm21), ym22(ymm22), ym23(ymm23)
+		, ym24(ymm24), ym25(ymm25), ym26(ymm26), ym27(ymm27), ym28(ymm28), ym29(ymm29), ym30(ymm30), ym31(ymm31)
+		, zm8(zmm8), zm9(zmm9), zm10(zmm10), zm11(zmm11), zm12(zmm12), zm13(zmm13), zm14(zmm14), zm15(zmm15)
+		, zm16(zmm16), zm17(zmm17), zm18(zmm18), zm19(zmm19), zm20(zmm20), zm21(zmm21), zm22(zmm22), zm23(zmm23)
+		, zm24(zmm24), zm25(zmm25), zm26(zmm26), zm27(zmm27), zm28(zmm28), zm29(zmm29), zm30(zmm30), zm31(zmm31)
+		, rip()
+#endif
+#ifndef XBYAK_DISABLE_SEGMENT
+		, es(Segment::es), cs(Segment::cs), ss(Segment::ss), ds(Segment::ds), fs(Segment::fs), gs(Segment::gs)
+#endif
+#endif // XBYAK_INLINE_VARIABLE
 		, isDefaultJmpNEAR_(false)
 	{
 		setDefaultEncoding();
@@ -3486,8 +3603,6 @@ static const XBYAK_CONSTEXPR ApxFlagZU T_zu;
 static const XBYAK_CONSTEXPR Segment es(Segment::es), cs(Segment::cs), ss(Segment::ss), ds(Segment::ds), fs(Segment::fs), gs(Segment::gs);
 #endif
 } // util
-
-#undef XBYAK_REGISTER
 
 #ifdef _MSC_VER
 	#pragma warning(pop)
