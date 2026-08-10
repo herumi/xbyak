@@ -3016,7 +3016,7 @@ public:
 	static constexpr Opmask k0{0}, k1{1}, k2{2}, k3{3}, k4{4}, k5{5}, k6{6}, k7{7};
 	static constexpr BoundsReg bnd0{0}, bnd1{1}, bnd2{2}, bnd3{3};
 	static constexpr EvexModifierRounding T_sae{EvexModifierRounding::T_SAE}, T_rn_sae{EvexModifierRounding::T_RN_SAE}, T_rd_sae{EvexModifierRounding::T_RD_SAE}, T_ru_sae{EvexModifierRounding::T_RU_SAE}, T_rz_sae{EvexModifierRounding::T_RZ_SAE}; // {sae}, {rn-sae}, {rd-sae}, {ru-sae}, {rz-sae}
-	static constexpr EvexModifierZero T_z{};	// {z}
+	static constexpr EvexModifierZero T_z{}; // {z}
 	static constexpr ApxFlagNF T_nf{};
 	static constexpr ApxFlagZU T_zu{};
 #ifdef XBYAK64
@@ -3039,6 +3039,8 @@ public:
 	static constexpr Zmm zmm16{16}, zmm17{17}, zmm18{18}, zmm19{19}, zmm20{20}, zmm21{21}, zmm22{22}, zmm23{23};
 	static constexpr Zmm zmm24{24}, zmm25{25}, zmm26{26}, zmm27{27}, zmm28{28}, zmm29{29}, zmm30{30}, zmm31{31};
 	static constexpr Tmm tmm0{0}, tmm1{1}, tmm2{2}, tmm3{3}, tmm4{4}, tmm5{5}, tmm6{6}, tmm7{7};
+	static constexpr RegRip rip{};
+	// for my convenience
 	static constexpr Xmm xm8{8}, xm9{9}, xm10{10}, xm11{11}, xm12{12}, xm13{13}, xm14{14}, xm15{15};
 	static constexpr Xmm xm16{16}, xm17{17}, xm18{18}, xm19{19}, xm20{20}, xm21{21}, xm22{22}, xm23{23};
 	static constexpr Xmm xm24{24}, xm25{25}, xm26{26}, xm27{27}, xm28{28}, xm29{29}, xm30{30}, xm31{31};
@@ -3048,7 +3050,6 @@ public:
 	static constexpr Zmm zm8{8}, zm9{9}, zm10{10}, zm11{11}, zm12{12}, zm13{13}, zm14{14}, zm15{15};
 	static constexpr Zmm zm16{16}, zm17{17}, zm18{18}, zm19{19}, zm20{20}, zm21{21}, zm22{22}, zm23{23};
 	static constexpr Zmm zm24{24}, zm25{25}, zm26{26}, zm27{27}, zm28{28}, zm29{29}, zm30{30}, zm31{31};
-	static constexpr RegRip rip{};
 #endif
 #ifndef XBYAK_DISABLE_SEGMENT
 	static constexpr Segment es{Segment::es}, cs{Segment::cs}, ss{Segment::ss}, ds{Segment::ds}, fs{Segment::fs}, gs{Segment::gs};
@@ -3576,6 +3577,8 @@ static const XBYAK_CONSTEXPR Opmask k0(0), k1(1), k2(2), k3(3), k4(4), k5(5), k6
 static const XBYAK_CONSTEXPR BoundsReg bnd0(0), bnd1(1), bnd2(2), bnd3(3);
 static const XBYAK_CONSTEXPR EvexModifierRounding T_sae(EvexModifierRounding::T_SAE), T_rn_sae(EvexModifierRounding::T_RN_SAE), T_rd_sae(EvexModifierRounding::T_RD_SAE), T_ru_sae(EvexModifierRounding::T_RU_SAE), T_rz_sae(EvexModifierRounding::T_RZ_SAE);
 static const XBYAK_CONSTEXPR EvexModifierZero T_z;
+static const XBYAK_CONSTEXPR ApxFlagNF T_nf;
+static const XBYAK_CONSTEXPR ApxFlagZU T_zu;
 #ifdef XBYAK64
 static const XBYAK_CONSTEXPR Reg64 rax(Operand::RAX), rcx(Operand::RCX), rdx(Operand::RDX), rbx(Operand::RBX), rsp(Operand::RSP), rbp(Operand::RBP), rsi(Operand::RSI), rdi(Operand::RDI), r8(Operand::R8), r9(Operand::R9), r10(Operand::R10), r11(Operand::R11), r12(Operand::R12), r13(Operand::R13), r14(Operand::R14), r15(Operand::R15);
 static const XBYAK_CONSTEXPR Reg64 r16(16), r17(17), r18(18), r19(19), r20(20), r21(21), r22(22), r23(23), r24(24), r25(25), r26(26), r27(27), r28(28), r29(29), r30(30), r31(31);
@@ -3596,8 +3599,6 @@ static const XBYAK_CONSTEXPR Zmm zmm16(16), zmm17(17), zmm18(18), zmm19(19), zmm
 static const XBYAK_CONSTEXPR Zmm zmm24(24), zmm25(25), zmm26(26), zmm27(27), zmm28(28), zmm29(29), zmm30(30), zmm31(31);
 static const XBYAK_CONSTEXPR Tmm tmm0(0), tmm1(1), tmm2(2), tmm3(3), tmm4(4), tmm5(5), tmm6(6), tmm7(7);
 static const XBYAK_CONSTEXPR RegRip rip;
-static const XBYAK_CONSTEXPR ApxFlagNF T_nf;
-static const XBYAK_CONSTEXPR ApxFlagZU T_zu;
 #endif
 #ifndef XBYAK_DISABLE_SEGMENT
 static const XBYAK_CONSTEXPR Segment es(Segment::es), cs(Segment::cs), ss(Segment::ss), ds(Segment::ds), fs(Segment::fs), gs(Segment::gs);
