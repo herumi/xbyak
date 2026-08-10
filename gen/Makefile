@@ -1,7 +1,10 @@
 TARGET=../xbyak/xbyak_mnemonic.h
 BIN=sortline gen_code gen_avx512
 CFLAGS=-I../ -I ./ -Wall -Wextra -Wno-missing-field-initializers $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
-all: $(TARGET) ../CMakeLists.txt ../meson.build ../readme.md ../readme.txt
+all: update_reg $(TARGET) ../CMakeLists.txt ../meson.build ../readme.md ../readme.txt
+
+update_reg:
+	python3 update_reg.py
 
 avx_type_def.h: ../xbyak/xbyak.h
 	sed -n '/@@@begin of avx_type_def.h/,/@@@end of avx_type_def.h/p' $< > $@
@@ -42,3 +45,5 @@ VER=$(shell head -n 1 ../xbyak/xbyak_mnemonic.h|grep -o "[0-9.]*")
 
 clean:
 	$(RM) $(BIN) $(TARGET) avx_type_def.h
+
+.PHONY: all update_reg clean
