@@ -1197,11 +1197,26 @@ class CodeArray {
 	typedef std::vector<AddrInfo> AddrInfoList;
 	AddrInfoList addrInfoList_;
 	const Type type_;
+	class OwnedAllocator {
+		Allocator *p_;
+		OwnedAllocator(const OwnedAllocator&);
+		void operator=(const OwnedAllocator&);
+	public:
+		OwnedAllocator() : p_(0) {}
+		~OwnedAllocator() { delete p_; }
+		Allocator *getOrCreate()
+		{
+			if (p_ == 0) {
 #ifdef XBYAK_USE_MMAP_ALLOCATOR
-	MmapAllocator defaultAllocator_;
+				p_ = new MmapAllocator();
 #else
-	Allocator defaultAllocator_;
+				p_ = new Allocator();
 #endif
+			}
+			return p_;
+		}
+	};
+	OwnedAllocator ownedAllocator_;
 	Allocator *alloc_;
 protected:
 	size_t maxSize_;
@@ -1243,7 +1258,7 @@ public:
 	};
 	explicit CodeArray(size_t maxSize, void *userPtr = 0, Allocator *allocator = 0)
 		: type_(userPtr == AutoGrow ? AUTO_GROW : (userPtr == 0 || userPtr == DontSetProtectRWE) ? ALLOC_BUF : USER_BUF)
-		, alloc_(allocator ? allocator : (Allocator*)&defaultAllocator_)
+		, alloc_(allocator ? allocator : ownedAllocator_.getOrCreate())
 		, maxSize_(maxSize)
 		, top_(type_ == USER_BUF ? reinterpret_cast<uint8_t*>(userPtr) : alloc_->alloc((std::max<size_t>)(maxSize, 1)))
 		, size_(0)
