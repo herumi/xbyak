@@ -1796,6 +1796,7 @@ public:
 				XBYAK_THROW(ERR_CODE_IS_TOO_BIG)
 			}
 		}
+		if (top_ == 0) XBYAK_THROW(ERR_CANT_ALLOC)
 		top_[size_++] = static_cast<uint8_t>(code);
 	}
 	void db(const uint8_t *code, size_t codeSize)
