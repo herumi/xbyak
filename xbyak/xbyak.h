@@ -1179,7 +1179,6 @@ class CodeArray {
 	};
 	CodeArray(const CodeArray& rhs);
 	void operator=(const CodeArray&);
-	bool isAllocType() const { return type_ == ALLOC_BUF || type_ == AUTO_GROW; }
 	struct AddrInfo {
 		size_t codeOffset; // position to write
 		size_t jmpAddr; // value to write
@@ -1241,6 +1240,9 @@ public:
 		PROTECT_RWE = 1, // read/write/exec
 		PROTECT_RE = 2 // read/exec
 	};
+protected:
+	ProtectMode curMode_;
+public:
 	explicit CodeArray(size_t maxSize, void *userPtr = 0, Allocator *allocator = 0)
 		: type_(userPtr == AutoGrow ? AUTO_GROW : (userPtr == 0 || userPtr == DontSetProtectRWE) ? ALLOC_BUF : USER_BUF)
 		, alloc_(allocator ? allocator : (Allocator*)&defaultAllocator_)
@@ -1248,6 +1250,7 @@ public:
 		, top_(type_ == USER_BUF ? reinterpret_cast<uint8_t*>(userPtr) : alloc_->alloc((std::max<size_t>)(maxSize, 1)))
 		, size_(0)
 		, isCalledCalcJmpAddress_(false)
+		, curMode_(PROTECT_RW)
 	{
 		if (maxSize_ > 0 && top_ == 0) XBYAK_THROW(ERR_CANT_ALLOC)
 		if ((type_ == ALLOC_BUF && userPtr != DontSetProtectRWE && useProtect()) && !setProtectMode(PROTECT_RWE, false)) {
@@ -1265,7 +1268,10 @@ public:
 	bool setProtectMode(ProtectMode mode, bool throwException = true)
 	{
 		bool isOK = protect(top_, maxSize_, mode);
-		if (isOK) return true;
+		if (isOK) {
+			curMode_ = mode;
+			return true;
+		}
 		if (throwException) XBYAK_THROW_RET(ERR_CANT_PROTECT, false)
 		return false;
 	}
@@ -1353,6 +1359,7 @@ public:
 		addrInfoList_.push_back(AddrInfo(offset, val, size, mode));
 	}
 	bool isAutoGrow() const { return type_ == AUTO_GROW; }
+	bool isAllocType() const { return type_ == ALLOC_BUF || type_ == AUTO_GROW; }
 	bool isCalledCalcJmpAddress() const { return isCalledCalcJmpAddress_; }
 	/**
 		change exec permission of memory
@@ -3423,6 +3430,7 @@ public:
 		resetSize();
 		labelMgr_.reset();
 		labelMgr_.set(this);
+		if (isAllocType() && useProtect() && curMode_ == PROTECT_RE) setProtectModeRW();
 	}
 	bool hasUndefinedLabel() const { return labelMgr_.hasUndefSlabel() || labelMgr_.hasUndefClabel(); }
 	/*
