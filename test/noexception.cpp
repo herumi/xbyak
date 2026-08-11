@@ -61,8 +61,12 @@ void test3()
 	struct Code : CodeGenerator {
 		Code() : CodeGenerator(8, 0, &emptyAllocator)
 		{
-			mov(eax, 3);
+			assertBool(Xbyak::GetError() != 0);
+			Xbyak::ClearError();
 			assertBool(Xbyak::GetError() == 0);
+			mov(eax, 3);
+			assertBool(Xbyak::GetError() != 0);
+			Xbyak::ClearError();
 			mov(eax, 3);
 			mov(eax, 3);
 			assertBool(Xbyak::GetError() != 0);

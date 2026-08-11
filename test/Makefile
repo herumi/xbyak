@@ -90,6 +90,7 @@ endif
 	./misc.exe
 	./misc32.exe
 	./cvt_test.exe
+	./noexception.exe
 ifeq ($(BIT),64)
 	CXX=$(CXX) ./test_address.sh 64
 ifneq ($(X32),1)
