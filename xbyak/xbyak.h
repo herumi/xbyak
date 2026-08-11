@@ -509,6 +509,7 @@ inline int getMacOsVersion()
 #endif
 class MmapAllocator : public Allocator {
 	struct Allocation {
+		uintptr_t addr;
 		size_t size;
 #if defined(XBYAK_USE_MEMFD)
 		// fd_ is only used with XBYAK_USE_MEMFD. We keep the file open
@@ -518,7 +519,7 @@ class MmapAllocator : public Allocator {
 #endif
 	};
 	const std::string name_; // only used with XBYAK_USE_MEMFD
-	typedef XBYAK_STD_UNORDERED_MAP<uintptr_t, Allocation> AllocationList;
+	typedef std::vector<Allocation> AllocationList;
 	AllocationList allocList_;
 public:
 	explicit MmapAllocator(const std::string& name = "xbyak") : name_(name) {}
@@ -560,23 +561,30 @@ public:
 			XBYAK_THROW_RET(ERR_CANT_ALLOC, 0)
 		}
 		assert(p);
-		Allocation &alloc = allocList_[(uintptr_t)p];
+		Allocation alloc;
+		alloc.addr = (uintptr_t)p;
 		alloc.size = size;
 #if defined(XBYAK_USE_MEMFD)
 		alloc.fd = fd;
 #endif
+		allocList_.push_back(alloc);
 		return (uint8_t*)p;
 	}
 	void free(uint8_t *p) XBYAK_OVERRIDE
 	{
 		if (p == 0) return;
-		AllocationList::iterator i = allocList_.find((uintptr_t)p);
-		if (i == allocList_.end()) XBYAK_THROW(ERR_BAD_PARAMETER)
-		if (munmap((void*)i->first, i->second.size) < 0) XBYAK_THROW(ERR_MUNMAP)
+		for (size_t idx = 0; idx < allocList_.size(); idx++) {
+			Allocation& a = allocList_[idx];
+			if (a.addr != (uintptr_t)p) continue;
+			if (munmap((void*)a.addr, a.size) < 0) XBYAK_THROW(ERR_MUNMAP)
 #if defined(XBYAK_USE_MEMFD)
-		if (i->second.fd != -1) close(i->second.fd);
+			if (a.fd != -1) close(a.fd);
 #endif
-		allocList_.erase(i);
+			a = allocList_.back();
+			allocList_.pop_back();
+			return;
+		}
+		XBYAK_THROW(ERR_BAD_PARAMETER)
 	}
 };
 #else
