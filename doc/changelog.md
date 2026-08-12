@@ -1,5 +1,5 @@
 # History
-* 2026/Aug/07 ver 7.39.0 StackFrame supports UseSSE(n)/UseAVX(n)/NoVzeroupper (auto save/restore of xmm6-15 on Win64 and vzeroupper in close())
+* 2026/Aug/12 ver 7.39 CodeArray: fix reset() to restore write protection. fix a null-pointer write in db() when allocation fails with XBYAK_NO_EXCEPTION.Registers in CodeGenerator (rax, eax, etc.) are now static constexpr members (C++17 or later). StackFrame supports UseSSE(n) / UseAVX(n) / NoVzeroupper
 * 2026/Aug/03 ver 7.38.0 support pushp/popp. StackFrame supports PUSH2/PPX/APX
 * 2026/Jul/29 ver 7.37.6 Allocator::alloc rounds up size to a multiple of the page size. improve T_z validation for memory operands
 * 2026/Jul/14 ver 7.37.5 fix type of util::tmm? and putSegment()
