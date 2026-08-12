@@ -1844,6 +1844,17 @@ const int UseRBPAsFramePointer = UseRBP | (1 << 30);
 const int UsePUSH2 = 1 << 28; // use push2/pop2 where RSP is 16-byte aligned, push/pop otherwise
 const int UsePPX   = 1 << 29; // use pushp/popp (or push2p/pop2p with UsePUSH2) with the PPX store-forwarding hint
 
+namespace local {
+const int UseVecNumShift = 16; // bits 16..21 : vector register count for UseSSE/UseAVX
+const int UseVecSSE = 1 << 22;
+const int UseVecAVX = 1 << 23;
+} // local
+const int NoVzeroupper = 1 << 24; // suppress vzeroupper in close() (UseAVX required)
+// declare the use of xmm0, ..., xmm(n-1) with SSE instructions (0 <= n <= 16)
+inline int UseSSE(int n) { return local::UseVecSSE | (n << local::UseVecNumShift); }
+// declare the use of xmm/ymm/zmm 0, ..., n-1 with AVX instructions (0 <= n <= 32)
+inline int UseAVX(int n) { return local::UseVecAVX | (n << local::UseVecNumShift); }
+
 class StackFrame {
 #ifdef XBYAK64_WIN
 	static const int noSaveNum = 6;
@@ -1855,6 +1866,7 @@ class StackFrame {
 	static const int calleeSaveNum = maxRegNum - noSaveNum;
 	static const int maxSaveRegNum = calleeSaveNum + 2; // +2 for r30/r31 (UseR30R31)
 	static const int UseMASK = UseRCX|UseRDX|UseRSI|UseRDI|UseRBP|UseR30R31|UsePUSH2|UsePPX;
+	static const int UseVecMASK = (63 << local::UseVecNumShift)|local::UseVecSSE|local::UseVecAVX|NoVzeroupper;
 	Xbyak::CodeGenerator *code_;
 	Xbyak::Reg64 pTbl_[maxPnum];
 	Xbyak::Reg64 tTbl_[maxRegNum];
@@ -1866,6 +1878,10 @@ class StackFrame {
 	int saveNum_;
 	int saveRegs_[maxSaveRegNum];
 	int P_;
+	int vecSaveNum_; // number of saved xmm registers (Win64 only)
+	int vecPos_; // offset of the xmm save area from rsp after the prolog
+	bool vzeroupper_; // emit vzeroupper at the top of close()
+	bool useVmovaps_; // save/restore with vmovaps instead of movaps
 	bool makeEpilog_;
 	StackFrame(const StackFrame&);
 	void operator=(const StackFrame&);
@@ -1889,20 +1905,50 @@ public:
 		{rcx,rdx,rsi,rdi,rbp} are explicitly available by specifying Use{RCX,RDX,RSI,RDI,RBP} in tNum
 		r30, r31 are explicitly available by specifying UseR30R31 in tNum
 		rsp[0..stackSizeByte-1] if stackSizeByte > 0
+		xmm0, ..., xmm(n-1) are declared by UseSSE(n) (0 <= n <= 16) : only SSE instructions are emitted
+		xmm/ymm/zmm 0, ..., n-1 are declared by UseAVX(n) (0 <= n <= 32) : vzeroupper is emitted at the top of close() unless NoVzeroupper is specified
+		on Win64 the lower 128 bits of xmm6, ..., xmm(min(n,16)-1) are saved/restored automatically (xmm16-31 are volatile everywhere and need not be counted in n)
 	*/
 	StackFrame(Xbyak::CodeGenerator *code, int pNum, int tNum = 0, int stackSizeByte = 0, bool makeEpilog = true)
 		: code_(code)
 		, pNum_(pNum)
-		, tNum_(tNum & ~(UseMASK|UseRBPAsFramePointer))
+		, tNum_(tNum & ~(UseMASK|UseRBPAsFramePointer|UseVecMASK))
 		, useRegs_(tNum & UseMASK) // drop UseRBPAsFramePointer bit
 		, saveNum_(0)
 		, P_(0)
+		, vecSaveNum_(0)
+		, vecPos_(0)
+		, vzeroupper_(false)
+		, useVmovaps_(false)
 		, makeEpilog_(makeEpilog)
 		, p(p_)
 		, t(t_)
 	{
 		if (pNum < 0 || pNum > 4) XBYAK_THROW(ERR_BAD_PNUM)
 		if (tNum_ < 0) XBYAK_THROW(ERR_BAD_TNUM)
+		const int vecKind = tNum & (local::UseVecSSE|local::UseVecAVX);
+		const int vecNum = (tNum >> local::UseVecNumShift) & 63;
+		if (vecKind == (local::UseVecSSE|local::UseVecAVX)) XBYAK_THROW(ERR_BAD_TNUM)
+		// NoVzeroupper requires UseAVX
+		if ((tNum & NoVzeroupper) && vecKind != local::UseVecAVX) XBYAK_THROW(ERR_BAD_TNUM)
+		if (vecKind == 0) {
+			if (vecNum > 0) XBYAK_THROW(ERR_BAD_TNUM)
+		} else {
+			// UseSSE rejects n > 16 because SSE encodings cannot reach xmm16+
+			if (vecNum > ((vecKind == local::UseVecAVX) ? 32 : 16)) XBYAK_THROW(ERR_BAD_TNUM)
+			if (vecKind == local::UseVecAVX) {
+				if (tNum & NoVzeroupper) {
+					// the upper state may be dirty at the prolog/epilog; avoid legacy SSE movaps
+					useVmovaps_ = true;
+				} else {
+					vzeroupper_ = true;
+				}
+			}
+#ifdef XBYAK64_WIN
+			// Win64 requires saving the lower 128 bits of xmm6-15; xmm16+ are volatile everywhere
+			if (vecNum > 6) vecSaveNum_ = local::min_(vecNum, 16) - 6;
+#endif
+		}
 		const int *const fullTbl = getRegEntryTbl();
 		const int *const calleeTbl = fullTbl + noSaveNum;
 		int callerUseNum = 0;
@@ -1958,11 +2004,27 @@ public:
 				code->push(Reg64(saveRegs_[i]));
 			}
 		}
-		P_ = (stackSizeByte + 7) / 8;
-		// (rsp % 16) == 8, then increment P_ for 16 byte alignment
-		if (P_ > 0 && (P_ & 1) == (saveNum_ & 1)) P_++;
-		P_ *= 8;
-		if (P_ > 0) code->sub(rsp, P_);
+		if (vecSaveNum_ > 0) {
+			// layout from the lower address : local stack (stackSizeByte) / xmm save area (16-byte aligned) / padding (0 or 8)
+			vecPos_ = (stackSizeByte + 15) & ~15;
+			P_ = vecPos_ + vecSaveNum_ * 16;
+			// after the pushes (rsp % 16) == 8 * ((1 + saveNum_) % 2), so make rsp 16-byte aligned for movaps
+			if ((saveNum_ & 1) == 0) P_ += 8;
+			code->sub(rsp, P_);
+			for (int i = 0; i < vecSaveNum_; i++) {
+				if (useVmovaps_) {
+					code->vmovaps(ptr[rsp + (vecPos_ + i * 16)], Xmm(6 + i));
+				} else {
+					code->movaps(ptr[rsp + (vecPos_ + i * 16)], Xmm(6 + i));
+				}
+			}
+		} else {
+			P_ = (stackSizeByte + 7) / 8;
+			// (rsp % 16) == 8, then increment P_ for 16 byte alignment
+			if (P_ > 0 && (P_ & 1) == (saveNum_ & 1)) P_++;
+			P_ *= 8;
+			if (P_ > 0) code->sub(rsp, P_);
+		}
 		int pos = 0;
 		for (int i = 0; i < pNum; i++) {
 			pTbl_[i] = Xbyak::Reg64(getRegIdx(pos));
@@ -1986,6 +2048,15 @@ public:
 	*/
 	void close(bool callRet = true)
 	{
+		// vzeroupper comes before the restores so that legacy SSE movaps does not run with a dirty upper state
+		if (vzeroupper_) code_->vzeroupper();
+		for (int i = 0; i < vecSaveNum_; i++) {
+			if (useVmovaps_) {
+				code_->vmovaps(Xmm(6 + i), ptr[rsp + (vecPos_ + i * 16)]);
+			} else {
+				code_->movaps(Xmm(6 + i), ptr[rsp + (vecPos_ + i * 16)]);
+			}
+		}
 		if (P_ > 0) code_->add(code_->rsp, P_);
 		const int start = (useRegs_ & UseRBP) ? 1 : 0;
 		for (int i = saveNum_ - 1; i >= 0; i--) {
