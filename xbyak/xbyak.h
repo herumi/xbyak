@@ -248,6 +248,8 @@
 	F(Zmm, zmm6, 6)				\
 	F(Zmm, zmm7, 7)				\
 	/**/
+// xword is same as oword of NASM
+// ptr_b/xword_b/yword_b/zword_b are broadcast such as {1to2}, {1to4}, {1to8}, {1to16}, {b}
 #define XBYAK_FOR_EACH_REG_ADDRESS(F)		\
 	F(AddressFrame, ptr, 0)			\
 	F(AddressFrame, byte, 8)		\
@@ -288,7 +290,8 @@
 	F(BoundsReg, bnd2, 2)			\
 	F(BoundsReg, bnd3, 3)			\
 	/**/
-#define XBYAK_FOR_EACH_EVEX_MODIFIER(F)                                 \
+// {sae}, {rn-sae}, {rd-sae}, {ru-sae}, {rz-sae} and {z}
+#define XBYAK_FOR_EACH_EVEX_MODIFIER(F)					\
 	F(EvexModifierRounding, T_sae, EvexModifierRounding::T_SAE)	\
 	F(EvexModifierRounding, T_rn_sae, EvexModifierRounding::T_RN_SAE) \
 	F(EvexModifierRounding, T_rd_sae, EvexModifierRounding::T_RD_SAE) \
@@ -409,7 +412,7 @@
 	F(Reg64, r23, 23)			\
 	F(Reg64, r24, 24)			\
 	F(Reg64, r25, 25)			\
-		F(Reg64, r26, 26)		\
+	F(Reg64, r26, 26)			\
 	F(Reg64, r27, 27)			\
 	F(Reg64, r28, 28)			\
 	F(Reg64, r29, 29)			\
@@ -507,10 +510,6 @@
 #define XBYAK_FOR_EACH_REG_RIP(F)		\
 	F(RegRip, rip, 0)			\
 	/**/
-#define XBYAK_FOR_EACH_APX_MODIFIER(F)		\
-	F(ApxFlagNF, T_nf, 0)			\
-	F(ApxFlagZU, T_zu, 0)			\
-	/**/
 #else
 #define XBYAK_FOR_EACH_REG_REG8_REX(F)
 #define XBYAK_FOR_EACH_REG_REG8_EXT(F)
@@ -522,8 +521,13 @@
 #define XBYAK_FOR_EACH_REG_ZMM_EXT(F)
 #define XBYAK_FOR_EACH_REG_TMM(F)
 #define XBYAK_FOR_EACH_REG_RIP(F)
-#define XBYAK_FOR_EACH_APX_MODIFIER(F)
 #endif
+
+// T_nf/T_zu are used by cfcmov etc. even on 32-bit, so they are defined regardless of XBYAK64
+#define XBYAK_FOR_EACH_APX_MODIFIER(F)		\
+	F(ApxFlagNF, T_nf, 0)			\
+	F(ApxFlagZU, T_zu, 0)			\
+	/**/
 
 #ifdef XBYAK_DISABLE_SEGMENT
 #define XBYAK_FOR_EACH_REG_SEGMENT(F)
@@ -551,6 +555,7 @@
 	XBYAK_FOR_EACH_REG_OPMASK(F)		\
 	XBYAK_FOR_EACH_REG_BOUNDS(F)		\
 	XBYAK_FOR_EACH_EVEX_MODIFIER(F)		\
+	XBYAK_FOR_EACH_APX_MODIFIER(F)		\
 	XBYAK_FOR_EACH_REG_REG8_REX(F)		\
 	XBYAK_FOR_EACH_REG_REG8_EXT(F)		\
 	XBYAK_FOR_EACH_REG_REG16_EXT(F)		\
@@ -561,10 +566,10 @@
 	XBYAK_FOR_EACH_REG_ZMM_EXT(F)		\
 	XBYAK_FOR_EACH_REG_TMM(F)		\
 	XBYAK_FOR_EACH_REG_RIP(F)		\
-	XBYAK_FOR_EACH_APX_MODIFIER(F)		\
 	XBYAK_FOR_EACH_REG_SEGMENT(F)		\
 	/**/
 
+// xmN/ymN/zmN are aliases of xmmN/ymmN/zmmN (for my convenience)
 #define XBYAK_FOR_EACH_REG_CONVENIENCE(F)	\
 	F(Xmm, xm0, xmm0)			\
 	F(Xmm, xm1, xmm1)			\
