@@ -138,7 +138,7 @@ test: detect_x32.exe
 
 test_all:
 	$(MAKE) test
-	$(MAKE) test_by_xed
+	$(MAKE) xed_test
 
 update_sf_test: sf_test.cpp
 	$(CXX) $(CFLAGS) sf_test.cpp -DXBYAK64_WIN -DDUMP -o sf_test_dump.exe && ./sf_test_dump.exe > sf_test_win.h
