@@ -302,3 +302,34 @@ umonitor(r31);
 tpause(eax);
 tpause(r8d);
 tpause(r31d);
+
+vmovq(xm0, rax);
+vmovq(xm8, r8);
+
+vmovq(rax, xm0);
+vmovq(r8, xm8);
+
+vcvtsi2sd(xm1, xm2, rax);
+vcvtsi2sd(xm1, xm2, r8);
+vcvtsi2sd(xm1|T_rd_sae, xm2, rax);
+vcvtsi2sd(xm1|T_rd_sae, xm2, r9);
+
+vcvtsi2ss(xm1, xm2, rax);
+vcvtsi2ss(xm1, xm2, r8);
+vcvtsi2ss(xm1|T_rd_sae, xm2, rax);
+vcvtsi2ss(xm1|T_rd_sae, xm2, r9);
+
+vcvtusi2sd(xm1, xm2, rax);
+vcvtusi2sd(xm1, xm2, r8);
+vcvtusi2sd(xm1|T_rd_sae, xm2, rax);
+vcvtusi2sd(xm1|T_rd_sae, xm2, r9);
+
+vcvtusi2ss(xm1, xm2, rax);
+vcvtusi2ss(xm1, xm2, r8);
+vcvtusi2ss(xm1|T_rd_sae, xm2, rax);
+vcvtusi2ss(xm1|T_rd_sae, xm2, r9);
+
+vpextrw(eax, xm1, 0);
+vpextrw(r8d, xm1, 1);
+vpextrw(eax, xm2, 6);
+vpextrw(ptr[rax+rcx*1], xm3, 7);

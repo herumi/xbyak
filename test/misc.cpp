@@ -2544,4 +2544,40 @@ CYBOZU_TEST_AUTO(vmovw)
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
 
+CYBOZU_TEST_AUTO(vcvtsi2s_er)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			vcvtsi2sd(xm1|T_rd_sae, xm2, rax);
+			vcvtsi2sd(xm1|T_rd_sae, xm2, r9);
+
+			vcvtsi2ss(xm1|T_rd_sae, xm2, rax);
+			vcvtsi2ss(xm1|T_rd_sae, xm2, r9);
+
+			vcvtusi2sd(xm1|T_rd_sae, xm2, rax);
+			vcvtusi2sd(xm1|T_rd_sae, xm2, r9);
+
+			vcvtusi2ss(xm1|T_rd_sae, xm2, rax);
+			vcvtusi2ss(xm1|T_rd_sae, xm2, r9);
+		}
+	} c;
+	const uint8_t tbl[] = {
+		0x62, 0xf1, 0xef, 0x38, 0x2a, 0xc8, // vcvtsi2sd(xm1|T_rd_sae,xm2,rax)
+		0x62, 0xd1, 0xef, 0x38, 0x2a, 0xc9, // vcvtsi2sd(xm1|T_rd_sae,xm2,r9)
+
+		0x62, 0xf1, 0xee, 0x38, 0x2a, 0xc8, // vcvtsi2ss(xm1|T_rd_sae,xm2,rax)
+		0x62, 0xd1, 0xee, 0x38, 0x2a, 0xc9, // vcvtsi2ss(xm1|T_rd_sae,xm2,r9)
+
+		0x62, 0xf1, 0xef, 0x38, 0x7b, 0xc8, // vcvtusi2sd(xm1|T_rd_sae,xm2,rax)
+		0x62, 0xd1, 0xef, 0x38, 0x7b, 0xc9, // vcvtusi2sd(xm1|T_rd_sae,xm2,r9)
+
+		0x62, 0xf1, 0xee, 0x38, 0x7b, 0xc8, // vcvtusi2ss(xm1|T_rd_sae,xm2,rax)
+		0x62, 0xd1, 0xee, 0x38, 0x7b, 0xc9, // vcvtusi2ss(xm1|T_rd_sae,xm2,r9)
+	};
+	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
+
 #endif
