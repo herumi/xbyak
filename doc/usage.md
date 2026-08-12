@@ -559,7 +559,7 @@ StackFrame(CodeGenerator *code, int pNum, int tNum = 0, int stackSizeByte = 0, b
 ### Parameters
 
 - `pNum` : number of function parameters (0 <= pNum <= 4).
-- `tNum` : number of temporary registers (0 <= tNum). Can be OR-ed with `UseRCX`, `UseRDX`, `UseRSI`, `UseRDI`, `UseRBP`, `UseR30R31`, and the push-optimization flags below.
+- `tNum` : number of temporary registers (0 <= tNum). Can be OR-ed with `UseRCX`, `UseRDX`, `UseRSI`, `UseRDI`, `UseRBP`, `UseR30R31`, the push-optimization flags, and the vector register flags below.
 - `stackSizeByte` : local stack size in bytes.
 - `makeEpilog` : automatically generate epilog in the destructor if true.
 
@@ -587,6 +587,30 @@ These flags can be OR-ed into `tNum` to influence how callee-saved registers are
 ### UseRBP as frame pointer
 
 Use `UseRBPAsFramePointer` instead of `UseRBP` to additionally emit `mov rbp, rsp` after `push rbp`.
+
+### Vector register flags
+
+`UseSSE(n)` (0 <= n <= 16) or `UseAVX(n)` (0 <= n <= 32) can be OR-ed into `tNum` to declare that the function uses `xmm0`, ..., `xmm(n-1)` (also `ymm`/`zmm` of the same numbers for `UseAVX`). Specifying both at once is an error (`ERR_BAD_TNUM`).
+
+- The declared registers are numbered from 0 and do not appear in `sf.p`/`sf.t`.
+- On the Windows x64 ABI, the lower 128 bits of `xmm6`, ..., `xmm(min(n,16)-1)` are saved in the prolog and restored in `close()`. On System V nothing is saved (all vector registers are caller-saved). Whenever the save area exists, `rsp` is 16-byte aligned after the prolog.
+- `xmm16-31`/`ymm16-31`/`zmm16-31` are volatile on every ABI and are never saved, so they need not be counted in `n`; `UseAVX(32)` is always correct but conservative. A kernel using `zmm16-31` plus `zmm0-7` may declare just `UseAVX(8)`.
+- `UseSSE(n)` guarantees that StackFrame emits no AVX instruction (save/restore uses `movaps`, no `vzeroupper`). `n > 16` is rejected because SSE encodings cannot reach `xmm16+`.
+- `UseAVX(n)` emits `vzeroupper` at the top of `close()` by default to avoid AVX-SSE transition penalties in the caller. OR `NoVzeroupper` into `tNum` to suppress it, e.g. for functions returning a full-width value in `ymm0`/`zmm0`. With `NoVzeroupper` the save/restore uses `vmovaps` (the upper state may be dirty); otherwise it uses `movaps`, which is one byte shorter and safe because `vzeroupper` precedes the restores.
+- `NoVzeroupper` is only meaningful with `UseAVX(n)`; combining it with `UseSSE(n)` (which never emits `vzeroupper` anyway) or specifying it alone is an error (`ERR_BAD_TNUM`).
+
+```cpp
+struct Code : Xbyak::CodeGenerator {
+    Code() {
+        // void func(float *dst, const float *src); uses ymm0-ymm9
+        StackFrame sf(this, 2, UseAVX(10)); // xmm6-xmm9 are saved/restored on Win64
+        vmovups(ymm0, ptr[sf.p[1]]);
+        // ...
+        vmovups(ptr[sf.p[0]], ymm9);
+        // close() emits vzeroupper, restores xmm6-xmm9 (Win64) and returns
+    }
+};
+```
 
 ### Example
 

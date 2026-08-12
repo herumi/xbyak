@@ -25,7 +25,7 @@ ifeq ($(ONLY_64BIT),0)
 endif
 
 ifeq ($(BIT),64)
-	TARGET += jmp64.exe address64.exe apx.exe
+	TARGET += jmp64.exe address64.exe apx.exe mmap_allocator.exe
 	TARGET += sf_test.exe cpumask_test.exe
 endif
 
@@ -62,6 +62,8 @@ noexception.exe: noexception.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@ -fno-exceptions
 apx.exe: apx.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@
+mmap_allocator.exe: mmap_allocator.cpp $(XBYAK_INC)
+	$(CXX) $(CFLAGS) $< -o $@
 avx10_test.exe: avx10_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK64
 sf_test.exe: sf_test.cpp $(XBYAK_INC) sf_test_win.h sf_test_gcc.h
@@ -90,6 +92,7 @@ endif
 	./misc.exe
 	./misc32.exe
 	./cvt_test.exe
+	./noexception.exe
 ifeq ($(BIT),64)
 	CXX=$(CXX) ./test_address.sh 64
 ifneq ($(X32),1)
@@ -99,6 +102,7 @@ endif
 	./jmp64.exe
 	./apx.exe
 	./avx10_test.exe
+	./mmap_allocator.exe
 endif
 
 test_avx: normalize_prefix.exe

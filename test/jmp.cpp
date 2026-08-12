@@ -1881,3 +1881,90 @@ CYBOZU_TEST_AUTO(ambiguousFarJmp)
 	CYBOZU_TEST_EXCEPTION(code.genJmp(), std::exception);
 	CYBOZU_TEST_EXCEPTION(code.genCall(), std::exception);
 }
+
+CYBOZU_TEST_AUTO(resetAfterReadyRE_AutoGrow)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code() : Xbyak::CodeGenerator(4096, Xbyak::AutoGrow) {}
+		void gen(int v)
+		{
+			mov(eax, v);
+			ret();
+		}
+	};
+	Code code;
+	code.gen(1);
+	code.readyRE();
+	int (*f1)() = code.getCode<int (*)()>();
+	CYBOZU_TEST_EQUAL(f1(), 1);
+
+	code.reset();
+	code.gen(2);
+	code.readyRE();
+	int (*f2)() = code.getCode<int (*)()>();
+	CYBOZU_TEST_EQUAL(f2(), 2);
+}
+
+CYBOZU_TEST_AUTO(resetAfterReady_AutoGrow)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code() : Xbyak::CodeGenerator(4096, Xbyak::AutoGrow) {}
+		void gen(int v)
+		{
+			mov(eax, v);
+			ret();
+		}
+	};
+	Code code;
+	code.gen(1);
+	code.ready();
+	int (*f1)() = code.getCode<int (*)()>();
+	CYBOZU_TEST_EQUAL(f1(), 1);
+
+	code.reset();
+	code.gen(2);
+	code.ready();
+	int (*f2)() = code.getCode<int (*)()>();
+	CYBOZU_TEST_EQUAL(f2(), 2);
+}
+
+CYBOZU_TEST_AUTO(resetWithoutReady_NotAutoGrow)
+{
+	struct Code : Xbyak::CodeGenerator {
+		void gen(int v)
+		{
+			mov(eax, v);
+			ret();
+		}
+	};
+	Code code;
+	int (*f)() = code.getCode<int (*)()>();
+	for (int i = 0; i < 3; i++) {
+		code.gen(i);
+		CYBOZU_TEST_EQUAL(f(), i);
+		code.reset();
+	}
+}
+
+CYBOZU_TEST_AUTO(resetAfterProtectRE_DontSetProtectRWE)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code() : Xbyak::CodeGenerator(4096, Xbyak::DontSetProtectRWE) {}
+		void gen(int v)
+		{
+			mov(eax, v);
+			ret();
+		}
+	};
+	Code code;
+	code.gen(1);
+	code.setProtectModeRE();
+	int (*f1)() = code.getCode<int (*)()>();
+	CYBOZU_TEST_EQUAL(f1(), 1);
+
+	code.reset();
+	code.gen(2);
+	code.setProtectModeRE();
+	int (*f2)() = code.getCode<int (*)()>();
+	CYBOZU_TEST_EQUAL(f2(), 2);
+}

@@ -1,5 +1,4 @@
 #include "make.h"
-#include "xbyak/xbyak_bin2hex.h"
 
 const uint64_t MMX = 1ULL << 0;
 const uint64_t NEG8 = 1ULL << 9;
@@ -561,23 +560,23 @@ private:
 			const char *name;
 			bool hasImm;
 		} xmmTbl1[] = {
-			{ B01011000, PS|SS|PD|SD, "add", false },
-			{ B01010101, PS|PD      , "andn", false },
-			{ B01010100, PS|PD      , "and", false },
-			{ B11000010, PS|SS|PD|SD, "cmp", true },
-			{ B01011110, PS|SS|PD|SD, "div", false },
-			{ B01011111, PS|SS|PD|SD, "max", false },
-			{ B01011101, PS|SS|PD|SD, "min", false },
-			{ B01011001, PS|SS|PD|SD, "mul", false },
-			{ B01010110, PS|PD      , "or", false },
-			{ B01010011, PS|SS      , "rcp", false },
-			{ B01010010, PS|SS      , "rsqrt", false },
-			{ B11000110, PS|PD      , "shuf", true },
-			{ B01010001, PS|SS|PD|SD, "sqrt", false },
-			{ B01011100, PS|SS|PD|SD, "sub", false },
-			{ B00010101, PS|PD      , "unpckh", false },
-			{ B00010100, PS|PD      , "unpckl", false },
-			{ B01010111, PS|PD      , "xor", false },
+			{ 0x58, PS|SS|PD|SD, "add", false },
+			{ 0x55, PS|PD      , "andn", false },
+			{ 0x54, PS|PD      , "and", false },
+			{ 0xC2, PS|SS|PD|SD, "cmp", true },
+			{ 0x5E, PS|SS|PD|SD, "div", false },
+			{ 0x5F, PS|SS|PD|SD, "max", false },
+			{ 0x5D, PS|SS|PD|SD, "min", false },
+			{ 0x59, PS|SS|PD|SD, "mul", false },
+			{ 0x56, PS|PD      , "or", false },
+			{ 0x53, PS|SS      , "rcp", false },
+			{ 0x52, PS|SS      , "rsqrt", false },
+			{ 0xC6, PS|PD      , "shuf", true },
+			{ 0x51, PS|SS|PD|SD, "sqrt", false },
+			{ 0x5C, PS|SS|PD|SD, "sub", false },
+			{ 0x15, PS|PD      , "unpckh", false },
+			{ 0x14, PS|PD      , "unpckl", false },
+			{ 0x57, PS|PD      , "xor", false },
 			//
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(xmmTbl1); i++) {
