@@ -71,7 +71,7 @@ sf_test.exe: sf_test.cpp $(XBYAK_INC) sf_test_win.h sf_test_gcc.h
 cpumask_test.exe: cpumask_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@
 
-TEST_FILES=old.txt bf16.txt comp.txt misc.txt convert.txt minmax.txt saturation.txt apx.txt amx.txt
+TEST_FILES=avx512.txt bf16.txt comp.txt misc.txt convert.txt minmax.txt saturation.txt apx.txt amx.txt
 xed_test: detect_x32.exe
 	@set -e; \
 	for target in $(addprefix dataset/, $(TEST_FILES)); do \
