@@ -955,10 +955,8 @@ public:
 		put("vcvtsd2ss", XMM_KZ, XMM, _XMM3 | _MEM | XMM_ER);
 
 		put("vcvtsi2sd", XMM, _XMM3, REG32 | REG64 | MEM32 | MEM64);
-		put("vcvtsi2sd", XMM, XMM_ER, REG64);
 
 		put("vcvtsi2ss", XMM, _XMM3, REG32 | REG64 | MEM32 | MEM64);
-		put("vcvtsi2ss", XMM, XMM_ER, REG32 | REG64);
 
 		put("vcvtss2sd", XMM_KZ, XMM, _XMM3 | _MEM | XMM_SAE);
 
@@ -1023,10 +1021,8 @@ public:
 		put("vcvtuqq2ps", YMM_KZ, ZMM | _MEM | M_1to8 | ZMM_ER);
 
 		put("vcvtusi2sd", XMM, _XMM3, REG32 | REG64 | MEM32 | MEM64);
-		put("vcvtusi2sd", XMM, XMM_ER, REG64);
 
 		put("vcvtusi2ss", XMM, _XMM3, REG32 | REG64 | MEM32 | MEM64);
-		put("vcvtusi2ss", XMM, XMM_ER, REG32 | REG64);
 #endif
 	}
 	enum {
