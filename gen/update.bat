@@ -15,9 +15,6 @@ if errorlevel 1 goto ERR
 cl gen_avx512.cpp %OPT%
 if errorlevel 1 goto ERR
 
-cl gen_ace_1.cpp %OPT%
-if errorlevel 1 goto ERR
-
 .\gen_code | %SORT% > %TARGET%
 echo #ifdef XBYAK_ENABLE_OMITTED_OPERAND>> %TARGET%
 .\gen_code omit | %SORT% >> %TARGET%
@@ -27,7 +24,6 @@ echo #ifndef XBYAK_DISABLE_AVX512>> %TARGET%
 .\gen_avx512 | %SORT% >> %TARGET%
 echo #ifdef XBYAK64>> %TARGET%
 .\gen_avx512 64 | %SORT% >> %TARGET%
-.\gen_ace_1 | %SORT% >> %TARGET%
 echo #endif>> %TARGET%
 echo #endif>> %TARGET%
 exit /b 0

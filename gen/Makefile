@@ -1,5 +1,5 @@
 TARGET=../xbyak/xbyak_mnemonic.h
-BIN=sortline gen_code gen_avx512 gen_ace_1
+BIN=sortline gen_code gen_avx512
 CFLAGS=-I../ -I ./ -Wall -Wextra -Wno-missing-field-initializers $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
 all: $(TARGET) ../CMakeLists.txt ../meson.build ../readme.md ../readme.txt
 
@@ -13,8 +13,6 @@ gen_code: gen_code.cpp $(GEN_DEP)
 	$(CXX) $(CFLAGS) $< -o $@
 gen_avx512: gen_avx512.cpp $(GEN_DEP)
 	$(CXX) $(CFLAGS) $< -o $@
-gen_ace_1: gen_ace_1.cpp $(GEN_DEP)
-	$(CXX) $(CFLAGS) $< -o $@
 
 $(TARGET): $(BIN)
 	./gen_code | ./sortline > $@
@@ -26,7 +24,6 @@ $(TARGET): $(BIN)
 	./gen_avx512 | ./sortline >> $@
 	echo "#ifdef XBYAK64" >> $@
 	./gen_avx512 64 | ./sortline >> $@
-	./gen_ace_1 | ./sortline >> $@
 	echo "#endif" >> $@
 	echo "#endif" >> $@
 
