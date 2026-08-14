@@ -2701,11 +2701,11 @@ void top4mxbhf8ps(const Tmm& t1, const Zmm& z2, const Zmm& z3, uint8_t imm) { op
 void top4mxbssps(const Tmm& t1, const Zmm& z2, const Zmm& z3, uint8_t imm) { opVex(t1, &z3, z2, T_F2|T_0F3A|T_W0|T_MUST_EVEX, 0x8F, imm); }
 void top4mxhbf8ps(const Tmm& t1, const Zmm& z2, const Zmm& z3, uint8_t imm) { opVex(t1, &z3, z2, T_F3|T_0F3A|T_W0|T_MUST_EVEX, 0x8D, imm); }
 void top4mxhf8ps(const Tmm& t1, const Zmm& z2, const Zmm& z3, uint8_t imm) { opVex(t1, &z3, z2, T_66|T_0F3A|T_W0|T_MUST_EVEX, 0x8D, imm); }
-void vcvtbf42hf8(const Xmm& x, const Operand& op) { if (x.isXMM()) { if (!(op.isXMM() || op.isMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) } else if (x.isYMM()) { if (!(op.isXMM() || op.isMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) } else if (x.isZMM()) { if (!(op.isYMM() || op.isMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) } else { XBYAK_THROW(ERR_BAD_COMBINATION) } opVex(x, 0, op, T_N8|T_N_VL|T_MAP5|T_W0|T_YMM|T_MUST_EVEX, 0x37); }
+void vcvtbf42hf8(const Xmm& x, const Operand& op) { opCvt1(x, op, T_N8|T_N_VL|T_MAP5|T_W0|T_YMM|T_MUST_EVEX, 0x37); }
 void vcvtbf62hf8(const Xmm& x, const Xmm& op) { opVex(x, 0, op, T_66|T_MAP5|T_EW1|T_YMM|T_MUST_EVEX, 0x37); }
 void vcvtbf82bf4s(const Operand& op, const Xmm& x) { opVmov(op, x, T_N8|T_N_VL|T_F3|T_MAP5|T_EW1|T_YMM|T_MUST_EVEX, 0x3D, true); }
 void vcvtbf82bf6s(const Xmm& x, const Xmm& op) { opVex(op, 0, x, T_F3|T_MAP5|T_EW1|T_YMM|T_MUST_EVEX, 0x3E); }
-void vcvtbf82ps(const Xmm& x, const Operand& op) { if (!op.isXMM() && !op.isMEM()) XBYAK_THROW(ERR_BAD_MEM_SIZE) opVex(x, 0, op, T_N4|T_N_VL|T_MAP5|T_EW1|T_YMM|T_MUST_EVEX, 0x36); }
+void vcvtbf82ps(const Xmm& x, const Operand& op) { opVmov(op, x, T_N4|T_N_VL|T_MAP5|T_EW1|T_YMM|T_MUST_EVEX, 0x36, false); }
 void vcvtbiasps2bf8(const Xmm& x1, const Xmm& x2, const Operand& op) { if (!(x1.isXMM() && (op.isMEM() || op.getBit() == x2.getBit()))) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x1, &x2, op, T_MAP5|T_W0|T_YMM|T_MUST_EVEX|T_B32, 0x39); }
 void vcvtbiasps2bf8s(const Xmm& x1, const Xmm& x2, const Operand& op) { if (!(x1.isXMM() && (op.isMEM() || op.getBit() == x2.getBit()))) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x1, &x2, op, T_MAP5|T_W0|T_YMM|T_MUST_EVEX|T_B32, 0x3B); }
 void vcvtbiasps2hf8(const Xmm& x1, const Xmm& x2, const Operand& op) { if (!(x1.isXMM() && (op.isMEM() || op.getBit() == x2.getBit()))) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x1, &x2, op, T_MAP5|T_W0|T_YMM|T_MUST_EVEX|T_B32, 0x38); }
@@ -2713,7 +2713,7 @@ void vcvtbiasps2hf8s(const Xmm& x1, const Xmm& x2, const Operand& op) { if (!(x1
 void vcvthf62hf8(const Xmm& x, const Xmm& op) { opVex(x, 0, op, T_66|T_MAP5|T_W0|T_YMM|T_MUST_EVEX, 0x37); }
 void vcvthf82bf4s(const Operand& op, const Xmm& x) { opVmov(op, x, T_N8|T_N_VL|T_F3|T_MAP5|T_W0|T_YMM|T_MUST_EVEX, 0x3D, true); }
 void vcvthf82hf6s(const Xmm& x, const Xmm& op) { opVex(op, 0, x, T_F3|T_MAP5|T_W0|T_YMM|T_MUST_EVEX, 0x3C); }
-void vcvthf82ps(const Xmm& x, const Operand& op) { if (!op.isXMM() && !op.isMEM()) XBYAK_THROW(ERR_BAD_MEM_SIZE) opVex(x, 0, op, T_N4|T_N_VL|T_MAP5|T_W0|T_YMM|T_MUST_EVEX, 0x36); }
+void vcvthf82ps(const Xmm& x, const Operand& op) { opVmov(op, x, T_N4|T_N_VL|T_MAP5|T_W0|T_YMM|T_MUST_EVEX, 0x36, false); }
 void vcvtps2bf8(const Xmm& x, const Operand& op) { opCvt5(x, op, T_F3|T_MAP5|T_W0|T_YMM|T_MUST_EVEX|T_B32, 0x39); }
 void vcvtps2bf8s(const Xmm& x, const Operand& op) { opCvt5(x, op, T_F3|T_MAP5|T_W0|T_YMM|T_MUST_EVEX|T_B32, 0x3B); }
 void vcvtps2hf8(const Xmm& x, const Operand& op) { opCvt5(x, op, T_F3|T_MAP5|T_W0|T_YMM|T_MUST_EVEX|T_B32, 0x38); }

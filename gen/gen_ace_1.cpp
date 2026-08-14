@@ -147,21 +147,14 @@ void putFp8()
 			const Tbl& p = tbl[i];
 			std::string s = type2String(T_MUST_EVEX | T_MAP5 | T_YMM | T_N4 | T_N_VL | p.w);
 			printf("void %s(const Xmm& x, const Operand& op) "
-				"{ if (!op.isXMM() && !op.isMEM()) XBYAK_THROW(ERR_BAD_MEM_SIZE) "
-				"opVex(x, 0, op, %s, 0x36); }\n", p.name, s.c_str());
+				"{ opVmov(op, x, %s, 0x36, false); }\n", p.name, s.c_str());
 		}
 	}
 
-	// dst/src pairing is (xmm,xmm), (ymm,xmm), (zmm,ymm) -- not a fixed ratio the standard
-	// opCvt helpers assume, so each dst kind gets its own explicit src-kind check.
 	{
 		std::string s = type2String(T_MUST_EVEX | T_MAP5 | T_YMM | T_N8 | T_N_VL | T_W0);
 		printf("void vcvtbf42hf8(const Xmm& x, const Operand& op) "
-			"{ if (x.isXMM()) { if (!(op.isXMM() || op.isMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) } "
-			"else if (x.isYMM()) { if (!(op.isXMM() || op.isMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) } "
-			"else if (x.isZMM()) { if (!(op.isYMM() || op.isMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) } "
-			"else { XBYAK_THROW(ERR_BAD_COMBINATION) } "
-			"opVex(x, 0, op, %s, 0x37); }\n", s.c_str());
+			"{ opCvt1(x, op, %s, 0x37); }\n", s.c_str());
 	}
 
 	{
