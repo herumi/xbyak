@@ -2,6 +2,7 @@ ldtilecfg(ptr[rax + rcx * 4 + 64]);
 ldtilecfg(ptr [r30+r29*4+0x12]);
 ldtilecfg(ptr [rax]);
 sttilecfg(ptr[rsp + rax * 8 + 64]);
+sttilecfg(ptr[rsp + rax * 8 + 128]);
 sttilecfg(ptr [r30+r29*4+0x12]);
 sttilecfg(ptr [r30]);
 tileloadd(tmm3, ptr[rdi + rdx * 2 + 8]);
@@ -31,8 +32,6 @@ tdpbf8ps(tmm1, tmm2, tmm3);
 tdpbhf8ps(tmm1, tmm2, tmm3);
 tdphbf8ps(tmm1, tmm2, tmm3);
 tdphf8ps(tmm1, tmm2, tmm3);
-
-tmmultf32ps(tmm1, tmm2, tmm3);
 
 //t2rpntlvwz0(tmm1, ptr[rax+r8*2+0x80]);
 //t2rpntlvwz0(tmm7, ptr[r30+r8*2+0x80]);

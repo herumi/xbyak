@@ -108,7 +108,7 @@ vcvttph2ibs(ym1, ptr[rax+64]);
 vcvttph2ibs(ym1, ptr_b[rax+64]);
 
 vcvttph2ibs(zm1, zm2);
-vcvttph2ibs(zm1, zm2|T_ru_sae);
+vcvttph2ibs(zm1, zm2|T_sae);
 vcvttph2ibs(zm1, ptr[rax+64]);
 vcvttph2ibs(zm1, ptr_b[rax+64]);
 //
@@ -121,7 +121,7 @@ vcvttph2iubs(ym1, ptr[rax+64]);
 vcvttph2iubs(ym1, ptr_b[rax+64]);
 
 vcvttph2iubs(zm1, zm2);
-vcvttph2iubs(zm1, zm2|T_ru_sae);
+vcvttph2iubs(zm1, zm2|T_sae);
 vcvttph2iubs(zm1, ptr[rax+64]);
 vcvttph2iubs(zm1, ptr_b[rax+64]);
 //
@@ -173,7 +173,7 @@ vcvttps2ibs(ym1, ptr[rax+64]);
 vcvttps2ibs(ym1, ptr_b[rax+64]);
 
 vcvttps2ibs(zm1, zm2);
-vcvttps2ibs(zm1, zm2|T_ru_sae);
+vcvttps2ibs(zm1, zm2|T_sae);
 vcvttps2ibs(zm1, ptr[rax+64]);
 vcvttps2ibs(zm1, ptr_b[rax+64]);
 //
@@ -186,7 +186,7 @@ vcvttps2iubs(ym1, ptr[rax+64]);
 vcvttps2iubs(ym1, ptr_b[rax+64]);
 
 vcvttps2iubs(zm1, zm2);
-vcvttps2iubs(zm1, zm2|T_ru_sae);
+vcvttps2iubs(zm1, zm2|T_sae);
 vcvttps2iubs(zm1, ptr[rax+64]);
 vcvttps2iubs(zm1, ptr_b[rax+64]);
 //

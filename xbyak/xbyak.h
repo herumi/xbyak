@@ -683,7 +683,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7390 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7391 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -3219,36 +3219,32 @@ private:
 		opVex(k, &x2, op3, type, code, imm8);
 	}
 	// (x, x/m), (y, x/m256), (z, y/m)
-	void checkCvt1(const Operand& x, const Operand& op) const
+	void opCvt1(const Xmm& x, const Operand& op, uint64_t type, int code, int imm8 = NONE)
 	{
 		if (!op.isMEM() && !(x.is(Operand::XMM | Operand::YMM) && op.isXMM()) && !(x.isZMM() && op.isYMM())) XBYAK_THROW(ERR_BAD_COMBINATION)
-	}
-	// (x, x/m), (x, y/m256), (y, z/m)
-	void checkCvt2(const Xmm& x, const Operand& op) const
-	{
-		if (!(x.isXMM() && op.is(Operand::XMM | Operand::YMM | Operand::MEM)) && !(x.isYMM() && op.is(Operand::ZMM | Operand::MEM))) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opVex(x, 0, op, type, code, imm8);
 	}
 	void opCvt(const Xmm& x, const Operand& op, uint64_t type, int code)
 	{
 		Operand::Kind kind = x.isXMM() ? (op.isBit(256) ? Operand::YMM : Operand::XMM) : Operand::ZMM;
 		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
 	}
+	// (x, x/m), (x, y/m256), (y, z/m)
 	void opCvt2(const Xmm& x, const Operand& op, uint64_t type, int code)
 	{
-		checkCvt2(x, op);
+		if (!(x.isXMM() && op.is(Operand::XMM | Operand::YMM | Operand::MEM)) && !(x.isYMM() && op.is(Operand::ZMM | Operand::MEM))) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opCvt(x, op, type, code);
 	}
 	void opCvt3(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, uint64_t type64, uint64_t type32, uint8_t code)
 	{
 		if (!(x1.isXMM() && x2.isXMM() && (op.isREG(i32e) || op.isMEM()))) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
-		Xmm x(op.getIdx());
-		const Operand *p = op.isREG() ? &x : &op;
-		opVex(x1, &x2, *p, type | (op.isBit(64) ? type64 : type32), code);
+		opVex(x1, &x2, op, type | (op.isBit(64) ? type64 : type32), code);
 	}
 	// (x, x/y/xword/yword), (y, z/m)
-	void checkCvt4(const Xmm& x, const Operand& op) const
+	void opCvt4(const Xmm& x, const Operand& op, uint64_t type, int code)
 	{
 		if (!(x.isXMM() && op.is(Operand::XMM | Operand::YMM | Operand::MEM) && op.isBit(128|256)) && !(x.isYMM() && op.is(Operand::ZMM | Operand::MEM))) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opCvt(x, op, type, code);
 	}
 	// (x, x/y/z/xword/yword/zword)
 	void opCvt5(const Xmm& x, const Operand& op, uint64_t type, int code)

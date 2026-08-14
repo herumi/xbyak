@@ -222,15 +222,15 @@ void putX_XM()
 		// 13.6
 		{ 0x69, "vcvtph2ibs", T_MUST_EVEX | T_YMM | T_MAP5 | T_W0 | T_B16 | T_ER_Z },
 		{ 0x6B, "vcvtph2iubs", T_MUST_EVEX | T_YMM | T_MAP5 | T_W0 | T_B16 | T_ER_Z },
-		{ 0x68, "vcvttph2ibs", T_MUST_EVEX | T_YMM | T_MAP5 | T_W0 | T_B16 | T_ER_Z },
-		{ 0x6A, "vcvttph2iubs", T_MUST_EVEX | T_YMM | T_MAP5 | T_W0 | T_B16 | T_ER_Z },
+		{ 0x68, "vcvttph2ibs", T_MUST_EVEX | T_YMM | T_MAP5 | T_W0 | T_B16 | T_SAE_Z },
+		{ 0x6A, "vcvttph2iubs", T_MUST_EVEX | T_YMM | T_MAP5 | T_W0 | T_B16 | T_SAE_Z },
 		// 13.7
 		{ 0x6D, "vcvttps2dqs", T_MUST_EVEX | T_YMM | T_MAP5 | T_W0 | T_B32 | T_SAE_Z },
 		// 13.8
 		{ 0x69, "vcvtps2ibs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_W0 | T_B32 | T_ER_Z },
 		{ 0x6B, "vcvtps2iubs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_W0 | T_B32 | T_ER_Z },
-		{ 0x68, "vcvttps2ibs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_W0 | T_B32 | T_ER_Z },
-		{ 0x6A, "vcvttps2iubs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_W0 | T_B32 | T_ER_Z },
+		{ 0x68, "vcvttps2ibs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_W0 | T_B32 | T_SAE_Z },
+		{ 0x6A, "vcvttps2iubs", T_MUST_EVEX | T_YMM | T_66 | T_MAP5 | T_W0 | T_B32 | T_SAE_Z },
 		// 13.10
 		{ 0x6C, "vcvttps2udqs", T_MUST_EVEX | T_YMM | T_MAP5 | T_W0 | T_B32 | T_SAE_Z },
 	};
@@ -712,7 +712,7 @@ void putCvt()
 			printf("void %s(const Reg32e& r, const Operand& op) { uint64_t type = (%s) | (r.isREG(64) ? T_EW1 : T_W0); opVex(r, &xm0, op, type, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 1: // (x, x/m), (y, x/m256), (z, y/m)
-			printf("void %s(const Xmm& x, const Operand& op) { checkCvt1(x, op); opVex(x, 0, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
+			printf("void %s(const Xmm& x, const Operand& op) { opCvt1(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 2: // (x, x/m), (x, y/m256), (y, z/m)
 			printf("void %s(const Xmm& x, const Operand& op) { opCvt2(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
@@ -721,7 +721,7 @@ void putCvt()
 			printf("void %s(const Xmm& x, const Operand& op) { if (!op.isXMM() && !op.isMEM()) XBYAK_THROW(ERR_BAD_MEM_SIZE) opVex(x, 0, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 4:
-			printf("void %s(const Xmm& x, const Operand& op) { checkCvt4(x, op); opCvt(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
+			printf("void %s(const Xmm& x, const Operand& op) { opCvt4(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 5:
 			printf("void %s(const Xmm& x, const Operand& op) { opCvt5(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
@@ -731,8 +731,8 @@ void putCvt()
 			break;
 		}
 	}
-	puts("void vcvtusi2sd(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, T_F2 | T_0F | T_MUST_EVEX, T_W1 | T_EW1 | T_ER_X | T_N8, T_W0 | T_N4, 0x7B); }");
-	puts("void vcvtusi2ss(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, T_F3 | T_0F | T_MUST_EVEX | T_ER_X, T_W1 | T_EW1 | T_N8, T_W0 | T_N4, 0x7B); }");
+	puts("void vcvtusi2sd(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, T_F2 | T_0F | T_MUST_EVEX, T_W1 | T_EW1 | T_ER_R | T_N8, T_W0 | T_N4, 0x7B); }");
+	puts("void vcvtusi2ss(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, T_F3 | T_0F | T_MUST_EVEX | T_ER_R, T_W1 | T_EW1 | T_N8, T_W0 | T_N4, 0x7B); }");
 }
 
 enum { // same as xbyak.h
@@ -1097,7 +1097,7 @@ void putAVX10_2()
 		std::string s = type2String(p->type);
 		printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt6(x1, x2, op, %s, 0x%02X); }\n" , p->name, s.c_str(), p->code);
 	}
-	puts("void vcvthf82ph(const Xmm& x, const Operand& op) { checkCvt1(x, op); opVex(x, 0, op, T_MUST_EVEX|T_F2|T_MAP5|T_W0|T_YMM|T_N8|T_N_VL, 0x1E); }");
+	puts("void vcvthf82ph(const Xmm& x, const Operand& op) { opCvt1(x, op, T_MUST_EVEX|T_F2|T_MAP5|T_W0|T_YMM|T_N8|T_N_VL, 0x1E); }");
 
 	const Tbl tbl2[] = {
 		{ 0x74, "vcvtph2bf8", T_MUST_EVEX | T_F3 | T_0F38 | T_W0 | T_YMM | T_B16 },
