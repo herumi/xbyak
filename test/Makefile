@@ -123,14 +123,6 @@ ifneq ($(X32),1)
 endif
 endif
 
-#test_avx512: normalize_prefix.exe
-#ifneq ($(ONLY_64BIT),0)
-#	CXX=$(CXX) ./test_avx512.sh
-#endif
-#ifeq ($(BIT),64)
-#	CXX=$(CXX) ./test_avx512.sh 64
-#endif
-
 test_avx10: avx10_test.exe
 	./avx10_test.exe
 
@@ -140,7 +132,6 @@ detect_x32.exe: detect_x32.c
 test: detect_x32.exe
 	$(MAKE) test_nm
 	$(MAKE) test_avx
-	$(MAKE) test_avx512
 
 test_all:
 	$(MAKE) test
