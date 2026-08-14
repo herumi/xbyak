@@ -778,15 +778,18 @@ public:
 		}
 		if (has(tAVX10) && maxNum >= 0x24) {
 			getCpuidEx(0x24, 0, data);
+			const uint32_t maxNumSubLeaves = eax;
 			avx10version_ = ebx & mask(7);
-			getCpuidEx(0x24, 1, data);
-			if (ecx & (1U << 2)) type_ |= tAVX10_V1_AUX;
-			if (ecx & (1U << 3)) type_ |= tAVX10_V2_AUX;
+			if (maxNumSubLeaves >= 1) {
+				getCpuidEx(0x24, 1, data);
+				if (ecx & (1U << 2)) type_ |= tAVX10_V1_AUX;
+				if (ecx & (1U << 3)) type_ |= tAVX10_V2_AUX;
+			}
 		}
-		if (maxNum >= 0x1d) {
+		if (has(tAMX_TILE) && maxNum >= 0x1d) {
 			getCpuidEx(0x1d, 0, data);
 			maxPalette_ = eax;
-			if (maxPalette_ >= 2) {
+			if (has(tACE) && maxPalette_ >= 2) {
 				getCpuidEx(0x1d, 2, data);
 				aceVersion_ = eax & mask(8);
 			}
