@@ -303,7 +303,8 @@ class Nmemonic:
   def __init__(self, name, args=[], attrs=[]):
     self.name = name
     self.args = args
-    self.attrs = attrs.sort()
+    attrs.sort()
+    self.attrs = attrs
   def __str__(self):
     s = f'{self.name}('
     for i in range(len(self.args)):
