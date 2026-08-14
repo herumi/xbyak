@@ -114,8 +114,6 @@ void putFp8()
 		}
 	}
 
-	// dst is fixed XMM regardless of VL; only bias/src grow together. No existing helper shape
-	// fits (they all let dst track the other operands' width), so the guard is hand-written here.
 	{
 		const struct Tbl {
 			const char *name;
@@ -130,8 +128,7 @@ void putFp8()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
 			printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) "
-				"{ if (!(x1.isXMM() && (op.isMEM() || op.getBit() == x2.getBit()))) XBYAK_THROW(ERR_BAD_COMBINATION) "
-				"opVex(x1, &x2, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
+				"{ opCvt7(x1, x2, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 		}
 	}
 

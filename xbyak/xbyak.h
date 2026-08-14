@@ -3279,6 +3279,12 @@ private:
 		}
 		XBYAK_THROW(ERR_BAD_COMBINATION);
 	}
+	// (x, x, x/m), (x, y, y/m), (x, z, z/m) : dst is fixed XMM regardless of VL
+	void opCvt7(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code)
+	{
+		if (!(x1.isXMM() && (op.isMEM() || op.getBit() == x2.getBit()))) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opVex(x1, &x2, op, type, code);
+	}
 	const Xmm& cvtIdx0(const Operand& x) const
 	{
 		return x.isZMM() ? zm0 : x.isYMM() ? ym0 : xm0;
