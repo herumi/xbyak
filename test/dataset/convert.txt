@@ -74,54 +74,54 @@ vcvthf82ph(zm1|k5|T_z, ptr[rax+64]);
 //
 vcvt2ph2bf8(xm1|k4|T_z, xm2, xm3);
 vcvt2ph2bf8(xm1|k4, xm2, ptr[rax+64]);
-vcvt2ph2bf8(xm1|T_z, xm2, ptr_b[rax+64]);
+vcvt2ph2bf8(xm1, xm2, ptr_b[rax+64]);
 
 vcvt2ph2bf8(ym1|k4|T_z, ym2, ym3);
 vcvt2ph2bf8(ym1|k4, ym2, ptr[rax+64]);
-vcvt2ph2bf8(ym1|T_z, ym2, ptr_b[rax+64]);
+vcvt2ph2bf8(ym1, ym2, ptr_b[rax+64]);
 
 vcvt2ph2bf8(zm1|k4|T_z, zm2, zm3);
 vcvt2ph2bf8(zm1|k4, zm2, ptr[rax+64]);
-vcvt2ph2bf8(zm1|T_z, zm2, ptr_b[rax+64]);
+vcvt2ph2bf8(zm1, zm2, ptr_b[rax+64]);
 
 //
 vcvt2ph2bf8s(xm1|k4|T_z, xm2, xm3);
 vcvt2ph2bf8s(xm1|k4, xm2, ptr[rax+64]);
-vcvt2ph2bf8s(xm1|T_z, xm2, ptr_b[rax+64]);
+vcvt2ph2bf8s(xm1, xm2, ptr_b[rax+64]);
 
 vcvt2ph2bf8s(ym1|k4|T_z, ym2, ym3);
 vcvt2ph2bf8s(ym1|k4, ym2, ptr[rax+64]);
-vcvt2ph2bf8s(ym1|T_z, ym2, ptr_b[rax+64]);
+vcvt2ph2bf8s(ym1, ym2, ptr_b[rax+64]);
 
 vcvt2ph2bf8s(zm1|k4|T_z, zm2, zm3);
 vcvt2ph2bf8s(zm1|k4, zm2, ptr[rax+64]);
-vcvt2ph2bf8s(zm1|T_z, zm2, ptr_b[rax+64]);
+vcvt2ph2bf8s(zm1, zm2, ptr_b[rax+64]);
 
 //
 vcvt2ph2hf8(xm1|k4|T_z, xm2, xm3);
 vcvt2ph2hf8(xm1|k4, xm2, ptr[rax+64]);
-vcvt2ph2hf8(xm1|T_z, xm2, ptr_b[rax+64]);
+vcvt2ph2hf8(xm1, xm2, ptr_b[rax+64]);
 
 vcvt2ph2hf8(ym1|k4|T_z, ym2, ym3);
 vcvt2ph2hf8(ym1|k4, ym2, ptr[rax+64]);
-vcvt2ph2hf8(ym1|T_z, ym2, ptr_b[rax+64]);
+vcvt2ph2hf8(ym1, ym2, ptr_b[rax+64]);
 
 vcvt2ph2hf8(zm1|k4|T_z, zm2, zm3);
 vcvt2ph2hf8(zm1|k4, zm2, ptr[rax+64]);
-vcvt2ph2hf8(zm1|T_z, zm2, ptr_b[rax+64]);
+vcvt2ph2hf8(zm1, zm2, ptr_b[rax+64]);
 
 //
 vcvt2ph2hf8s(xm1|k4|T_z, xm2, xm3);
 vcvt2ph2hf8s(xm1|k4, xm2, ptr[rax+64]);
-vcvt2ph2hf8s(xm1|T_z, xm2, ptr_b[rax+64]);
+vcvt2ph2hf8s(xm1, xm2, ptr_b[rax+64]);
 
 vcvt2ph2hf8s(ym1|k4|T_z, ym2, ym3);
 vcvt2ph2hf8s(ym1|k4, ym2, ptr[rax+64]);
-vcvt2ph2hf8s(ym1|T_z, ym2, ptr_b[rax+64]);
+vcvt2ph2hf8s(ym1, ym2, ptr_b[rax+64]);
 
 vcvt2ph2hf8s(zm1|k4|T_z, zm2, zm3);
 vcvt2ph2hf8s(zm1|k4, zm2, ptr[rax+64]);
-vcvt2ph2hf8s(zm1|T_z, zm2, ptr_b[rax+64]);
+vcvt2ph2hf8s(zm1, zm2, ptr_b[rax+64]);
 
 // vcvtph2bf8
 vcvtph2bf8(xmm1|k2|T_z, xmm2);
