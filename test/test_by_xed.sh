@@ -2,16 +2,24 @@
 
 set -e
 XED=${XED:=xed}
-XED_OPT=${XED_OPT:=-64 -set PREFETCHIT 1 -set PREFETCHRST 1 -set CLDEMOTE 1}
-#XED_OPT=${XED_OPT:=-64 -chip-check FUTURE}
 CXX=${CXX:=g++}
 CFLAGS_USER=${CFLAGS}
 CFLAGS_WARN="$(cat CFLAGS_WARN.cfg)"
 PYTHON=${PYTHON:=python3}
 echo $XED
 
+BIT=-64
+if [ "$1" = "-32" ]; then
+  BIT=-32
+  CFLAGS_USER="$CFLAGS_USER -DXBYAK32"
+  shift
+fi
+
+XED_OPT=${XED_OPT:=$BIT -set PREFETCHIT 1 -set PREFETCHRST 1 -set CLDEMOTE 1}
+#XED_OPT=${XED_OPT:=$BIT -chip-check FUTURE}
+
 if [ $# -ne 1 ]; then
-  echo "./test_by_xed.sh <xbyak-cpp>"
+  echo "./test_by_xed.sh [-32] <xbyak-cpp>"
   exit 1
 fi
 
