@@ -13,7 +13,7 @@ gen_code: gen_code.cpp $(GEN_DEP)
 	$(CXX) $(CFLAGS) $< -o $@
 gen_avx512: gen_avx512.cpp $(GEN_DEP)
 	$(CXX) $(CFLAGS) $< -o $@
-gen_ace_1: gen_ace_1.cpp avx_type.hpp
+gen_ace_1: gen_ace_1.cpp $(GEN_DEP)
 	$(CXX) $(CFLAGS) $< -o $@
 
 $(TARGET): $(BIN)
