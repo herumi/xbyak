@@ -27,6 +27,7 @@ endif
 ifeq ($(BIT),64)
 	TARGET += jmp64.exe address64.exe apx.exe mmap_allocator.exe
 	TARGET += sf_test.exe cpumask_test.exe
+	TARGET += ace_1.exe
 endif
 
 all: $(TARGET)
@@ -70,8 +71,10 @@ sf_test.exe: sf_test.cpp $(XBYAK_INC) sf_test_win.h sf_test_gcc.h
 	$(CXX) $(CFLAGS) $< -o $@ #-DXBYAK64
 cpumask_test.exe: cpumask_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@
+ace_1.exe: ace_1.cpp $(XBYAK_INC)
+	$(CXX) $(CFLAGS) $< -o $@
 
-TEST_FILES=avx512.txt bf16.txt comp.txt misc.txt convert.txt minmax.txt saturation.txt apx.txt amx.txt avx512old.txt
+TEST_FILES=avx512.txt bf16.txt comp.txt misc.txt convert.txt minmax.txt saturation.txt apx.txt amx.txt avx512old.txt ace_1.txt
 TEST32_FILES=avx512old-32.txt
 xed_test: detect_x32.exe
 	@set -e; \
@@ -109,6 +112,7 @@ endif
 	./apx.exe
 	./avx10_test.exe
 	./mmap_allocator.exe
+	./ace_1.exe
 endif
 
 test_avx: normalize_prefix.exe

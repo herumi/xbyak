@@ -115,6 +115,9 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tMOVRS, "movrs" },
 		{ Cpu::tHYBRID, "hybrid" },
 		{ Cpu::tAMX_COMPLEX, "amx_complex" },
+		{ Cpu::tACE, "ace" },
+		{ Cpu::tAVX10_V1_AUX, "avx10_v1_aux" },
+		{ Cpu::tAVX10_V2_AUX, "avx10_v2_aux" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
@@ -123,6 +126,9 @@ void putCPUinfo(bool onlyCpuidFeature)
 	if (onlyCpuidFeature) return;
 	if (cpu.has(Cpu::tAVX10)) {
 		printf("AVX10 version %d\n", cpu.getAVX10version());
+	}
+	if (cpu.has(Cpu::tACE)) {
+		printf("ACE version %d, max_palette %d\n", cpu.getACEVersion(), cpu.getMaxPalette());
 	}
 	if (cpu.has(Cpu::tPOPCNT)) {
 		const int n = 0x12345678; // bitcount = 13

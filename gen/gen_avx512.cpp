@@ -1144,6 +1144,25 @@ void putAMX_TTRorI()
 			printf("void %s(const Zmm& z, const Tmm& t, const Reg32& r) { opVex(z, &r, t, %s, 0x%02X); }\n", t.name, s.c_str(), t.code);
 		}
 	}
+	// EVEX.W alone selects direction: W0=extract-from-tile above, W1=load-into-tile here
+	// (same map/prefix/opcode); operands are correspondingly swapped (Tmm first/dest).
+	const struct TblRev {
+		uint64_t type;
+		uint8_t code;
+		bool imm;
+	} tblRev[] = {
+		{ T_66|T_0F3A|T_MUST_EVEX|T_EW1, 0x07, true },
+		{ T_66|T_0F38|T_MUST_EVEX|T_EW1, 0x4A, false },
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tblRev); i++) {
+		const TblRev& t = tblRev[i];
+		std::string s = type2String(t.type);
+		if (t.imm) {
+			printf("void tilemovrow(const Tmm& t, const Zmm& z, uint8_t imm) { opVex(t, 0, z, %s, 0x%02X, imm); }\n", s.c_str(), t.code);
+		} else {
+			printf("void tilemovrow(const Tmm& t, const Zmm& z, const Reg32& r) { opVex(t, &r, z, %s, 0x%02X); }\n", s.c_str(), t.code);
+		}
+	}
 }
 
 void putVmovrs()

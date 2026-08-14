@@ -8,6 +8,7 @@ tYMM = 2
 tZMM = 3
 tMASK = 4
 tTMM = 5
+tBSR = 6
 
 g_xmmTbl = '''
 xmm0 xmm1 xmm2 xmm3 xmm4 xmm5 xmm6 xmm7
@@ -26,6 +27,10 @@ zmm24 zmm25 zmm26 zmm27 zmm28 zmm29 zmm30 zmm31
 
 g_tmmTbl = '''
 tmm0 tmm1 tmm2 tmm3 tmm4 tmm5 tmm6 tmm7
+'''.split()
+
+g_bsrTbl = '''
+bsr0
 '''.split()
 
 g_regTblStr = '''
@@ -47,7 +52,7 @@ g_ext8bitRegTbl = '''
 spl bpl sil dil
 '''.split()
 
-g_regTbl = g_regTblStr.split()+g_ext8bitRegTbl+g_tmmTbl+g_xmmTbl
+g_regTbl = g_regTblStr.split()+g_ext8bitRegTbl+g_tmmTbl+g_xmmTbl+g_bsrTbl
 
 # name -> position in its line (0-origin) for names without a trailing number
 g_regIdxTbl = {}
@@ -70,7 +75,10 @@ class Reg:
     if m:
       self.idx = int(m.group(1))
       self.ext8bit = False
-      if s[0] == 'k':
+      if s == 'bsr0':
+        self.type = tBSR
+        self.bit = 1024
+      elif s[0] == 'k':
         self.type = tMASK
         self.bit = 64
       elif s[0] == 'r':
