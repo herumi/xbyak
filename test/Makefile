@@ -71,7 +71,7 @@ sf_test.exe: sf_test.cpp $(XBYAK_INC) sf_test_win.h sf_test_gcc.h
 cpumask_test.exe: cpumask_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@
 
-TEST_FILES=avx512.txt bf16.txt comp.txt misc.txt convert.txt minmax.txt saturation.txt apx.txt amx.txt
+TEST_FILES=avx512.txt bf16.txt comp.txt misc.txt convert.txt minmax.txt saturation.txt apx.txt amx.txt avx512old.txt
 xed_test: detect_x32.exe
 	@set -e; \
 	for target in $(addprefix dataset/, $(TEST_FILES)); do \
@@ -117,13 +117,13 @@ ifneq ($(X32),1)
 endif
 endif
 
-test_avx512: normalize_prefix.exe
-ifneq ($(ONLY_64BIT),0)
-	CXX=$(CXX) ./test_avx512.sh
-endif
-ifeq ($(BIT),64)
-	CXX=$(CXX) ./test_avx512.sh 64
-endif
+#test_avx512: normalize_prefix.exe
+#ifneq ($(ONLY_64BIT),0)
+#	CXX=$(CXX) ./test_avx512.sh
+#endif
+#ifeq ($(BIT),64)
+#	CXX=$(CXX) ./test_avx512.sh 64
+#endif
 
 test_avx10: avx10_test.exe
 	./avx10_test.exe
