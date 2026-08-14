@@ -72,10 +72,16 @@ cpumask_test.exe: cpumask_test.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@
 
 TEST_FILES=avx512.txt bf16.txt comp.txt misc.txt convert.txt minmax.txt saturation.txt apx.txt amx.txt avx512old.txt
+TEST32_FILES=avx512old-32.txt
 xed_test: detect_x32.exe
 	@set -e; \
+	echo 64bit test; \
 	for target in $(addprefix dataset/, $(TEST_FILES)); do \
 		./test_by_xed.sh $$target || exit 1; \
+	done; \
+	echo 32bit test; \
+	for target in $(addprefix dataset/, $(TEST32_FILES)); do \
+		./test_by_xed.sh -32 $$target || exit 1; \
 	done
 
 test_nm: normalize_prefix.exe $(TARGET)

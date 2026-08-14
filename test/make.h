@@ -1,5 +1,4 @@
 /*
-	common part of make_nm.cpp and make_512.cpp
 	usage:
 	#include "make.h"                // top level : common headers and bit-flag constants
 	<file specific constants>
@@ -23,7 +22,7 @@ using namespace Xbyak;
 const int bitEnd = 64;
 
 /*
-	bit-flag constants shared by make_nm.cpp and make_512.cpp
+	bit-flag constants shared by make_nm.cpp
 	bits 0, 9, 10, 11, 19, 20, 22, 23, 32, 36, 37 and the derived
 	constants XMM, REG64, REG32e are file specific
 */
@@ -177,7 +176,6 @@ const uint64_t NOPARA = 1ULL << (bitEnd - 1);
 		}
 	}
 	/*
-		handle the cases common to make_nm.cpp and make_512.cpp.
 		idx is passed by the caller so that get() calls rand() exactly once.
 		return 0 for the file specific cases ; get() must handle them before
 		calling this.
