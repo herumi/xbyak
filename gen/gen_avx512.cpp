@@ -721,7 +721,7 @@ void putCvt()
 			printf("void %s(const Xmm& x, const Operand& op) { if (!op.isXMM() && !op.isMEM()) XBYAK_THROW(ERR_BAD_MEM_SIZE) opVex(x, 0, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 4:
-			printf("void %s(const Xmm& x, const Operand& op) { checkCvt4(x, op); opCvt(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
+			printf("void %s(const Xmm& x, const Operand& op) { opCvt4(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 5:
 			printf("void %s(const Xmm& x, const Operand& op) { opCvt5(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);

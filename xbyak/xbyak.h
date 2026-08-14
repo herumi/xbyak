@@ -3244,9 +3244,10 @@ private:
 		opVex(x1, &x2, op, type | (op.isBit(64) ? type64 : type32), code);
 	}
 	// (x, x/y/xword/yword), (y, z/m)
-	void checkCvt4(const Xmm& x, const Operand& op) const
+	void opCvt4(const Xmm& x, const Operand& op, uint64_t type, int code)
 	{
 		if (!(x.isXMM() && op.is(Operand::XMM | Operand::YMM | Operand::MEM) && op.isBit(128|256)) && !(x.isYMM() && op.is(Operand::ZMM | Operand::MEM))) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opCvt(x, op, type, code);
 	}
 	// (x, x/y/z/xword/yword/zword)
 	void opCvt5(const Xmm& x, const Operand& op, uint64_t type, int code)
