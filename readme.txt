@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.39
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.39.1
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -404,6 +404,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2026/08/14 ver 7.39.1 vmovq/opCvt3/vpextrwのEGPRエンコード修正. tmmultf32psの削除
 2026/08/12 ver 7.39 CodeArrayのreset()時に保護モードを復元. 例外なしモードでnew失敗時にdb()が落ちるバグの修正. CodeGeneratorのレジスタをstatic constexprに変更. StackFrameのUseSSE/UseAVX/NoVzeroupper対応
 2026/08/03 ver 7.38.0 pushp/poppサポート StackFrameのPPX/PUSH2/APX対応
 2026/07/29 ver 7.37.6 メモリ操作に対するT_zチェックの強化とAllocator::allocのサイズ切り上げ対応
