@@ -1234,6 +1234,7 @@ public:
 	XBYAK_CONSTEXPR uint32_t getBit() const { return bit_; }
 	const char *toString() const
 	{
+		if (isBSR()) return "bsr0";
 		const int idx = getIdx();
 		if (kind_ == REG) {
 			if (isExt8bit()) {
