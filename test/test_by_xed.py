@@ -2,15 +2,12 @@ import re
 import math
 import sys
 
-class Reg:
-  def __init__(self, s):
-    self.name = s
-  def __str__(self):
-    return self.name
-  def __eq__(self, rhs):
-    return self.name == rhs.name
-  def __lt__(self, rhs):
-    return self.name < rhs.name
+tREG = 0
+tXMM = 1
+tYMM = 2
+tZMM = 3
+tMASK = 4
+tTMM = 5
 
 g_xmmTbl = '''
 xmm0 xmm1 xmm2 xmm3 xmm4 xmm5 xmm6 xmm7
@@ -31,7 +28,7 @@ g_tmmTbl = '''
 tmm0 tmm1 tmm2 tmm3 tmm4 tmm5 tmm6 tmm7
 '''.split()
 
-g_regTbl = '''
+g_regTblStr = '''
 eax ecx edx ebx esp ebp esi edi
 ax cx dx bx sp bp si di
 al cl dl bl ah ch dh bh
@@ -44,8 +41,78 @@ r8w r9w r10w r11w r12w r13w r14w r15w
 r16w r17w r18w r19w r20w r21w r22w r23w r24w r25w r26w r27w r28w r29w r30w r31w
 r8b r9b r10b r11b r12b r13b r14b r15b
 r16b r17b r18b r19b r20b r21b r22b r23b r24b r25b r26b r27b r28b r29b r30b r31b
+'''
+
+g_ext8bitRegTbl = '''
 spl bpl sil dil
-'''.split()+g_tmmTbl+g_xmmTbl
+'''.split()
+
+g_regTbl = g_regTblStr.split()+g_ext8bitRegTbl+g_tmmTbl+g_xmmTbl
+
+# name -> position in its line (0-origin) for names without a trailing number
+g_regIdxTbl = {}
+for line in g_regTblStr.splitlines():
+  for i, name in enumerate(line.split()):
+    g_regIdxTbl[name] = (i, False)
+for i, name in enumerate(g_ext8bitRegTbl):
+  g_regIdxTbl[name] = (i + 4, True)
+
+class Reg:
+  def __init__(self, s):
+    """
+    name: register name
+    bit:  bit length
+    type: tREG, tMMX, ...
+    ext8bit: True if spl, bpl, ...
+    """
+    self.name = s
+    m = re.search(r'(\d+)', s)
+    if m:
+      self.idx = int(m.group(1))
+      self.ext8bit = False
+      if s[0] == 'k':
+        self.type = tMASK
+        self.bit = 64
+      elif s[0] == 'r':
+        self.type = tREG
+        if s[-1] == 'b':
+          self.bit = 8
+        elif s[-1] == 'w':
+          self.bit = 16
+        elif s[-1] == 'd':
+          self.bit = 32
+        else:
+          self.bit = 64
+      elif s[0] == 'x':
+        self.type = tXMM
+        self.bit = 128
+      elif s[0] == 'y':
+        self.type = tYMM
+        self.bit = 256
+      elif s[0] == 'z':
+        self.type = tZMM
+        self.bit = 512
+      elif s[0] == 't':
+        self.type = tTMM
+        self.bit = 1024
+    else:
+      self.idx, self.ext8bit = g_regIdxTbl.get(s, (-1,False))
+      self.type = tREG
+      if self.ext8bit or s[1] in ['h', 'l']:
+        self.bit = 8
+      elif len(s) == 3:
+        if s[0] == 'r':
+          self.bit = 64
+        else:
+          self.bit = 32
+      else:
+        self.bit = 16
+  def __str__(self):
+    return self.name
+  def __eq__(self, rhs):
+    return self.name == rhs.name
+  def __lt__(self, rhs):
+    return self.name < rhs.name
 
 # define global constants
 for e in g_regTbl:
@@ -223,6 +290,15 @@ def normalizeName(s):
     return 'shl'
   return s
 
+# name -> (position of the GPR operand, bit length accepted on the Xbyak side)
+# xed disassembles the GPR operand of these instructions as a 32-bit register.
+g_gprAliasTbl = {
+  'vpbroadcastb': (1, 8),
+  'vpbroadcastw': (1, 16),
+  'vpextrb': (0, 64),
+  'vpextrw': (0, 64),
+}
+
 class Nmemonic:
   def __init__(self, name, args=[], attrs=[]):
     self.name = name
@@ -240,7 +316,26 @@ class Nmemonic:
     s += ');'
     return s
   def __eq__(self, rhs):
-    return normalizeName(self.name) == normalizeName(rhs.name) and self.args == rhs.args and self.attrs == rhs.attrs
+    lhs_name = normalizeName(self.name)
+    rhs_name = normalizeName(rhs.name)
+    if not(lhs_name == rhs_name and self.attrs == rhs.attrs):
+      return False
+    # xed shows the GPR operand of these instructions as a 32-bit register
+    # even if Xbyak takes an 8/16/64-bit one
+    # (e.g. vpbroadcastb(xmm5, bl) is disassembled as vpbroadcastb xmm5, ebx),
+    # so compare only the register index in that case.
+    alias = g_gprAliasTbl.get(lhs_name)
+    if alias and len(self.args) == len(rhs.args):
+      (pos, bit) = alias
+      if pos < len(self.args):
+        lhs_r = self.args[pos]
+        rhs_r = rhs.args[pos]
+        if (isinstance(lhs_r, Reg) and isinstance(rhs_r, Reg)
+            and lhs_r.type == tREG and rhs_r.type == tREG
+            and lhs_r.bit == bit and rhs_r.bit == 32
+            and lhs_r.idx == rhs_r.idx):
+          return self.args[:pos] + self.args[pos+1:] == rhs.args[:pos] + rhs.args[pos+1:]
+    return self.args == rhs.args
 
 def parseNmemonic(s):
   args = []
@@ -316,6 +411,14 @@ def parseNmemonic(s):
       args.append(Reg(e[:-2]))
     else:
       args.append(parseMemory(e, broadcast))
+  # xed shows the opmask of gather/scatter as an operand
+  # (e.g. vpgatherdd xmm5, k7, dword ptr [...]), so move it to attrs.
+  if 'gather' in name or 'scatter' in name:
+    for i, e in enumerate(args):
+      if isinstance(e, Reg) and e.type == tMASK:
+        attrs.append(e)
+        del args[i]
+        break
   return Nmemonic(name, args, attrs)
 
 def loadFile(name):
