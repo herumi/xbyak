@@ -179,6 +179,8 @@ private:
 	uint32_t coresSharingDataCache_[maxNumberCacheLevels];
 	uint32_t dataCacheLevels_;
 	uint32_t avx10version_;
+	uint32_t aceVersion_;
+	uint32_t maxPalette_;
 
 	uint32_t get32bitAsBE(const char *x) const
 	{
@@ -590,6 +592,9 @@ public:
 	XBYAK_DEFINE_TYPE(96, tMOVRS);
 	XBYAK_DEFINE_TYPE(97, tHYBRID);
 	XBYAK_DEFINE_TYPE(98, tAMX_COMPLEX);
+	XBYAK_DEFINE_TYPE(99, tACE);
+	XBYAK_DEFINE_TYPE(100, tAVX10_V1_AUX);
+	XBYAK_DEFINE_TYPE(101, tAVX10_V2_AUX);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -601,6 +606,8 @@ public:
 		, coresSharingDataCache_()
 		, dataCacheLevels_(0)
 		, avx10version_(0)
+		, aceVersion_(0)
+		, maxPalette_(0)
 	{
 		uint32_t data[4] = {};
 		const uint32_t& eax = data[0];
@@ -748,6 +755,7 @@ public:
 				if (edx & (1U << 14)) type_ |= tPREFETCHITI;
 				if (edx & (1U << 19)) type_ |= tAVX10;
 				if (edx & (1U << 21)) type_ |= tAPX_F;
+				if (ecx & (1U << 11)) type_ |= tACE;
 			}
 			if (maxNum >= 0x1e) {
 				getCpuidEx(0x1e, 0, data);
@@ -770,7 +778,21 @@ public:
 		}
 		if (has(tAVX10) && maxNum >= 0x24) {
 			getCpuidEx(0x24, 0, data);
+			const uint32_t maxNumSubLeaves = eax;
 			avx10version_ = ebx & mask(7);
+			if (maxNumSubLeaves >= 1) {
+				getCpuidEx(0x24, 1, data);
+				if (ecx & (1U << 2)) type_ |= tAVX10_V1_AUX;
+				if (ecx & (1U << 3)) type_ |= tAVX10_V2_AUX;
+			}
+		}
+		if (has(tAMX_TILE) && maxNum >= 0x1d) {
+			getCpuidEx(0x1d, 0, data);
+			maxPalette_ = eax;
+			if (has(tACE) && maxPalette_ >= 2) {
+				getCpuidEx(0x1d, 2, data);
+				aceVersion_ = eax & mask(8);
+			}
 		}
 		setFamily();
 		setNumCores();
@@ -789,6 +811,8 @@ public:
 		return (type & type_) == type;
 	}
 	int getAVX10version() const { return avx10version_; }
+	int getACEVersion() const { return aceVersion_; }
+	int getMaxPalette() const { return maxPalette_; }
 };
 #ifdef _MSC_VER
 	#pragma warning(pop)

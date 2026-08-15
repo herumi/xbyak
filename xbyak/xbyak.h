@@ -507,6 +507,9 @@
 	F(Tmm, tmm6, 6)				\
 	F(Tmm, tmm7, 7)				\
 	/**/
+#define XBYAK_FOR_EACH_REG_BSR(F)		\
+	F(Bsr, bsr0, 0)				\
+	/**/
 #define XBYAK_FOR_EACH_REG_RIP(F)		\
 	F(RegRip, rip, 0)			\
 	/**/
@@ -520,6 +523,7 @@
 #define XBYAK_FOR_EACH_REG_YMM_EXT(F)
 #define XBYAK_FOR_EACH_REG_ZMM_EXT(F)
 #define XBYAK_FOR_EACH_REG_TMM(F)
+#define XBYAK_FOR_EACH_REG_BSR(F)
 #define XBYAK_FOR_EACH_REG_RIP(F)
 #endif
 
@@ -565,6 +569,7 @@
 	XBYAK_FOR_EACH_REG_YMM_EXT(F)		\
 	XBYAK_FOR_EACH_REG_ZMM_EXT(F)		\
 	XBYAK_FOR_EACH_REG_TMM(F)		\
+	XBYAK_FOR_EACH_REG_BSR(F)		\
 	XBYAK_FOR_EACH_REG_RIP(F)		\
 	XBYAK_FOR_EACH_REG_SEGMENT(F)		\
 	/**/
@@ -683,7 +688,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7391 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7400 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -1107,7 +1112,7 @@ static const int T_cf = 1;
 class Operand {
 	static const uint8_t EXT8BIT = 0x20;
 	unsigned int idx_:6; // 0..31 + EXT8BIT = 1 if spl/bpl/sil/dil
-	unsigned int kind_:10;
+	unsigned int kind_:11;
 	unsigned int bit_:14;
 protected:
 	unsigned int zero_:1;
@@ -1128,7 +1133,8 @@ public:
 		ZMM = 1 << 6,
 		OPMASK = 1 << 7,
 		BNDREG = 1 << 8,
-		TMM = 1 << 9
+		TMM = 1 << 9,
+		BSR = 1 << 10
 	};
 	enum Code {
 #ifdef XBYAK64
@@ -1168,6 +1174,7 @@ public:
 	XBYAK_CONSTEXPR bool isZMM() const { return is(ZMM); }
 	XBYAK_CONSTEXPR bool isSIMD() const { return is(XMM|YMM|ZMM); }
 	XBYAK_CONSTEXPR bool isTMM() const { return is(TMM); }
+	XBYAK_CONSTEXPR bool isBSR() const { return is(BSR); }
 	XBYAK_CONSTEXPR bool isXMEM() const { return is(XMM | MEM); }
 	XBYAK_CONSTEXPR bool isYMEM() const { return is(YMM | MEM); }
 	XBYAK_CONSTEXPR bool isZMEM() const { return is(ZMM | MEM); }
@@ -1227,6 +1234,7 @@ public:
 	XBYAK_CONSTEXPR uint32_t getBit() const { return bit_; }
 	const char *toString() const
 	{
+		if (isBSR()) return "bsr0";
 		const int idx = getIdx();
 		if (kind_ == REG) {
 			if (isExt8bit()) {
@@ -1424,6 +1432,12 @@ struct Zmm : public Ymm {
 #ifdef XBYAK64
 struct Tmm : public Reg {
 	explicit XBYAK_CONSTEXPR Tmm(int idx = 0, Kind kind = Operand::TMM, int bit = 8192) : Reg(idx, kind, bit) { }
+};
+// Singleton register (idx always 0): 1024-bit width is its true size, but every memory-capable
+// mnemonic that uses it sets T_N1 (not T_N_VL), so evex()'s VL==512 disp8N multiplier check is
+// never reached with this width.
+struct Bsr : public Reg {
+	explicit XBYAK_CONSTEXPR Bsr(int idx = 0) : Reg(idx, Operand::BSR, 1024) { }
 };
 #endif
 
@@ -3264,6 +3278,12 @@ private:
 			return;
 		}
 		XBYAK_THROW(ERR_BAD_COMBINATION);
+	}
+	// (x, x, x/m), (x, y, y/m), (x, z, z/m) : dst is fixed XMM regardless of VL
+	void opCvt7(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code)
+	{
+		if (!(x1.isXMM() && (op.isMEM() || op.getBit() == x2.getBit()))) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opVex(x1, &x2, op, type, code);
 	}
 	const Xmm& cvtIdx0(const Operand& x) const
 	{
