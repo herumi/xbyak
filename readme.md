@@ -1,5 +1,5 @@
 
-# Xbyak 7.39.1 [![Badge Build]][Build Status]
+# Xbyak 7.40 [![Badge Build]][Build Status]
 
 *A JIT assembler for x86/x64 architectures supporting advanced instruction sets up to AVX10.2*
 
@@ -32,6 +32,7 @@ If you want to use them, then specify `-fno-operator-names` option to gcc/clang.
 
 ### News
 
+- Support ACE 1.15
 - Support AVX10.2
 - Support xresldtrk/xsusldtrk
 - Support RAO-INT for APX
