@@ -2568,7 +2568,7 @@ private:
 		if ((a > 0 && a != v) + (b > 0 && b != v) + (c > 0 && c != v) > 0) XBYAK_THROW_RET(err, 0)
 		return v;
 	}
-	int evex(const Reg& reg, const Reg& base, const Operand *v, uint64_t type, int code, const Reg *x = 0, bool b = false, int aaa = 0, uint32_t VL = 0, bool Hi16Vidx = false)
+	int evex(const Reg& reg, const Reg& base, const Operand *v, uint64_t type, int code, const Reg *x = 0, bool b = false, int aaa = 0)
 	{
 		if (!(type & (T_EVEX | T_MUST_EVEX))) XBYAK_THROW_RET(ERR_EVEX_IS_INVALID, 0)
 		int w = (type & T_EW1) ? 1 : 0;
@@ -2594,6 +2594,7 @@ private:
 			}
 			b = true;
 		} else {
+			uint32_t VL = (x && x->isSIMD()) ? x->getBit() : 0; // vsib
 			if (v) VL = (std::max)(VL, v->getBit());
 			VL = (std::max)((std::max)(reg.getBit(), base.getBit()), VL);
 			LL = (VL >= 512 /* tmm */) ? 2 : (VL == 256) ? 1 : 0;
@@ -2612,7 +2613,7 @@ private:
 				}
 			}
 		}
-		bool V4 = ((v ? v->isExtIdx2() : 0) || Hi16Vidx);
+		bool V4 = (v && v->isExtIdx2()) || (x && x->isSIMD() && x->isExtIdx2());
 		bool z = reg.hasZero() || base.hasZero() || (v ? v->hasZero() : false);
 		if (aaa == 0) aaa = verifyDuplicate(base.getOpmaskIdx(), reg.getOpmaskIdx(), (v ? v->getOpmaskIdx() : 0), ERR_OPMASK_IS_ALREADY_SET);
 		if (aaa == 0) z = 0; // clear T_z if mask is not set
@@ -3164,6 +3165,7 @@ private:
 	}
 	void opVex(const Reg& r, const Operand *p1, const Operand& op2, uint64_t type, int code, int imm8 = NONE)
 	{
+		const bool useEvex = (type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex());
 		if (op2.isMEM()) {
 			// zeroing-masking has no meaning when the destination is memory
 			if ((type & T_M_K) && (r.hasZero() || (p1 && p1->hasZero()) || op2.hasZero())) XBYAK_THROW(ERR_INVALID_ZERO)
@@ -3172,8 +3174,7 @@ private:
 			const Reg& base = regExp.getBase();
 			const Reg& index = regExp.getIndex();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
-			int disp8N = 0;
-			if ((type & (T_MUST_EVEX|T_MEM_EVEX)) || r.hasEvex() || (p1 && p1->hasEvex()) || addr.isBroadcast() || addr.getOpmaskIdx() || addr.hasRex2()) {
+			if (useEvex || (type & T_MEM_EVEX) || addr.isBroadcast() || addr.getOpmaskIdx() || addr.hasRex2()) {
 				int aaa = addr.getOpmaskIdx();
 				if (aaa && !(type & T_M_K)) XBYAK_THROW(ERR_INVALID_OPMASK_WITH_MEMORY)
 				bool b = false;
@@ -3181,18 +3182,16 @@ private:
 					if (!(type & (T_B32 | T_B64))) XBYAK_THROW(ERR_INVALID_BROADCAST)
 					b = true;
 				}
-				int VL = regExp.isVsib() ? index.getBit() : 0;
-				disp8N = evex(r, base, p1, type, code, &index, b, aaa, VL, index.isSIMD() && index.isExtIdx2());
+				addr.disp8N = evex(r, base, p1, type, code, &index, b, aaa);
 			} else {
 				vex(r, base, p1, type, code, index.isExtIdx());
 			}
 			if (type & T_VSIB) addr.permitVsib = true;
-			if (disp8N) addr.disp8N = disp8N;
 			if (imm8 != NONE) addr.immSize = 1;
 			opAddr(addr, r.getIdx());
 		} else {
 			const Reg& base = op2.getReg();
-			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || base.hasEvex()) {
+			if (useEvex || base.hasEvex()) {
 				evex(r, base, p1, type, code);
 			} else {
 				vex(r, base, p1, type, code);
