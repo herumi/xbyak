@@ -3255,8 +3255,8 @@ private:
 	// (x, x/y/xword/yword), (y, z/m)
 	void opCvt4(const Xmm& x, const Operand& op, uint64_t type, int code)
 	{
-		if (!(x.isXMM() && op.is(Operand::XMM | Operand::YMM | Operand::MEM) && op.isBit(128|256)) && !(x.isYMM() && op.is(Operand::ZMM | Operand::MEM))) XBYAK_THROW(ERR_BAD_COMBINATION)
-		opCvt(x, op, type, code);
+		if (x.isXMM() && !op.isBit(128|256)) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opCvt2(x, op, type, code);
 	}
 	// (x, x/y/z/xword/yword/zword)
 	void opCvt5(const Xmm& x, const Operand& op, uint64_t type, int code)
@@ -3266,21 +3266,12 @@ private:
 		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
 	}
 	// (x, x, x/m), (x, y, y/m), (y, z, z/m)
-	void opCvt6(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code)
+	// dstXMM = true : dst is fixed XMM regardless of VL : (x, x, x/m), (x, y, y/m), (x, z, z/m)
+	void opCvt6(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code, bool dstXMM = false)
 	{
-		int b1 = x1.getBit();
-		int b2 = x2.getBit();
-		int b3 = op.getBit();
-		if ((b1 == 128 && (b2 == 128 || b2 == 256) && (b2 == b3 || op.isMEM())) || (b1 == 256 && b2 == 512 && (b3 == b2 || op.isMEM()))) {
-			opVex(x1, &x2, op, type, code);
-			return;
-		}
-		XBYAK_THROW(ERR_BAD_COMBINATION);
-	}
-	// (x, x, x/m), (x, y, y/m), (x, z, z/m) : dst is fixed XMM regardless of VL
-	void opCvt7(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code)
-	{
-		if (!(x1.isXMM() && (op.isMEM() || op.getBit() == x2.getBit()))) XBYAK_THROW(ERR_BAD_COMBINATION)
+		uint32_t b2 = x2.getBit();
+		uint32_t dstBit = (!dstXMM && b2 == 512) ? 256 : 128;
+		if (!(x1.getBit() == dstBit && (op.isMEM() || op.getBit() == b2))) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opVex(x1, &x2, op, type, code);
 	}
 	// (r32/r64, x/m) : EVEX.W is set if r is 64-bit

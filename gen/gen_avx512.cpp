@@ -1290,7 +1290,7 @@ void putFp8()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
 			printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) "
-				"{ opCvt7(x1, x2, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
+				"{ opCvt6(x1, x2, op, %s, 0x%02X, true); }\n", p.name, s.c_str(), p.code);
 		}
 	}
 
