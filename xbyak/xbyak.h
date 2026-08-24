@@ -3229,16 +3229,22 @@ private:
 		if (!op3.isMEM() && (x2.getKind() != op3.getKind())) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opVex(k, &x2, op3, type, code, imm8);
 	}
+	void opCvt(const Xmm& x, const Operand& op, uint64_t type, int code)
+	{
+		Operand::Kind kind = x.isXMM() ? (op.isBit(256) ? Operand::YMM : Operand::XMM) : Operand::ZMM;
+		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
+	}
+	// xx_xy_xz (use opCvt1 for xx_xy_yz)
+	void opX_XM(const Operand& op, const Xmm& x, uint64_t type, uint8_t code)
+	{
+		if (!op.isMEM() && !op.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opVex(x, 0, op, type, code);
+	}
 	// (x, x/m), (y, x/m256), (z, y/m)
 	void opCvt1(const Xmm& x, const Operand& op, uint64_t type, int code, int imm8 = NONE)
 	{
 		if (!op.isMEM() && !(x.is(Operand::XMM | Operand::YMM) && op.isXMM()) && !(x.isZMM() && op.isYMM())) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opVex(x, 0, op, type, code, imm8);
-	}
-	void opCvt(const Xmm& x, const Operand& op, uint64_t type, int code)
-	{
-		Operand::Kind kind = x.isXMM() ? (op.isBit(256) ? Operand::YMM : Operand::XMM) : Operand::ZMM;
-		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
 	}
 	// (x, x/m), (x, y/m256), (y, z/m)
 	void opCvt2(const Xmm& x, const Operand& op, uint64_t type, int code)
@@ -3356,12 +3362,6 @@ private:
 		if (maskIdx == 0) XBYAK_THROW(ERR_K0_IS_INVALID);
 		if (!(type & T_M_K) && x.getIdx() == regExp.getIndex().getIdx()) XBYAK_THROW(ERR_SAME_REGS_ARE_INVALID);
 		opVex(x, 0, addr, type, code);
-	}
-	// xx_xy_xz (use opCvt1 for xx_xy_yz)
-	void opVmov(const Operand& op, const Xmm& x, uint64_t type, uint8_t code)
-	{
-		if (!op.isMEM() && !op.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION)
-		opVex(x, 0, op, type, code);
 	}
 	void opGatherFetch(const Address& addr, const Xmm& x, uint64_t type, uint8_t code, Operand::Kind kind)
 	{

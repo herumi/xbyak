@@ -718,7 +718,7 @@ void putCvt()
 			printf("void %s(const Xmm& x, const Operand& op) { opCvt2(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 3:
-			printf("void %s(const Xmm& x, const Operand& op) { opVmov(op, x, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
+			printf("void %s(const Xmm& x, const Operand& op) { opX_XM(op, x, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 4:
 			printf("void %s(const Xmm& x, const Operand& op) { opCvt4(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
@@ -845,7 +845,7 @@ void putMov()
 			if (p.mode) {
 				printf("void %s(const Operand& op, const Xmm& x) { opCvt1(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			} else {
-				printf("void %s(const Operand& op, const Xmm& x) { opVmov(op, x, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
+				printf("void %s(const Operand& op, const Xmm& x) { opX_XM(op, x, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			}
 		}
 	}
@@ -1306,7 +1306,7 @@ void putFp8()
 			const Tbl& p = tbl[i];
 			std::string s = type2String(T_MUST_EVEX | T_MAP5 | T_YMM | T_N4 | T_N_VL | p.w);
 			printf("void %s(const Xmm& x, const Operand& op) "
-				"{ opVmov(op, x, %s, 0x36); }\n", p.name, s.c_str());
+				"{ opX_XM(op, x, %s, 0x36); }\n", p.name, s.c_str());
 		}
 	}
 
@@ -1350,7 +1350,7 @@ void putFp8()
 		}
 	}
 
-	// vcvt*bf4s: dst grows with src (opCvt1), unlike vpmovssdb (opVmov); T_M_K intentionally
+	// vcvt*bf4s: dst grows with src (opCvt1), unlike vpmovssdb (opX_XM); T_M_K intentionally
 	// omitted since that family has no masked-memory-destination form.
 	{
 		const struct Tbl {
@@ -1369,7 +1369,7 @@ void putFp8()
 			if (p.mode) {
 				printf("void %s(const Operand& op, const Xmm& x) { opCvt1(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			} else {
-				printf("void %s(const Operand& op, const Xmm& x) { opVmov(op, x, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
+				printf("void %s(const Operand& op, const Xmm& x) { opX_XM(op, x, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			}
 		}
 	}
