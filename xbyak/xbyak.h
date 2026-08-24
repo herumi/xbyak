@@ -2418,17 +2418,29 @@ private:
 		if (b.hasIdxBit(bit)) v |= 1;
 		return uint8_t(v);
 	}
-	void rex2(int bit3, int rex4bit, const Reg& r, const Reg& b, const Reg& x = Reg())
+	void rex2(int bit3, int w, const Reg& r, const Reg& b, const Reg& x = Reg())
 	{
 		db(0xD5);
-		db((rexRXB(4, bit3, r, b, x) << 4) | rex4bit);
+		db((rexRXB(4, bit3, r, b, x) << 4) | rexRXB(3, w, r, b, x));
+	}
+	// emit REX2 or REX prefix for (reg, base, index) and return true if rex2 is selected
+	bool setRex(int w, const Reg& r, const Reg& b, const Reg& x, uint64_t type)
+	{
+		uint8_t rex = rexRXB(3, w, r, b, x);
+		if (r.hasRex2() || b.hasRex2() || x.hasRex2()) {
+			if (type & (T_0F38|T_0F3A)) XBYAK_THROW_RET(ERR_CANT_USE_REX2, false)
+			rex2(!!(type & T_0F), w, r, b, x);
+			return true;
+		}
+		if (rex || r.isExt8bit() || b.isExt8bit() || x.isExt8bit()) rex |= 0x40;
+		if (rex) db(rex);
+		return false;
 	}
 	// return true if rex2 is selected
 	bool rex(const Operand& op1, const Operand& op2 = Operand(), uint64_t type = 0)
 	{
 		if (op1.getNF() | op2.getNF()) XBYAK_THROW_RET(ERR_INVALID_NF, false)
 		if (op1.getZU() | op2.getZU()) XBYAK_THROW_RET(ERR_INVALID_ZU, false)
-		uint8_t rex = 0;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) std::swap(p1, p2);
 		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
@@ -2441,35 +2453,18 @@ private:
 		if (type & T_F3) {
 			db(0xF3);
 		}
-		bool is0F = type & T_0F;
 		if (p2->isMEM()) {
 			const Reg& r = *static_cast<const Reg*>(p1);
 			const Address& addr = p2->getAddress();
 			const RegExp& e = addr.getRegExp();
-			const Reg& base = e.getBase();
-			const Reg& idx = e.getIndex();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
-			rex = rexRXB(3, r.isREG(64), r, base, idx);
-			if (r.hasRex2() || addr.hasRex2()) {
-				if (type & (T_0F38|T_0F3A)) XBYAK_THROW_RET(ERR_CANT_USE_REX2, false)
-				rex2(is0F, rex, r, base, idx);
-				return true;
-			}
-			if (rex || r.isExt8bit()) rex |= 0x40;
+			return setRex(r.isREG(64), r, e.getBase(), e.getIndex(), type);
 		} else {
 			const Reg& r1 = static_cast<const Reg&>(op1);
 			const Reg& r2 = static_cast<const Reg&>(op2);
 			// ModRM(reg, base);
-			rex = rexRXB(3, r1.isREG(64) || r2.isREG(64), r2, r1);
-			if (r1.hasRex2() || r2.hasRex2()) {
-				if (type & (T_0F38|T_0F3A)) XBYAK_THROW_RET(ERR_CANT_USE_REX2, 0)
-				rex2(is0F, rex, r2, r1);
-				return true;
-			}
-			if (rex || r1.isExt8bit() || r2.isExt8bit()) rex |= 0x40;
+			return setRex(r1.isREG(64) || r2.isREG(64), r2, r1, Reg(), type);
 		}
-		if (rex) db(rex);
-		return false;
 	}
 	// @@@begin of avx_type_def.h
 	static const uint64_t T_NONE = 0ull;
@@ -3063,7 +3058,7 @@ private:
 	{
 		if (op.isREG() && op.hasRex2()) {
 			const Reg& r = static_cast<const Reg&>(op);
-			rex2(0, rexRXB(3, 0, Reg(), r), Reg(), r);
+			rex2(0, 0, Reg(), r);
 			db(alt | (r.getIdx() & 7));
 			return;
 		}
@@ -3087,7 +3082,7 @@ private:
 	// unlike ordinary push/pop where REX2 is only emitted for R16-31.
 	void opPushPopP(const Reg64& r, int alt)
 	{
-		rex2(0, rexRXB(3, 1, Reg(), r), Reg(), r);
+		rex2(0, 1, Reg(), r);
 		db(alt | (r.getIdx() & 7));
 	}
 #endif
