@@ -2568,8 +2568,17 @@ private:
 		if ((a > 0 && a != v) + (b > 0 && b != v) + (c > 0 && c != v) > 0) XBYAK_THROW_RET(err, 0)
 		return v;
 	}
-	int evex(const Reg& reg, const Reg& base, const Operand *v, uint64_t type, int code, const Reg *x = 0, bool b = false, int aaa = 0)
+	int evex(const Reg& reg, const Reg& base, const Operand *v, uint64_t type, int code, const Address *addr = 0)
 	{
+		const RegExp regExp = addr ? addr->getRegExp() : RegExp();
+		const Reg *x = addr ? &regExp.getIndex() : 0;
+		int aaa = addr ? addr->getOpmaskIdx() : 0;
+		if (aaa && !(type & T_M_K)) XBYAK_THROW_RET(ERR_INVALID_OPMASK_WITH_MEMORY, 0)
+		bool b = false;
+		if (addr && addr->isBroadcast()) {
+			if (!(type & (T_B32 | T_B64))) XBYAK_THROW_RET(ERR_INVALID_BROADCAST, 0)
+			b = true;
+		}
 		if (!(type & (T_EVEX | T_MUST_EVEX))) XBYAK_THROW_RET(ERR_EVEX_IS_INVALID, 0)
 		int w = (type & T_EW1) ? 1 : 0;
 		uint32_t mmm = getMap(type);
@@ -3175,14 +3184,7 @@ private:
 			const Reg& index = regExp.getIndex();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
 			if (useEvex || (type & T_MEM_EVEX) || addr.isBroadcast() || addr.getOpmaskIdx() || addr.hasRex2()) {
-				int aaa = addr.getOpmaskIdx();
-				if (aaa && !(type & T_M_K)) XBYAK_THROW(ERR_INVALID_OPMASK_WITH_MEMORY)
-				bool b = false;
-				if (addr.isBroadcast()) {
-					if (!(type & (T_B32 | T_B64))) XBYAK_THROW(ERR_INVALID_BROADCAST)
-					b = true;
-				}
-				addr.disp8N = evex(r, base, p1, type, code, &index, b, aaa);
+				addr.disp8N = evex(r, base, p1, type, code, &addr);
 			} else {
 				vex(r, base, p1, type, code, index.isExtIdx());
 			}
