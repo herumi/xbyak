@@ -842,7 +842,11 @@ void putMov()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
 			std::string s = type2String(p.type);
-			printf("void %s(const Operand& op, const Xmm& x) { opVmov(op, x, %s, 0x%02X, %s); }\n", p.name, s.c_str(), p.code, p.mode ? "true" : "false");
+			if (p.mode) {
+				printf("void %s(const Operand& op, const Xmm& x) { opCvt1(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
+			} else {
+				printf("void %s(const Operand& op, const Xmm& x) { opVmov(op, x, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
+			}
 		}
 	}
 }
@@ -1302,7 +1306,7 @@ void putFp8()
 			const Tbl& p = tbl[i];
 			std::string s = type2String(T_MUST_EVEX | T_MAP5 | T_YMM | T_N4 | T_N_VL | p.w);
 			printf("void %s(const Xmm& x, const Operand& op) "
-				"{ opVmov(op, x, %s, 0x36, false); }\n", p.name, s.c_str());
+				"{ opVmov(op, x, %s, 0x36); }\n", p.name, s.c_str());
 		}
 	}
 
@@ -1346,7 +1350,7 @@ void putFp8()
 		}
 	}
 
-	// vcvt*bf4s: mode=true (dst grows with src, unlike vpmovssdb); T_M_K intentionally
+	// vcvt*bf4s: dst grows with src (opCvt1), unlike vpmovssdb (opVmov); T_M_K intentionally
 	// omitted since that family has no masked-memory-destination form.
 	{
 		const struct Tbl {
@@ -1362,7 +1366,11 @@ void putFp8()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
 			std::string s = type2String(p.type);
-			printf("void %s(const Operand& op, const Xmm& x) { opVmov(op, x, %s, 0x%02X, %s); }\n", p.name, s.c_str(), p.code, p.mode ? "true" : "false");
+			if (p.mode) {
+				printf("void %s(const Operand& op, const Xmm& x) { opCvt1(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
+			} else {
+				printf("void %s(const Operand& op, const Xmm& x) { opVmov(op, x, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
+			}
 		}
 	}
 

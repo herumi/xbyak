@@ -3352,17 +3352,10 @@ private:
 		if (!(type & T_M_K) && x.getIdx() == regExp.getIndex().getIdx()) XBYAK_THROW(ERR_SAME_REGS_ARE_INVALID);
 		opVex(x, 0, addr, type, code);
 	}
-	/*
-		xx_xy_yz ; mode = true
-		xx_xy_xz ; mode = false
-	*/
-	void opVmov(const Operand& op, const Xmm& x, uint64_t type, uint8_t code, bool mode)
+	// xx_xy_xz (use opCvt1 for xx_xy_yz)
+	void opVmov(const Operand& op, const Xmm& x, uint64_t type, uint8_t code)
 	{
-		if (mode) {
-			if (!op.isMEM() && !((op.isXMM() && x.isXMM()) || (op.isXMM() && x.isYMM()) || (op.isYMM() && x.isZMM()))) XBYAK_THROW(ERR_BAD_COMBINATION)
-		} else {
-			if (!op.isMEM() && !op.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION)
-		}
+		if (!op.isMEM() && !op.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opVex(x, 0, op, type, code);
 	}
 	void opGatherFetch(const Address& addr, const Xmm& x, uint64_t type, uint8_t code, Operand::Kind kind)
