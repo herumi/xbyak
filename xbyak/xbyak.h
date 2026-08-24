@@ -1587,16 +1587,6 @@ public:
 	}
 #endif
 	bool isVsib(int bit = 128 | 256 | 512) const { return index_.isBit(bit); }
-	RegExp optimize() const
-	{
-		RegExp exp = *this;
-		// [reg * 2] => [reg + reg]
-		if (index_.isBit(i32e) && !base_.getBit() && scale_ == 2) {
-			exp.base_ = index_;
-			exp.scale_ = 1;
-		}
-		return exp;
-	}
 	bool operator==(const RegExp& rhs) const
 	{
 		return base_ == rhs.base_ && index_ == rhs.index_ && disp_ == rhs.disp_ && scale_ == rhs.scale_;
@@ -1941,10 +1931,10 @@ class Address : public Operand {
 public:
 	XBYAK_CONSTEXPR Address()
 		: Operand(0, MEM, 0), e_(), label_(NULL), mode_(inner::M_ModRM), immSize(0),
-		  disp8N(0), permitVsib(false), broadcast_(false), optimize_(true) { }
+		  disp8N(0), permitVsib(false), broadcast_(false), optimized_(false) { }
 	XBYAK_CONSTEXPR Address(uint32_t sizeBit, bool broadcast, const RegExp& e)
 		: Operand(0, MEM, sizeBit), e_(e), label_(e.label_), mode_(), immSize(0),
-		  disp8N(0), permitVsib(false), broadcast_(broadcast), optimize_(true)
+		  disp8N(0), permitVsib(false), broadcast_(broadcast), optimized_(false)
 	{
 		if (e.rip_) {
 			mode_ = (e.label_ || e.asPtr_) ? inner::M_ripAddr : inner::M_rip;
@@ -1960,12 +1950,24 @@ public:
 			}
 		}
 		e_.verify();
+		// [reg * 2] => [reg + reg] to shorten the encoding (cloneNoOptimize() undoes this)
+		if (e_.index_.isBit(RegExp::i32e) && !e_.base_.getBit() && e_.scale_ == 2) {
+			e_.base_ = e_.index_;
+			e_.scale_ = 1;
+			optimized_ = true;
+		}
 	}
-	RegExp getRegExp() const
+	const RegExp& getRegExp() const { return e_; }
+	Address cloneNoOptimize() const
 	{
-		return optimize_ ? e_.optimize() : e_;
+		Address addr = *this;
+		if (addr.optimized_) {
+			addr.e_.base_ = Reg();
+			addr.e_.scale_ = 2;
+			addr.optimized_ = false;
+		}
+		return addr;
 	}
-	Address cloneNoOptimize() const { Address addr = *this; addr.optimize_ = false; return addr; }
 	inner::AddressMode getMode() const { return mode_; }
 	bool is32bit() const { return e_.getBase().getBit() == 32 || e_.getIndex().getBit() == 32; }
 	bool isOnlyDisp() const { return e_.isOnlyDisp(); }
@@ -1976,7 +1978,7 @@ public:
 	const Label* getLabel() const { return label_; }
 	bool operator==(const Address& rhs) const
 	{
-		return getBit() == rhs.getBit() && e_ == rhs.e_ && label_ == rhs.label_ && mode_ == rhs.mode_ && immSize == rhs.immSize && disp8N == rhs.disp8N && permitVsib == rhs.permitVsib && broadcast_ == rhs.broadcast_ && optimize_ == rhs.optimize_;
+		return getBit() == rhs.getBit() && e_ == rhs.e_ && label_ == rhs.label_ && mode_ == rhs.mode_ && immSize == rhs.immSize && disp8N == rhs.disp8N && permitVsib == rhs.permitVsib && broadcast_ == rhs.broadcast_ && optimized_ == rhs.optimized_;
 	}
 	bool operator!=(const Address& rhs) const { return !operator==(rhs); }
 	bool isVsib() const { return e_.isVsib(); }
@@ -1992,7 +1994,7 @@ public:
 	bool permitVsib;
 private:
 	bool broadcast_;
-	bool optimize_;
+	bool optimized_; // e_ was rewritten from [reg * 2] to [reg + reg]
 };
 
 inline const Address& Operand::getAddress() const
@@ -2448,7 +2450,7 @@ private:
 		if (p2->isMEM()) {
 			const Reg& r = *static_cast<const Reg*>(p1);
 			const Address& addr = p2->getAddress();
-			const RegExp e = addr.getRegExp();
+			const RegExp& e = addr.getRegExp();
 			const Reg& base = e.getBase();
 			const Reg& idx = e.getIndex();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
@@ -2570,8 +2572,7 @@ private:
 	}
 	int evex(const Reg& reg, const Reg& base, const Operand *v, uint64_t type, int code, const Address *addr = 0)
 	{
-		const RegExp regExp = addr ? addr->getRegExp() : RegExp();
-		const Reg *x = addr ? &regExp.getIndex() : 0;
+		const Reg *x = addr ? &addr->getRegExp().getIndex() : 0;
 		int aaa = addr ? addr->getOpmaskIdx() : 0;
 		if (aaa && !(type & T_M_K)) XBYAK_THROW_RET(ERR_INVALID_OPMASK_WITH_MEMORY, 0)
 		bool b = false;
@@ -2928,7 +2929,7 @@ private:
 		if (p2->isMEM()) {
 			const Reg& r = *static_cast<const Reg*>(p1);
 			Address addr = p2->getAddress();
-			const RegExp e = addr.getRegExp();
+			const RegExp& e = addr.getRegExp();
 			evexLeg(r, e.getBase(), e.getIndex(), d, type, sc);
 			writeCode(type, d, code);
 			addr.immSize = immSize;
@@ -3459,7 +3460,7 @@ private:
 		Address addr2 = addr.cloneNoOptimize();
 		// require both base and index for all but opcode 0x49 (ldtilecfg/sttilecfg)
 		if (code != 0x49) {
-			const RegExp exp = addr2.getRegExp();
+			const RegExp& exp = addr2.getRegExp();
 			if (exp.getBase().getBit() == 0 || exp.getIndex().getBit() == 0) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		}
 		if (opROO(Reg(), addr2, t1, T_APX|type, code)) return;
