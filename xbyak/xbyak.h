@@ -3282,6 +3282,11 @@ private:
 		if (!(x1.isXMM() && (op.isMEM() || op.getBit() == x2.getBit()))) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opVex(x1, &x2, op, type, code);
 	}
+	// (r32/r64, x/m) : EVEX.W is set if r is 64-bit
+	void opCvt8(const Reg& r, const Operand& op, uint64_t type, int code)
+	{
+		opVex(r, &xm0, op, type | (r.isREG(64) ? T_EW1 : T_W0), code);
+	}
 	const Xmm& cvtIdx0(const Operand& x) const
 	{
 		return x.isZMM() ? zm0 : x.isYMM() ? ym0 : xm0;

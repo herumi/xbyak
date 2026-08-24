@@ -709,7 +709,7 @@ void putCvt()
 		std::string s = type2String(p.type);
 		switch (p.ptn) {
 		case 0:
-			printf("void %s(const Reg32e& r, const Operand& op) { uint64_t type = (%s) | (r.isREG(64) ? T_EW1 : T_W0); opVex(r, &xm0, op, type, 0x%02X); }\n", p.name, s.c_str(), p.code);
+			printf("void %s(const Reg32e& r, const Operand& op) { opCvt8(r, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 1: // (x, x/m), (y, x/m256), (z, y/m)
 			printf("void %s(const Xmm& x, const Operand& op) { opCvt1(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
@@ -718,7 +718,7 @@ void putCvt()
 			printf("void %s(const Xmm& x, const Operand& op) { opCvt2(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 3:
-			printf("void %s(const Xmm& x, const Operand& op) { if (!op.isXMM() && !op.isMEM()) XBYAK_THROW(ERR_BAD_MEM_SIZE) opVex(x, 0, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
+			printf("void %s(const Xmm& x, const Operand& op) { opVmov(op, x, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 4:
 			printf("void %s(const Xmm& x, const Operand& op) { opCvt4(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
@@ -727,7 +727,7 @@ void putCvt()
 			printf("void %s(const Xmm& x, const Operand& op) { opCvt5(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 6:
-			printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { if (!(x1.isXMM() && x2.isXMM() && op.isBit(32|64))) XBYAK_THROW(ERR_BAD_COMBINATION) uint64_t type = (%s) | (op.isBit(32) ? (T_W0 | T_N4) : (T_EW1 | T_N8)); opVex(x1, &x2, op, type, 0x%02X); }\n", p.name, s.c_str(), p.code);
+			printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, %s, T_EW1 | T_N8, T_W0 | T_N4, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		}
 	}
