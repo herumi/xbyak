@@ -2405,11 +2405,6 @@ private:
 	{
 		return op1.isREG(i32e) && (op2.isXMM() || op2.isMEM());
 	}
-	// (REG32, REG32|MEM)
-	static inline bool isREG32_REG32orMEM(const Operand& op1, const Operand& op2)
-	{
-		return op1.isREG(i32e) && ((op2.isREG(i32e) && op1.getBit() == op2.getBit()) || op2.isMEM());
-	}
 	static inline bool isValidSSE(const Operand& op)
 	{
 		// SSE instructions do not support XMM16 - XMM31
