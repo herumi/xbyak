@@ -1428,21 +1428,20 @@ void put()
 	{
 		const struct Tbl {
 			uint8_t code;
-			uint8_t code2;
 			const char *name;
 		} tbl[] = {
-			{ 0xC8, 0xD8, "sha1nexte" },
-			{ 0xC9, 0xD9, "sha1msg1" },
-			{ 0xCA, 0xDA, "sha1msg2" },
-			{ 0xCB, 0xDB, "sha256rnds2" },
-			{ 0xCC, 0xDC, "sha256msg1" },
-			{ 0xCD, 0xDD, "sha256msg2" },
+			{ 0xC8, "sha1nexte" },
+			{ 0xC9, "sha1msg1" },
+			{ 0xCA, "sha1msg2" },
+			{ 0xCB, "sha256rnds2" },
+			{ 0xCC, "sha256msg1" },
+			{ 0xCD, "sha256msg2" },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Xmm& x, const Operand& op) { opSSE_APX(x, op, T_0F38, 0x%02X, T_MUST_EVEX, 0x%02X); }\n", p->name, p->code, p->code2);
+			printf("void %s(const Xmm& x, const Operand& op) { opSSE(x, op, T_0F38, 0x%02X, isXMM_XMMorMEM); }\n", p->name, p->code);
 		}
-		puts("void sha1rnds4(const Xmm& x, const Operand& op, uint8_t imm) { opSSE_APX(x, op, T_0F3A, 0xCC, T_MUST_EVEX, 0xD4, imm); }");
+		puts("void sha1rnds4(const Xmm& x, const Operand& op, uint8_t imm) { opSSE(x, op, T_0F3A, 0xCC, isXMM_XMMorMEM, imm); }");
 	}
 	// (m, x), (m, y)
 	{
@@ -2014,34 +2013,32 @@ void put64()
 	{
 		const struct Tbl {
 			const char *name;
-			uint64_t type1;
-			uint64_t type2;
+			uint64_t type;
 			uint8_t code;
 			int idx;
 		} tbl[] = {
-			{ "aesdec128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDD, 8 },
-			{ "aesdec256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDF, 8 },
-			{ "aesdecwide128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 1 },
-			{ "aesdecwide256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 3 },
-			{ "aesenc128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDC, 8 },
-			{ "aesenc256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDE, 8 },
-			{ "aesencwide128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 0 },
-			{ "aesencwide256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 2 },
+			{ "aesdec128kl", T_F3|T_0F38, 0xDD, 8 },
+			{ "aesdec256kl", T_F3|T_0F38, 0xDF, 8 },
+			{ "aesdecwide128kl", T_F3|T_0F38, 0xD8, 1 },
+			{ "aesdecwide256kl", T_F3|T_0F38, 0xD8, 3 },
+			{ "aesenc128kl", T_F3|T_0F38, 0xDC, 8 },
+			{ "aesenc256kl", T_F3|T_0F38, 0xDE, 8 },
+			{ "aesencwide128kl", T_F3|T_0F38, 0xD8, 0 },
+			{ "aesencwide256kl", T_F3|T_0F38, 0xD8, 2 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			std::string s1 = type2String(p->type1);
-			std::string s2 = type2String(p->type2);
+			std::string s = type2String(p->type);
 			if (p->idx == 8) {
-				printf("void %s(const Xmm& x, const Address& addr) { opSSE_APX(x, addr, %s, 0x%02X, %s, 0x%02X); }\n", p->name, s1.c_str(), p->code, s2.c_str(), p->code);
+				printf("void %s(const Xmm& x, const Address& addr) { opSSE(x, addr, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, s.c_str(), p->code);
 			} else {
-				printf("void %s(const Address& addr) { opSSE_APX(xmm%d, addr, %s, 0x%02X, %s, 0x%02X); }\n", p->name, p->idx, s1.c_str(), p->code, s2.c_str(), p->code);
+				printf("void %s(const Address& addr) { opSSE(xmm%d, addr, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, p->idx, s.c_str(), p->code);
 			}
 		}
 	}
 	// encodekey
-	puts("void encodekey128(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFA, 0xDA); }");
-	puts("void encodekey256(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFB, 0xDB); }");
+	puts("void encodekey128(const Reg32& r1, const Reg32& r2) { opRR(r1, r2, T_F3|T_0F38, 0xFA); }");
+	puts("void encodekey256(const Reg32& r1, const Reg32& r2) { opRR(r1, r2, T_F3|T_0F38, 0xFB); }");
 	// read/write fs/gs
 	{
 		const char *tbl[] = {

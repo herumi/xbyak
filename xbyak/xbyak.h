@@ -3472,22 +3472,6 @@ private:
 		if (opROO(Reg(), *p2, *p1, T_APX|type, code)) return;
 		opVex(static_cast<const Reg&>(*p1), 0, *p2, type, code);
 	}
-	void opEncodeKey(const Reg32& r1, const Reg32& r2, uint8_t code1, uint8_t code2)
-	{
-		if (r1.getIdx() < 8 && r2.getIdx() < 8) {
-			db(0xF3); db(0x0F); db(0x38); db(code1); setModRM(3, r1.getIdx(), r2.getIdx());
-			return;
-		}
-		opROO(Reg(), r2, r1, T_MUST_EVEX|T_F3, code2);
-	}
-	void opSSE_APX(const Xmm& x, const Operand& op, uint64_t type1, uint8_t code1, uint64_t type2, uint8_t code2, int imm = NONE)
-	{
-		if (x.getIdx() <= 15 && op.hasRex2() && opROO(Reg(), op, x, type2, code2, imm != NONE ? 1 : 0)) {
-			if (imm != NONE) db(imm);
-			return;
-		}
-		opSSE(x, op, type1, code1, isXMM_XMMorMEM, imm);
-	}
 	// AVX10 zero-extending for vmovd, vmovw
 	void opAVX10ZeroExt(const Operand& op1, const Operand& op2, const uint64_t typeTbl[4], const int codeTbl[4], PreferredEncoding enc, int bit)
 	{
