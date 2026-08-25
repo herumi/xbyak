@@ -3025,11 +3025,11 @@ private:
 		db(imm, immBit / 8);
 	}
 	// (r, r/m, imm)
-	void opROI(const Reg& d, const Operand& op, uint32_t imm, uint64_t type, int ext)
+	void opROI(const Reg& d, const Operand& op, uint32_t imm, uint64_t type, int ext, int sc = NONE)
 	{
 		uint32_t immBit = getImmBit(d, imm);
 		int code = immBit < (std::min)(d.getBit(), 32U) ? 2 : 0;
-		opROO(d, op, Reg(ext, Operand::REG, d.getBit()), type, 0x80 | code, immBit / 8);
+		opROO(d, op, Reg(ext, Operand::REG, d.getBit()), type, 0x80 | code, immBit / 8, sc);
 		db(imm, immBit / 8);
 	}
 	void opIncDec(const Reg& d, const Operand& op, int ext)
@@ -3404,11 +3404,8 @@ private:
 	void opCcmpi(const Operand& op, int imm, int dfv, int sc)
 	{
 		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
-		uint32_t immBit = getImmBit(op, imm);
-		uint32_t opBit = op.getBit();
-		int tmp = immBit < (std::min)(opBit, 32U) ? 2 : 0;
-		opROO(Reg(15 - dfv, Operand::REG, opBit), op, Reg(15, Operand::REG, opBit), T_APX|T_CODE1_IF1, 0x80 | tmp, immBit / 8, sc);
-		db(imm, immBit / 8);
+		verifyMemHasSize(op);
+		opROI(Reg(15 - dfv, Operand::REG, op.getBit()), op, imm, T_APX|T_CODE1_IF1, 15, sc);
 	}
 	void opTesti(const Operand& op, int imm, int dfv, int sc)
 	{
