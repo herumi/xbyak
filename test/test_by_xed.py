@@ -388,6 +388,15 @@ def parseNmemonic(s):
   if '{nf}' in s:
     attrs.append(Attr('T_nf'))
     s = s.replace('{nf}', '')
+  # xed shows the dfv of ccmp/ctest as '{dfv=of,sf,zf,cf}' ('{dfv=}' if dfv=0)
+  r = re.search(r'({dfv=([a-z,]*)})', s)
+  if r:
+    dfv = 0
+    for flag in r.group(2).split(','):
+      if flag:
+        dfv |= {'of': 8, 'sf': 4, 'zf': 2, 'cf': 1}[flag]
+    attrs.append(Attr(f'dfv={dfv}'))
+    s = s.replace(r.group(1), '')
 
   s = s.translate(g_replaceChar)
 
@@ -434,6 +443,12 @@ def parseNmemonic(s):
       args.append(Reg(e[:-2]))
     else:
       args.append(parseMemory(e, broadcast))
+  # ccmp/ctest always take two operands, so a third argument on the Xbyak side
+  # is the dfv (default 0 if omitted). The xed side is handled by '{dfv=...}' above.
+  if name.startswith('ccmp') or name.startswith('ctest'):
+    if not any(a.name.startswith('dfv=') for a in attrs):
+      dfv = args.pop() if len(args) == 3 else 0
+      attrs.append(Attr(f'dfv={dfv}'))
   # xed shows the opmask of gather/scatter as an operand
   # (e.g. vpgatherdd xmm5, k7, dword ptr [...]), so move it to attrs.
   if 'gather' in name or 'scatter' in name:
