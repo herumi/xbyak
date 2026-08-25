@@ -534,6 +534,9 @@ If `XBYAK_NO_EXCEPTION` is defined, then gcc/clang can compile xbyak with `-fno-
 In stead of throwing an exception, `Xbyak::GetError()` returns non-zero value (e.g. `ERR_BAD_ADDRESSING`) if there is something wrong.
 The status will not be changed automatically, then you should reset it by `Xbyak::ClearError()`.
 `CodeGenerator::reset()` calls `ClearError()`.
+Once an error occurs, code generation stops; no bytes are emitted after the first error until the error status is cleared.
+Do not use the generated code if `Xbyak::GetError()` returns a non-zero value.
+Note that the error status is thread-local and shared by all instances of `CodeGenerator` on the same thread.
 
 ## Macro
 

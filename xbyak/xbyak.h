@@ -1799,6 +1799,9 @@ public:
 	}
 	void db(int code)
 	{
+#ifdef XBYAK_NO_EXCEPTION
+		if (local::GetErrorRef()) return;
+#endif
 		if (size_ >= maxSize_) {
 			if (type_ == AUTO_GROW) {
 				growMemory();
