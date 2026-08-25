@@ -245,7 +245,7 @@ void putMemOp(const char *name, const char *type, uint8_t ext, uint8_t code, int
 
 void putLoadSeg(const char *name, uint64_t type, uint8_t code)
 {
-	printf("void %s(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, %s|T_ALLOW_DIFF_SIZE, 0x%02X); }\n", name, type ? "T_0F" : "T_NO_CODE1", code);
+	printf("void %s(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, %s|T_ALLOW_DIFF_SIZE, 0x%02X); }\n", name, type ? "T_0F" : "T_OP_W0", code);
 }
 
 void put()
@@ -839,13 +839,13 @@ void put()
 			uint64_t type;
 		} tbl[] = {
 			{ 0x10, 2, "adc", true, T_NONE },
-			{ 0x00, 0, "add", true, T_NF | T_CODE1_IF1 },
-			{ 0x20, 4, "and_", true, T_NF | T_CODE1_IF1 },
+			{ 0x00, 0, "add", true, T_NF | T_OP_W1 },
+			{ 0x20, 4, "and_", true, T_NF | T_OP_W1 },
 			{ 0x38, 7, "cmp", false, T_NONE },
-			{ 0x08, 1, "or_", true, T_NF | T_CODE1_IF1 },
+			{ 0x08, 1, "or_", true, T_NF | T_OP_W1 },
 			{ 0x18, 3, "sbb", true, T_NONE },
-			{ 0x28, 5, "sub", true, T_NF | T_CODE1_IF1 },
-			{ 0x30, 6, "xor_", true, T_NF | T_CODE1_IF1 },
+			{ 0x28, 5, "sub", true, T_NF | T_OP_W1 },
+			{ 0x30, 6, "xor_", true, T_NF | T_OP_W1 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -922,12 +922,12 @@ void put()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			const std::string name = p->name;
-			uint64_t type = T_APX|T_CODE1_IF1;
+			uint64_t type = T_APX|T_OP_W1;
 			if (p->NF) type |= T_NF;
 			std::string s = type2String(type);
 			printf("void %s(const Operand& op) { opRext(op, 0, %d, %s, 0x%02X); }\n", p->name, p->ext, s.c_str(), p->code);
 			if (p->n == 2) {
-				type = T_APX|T_ND1|T_CODE1_IF1;
+				type = T_APX|T_ND1|T_OP_W1;
 				if (p->NF) type |= T_NF;
 				s = type2String(type);
 				printf("void %s(const Reg& d, const Operand& op) { opROO(d, op, Reg(%d, Operand::REG, d.getBit()), %s, 0xF6); }\n", p->name, p->ext, s.c_str());

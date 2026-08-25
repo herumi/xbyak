@@ -2524,8 +2524,8 @@ private:
 	static const uint64_t T_M_K = 1ull << 23; // mem{k}
 	static const uint64_t T_VSIB = 1ull << 24;
 	static const uint64_t T_NF = 1ull << 25; // T_nf
-	static const uint64_t T_CODE1_IF1 = 1ull << 26; // code|=1 if !r.isBit(8)
-	static const uint64_t T_NO_CODE1 = 1ull << 27; // marker to suppress the default code|=1 of writeCode() for a legacy insn whose type has no other bits (lds/les)
+	static const uint64_t T_OP_W1 = 1ull << 26; // opcode bit0 is the w (operand-size) bit; code|=1 unless the operand is 8-bit
+	static const uint64_t T_OP_W0 = 1ull << 27; // the opcode has no w bit; suppress the default code|=1 of writeCode() (lds/les)
 	static const uint64_t T_ND1 = 1ull << 28; // ND=1
 	static const uint64_t T_ZU = 1ull << 29; // ND=ZU
 	static const uint64_t T_SENTRY = (1ull << 30)-1; // attribute(>=T_SENTRY) is for error check
@@ -2753,7 +2753,7 @@ private:
 			default: break;
 			}
 		}
-		db(code | (((type & T_SENTRY) == 0 || (type & T_CODE1_IF1)) && !r.isBit(8)));
+		db(code | (((type & T_SENTRY) == 0 || (type & T_OP_W1)) && !r.isBit(8)));
 	}
 	void opRR(const Reg& r1, const Reg& r2, uint64_t type, int code)
 	{
@@ -2962,7 +2962,7 @@ private:
 	void opShiftCore(const Operand& op, int ext, const Reg *d, int code, int immSize)
 	{
 		if (d && op.getBit() != 0 && d->getBit() != op.getBit()) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
-		uint64_t type = T_APX|T_CODE1_IF1; if (ext & 8) type |= T_NF; if (d) type |= T_ND1;
+		uint64_t type = T_APX|T_OP_W1; if (ext & 8) type |= T_NF; if (d) type |= T_ND1;
 		opRext(op, 0, ext&7, type, code, false, immSize, d);
 	}
 	void opShift(const Operand& op, int imm, int ext, const Reg *d = 0)
@@ -3416,13 +3416,13 @@ private:
 	void opCcmp(const Operand& op1, const Operand& op2, int dfv, int code, int sc) // cmp = 0x38, test = 0x84
 	{
 		verifyDfv(dfv);
-		opROO(Reg(15 - dfv, Operand::REG, (op1.getBit() | op2.getBit())), op1, op2, T_APX|T_CODE1_IF1, code, 0, sc);
+		opROO(Reg(15 - dfv, Operand::REG, (op1.getBit() | op2.getBit())), op1, op2, T_APX|T_OP_W1, code, 0, sc);
 	}
 	void opCcmpi(const Operand& op, int imm, int dfv, int sc)
 	{
 		verifyDfv(dfv);
 		verifyMemHasSize(op);
-		opROI(Reg(15 - dfv, Operand::REG, op.getBit()), op, imm, T_APX|T_CODE1_IF1, 15, sc);
+		opROI(Reg(15 - dfv, Operand::REG, op.getBit()), op, imm, T_APX|T_OP_W1, 15, sc);
 	}
 	void opTesti(const Operand& op, int imm, int dfv, int sc)
 	{
@@ -3430,7 +3430,7 @@ private:
 		uint32_t opBit = op.getBit();
 		if (opBit == 0) XBYAK_THROW(ERR_MEM_SIZE_IS_NOT_SPECIFIED);
 		int immBit = (std::min)(opBit, 32U);
-		opROO(Reg(15 - dfv, Operand::REG, opBit), op, Reg(0, Operand::REG, opBit), T_APX|T_CODE1_IF1, 0xF6, immBit / 8, sc);
+		opROO(Reg(15 - dfv, Operand::REG, opBit), op, Reg(0, Operand::REG, opBit), T_APX|T_OP_W1, 0xF6, immBit / 8, sc);
 		db(imm, immBit / 8);
 	}
 	void opCfcmov(const Reg& d, const Operand& op1, const Operand& op2, int code)

@@ -48,8 +48,8 @@
 	static const uint64_t T_M_K = 1ull << 23; // mem{k}
 	static const uint64_t T_VSIB = 1ull << 24;
 	static const uint64_t T_NF = 1ull << 25; // T_nf
-	static const uint64_t T_CODE1_IF1 = 1ull << 26; // code|=1 if !r.isBit(8)
-	static const uint64_t T_NO_CODE1 = 1ull << 27; // marker to suppress the default code|=1 of writeCode() for a legacy insn whose type has no other bits (lds/les)
+	static const uint64_t T_OP_W1 = 1ull << 26; // opcode bit0 is the w (operand-size) bit; code|=1 unless the operand is 8-bit
+	static const uint64_t T_OP_W0 = 1ull << 27; // the opcode has no w bit; suppress the default code|=1 of writeCode() (lds/les)
 	static const uint64_t T_ND1 = 1ull << 28; // ND=1
 	static const uint64_t T_ZU = 1ull << 29; // ND=ZU
 	static const uint64_t T_SENTRY = (1ull << 30)-1; // attribute(>=T_SENTRY) is for error check

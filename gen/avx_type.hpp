@@ -56,8 +56,8 @@ std::string type2String(uint64_t type)
 	if (type & T_M_K) str += "|T_M_K";
 	if (type & T_VSIB) str += "|T_VSIB";
 	if (type & T_NF) str += "|T_NF";
-	if (type & T_CODE1_IF1) str += "|T_CODE1_IF1";
-	if (type & T_NO_CODE1) str += "|T_NO_CODE1";
+	if (type & T_OP_W1) str += "|T_OP_W1";
+	if (type & T_OP_W0) str += "|T_OP_W0";
 	if (type & T_ND1) str += "|T_ND1";
 	if (type & T_ZU) str += "|T_ZU";
 
