@@ -2512,7 +2512,7 @@ private:
 	static const uint64_t T_MAP6 = 1ull << 31;
 	static const uint64_t T_NF = 1ull << 32; // T_nf
 	static const uint64_t T_CODE1_IF1 = 1ull << 33; // code|=1 if !r.isBit(8)
-
+	static const uint64_t T_NO_CODE1 = 1ull << 34; // marker to suppress the default code|=1 of writeCode() for a legacy insn whose type has no other bits (lds/les)
 	static const uint64_t T_ND1 = 1ull << 35; // ND=1
 	static const uint64_t T_ZU = 1ull << 36; // ND=ZU
 	static const uint64_t T_F2 = 1ull << 37; // pp = 3
@@ -2732,6 +2732,8 @@ private:
 		}
 	}
 	LabelManager labelMgr_;
+	// r is used only to determine the w bit (code|=1 unless r is 8-bit).
+	// opROO passes d here, which is often Reg() (bit=0), assuming that !r.isBit(8) is true then.
 	void writeCode(uint64_t type, const Reg& r, int code, bool rex2 = false)
 	{
 		if (!(type&T_APX || rex2)) {
@@ -2768,12 +2770,7 @@ private:
 	void opLoadSeg(const Address& addr, const Reg& reg, uint64_t type, int code)
 	{
 		if (reg.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
-		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
-		// can't use opMR
-		rex(addr, reg, type);
-		if (type & T_0F) db(0x0F);
-		db(code);
-		opAddr(addr, reg.getIdx());
+		opMR(addr, reg, type, code);
 	}
 	// for only MPX(bnd*)
 	void opMIB(const Address& addr, const Reg& reg, uint64_t type, int code)

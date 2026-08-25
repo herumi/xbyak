@@ -29,3 +29,14 @@ popp(r8);
 popp(r16);
 popp(r24);
 popp(r31);
+
+// lss/lfs/lgs with EGPR (REX2)
+lss(r30, ptr[r29]);
+lss(r8d, ptr[r24]);
+lfs(eax, ptr[r16]);
+lfs(r16d, ptr[rax]);
+lfs(r16w, ptr[rax]);
+lfs(r16, ptr[rax]);
+lfs(r31d, ptr[r16+r17*8+0x40]);
+lgs(r20d, ptr[r21]);
+lgs(ax, ptr[r18+r19]);

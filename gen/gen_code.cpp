@@ -245,7 +245,7 @@ void putMemOp(const char *name, const char *type, uint8_t ext, uint8_t code, int
 
 void putLoadSeg(const char *name, uint64_t type, uint8_t code)
 {
-	printf("void %s(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, %s, 0x%02X); }\n", name, type ? "T_0F" : "T_NONE", code);
+	printf("void %s(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, %s|T_ALLOW_DIFF_SIZE, 0x%02X); }\n", name, type ? "T_0F" : "T_NO_CODE1", code);
 }
 
 void put()

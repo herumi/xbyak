@@ -651,8 +651,8 @@ void ldmxcsr(const Address& addr) { opMR(addr, Reg32(2), T_0F, 0xAE); }
 void lea(const Reg& reg, const Address& addr) { if (!reg.isBit(16 | i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) opMR(addr, reg, T_ALLOW_DIFF_SIZE, 0x8D); }
 void leave() { db(0xC9); }
 void lfence() { db(0x0F); db(0xAE); db(0xE8); }
-void lfs(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_0F, 0xB4); }
-void lgs(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_0F, 0xB5); }
+void lfs(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_0F|T_ALLOW_DIFF_SIZE, 0xB4); }
+void lgs(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_0F|T_ALLOW_DIFF_SIZE, 0xB5); }
 void lock() { db(0xF0); }
 void lodsb() { db(0xAC); }
 void lodsd() { db(0xAD); }
@@ -666,7 +666,7 @@ void loope(std::string label) { opJmp(label, T_SHORT, 0xE1, 0, 0); }
 void loopne(const Label& label) { opJmp(label, T_SHORT, 0xE0, 0, 0); }
 void loopne(const char *label) { loopne(std::string(label)); }
 void loopne(std::string label) { opJmp(label, T_SHORT, 0xE0, 0, 0); }
-void lss(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_0F, 0xB2); }
+void lss(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_0F|T_ALLOW_DIFF_SIZE, 0xB2); }
 void lzcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF, 0xF5)) return; opCnt(reg, op, 0xBD); }
 void maskmovdqu(const Xmm& reg1, const Xmm& reg2) { opSSE(reg1, reg2, T_66|T_0F, 0xF7); }
 void maskmovq(const Mmx& reg1, const Mmx& reg2) { opSSE(reg1, reg2, T_0F, 0xF7); }
@@ -1965,8 +1965,8 @@ void pusha() { db(0x60); }
 void pushad() { db(0x60); }
 void pushfd() { db(0x9C); }
 void popa() { db(0x61); }
-void lds(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_NONE, 0xC5); }
-void les(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_NONE, 0xC4); }
+void lds(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_NO_CODE1|T_ALLOW_DIFF_SIZE, 0xC5); }
+void les(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_NO_CODE1|T_ALLOW_DIFF_SIZE, 0xC4); }
 #endif
 #ifndef XBYAK_NO_OP_NAMES
 void and(const Operand& op1, const Operand& op2) { and_(op1, op2); }
