@@ -971,3 +971,95 @@ aor(ptr [r16+r31*1], r17);
 axor(ptr [r16+r31*1], r17d);
 axor(ptr [r16+r31*1], r17);
 
+// ---- T_nf/T_zu tests moved from test/apx.cpp ----
+// NF
+add(rax, rcx, rdx);
+add(rax|T_nf, rcx, rdx);
+and_(rax, rcx, rdx);
+and_(rax|T_nf, rcx, rdx);
+or_(rax, rcx, rdx);
+or_(rax|T_nf, rcx, rdx);
+sub(rax, rcx, rdx);
+sub(rax|T_nf, rcx, rdx);
+xor_(rax, rcx, rdx);
+xor_(rax|T_nf, rcx, rdx);
+add(rax, rcx, 3);
+add(rax|T_nf, rcx, 3);
+and_(rax, rcx, 3);
+and_(rax|T_nf, rcx, 3);
+or_(rax, rcx, 3);
+or_(rax|T_nf, rcx, 3);
+sub(rax, rcx, 3);
+sub(rax|T_nf, rcx, 3);
+xor_(rax, rcx, 3);
+xor_(rax|T_nf, rcx, 3);
+
+// andn_etc
+andn(r29|T_nf, r30, r31);
+
+// bextr_etc
+bextr(r29|T_nf, r30, r31);
+bzhi(r29|T_nf, r30, r31);
+blsi(r30|T_nf, r31);
+blsmsk(r30|T_nf, r31);
+blsr(r30|T_nf, r31);
+
+// inc_dec
+inc(r30w|T_nf, r31w);
+dec(r30w|T_nf, r31w);
+
+// div_op1
+div(r20|T_nf);
+div(eax|T_nf);
+idiv(r20|T_nf);
+idiv(eax|T_nf);
+imul(r20|T_nf);
+imul(eax|T_nf);
+mul(r20|T_nf);
+mul(eax|T_nf);
+neg(r20|T_nf);
+neg(eax|T_nf);
+
+// imul_2op
+imul(r30|T_nf, rax);
+imul(rcx|T_nf, rax);
+neg(r30|T_nf, rax);
+neg(rcx|T_nf, rax);
+
+// imul_zu
+imul(ax|T_zu, cx, 0x1234);
+imul(ax|T_nf, cx, 0x1234);
+imul(ax|T_zu|T_nf, cx, 0x1234);
+imul(r30|T_zu, rax, 0x12345678);
+imul(r30|T_nf, rax, 0x12345678);
+imul(r30|T_nf|T_zu, rax, 0x12345678);
+
+// lzcnt
+lzcnt(r16|T_nf, r17);
+lzcnt(rax|T_nf, rcx);
+tzcnt(r16|T_nf, r17);
+tzcnt(rax|T_nf, rcx);
+popcnt(r16|T_nf, r17);
+popcnt(rax|T_nf, rcx);
+
+// shld
+shld(rax|T_nf, rcx, cl);
+shld(r16|T_nf, rcx, 0x9);
+shld(r20|T_nf, r16, rcx, cl);
+shld(r20|T_nf, r16, rcx, 0x9);
+shrd(rax|T_nf, rcx, cl);
+shrd(r16|T_nf, rcx, 0x9);
+shrd(r20|T_nf, r16, rcx, cl);
+shrd(r20|T_nf, r16, rcx, 0x9);
+
+// mov_misc
+setb(r31b|T_zu);
+setb(r15b|T_zu);
+
+// shift_2op
+shl(r16|T_nf, cl);
+shr(r16|T_nf, cl);
+sar(r16|T_nf, cl);
+ror(r16|T_nf, cl);
+rol(r16|T_nf, cl);
+
