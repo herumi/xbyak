@@ -517,6 +517,8 @@ void putX_X_XM_IMM_AVX10()
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
+		checkTypeMergeable(p->type, p->typeVex, p->name);
+		checkTypeMergeable(p->type, T_MUST_EVEX | p->typeEvex, p->name);
 		std::string s = type2String(p->type);
 		std::string sVex = type2String(p->typeVex);
 		std::string sEvex = type2String(p->typeEvex);
@@ -727,11 +729,18 @@ void putCvt()
 			printf("void %s(const Xmm& x, const Operand& op) { opCvt5(x, op, %s, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		case 6:
+			checkTypeMergeable(p.type, T_EW1 | T_N8, p.name);
+			checkTypeMergeable(p.type, T_W0 | T_N4, p.name);
 			printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, %s, T_EW1 | T_N8, T_W0 | T_N4, 0x%02X); }\n", p.name, s.c_str(), p.code);
 			break;
 		}
 	}
+	// keep the checkTypeMergeable() args in sync with the type args in the puts() below
+	checkTypeMergeable(T_F2 | T_0F | T_MUST_EVEX, T_W1 | T_EW1 | T_ER_R | T_N8, "vcvtusi2sd");
+	checkTypeMergeable(T_F2 | T_0F | T_MUST_EVEX, T_W0 | T_N4, "vcvtusi2sd");
 	puts("void vcvtusi2sd(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, T_F2 | T_0F | T_MUST_EVEX, T_W1 | T_EW1 | T_ER_R | T_N8, T_W0 | T_N4, 0x7B); }");
+	checkTypeMergeable(T_F3 | T_0F | T_MUST_EVEX | T_ER_R, T_W1 | T_EW1 | T_N8, "vcvtusi2ss");
+	checkTypeMergeable(T_F3 | T_0F | T_MUST_EVEX | T_ER_R, T_W0 | T_N4, "vcvtusi2ss");
 	puts("void vcvtusi2ss(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, T_F3 | T_0F | T_MUST_EVEX | T_ER_R, T_W1 | T_EW1 | T_N8, T_W0 | T_N4, 0x7B); }");
 }
 

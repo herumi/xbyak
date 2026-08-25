@@ -1,4 +1,6 @@
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "avx_type_def.h"
 
 const int NONE = 256; // same as Xbyak::CodeGenerator::NONE
@@ -21,24 +23,26 @@ std::string type2String(uint64_t type)
 	if (type & T_66) str += "|T_66";
 	if (type & T_F3) str += "|T_F3";
 	if (type & T_F2) str += "|T_F2";
-	if (type & T_MAP5) str += "|T_MAP5";
-	if (type & T_0F) str += "|T_0F";
-	if (type & T_MAP6) str += "|T_MAP6";
-	if (type & T_0F38) str += "|T_0F38";
-	if (type & T_0F3A) str += "|T_0F3A";
+	const uint64_t map = type & T_MAP_MASK;
+	if (map == T_MAP5) str += "|T_MAP5";
+	if (map == T_0F) str += "|T_0F";
+	if (map == T_MAP6) str += "|T_MAP6";
+	if (map == T_0F38) str += "|T_0F38";
+	if (map == T_0F3A) str += "|T_0F3A";
 	if (type & T_L1) str += "|T_L1";
 	if (type & T_W0) str += "|T_W0";
 	if (type & T_W1) str += "|T_W1";
 	if (type & T_EW1) str += "|T_EW1";
 	if (type & T_YMM) str += "|T_YMM";
 	if (type & T_EVEX) str += "|T_EVEX";
-	if (type & T_ER_X) str += "|T_ER_X";
-	if (type & T_ER_Y) str += "|T_ER_Y";
-	if (type & T_ER_Z) str += "|T_ER_Z";
-	if (type & T_ER_R) str += "|T_ER_R";
-	if (type & T_SAE_X) str += "|T_SAE_X";
-	if (type & T_SAE_Y) str += "|T_SAE_Y";
-	if (type & T_SAE_Z) str += "|T_SAE_Z";
+	const uint64_t erSae = type & T_ER_SAE_MASK;
+	if (erSae == T_ER_X) str += "|T_ER_X";
+	if (erSae == T_ER_Y) str += "|T_ER_Y";
+	if (erSae == T_ER_Z) str += "|T_ER_Z";
+	if (erSae == T_ER_R) str += "|T_ER_R";
+	if (erSae == T_SAE_X) str += "|T_SAE_X";
+	if (erSae == T_SAE_Y) str += "|T_SAE_Y";
+	if (erSae == T_SAE_Z) str += "|T_SAE_Z";
 	if (type & T_MUST_EVEX) str += "|T_MUST_EVEX";
 
 	switch (type & T_B16) { // T_B16 = T_B32 | T_B64
@@ -58,4 +62,23 @@ std::string type2String(uint64_t type)
 
 	if (str[0] == '|') str = str.substr(1);
 	return str;
+}
+
+/*
+	verify that a | b does not corrupt a packed field (N, map, er/sae, broadcast) :
+	each field must not have different non-zero values in a and b.
+	call this wherever the generator emits code that or-merges two type values at runtime
+	(opEncoding, opCvt3, ...).
+*/
+void checkTypeMergeable(uint64_t a, uint64_t b, const char *name)
+{
+	static const uint64_t maskTbl[] = { T_NX_MASK, T_MAP_MASK, T_ER_SAE_MASK, T_B16 };
+	for (size_t i = 0; i < sizeof(maskTbl) / sizeof(maskTbl[0]); i++) {
+		uint64_t x = a & maskTbl[i];
+		uint64_t y = b & maskTbl[i];
+		if (x && y && x != y) {
+			fprintf(stderr, "%s: type field conflict between (%s) and (%s)\n", name, type2String(a).c_str(), type2String(b).c_str());
+			exit(1);
+		}
+	}
 }

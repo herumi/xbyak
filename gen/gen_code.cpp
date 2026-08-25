@@ -1766,7 +1766,12 @@ void put()
 		puts("void vcvtsd2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W0 | T_EVEX | T_N4 | T_ER_X, 0x2D); }");
 		puts("void vcvttsd2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W0 | T_EVEX | T_N4 | T_SAE_X, 0x2C); }");
 
+		// keep the checkTypeMergeable() args in sync with the type args in the puts() below
+		checkTypeMergeable(T_0F | T_F3 | T_EVEX | T_ER_R, T_W1 | T_EW1 | T_N8, "vcvtsi2ss");
+		checkTypeMergeable(T_0F | T_F3 | T_EVEX | T_ER_R, T_W0 | T_N4, "vcvtsi2ss");
 		puts("void vcvtsi2ss(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, T_0F | T_F3 | T_EVEX | T_ER_R, T_W1 | T_EW1 | T_N8, T_W0 | T_N4, 0x2A); }");
+		checkTypeMergeable(T_0F | T_F2 | T_EVEX, T_W1 | T_EW1 | T_ER_R | T_N8, "vcvtsi2sd");
+		checkTypeMergeable(T_0F | T_F2 | T_EVEX, T_W0 | T_N4, "vcvtsi2sd");
 		puts("void vcvtsi2sd(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, T_0F | T_F2 | T_EVEX, T_W1 | T_EW1 | T_ER_R | T_N8, T_W0 | T_N4, 0x2A); }");
 
 
