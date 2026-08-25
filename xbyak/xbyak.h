@@ -2410,6 +2410,10 @@ private:
 		// SSE instructions do not support XMM16 - XMM31
 		return !(op.isXMM() && op.getIdx() >= 16);
 	}
+	void verifySSE(const Operand& op1, const Operand& op2 = Operand()) const
+	{
+		if (!isValidSSE(op1) || !isValidSSE(op2)) XBYAK_THROW(ERR_NOT_SUPPORTED)
+	}
 	static inline uint8_t rexRXB(int bit, int bit3, const Reg& r, const Reg& b, const Reg& x = Reg())
 	{
 		int v = bit3 ? 8 : 0;
@@ -2863,13 +2867,13 @@ private:
 	void opSSE(const Reg& r, const Operand& op, uint64_t type, int code, bool isValid(const Operand&, const Operand&) = 0, int imm8 = NONE)
 	{
 		if (isValid && !isValid(r, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
-		if (!isValidSSE(r) || !isValidSSE(op)) XBYAK_THROW(ERR_NOT_SUPPORTED)
+		verifySSE(r, op);
 		opRO(r, op, type, code, true, (imm8 != NONE) ? 1 : 0);
 		if (imm8 != NONE) db(imm8);
 	}
 	void opMMX_IMM(const Mmx& mmx, int imm8, int code, int ext)
 	{
-		if (!isValidSSE(mmx)) XBYAK_THROW(ERR_NOT_SUPPORTED)
+		verifySSE(mmx);
 		uint64_t type = T_0F;
 		if (mmx.isXMM()) type |= T_66;
 		opRR(Reg32(ext), mmx, type, code);
@@ -2882,7 +2886,7 @@ private:
 	}
 	void opMovXMM(const Operand& op1, const Operand& op2, uint64_t type, int code)
 	{
-		if (!isValidSSE(op1) || !isValidSSE(op2)) XBYAK_THROW(ERR_NOT_SUPPORTED)
+		verifySSE(op1, op2);
 		if (op1.isXMM() && op2.isMEM()) {
 			opMR(op2.getAddress(), op1.getReg(), type, code);
 		} else if (op1.isMEM() && op2.isXMM()) {
@@ -2894,7 +2898,7 @@ private:
 	// pextr{w,b,d}, extractps
 	void opExt(const Operand& op, const Mmx& mmx, int code, int imm, bool hasMMX2 = false)
 	{
-		if (!isValidSSE(op) || !isValidSSE(mmx)) XBYAK_THROW(ERR_NOT_SUPPORTED)
+		verifySSE(op, mmx);
 		if (hasMMX2 && op.isREG(i32e)) { /* pextrw is special */
 			if (mmx.isXMM()) db(0x66);
 			opRR(op.getReg(), mmx, T_0F, 0xC5); db(imm);
@@ -2950,20 +2954,22 @@ private:
 		if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | ext)) return;
 		opRext(op, 8, 0, T_0F, 0x90 | ext);
 	}
+	void opShiftCore(const Operand& op, int ext, const Reg *d, int code, int immSize)
+	{
+		if (d && op.getBit() != 0 && d->getBit() != op.getBit()) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
+		uint64_t type = T_APX|T_CODE1_IF1; if (ext & 8) type |= T_NF; if (d) type |= T_ND1;
+		opRext(op, 0, ext&7, type, code, false, immSize, d);
+	}
 	void opShift(const Operand& op, int imm, int ext, const Reg *d = 0)
 	{
 		if (d == 0) verifyMemHasSize(op);
-		if (d && op.getBit() != 0 && d->getBit() != op.getBit()) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
-		uint64_t type = T_APX|T_CODE1_IF1; if (ext & 8) type |= T_NF; if (d) type |= T_ND1;
-		opRext(op, 0, ext&7, type, (0xC0 | ((imm == 1 ? 1 : 0) << 4)), false, (imm != 1) ? 1 : 0, d);
+		opShiftCore(op, ext, d, (0xC0 | ((imm == 1 ? 1 : 0) << 4)), (imm != 1) ? 1 : 0);
 		if (imm != 1) db(imm);
 	}
 	void opShift(const Operand& op, const Reg8& _cl, int ext, const Reg *d = 0)
 	{
 		if (_cl.getIdx() != Operand::CL) XBYAK_THROW(ERR_BAD_COMBINATION)
-		if (d && op.getBit() != 0 && d->getBit() != op.getBit()) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
-		uint64_t type = T_APX|T_CODE1_IF1; if (ext & 8) type |= T_NF; if (d) type |= T_ND1;
-		opRext(op, 0, ext&7, type, 0xD2, false, 0, d);
+		opShiftCore(op, ext, d, 0xD2, 0);
 	}
 	// condR assumes that op.isREG() is true
 	void opRO(const Reg& r, const Operand& op, uint64_t type, int code, bool condR = true, int immSize = 0)
@@ -3374,42 +3380,44 @@ private:
 		enc = getEncoding(enc, sel);
 		return ((sel == 0 && enc == VexEncoding) || (sel == 1 && enc != AVX10v2Encoding)) ? typeVex : (T_MUST_EVEX | typeEvex);
 	}
-	void opInOut(const Reg& a, const Reg& d, uint8_t code)
+	void opInOut(const Reg& a, uint8_t code)
 	{
-		if (a.getIdx() == Operand::AL && d.getIdx() == Operand::DX && d.getBit() == 16) {
-			switch (a.getBit()) {
-			case 8: db(code); return;
-			case 16: db(0x66); db(code + 1); return;
-			case 32: db(code + 1); return;
-			}
+		switch (a.getBit()) {
+		case 8: db(code); return;
+		case 16: db(0x66); db(code + 1); return;
+		case 32: db(code + 1); return;
 		}
 		XBYAK_THROW(ERR_BAD_COMBINATION)
+	}
+	void opInOut(const Reg& a, const Reg& d, uint8_t code)
+	{
+		if (!(a.getIdx() == Operand::AL && d.getIdx() == Operand::DX && d.getBit() == 16)) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opInOut(a, code);
 	}
 	void opInOut(const Reg& a, uint8_t code, uint8_t v)
 	{
-		if (a.getIdx() == Operand::AL) {
-			switch (a.getBit()) {
-			case 8: db(code); db(v); return;
-			case 16: db(0x66); db(code + 1); db(v); return;
-			case 32: db(code + 1); db(v); return;
-			}
-		}
-		XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (a.getIdx() != Operand::AL) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opInOut(a, code);
+		db(v);
+	}
+	void verifyDfv(int dfv) const
+	{
+		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
 	}
 	void opCcmp(const Operand& op1, const Operand& op2, int dfv, int code, int sc) // cmp = 0x38, test = 0x84
 	{
-		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
+		verifyDfv(dfv);
 		opROO(Reg(15 - dfv, Operand::REG, (op1.getBit() | op2.getBit())), op1, op2, T_APX|T_CODE1_IF1, code, 0, sc);
 	}
 	void opCcmpi(const Operand& op, int imm, int dfv, int sc)
 	{
-		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
+		verifyDfv(dfv);
 		verifyMemHasSize(op);
 		opROI(Reg(15 - dfv, Operand::REG, op.getBit()), op, imm, T_APX|T_CODE1_IF1, 15, sc);
 	}
 	void opTesti(const Operand& op, int imm, int dfv, int sc)
 	{
-		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
+		verifyDfv(dfv);
 		uint32_t opBit = op.getBit();
 		if (opBit == 0) XBYAK_THROW(ERR_MEM_SIZE_IS_NOT_SPECIFIED);
 		int immBit = (std::min)(opBit, 32U);
