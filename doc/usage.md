@@ -534,6 +534,9 @@ If `XBYAK_NO_EXCEPTION` is defined, then gcc/clang can compile xbyak with `-fno-
 In stead of throwing an exception, `Xbyak::GetError()` returns non-zero value (e.g. `ERR_BAD_ADDRESSING`) if there is something wrong.
 The status will not be changed automatically, then you should reset it by `Xbyak::ClearError()`.
 `CodeGenerator::reset()` calls `ClearError()`.
+Once an error occurs, code generation stops; no bytes are emitted after the first error until the error status is cleared.
+Do not use the generated code if `Xbyak::GetError()` returns a non-zero value.
+Note that the error status is thread-local and shared by all instances of `CodeGenerator` on the same thread.
 
 ## Macro
 
@@ -559,7 +562,7 @@ StackFrame(CodeGenerator *code, int pNum, int tNum = 0, int stackSizeByte = 0, b
 ### Parameters
 
 - `pNum` : number of function parameters (0 <= pNum <= 4).
-- `tNum` : number of temporary registers (0 <= tNum). Can be OR-ed with `UseRCX`, `UseRDX`, `UseRSI`, `UseRDI`, `UseRBP`, `UseR30R31`, the push-optimization flags, and the vector register flags below.
+- `tNum` : number of temporary registers (0 <= tNum). Can be OR-ed with `UseRBX`, `UseRCX`, `UseRDX`, `UseRSI`, `UseRDI`, `UseRBP`, `UseR30R31`, the push-optimization flags, and the vector register flags below.
 - `stackSizeByte` : local stack size in bytes.
 - `makeEpilog` : automatically generate epilog in the destructor if true.
 
@@ -570,7 +573,7 @@ The constraint is `pNum + tNum + #UseRegs <= 14`.
 - `rax` : free to use (not managed by StackFrame).
 - `sf.p[0]`, ..., `sf.p[pNum-1]` : function parameters.
 - `sf.t[0]`, ..., `sf.t[tNum-1]` : temporary registers.
-- `rcx`, `rdx`, `rsi`, `rdi`, `rbp` : explicitly available by specifying `UseRCX`, `UseRDX`, `UseRSI`, `UseRDI`, `UseRBP` in `tNum`.
+- `rbx`, `rcx`, `rdx`, `rsi`, `rdi`, `rbp` : explicitly available by specifying `UseRBX`, `UseRCX`, `UseRDX`, `UseRSI`, `UseRDI`, `UseRBP` in `tNum`.
 - `r30`, `r31` : explicitly available by specifying `UseR30R31` in `tNum`. Currently only the Windows x64 ABI treats these APX registers as callee-saved (the System V ABI treats all EGPRs as caller-saved), but StackFrame always pushes/pops them when reserved, regardless of platform. They do not count toward the `pNum + tNum + #UseRegs <= 14` constraint; they are saved in addition to the 14 registers above.
 - `rsp[0..stackSizeByte-1]` : local stack area if `stackSizeByte > 0`.
 

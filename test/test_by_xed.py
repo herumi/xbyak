@@ -132,7 +132,7 @@ g_replaceCharTbl = '{}();|,'
 g_replaceChar = str.maketrans(g_replaceCharTbl, ' '*len(g_replaceCharTbl))
 g_sizeTbl = ['byte', 'word', 'dword', 'qword', 'xword', 'yword', 'zword']
 g_xedSizeTbl = ['xmmword', 'ymmword', 'zmmword']
-g_attrTbl = ['T_sae', 'T_rn_sae', 'T_rd_sae', 'T_ru_sae', 'T_rz_sae', 'T_z']
+g_attrTbl = ['T_sae', 'T_rn_sae', 'T_rd_sae', 'T_ru_sae', 'T_rz_sae', 'T_z', 'T_nf', 'T_zu']
 g_attrXedTbl = ['sae', 'rne-sae', 'rd-sae', 'ru-sae', 'rz-sae', 'z']
 
 class Attr:
@@ -294,6 +294,8 @@ def parseMemory(s, broadcast=0):
   return Memory(size, base, index, scale, disp, broadcast)
 
 def normalizeName(s):
+  # and_, or_, not_, etc.
+  s = s.rstrip('_')
   if s == 'sal':
     return 'shl'
   return s
@@ -382,6 +384,19 @@ def parseNmemonic(s):
     idx = int(r.group(1)[-1])
     attrs.append(g_maskTbl[idx-1])
     s = s.replace(r.group(1), '')
+  # xed shows the NF flag as a '{nf}' prefix (e.g. {nf} imul ax, cx, 0x1234)
+  if '{nf}' in s:
+    attrs.append(Attr('T_nf'))
+    s = s.replace('{nf}', '')
+  # xed shows the dfv of ccmp/ctest as '{dfv=of,sf,zf,cf}' ('{dfv=}' if dfv=0)
+  r = re.search(r'({dfv=([a-z,]*)})', s)
+  if r:
+    dfv = 0
+    for flag in r.group(2).split(','):
+      if flag:
+        dfv |= {'of': 8, 'sf': 4, 'zf': 2, 'cf': 1}[flag]
+    attrs.append(Attr(f'{dfv=}'))
+    s = s.replace(r.group(1), '')
 
   s = s.translate(g_replaceChar)
 
@@ -401,6 +416,14 @@ def parseNmemonic(s):
           inMemory = True
 
   name = v[0]
+  # xed fuses the ZU flag into the mnemonic (imulzu, setzub, ...).
+  # Xbyak expresses it as reg|T_zu, so map the xed name back to the plain one.
+  if name == 'imulzu':
+    name = 'imul'
+    attrs.append(Attr('T_zu'))
+  elif name.startswith('setzu'):
+    name = 'set' + name[5:]
+    attrs.append(Attr('T_zu'))
   for e in v[1:]:
     if e.startswith('0x'):
       args.append(int(e, 16))
@@ -420,6 +443,12 @@ def parseNmemonic(s):
       args.append(Reg(e[:-2]))
     else:
       args.append(parseMemory(e, broadcast))
+  # ccmp/ctest always take two operands, so a third argument on the Xbyak side
+  # is the dfv (default 0 if omitted). The xed side is handled by '{dfv=...}' above.
+  if name.startswith('ccmp') or name.startswith('ctest'):
+    if not any(a.name.startswith('dfv=') for a in attrs):
+      dfv = args.pop() if len(args) == 3 else 0
+      attrs.append(Attr(f'{dfv=}'))
   # xed shows the opmask of gather/scatter as an operand
   # (e.g. vpgatherdd xmm5, k7, dword ptr [...]), so move it to attrs.
   if 'gather' in name or 'scatter' in name:

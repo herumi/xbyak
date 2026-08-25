@@ -1864,6 +1864,7 @@ const int UseRDX = 1 << 7;
 const int UseRSI = 1 << 8;
 const int UseRDI = 1 << 9;
 const int UseR30R31 = 1 << 10; // reserve r30/r31 (APX EGPRs), pushed/popped unconditionally
+const int UseRBX = 1 << 11;
 const int UseRBPAsFramePointer = UseRBP | (1 << 30);
 const int UsePUSH2 = 1 << 28; // use push2/pop2 where RSP is 16-byte aligned, push/pop otherwise
 const int UsePPX   = 1 << 29; // use pushp/popp (or push2p/pop2p with UsePUSH2) with the PPX store-forwarding hint
@@ -1889,7 +1890,7 @@ class StackFrame {
 	static const int maxRegNum = 14; // maxRegNum = 16 - rsp - rax
 	static const int calleeSaveNum = maxRegNum - noSaveNum;
 	static const int maxSaveRegNum = calleeSaveNum + 2; // +2 for r30/r31 (UseR30R31)
-	static const int UseMASK = UseRCX|UseRDX|UseRSI|UseRDI|UseRBP|UseR30R31|UsePUSH2|UsePPX;
+	static const int UseMASK = UseRBX|UseRCX|UseRDX|UseRSI|UseRDI|UseRBP|UseR30R31|UsePUSH2|UsePPX;
 	static const int UseVecMASK = (63 << local::UseVecNumShift)|local::UseVecSSE|local::UseVecAVX|NoVzeroupper;
 	Xbyak::CodeGenerator *code_;
 	Xbyak::Reg64 pTbl_[maxPnum];
@@ -1916,7 +1917,7 @@ public:
 		make stack frame
 		@param sf [in] this
 		@param pNum [in] number of function parameters(0 <= pNum <= 4)
-		@param tNum [in] number of temporary registers(0 <= tNum, can be OR-ed with Use{RCX,RDX,RSI,RDI,RBP,R30R31}, e.g., 3|UseRCX)
+		@param tNum [in] number of temporary registers(0 <= tNum, can be OR-ed with Use{RBX,RCX,RDX,RSI,RDI,RBP,R30R31}, e.g., 3|UseRCX)
 		@param stackSizeByte [in] local stack size
 		@param makeEpilog [in] automatically call close() if true
 
@@ -1926,7 +1927,7 @@ public:
 		rax
 		p[0], ..., p[pNum-1] as function parameters
 		t[0], ..., t[tNum-1] as temporary registers
-		{rcx,rdx,rsi,rdi,rbp} are explicitly available by specifying Use{RCX,RDX,RSI,RDI,RBP} in tNum
+		{rbx,rcx,rdx,rsi,rdi,rbp} are explicitly available by specifying Use{RBX,RCX,RDX,RSI,RDI,RBP} in tNum
 		r30, r31 are explicitly available by specifying UseR30R31 in tNum
 		rsp[0..stackSizeByte-1] if stackSizeByte > 0
 		xmm0, ..., xmm(n-1) are declared by UseSSE(n) (0 <= n <= 16) : only SSE instructions are emitted
@@ -2108,6 +2109,7 @@ private:
 	static int useFlagOf(int r)
 	{
 		switch (r) {
+		case Operand::RBX: return UseRBX;
 		case Operand::RCX: return UseRCX;
 		case Operand::RDX: return UseRDX;
 		case Operand::RSI: return UseRSI;

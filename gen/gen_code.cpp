@@ -245,7 +245,7 @@ void putMemOp(const char *name, const char *type, uint8_t ext, uint8_t code, int
 
 void putLoadSeg(const char *name, uint64_t type, uint8_t code)
 {
-	printf("void %s(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, %s, 0x%02X); }\n", name, type ? "T_0F" : "T_NONE", code);
+	printf("void %s(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, %s|T_ALLOW_DIFF_SIZE, 0x%02X); }\n", name, type ? "T_0F" : "T_OP_W0", code);
 }
 
 void put()
@@ -839,13 +839,13 @@ void put()
 			uint64_t type;
 		} tbl[] = {
 			{ 0x10, 2, "adc", true, T_NONE },
-			{ 0x00, 0, "add", true, T_NF | T_CODE1_IF1 },
-			{ 0x20, 4, "and_", true, T_NF | T_CODE1_IF1 },
+			{ 0x00, 0, "add", true, T_NF | T_OP_W1 },
+			{ 0x20, 4, "and_", true, T_NF | T_OP_W1 },
 			{ 0x38, 7, "cmp", false, T_NONE },
-			{ 0x08, 1, "or_", true, T_NF | T_CODE1_IF1 },
+			{ 0x08, 1, "or_", true, T_NF | T_OP_W1 },
 			{ 0x18, 3, "sbb", true, T_NONE },
-			{ 0x28, 5, "sub", true, T_NF | T_CODE1_IF1 },
-			{ 0x30, 6, "xor_", true, T_NF | T_CODE1_IF1 },
+			{ 0x28, 5, "sub", true, T_NF | T_OP_W1 },
+			{ 0x30, 6, "xor_", true, T_NF | T_OP_W1 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -922,12 +922,12 @@ void put()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			const std::string name = p->name;
-			uint64_t type = T_APX|T_CODE1_IF1;
+			uint64_t type = T_APX|T_OP_W1;
 			if (p->NF) type |= T_NF;
 			std::string s = type2String(type);
 			printf("void %s(const Operand& op) { opRext(op, 0, %d, %s, 0x%02X); }\n", p->name, p->ext, s.c_str(), p->code);
 			if (p->n == 2) {
-				type = T_APX|T_ND1|T_CODE1_IF1;
+				type = T_APX|T_ND1|T_OP_W1;
 				if (p->NF) type |= T_NF;
 				s = type2String(type);
 				printf("void %s(const Reg& d, const Operand& op) { opROO(d, op, Reg(%d, Operand::REG, d.getBit()), %s, 0xF6); }\n", p->name, p->ext, s.c_str());
@@ -995,7 +995,7 @@ void put()
 			uint8_t code;
 			uint8_t code2;
 		} tbl[] = {
-			{ "popcnt", 0xB8, 0 },
+			{ "popcnt", 0xB8, 0x88 },
 			{ "tzcnt", 0xBC, 0xF4 },
 			{ "lzcnt", 0xBD, 0xF5 },
 		};
@@ -1428,21 +1428,20 @@ void put()
 	{
 		const struct Tbl {
 			uint8_t code;
-			uint8_t code2;
 			const char *name;
 		} tbl[] = {
-			{ 0xC8, 0xD8, "sha1nexte" },
-			{ 0xC9, 0xD9, "sha1msg1" },
-			{ 0xCA, 0xDA, "sha1msg2" },
-			{ 0xCB, 0xDB, "sha256rnds2" },
-			{ 0xCC, 0xDC, "sha256msg1" },
-			{ 0xCD, 0xDD, "sha256msg2" },
+			{ 0xC8, "sha1nexte" },
+			{ 0xC9, "sha1msg1" },
+			{ 0xCA, "sha1msg2" },
+			{ 0xCB, "sha256rnds2" },
+			{ 0xCC, "sha256msg1" },
+			{ 0xCD, "sha256msg2" },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			printf("void %s(const Xmm& x, const Operand& op) { opSSE_APX(x, op, T_0F38, 0x%02X, T_MUST_EVEX, 0x%02X); }\n", p->name, p->code, p->code2);
+			printf("void %s(const Xmm& x, const Operand& op) { opSSE(x, op, T_0F38, 0x%02X, isXMM_XMMorMEM); }\n", p->name, p->code);
 		}
-		puts("void sha1rnds4(const Xmm& x, const Operand& op, uint8_t imm) { opSSE_APX(x, op, T_0F3A, 0xCC, T_MUST_EVEX, 0xD4, imm); }");
+		puts("void sha1rnds4(const Xmm& x, const Operand& op, uint8_t imm) { opSSE(x, op, T_0F3A, 0xCC, isXMM_XMMorMEM, imm); }");
 	}
 	// (m, x), (m, y)
 	{
@@ -1699,16 +1698,16 @@ void put()
 			int idx;
 			uint64_t type;
 		} tbl[] = {
-			{ "pslldq", 0x73, 7, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX },
-			{ "psrldq", 0x73, 3, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX },
-			{ "psllw", 0x71, 6, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX },
-			{ "pslld", 0x72, 6, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX | T_W0 | T_B32 },
-			{ "psllq", 0x73, 6, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX | T_EW1 | T_B64 },
-			{ "psraw", 0x71, 4, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX },
-			{ "psrad", 0x72, 4, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX | T_W0 | T_B32 },
-			{ "psrlw", 0x71, 2, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX },
-			{ "psrld", 0x72, 2, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX | T_W0 | T_B32 },
-			{ "psrlq", 0x73, 2, T_0F | T_66 | T_YMM | T_EVEX | T_MEM_EVEX | T_EW1 | T_B64 },
+			{ "pslldq", 0x73, 7, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM },
+			{ "psrldq", 0x73, 3, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM },
+			{ "psllw", 0x71, 6, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM },
+			{ "pslld", 0x72, 6, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM | T_W0 | T_B32 },
+			{ "psllq", 0x73, 6, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM | T_EW1 | T_B64 },
+			{ "psraw", 0x71, 4, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM },
+			{ "psrad", 0x72, 4, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM | T_W0 | T_B32 },
+			{ "psrlw", 0x71, 2, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM },
+			{ "psrld", 0x72, 2, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM | T_W0 | T_B32 },
+			{ "psrlq", 0x73, 2, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM | T_EW1 | T_B64 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl& p = tbl[i];
@@ -1766,7 +1765,12 @@ void put()
 		puts("void vcvtsd2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W0 | T_EVEX | T_N4 | T_ER_X, 0x2D); }");
 		puts("void vcvttsd2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W0 | T_EVEX | T_N4 | T_SAE_X, 0x2C); }");
 
+		// keep the checkTypeMergeable() args in sync with the type args in the puts() below
+		checkTypeMergeable(T_0F | T_F3 | T_EVEX | T_ER_R, T_W1 | T_EW1 | T_N8, "vcvtsi2ss");
+		checkTypeMergeable(T_0F | T_F3 | T_EVEX | T_ER_R, T_W0 | T_N4, "vcvtsi2ss");
 		puts("void vcvtsi2ss(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, T_0F | T_F3 | T_EVEX | T_ER_R, T_W1 | T_EW1 | T_N8, T_W0 | T_N4, 0x2A); }");
+		checkTypeMergeable(T_0F | T_F2 | T_EVEX, T_W1 | T_EW1 | T_ER_R | T_N8, "vcvtsi2sd");
+		checkTypeMergeable(T_0F | T_F2 | T_EVEX, T_W0 | T_N4, "vcvtsi2sd");
 		puts("void vcvtsi2sd(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, T_0F | T_F2 | T_EVEX, T_W1 | T_EW1 | T_ER_R | T_N8, T_W0 | T_N4, 0x2A); }");
 
 
@@ -1799,7 +1803,9 @@ void put()
 			const Tbl& p = tbl[i];
 			printf("void %s(const Xmm& x, const Address& addr) { opVex(x, 0, addr, %s, 0x%02X); }\n", p.name, type2String(p.type).c_str(), p.code);
 		}
-		printf("void vcvtneps2bf16(const Xmm& x, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opCvt2(x, op, %s|orEvexIf(encoding, 0, T_MUST_EVEX, 0), 0x72); }\n", type2String(T_F3 | T_0F38 | T_W0 | T_YMM | T_SAE_Z | T_B32).c_str());
+		const uint64_t type = T_F3 | T_0F38 | T_W0 | T_YMM | T_SAE_Z | T_B32;
+		checkTypeMergeable(type, T_MUST_EVEX, "vcvtneps2bf16");
+		printf("void vcvtneps2bf16(const Xmm& x, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opCvt2(x, op, %s|orEvexIf(encoding, 0, T_MUST_EVEX, 0), 0x72); }\n", type2String(type).c_str());
 	}
 	// haswell gpr(reg, reg, r/m)
 	{
@@ -1893,6 +1899,7 @@ void put()
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
+			checkTypeMergeable(p->type, T_MUST_EVEX, p->name);
 			std::string s = type2String(p->type);
 			printf("void %s(const Xmm& x1, const Xmm& x2, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opEncoding(x1, x2, op, %s, 0x%02X, encoding); }\n", p->name, s.c_str(), p->code);
 		}
@@ -2006,34 +2013,32 @@ void put64()
 	{
 		const struct Tbl {
 			const char *name;
-			uint64_t type1;
-			uint64_t type2;
+			uint64_t type;
 			uint8_t code;
 			int idx;
 		} tbl[] = {
-			{ "aesdec128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDD, 8 },
-			{ "aesdec256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDF, 8 },
-			{ "aesdecwide128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 1 },
-			{ "aesdecwide256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 3 },
-			{ "aesenc128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDC, 8 },
-			{ "aesenc256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xDE, 8 },
-			{ "aesencwide128kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 0 },
-			{ "aesencwide256kl", T_F3|T_0F38, T_MUST_EVEX|T_F3, 0xD8, 2 },
+			{ "aesdec128kl", T_F3|T_0F38, 0xDD, 8 },
+			{ "aesdec256kl", T_F3|T_0F38, 0xDF, 8 },
+			{ "aesdecwide128kl", T_F3|T_0F38, 0xD8, 1 },
+			{ "aesdecwide256kl", T_F3|T_0F38, 0xD8, 3 },
+			{ "aesenc128kl", T_F3|T_0F38, 0xDC, 8 },
+			{ "aesenc256kl", T_F3|T_0F38, 0xDE, 8 },
+			{ "aesencwide128kl", T_F3|T_0F38, 0xD8, 0 },
+			{ "aesencwide256kl", T_F3|T_0F38, 0xD8, 2 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
-			std::string s1 = type2String(p->type1);
-			std::string s2 = type2String(p->type2);
+			std::string s = type2String(p->type);
 			if (p->idx == 8) {
-				printf("void %s(const Xmm& x, const Address& addr) { opSSE_APX(x, addr, %s, 0x%02X, %s, 0x%02X); }\n", p->name, s1.c_str(), p->code, s2.c_str(), p->code);
+				printf("void %s(const Xmm& x, const Address& addr) { opSSE(x, addr, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, s.c_str(), p->code);
 			} else {
-				printf("void %s(const Address& addr) { opSSE_APX(xmm%d, addr, %s, 0x%02X, %s, 0x%02X); }\n", p->name, p->idx, s1.c_str(), p->code, s2.c_str(), p->code);
+				printf("void %s(const Address& addr) { opSSE(xmm%d, addr, %s, 0x%02X, isXMM_XMMorMEM); }\n", p->name, p->idx, s.c_str(), p->code);
 			}
 		}
 	}
 	// encodekey
-	puts("void encodekey128(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFA, 0xDA); }");
-	puts("void encodekey256(const Reg32& r1, const Reg32& r2) { opEncodeKey(r1, r2, 0xFB, 0xDB); }");
+	puts("void encodekey128(const Reg32& r1, const Reg32& r2) { opRR(r1, r2, T_F3|T_0F38, 0xFA); }");
+	puts("void encodekey256(const Reg32& r1, const Reg32& r2) { opRR(r1, r2, T_F3|T_0F38, 0xFB); }");
 	// read/write fs/gs
 	{
 		const char *tbl[] = {

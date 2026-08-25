@@ -195,6 +195,19 @@ struct Code : public Xbyak::CodeGenerator {
 		}
 		mov(rax, ptr[rsp]);
 	}
+	// use rbx
+	void gen16()
+	{
+		{	// sf.t[8] is rbx on windows/linux
+			StackFrame sf(this, 0, 9);
+			CYBOZU_TEST_ASSERT(sf.t[8] == rbx);
+		}
+		{	// sf.t[8] is rbp (not rbx) on windows/linux
+			// getRegEntryTbl() in xbyak_util.h
+			StackFrame sf(this, 0, 9|UseRBX);
+			CYBOZU_TEST_ASSERT(sf.t[8] == rbp);
+		}
+	}
 };
 
 struct Code2 : Xbyak::CodeGenerator {
@@ -355,6 +368,9 @@ CYBOZU_TEST_AUTO(args)
 	int (*f15)() = code.getCurr<int (*)()>();
 	code.gen15();
 	CYBOZU_TEST_EQUAL((1 << 15) - 1, f15());
+
+	// UserRBP test
+	code.gen16();
 }
 
 void put(const Xbyak::util::Pack& p)

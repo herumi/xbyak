@@ -688,7 +688,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7400 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7401 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -712,130 +712,83 @@ typedef uint8_t uint8;
 	#define MIE_PACK(x, y, z, w) ((x) * 64 + (y) * 16 + (z) * 4 + (w))
 #endif
 
+// (error code, error message) pairs. The enum and the string table of ConvertErrorToString() are generated from this list.
+#define XBYAK_ERR_LIST(f) \
+	f(ERR_NONE, "none") \
+	f(ERR_BAD_ADDRESSING, "bad addressing") \
+	f(ERR_CODE_IS_TOO_BIG, "code is too big") \
+	f(ERR_BAD_SCALE, "bad scale") \
+	f(ERR_ESP_CANT_BE_INDEX, "esp can't be index") \
+	f(ERR_BAD_COMBINATION, "bad combination") \
+	f(ERR_BAD_SIZE_OF_REGISTER, "bad size of register") \
+	f(ERR_IMM_IS_TOO_BIG, "imm is too big") \
+	f(ERR_BAD_ALIGN, "bad align") \
+	f(ERR_LABEL_IS_REDEFINED, "label is redefined") \
+	f(ERR_LABEL_IS_TOO_FAR, "label is too far") \
+	f(ERR_LABEL_IS_NOT_FOUND, "label is not found") \
+	f(ERR_CODE_ISNOT_COPYABLE, "code is not copyable") \
+	f(ERR_BAD_PARAMETER, "bad parameter") \
+	f(ERR_CANT_PROTECT, "can't protect") \
+	f(ERR_CANT_USE_64BIT_DISP, "can't use 64bit disp(use (void*))") \
+	f(ERR_OFFSET_IS_TOO_BIG, "offset is too big") \
+	f(ERR_MEM_SIZE_IS_NOT_SPECIFIED, "MEM size is not specified") \
+	f(ERR_BAD_MEM_SIZE, "bad mem size") \
+	f(ERR_BAD_ST_COMBINATION, "bad st combination") \
+	f(ERR_OVER_LOCAL_LABEL, "over local label") /* not used */ \
+	f(ERR_UNDER_LOCAL_LABEL, "under local label") \
+	f(ERR_CANT_ALLOC, "can't alloc") \
+	f(ERR_ONLY_T_NEAR_IS_SUPPORTED_IN_AUTO_GROW, "T_SHORT is not supported in AutoGrow") \
+	f(ERR_BAD_PROTECT_MODE, "bad protect mode") \
+	f(ERR_BAD_PNUM, "bad pNum") \
+	f(ERR_BAD_TNUM, "bad tNum") \
+	f(ERR_BAD_VSIB_ADDRESSING, "bad vsib addressing") \
+	f(ERR_CANT_CONVERT, "can't convert") \
+	f(ERR_LABEL_ISNOT_SET_BY_L, "label is not set by L()") \
+	f(ERR_LABEL_IS_ALREADY_SET_BY_L, "label is already set by L()") \
+	f(ERR_BAD_LABEL_STR, "bad label string") \
+	f(ERR_MUNMAP, "err munmap") \
+	f(ERR_OPMASK_IS_ALREADY_SET, "opmask is already set") \
+	f(ERR_ROUNDING_IS_ALREADY_SET, "rounding is already set") \
+	f(ERR_K0_IS_INVALID, "k0 is invalid") \
+	f(ERR_EVEX_IS_INVALID, "evex is invalid") \
+	f(ERR_SAE_IS_INVALID, "sae(suppress all exceptions) is invalid") \
+	f(ERR_ER_IS_INVALID, "er(embedded rounding) is invalid") \
+	f(ERR_INVALID_BROADCAST, "invalid broadcast") \
+	f(ERR_INVALID_OPMASK_WITH_MEMORY, "invalid opmask with memory") \
+	f(ERR_INVALID_ZERO, "invalid zero") \
+	f(ERR_INVALID_RIP_IN_AUTO_GROW, "invalid rip in AutoGrow") \
+	f(ERR_INVALID_MIB_ADDRESS, "invalid mib address") \
+	f(ERR_X2APIC_IS_NOT_SUPPORTED, "x2APIC is not supported") \
+	f(ERR_NOT_SUPPORTED, "not supported") \
+	f(ERR_SAME_REGS_ARE_INVALID, "same regs are invalid") \
+	f(ERR_INVALID_NF, "invalid NF") \
+	f(ERR_INVALID_ZU, "invalid ZU") \
+	f(ERR_CANT_USE_REX2, "can't use rex2") \
+	f(ERR_INVALID_DFV, "invalid dfv") \
+	f(ERR_INVALID_REG_IDX, "invalid reg index") \
+	f(ERR_BAD_ENCODING_MODE, "bad encoding mode") \
+	f(ERR_CANT_USE_ABCDH, "can't use [abcd]h with rex") \
+	f(ERR_CANT_INIT_CPUTOPOLOGY, "can't init CpuTopology") \
+	f(ERR_INVALID_CPUMASK_INDEX, "invalid cpumask index") \
+	f(ERR_INTERNAL, "internal error") /* Put it at last. */
+
 enum {
-	ERR_NONE = 0,
-	ERR_BAD_ADDRESSING,
-	ERR_CODE_IS_TOO_BIG,
-	ERR_BAD_SCALE,
-	ERR_ESP_CANT_BE_INDEX,
-	ERR_BAD_COMBINATION,
-	ERR_BAD_SIZE_OF_REGISTER,
-	ERR_IMM_IS_TOO_BIG,
-	ERR_BAD_ALIGN,
-	ERR_LABEL_IS_REDEFINED,
-	ERR_LABEL_IS_TOO_FAR,
-	ERR_LABEL_IS_NOT_FOUND,
-	ERR_CODE_ISNOT_COPYABLE,
-	ERR_BAD_PARAMETER,
-	ERR_CANT_PROTECT,
-	ERR_CANT_USE_64BIT_DISP,
-	ERR_OFFSET_IS_TOO_BIG,
-	ERR_MEM_SIZE_IS_NOT_SPECIFIED,
-	ERR_BAD_MEM_SIZE,
-	ERR_BAD_ST_COMBINATION,
-	ERR_OVER_LOCAL_LABEL, // not used
-	ERR_UNDER_LOCAL_LABEL,
-	ERR_CANT_ALLOC,
-	ERR_ONLY_T_NEAR_IS_SUPPORTED_IN_AUTO_GROW,
-	ERR_BAD_PROTECT_MODE,
-	ERR_BAD_PNUM,
-	ERR_BAD_TNUM,
-	ERR_BAD_VSIB_ADDRESSING,
-	ERR_CANT_CONVERT,
-	ERR_LABEL_ISNOT_SET_BY_L,
-	ERR_LABEL_IS_ALREADY_SET_BY_L,
-	ERR_BAD_LABEL_STR,
-	ERR_MUNMAP,
-	ERR_OPMASK_IS_ALREADY_SET,
-	ERR_ROUNDING_IS_ALREADY_SET,
-	ERR_K0_IS_INVALID,
-	ERR_EVEX_IS_INVALID,
-	ERR_SAE_IS_INVALID,
-	ERR_ER_IS_INVALID,
-	ERR_INVALID_BROADCAST,
-	ERR_INVALID_OPMASK_WITH_MEMORY,
-	ERR_INVALID_ZERO,
-	ERR_INVALID_RIP_IN_AUTO_GROW,
-	ERR_INVALID_MIB_ADDRESS,
-	ERR_X2APIC_IS_NOT_SUPPORTED,
-	ERR_NOT_SUPPORTED,
-	ERR_SAME_REGS_ARE_INVALID,
-	ERR_INVALID_NF,
-	ERR_INVALID_ZU,
-	ERR_CANT_USE_REX2,
-	ERR_INVALID_DFV,
-	ERR_INVALID_REG_IDX,
-	ERR_BAD_ENCODING_MODE,
-	ERR_CANT_USE_ABCDH,
-	ERR_CANT_INIT_CPUTOPOLOGY,
-	ERR_INVALID_CPUMASK_INDEX,
-	ERR_INTERNAL // Put it at last.
+#define XBYAK_ERR_DEF(name, msg) name,
+	XBYAK_ERR_LIST(XBYAK_ERR_DEF)
+#undef XBYAK_ERR_DEF
+	ERR_MAX_ // sentinel to avoid a trailing comma in C++03 (= ERR_INTERNAL + 1)
 };
 
 inline const char *ConvertErrorToString(int err)
 {
 	static const char *errTbl[] = {
-		"none",
-		"bad addressing",
-		"code is too big",
-		"bad scale",
-		"esp can't be index",
-		"bad combination",
-		"bad size of register",
-		"imm is too big",
-		"bad align",
-		"label is redefined",
-		"label is too far",
-		"label is not found",
-		"code is not copyable",
-		"bad parameter",
-		"can't protect",
-		"can't use 64bit disp(use (void*))",
-		"offset is too big",
-		"MEM size is not specified",
-		"bad mem size",
-		"bad st combination",
-		"over local label",
-		"under local label",
-		"can't alloc",
-		"T_SHORT is not supported in AutoGrow",
-		"bad protect mode",
-		"bad pNum",
-		"bad tNum",
-		"bad vsib addressing",
-		"can't convert",
-		"label is not set by L()",
-		"label is already set by L()",
-		"bad label string",
-		"err munmap",
-		"opmask is already set",
-		"rounding is already set",
-		"k0 is invalid",
-		"evex is invalid",
-		"sae(suppress all exceptions) is invalid",
-		"er(embedded rounding) is invalid",
-		"invalid broadcast",
-		"invalid opmask with memory",
-		"invalid zero",
-		"invalid rip in AutoGrow",
-		"invalid mib address",
-		"x2APIC is not supported",
-		"not supported",
-		"same regs are invalid",
-		"invalid NF",
-		"invalid ZU",
-		"can't use rex2",
-		"invalid dfv",
-		"invalid reg index",
-		"bad encoding mode",
-		"can't use [abcd]h with rex",
-		"can't init CpuTopology",
-		"invalid cpumask index",
-		"internal error"
+#define XBYAK_ERR_DEF(name, msg) msg,
+		XBYAK_ERR_LIST(XBYAK_ERR_DEF)
+#undef XBYAK_ERR_DEF
 	};
-	assert(ERR_INTERNAL + 1 == sizeof(errTbl) / sizeof(*errTbl));
 	return err <= ERR_INTERNAL ? errTbl[err] : "unknown err";
 }
+#undef XBYAK_ERR_LIST
 
 #ifdef XBYAK_NO_EXCEPTION
 namespace local {
@@ -1292,7 +1245,7 @@ public:
 			static const char *tbl[4] = { "bnd0", "bnd1", "bnd2", "bnd3" };
 			return tbl[idx];
 		}
-		XBYAK_THROW_RET(ERR_INTERNAL, 0);
+		XBYAK_THROW_RET(ERR_INTERNAL, "");
 	}
 	bool isEqualIfNotInherited(const Operand& rhs) const { return idx_ == rhs.idx_ && kind_ == rhs.kind_ && bit_ == rhs.bit_ && zero_ == rhs.zero_ && mask_ == rhs.mask_ && rounding_ == rhs.rounding_; }
 	bool operator==(const Operand& rhs) const;
@@ -1587,16 +1540,6 @@ public:
 	}
 #endif
 	bool isVsib(int bit = 128 | 256 | 512) const { return index_.isBit(bit); }
-	RegExp optimize() const
-	{
-		RegExp exp = *this;
-		// [reg * 2] => [reg + reg]
-		if (index_.isBit(i32e) && !base_.getBit() && scale_ == 2) {
-			exp.base_ = index_;
-			exp.scale_ = 1;
-		}
-		return exp;
-	}
 	bool operator==(const RegExp& rhs) const
 	{
 		return base_ == rhs.base_ && index_ == rhs.index_ && disp_ == rhs.disp_ && scale_ == rhs.scale_;
@@ -1809,6 +1752,9 @@ public:
 	}
 	void db(int code)
 	{
+#ifdef XBYAK_NO_EXCEPTION
+		if (local::GetErrorRef()) return;
+#endif
 		if (size_ >= maxSize_) {
 			if (type_ == AUTO_GROW) {
 				growMemory();
@@ -1941,10 +1887,10 @@ class Address : public Operand {
 public:
 	XBYAK_CONSTEXPR Address()
 		: Operand(0, MEM, 0), e_(), label_(NULL), mode_(inner::M_ModRM), immSize(0),
-		  disp8N(0), permitVsib(false), broadcast_(false), optimize_(true) { }
+		  disp8N(0), permitVsib(false), broadcast_(false), optimized_(false) { }
 	XBYAK_CONSTEXPR Address(uint32_t sizeBit, bool broadcast, const RegExp& e)
 		: Operand(0, MEM, sizeBit), e_(e), label_(e.label_), mode_(), immSize(0),
-		  disp8N(0), permitVsib(false), broadcast_(broadcast), optimize_(true)
+		  disp8N(0), permitVsib(false), broadcast_(broadcast), optimized_(false)
 	{
 		if (e.rip_) {
 			mode_ = (e.label_ || e.asPtr_) ? inner::M_ripAddr : inner::M_rip;
@@ -1960,12 +1906,24 @@ public:
 			}
 		}
 		e_.verify();
+		// [reg * 2] => [reg + reg] to shorten the encoding (cloneNoOptimize() undoes this)
+		if (e_.index_.isBit(RegExp::i32e) && !e_.base_.getBit() && e_.scale_ == 2) {
+			e_.base_ = e_.index_;
+			e_.scale_ = 1;
+			optimized_ = true;
+		}
 	}
-	RegExp getRegExp() const
+	const RegExp& getRegExp() const { return e_; }
+	Address cloneNoOptimize() const
 	{
-		return optimize_ ? e_.optimize() : e_;
+		Address addr = *this;
+		if (addr.optimized_) {
+			addr.e_.base_ = Reg();
+			addr.e_.scale_ = 2;
+			addr.optimized_ = false;
+		}
+		return addr;
 	}
-	Address cloneNoOptimize() const { Address addr = *this; addr.optimize_ = false; return addr; }
 	inner::AddressMode getMode() const { return mode_; }
 	bool is32bit() const { return e_.getBase().getBit() == 32 || e_.getIndex().getBit() == 32; }
 	bool isOnlyDisp() const { return e_.isOnlyDisp(); }
@@ -1976,7 +1934,7 @@ public:
 	const Label* getLabel() const { return label_; }
 	bool operator==(const Address& rhs) const
 	{
-		return getBit() == rhs.getBit() && e_ == rhs.e_ && label_ == rhs.label_ && mode_ == rhs.mode_ && immSize == rhs.immSize && disp8N == rhs.disp8N && permitVsib == rhs.permitVsib && broadcast_ == rhs.broadcast_ && optimize_ == rhs.optimize_;
+		return getBit() == rhs.getBit() && e_ == rhs.e_ && label_ == rhs.label_ && mode_ == rhs.mode_ && immSize == rhs.immSize && disp8N == rhs.disp8N && permitVsib == rhs.permitVsib && broadcast_ == rhs.broadcast_ && optimized_ == rhs.optimized_;
 	}
 	bool operator!=(const Address& rhs) const { return !operator==(rhs); }
 	bool isVsib() const { return e_.isVsib(); }
@@ -1992,7 +1950,7 @@ public:
 	bool permitVsib;
 private:
 	bool broadcast_;
-	bool optimize_;
+	bool optimized_; // e_ was rewritten from [reg * 2] to [reg + reg]
 };
 
 inline const Address& Operand::getAddress() const
@@ -2403,15 +2361,14 @@ private:
 	{
 		return op1.isREG(i32e) && (op2.isXMM() || op2.isMEM());
 	}
-	// (REG32, REG32|MEM)
-	static inline bool isREG32_REG32orMEM(const Operand& op1, const Operand& op2)
-	{
-		return op1.isREG(i32e) && ((op2.isREG(i32e) && op1.getBit() == op2.getBit()) || op2.isMEM());
-	}
 	static inline bool isValidSSE(const Operand& op)
 	{
 		// SSE instructions do not support XMM16 - XMM31
 		return !(op.isXMM() && op.getIdx() >= 16);
+	}
+	void verifySSE(const Operand& op1, const Operand& op2 = Operand()) const
+	{
+		if (!isValidSSE(op1) || !isValidSSE(op2)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 	}
 	static inline uint8_t rexRXB(int bit, int bit3, const Reg& r, const Reg& b, const Reg& x = Reg())
 	{
@@ -2421,17 +2378,30 @@ private:
 		if (b.hasIdxBit(bit)) v |= 1;
 		return uint8_t(v);
 	}
-	void rex2(int bit3, int rex4bit, const Reg& r, const Reg& b, const Reg& x = Reg())
+	void rex2(int bit3, int w, const Reg& r, const Reg& b, const Reg& x = Reg())
 	{
 		db(0xD5);
-		db((rexRXB(4, bit3, r, b, x) << 4) | rex4bit);
+		db((rexRXB(4, bit3, r, b, x) << 4) | rexRXB(3, w, r, b, x));
+	}
+	// emit REX2 or REX prefix for (reg, base, index) and return true if rex2 is selected
+	bool setRex(int w, const Reg& r, const Reg& b, const Reg& x, uint64_t type)
+	{
+		uint8_t rex = rexRXB(3, w, r, b, x);
+		if (r.hasRex2() || b.hasRex2() || x.hasRex2()) {
+			uint32_t map = getMap(type);
+			if (map == 2 || map == 3) XBYAK_THROW_RET(ERR_CANT_USE_REX2, false)
+			rex2(map == 1, w, r, b, x);
+			return true;
+		}
+		if (rex || r.isExt8bit() || b.isExt8bit() || x.isExt8bit()) rex |= 0x40;
+		if (rex) db(rex);
+		return false;
 	}
 	// return true if rex2 is selected
 	bool rex(const Operand& op1, const Operand& op2 = Operand(), uint64_t type = 0)
 	{
 		if (op1.getNF() | op2.getNF()) XBYAK_THROW_RET(ERR_INVALID_NF, false)
 		if (op1.getZU() | op2.getZU()) XBYAK_THROW_RET(ERR_INVALID_ZU, false)
-		uint8_t rex = 0;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) std::swap(p1, p2);
 		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
@@ -2444,39 +2414,22 @@ private:
 		if (type & T_F3) {
 			db(0xF3);
 		}
-		bool is0F = type & T_0F;
 		if (p2->isMEM()) {
 			const Reg& r = *static_cast<const Reg*>(p1);
 			const Address& addr = p2->getAddress();
-			const RegExp e = addr.getRegExp();
-			const Reg& base = e.getBase();
-			const Reg& idx = e.getIndex();
+			const RegExp& e = addr.getRegExp();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
-			rex = rexRXB(3, r.isREG(64), r, base, idx);
-			if (r.hasRex2() || addr.hasRex2()) {
-				if (type & (T_0F38|T_0F3A)) XBYAK_THROW_RET(ERR_CANT_USE_REX2, false)
-				rex2(is0F, rex, r, base, idx);
-				return true;
-			}
-			if (rex || r.isExt8bit()) rex |= 0x40;
+			return setRex(r.isREG(64), r, e.getBase(), e.getIndex(), type);
 		} else {
 			const Reg& r1 = static_cast<const Reg&>(op1);
 			const Reg& r2 = static_cast<const Reg&>(op2);
 			// ModRM(reg, base);
-			rex = rexRXB(3, r1.isREG(64) || r2.isREG(64), r2, r1);
-			if (r1.hasRex2() || r2.hasRex2()) {
-				if (type & (T_0F38|T_0F3A)) XBYAK_THROW_RET(ERR_CANT_USE_REX2, 0)
-				rex2(is0F, rex, r2, r1);
-				return true;
-			}
-			if (rex || r1.isExt8bit() || r2.isExt8bit()) rex |= 0x40;
+			return setRex(r1.isREG(64) || r2.isREG(64), r2, r1, Reg(), type);
 		}
-		if (rex) db(rex);
-		return false;
 	}
 	// @@@begin of avx_type_def.h
 	static const uint64_t T_NONE = 0ull;
-		// low 3 bit
+	// N field (bit0-2) : disp8N = 1 << (value - 1), T_DUP is a sentinel
 	static const uint64_t T_N1 = 1ull;
 	static const uint64_t T_N2 = 2ull;
 	static const uint64_t T_N4 = 3ull;
@@ -2484,54 +2437,57 @@ private:
 	static const uint64_t T_N16 = 5ull;
 	static const uint64_t T_N32 = 6ull;
 	static const uint64_t T_NX_MASK = 7ull;
-	static const uint64_t T_DUP = T_NX_MASK;//1 << 4, // N = (8, 32, 64)
+	static const uint64_t T_DUP = T_NX_MASK; // N = (8, 32, 64)
 	static const uint64_t T_N_VL = 1ull << 3; // N * (1, 2, 4) for VL
 	static const uint64_t T_APX = 1ull << 4;
+	// pp : one bit each (not a 2-bit field) because rex() emits 0x66 and 0xF2/0xF3 independently (e.g. crc32 uses T_66|T_F2)
 	static const uint64_t T_66 = 1ull << 5; // pp = 1
 	static const uint64_t T_F3 = 1ull << 6; // pp = 2
-	static const uint64_t T_ER_R = 1ull << 7; // reg{er}
+	static const uint64_t T_F2 = 1ull << 7; // pp = 3
+	// map field (bit8-10) : the value is the same as the EVEX mmm field
 	static const uint64_t T_0F = 1ull << 8;
-	static const uint64_t T_0F38 = 1ull << 9;
-	static const uint64_t T_0F3A = 1ull << 10;
-	static const uint64_t T_MAP5 = 1ull << 11;
-	static const uint64_t T_L1 = 1ull << 12;
-	static const uint64_t T_W0 = 1ull << 13; // T_EW0 = T_W0
-	static const uint64_t T_W1 = 1ull << 14; // for VEX
+	static const uint64_t T_0F38 = 2ull << 8;
+	static const uint64_t T_0F3A = 3ull << 8;
+	static const uint64_t T_MAP5 = 5ull << 8;
+	static const uint64_t T_MAP6 = 6ull << 8;
+	static const uint64_t T_MAP_MASK = 7ull << 8;
+	// er/sae field (bit11-13) : an insn has at most one of these
+	static const uint64_t T_ER_X = 1ull << 11; // xmm{er}
+	static const uint64_t T_ER_Y = 2ull << 11; // ymm{er}
+	static const uint64_t T_ER_Z = 3ull << 11; // zmm{er}
+	static const uint64_t T_ER_R = 4ull << 11; // reg{er}
+	static const uint64_t T_SAE_X = 5ull << 11; // xmm{sae}
+	static const uint64_t T_SAE_Y = 6ull << 11; // ymm{sae}
+	static const uint64_t T_SAE_Z = 7ull << 11; // zmm{sae}
+	static const uint64_t T_ER_SAE_MASK = 7ull << 11;
+	static const uint64_t T_W0 = 1ull << 14; // T_EW0 = T_W0
+	static const uint64_t T_W1 = 1ull << 15; // for VEX
 	static const uint64_t T_EW1 = 1ull << 16; // for EVEX
-	static const uint64_t T_YMM = 1ull << 17; // support YMM, ZMM
-	static const uint64_t T_EVEX = 1ull << 18;
-	static const uint64_t T_ER_X = 1ull << 19; // xmm{er}
-	static const uint64_t T_ER_Y = 1ull << 20; // ymm{er}
-	static const uint64_t T_ER_Z = 1ull << 21; // zmm{er}
-	static const uint64_t T_SAE_X = 1ull << 22; // xmm{sae}
-	static const uint64_t T_SAE_Y = 1ull << 23; // ymm{sae}
-	static const uint64_t T_SAE_Z = 1ull << 24; // zmm{sae}
-	static const uint64_t T_MUST_EVEX = 1ull << 25; // contains T_EVEX
-	static const uint64_t T_B32 = 1ull << 26; // m32bcst
-	static const uint64_t T_B64 = 1ull << 27; // m64bcst
-	static const uint64_t T_B16 = T_B32 | T_B64; // m16bcst (Be careful)
-	static const uint64_t T_M_K = 1ull << 28; // mem{k}
-	static const uint64_t T_VSIB = 1ull << 29;
-	static const uint64_t T_MEM_EVEX = 1ull << 30; // use evex if mem
-	static const uint64_t T_MAP6 = 1ull << 31;
-	static const uint64_t T_NF = 1ull << 32; // T_nf
-	static const uint64_t T_CODE1_IF1 = 1ull << 33; // code|=1 if !r.isBit(8)
-
-	static const uint64_t T_ND1 = 1ull << 35; // ND=1
-	static const uint64_t T_ZU = 1ull << 36; // ND=ZU
-	static const uint64_t T_F2 = 1ull << 37; // pp = 3
-	static const uint64_t T_SENTRY = (1ull << 38)-1; // attribute(>=T_SENTRY) is for error check
-	static const uint64_t T_ALLOW_DIFF_SIZE = 1ull << 38; // allow difference reg size
-	static const uint64_t T_ALLOW_ABCDH = 1ull << 39; // allow [abcd]h reg
+	static const uint64_t T_L1 = 1ull << 17;
+	static const uint64_t T_YMM = 1ull << 18; // support YMM, ZMM
+	// evex field (bit19-20) : which encodings the insn has
+	static const uint64_t T_EVEX = 1ull << 19; // both VEX and EVEX
+	static const uint64_t T_MUST_EVEX = 2ull << 19; // EVEX only
+	static const uint64_t T_EVEX_IF_MEM = 3ull << 19; // both, but the mem operand form exists only in EVEX
+	static const uint64_t T_EVEX_MASK = 3ull << 19;
+	// broadcast field (bit21-22)
+	static const uint64_t T_B32 = 1ull << 21; // m32bcst
+	static const uint64_t T_B64 = 2ull << 21; // m64bcst
+	static const uint64_t T_B16 = T_B32 | T_B64; // m16bcst
+	static const uint64_t T_M_K = 1ull << 23; // mem{k}
+	static const uint64_t T_VSIB = 1ull << 24;
+	static const uint64_t T_NF = 1ull << 25; // T_nf
+	static const uint64_t T_OP_W1 = 1ull << 26; // opcode bit0 is the w (operand-size) bit; code|=1 unless the operand is 8-bit
+	static const uint64_t T_OP_W0 = 1ull << 27; // the opcode has no w bit; suppress the default code|=1 of writeCode() (lds/les)
+	static const uint64_t T_ND1 = 1ull << 28; // ND=1
+	static const uint64_t T_ZU = 1ull << 29; // ND=ZU
+	static const uint64_t T_SENTRY = (1ull << 30)-1; // attribute(>=T_SENTRY) is for error check
+	static const uint64_t T_ALLOW_DIFF_SIZE = 1ull << 30; // allow difference reg size
+	static const uint64_t T_ALLOW_ABCDH = 1ull << 31; // allow [abcd]h reg
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
 	// @@@end of avx_type_def.h
-	static inline uint32_t getMap(uint64_t type)
-	{
-		if (type & T_MAP6) return 6;
-		if (type & T_MAP5) return 5;
-		return (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0;
-	}
+	static inline uint32_t getMap(uint64_t type) { return uint32_t((type & T_MAP_MASK) >> 8); }
 	void vex(const Reg& reg, const Reg& base, const Operand *v, uint64_t type, int code, bool x = false)
 	{
 		int w = (type & T_W1) ? 1 : 0;
@@ -2542,7 +2498,7 @@ private:
 		if ((idx | reg.getIdx() | base.getIdx()) >= 16) XBYAK_THROW(ERR_BAD_COMBINATION)
 		uint32_t pp = getPP(type);
 		uint32_t vvvv = (((~idx) & 15) << 3) | (is256 ? 4 : 0) | pp;
-		if (!b && !x && !w && (type & T_0F)) {
+		if (!b && !x && !w && getMap(type) == 1) {
 			db(0xC5); db((r ? 0 : 0x80) | vvvv);
 		} else {
 			uint32_t mmmm = getMap(type);
@@ -2552,13 +2508,15 @@ private:
 	}
 	void verifySAE(const Reg& r, uint64_t type) const
 	{
-		if (((type & T_SAE_X) && r.isXMM()) || ((type & T_SAE_Y) && r.isYMM()) || ((type & T_SAE_Z) && r.isZMM())) return;
+		uint64_t v = type & T_ER_SAE_MASK;
+		if ((v == T_SAE_X && r.isXMM()) || (v == T_SAE_Y && r.isYMM()) || (v == T_SAE_Z && r.isZMM())) return;
 		XBYAK_THROW(ERR_SAE_IS_INVALID)
 	}
 	void verifyER(const Reg& r, uint64_t type) const
 	{
-		if ((type & T_ER_R) && r.isREG(32|64)) return;
-		if (((type & T_ER_X) && r.isXMM()) || ((type & T_ER_Y) && r.isYMM()) || ((type & T_ER_Z) && r.isZMM())) return;
+		uint64_t v = type & T_ER_SAE_MASK;
+		if (v == T_ER_R && r.isREG(32|64)) return;
+		if ((v == T_ER_X && r.isXMM()) || (v == T_ER_Y && r.isYMM()) || (v == T_ER_Z && r.isZMM())) return;
 		XBYAK_THROW(ERR_ER_IS_INVALID)
 	}
 	// (a, b, c) contains non zero two or three values then err
@@ -2568,9 +2526,17 @@ private:
 		if ((a > 0 && a != v) + (b > 0 && b != v) + (c > 0 && c != v) > 0) XBYAK_THROW_RET(err, 0)
 		return v;
 	}
-	int evex(const Reg& reg, const Reg& base, const Operand *v, uint64_t type, int code, const Reg *x = 0, bool b = false, int aaa = 0, uint32_t VL = 0, bool Hi16Vidx = false)
+	int evex(const Reg& reg, const Reg& base, const Operand *v, uint64_t type, int code, const Address *addr = 0)
 	{
-		if (!(type & (T_EVEX | T_MUST_EVEX))) XBYAK_THROW_RET(ERR_EVEX_IS_INVALID, 0)
+		const Reg *x = addr ? &addr->getRegExp().getIndex() : 0;
+		int aaa = addr ? addr->getOpmaskIdx() : 0;
+		if (aaa && !(type & T_M_K)) XBYAK_THROW_RET(ERR_INVALID_OPMASK_WITH_MEMORY, 0)
+		bool b = false;
+		if (addr && addr->isBroadcast()) {
+			if (!(type & (T_B32 | T_B64))) XBYAK_THROW_RET(ERR_INVALID_BROADCAST, 0)
+			b = true;
+		}
+		if (!(type & T_EVEX_MASK)) XBYAK_THROW_RET(ERR_EVEX_IS_INVALID, 0)
 		int w = (type & T_EW1) ? 1 : 0;
 		uint32_t mmm = getMap(type);
 		uint32_t pp = getPP(type);
@@ -2594,6 +2560,7 @@ private:
 			}
 			b = true;
 		} else {
+			uint32_t VL = (x && x->isSIMD()) ? x->getBit() : 0; // vsib
 			if (v) VL = (std::max)(VL, v->getBit());
 			VL = (std::max)((std::max)(reg.getBit(), base.getBit()), VL);
 			LL = (VL >= 512 /* tmm */) ? 2 : (VL == 256) ? 1 : 0;
@@ -2612,7 +2579,7 @@ private:
 				}
 			}
 		}
-		bool V4 = ((v ? v->isExtIdx2() : 0) || Hi16Vidx);
+		bool V4 = (v && v->isExtIdx2()) || (x && x->isSIMD() && x->isExtIdx2());
 		bool z = reg.hasZero() || base.hasZero() || (v ? v->hasZero() : false);
 		if (aaa == 0) aaa = verifyDuplicate(base.getOpmaskIdx(), reg.getOpmaskIdx(), (v ? v->getOpmaskIdx() : 0), ERR_OPMASK_IS_ALREADY_SET);
 		if (aaa == 0) z = 0; // clear T_z if mask is not set
@@ -2727,18 +2694,19 @@ private:
 		}
 	}
 	LabelManager labelMgr_;
+	// r is used only to determine the w bit (code|=1 unless r is 8-bit).
+	// opROO passes d here, which is often Reg() (bit=0), assuming that !r.isBit(8) is true then.
 	void writeCode(uint64_t type, const Reg& r, int code, bool rex2 = false)
 	{
 		if (!(type&T_APX || rex2)) {
-			if (type & T_0F) {
-				db(0x0F);
-			} else if (type & T_0F38) {
-				db(0x0F); db(0x38);
-			} else if (type & T_0F3A) {
-				db(0x0F); db(0x3A);
+			switch (getMap(type)) {
+			case 1: db(0x0F); break;
+			case 2: db(0x0F); db(0x38); break;
+			case 3: db(0x0F); db(0x3A); break;
+			default: break;
 			}
 		}
-		db(code | (((type & T_SENTRY) == 0 || (type & T_CODE1_IF1)) && !r.isBit(8)));
+		db(code | (((type & T_SENTRY) == 0 || (type & T_OP_W1)) && !r.isBit(8)));
 	}
 	void opRR(const Reg& r1, const Reg& r2, uint64_t type, int code)
 	{
@@ -2763,12 +2731,7 @@ private:
 	void opLoadSeg(const Address& addr, const Reg& reg, uint64_t type, int code)
 	{
 		if (reg.isBit(8)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
-		if (addr.is64bitDisp()) XBYAK_THROW(ERR_CANT_USE_64BIT_DISP)
-		// can't use opMR
-		rex(addr, reg, type);
-		if (type & T_0F) db(0x0F);
-		db(code);
-		opAddr(addr, reg.getIdx());
+		opMR(addr, reg, type, code);
 	}
 	// for only MPX(bnd*)
 	void opMIB(const Address& addr, const Reg& reg, uint64_t type, int code)
@@ -2862,13 +2825,13 @@ private:
 	void opSSE(const Reg& r, const Operand& op, uint64_t type, int code, bool isValid(const Operand&, const Operand&) = 0, int imm8 = NONE)
 	{
 		if (isValid && !isValid(r, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
-		if (!isValidSSE(r) || !isValidSSE(op)) XBYAK_THROW(ERR_NOT_SUPPORTED)
+		verifySSE(r, op);
 		opRO(r, op, type, code, true, (imm8 != NONE) ? 1 : 0);
 		if (imm8 != NONE) db(imm8);
 	}
 	void opMMX_IMM(const Mmx& mmx, int imm8, int code, int ext)
 	{
-		if (!isValidSSE(mmx)) XBYAK_THROW(ERR_NOT_SUPPORTED)
+		verifySSE(mmx);
 		uint64_t type = T_0F;
 		if (mmx.isXMM()) type |= T_66;
 		opRR(Reg32(ext), mmx, type, code);
@@ -2881,7 +2844,7 @@ private:
 	}
 	void opMovXMM(const Operand& op1, const Operand& op2, uint64_t type, int code)
 	{
-		if (!isValidSSE(op1) || !isValidSSE(op2)) XBYAK_THROW(ERR_NOT_SUPPORTED)
+		verifySSE(op1, op2);
 		if (op1.isXMM() && op2.isMEM()) {
 			opMR(op2.getAddress(), op1.getReg(), type, code);
 		} else if (op1.isMEM() && op2.isXMM()) {
@@ -2893,7 +2856,7 @@ private:
 	// pextr{w,b,d}, extractps
 	void opExt(const Operand& op, const Mmx& mmx, int code, int imm, bool hasMMX2 = false)
 	{
-		if (!isValidSSE(op) || !isValidSSE(mmx)) XBYAK_THROW(ERR_NOT_SUPPORTED)
+		verifySSE(op, mmx);
 		if (hasMMX2 && op.isREG(i32e)) { /* pextrw is special */
 			if (mmx.isXMM()) db(0x66);
 			opRR(op.getReg(), mmx, T_0F, 0xC5); db(imm);
@@ -2911,14 +2874,14 @@ private:
 	// (r, r, m) or (r, m, r)
 	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, uint64_t type, int code, int immSize = 0, int sc = NONE)
 	{
-		if (!(type & T_MUST_EVEX) && !d.isREG() && !(d.hasRex2NFZU() || op1.hasRex2NFZU() || op2.hasRex2NFZU())) return false;
+		if ((type & T_EVEX_MASK) != T_MUST_EVEX && !d.isREG() && !(d.hasRex2NFZU() || op1.hasRex2NFZU() || op2.hasRex2NFZU())) return false;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code |= 2; }
 		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
 		if (p2->isMEM()) {
 			const Reg& r = *static_cast<const Reg*>(p1);
 			Address addr = p2->getAddress();
-			const RegExp e = addr.getRegExp();
+			const RegExp& e = addr.getRegExp();
 			evexLeg(r, e.getBase(), e.getIndex(), d, type, sc);
 			writeCode(type, d, code);
 			addr.immSize = immSize;
@@ -2949,20 +2912,22 @@ private:
 		if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | ext)) return;
 		opRext(op, 8, 0, T_0F, 0x90 | ext);
 	}
+	void opShiftCore(const Operand& op, int ext, const Reg *d, int code, int immSize)
+	{
+		if (d && op.getBit() != 0 && d->getBit() != op.getBit()) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
+		uint64_t type = T_APX|T_OP_W1; if (ext & 8) type |= T_NF; if (d) type |= T_ND1;
+		opRext(op, 0, ext&7, type, code, false, immSize, d);
+	}
 	void opShift(const Operand& op, int imm, int ext, const Reg *d = 0)
 	{
 		if (d == 0) verifyMemHasSize(op);
-		if (d && op.getBit() != 0 && d->getBit() != op.getBit()) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
-		uint64_t type = T_APX|T_CODE1_IF1; if (ext & 8) type |= T_NF; if (d) type |= T_ND1;
-		opRext(op, 0, ext&7, type, (0xC0 | ((imm == 1 ? 1 : 0) << 4)), false, (imm != 1) ? 1 : 0, d);
+		opShiftCore(op, ext, d, (0xC0 | ((imm == 1 ? 1 : 0) << 4)), (imm != 1) ? 1 : 0);
 		if (imm != 1) db(imm);
 	}
 	void opShift(const Operand& op, const Reg8& _cl, int ext, const Reg *d = 0)
 	{
 		if (_cl.getIdx() != Operand::CL) XBYAK_THROW(ERR_BAD_COMBINATION)
-		if (d && op.getBit() != 0 && d->getBit() != op.getBit()) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
-		uint64_t type = T_APX|T_CODE1_IF1; if (ext & 8) type |= T_NF; if (d) type |= T_ND1;
-		opRext(op, 0, ext&7, type, 0xD2, false, 0, d);
+		opShiftCore(op, ext, d, 0xD2, 0);
 	}
 	// condR assumes that op.isREG() is true
 	void opRO(const Reg& r, const Operand& op, uint64_t type, int code, bool condR = true, int immSize = 0)
@@ -2998,47 +2963,44 @@ private:
 			opRO(static_cast<const Reg&>(op2), op1, 0, code, op1.getKind() == op2.getKind());
 		}
 	}
-	bool isInDisp16(uint32_t x) const { return 0xFFFF8000 <= x || x <= 0x7FFF; }
 	// allow add(ax, 0x8000);
 	bool isInDisp16relaxed(uint32_t x) const { uint32_t v = x & 0xffff0000; return v == 0 || v == 0xffff0000; }
+	// size of imm to be encoded for op (8, 16 or 32)
 	uint32_t getImmBit(const Operand& op, uint32_t imm)
 	{
 		verifyMemHasSize(op);
+		if (op.isBit(8)) return 8;
 		uint32_t immBit = inner::IsInDisp8(imm) ? 8 : isInDisp16relaxed(imm) ? 16 : 32;
-		if (op.isBit(8)) immBit = 8;
 		if (op.getBit() < immBit) XBYAK_THROW_RET(ERR_IMM_IS_TOO_BIG, 0)
-		if (op.isBit(32|64) && immBit == 16) immBit = 32; /* don't use MEM16 if 32/64bit mode */
+		if (immBit == 16 && op.isBit(32|64)) immBit = 32; // don't use imm16 for 32/64-bit ops
 		return immBit;
 	}
+	// s bit of the 0x80 group : 0x83 = r/m, imm8 (sign-extended)
+	int getSbit(const Operand& op, uint32_t immBit) const { return (immBit == 8 && !op.isBit(8)) ? 2 : 0; }
 	// (REG|MEM, IMM)
 	void opOI(const Operand& op, uint32_t imm, int code, int ext)
 	{
 		uint32_t immBit = getImmBit(op, imm);
-		if (op.isREG() && op.getIdx() == 0 && (op.getBit() == immBit || (op.isBit(64) && immBit == 32))) { // rax, eax, ax, al
+		if (op.isREG() && op.getIdx() == 0 && immBit == (op.isBit(64) ? 32U : op.getBit())) { // short form for al/ax/eax/rax
 			rex(op);
 			db(code | 4 | (immBit == 8 ? 0 : 1));
 		} else {
-			int tmp = immBit < (std::min)(op.getBit(), 32U) ? 2 : 0;
-			opRext(op, 0, ext, 0, 0x80 | tmp, false, immBit / 8);
+			opRext(op, 0, ext, 0, 0x80 | getSbit(op, immBit), false, immBit / 8);
 		}
 		db(imm, immBit / 8);
 	}
 	// (r, r/m, imm)
-	void opROI(const Reg& d, const Operand& op, uint32_t imm, uint64_t type, int ext)
+	void opROI(const Reg& d, const Operand& op, uint32_t imm, uint64_t type, int ext, int sc = NONE)
 	{
 		uint32_t immBit = getImmBit(d, imm);
-		int code = immBit < (std::min)(d.getBit(), 32U) ? 2 : 0;
-		opROO(d, op, Reg(ext, Operand::REG, d.getBit()), type, 0x80 | code, immBit / 8);
+		opROO(d, op, Reg(ext, Operand::REG, d.getBit()), type, 0x80 | getSbit(d, immBit), immBit / 8, sc);
 		db(imm, immBit / 8);
 	}
 	void opIncDec(const Reg& d, const Operand& op, int ext)
 	{
 #ifdef XBYAK64
 		if (d.isREG()) {
-			int code = d.isBit(8) ? 0xFE : 0xFF;
-			uint64_t type = T_APX|T_NF|T_ND1;
-			if (d.isBit(16)) type |= T_66;
-			opROO(d, op, Reg(ext, Operand::REG, d.getBit()), type, code);
+			opROO(d, op, Reg(ext, Operand::REG, d.getBit()), T_APX|T_NF|T_ND1|T_OP_W1, 0xFE);
 			return;
 		}
 #else
@@ -3055,33 +3017,24 @@ private:
 	}
 	void opPushPop(const Operand& op, int code, int ext, int alt)
 	{
-		if (op.isREG() && op.hasRex2()) {
-			const Reg& r = static_cast<const Reg&>(op);
-			rex2(0, rexRXB(3, 0, Reg(), r), Reg(), r);
-			db(alt | (r.getIdx() & 7));
-			return;
-		}
 		int bit = op.getBit();
-		if (bit == 16 || bit == BIT) {
-			if (bit == 16) db(0x66);
-			if (op.isREG()) {
-				if (op.getReg().getIdx() >= 8) db(0x41);
-				db(alt | (op.getIdx() & 7));
-				return;
-			}
-			if (op.isMEM()) {
-				opMR(op.getAddress(), Reg(ext, Operand::REG, 32), T_ALLOW_DIFF_SIZE, code);
-				return;
-			}
+		if (bit != 16 && bit != BIT) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (bit == 16) db(0x66);
+		if (op.isREG()) {
+			setRex(0, Reg(), op.getReg(), Reg(), 0); // 0x41 or REX2 if necessary
+			db(alt | (op.getIdx() & 7));
+		} else if (op.isMEM()) {
+			opMR(op.getAddress(), Reg(ext, Operand::REG, 32), T_ALLOW_DIFF_SIZE, code);
+		} else {
+			XBYAK_THROW(ERR_BAD_COMBINATION)
 		}
-		XBYAK_THROW(ERR_BAD_COMBINATION)
 	}
 #ifdef XBYAK64
 	// PUSHP/POPP : REX2 is mandatory (carries the W=1 PPX hint),
 	// unlike ordinary push/pop where REX2 is only emitted for R16-31.
 	void opPushPopP(const Reg64& r, int alt)
 	{
-		rex2(0, rexRXB(3, 1, Reg(), r), Reg(), r);
+		rex2(0, 1, Reg(), r);
 		db(alt | (r.getIdx() & 7));
 	}
 #endif
@@ -3164,6 +3117,7 @@ private:
 	}
 	void opVex(const Reg& r, const Operand *p1, const Operand& op2, uint64_t type, int code, int imm8 = NONE)
 	{
+		const bool useEvex = (type & T_EVEX_MASK) == T_MUST_EVEX || r.hasEvex() || (p1 && p1->hasEvex());
 		if (op2.isMEM()) {
 			// zeroing-masking has no meaning when the destination is memory
 			if ((type & T_M_K) && (r.hasZero() || (p1 && p1->hasZero()) || op2.hasZero())) XBYAK_THROW(ERR_INVALID_ZERO)
@@ -3172,27 +3126,17 @@ private:
 			const Reg& base = regExp.getBase();
 			const Reg& index = regExp.getIndex();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
-			int disp8N = 0;
-			if ((type & (T_MUST_EVEX|T_MEM_EVEX)) || r.hasEvex() || (p1 && p1->hasEvex()) || addr.isBroadcast() || addr.getOpmaskIdx() || addr.hasRex2()) {
-				int aaa = addr.getOpmaskIdx();
-				if (aaa && !(type & T_M_K)) XBYAK_THROW(ERR_INVALID_OPMASK_WITH_MEMORY)
-				bool b = false;
-				if (addr.isBroadcast()) {
-					if (!(type & (T_B32 | T_B64))) XBYAK_THROW(ERR_INVALID_BROADCAST)
-					b = true;
-				}
-				int VL = regExp.isVsib() ? index.getBit() : 0;
-				disp8N = evex(r, base, p1, type, code, &index, b, aaa, VL, index.isSIMD() && index.isExtIdx2());
+			if (useEvex || (type & T_EVEX_MASK) == T_EVEX_IF_MEM || addr.isBroadcast() || addr.getOpmaskIdx() || addr.hasRex2()) {
+				addr.disp8N = evex(r, base, p1, type, code, &addr);
 			} else {
 				vex(r, base, p1, type, code, index.isExtIdx());
 			}
 			if (type & T_VSIB) addr.permitVsib = true;
-			if (disp8N) addr.disp8N = disp8N;
 			if (imm8 != NONE) addr.immSize = 1;
 			opAddr(addr, r.getIdx());
 		} else {
 			const Reg& base = op2.getReg();
-			if ((type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex()) || base.hasEvex()) {
+			if (useEvex || base.hasEvex()) {
 				evex(r, base, p1, type, code);
 			} else {
 				vex(r, base, p1, type, code);
@@ -3232,16 +3176,22 @@ private:
 		if (!op3.isMEM() && (x2.getKind() != op3.getKind())) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opVex(k, &x2, op3, type, code, imm8);
 	}
+	void opCvt(const Xmm& x, const Operand& op, uint64_t type, int code)
+	{
+		Operand::Kind kind = x.isXMM() ? (op.isBit(256) ? Operand::YMM : Operand::XMM) : Operand::ZMM;
+		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
+	}
+	// xx_xy_xz (use opCvt1 for xx_xy_yz)
+	void opX_XM(const Operand& op, const Xmm& x, uint64_t type, uint8_t code)
+	{
+		if (!op.isMEM() && !op.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opVex(x, 0, op, type, code);
+	}
 	// (x, x/m), (y, x/m256), (z, y/m)
 	void opCvt1(const Xmm& x, const Operand& op, uint64_t type, int code, int imm8 = NONE)
 	{
 		if (!op.isMEM() && !(x.is(Operand::XMM | Operand::YMM) && op.isXMM()) && !(x.isZMM() && op.isYMM())) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opVex(x, 0, op, type, code, imm8);
-	}
-	void opCvt(const Xmm& x, const Operand& op, uint64_t type, int code)
-	{
-		Operand::Kind kind = x.isXMM() ? (op.isBit(256) ? Operand::YMM : Operand::XMM) : Operand::ZMM;
-		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
 	}
 	// (x, x/m), (x, y/m256), (y, z/m)
 	void opCvt2(const Xmm& x, const Operand& op, uint64_t type, int code)
@@ -3249,6 +3199,8 @@ private:
 		if (!(x.isXMM() && op.is(Operand::XMM | Operand::YMM | Operand::MEM)) && !(x.isYMM() && op.is(Operand::ZMM | Operand::MEM))) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opCvt(x, op, type, code);
 	}
+	// type is or-merged with type64/type32, so a packed field (N, map, er/sae, broadcast) must not have
+	// different non-zero values on both sides (checked by checkTypeMergeable() in the generator)
 	void opCvt3(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, uint64_t type64, uint64_t type32, uint8_t code)
 	{
 		if (!(x1.isXMM() && x2.isXMM() && (op.isREG(i32e) || op.isMEM()))) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
@@ -3257,8 +3209,8 @@ private:
 	// (x, x/y/xword/yword), (y, z/m)
 	void opCvt4(const Xmm& x, const Operand& op, uint64_t type, int code)
 	{
-		if (!(x.isXMM() && op.is(Operand::XMM | Operand::YMM | Operand::MEM) && op.isBit(128|256)) && !(x.isYMM() && op.is(Operand::ZMM | Operand::MEM))) XBYAK_THROW(ERR_BAD_COMBINATION)
-		opCvt(x, op, type, code);
+		if (x.isXMM() && !op.isBit(128|256)) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opCvt2(x, op, type, code);
 	}
 	// (x, x/y/z/xword/yword/zword)
 	void opCvt5(const Xmm& x, const Operand& op, uint64_t type, int code)
@@ -3268,22 +3220,18 @@ private:
 		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
 	}
 	// (x, x, x/m), (x, y, y/m), (y, z, z/m)
-	void opCvt6(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code)
+	// dstXMM = true : dst is fixed XMM regardless of VL : (x, x, x/m), (x, y, y/m), (x, z, z/m)
+	void opCvt6(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code, bool dstXMM = false)
 	{
-		int b1 = x1.getBit();
-		int b2 = x2.getBit();
-		int b3 = op.getBit();
-		if ((b1 == 128 && (b2 == 128 || b2 == 256) && (b2 == b3 || op.isMEM())) || (b1 == 256 && b2 == 512 && (b3 == b2 || op.isMEM()))) {
-			opVex(x1, &x2, op, type, code);
-			return;
-		}
-		XBYAK_THROW(ERR_BAD_COMBINATION);
-	}
-	// (x, x, x/m), (x, y, y/m), (x, z, z/m) : dst is fixed XMM regardless of VL
-	void opCvt7(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code)
-	{
-		if (!(x1.isXMM() && (op.isMEM() || op.getBit() == x2.getBit()))) XBYAK_THROW(ERR_BAD_COMBINATION)
+		uint32_t b2 = x2.getBit();
+		uint32_t dstBit = (!dstXMM && b2 == 512) ? 256 : 128;
+		if (!(x1.getBit() == dstBit && (op.isMEM() || op.getBit() == b2))) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opVex(x1, &x2, op, type, code);
+	}
+	// (r32/r64, x/m) : EVEX.W is set if r is 64-bit
+	void opCvt8(const Reg& r, const Operand& op, uint64_t type, int code)
+	{
+		opVex(r, &xm0, op, type | (r.isREG(64) ? T_EW1 : T_W0), code);
 	}
 	const Xmm& cvtIdx0(const Operand& x) const
 	{
@@ -3355,25 +3303,14 @@ private:
 		if (!(type & T_M_K) && x.getIdx() == regExp.getIndex().getIdx()) XBYAK_THROW(ERR_SAME_REGS_ARE_INVALID);
 		opVex(x, 0, addr, type, code);
 	}
-	/*
-		xx_xy_yz ; mode = true
-		xx_xy_xz ; mode = false
-	*/
-	void opVmov(const Operand& op, const Xmm& x, uint64_t type, uint8_t code, bool mode)
-	{
-		if (mode) {
-			if (!op.isMEM() && !((op.isXMM() && x.isXMM()) || (op.isXMM() && x.isYMM()) || (op.isYMM() && x.isZMM()))) XBYAK_THROW(ERR_BAD_COMBINATION)
-		} else {
-			if (!op.isMEM() && !op.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION)
-		}
-		opVex(x, 0, op, type, code);
-	}
 	void opGatherFetch(const Address& addr, const Xmm& x, uint64_t type, uint8_t code, Operand::Kind kind)
 	{
 		if (addr.hasZero()) XBYAK_THROW(ERR_INVALID_ZERO)
 		if (addr.getRegExp().getIndex().getKind() != kind) XBYAK_THROW(ERR_BAD_VSIB_ADDRESSING)
 		opVex(x, 0, addr, type, code);
 	}
+	// type is or-merged with typeVex/typeEvex, so a packed field (N, map, er/sae, broadcast) must not have
+	// different non-zero values on both sides (checked by checkTypeMergeable() in the generator)
 	void opEncoding(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code, PreferredEncoding enc, int imm = NONE, uint64_t typeVex = 0, uint64_t typeEvex = 0, int sel = 0)
 	{
 		opAVX_X_X_XM(x1, x2, op, type | orEvexIf(enc, typeVex, typeEvex, sel), code, imm);
@@ -3393,49 +3330,48 @@ private:
 		enc = getEncoding(enc, sel);
 		return ((sel == 0 && enc == VexEncoding) || (sel == 1 && enc != AVX10v2Encoding)) ? typeVex : (T_MUST_EVEX | typeEvex);
 	}
-	void opInOut(const Reg& a, const Reg& d, uint8_t code)
+	void opInOut(const Reg& a, uint8_t code)
 	{
-		if (a.getIdx() == Operand::AL && d.getIdx() == Operand::DX && d.getBit() == 16) {
-			switch (a.getBit()) {
-			case 8: db(code); return;
-			case 16: db(0x66); db(code + 1); return;
-			case 32: db(code + 1); return;
-			}
+		switch (a.getBit()) {
+		case 8: db(code); return;
+		case 16: db(0x66); db(code + 1); return;
+		case 32: db(code + 1); return;
 		}
 		XBYAK_THROW(ERR_BAD_COMBINATION)
+	}
+	void opInOut(const Reg& a, const Reg& d, uint8_t code)
+	{
+		if (!(a.getIdx() == Operand::AL && d.getIdx() == Operand::DX && d.getBit() == 16)) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opInOut(a, code);
 	}
 	void opInOut(const Reg& a, uint8_t code, uint8_t v)
 	{
-		if (a.getIdx() == Operand::AL) {
-			switch (a.getBit()) {
-			case 8: db(code); db(v); return;
-			case 16: db(0x66); db(code + 1); db(v); return;
-			case 32: db(code + 1); db(v); return;
-			}
-		}
-		XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (a.getIdx() != Operand::AL) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opInOut(a, code);
+		db(v);
+	}
+	void verifyDfv(int dfv) const
+	{
+		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
 	}
 	void opCcmp(const Operand& op1, const Operand& op2, int dfv, int code, int sc) // cmp = 0x38, test = 0x84
 	{
-		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
-		opROO(Reg(15 - dfv, Operand::REG, (op1.getBit() | op2.getBit())), op1, op2, T_APX|T_CODE1_IF1, code, 0, sc);
+		verifyDfv(dfv);
+		opROO(Reg(15 - dfv, Operand::REG, (op1.getBit() | op2.getBit())), op1, op2, T_APX|T_OP_W1, code, 0, sc);
 	}
 	void opCcmpi(const Operand& op, int imm, int dfv, int sc)
 	{
-		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
-		uint32_t immBit = getImmBit(op, imm);
-		uint32_t opBit = op.getBit();
-		int tmp = immBit < (std::min)(opBit, 32U) ? 2 : 0;
-		opROO(Reg(15 - dfv, Operand::REG, opBit), op, Reg(15, Operand::REG, opBit), T_APX|T_CODE1_IF1, 0x80 | tmp, immBit / 8, sc);
-		db(imm, immBit / 8);
+		verifyDfv(dfv);
+		verifyMemHasSize(op);
+		opROI(Reg(15 - dfv, Operand::REG, op.getBit()), op, imm, T_APX|T_OP_W1, 15, sc);
 	}
 	void opTesti(const Operand& op, int imm, int dfv, int sc)
 	{
-		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
+		verifyDfv(dfv);
 		uint32_t opBit = op.getBit();
 		if (opBit == 0) XBYAK_THROW(ERR_MEM_SIZE_IS_NOT_SPECIFIED);
 		int immBit = (std::min)(opBit, 32U);
-		opROO(Reg(15 - dfv, Operand::REG, opBit), op, Reg(0, Operand::REG, opBit), T_APX|T_CODE1_IF1, 0xF6, immBit / 8, sc);
+		opROO(Reg(15 - dfv, Operand::REG, opBit), op, Reg(0, Operand::REG, opBit), T_APX|T_OP_W1, 0xF6, immBit / 8, sc);
 		db(imm, immBit / 8);
 	}
 	void opCfcmov(const Reg& d, const Operand& op1, const Operand& op2, int code)
@@ -3458,7 +3394,7 @@ private:
 		Address addr2 = addr.cloneNoOptimize();
 		// require both base and index for all but opcode 0x49 (ldtilecfg/sttilecfg)
 		if (code != 0x49) {
-			const RegExp exp = addr2.getRegExp();
+			const RegExp& exp = addr2.getRegExp();
 			if (exp.getBase().getBit() == 0 || exp.getIndex().getBit() == 0) XBYAK_THROW(ERR_NOT_SUPPORTED)
 		}
 		if (opROO(Reg(), addr2, t1, T_APX|type, code)) return;
@@ -3488,22 +3424,6 @@ private:
 		if (code == 0x93) { std::swap(p1, p2); }
 		if (opROO(Reg(), *p2, *p1, T_APX|type, code)) return;
 		opVex(static_cast<const Reg&>(*p1), 0, *p2, type, code);
-	}
-	void opEncodeKey(const Reg32& r1, const Reg32& r2, uint8_t code1, uint8_t code2)
-	{
-		if (r1.getIdx() < 8 && r2.getIdx() < 8) {
-			db(0xF3); db(0x0F); db(0x38); db(code1); setModRM(3, r1.getIdx(), r2.getIdx());
-			return;
-		}
-		opROO(Reg(), r2, r1, T_MUST_EVEX|T_F3, code2);
-	}
-	void opSSE_APX(const Xmm& x, const Operand& op, uint64_t type1, uint8_t code1, uint64_t type2, uint8_t code2, int imm = NONE)
-	{
-		if (x.getIdx() <= 15 && op.hasRex2() && opROO(Reg(), op, x, type2, code2, imm != NONE ? 1 : 0)) {
-			if (imm != NONE) db(imm);
-			return;
-		}
-		opSSE(x, op, type1, code1, isXMM_XMMorMEM, imm);
 	}
 	// AVX10 zero-extending for vmovd, vmovw
 	void opAVX10ZeroExt(const Operand& op1, const Operand& op2, const uint64_t typeTbl[4], const int codeTbl[4], PreferredEncoding enc, int bit)
