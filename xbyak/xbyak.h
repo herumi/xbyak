@@ -3064,26 +3064,17 @@ private:
 	}
 	void opPushPop(const Operand& op, int code, int ext, int alt)
 	{
-		if (op.isREG() && op.hasRex2()) {
-			const Reg& r = static_cast<const Reg&>(op);
-			rex2(0, 0, Reg(), r);
-			db(alt | (r.getIdx() & 7));
-			return;
-		}
 		int bit = op.getBit();
-		if (bit == 16 || bit == BIT) {
-			if (bit == 16) db(0x66);
-			if (op.isREG()) {
-				if (op.getReg().getIdx() >= 8) db(0x41);
-				db(alt | (op.getIdx() & 7));
-				return;
-			}
-			if (op.isMEM()) {
-				opMR(op.getAddress(), Reg(ext, Operand::REG, 32), T_ALLOW_DIFF_SIZE, code);
-				return;
-			}
+		if (bit != 16 && bit != BIT) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (bit == 16) db(0x66);
+		if (op.isREG()) {
+			setRex(0, Reg(), op.getReg(), Reg(), 0); // 0x41 or REX2 if necessary
+			db(alt | (op.getIdx() & 7));
+		} else if (op.isMEM()) {
+			opMR(op.getAddress(), Reg(ext, Operand::REG, 32), T_ALLOW_DIFF_SIZE, code);
+		} else {
+			XBYAK_THROW(ERR_BAD_COMBINATION)
 		}
-		XBYAK_THROW(ERR_BAD_COMBINATION)
 	}
 #ifdef XBYAK64
 	// PUSHP/POPP : REX2 is mandatory (carries the W=1 PPX hint),
