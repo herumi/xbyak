@@ -294,6 +294,8 @@ def parseMemory(s, broadcast=0):
   return Memory(size, base, index, scale, disp, broadcast)
 
 def normalizeName(s):
+  # and_, or_, not_, etc.
+  s = s.rstrip('_')
   if s == 'sal':
     return 'shl'
   return s
