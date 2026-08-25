@@ -1041,6 +1041,25 @@ CYBOZU_TEST_AUTO(base)
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
 
+// negative tests for the operand guard of push/pop (8/32-bit are invalid in 64-bit mode)
+CYBOZU_TEST_AUTO(push_pop_bad_combination)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			CYBOZU_TEST_EXCEPTION(push(r16b), std::exception);
+			CYBOZU_TEST_EXCEPTION(push(r16d), std::exception);
+			CYBOZU_TEST_EXCEPTION(pop(r20b), std::exception);
+			CYBOZU_TEST_EXCEPTION(pop(r20d), std::exception);
+			// same guard as the classic registers
+			CYBOZU_TEST_EXCEPTION(push(al), std::exception);
+			CYBOZU_TEST_EXCEPTION(push(eax), std::exception);
+			CYBOZU_TEST_EXCEPTION(pop(cl), std::exception);
+			CYBOZU_TEST_EXCEPTION(pop(edx), std::exception);
+		}
+	} c;
+}
+
 CYBOZU_TEST_AUTO(mov_misc)
 {
 	struct Code : Xbyak::CodeGenerator {

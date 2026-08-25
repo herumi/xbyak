@@ -89,6 +89,12 @@ pop(r28);
 pop(r29);
 pop(r30);
 pop(r31);
+push(r24w);
+push(word[r16]);
+push(qword[r24]);
+pop(r20w);
+pop(word[r24]);
+pop(qword[r16]);
 
 movrs(rcx, ptr[rax]);
 movrs(ecx, ptr[rax]);
