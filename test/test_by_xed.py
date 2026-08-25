@@ -395,7 +395,7 @@ def parseNmemonic(s):
     for flag in r.group(2).split(','):
       if flag:
         dfv |= {'of': 8, 'sf': 4, 'zf': 2, 'cf': 1}[flag]
-    attrs.append(Attr(f'dfv={dfv}'))
+    attrs.append(Attr(f'{dfv=}'))
     s = s.replace(r.group(1), '')
 
   s = s.translate(g_replaceChar)
@@ -448,7 +448,7 @@ def parseNmemonic(s):
   if name.startswith('ccmp') or name.startswith('ctest'):
     if not any(a.name.startswith('dfv=') for a in attrs):
       dfv = args.pop() if len(args) == 3 else 0
-      attrs.append(Attr(f'dfv={dfv}'))
+      attrs.append(Attr(f'{dfv=}'))
   # xed shows the opmask of gather/scatter as an operand
   # (e.g. vpgatherdd xmm5, k7, dword ptr [...]), so move it to attrs.
   if 'gather' in name or 'scatter' in name:
