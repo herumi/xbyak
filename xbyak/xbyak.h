@@ -1292,7 +1292,7 @@ public:
 			static const char *tbl[4] = { "bnd0", "bnd1", "bnd2", "bnd3" };
 			return tbl[idx];
 		}
-		XBYAK_THROW_RET(ERR_INTERNAL, 0);
+		XBYAK_THROW_RET(ERR_INTERNAL, "");
 	}
 	bool isEqualIfNotInherited(const Operand& rhs) const { return idx_ == rhs.idx_ && kind_ == rhs.kind_ && bit_ == rhs.bit_ && zero_ == rhs.zero_ && mask_ == rhs.mask_ && rounding_ == rhs.rounding_; }
 	bool operator==(const Operand& rhs) const;
