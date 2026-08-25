@@ -842,7 +842,7 @@ void pmulhw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xE5); }
 void pmulld(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66 | T_0F38, 0x40, isXMM_XMMorMEM); }
 void pmullw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xD5); }
 void pmuludq(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF4); }
-void popcnt(const Reg&reg, const Operand& op) { opCnt(reg, op, 0xB8); }
+void popcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF, 0x88)) return; opCnt(reg, op, 0xB8); }
 void popf() { db(0x9D); }
 void por(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xEB); }
 void prefetchit0(const Address& addr) { opMR(addr, Reg32(7), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }

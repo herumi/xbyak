@@ -995,7 +995,7 @@ void put()
 			uint8_t code;
 			uint8_t code2;
 		} tbl[] = {
-			{ "popcnt", 0xB8, 0 },
+			{ "popcnt", 0xB8, 0x88 },
 			{ "tzcnt", 0xBC, 0xF4 },
 			{ "lzcnt", 0xBD, 0xF5 },
 		};
