@@ -132,7 +132,7 @@ g_replaceCharTbl = '{}();|,'
 g_replaceChar = str.maketrans(g_replaceCharTbl, ' '*len(g_replaceCharTbl))
 g_sizeTbl = ['byte', 'word', 'dword', 'qword', 'xword', 'yword', 'zword']
 g_xedSizeTbl = ['xmmword', 'ymmword', 'zmmword']
-g_attrTbl = ['T_sae', 'T_rn_sae', 'T_rd_sae', 'T_ru_sae', 'T_rz_sae', 'T_z']
+g_attrTbl = ['T_sae', 'T_rn_sae', 'T_rd_sae', 'T_ru_sae', 'T_rz_sae', 'T_z', 'T_nf', 'T_zu']
 g_attrXedTbl = ['sae', 'rne-sae', 'rd-sae', 'ru-sae', 'rz-sae', 'z']
 
 class Attr:
@@ -384,6 +384,10 @@ def parseNmemonic(s):
     idx = int(r.group(1)[-1])
     attrs.append(g_maskTbl[idx-1])
     s = s.replace(r.group(1), '')
+  # xed shows the NF flag as a '{nf}' prefix (e.g. {nf} imul ax, cx, 0x1234)
+  if '{nf}' in s:
+    attrs.append(Attr('T_nf'))
+    s = s.replace('{nf}', '')
 
   s = s.translate(g_replaceChar)
 
@@ -403,6 +407,14 @@ def parseNmemonic(s):
           inMemory = True
 
   name = v[0]
+  # xed fuses the ZU flag into the mnemonic (imulzu, setzub, ...).
+  # Xbyak expresses it as reg|T_zu, so map the xed name back to the plain one.
+  if name == 'imulzu':
+    name = 'imul'
+    attrs.append(Attr('T_zu'))
+  elif name.startswith('setzu'):
+    name = 'set' + name[5:]
+    attrs.append(Attr('T_zu'))
   for e in v[1:]:
     if e.startswith('0x'):
       args.append(int(e, 16))
