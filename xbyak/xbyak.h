@@ -2512,23 +2512,25 @@ private:
 	static const uint64_t T_EW1 = 1ull << 16; // for EVEX
 	static const uint64_t T_L1 = 1ull << 17;
 	static const uint64_t T_YMM = 1ull << 18; // support YMM, ZMM
-	static const uint64_t T_EVEX = 1ull << 19;
-	static const uint64_t T_MUST_EVEX = 1ull << 20; // contains T_EVEX
-	static const uint64_t T_MEM_EVEX = 1ull << 21; // use evex if mem
-	// broadcast field (bit22-23)
-	static const uint64_t T_B32 = 1ull << 22; // m32bcst
-	static const uint64_t T_B64 = 2ull << 22; // m64bcst
+	// evex field (bit19-20) : which encodings the insn has
+	static const uint64_t T_EVEX = 1ull << 19; // both VEX and EVEX
+	static const uint64_t T_MUST_EVEX = 2ull << 19; // EVEX only
+	static const uint64_t T_EVEX_IF_MEM = 3ull << 19; // both, but the mem operand form exists only in EVEX
+	static const uint64_t T_EVEX_MASK = 3ull << 19;
+	// broadcast field (bit21-22)
+	static const uint64_t T_B32 = 1ull << 21; // m32bcst
+	static const uint64_t T_B64 = 2ull << 21; // m64bcst
 	static const uint64_t T_B16 = T_B32 | T_B64; // m16bcst
-	static const uint64_t T_M_K = 1ull << 24; // mem{k}
-	static const uint64_t T_VSIB = 1ull << 25;
-	static const uint64_t T_NF = 1ull << 26; // T_nf
-	static const uint64_t T_CODE1_IF1 = 1ull << 27; // code|=1 if !r.isBit(8)
-	static const uint64_t T_NO_CODE1 = 1ull << 28; // marker to suppress the default code|=1 of writeCode() for a legacy insn whose type has no other bits (lds/les)
-	static const uint64_t T_ND1 = 1ull << 29; // ND=1
-	static const uint64_t T_ZU = 1ull << 30; // ND=ZU
-	static const uint64_t T_SENTRY = (1ull << 31)-1; // attribute(>=T_SENTRY) is for error check
-	static const uint64_t T_ALLOW_DIFF_SIZE = 1ull << 31; // allow difference reg size
-	static const uint64_t T_ALLOW_ABCDH = 1ull << 32; // allow [abcd]h reg
+	static const uint64_t T_M_K = 1ull << 23; // mem{k}
+	static const uint64_t T_VSIB = 1ull << 24;
+	static const uint64_t T_NF = 1ull << 25; // T_nf
+	static const uint64_t T_CODE1_IF1 = 1ull << 26; // code|=1 if !r.isBit(8)
+	static const uint64_t T_NO_CODE1 = 1ull << 27; // marker to suppress the default code|=1 of writeCode() for a legacy insn whose type has no other bits (lds/les)
+	static const uint64_t T_ND1 = 1ull << 28; // ND=1
+	static const uint64_t T_ZU = 1ull << 29; // ND=ZU
+	static const uint64_t T_SENTRY = (1ull << 30)-1; // attribute(>=T_SENTRY) is for error check
+	static const uint64_t T_ALLOW_DIFF_SIZE = 1ull << 30; // allow difference reg size
+	static const uint64_t T_ALLOW_ABCDH = 1ull << 31; // allow [abcd]h reg
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
 	// @@@end of avx_type_def.h
@@ -2581,7 +2583,7 @@ private:
 			if (!(type & (T_B32 | T_B64))) XBYAK_THROW_RET(ERR_INVALID_BROADCAST, 0)
 			b = true;
 		}
-		if (!(type & (T_EVEX | T_MUST_EVEX))) XBYAK_THROW_RET(ERR_EVEX_IS_INVALID, 0)
+		if (!(type & T_EVEX_MASK)) XBYAK_THROW_RET(ERR_EVEX_IS_INVALID, 0)
 		int w = (type & T_EW1) ? 1 : 0;
 		uint32_t mmm = getMap(type);
 		uint32_t pp = getPP(type);
@@ -2919,7 +2921,7 @@ private:
 	// (r, r, m) or (r, m, r)
 	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, uint64_t type, int code, int immSize = 0, int sc = NONE)
 	{
-		if (!(type & T_MUST_EVEX) && !d.isREG() && !(d.hasRex2NFZU() || op1.hasRex2NFZU() || op2.hasRex2NFZU())) return false;
+		if ((type & T_EVEX_MASK) != T_MUST_EVEX && !d.isREG() && !(d.hasRex2NFZU() || op1.hasRex2NFZU() || op2.hasRex2NFZU())) return false;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code |= 2; }
 		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
@@ -3174,7 +3176,7 @@ private:
 	}
 	void opVex(const Reg& r, const Operand *p1, const Operand& op2, uint64_t type, int code, int imm8 = NONE)
 	{
-		const bool useEvex = (type & T_MUST_EVEX) || r.hasEvex() || (p1 && p1->hasEvex());
+		const bool useEvex = (type & T_EVEX_MASK) == T_MUST_EVEX || r.hasEvex() || (p1 && p1->hasEvex());
 		if (op2.isMEM()) {
 			// zeroing-masking has no meaning when the destination is memory
 			if ((type & T_M_K) && (r.hasZero() || (p1 && p1->hasZero()) || op2.hasZero())) XBYAK_THROW(ERR_INVALID_ZERO)
@@ -3183,7 +3185,7 @@ private:
 			const Reg& base = regExp.getBase();
 			const Reg& index = regExp.getIndex();
 			if (BIT == 64 && addr.is32bit()) db(0x67);
-			if (useEvex || (type & T_MEM_EVEX) || addr.isBroadcast() || addr.getOpmaskIdx() || addr.hasRex2()) {
+			if (useEvex || (type & T_EVEX_MASK) == T_EVEX_IF_MEM || addr.isBroadcast() || addr.getOpmaskIdx() || addr.hasRex2()) {
 				addr.disp8N = evex(r, base, p1, type, code, &addr);
 			} else {
 				vex(r, base, p1, type, code, index.isExtIdx());

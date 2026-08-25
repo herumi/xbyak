@@ -36,23 +36,25 @@
 	static const uint64_t T_EW1 = 1ull << 16; // for EVEX
 	static const uint64_t T_L1 = 1ull << 17;
 	static const uint64_t T_YMM = 1ull << 18; // support YMM, ZMM
-	static const uint64_t T_EVEX = 1ull << 19;
-	static const uint64_t T_MUST_EVEX = 1ull << 20; // contains T_EVEX
-	static const uint64_t T_MEM_EVEX = 1ull << 21; // use evex if mem
-	// broadcast field (bit22-23)
-	static const uint64_t T_B32 = 1ull << 22; // m32bcst
-	static const uint64_t T_B64 = 2ull << 22; // m64bcst
+	// evex field (bit19-20) : which encodings the insn has
+	static const uint64_t T_EVEX = 1ull << 19; // both VEX and EVEX
+	static const uint64_t T_MUST_EVEX = 2ull << 19; // EVEX only
+	static const uint64_t T_EVEX_IF_MEM = 3ull << 19; // both, but the mem operand form exists only in EVEX
+	static const uint64_t T_EVEX_MASK = 3ull << 19;
+	// broadcast field (bit21-22)
+	static const uint64_t T_B32 = 1ull << 21; // m32bcst
+	static const uint64_t T_B64 = 2ull << 21; // m64bcst
 	static const uint64_t T_B16 = T_B32 | T_B64; // m16bcst
-	static const uint64_t T_M_K = 1ull << 24; // mem{k}
-	static const uint64_t T_VSIB = 1ull << 25;
-	static const uint64_t T_NF = 1ull << 26; // T_nf
-	static const uint64_t T_CODE1_IF1 = 1ull << 27; // code|=1 if !r.isBit(8)
-	static const uint64_t T_NO_CODE1 = 1ull << 28; // marker to suppress the default code|=1 of writeCode() for a legacy insn whose type has no other bits (lds/les)
-	static const uint64_t T_ND1 = 1ull << 29; // ND=1
-	static const uint64_t T_ZU = 1ull << 30; // ND=ZU
-	static const uint64_t T_SENTRY = (1ull << 31)-1; // attribute(>=T_SENTRY) is for error check
-	static const uint64_t T_ALLOW_DIFF_SIZE = 1ull << 31; // allow difference reg size
-	static const uint64_t T_ALLOW_ABCDH = 1ull << 32; // allow [abcd]h reg
+	static const uint64_t T_M_K = 1ull << 23; // mem{k}
+	static const uint64_t T_VSIB = 1ull << 24;
+	static const uint64_t T_NF = 1ull << 25; // T_nf
+	static const uint64_t T_CODE1_IF1 = 1ull << 26; // code|=1 if !r.isBit(8)
+	static const uint64_t T_NO_CODE1 = 1ull << 27; // marker to suppress the default code|=1 of writeCode() for a legacy insn whose type has no other bits (lds/les)
+	static const uint64_t T_ND1 = 1ull << 28; // ND=1
+	static const uint64_t T_ZU = 1ull << 29; // ND=ZU
+	static const uint64_t T_SENTRY = (1ull << 30)-1; // attribute(>=T_SENTRY) is for error check
+	static const uint64_t T_ALLOW_DIFF_SIZE = 1ull << 30; // allow difference reg size
+	static const uint64_t T_ALLOW_ABCDH = 1ull << 31; // allow [abcd]h reg
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
 	// @@@end of avx_type_def.h

@@ -34,7 +34,9 @@ std::string type2String(uint64_t type)
 	if (type & T_W1) str += "|T_W1";
 	if (type & T_EW1) str += "|T_EW1";
 	if (type & T_YMM) str += "|T_YMM";
-	if (type & T_EVEX) str += "|T_EVEX";
+	const uint64_t evex = type & T_EVEX_MASK;
+	if (evex == T_EVEX) str += "|T_EVEX";
+	if (evex == T_EVEX_IF_MEM) str += "|T_EVEX_IF_MEM";
 	const uint64_t erSae = type & T_ER_SAE_MASK;
 	if (erSae == T_ER_X) str += "|T_ER_X";
 	if (erSae == T_ER_Y) str += "|T_ER_Y";
@@ -43,7 +45,7 @@ std::string type2String(uint64_t type)
 	if (erSae == T_SAE_X) str += "|T_SAE_X";
 	if (erSae == T_SAE_Y) str += "|T_SAE_Y";
 	if (erSae == T_SAE_Z) str += "|T_SAE_Z";
-	if (type & T_MUST_EVEX) str += "|T_MUST_EVEX";
+	if (evex == T_MUST_EVEX) str += "|T_MUST_EVEX";
 
 	switch (type & T_B16) { // T_B16 = T_B32 | T_B64
 	case T_B16: str += "|T_B16"; break;
@@ -53,7 +55,6 @@ std::string type2String(uint64_t type)
 	}
 	if (type & T_M_K) str += "|T_M_K";
 	if (type & T_VSIB) str += "|T_VSIB";
-	if (type & T_MEM_EVEX) str += "|T_MEM_EVEX";
 	if (type & T_NF) str += "|T_NF";
 	if (type & T_CODE1_IF1) str += "|T_CODE1_IF1";
 	if (type & T_NO_CODE1) str += "|T_NO_CODE1";
@@ -72,7 +73,7 @@ std::string type2String(uint64_t type)
 */
 void checkTypeMergeable(uint64_t a, uint64_t b, const char *name)
 {
-	static const uint64_t maskTbl[] = { T_NX_MASK, T_MAP_MASK, T_ER_SAE_MASK, T_B16 };
+	static const uint64_t maskTbl[] = { T_NX_MASK, T_MAP_MASK, T_ER_SAE_MASK, T_EVEX_MASK, T_B16 };
 	for (size_t i = 0; i < sizeof(maskTbl) / sizeof(maskTbl[0]); i++) {
 		uint64_t x = a & maskTbl[i];
 		uint64_t y = b & maskTbl[i];
