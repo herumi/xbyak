@@ -2910,7 +2910,8 @@ private:
 	}
 	void opSetCC(const Operand& op, int ext)
 	{
-		if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | ext)) return;
+		// EVEX (opcode 0x40|ext) is required only for ZU; a plain EGPR is encodable with the shorter REX2
+		if (op.getZU() && opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | ext)) return;
 		opRext(op, 8, 0, T_0F, 0x90 | ext);
 	}
 	void opShiftCore(const Operand& op, int ext, const Reg *d, int code, int immSize)

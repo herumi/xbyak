@@ -682,10 +682,14 @@ CYBOZU_TEST_AUTO(egpr_rex2)
 			rol(r20b, 2);
 			rcl(r16, 1);
 			ror(r16, cl);
+			setz(r16b);
+			seta(r31b);
+			setb(byte [r20+r30*2+8]);
 			neg(rax|T_nf);
 			shl(rax|T_nf, 3);
 			neg(rcx, rax);
 			shl(rcx, rax, 3);
+			setb(r31b|T_zu);
 		}
 	} c;
 	const uint8_t tbl[] = {
@@ -723,6 +727,12 @@ CYBOZU_TEST_AUTO(egpr_rex2)
 		0xd5, 0x18, 0xd1, 0xd0,
 		// ror r16, cl
 		0xd5, 0x18, 0xd3, 0xc8,
+		// setz r16b
+		0xd5, 0x90, 0x94, 0xc0,
+		// seta r31b
+		0xd5, 0x91, 0x97, 0xc7,
+		// setb byte [r20+r30*2+8]
+		0xd5, 0xb2, 0x92, 0x44, 0x74, 0x08,
 		// {nf} neg rax
 		0x62, 0xf4, 0xfc, 0x0c, 0xf7, 0xd8,
 		// {nf} shl rax, 3
@@ -731,6 +741,8 @@ CYBOZU_TEST_AUTO(egpr_rex2)
 		0x62, 0xf4, 0xf4, 0x18, 0xf7, 0xd8,
 		// shl rcx, rax, 3
 		0x62, 0xf4, 0xf4, 0x18, 0xc1, 0xe0, 0x03,
+		// {zu} setb r31b
+		0x62, 0xdc, 0x7f, 0x18, 0x42, 0xc7,
 	};
 	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
 	CYBOZU_TEST_EQUAL(c.getSize(), n);
