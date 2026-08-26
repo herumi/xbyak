@@ -245,7 +245,7 @@ void putMemOp(const char *name, const char *type, uint8_t ext, uint8_t code, int
 
 void putLoadSeg(const char *name, uint64_t type, uint8_t code)
 {
-	printf("void %s(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, %s|T_ALLOW_DIFF_SIZE, 0x%02X); }\n", name, type ? "T_0F" : "T_OP_W0", code);
+	printf("void %s(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, %sT_ALLOW_DIFF_SIZE, 0x%02X); }\n", name, type ? "T_0F|" : "", code);
 }
 
 void put()
@@ -838,12 +838,12 @@ void put()
 			bool support3op;
 			uint64_t type;
 		} tbl[] = {
-			{ 0x10, 2, "adc", true, T_NONE },
+			{ 0x10, 2, "adc", true, T_OP_W1 },
 			{ 0x00, 0, "add", true, T_NF | T_OP_W1 },
 			{ 0x20, 4, "and_", true, T_NF | T_OP_W1 },
 			{ 0x38, 7, "cmp", false, T_NONE },
 			{ 0x08, 1, "or_", true, T_NF | T_OP_W1 },
-			{ 0x18, 3, "sbb", true, T_NONE },
+			{ 0x18, 3, "sbb", true, T_OP_W1 },
 			{ 0x28, 5, "sub", true, T_NF | T_OP_W1 },
 			{ 0x30, 6, "xor_", true, T_NF | T_OP_W1 },
 		};

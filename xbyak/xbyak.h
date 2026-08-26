@@ -2478,12 +2478,10 @@ private:
 	static const uint64_t T_VSIB = 1ull << 24;
 	static const uint64_t T_NF = 1ull << 25; // T_nf
 	static const uint64_t T_OP_W1 = 1ull << 26; // opcode bit0 is the w (operand-size) bit; code|=1 unless the operand is 8-bit
-	static const uint64_t T_OP_W0 = 1ull << 27; // the opcode has no w bit; suppress the default code|=1 of writeCode() (lds/les)
-	static const uint64_t T_ND1 = 1ull << 28; // ND=1
-	static const uint64_t T_ZU = 1ull << 29; // ND=ZU
-	static const uint64_t T_SENTRY = (1ull << 30)-1; // attribute(>=T_SENTRY) is for error check
-	static const uint64_t T_ALLOW_DIFF_SIZE = 1ull << 30; // allow difference reg size
-	static const uint64_t T_ALLOW_ABCDH = 1ull << 31; // allow [abcd]h reg
+	static const uint64_t T_ND1 = 1ull << 27; // ND=1
+	static const uint64_t T_ZU = 1ull << 28; // ND=ZU
+	static const uint64_t T_ALLOW_DIFF_SIZE = 1ull << 29; // allow difference reg size
+	static const uint64_t T_ALLOW_ABCDH = 1ull << 30; // allow [abcd]h reg
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
 	// @@@end of avx_type_def.h
@@ -2706,7 +2704,7 @@ private:
 			default: break;
 			}
 		}
-		db(code | (((type & T_SENTRY) == 0 || (type & T_OP_W1)) && !r.isBit(8)));
+		db(code | (((type & T_OP_W1) != 0) && !r.isBit(8)));
 	}
 	void opRR(const Reg& r1, const Reg& r2, uint64_t type, int code)
 	{
@@ -2960,9 +2958,9 @@ private:
 	{
 		if (op2.isMEM()) {
 			if (!op1.isREG()) XBYAK_THROW(ERR_BAD_COMBINATION)
-			opMR(op2.getAddress(), op1.getReg(), 0, code | 2);
+			opMR(op2.getAddress(), op1.getReg(), T_OP_W1, code | 2);
 		} else {
-			opRO(static_cast<const Reg&>(op2), op1, 0, code, op1.getKind() == op2.getKind());
+			opRO(static_cast<const Reg&>(op2), op1, T_OP_W1, code, op1.getKind() == op2.getKind());
 		}
 	}
 	// allow add(ax, 0x8000);
@@ -2987,7 +2985,7 @@ private:
 			rex(op);
 			db(code | 4 | (immBit == 8 ? 0 : 1));
 		} else {
-			opRext(op, 0, ext, 0, 0x80 | getSbit(op, immBit), false, immBit / 8);
+			opRext(op, 0, ext, T_OP_W1, 0x80 | getSbit(op, immBit), false, immBit / 8);
 		}
 		db(imm, immBit / 8);
 	}
@@ -3015,7 +3013,7 @@ private:
 			return;
 		}
 #endif
-		opRext(op, op.getBit(), ext, 0, 0xFE);
+		opRext(op, op.getBit(), ext, T_OP_W1, 0xFE);
 	}
 	void opPushPop(const Operand& op, int code, int ext, int alt)
 	{
@@ -3508,7 +3506,7 @@ public:
 
 	void test(const Operand& op, const Reg& reg)
 	{
-		opRO(reg, op, 0, 0x84, op.getKind() == reg.getKind());
+		opRO(reg, op, T_OP_W1, 0x84, op.getKind() == reg.getKind());
 	}
 	void test(const Operand& op, uint32_t imm)
 	{
@@ -3518,7 +3516,7 @@ public:
 			rex(op);
 			db(0xA8 | (op.isBit(8) ? 0 : 1));
 		} else {
-			opRext(op, 0, 0, 0, 0xF6, false, immSize);
+			opRext(op, 0, 0, T_OP_W1, 0xF6, false, immSize);
 		}
 		db(imm, immSize);
 	}
@@ -3612,7 +3610,7 @@ public:
 				if (!inner::IsInInt32(imm)) XBYAK_THROW(ERR_IMM_IS_TOO_BIG)
 				immSize = 4;
 			}
-			opMR(op.getAddress(immSize), Reg(0, Operand::REG, op.getBit()), 0, 0xC6);
+			opMR(op.getAddress(immSize), Reg(0, Operand::REG, op.getBit()), T_OP_W1, 0xC6);
 			db(static_cast<uint32_t>(imm), immSize);
 		} else {
 			XBYAK_THROW(ERR_BAD_COMBINATION)

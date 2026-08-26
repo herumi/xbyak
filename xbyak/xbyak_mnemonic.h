@@ -3,8 +3,8 @@ void aadd(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38, 0x0F
 void aand(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38|T_66, 0x0FC, T_APX|T_66); }
 void adc(const Operand& op, uint32_t imm) { opOI(op, imm, 0x10, 2); }
 void adc(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x10); }
-void adc(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_NONE, 2); }
-void adc(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, T_NONE, 0x10); }
+void adc(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_OP_W1, 2); }
+void adc(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, T_OP_W1, 0x10); }
 void adcx(const Reg32e& d, const Reg32e& reg, const Operand& op) { opROO(d, op, reg, T_66, 0x66); }
 void adcx(const Reg32e& reg, const Operand& op) { if (!reg.isREG(16|i32e) && reg.getBit() == op.getBit()) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER) if (opROO(Reg(), op, reg, T_66, 0x66)) return; opRO(reg, op, T_66 | T_0F38, 0xF6); }
 void add(const Operand& op, uint32_t imm) { opOI(op, imm, 0x00, 0); }
@@ -949,8 +949,8 @@ void sar(const Reg& d, const Operand& op, int imm) { opShift(op, imm, 15, &d); }
 void sarx(const Reg32e& r1, const Operand& op, const Reg32e& r2) { opRRO(r1, r2, op, T_APX|T_F3|T_0F38, 0xf7); }
 void sbb(const Operand& op, uint32_t imm) { opOI(op, imm, 0x18, 3); }
 void sbb(const Operand& op1, const Operand& op2) { opRO_MR(op1, op2, 0x18); }
-void sbb(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_NONE, 3); }
-void sbb(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, T_NONE, 0x18); }
+void sbb(const Reg& d, const Operand& op, uint32_t imm) { opROI(d, op, imm, T_OP_W1, 3); }
+void sbb(const Reg& d, const Operand& op1, const Operand& op2) { opROO(d, op1, op2, T_OP_W1, 0x18); }
 void scasb() { db(0xAE); }
 void scasd() { db(0xAF); }
 void scasw() { db(0x66); db(0xAF); }
@@ -1965,8 +1965,8 @@ void pusha() { db(0x60); }
 void pushad() { db(0x60); }
 void pushfd() { db(0x9C); }
 void popa() { db(0x61); }
-void lds(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_OP_W0|T_ALLOW_DIFF_SIZE, 0xC5); }
-void les(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_OP_W0|T_ALLOW_DIFF_SIZE, 0xC4); }
+void lds(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_ALLOW_DIFF_SIZE, 0xC5); }
+void les(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_ALLOW_DIFF_SIZE, 0xC4); }
 #endif
 #ifndef XBYAK_NO_OP_NAMES
 void and(const Operand& op1, const Operand& op2) { and_(op1, op2); }
