@@ -404,7 +404,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
-2026/08/25 ver 7.40.1 lss/lfs/lgs(EGPR)とpush/pop(16-bit EGPR)のバグ修正
+2026/08/25 ver 7.40.1 lss/lfs/lgs(EGPR)とpush/pop(16-bit EGPR)のバグ修正. popcntのEGPR対応
 2026/08/15 ver 7.40 ACE 1.15対応
 2026/08/14 ver 7.39.1 vmovq/opCvt3/vpextrwのEGPRエンコード修正. tmmultf32psの削除
 2026/08/12 ver 7.39 CodeArrayのreset()時に保護モードを復元. 例外なしモードでnew失敗時にdb()が落ちるバグの修正. CodeGeneratorのレジスタをstatic constexprに変更. StackFrameのUseSSE/UseAVX/NoVzeroupper対応
