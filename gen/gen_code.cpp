@@ -1768,22 +1768,22 @@ void put()
 		// keep the checkTypeMergeable() args in sync with the type args in the puts() below
 		checkTypeMergeable(T_0F | T_F3 | T_EVEX | T_ER_R, T_W1 | T_EW1 | T_N8, "vcvtsi2ss");
 		checkTypeMergeable(T_0F | T_F3 | T_EVEX | T_ER_R, T_W0 | T_N4, "vcvtsi2ss");
-		puts("void vcvtsi2ss(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, T_0F | T_F3 | T_EVEX | T_ER_R, T_W1 | T_EW1 | T_N8, T_W0 | T_N4, 0x2A); }");
+		puts("void vcvtsi2ss(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvtSi2X(x1, x2, op, T_0F | T_F3 | T_EVEX | T_ER_R, T_W1 | T_EW1 | T_N8, T_W0 | T_N4, 0x2A); }");
 		checkTypeMergeable(T_0F | T_F2 | T_EVEX, T_W1 | T_EW1 | T_ER_R | T_N8, "vcvtsi2sd");
 		checkTypeMergeable(T_0F | T_F2 | T_EVEX, T_W0 | T_N4, "vcvtsi2sd");
-		puts("void vcvtsi2sd(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvt3(x1, x2, op, T_0F | T_F2 | T_EVEX, T_W1 | T_EW1 | T_ER_R | T_N8, T_W0 | T_N4, 0x2A); }");
+		puts("void vcvtsi2sd(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvtSi2X(x1, x2, op, T_0F | T_F2 | T_EVEX, T_W1 | T_EW1 | T_ER_R | T_N8, T_W0 | T_N4, 0x2A); }");
 
 
-		puts("void vcvtps2pd(const Xmm& x, const Operand& op) { opCvt1(x, op, T_0F | T_YMM | T_EVEX | T_W0 | T_B32 | T_N8 | T_N_VL | T_SAE_Y, 0x5A); }");
-		puts("void vcvtdq2pd(const Xmm& x, const Operand& op) { opCvt1(x, op, T_0F | T_F3 | T_YMM | T_EVEX | T_W0 | T_B32 | T_N8 | T_N_VL, 0xE6); }");
+		puts("void vcvtps2pd(const Xmm& x, const Operand& op) { opCvt_xx_xy_yz(x, op, T_0F | T_YMM | T_EVEX | T_W0 | T_B32 | T_N8 | T_N_VL | T_SAE_Y, 0x5A); }");
+		puts("void vcvtdq2pd(const Xmm& x, const Operand& op) { opCvt_xx_xy_yz(x, op, T_0F | T_F3 | T_YMM | T_EVEX | T_W0 | T_B32 | T_N8 | T_N_VL, 0xE6); }");
 
-		puts("void vcvtpd2ps(const Xmm& x, const Operand& op) { opCvt2(x, op, T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_ER_Z, 0x5A); }");
-		puts("void vcvtpd2dq(const Xmm& x, const Operand& op) { opCvt2(x, op, T_0F | T_F2 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_ER_Z, 0xE6); }");
+		puts("void vcvtpd2ps(const Xmm& x, const Operand& op) { opCvt_xx_yx_zy(x, op, T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_ER_Z, 0x5A); }");
+		puts("void vcvtpd2dq(const Xmm& x, const Operand& op) { opCvt_xx_yx_zy(x, op, T_0F | T_F2 | T_YMM | T_EVEX | T_EW1 | T_B64 | T_ER_Z, 0xE6); }");
 
-		puts("void vcvttpd2dq(const Xmm& x, const Operand& op) { opCvt2(x, op, T_66 | T_0F | T_YMM | T_EVEX |T_EW1 | T_B64 | T_SAE_Z, 0xE6); }");
+		puts("void vcvttpd2dq(const Xmm& x, const Operand& op) { opCvt_xx_yx_zy(x, op, T_66 | T_0F | T_YMM | T_EVEX |T_EW1 | T_B64 | T_SAE_Z, 0xE6); }");
 
-		puts("void vcvtph2ps(const Xmm& x, const Operand& op) { opCvt1(x, op, T_0F38 | T_66 | T_W0 | T_EVEX | T_N8 | T_N_VL | T_SAE_Y, 0x13); }");
-		puts("void vcvtps2ph(const Operand& op, const Xmm& x, uint8_t imm) { opCvt1(x, op, T_0F3A | T_66 | T_W0 | T_EVEX | T_N8 | T_N_VL | T_SAE_Y | T_M_K, 0x1D, imm); }");
+		puts("void vcvtph2ps(const Xmm& x, const Operand& op) { opCvt_xx_xy_yz(x, op, T_0F38 | T_66 | T_W0 | T_EVEX | T_N8 | T_N_VL | T_SAE_Y, 0x13); }");
+		puts("void vcvtps2ph(const Operand& op, const Xmm& x, uint8_t imm) { opCvt_xx_xy_yz(x, op, T_0F3A | T_66 | T_W0 | T_EVEX | T_N8 | T_N_VL | T_SAE_Y | T_M_K, 0x1D, imm); }");
 
 	}
 	{
@@ -1805,7 +1805,7 @@ void put()
 		}
 		const uint64_t type = T_F3 | T_0F38 | T_W0 | T_YMM | T_SAE_Z | T_B32;
 		checkTypeMergeable(type, T_MUST_EVEX, "vcvtneps2bf16");
-		printf("void vcvtneps2bf16(const Xmm& x, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opCvt2(x, op, %s|orEvexIf(encoding, 0, T_MUST_EVEX, 0), 0x72); }\n", type2String(type).c_str());
+		printf("void vcvtneps2bf16(const Xmm& x, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opCvt_xx_yx_zy(x, op, %s|orEvexIf(encoding, 0, T_MUST_EVEX, 0), 0x72); }\n", type2String(type).c_str());
 	}
 	// haswell gpr(reg, reg, r/m)
 	{

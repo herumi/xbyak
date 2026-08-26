@@ -13,7 +13,7 @@ using namespace Xbyak;
 // Positive encoding tests for ACE 1.15 are in dataset/ace_1.txt (run by test_by_xed.sh).
 // This file keeps only the checks xed cannot cover: operand-guard exceptions.
 
-// negative tests for the operand guards (opCvt1/opCvt7/opX_XM)
+// negative tests for the operand guards (opCvt_xx_xy_yz/opCvtBias/opX_XM)
 CYBOZU_TEST_AUTO(ace_1_bad_combination)
 {
 	struct Code : Xbyak::CodeGenerator {

@@ -3181,55 +3181,57 @@ private:
 		Operand::Kind kind = x.isXMM() ? (op.isBit(256) ? Operand::YMM : Operand::XMM) : Operand::ZMM;
 		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
 	}
-	// xx_xy_xz (use opCvt1 for xx_xy_yz)
+	// xx_xy_xz
 	void opX_XM(const Operand& op, const Xmm& x, uint64_t type, uint8_t code)
 	{
 		if (!op.isMEM() && !op.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opVex(x, 0, op, type, code);
 	}
-	// (x, x/m), (y, x/m256), (z, y/m)
-	void opCvt1(const Xmm& x, const Operand& op, uint64_t type, int code, int imm8 = NONE)
+	// opCvt_ab_cd_ef lists the accepted (r/m, reg) kind pairs with x/y/z = XMM/YMM/ZMM
+	// (x, x/m), (y, x/m256), (z, y/m) : e.g. vcvtdq2pd, vpmovdw
+	void opCvt_xx_xy_yz(const Xmm& x, const Operand& op, uint64_t type, int code, int imm8 = NONE)
 	{
 		if (!op.isMEM() && !(x.is(Operand::XMM | Operand::YMM) && op.isXMM()) && !(x.isZMM() && op.isYMM())) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opVex(x, 0, op, type, code, imm8);
 	}
-	// (x, x/m), (x, y/m256), (y, z/m)
-	void opCvt2(const Xmm& x, const Operand& op, uint64_t type, int code)
+	// (x, x/m), (x, y/m256), (y, z/m) : e.g. vcvtpd2dq
+	void opCvt_xx_yx_zy(const Xmm& x, const Operand& op, uint64_t type, int code)
 	{
 		if (!(x.isXMM() && op.is(Operand::XMM | Operand::YMM | Operand::MEM)) && !(x.isYMM() && op.is(Operand::ZMM | Operand::MEM))) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opCvt(x, op, type, code);
 	}
+	// (x, x, r32/r64/m) : vcvt(u)si2ss/sd/sh (scalar int to XMM)
 	// type is or-merged with type64/type32, so a packed field (N, map, er/sae, broadcast) must not have
 	// different non-zero values on both sides (checked by checkTypeMergeable() in the generator)
-	void opCvt3(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, uint64_t type64, uint64_t type32, uint8_t code)
+	void opCvtSi2X(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, uint64_t type64, uint64_t type32, uint8_t code)
 	{
 		if (!(x1.isXMM() && x2.isXMM() && (op.isREG(i32e) || op.isMEM()))) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
 		opVex(x1, &x2, op, type | (op.isBit(64) ? type64 : type32), code);
 	}
-	// (x, x/y/xword/yword), (y, z/m)
-	void opCvt4(const Xmm& x, const Operand& op, uint64_t type, int code)
+	// (x, x/y/xword/yword), (y, z/m) : opCvt_xx_yx_zy with an explicitly sized mem for an xmm dst, e.g. vcvtdq2ph
+	void opCvt_xx_yx_zy_sized(const Xmm& x, const Operand& op, uint64_t type, int code)
 	{
 		if (x.isXMM() && !op.isBit(128|256)) XBYAK_THROW(ERR_BAD_COMBINATION)
-		opCvt2(x, op, type, code);
+		opCvt_xx_yx_zy(x, op, type, code);
 	}
-	// (x, x/y/z/xword/yword/zword)
-	void opCvt5(const Xmm& x, const Operand& op, uint64_t type, int code)
+	// (x, x/y/z/xword/yword/zword) : e.g. vcvtpd2ph
+	void opCvt_xx_yx_zx(const Xmm& x, const Operand& op, uint64_t type, int code)
 	{
 		if (!(x.isXMM() && op.isBit(128|256|512))) XBYAK_THROW(ERR_BAD_COMBINATION)
 		Operand::Kind kind = op.isBit(128) ? Operand::XMM : op.isBit(256) ? Operand::YMM : Operand::ZMM;
 		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
 	}
-	// (x, x, x/m), (x, y, y/m), (y, z, z/m)
+	// (x, x, x/m), (x, y, y/m), (y, z, z/m) : vcvtbias*
 	// dstXMM = true : dst is fixed XMM regardless of VL : (x, x, x/m), (x, y, y/m), (x, z, z/m)
-	void opCvt6(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code, bool dstXMM = false)
+	void opCvtBias(const Xmm& x1, const Xmm& x2, const Operand& op, uint64_t type, int code, bool dstXMM = false)
 	{
 		uint32_t b2 = x2.getBit();
 		uint32_t dstBit = (!dstXMM && b2 == 512) ? 256 : 128;
 		if (!(x1.getBit() == dstBit && (op.isMEM() || op.getBit() == b2))) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opVex(x1, &x2, op, type, code);
 	}
-	// (r32/r64, x/m) : EVEX.W is set if r is 64-bit
-	void opCvt8(const Reg& r, const Operand& op, uint64_t type, int code)
+	// (r32/r64, x/m) : vcvt*2(u)si (XMM to scalar int), EVEX.W is set if r is 64-bit
+	void opCvtX2Si(const Reg& r, const Operand& op, uint64_t type, int code)
 	{
 		opVex(r, &xm0, op, type | (r.isREG(64) ? T_EW1 : T_W0), code);
 	}
