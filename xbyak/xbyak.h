@@ -2898,7 +2898,8 @@ private:
 		int opBit = op.getBit();
 		if (disableRex && opBit == 64) opBit = 32;
 		const Reg r(ext, Operand::REG, opBit);
-		if ((type & T_APX) && (d != 0 || op.hasRex2NFZU()) && opROO(d ? *d : Reg(0, Operand::REG, opBit), op, r, type, code)) return;
+		// EVEX is required only for ND/NF/ZU; a plain EGPR is encodable with the shorter REX2
+		if ((type & T_APX) && (d != 0 || op.getNF() || op.getZU()) && opROO(d ? *d : Reg(0, Operand::REG, opBit), op, r, type, code)) return;
 		if (op.isMEM()) {
 			opMR(op.getAddress(immSize), r, type, code);
 		} else if (op.isREG(bit)) {
