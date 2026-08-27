@@ -1,5 +1,6 @@
 # History
-* 2026/Aug/25 ver 7.40.1 fix encoding of lss/lfs/lgs with EGPR and push/pop with 16-bit EGPR
+* 2026/Aug/27 ver 7.41 use REX2 instead of EVEX for plain EGPR without NF/ZU (neg, not, mul, imul, div, idiv, shift/rotate, setcc) to shorten encoding
+* 2026/Aug/25 ver 7.40.1 fix encoding of lss/lfs/lgs with EGPR and push/pop with 16-bit EGPR. popcnt supports EGPR.
 * 2026/Aug/15 ver 7.40 support ACE 1.15
 * 2026/Aug/14 ver 7.39.1 fixed EGPR encoding of vmovq/opCvt3/vpextrw. tmmultf32ps is removed.
 * 2026/Aug/12 ver 7.39 CodeArray: fix reset() to restore write protection. fix a null-pointer write in db() when allocation fails with XBYAK_NO_EXCEPTION.Registers in CodeGenerator (rax, eax, etc.) are now static constexpr members (C++17 or later). StackFrame supports UseSSE(n) / UseAVX(n) / NoVzeroupper

@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.40.1
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.41
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -54,6 +54,9 @@ XBYAK_NO_EXCEPTIONを定義してコンパイルするとgcc/clangで-fno-except
 この値が0でなければ何か問題が発生しています。
 この値は自動的に変更されないので`Xbyak::ClearError()`でリセットしてください。
 `CodeGenerator::reset()`は`ClearError()`を呼びます。
+一度エラーが発生するとコード生成は停止し、エラー状態をクリアするまでバイト列は出力されません。
+`Xbyak::GetError()`が0でない値を返す場合は生成されたコードを使わないでください。
+エラー状態はスレッドローカルであり、同一スレッド上の全てのCodeGeneratorインスタンスで共有されることに注意してください。
 
 MmapAllocator追加
 これはUnix系OSでのみの仕様です。XBYAK_USE_MMAP_ALLOCATORを使うと利用できます。
@@ -404,7 +407,8 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
-2026/08/25 ver 7.40.1 lss/lfs/lgs(EGPR)とpush/pop(16-bit EGPR)のバグ修正
+2026/08/27 ver 7.41 NF/ZU無しのEGPRに対してエンコードを短くするためにEVEXの代わりにREX2を使う(neg, not, mul, imul, div, idiv, shift/rotate, setcc)
+2026/08/25 ver 7.40.1 lss/lfs/lgs(EGPR)とpush/pop(16-bit EGPR)のバグ修正. popcntのEGPR対応
 2026/08/15 ver 7.40 ACE 1.15対応
 2026/08/14 ver 7.39.1 vmovq/opCvt3/vpextrwのEGPRエンコード修正. tmmultf32psの削除
 2026/08/12 ver 7.39 CodeArrayのreset()時に保護モードを復元. 例外なしモードでnew失敗時にdb()が落ちるバグの修正. CodeGeneratorのレジスタをstatic constexprに変更. StackFrameのUseSSE/UseAVX/NoVzeroupper対応

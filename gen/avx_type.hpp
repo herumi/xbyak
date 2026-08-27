@@ -57,7 +57,6 @@ std::string type2String(uint64_t type)
 	if (type & T_VSIB) str += "|T_VSIB";
 	if (type & T_NF) str += "|T_NF";
 	if (type & T_OP_W1) str += "|T_OP_W1";
-	if (type & T_OP_W0) str += "|T_OP_W0";
 	if (type & T_ND1) str += "|T_ND1";
 	if (type & T_ZU) str += "|T_ZU";
 
@@ -69,7 +68,7 @@ std::string type2String(uint64_t type)
 	verify that a | b does not corrupt a packed field (N, map, er/sae, broadcast) :
 	each field must not have different non-zero values in a and b.
 	call this wherever the generator emits code that or-merges two type values at runtime
-	(opEncoding, opCvt3, ...).
+	(opEncoding, opCvtSi2X, ...).
 */
 void checkTypeMergeable(uint64_t a, uint64_t b, const char *name)
 {
