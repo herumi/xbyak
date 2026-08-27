@@ -54,6 +54,9 @@ XBYAK_NO_EXCEPTIONを定義してコンパイルするとgcc/clangで-fno-except
 この値が0でなければ何か問題が発生しています。
 この値は自動的に変更されないので`Xbyak::ClearError()`でリセットしてください。
 `CodeGenerator::reset()`は`ClearError()`を呼びます。
+一度エラーが発生するとコード生成は停止し、エラー状態をクリアするまでバイト列は出力されません。
+`Xbyak::GetError()`が0でない値を返す場合は生成されたコードを使わないでください。
+エラー状態はスレッドローカルであり、同一スレッド上の全てのCodeGeneratorインスタンスで共有されることに注意してください。
 
 MmapAllocator追加
 これはUnix系OSでのみの仕様です。XBYAK_USE_MMAP_ALLOCATORを使うと利用できます。
