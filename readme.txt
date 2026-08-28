@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.41
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.41.1
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -407,6 +407,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2026/08/29 ver 7.41.1 前方参照時のassignL()と[label+disp]のdispの扱いのバグ修正
 2026/08/27 ver 7.41 NF/ZU無しのEGPRに対してエンコードを短くするためにEVEXの代わりにREX2を使う(neg, not, mul, imul, div, idiv, shift/rotate, setcc)
 2026/08/25 ver 7.40.1 lss/lfs/lgs(EGPR)とpush/pop(16-bit EGPR)のバグ修正. popcntのEGPR対応
 2026/08/15 ver 7.40 ACE 1.15対応

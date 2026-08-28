@@ -1333,6 +1333,124 @@ CYBOZU_TEST_AUTO(testAssign)
     }
 }
 
+// assignL(dst, src) where dst has never been referenced before
+CYBOZU_TEST_AUTO(testAssignUnusedDst)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code(bool grow)
+			: Xbyak::CodeGenerator(grow ? 128 : 4096, grow ? Xbyak::AutoGrow : 0)
+		{
+			Label dst, src;
+			nop(); // make the offset of src nonzero
+		L(src);
+			assignL(dst, src); // dst is used for the first time here
+			jmp(dst); // backward reference via dst
+			jmp(dst, T_NEAR);
+			CYBOZU_TEST_ASSERT(!hasUndefinedLabel());
+		}
+	};
+	const uint8_t expected[] = {
+		0x90,
+		0xeb, 0xfe, // jmp -2
+		0xe9, 0xf9, 0xff, 0xff, 0xff, // jmp -7
+	};
+	for (int i = 0; i < 2; i++) {
+		const bool grow = i == 0;
+		Code code(grow);
+		if (grow) code.ready();
+		CYBOZU_TEST_EQUAL(code.getSize(), sizeof(expected));
+		CYBOZU_TEST_EQUAL_ARRAY(code.getCode(), expected, sizeof(expected));
+	}
+}
+
+// assignL(dst, src) after a forward reference mov(reg, dst) must write the address of src
+CYBOZU_TEST_AUTO(testAssignForwardMov)
+{
+	struct Code : Xbyak::CodeGenerator {
+		size_t srcOffset;
+		size_t addrPos;
+		Code(bool grow)
+			: Xbyak::CodeGenerator(4096, grow ? Xbyak::AutoGrow : 0)
+			, srcOffset(0)
+			, addrPos(0)
+		{
+			Label src, dst;
+			nop();
+		L(src);
+			srcOffset = getSize();
+			nop();
+#ifdef XBYAK64
+			mov(rax, dst);
+#else
+			mov(eax, dst);
+#endif
+			addrPos = getSize() - sizeof(size_t);
+			nop();
+			assignL(dst, src); // getCurr() != address of src
+			if (grow) ready();
+		}
+	};
+	for (int i = 0; i < 2; i++) {
+		Code code(i == 1);
+		size_t addr = 0;
+		memcpy(&addr, code.getCode() + code.addrPos, sizeof(addr));
+		CYBOZU_TEST_EQUAL(addr, size_t(code.getCode()) + code.srcOffset);
+	}
+}
+
+// [label + disp] must point to label + disp for both forward/backward references
+// and for both fixed buffer/AutoGrow (immSize must not be subtracted for absolute addresses)
+CYBOZU_TEST_AUTO(labelDisp)
+{
+	struct Code : Xbyak::CodeGenerator {
+		size_t labelOffset;
+		size_t addrPos; // offset of the address field in the code
+		Code(bool grow, bool forward, bool useImm)
+			: Xbyak::CodeGenerator(4096, grow ? Xbyak::AutoGrow : 0)
+			, labelOffset(0)
+			, addrPos(0)
+		{
+			Label label;
+			if (!forward) defineLabel(label);
+#ifdef XBYAK64
+			(void)useImm;
+			mov(eax, ptr[label + 8]); // a1 <addr64>
+			addrPos = getSize() - 8;
+#else
+			if (useImm) {
+				mov(dword[label + 8], 1); // c7 05 <addr32> <imm32>
+				addrPos = getSize() - 8;
+			} else {
+				mov(eax, ptr[label + 8]); // a1 <addr32>
+				addrPos = getSize() - 4;
+			}
+#endif
+			if (forward) defineLabel(label);
+			if (grow) ready();
+		}
+		void defineLabel(Label& label)
+		{
+		L(label);
+			labelOffset = getSize();
+			dq(0);
+			dq(0);
+		}
+	};
+	for (int grow = 0; grow < 2; grow++) {
+		for (int forward = 0; forward < 2; forward++) {
+			for (int useImm = 0; useImm < 2; useImm++) {
+#ifdef XBYAK64
+				if (useImm) continue; // [label + disp] with imm is not encodable in 64-bit mode
+#endif
+				Code code(grow != 0, forward != 0, useImm != 0);
+				size_t addr = 0;
+				memcpy(&addr, code.getCode() + code.addrPos, sizeof(addr));
+				CYBOZU_TEST_EQUAL(addr, size_t(code.getCode()) + code.labelOffset + 8);
+			}
+		}
+	}
+}
+
 CYBOZU_TEST_AUTO(doubleDefine)
 {
 	struct Code : Xbyak::CodeGenerator {
