@@ -2087,7 +2087,8 @@ class LabelManager {
 	ClabelUndefList clabelUndefList_;
 	LabelPtrList labelPtrList_;
 
-	int getId(const Label& label) const
+	// assign a new id at the first use of label (forward reference), so Label::id is mutable
+	int getOrAssignId(const Label& label) const
 	{
 		if (label.id == 0) label.id = labelId_++;
 		return label.id;
@@ -2230,7 +2231,7 @@ public:
 	}
 	void defineClabel(Label& label)
 	{
-		define_inner(clabelDefList_, clabelUndefList_, getId(label), base_->getSize());
+		define_inner(clabelDefList_, clabelUndefList_, getOrAssignId(label), base_->getSize());
 		label.mgr = this;
 		labelPtrList_.insert(&label);
 	}
@@ -2238,7 +2239,7 @@ public:
 	{
 		ClabelDefList::const_iterator i = clabelDefList_.find(src.id);
 		if (i == clabelDefList_.end()) XBYAK_THROW(ERR_LABEL_ISNOT_SET_BY_L)
-		define_inner(clabelDefList_, clabelUndefList_, getId(dst), i->second.offset);
+		define_inner(clabelDefList_, clabelUndefList_, getOrAssignId(dst), i->second.offset);
 		dst.mgr = this;
 		labelPtrList_.insert(&dst);
 	}
@@ -2261,7 +2262,7 @@ public:
 	}
 	bool getOffset(size_t *offset, const Label& label) const
 	{
-		return getOffset_inner(clabelDefList_, offset, getId(label));
+		return getOffset_inner(clabelDefList_, offset, getOrAssignId(label));
 	}
 	void addUndefinedLabel(const std::string& label, const JmpLabel& jmp)
 	{
