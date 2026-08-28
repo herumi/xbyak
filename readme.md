@@ -1,5 +1,5 @@
 
-# Xbyak 7.41 [![Badge Build]][Build Status]
+# Xbyak 7.41.1 [![Badge Build]][Build Status]
 
 *A JIT assembler for x86/x64 architectures supporting the latest instruction set extensions such as AVX10.2 and ACE*
 
