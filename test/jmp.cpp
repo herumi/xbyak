@@ -1363,6 +1363,41 @@ CYBOZU_TEST_AUTO(testAssignUnusedDst)
 	}
 }
 
+// assignL(dst, src) after a forward reference mov(reg, dst) must write the address of src
+CYBOZU_TEST_AUTO(testAssignForwardMov)
+{
+	struct Code : Xbyak::CodeGenerator {
+		size_t srcOffset;
+		size_t addrPos;
+		Code(bool grow)
+			: Xbyak::CodeGenerator(4096, grow ? Xbyak::AutoGrow : 0)
+			, srcOffset(0)
+			, addrPos(0)
+		{
+			Label src, dst;
+			nop();
+		L(src);
+			srcOffset = getSize();
+			nop();
+#ifdef XBYAK64
+			mov(rax, dst);
+#else
+			mov(eax, dst);
+#endif
+			addrPos = getSize() - sizeof(size_t);
+			nop();
+			assignL(dst, src); // getCurr() != address of src
+			if (grow) ready();
+		}
+	};
+	for (int i = 0; i < 2; i++) {
+		Code code(i == 1);
+		size_t addr = 0;
+		memcpy(&addr, code.getCode() + code.addrPos, sizeof(addr));
+		CYBOZU_TEST_EQUAL(addr, size_t(code.getCode()) + code.srcOffset);
+	}
+}
+
 // [label + disp] must point to label + disp for both forward/backward references
 // and for both fixed buffer/AutoGrow (immSize must not be subtracted for absolute addresses)
 CYBOZU_TEST_AUTO(labelDisp)

@@ -2104,7 +2104,7 @@ class LabelManager {
 			if (jmp->mode == inner::LaddTop) {
 				disp = addrOffset;
 			} else if (jmp->mode == inner::Labs) {
-				disp = size_t(base_->getCurr());
+				disp = size_t(base_->getCode()) + addrOffset; // assign() defines a label at another offset
 			} else {
 				disp = addrOffset - jmp->endOfJmp + jmp->disp;
 #ifdef XBYAK64
