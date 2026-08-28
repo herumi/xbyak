@@ -2685,7 +2685,7 @@ private:
 			db(disp);
 		} else if (mod == mod10 || (mod == mod00 && !baseBit)) {
 			if (label) {
-				putL_inner(*label, false, e.getDisp(), 4);
+				putL_inner(*label, inner::Labs, e.getDisp(), 4);
 			} else {
 				dd(disp);
 			}
@@ -2808,7 +2808,7 @@ private:
 		} else if (addr.getMode() == inner::M_rip || addr.getMode() == inner::M_ripAddr) {
 			setModRM(0, reg, 5);
 			if (addr.getLabel()) { // [rip + Label]
-				putL_inner(*addr.getLabel(), true, addr.getDisp() - addr.immSize, 4);
+				putL_inner(*addr.getLabel(), inner::LasIs, addr.getDisp() - addr.immSize, 4);
 			} else {
 				size_t disp = addr.getDisp();
 				if (addr.getMode() == inner::M_ripAddr) {
@@ -3064,26 +3064,30 @@ private:
 		db(code | (idx & 7));
 		return bit / 8;
 	}
+	/*
+		write (label + disp) as jmpSize bytes
+		mode : LasIs (rip-relative offset), Labs (absolute address; replaced by LaddTop in AutoGrow mode)
+	*/
 	template<class T>
-	void putL_inner(T& label, bool relative = false, size_t disp = 0, int jmpSize = (int)sizeof(size_t))
+	void putL_inner(T& label, inner::LabelMode mode, size_t disp, int jmpSize)
 	{
-		if (relative) jmpSize = 4;
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory();
+		if (mode == inner::Labs && isAutoGrow()) mode = inner::LaddTop;
 		size_t offset = 0;
 		if (labelMgr_.getOffset(&offset, label)) {
-			if (relative) {
-				db(inner::VerifyInInt32(offset + disp - size_ - jmpSize), jmpSize);
-			} else if (isAutoGrow()) {
+			offset += disp;
+			if (mode == inner::LasIs) {
+				db(inner::VerifyInInt32(offset - size_ - jmpSize), jmpSize);
+			} else if (mode == inner::LaddTop) {
 				db(uint64_t(0), jmpSize);
-				save(size_ - jmpSize, offset + disp, jmpSize, inner::LaddTop);
+				save(size_ - jmpSize, offset, jmpSize, mode);
 			} else {
-				db(size_t(top_) + offset + disp, jmpSize);
+				db(size_t(top_) + offset, jmpSize);
 			}
 			return;
 		}
 		db(uint64_t(0), jmpSize);
-		JmpLabel jmp(size_, jmpSize, (relative ? inner::LasIs : isAutoGrow() ? inner::LaddTop : inner::Labs), disp);
-		labelMgr_.addUndefinedLabel(label, jmp);
+		labelMgr_.addUndefinedLabel(label, JmpLabel(size_, jmpSize, mode, disp));
 	}
 	void opMovxx(const Reg& reg, const Operand& op, uint8_t code)
 	{
@@ -3483,8 +3487,8 @@ public:
 		put address of label to buffer
 		@note the put size is 4(32-bit), 8(64-bit)
 	*/
-	void putL(std::string label) { putL_inner(label); }
-	void putL(const Label& label) { putL_inner(label); }
+	void putL(std::string label) { putL_inner(label, inner::Labs, 0, (int)sizeof(size_t)); }
+	void putL(const Label& label) { putL_inner(label, inner::Labs, 0, (int)sizeof(size_t)); }
 
 	// set default type of `jmp` of undefined label to T_NEAR
 	void setDefaultJmpNEAR(bool isNear) { isDefaultJmpNEAR_ = isNear; }
@@ -3574,7 +3578,7 @@ public:
 				rex(*reg);
 				db(op1.isREG(8) ? 0xA0 : op1.isREG() ? 0xA1 : op2.isREG(8) ? 0xA2 : 0xA3);
 				if (addr->getLabel()) {
-					putL_inner(*addr->getLabel(), false, addr->getDisp(), 8);
+					putL_inner(*addr->getLabel(), inner::Labs, addr->getDisp(), 8);
 				} else {
 					db(addr->getDisp(), 8);
 				}
@@ -3587,7 +3591,7 @@ public:
 			rex(*reg, *addr);
 			db(code | (reg->isBit(8) ? 0 : 1));
 			if (addr->getLabel()) {
-				putL_inner(*addr->getLabel(), false, addr->getDisp());
+				putL_inner(*addr->getLabel(), inner::Labs, addr->getDisp(), 4);
 			} else {
 				dd(static_cast<uint32_t>(addr->getDisp()));
 			}
