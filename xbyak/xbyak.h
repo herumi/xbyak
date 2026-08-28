@@ -2087,6 +2087,15 @@ class LabelManager {
 		if (label.id == 0) label.id = labelId_++;
 		return label.id;
 	}
+	// label starting with '.' is local (stateList_.back()), otherwise global (stateList_.front())
+	const SlabelState& getSlabelState(const std::string& label) const
+	{
+		return *label.c_str() == '.' ? stateList_.back() : stateList_.front();
+	}
+	SlabelState& getSlabelState(const std::string& label)
+	{
+		return *label.c_str() == '.' ? stateList_.back() : stateList_.front();
+	}
 	template<class DefList, class UndefList, class T>
 	void define_inner(DefList& defList, UndefList& undefList, const T& labelId, size_t addrOffset)
 	{
@@ -2211,7 +2220,7 @@ public:
 				label = "@f";
 			}
 		}
-		SlabelState& st = *label.c_str() == '.' ? stateList_.back() : stateList_.front();
+		SlabelState& st = getSlabelState(label);
 		define_inner(st.defList, st.undefList, label, base_->getSize());
 	}
 	void defineClabel(Label& label)
@@ -2242,7 +2251,7 @@ public:
 				label = "@b";
 			}
 		}
-		const SlabelState& st = *label.c_str() == '.' ? stateList_.back() : stateList_.front();
+		const SlabelState& st = getSlabelState(label);
 		return getOffset_inner(st.defList, offset, label);
 	}
 	bool getOffset(size_t *offset, const Label& label) const
@@ -2251,7 +2260,7 @@ public:
 	}
 	void addUndefinedLabel(const std::string& label, const JmpLabel& jmp)
 	{
-		SlabelState& st = *label.c_str() == '.' ? stateList_.back() : stateList_.front();
+		SlabelState& st = getSlabelState(label);
 		st.undefList.insert(SlabelUndefList::value_type(label, jmp));
 	}
 	void addUndefinedLabel(const Label& label, const JmpLabel& jmp)
