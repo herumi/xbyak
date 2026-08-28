@@ -1333,6 +1333,36 @@ CYBOZU_TEST_AUTO(testAssign)
     }
 }
 
+// assignL(dst, src) where dst has never been referenced before
+CYBOZU_TEST_AUTO(testAssignUnusedDst)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code(bool grow)
+			: Xbyak::CodeGenerator(grow ? 128 : 4096, grow ? Xbyak::AutoGrow : 0)
+		{
+			Label dst, src;
+			nop(); // make the offset of src nonzero
+		L(src);
+			assignL(dst, src); // dst is used for the first time here
+			jmp(dst); // backward reference via dst
+			jmp(dst, T_NEAR);
+			CYBOZU_TEST_ASSERT(!hasUndefinedLabel());
+		}
+	};
+	const uint8_t expected[] = {
+		0x90,
+		0xeb, 0xfe, // jmp -2
+		0xe9, 0xf9, 0xff, 0xff, 0xff, // jmp -7
+	};
+	for (int i = 0; i < 2; i++) {
+		const bool grow = i == 0;
+		Code code(grow);
+		if (grow) code.ready();
+		CYBOZU_TEST_EQUAL(code.getSize(), sizeof(expected));
+		CYBOZU_TEST_EQUAL_ARRAY(code.getCode(), expected, sizeof(expected));
+	}
+}
+
 CYBOZU_TEST_AUTO(doubleDefine)
 {
 	struct Code : Xbyak::CodeGenerator {
