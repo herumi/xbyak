@@ -1,7 +1,7 @@
 
 # Xbyak 7.41 [![Badge Build]][Build Status]
 
-*A JIT assembler for x86/x64 architectures supporting advanced instruction sets up to AVX10.2*
+*A JIT assembler for x86/x64 architectures supporting the latest instruction set extensions such as AVX10.2 and ACE*
 
 ## Menu
 
@@ -20,7 +20,7 @@ The name is derived from the Japanese word [開闢](https://translate.google.com
 ## Features
 - Header-only library
 - Intel/MASM-like syntax
-- Full support for AVX-512, APX, and AVX10.2
+- Full support for AVX-512, AVX10.2, APX, AMX, and ACE
 
 **Note**:
 Use `and_()`, `or_()`, ... instead of `and()`, `or()`.
