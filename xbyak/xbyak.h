@@ -2685,7 +2685,7 @@ private:
 			db(disp);
 		} else if (mod == mod10 || (mod == mod00 && !baseBit)) {
 			if (label) {
-				putL_inner(*label, false, e.getDisp() - addr.immSize, 4);
+				putL_inner(*label, false, e.getDisp(), 4);
 			} else {
 				dd(disp);
 			}
@@ -3075,9 +3075,9 @@ private:
 				db(inner::VerifyInInt32(offset + disp - size_ - jmpSize), jmpSize);
 			} else if (isAutoGrow()) {
 				db(uint64_t(0), jmpSize);
-				save(size_ - jmpSize, offset, jmpSize, inner::LaddTop);
+				save(size_ - jmpSize, offset + disp, jmpSize, inner::LaddTop);
 			} else {
-				db(size_t(top_) + offset, jmpSize);
+				db(size_t(top_) + offset + disp, jmpSize);
 			}
 			return;
 		}
@@ -3574,7 +3574,7 @@ public:
 				rex(*reg);
 				db(op1.isREG(8) ? 0xA0 : op1.isREG() ? 0xA1 : op2.isREG(8) ? 0xA2 : 0xA3);
 				if (addr->getLabel()) {
-					putL_inner(*addr->getLabel(), false, addr->getDisp() - addr->immSize, 8);
+					putL_inner(*addr->getLabel(), false, addr->getDisp(), 8);
 				} else {
 					db(addr->getDisp(), 8);
 				}
@@ -3587,7 +3587,7 @@ public:
 			rex(*reg, *addr);
 			db(code | (reg->isBit(8) ? 0 : 1));
 			if (addr->getLabel()) {
-				putL_inner(*addr->getLabel(), false, addr->getDisp() - addr->immSize);
+				putL_inner(*addr->getLabel(), false, addr->getDisp());
 			} else {
 				dd(static_cast<uint32_t>(addr->getDisp()));
 			}
