@@ -22,16 +22,13 @@ jobs:
     - run: apt -y install ca-certificates g++-multilib clang libboost-dev make yasm wget python3 nasm #xz-utils
     - run: update-ca-certificates
     - run: yasm --version
-    - name: Install xed and nasm
+    - name: Install xed
       run: |
         # Note: herumi/xed-bin is maintained by the same author and is a trusted source
         wget https://github.com/herumi/xed-bin/raw/refs/heads/main/xed.tgz
-        #wget https://github.com/herumi/xed-bin/raw/refs/heads/main/nasm.tgz
         tar xvf xed.tgz
-        #tar xvf nasm.tgz
         mkdir -p ~/bin
         mv xed ~/bin/
-        #mv nasm ~/bin/
 
     - name: Add ~/bin to PATH
       run: echo "$HOME/bin" >> $GITHUB_PATH
