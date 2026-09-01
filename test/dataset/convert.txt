@@ -177,9 +177,9 @@ vcvtph2hf8s(ymm1|k2|T_z, zword_b[rax+64]);
 
 // AVX-NE-CONVERT
 vbcstnebf162ps(xmm15, ptr[rax+64]);
-vbcstnebf162ps(xmm15, ptr[rax+64]);
+vbcstnebf162ps(ymm15, ptr[rax+64]);
 
-vbcstnesh2ps(ymm15, ptr[rax+64]);
+vbcstnesh2ps(xmm15, ptr[rax+64]);
 vbcstnesh2ps(ymm15, ptr[rax+64]);
 
 vcvtneebf162ps(xmm15, ptr[rax+64]);
