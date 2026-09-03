@@ -1,3 +1,4 @@
+<img src="https://raw.githubusercontent.com/xbyak/.github/refs/heads/main/logo/icon.svg" width="64px" align="right" alt="">
 
 # Xbyak 7.41.1 [![Badge Build]][Build Status]
 
