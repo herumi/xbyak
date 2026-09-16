@@ -177,6 +177,13 @@
 	#define XBYAK_STRICT_CHECK_MEM_REG_SIZE 1
 #endif
 
+// k0 cannot be encoded as a predicate (mask) operand. By default 'op | k0'
+// is accepted and is silently encoded as no-mask. Define as 0 to reject
+// the misleading 'op | k0' expression and throw ERR_K0_IS_INVALID instead.
+#ifndef XBYAK_ACCEPT_K0
+	#define XBYAK_ACCEPT_K0 1
+#endif
+
 // F is called: F(Type, name, init...)
 #define XBYAK_FOR_EACH_REG_REG8(F)		\
 	F(Reg8, al, Operand::AL)		\
@@ -1156,8 +1163,9 @@ public:
 	}
 	// err if MMX/FPU/OPMASK/BNDREG
 	void setBit(int bit);
-	void setOpmaskIdx(int idx, bool /*ignore_idx0*/ = true)
+	void setOpmaskIdx(int idx, bool ignore_idx0 = true)
 	{
+		if (idx == 0 && !ignore_idx0) XBYAK_THROW(ERR_K0_IS_INVALID)
 		if (mask_ && (mask_ != unsigned(idx))) XBYAK_THROW(ERR_OPMASK_IS_ALREADY_SET)
 		mask_ = idx;
 	}
@@ -1403,7 +1411,13 @@ struct BoundsReg : public Reg {
 	explicit XBYAK_CONSTEXPR BoundsReg(int idx = 0) : Reg(idx, Operand::BNDREG, 128) {}
 };
 
-template<class T>T operator|(const T& x, const Opmask& k) { T r(x); r.setOpmaskIdx(k.getIdx()); return r; }
+template<class T>T operator|(const T& x, const Opmask& k)
+{
+	T r(x);
+	const bool ignore_idx0 = XBYAK_ACCEPT_K0 == 1;
+	r.setOpmaskIdx(k.getIdx(), ignore_idx0);
+	return r;
+}
 template<class T>T operator|(const T& x, const EvexModifierZero&) { T r(x); r.setZero(); return r; }
 template<class T>T operator|(const T& x, const EvexModifierRounding& emr) { T r(x); r.setRounding(emr.rounding); return r; }
 
