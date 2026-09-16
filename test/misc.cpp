@@ -256,7 +256,11 @@ CYBOZU_TEST_AUTO(kmask)
 			CYBOZU_TEST_EXCEPTION(kmovd(k1, rax), std::exception);
 			CYBOZU_TEST_NO_EXCEPTION(kmovq(k1, rax));
 #endif
+#if XBYAK_ACCEPT_K0 == 1
 			CYBOZU_TEST_NO_EXCEPTION(vmovaps(xm0|k0, ptr[eax]));
+#else
+			CYBOZU_TEST_EXCEPTION(vmovaps(xm0|k0, ptr[eax]), std::exception);
+#endif
 			checkT_z();
 		}
 		// T_z is dropped when no mask register is specified because
