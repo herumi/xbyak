@@ -1,6 +1,6 @@
 # History
-* 2026/Sep 17 ver 7.42 add XBYAK_ALLOW_K0_MASK=1 to treat k0 mask as an error
-* 2026/Aug 29 ver 7.41.1 fix assignL() after a forward reference and fix disp handling for [label+disp]
+* 2026/Sep/17 ver 7.42 add XBYAK_ALLOW_K0_MASK=1 to treat k0 mask as an error
+* 2026/Aug/29 ver 7.41.1 fix assignL() after a forward reference and fix disp handling for [label+disp]
 * 2026/Aug/27 ver 7.41 use REX2 instead of EVEX for plain EGPR without NF/ZU (neg, not, mul, imul, div, idiv, shift/rotate, setcc) to shorten encoding
 * 2026/Aug/25 ver 7.40.1 fix encoding of lss/lfs/lgs with EGPR and push/pop with 16-bit EGPR. popcnt supports EGPR.
 * 2026/Aug/15 ver 7.40 support ACE 1.15
