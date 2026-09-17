@@ -114,6 +114,7 @@ vfpclassps k5{k3}, [rax+64]{1to4}, 5    --> vfpclassps(k5|k3, yword_b [rax+64], 
 * `k1`, ..., `k7` are opmask registers.
   - `k0` is dealt as no mask.
   - e.g. `vmovaps(zmm0|k0, ptr[rax]);` and `vmovaps(zmm0|T_z, ptr[rax]);` are same to `vmovaps(zmm0, ptr[rax]);`.
+  - `zmm0|k0` is treated as an error if `XBYAK_ALLOW_K0_MASK` is defined as 0.
 * use `| T_z`, `| T_sae`, `| T_rn_sae`, `| T_rd_sae`, `| T_ru_sae`, `| T_rz_sae` instead of `,{z}`, `,{sae}`, `,{rn-sae}`, `,{rd-sae}`, `,{ru-sae}`, `,{rz-sae}` respectively.
 * `k4 | k3` is different from `k3 | k4`.
 * use `ptr_b` for broadcast `{1toX}`. X is automatically determined.
@@ -550,6 +551,7 @@ Note that the error status is thread-local and shared by all instances of `CodeG
 * define **XBYAK_NO_EXCEPTION** for a compiler option `-fno-exceptions`.
 * define **XBYAK_USE_MEMFD** on Linux then /proc/self/maps shows the area used by xbyak.
 * define **XBYAK_OLD_DISP_CHECK** if the old disp check is necessary (deprecated in the future).
+* define **XBYAK_ALLOW_K0_MASK=0** if you want to treat `zmm0|k0` as an error.
 
 ## StackFrame (64bit only)
 

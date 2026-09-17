@@ -2,7 +2,7 @@
 # apt install g++-multilib
 CXX_32 = $(CXX) -m32
 CXX_64 = $(CXX) -m64
-TARGET = make_nm.exe normalize_prefix.exe bad_address.exe misc.exe cvt_test.exe cvt_test32.exe noexception.exe misc32.exe detect_x32.exe avx10_test.exe
+TARGET = make_nm.exe normalize_prefix.exe bad_address.exe misc.exe cvt_test.exe cvt_test32.exe noexception.exe misc32.exe detect_x32.exe avx10_test.exe k0_mask.exe
 XBYAK_INC=../xbyak/xbyak.h ../xbyak/xbyak_mnemonic.h ../xbyak/xbyak_util.h
 UNAME_S=$(shell uname -s)
 ifeq ($(shell ./detect_x32.exe),x32)
@@ -53,6 +53,8 @@ bad_address.exe: bad_address.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@
 misc.exe: misc.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@
+k0_mask.exe: misc.cpp $(XBYAK_INC)
+	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK_ALLOW_K0_MASK=0
 misc32.exe: misc.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) $< -o $@ -DXBYAK32
 cvt_test.exe: cvt_test.cpp $(XBYAK_INC)
@@ -100,6 +102,7 @@ endif
 	./bad_address.exe
 	./misc.exe
 	./misc32.exe
+	./k0_mask.exe
 	./cvt_test.exe
 	./noexception.exe
 ifeq ($(BIT),64)
