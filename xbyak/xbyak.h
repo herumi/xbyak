@@ -24,6 +24,12 @@
 
 // #define XBYAK_DISABLE_AVX512
 
+// treat k0 mask as no-mask for convenience (default)
+// error if XBYAK_ALLOW_K0_MASK is defined as 0
+#ifndef XBYAK_ALLOW_K0_MASK
+	#define XBYAK_ALLOW_K0_MASK 1
+#endif
+
 #if !defined(XBYAK_USE_MMAP_ALLOCATOR) && !defined(XBYAK_DONT_USE_MMAP_ALLOCATOR)
 	#define XBYAK_USE_MMAP_ALLOCATOR
 #endif
@@ -1156,8 +1162,9 @@ public:
 	}
 	// err if MMX/FPU/OPMASK/BNDREG
 	void setBit(int bit);
-	void setOpmaskIdx(int idx, bool /*ignore_idx0*/ = true)
+	void setOpmaskIdx(int idx, bool ignore_idx0 = true)
 	{
+		if (idx == 0 && !ignore_idx0) XBYAK_THROW(ERR_K0_IS_INVALID)
 		if (mask_ && (mask_ != unsigned(idx))) XBYAK_THROW(ERR_OPMASK_IS_ALREADY_SET)
 		mask_ = idx;
 	}
@@ -1403,7 +1410,7 @@ struct BoundsReg : public Reg {
 	explicit XBYAK_CONSTEXPR BoundsReg(int idx = 0) : Reg(idx, Operand::BNDREG, 128) {}
 };
 
-template<class T>T operator|(const T& x, const Opmask& k) { T r(x); r.setOpmaskIdx(k.getIdx()); return r; }
+template<class T>T operator|(const T& x, const Opmask& k) { T r(x); r.setOpmaskIdx(k.getIdx(), XBYAK_ALLOW_K0_MASK == 1); return r; }
 template<class T>T operator|(const T& x, const EvexModifierZero&) { T r(x); r.setZero(); return r; }
 template<class T>T operator|(const T& x, const EvexModifierRounding& emr) { T r(x); r.setRounding(emr.rounding); return r; }
 
