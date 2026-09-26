@@ -1,182 +1,29 @@
-// AVX10 integer and FP16 VNNI, media and zero-extending
+// AVX10 FP16 VNNI, media and zero-extending
 vdpphps(xm1, xm2, xm3);
-vdpphps(xm1, xm2, ptr[rax+128]);
-vdpphps(xm1, xm2, ptr_b[rax+128]);
+vdpphps(xm1, xm2, ptr[rax+64]);
+vdpphps(xm1, xm2, ptr_b[rax+64]);
 
 vdpphps(ym1, ym2, ym3);
-vdpphps(ym1, ym2, ptr[rax+128]);
-vdpphps(ym1, ym2, ptr_b[rax+128]);
+vdpphps(ym1, ym2, ptr[rax+64]);
+vdpphps(ym1, ym2, ptr_b[rax+64]);
 
 vdpphps(zm1, zm2, zm3);
-vdpphps(zm1, zm2, ptr[rax+128]);
-vdpphps(zm1, zm2, ptr_b[rax+128]);
+vdpphps(zm1, zm2, ptr[rax+64]);
+vdpphps(zm1, zm2, ptr_b[rax+64]);
 //
 vmpsadbw(xm1, xm3, xm15, 3);
-vmpsadbw(xm1|T_z, xm4, ptr[rax+128], 5);
+vmpsadbw(xm1, xm4, ptr[rax+64], 5);
 
 vmpsadbw(ym1|k4, ym3, ym15, 3);
-vmpsadbw(ym1, ym4, ptr[rax+128], 5);
+vmpsadbw(ym1, ym4, ptr[rax+64], 5);
 
 vmpsadbw(zm1|k4, zm3, zm15, 3);
-vmpsadbw(zm1, zm4, ptr[rax+128], 5);
-//
-vpdpbssd(xm1, xm2, xm3);
-vpdpbssd(xm1, xm2, ptr[rax+128]);
-vpdpbssd(xm1, xm2, ptr_b[rax+128]);
-
-vpdpbssd(ym1, ym2, ym3);
-vpdpbssd(ym1, ym2, ptr[rax+128]);
-vpdpbssd(ym1, ym2, ptr_b[rax+128]);
-
-vpdpbssd(zm1, zm2, zm3);
-vpdpbssd(zm1, zm2, ptr[rax+128]);
-vpdpbssd(zm1, zm2, ptr_b[rax+128]);
-//
-vpdpbssds(xm1, xm2, xm3);
-vpdpbssds(xm1, xm2, ptr[rax+128]);
-vpdpbssds(xm1, xm2, ptr_b[rax+128]);
-
-vpdpbssds(ym1, ym2, ym3);
-vpdpbssds(ym1, ym2, ptr[rax+128]);
-vpdpbssds(ym1, ym2, ptr_b[rax+128]);
-
-vpdpbssds(zm1, zm2, zm3);
-vpdpbssds(zm1, zm2, ptr[rax+128]);
-vpdpbssds(zm1, zm2, ptr_b[rax+128]);
-//
-vpdpbsud(xm1, xm2, xm3);
-vpdpbsud(xm1, xm2, ptr[rax+128]);
-vpdpbsud(xm1, xm2, ptr_b[rax+128]);
-
-vpdpbsud(ym1, ym2, ym3);
-vpdpbsud(ym1, ym2, ptr[rax+128]);
-vpdpbsud(ym1, ym2, ptr_b[rax+128]);
-
-vpdpbsud(zm1, zm2, zm3);
-vpdpbsud(zm1, zm2, ptr[rax+128]);
-vpdpbsud(zm1, zm2, ptr_b[rax+128]);
-//
-vpdpbsuds(xm1, xm2, xm3);
-vpdpbsuds(xm1, xm2, ptr[rax+128]);
-vpdpbsuds(xm1, xm2, ptr_b[rax+128]);
-
-vpdpbsuds(ym1, ym2, ym3);
-vpdpbsuds(ym1, ym2, ptr[rax+128]);
-vpdpbsuds(ym1, ym2, ptr_b[rax+128]);
-
-vpdpbsuds(zm1, zm2, zm3);
-vpdpbsuds(zm1, zm2, ptr[rax+128]);
-vpdpbsuds(zm1, zm2, ptr_b[rax+128]);
-
-//
-vpdpbuud(xm1, xm2, xm3);
-vpdpbuud(xm1, xm2, ptr[rax+128]);
-vpdpbuud(xm1, xm2, ptr_b[rax+128]);
-
-vpdpbuud(ym1, ym2, ym3);
-vpdpbuud(ym1, ym2, ptr[rax+128]);
-vpdpbuud(ym1, ym2, ptr_b[rax+128]);
-
-vpdpbuud(zm1, zm2, zm3);
-vpdpbuud(zm1, zm2, ptr[rax+128]);
-vpdpbuud(zm1, zm2, ptr_b[rax+128]);
-//
-vpdpbuuds(xm1, xm2, xm3);
-vpdpbuuds(xm1, xm2, ptr[rax+128]);
-vpdpbuuds(xm1, xm2, ptr_b[rax+128]);
-
-vpdpbuuds(ym1, ym2, ym3);
-vpdpbuuds(ym1, ym2, ptr[rax+128]);
-vpdpbuuds(ym1, ym2, ptr_b[rax+128]);
-
-vpdpbuuds(zm1, zm2, zm3);
-vpdpbuuds(zm1, zm2, ptr[rax+128]);
-vpdpbuuds(zm1, zm2, ptr_b[rax+128]);
-
-//
-vpdpwsud(xm1, xm2, xm3);
-vpdpwsud(xm1, xm2, ptr[rax+128]);
-vpdpwsud(xm1, xm2, ptr_b[rax+128]);
-
-vpdpwsud(ym1, ym2, ym3);
-vpdpwsud(ym1, ym2, ptr[rax+128]);
-vpdpwsud(ym1, ym2, ptr_b[rax+128]);
-
-vpdpwsud(zm1, zm2, zm3);
-vpdpwsud(zm1, zm2, ptr[rax+128]);
-vpdpwsud(zm1, zm2, ptr_b[rax+128]);
-//
-vpdpwsuds(xm1, xm2, xm3);
-vpdpwsuds(xm1, xm2, ptr[rax+128]);
-vpdpwsuds(xm1, xm2, ptr_b[rax+128]);
-
-vpdpwsuds(ym1, ym2, ym3);
-vpdpwsuds(ym1, ym2, ptr[rax+128]);
-vpdpwsuds(ym1, ym2, ptr_b[rax+128]);
-
-vpdpwsuds(zm1, zm2, zm3);
-vpdpwsuds(zm1, zm2, ptr[rax+128]);
-vpdpwsuds(zm1, zm2, ptr_b[rax+128]);
-//
-vpdpwsud(xm1, xm2, xm3);
-vpdpwsud(xm1, xm2, ptr[rax+128]);
-vpdpwsud(xm1, xm2, ptr_b[rax+128]);
-
-vpdpwsud(ym1, ym2, ym3);
-vpdpwsud(ym1, ym2, ptr[rax+128]);
-vpdpwsud(ym1, ym2, ptr_b[rax+128]);
-
-vpdpwsud(zm1, zm2, zm3);
-vpdpwsud(zm1, zm2, ptr[rax+128]);
-vpdpwsud(zm1, zm2, ptr_b[rax+128]);
-//
-vpdpwsuds(xm1, xm2, xm3);
-vpdpwsuds(xm1, xm2, ptr[rax+128]);
-vpdpwsuds(xm1, xm2, ptr_b[rax+128]);
-
-vpdpwsuds(ym1, ym2, ym3);
-vpdpwsuds(ym1, ym2, ptr[rax+128]);
-vpdpwsuds(ym1, ym2, ptr_b[rax+128]);
-
-vpdpwsuds(zm1, zm2, zm3);
-vpdpwsuds(zm1, zm2, ptr[rax+128]);
-vpdpwsuds(zm1, zm2, ptr_b[rax+128]);
-
-//
-vpdpwuud(xm1, xm2, xm3);
-vpdpwuud(xm1, xm2, ptr[rax+128]);
-vpdpwuud(xm1, xm2, ptr_b[rax+128]);
-
-vpdpwuud(ym1, ym2, ym3);
-vpdpwuud(ym1, ym2, ptr[rax+128]);
-vpdpwuud(ym1, ym2, ptr_b[rax+128]);
-
-vpdpwuud(zm1, zm2, zm3);
-vpdpwuud(zm1, zm2, ptr[rax+128]);
-vpdpwuud(zm1, zm2, ptr_b[rax+128]);
-//
-vpdpwuuds(xm1, xm2, xm3);
-vpdpwuuds(xm1, xm2, ptr[rax+128]);
-vpdpwuuds(xm1, xm2, ptr_b[rax+128]);
-
-vpdpwuuds(ym1, ym2, ym3);
-vpdpwuuds(ym1, ym2, ptr[rax+128]);
-vpdpwuuds(ym1, ym2, ptr_b[rax+128]);
-
-vpdpwuuds(zm1, zm2, zm3);
-vpdpwuuds(zm1, zm2, ptr[rax+128]);
-vpdpwuuds(zm1, zm2, ptr_b[rax+128]);
-
+vmpsadbw(zm1, zm4, ptr[rax+64], 5);
 //
 vmovd(xm10, xm20);
 vmovd(xm1, xm2);
-vmovd(xm10, ptr[rax+128]);
-vmovd(ptr[rax+128], xm30);
-//
-vmovw(xm1, xm20);
-vmovw(xm1, xm2);
-vmovw(xm3, ptr [rax+0x40]);
-vmovw(ptr [rax+0x40], xm7);
+vmovd(xm10, ptr[rax+64]);
+vmovd(ptr[rax+64], xm30);
 //
 push(rax);
 push(rcx);
@@ -242,6 +89,12 @@ pop(r28);
 pop(r29);
 pop(r30);
 pop(r31);
+push(r24w);
+push(word[r16]);
+push(qword[r24]);
+pop(r20w);
+pop(word[r24]);
+pop(qword[r16]);
 
 movrs(rcx, ptr[rax]);
 movrs(ecx, ptr[rax]);
@@ -254,23 +107,25 @@ prefetcht1(ptr[rcx]);
 prefetcht2(ptr[rcx]);
 prefetchit1(ptr[rip+64]);
 prefetchit0(ptr[rip+64]);
+prefetchit0(ptr[rax]);
+prefetchit1(ptr[rax]);
 prefetchrst2(ptr[rcx]);
 
-vmovrsb(xm1|k1|T_z, ptr[rax+128]);
-vmovrsb(ym1|k1|T_z, ptr[rax+128]);
-vmovrsb(zm1|k1|T_z, ptr[rax+128]);
+vmovrsb(xm1|k1|T_z, ptr[rax+64]);
+vmovrsb(ym1|k1|T_z, ptr[rax+64]);
+vmovrsb(zm1|k1|T_z, ptr[rax+64]);
 
-vmovrsd(xm1|k1|T_z, ptr[rax+128]);
-vmovrsd(ym1|k1|T_z, ptr[rax+128]);
-vmovrsd(zm1|k1|T_z, ptr[rax+128]);
+vmovrsd(xm1|k1|T_z, ptr[rax+64]);
+vmovrsd(ym1|k1|T_z, ptr[rax+64]);
+vmovrsd(zm1|k1|T_z, ptr[rax+64]);
 
-vmovrsq(xm1|k1|T_z, ptr[rax+128]);
-vmovrsq(ym1|k1|T_z, ptr[rax+128]);
-vmovrsq(zm1|k1|T_z, ptr[rax+128]);
+vmovrsq(xm1|k1|T_z, ptr[rax+64]);
+vmovrsq(ym1|k1|T_z, ptr[rax+64]);
+vmovrsq(zm1|k1|T_z, ptr[rax+64]);
 
-vmovrsw(xm1|k1|T_z, ptr[rax+128]);
-vmovrsw(ym1|k1|T_z, ptr[rax+128]);
-vmovrsw(zm1|k1|T_z, ptr[rax+128]);
+vmovrsw(xm1|k1|T_z, ptr[rax+64]);
+vmovrsw(ym1|k1|T_z, ptr[rax+64]);
+vmovrsw(zm1|k1|T_z, ptr[rax+64]);
 // moved for bug of nasm 3.x
 vcvtsd2si(esp, xmm4|T_rd_sae);
 vcvtsd2si(r8, xmm4|T_rd_sae);
@@ -288,3 +143,20 @@ vcvttss2si(esp, xmm25|T_sae);
 vcvttss2si(r11, xmm25|T_sae);
 vcvttss2usi(edi, xmm25|T_sae);
 vcvttss2usi(r14, xmm25|T_sae);
+
+umwait(eax);
+umwait(ebx);
+umwait(r8d);
+umwait(r31d);
+
+umonitor(eax);
+umonitor(ecx);
+umonitor(r31d);
+umonitor(rax);
+umonitor(rcx);
+umonitor(r31);
+
+tpause(eax);
+tpause(ebx);
+tpause(r8d);
+tpause(r31d);

@@ -19,21 +19,14 @@ Y)
 	EXE=nasm
 	OPT2=-DXBYAK64
 	OPT3=win64
-	FILTER=./normalize_prefix
+	FILTER=./normalize_prefix.exe
 	;;
 Y64)
 	echo "yasm(64bit)"
 	EXE=yasm
 	OPT2="-DUSE_YASM -DXBYAK64"
 	OPT3=win64
-	FILTER=./normalize_prefix
-	;;
-avx512)
-	echo "nasm(64bit) + avx512"
-	EXE=nasm
-	OPT2="-DXBYAK64 -DUSE_AVX512"
-	OPT3=win64
-	FILTER=./normalize_prefix
+	FILTER=./normalize_prefix.exe
 	;;
 noexcept)
 	echo "nasm(32bit) without exception"
@@ -51,16 +44,16 @@ esac
 
 CFLAGS="$CFLAGS_USER $CFLAGS_WARN -g -I../ -I./ $OPT2"
 echo "compile make_nm.cpp with $CFLAGS"
-$CXX $CFLAGS make_nm.cpp -o make_nm
+$CXX $CFLAGS make_nm.cpp -o make_nm.exe
 
-./make_nm > a.asm
+./make_nm.exe > a.asm
 echo "asm"
 $EXE -f$OPT3 a.asm -l a.lst
 awk '$3 != "1+1" {printf "%s", sub(/-$/, "", $3) ? $3 : $3 ORS}' a.lst | $FILTER > ok.lst
 
 echo "xbyak"
-./make_nm jit > nm.cpp
+./make_nm.exe jit > nm.cpp
 echo "compile nm_frame.cpp"
-$CXX $CFLAGS -DXBYAK_TEST nm_frame.cpp -o nm_frame
-./nm_frame | $FILTER > x.lst
+$CXX $CFLAGS -DXBYAK_TEST nm_frame.cpp -o nm_frame.exe
+./nm_frame.exe | $FILTER > x.lst
 diff -bB ok.lst x.lst && echo "ok"

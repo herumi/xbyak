@@ -56,20 +56,15 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tRTM, "rtm" },
 		{ Cpu::tMPX, "mpx" },
 		{ Cpu::tSHA, "sha" },
-		{ Cpu::tPREFETCHWT1, "prefetchwt1" },
 		{ Cpu::tF16C, "f16c" },
 		{ Cpu::tMOVBE, "movbe" },
 		{ Cpu::tAVX512F, "avx512f" },
 		{ Cpu::tAVX512DQ, "avx512dq" },
 		{ Cpu::tAVX512IFMA, "avx512_ifma" },
-		{ Cpu::tAVX512PF, "avx512pf" },
-		{ Cpu::tAVX512ER, "avx512er" },
 		{ Cpu::tAVX512CD, "avx512cd" },
 		{ Cpu::tAVX512BW, "avx512bw" },
 		{ Cpu::tAVX512VL, "avx512vl" },
 		{ Cpu::tAVX512VBMI, "avx512_vbmi" },
-		{ Cpu::tAVX512_4VNNIW, "avx512_4vnniw" },
-		{ Cpu::tAVX512_4FMAPS, "avx512_4fmaps" },
 
 		{ Cpu::tAVX512_VBMI2, "avx512_vbmi2" },
 		{ Cpu::tGFNI, "gfni" },
@@ -113,12 +108,16 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tKEYLOCKER_WIDE, "keylocker_wide" },
 		{ Cpu::tTSXLDTRK, "tsxldtrk" },
 		{ Cpu::tAMX_FP8, "amx_fp8" },
-		{ Cpu::tAMX_TRANSPOSE, "amx_transpose" },
+//		{ Cpu::tAMX_TRANSPOSE, "amx_transpose" },
 		{ Cpu::tAMX_TF32, "amx_tf32" },
 		{ Cpu::tAMX_AVX512, "amx_avx512" },
 		{ Cpu::tAMX_MOVRS, "amx_movrs" },
 		{ Cpu::tMOVRS, "movrs" },
 		{ Cpu::tHYBRID, "hybrid" },
+		{ Cpu::tAMX_COMPLEX, "amx_complex" },
+		{ Cpu::tACE, "ace" },
+		{ Cpu::tAVX10_V1_AUX, "avx10_v1_aux" },
+		{ Cpu::tAVX10_V2_AUX, "avx10_v2_aux" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);
@@ -127,6 +126,9 @@ void putCPUinfo(bool onlyCpuidFeature)
 	if (onlyCpuidFeature) return;
 	if (cpu.has(Cpu::tAVX10)) {
 		printf("AVX10 version %d\n", cpu.getAVX10version());
+	}
+	if (cpu.has(Cpu::tACE)) {
+		printf("ACE version %d, max_palette %d\n", cpu.getACEVersion(), cpu.getMaxPalette());
 	}
 	if (cpu.has(Cpu::tPOPCNT)) {
 		const int n = 0x12345678; // bitcount = 13

@@ -6,12 +6,12 @@ all: $(TARGET) ../CMakeLists.txt ../meson.build ../readme.md ../readme.txt
 avx_type_def.h: ../xbyak/xbyak.h
 	sed -n '/@@@begin of avx_type_def.h/,/@@@end of avx_type_def.h/p' $< > $@
 
-avx_type.hpp: avx_type_def.h
+GEN_DEP=avx_type.hpp avx_type_def.h ../xbyak/xbyak.h
 sortline: sortline.cpp
 	$(CXX) $(CFLAGS) $< -o $@
-gen_code: gen_code.cpp avx_type.hpp
+gen_code: gen_code.cpp $(GEN_DEP)
 	$(CXX) $(CFLAGS) $< -o $@
-gen_avx512: gen_avx512.cpp avx_type.hpp
+gen_avx512: gen_avx512.cpp $(GEN_DEP)
 	$(CXX) $(CFLAGS) $< -o $@
 
 $(TARGET): $(BIN)

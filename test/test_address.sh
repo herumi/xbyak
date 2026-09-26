@@ -11,19 +11,19 @@ sub()
 {
 CFLAGS="$CFLAGS_USER $CFLAGS_WARN -I../ $OPT2"
 
-echo $CXX $CFLAGS address.cpp -o address
-$CXX $CFLAGS address.cpp -o address
+echo $CXX $CFLAGS address.cpp -o address.exe
+$CXX $CFLAGS address.cpp -o address.exe
 
-./address $1 > a.asm
+./address.exe $1 > a.asm
 echo "asm"
 $EXE -f$OPT3 a.asm -l a.lst
 awk '{printf "%s", sub(/-$/, "", $3) ? $3 : $3 ORS}' a.lst | $FILTER > ok.lst
 
 echo "xbyak"
-./address $1 jit > nm.cpp
+./address.exe $1 jit > nm.cpp
 echo "compile nm_frame.cpp"
-$CXX $CFLAGS -DXBYAK_TEST nm_frame.cpp -o nm_frame
-./nm_frame > x.lst
+$CXX $CFLAGS -DXBYAK_TEST nm_frame.cpp -o nm_frame.exe
+./nm_frame.exe > x.lst
 diff -bB ok.lst x.lst && echo "ok"
 
 }

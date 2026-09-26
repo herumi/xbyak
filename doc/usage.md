@@ -114,6 +114,7 @@ vfpclassps k5{k3}, [rax+64]{1to4}, 5    --> vfpclassps(k5|k3, yword_b [rax+64], 
 * `k1`, ..., `k7` are opmask registers.
   - `k0` is dealt as no mask.
   - e.g. `vmovaps(zmm0|k0, ptr[rax]);` and `vmovaps(zmm0|T_z, ptr[rax]);` are same to `vmovaps(zmm0, ptr[rax]);`.
+  - `zmm0|k0` is treated as an error if `XBYAK_ALLOW_K0_MASK` is defined as 0.
 * use `| T_z`, `| T_sae`, `| T_rn_sae`, `| T_rd_sae`, `| T_ru_sae`, `| T_rz_sae` instead of `,{z}`, `,{sae}`, `,{rn-sae}`, `,{rd-sae}`, `,{ru-sae}`, `,{rz-sae}` respectively.
 * `k4 | k3` is different from `k3 | k4`.
 * use `ptr_b` for broadcast `{1toX}`. X is automatically determined.
@@ -534,6 +535,9 @@ If `XBYAK_NO_EXCEPTION` is defined, then gcc/clang can compile xbyak with `-fno-
 In stead of throwing an exception, `Xbyak::GetError()` returns non-zero value (e.g. `ERR_BAD_ADDRESSING`) if there is something wrong.
 The status will not be changed automatically, then you should reset it by `Xbyak::ClearError()`.
 `CodeGenerator::reset()` calls `ClearError()`.
+Once an error occurs, code generation stops; no bytes are emitted after the first error until the error status is cleared.
+Do not use the generated code if `Xbyak::GetError()` returns a non-zero value.
+Note that the error status is thread-local and shared by all instances of `CodeGenerator` on the same thread.
 
 ## Macro
 
@@ -547,6 +551,101 @@ The status will not be changed automatically, then you should reset it by `Xbyak
 * define **XBYAK_NO_EXCEPTION** for a compiler option `-fno-exceptions`.
 * define **XBYAK_USE_MEMFD** on Linux then /proc/self/maps shows the area used by xbyak.
 * define **XBYAK_OLD_DISP_CHECK** if the old disp check is necessary (deprecated in the future).
+* define **XBYAK_ALLOW_K0_MASK=0** if you want to treat `zmm0|k0` as an error.
+
+## StackFrame (64bit only)
+
+`StackFrame` simplifies writing functions with automatic register save/restore and stack alignment.
+
+```cpp
+StackFrame(CodeGenerator *code, int pNum, int tNum = 0, int stackSizeByte = 0, bool makeEpilog = true);
+```
+
+### Parameters
+
+- `pNum` : number of function parameters (0 <= pNum <= 4).
+- `tNum` : number of temporary registers (0 <= tNum). Can be OR-ed with `UseRBX`, `UseRCX`, `UseRDX`, `UseRSI`, `UseRDI`, `UseRBP`, `UseR30R31`, the push-optimization flags, and the vector register flags below.
+- `stackSizeByte` : local stack size in bytes.
+- `makeEpilog` : automatically generate epilog in the destructor if true.
+
+The constraint is `pNum + tNum + #UseRegs <= 14`.
+
+### Available registers
+
+- `rax` : free to use (not managed by StackFrame).
+- `sf.p[0]`, ..., `sf.p[pNum-1]` : function parameters.
+- `sf.t[0]`, ..., `sf.t[tNum-1]` : temporary registers.
+- `rbx`, `rcx`, `rdx`, `rsi`, `rdi`, `rbp` : explicitly available by specifying `UseRBX`, `UseRCX`, `UseRDX`, `UseRSI`, `UseRDI`, `UseRBP` in `tNum`.
+- `r30`, `r31` : explicitly available by specifying `UseR30R31` in `tNum`. Currently only the Windows x64 ABI treats these APX registers as callee-saved (the System V ABI treats all EGPRs as caller-saved), but StackFrame always pushes/pops them when reserved, regardless of platform. They do not count toward the `pNum + tNum + #UseRegs <= 14` constraint; they are saved in addition to the 14 registers above.
+- `rsp[0..stackSizeByte-1]` : local stack area if `stackSizeByte > 0`.
+
+### Push optimization flags
+
+These flags can be OR-ed into `tNum` to influence how callee-saved registers are pushed and popped:
+
+- `UsePUSH2` : use `push2`/`pop2` (APX) where RSP is 16-byte aligned, falling back to `push`/`pop` otherwise.
+- `UsePPX` : use `pushp`/`popp` with the PPX store-forwarding hint (APX).
+- `UsePUSH2|UsePPX` : use `push2p`/`pop2p` where RSP is 16-byte aligned, falling back to `pushp`/`popp` otherwise.
+
+`rbp` reserved by `UseRBP` is always pushed/popped individually (with `pushp`/`popp` if `UsePPX` is specified) and is never paired by `push2`, so that `mov rbp, rsp` of `UseRBPAsFramePointer` works right after the push.
+
+### UseRBP as frame pointer
+
+Use `UseRBPAsFramePointer` instead of `UseRBP` to additionally emit `mov rbp, rsp` after `push rbp`.
+
+### Vector register flags
+
+`UseSSE(n)` (0 <= n <= 16) or `UseAVX(n)` (0 <= n <= 32) can be OR-ed into `tNum` to declare that the function uses `xmm0`, ..., `xmm(n-1)` (also `ymm`/`zmm` of the same numbers for `UseAVX`). Specifying both at once is an error (`ERR_BAD_TNUM`).
+
+- The declared registers are numbered from 0 and do not appear in `sf.p`/`sf.t`.
+- On the Windows x64 ABI, the lower 128 bits of `xmm6`, ..., `xmm(min(n,16)-1)` are saved in the prolog and restored in `close()`. On System V nothing is saved (all vector registers are caller-saved). Whenever the save area exists, `rsp` is 16-byte aligned after the prolog.
+- `xmm16-31`/`ymm16-31`/`zmm16-31` are volatile on every ABI and are never saved, so they need not be counted in `n`; `UseAVX(32)` is always correct but conservative. A kernel using `zmm16-31` plus `zmm0-7` may declare just `UseAVX(8)`.
+- `UseSSE(n)` guarantees that StackFrame emits no AVX instruction (save/restore uses `movaps`, no `vzeroupper`). `n > 16` is rejected because SSE encodings cannot reach `xmm16+`.
+- `UseAVX(n)` emits `vzeroupper` at the top of `close()` by default to avoid AVX-SSE transition penalties in the caller. OR `NoVzeroupper` into `tNum` to suppress it, e.g. for functions returning a full-width value in `ymm0`/`zmm0`. With `NoVzeroupper` the save/restore uses `vmovaps` (the upper state may be dirty); otherwise it uses `movaps`, which is one byte shorter and safe because `vzeroupper` precedes the restores.
+- `NoVzeroupper` is only meaningful with `UseAVX(n)`; combining it with `UseSSE(n)` (which never emits `vzeroupper` anyway) or specifying it alone is an error (`ERR_BAD_TNUM`).
+
+```cpp
+struct Code : Xbyak::CodeGenerator {
+    Code() {
+        // void func(float *dst, const float *src); uses ymm0-ymm9
+        StackFrame sf(this, 2, UseAVX(10)); // xmm6-xmm9 are saved/restored on Win64
+        vmovups(ymm0, ptr[sf.p[1]]);
+        // ...
+        vmovups(ptr[sf.p[0]], ymm9);
+        // close() emits vzeroupper, restores xmm6-xmm9 (Win64) and returns
+    }
+};
+```
+
+### Example
+
+```cpp
+struct Code : Xbyak::CodeGenerator {
+    Code() {
+        // int func(int a, int b);
+        StackFrame sf(this, 2, 1); // 2 params, 1 temp
+        mov(sf.t[0], sf.p[0]);
+        add(sf.t[0], sf.p[1]);
+        mov(rax, sf.t[0]);
+    }
+};
+```
+
+```cpp
+struct Code : Xbyak::CodeGenerator {
+    Code() {
+        // use rcx explicitly and 3 temps with local stack
+        StackFrame sf(this, 0, 3 | UseRCX, 32);
+        mov(rcx, ptr[rsp]);
+        mov(sf.t[0], rcx);
+    }
+};
+```
+
+The stack is automatically 16-byte aligned.
+Callee-save registers are pushed/popped as needed.
+
+See [stackframe.cpp](../sample/stackframe.cpp) for more examples.
 
 ## Sample
 

@@ -84,7 +84,9 @@ public:
 				break;
 			case '.':
 #ifdef XBYAK32
-				push(cur);
+//				push(cur.changeBit(32));
+				movzx(eax, cur);
+				push(eax); // better
 				call(pPutchar);
 				pop(eax);
 #elif defined(XBYAK64_WIN)
