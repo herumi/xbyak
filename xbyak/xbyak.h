@@ -1298,7 +1298,6 @@ inline void Operand::setBit(int bit)
 		case 256: kind = YMM; break;
 		case 512: kind = ZMM; break;
 		case 8192: kind = TMM; break;
-		default: goto ERR;
 		}
 		idx_ = idx;
 		kind_ = kind;
