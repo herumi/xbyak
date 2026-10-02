@@ -987,3 +987,8 @@ vp2intersectq(k4, ymm1, ymm2);
 vp2intersectq(k4, ymm1, ptr[rax+128]);
 vp2intersectq(k6, zmm1, zmm20);
 vp2intersectq(k6, zmm1, ptr_b[rax+128]);
+
+vpermq(ymm1, ymm2, ymm3);
+vpermq(ymm1, ymm2, ptr[rax+64]);
+vpermq(ymm1, ymm2, ptr_b[rax+64]);
+vpermq(zmm1, zmm2, zmm3);

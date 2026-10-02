@@ -1520,7 +1520,7 @@ void put()
 			uint64_t type;
 		} tbl[] = {
 			{ 0x36, "vpermd", T_66 | T_0F38 | T_W0 | T_YMM | T_EVEX | T_B32 },
-			{ 0x36, "vpermq", T_66 | T_0F38 | T_YMM | T_EVEX | T_EW1 | T_B64 },
+			{ 0x36, "vpermq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64 },
 			{ 0x16, "vpermps", T_66 | T_0F38 | T_W0 | T_YMM | T_EVEX | T_B32 },
 			{ 0x16, "vpermpd", T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_YMM | T_B64 },
 		};
