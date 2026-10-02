@@ -208,9 +208,9 @@ void putX_X_XM(bool omitOnly)
 			{ 0xCF, "gf2p8affineinvqb", T_66 | T_0F3A | T_W1 | T_EVEX | T_YMM | T_EW1 | T_SAE_Z | T_B64, true, false, 3 },
 			{ 0xCE, "gf2p8affineqb", T_66 | T_0F3A | T_W1 | T_EVEX | T_YMM | T_EW1 | T_SAE_Z | T_B64, true, false, 3 },
 			{ 0xCF, "gf2p8mulb", T_66 | T_0F38 | T_W0 | T_EVEX | T_YMM | T_W0 | T_SAE_Z, false, false, 3 },
-			{ 0xDA, "sm3msg1", T_0F38 | T_W0 | T_EVEX | T_W0, false, false, 2 },
-			{ 0xDA, "sm3msg2", T_66 | T_0F38 | T_W0 | T_EVEX | T_W0, false, false, 2 },
-			{ 0xDE, "sm3rnds2", T_66 | T_0F3A | T_W0 | T_EVEX | T_W0, true, false, 2 },
+			{ 0xDA, "sm3msg1", T_0F38 | T_W0, false, false, 2 },
+			{ 0xDA, "sm3msg2", T_66 | T_0F38 | T_W0, false, false, 2 },
+			{ 0xDE, "sm3rnds2", T_66 | T_0F3A | T_W0, true, false, 2 },
 			{ 0xDA, "sm4key4", T_F3 | T_0F38 | T_W0 | T_YMM | T_EVEX | T_NO_MASK, false, false, 2 },
 			{ 0xDA, "sm4rnds4", T_F2 | T_0F38 | T_W0 | T_YMM | T_EVEX | T_NO_MASK, false, false, 2 },
 		};

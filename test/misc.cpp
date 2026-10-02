@@ -71,6 +71,7 @@ CYBOZU_TEST_AUTO(badSSE)
 			CYBOZU_TEST_EXCEPTION(pextrd(ptr[rax], xm16, 3), Error);
 			CYBOZU_TEST_EXCEPTION(pextrw(ptr[rax], xm16, 3), Error);
 			CYBOZU_TEST_EXCEPTION(pmovmskb(eax, xm16), Error);
+			CYBOZU_TEST_EXCEPTION(vsm3msg1(xm16, xm1, xm2), Error); // VEX only
 		}
 	} code;
 }
