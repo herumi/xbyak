@@ -441,6 +441,9 @@ def parseNmemonic(s):
     # tmm?+1
     elif e[:-2] in g_tmmTbl and e.endswith('+1'):
       args.append(Reg(e[:-2]))
+    # k?+1 (vp2intersect)
+    elif e.endswith('+1') and e[:-2] in g_regTbl and Reg(e[:-2]).type == tMASK:
+      args.append(Reg(e[:-2]))
     else:
       args.append(parseMemory(e, broadcast))
   # ccmp/ctest always take two operands, so a third argument on the Xbyak side

@@ -974,3 +974,16 @@ vpdpwuuds(ym1, ym2, ptr_b[rax+64]);
 vpdpwuuds(zm1, zm2, zm3);
 vpdpwuuds(zm1, zm2, ptr[rax+64]);
 vpdpwuuds(zm1, zm2, ptr_b[rax+64]);
+
+vp2intersectd(k2, xmm1, xmm2);
+vp2intersectd(k2, xmm1, ptr[rax+128]);
+vp2intersectd(k4, ymm1, ymm2);
+vp2intersectd(k4, ymm17, ptr_b[rax+128]);
+vp2intersectd(k6, zmm1, zmm2);
+vp2intersectd(k6, zmm1, ptr[rax+128]);
+vp2intersectq(k2, xmm1, xmm2);
+vp2intersectq(k2, xmm1, ptr_b[rax+128]);
+vp2intersectq(k4, ymm1, ymm2);
+vp2intersectq(k4, ymm1, ptr[rax+128]);
+vp2intersectq(k6, zmm1, zmm20);
+vp2intersectq(k6, zmm1, ptr_b[rax+128]);
