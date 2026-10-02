@@ -1008,3 +1008,11 @@ valignq(ymm1|k1, ymm2, ptr_b[rax+128], 2);
 valignq(zmm1|k1|T_z, zmm2, ptr_b[rax+128], 3);
 valignd(zmm1, zmm2, ptr[rax+128], 3);
 valignq(zmm1, zmm2, zmm3, 3);
+
+// AVX-IFMA (VEX)
+vpmadd52luq(xmm1, xmm2, xmm3, VexEncoding);
+vpmadd52luq(ymm1, ymm2, ptr[rax+128], VexEncoding);
+vpmadd52huq(xmm1, xmm2, ptr[rax+128], VexEncoding);
+vpmadd52huq(ymm15, ymm2, ymm3, VexEncoding);
+vpmadd52luq(xmm1, xmm2, xmm3);
+vpmadd52huq(ymm1, ymm2, ptr[rax+128], EvexEncoding);

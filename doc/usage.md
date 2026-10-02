@@ -141,15 +141,15 @@ vmpsadbw(xm1, xm3, xm15, 3); // AVX10.2
 ```
 
 - `setDefaultEncoding(PreferredEncoding enc = EvexEncoding)`
-  - Configure encoding for AVX512-VNNI or AVX-VNNI instructions.
+  - Configure encoding for AVX512-VNNI/AVX512-IFMA or AVX-VNNI/AVX-IFMA instructions.
 - `setDefaultEncodingAVX10(PreferredEncoding enc = PreAVXv2Encoding)`
   - Configure encoding for pre-AVX10.2 and AVX10.2 instructions.
 
 `setDefaultEncoding`|EvexEncoding (default)|VexEncoding
 -|-|-
-feature|AVX512-VNNI|AVX-VNNI
+feature|AVX512-VNNI, AVX512-IFMA|AVX-VNNI, AVX-IFMA
 
-- Target functions: vpdpbusd, vpdpbusds, vpdpwssd, vpdpwssds
+- Target functions: vpdpbusd, vpdpbusds, vpdpwssd, vpdpwssds, vpmadd52luq, vpmadd52huq
 
 `setDefaultEncodingAVX10`|PreAVX10v2Encoding (default)|AVX10v2Encoding
 -|-|-

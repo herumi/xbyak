@@ -3492,7 +3492,7 @@ public:
 	#undef XBYAK_DEFINE_REGISTER
 private:
 	bool isDefaultJmpNEAR_;
-	PreferredEncoding defaultEncoding_[2]; // 0:vnni, 1:vmpsadbw
+	PreferredEncoding defaultEncoding_[2]; // 0:vnni/ifma, 1:vmpsadbw
 public:
 	void L(const std::string& label) { labelMgr_.defineSlabel(label); }
 	void L(Label& label) { labelMgr_.defineClabel(label); }
@@ -3776,8 +3776,8 @@ public:
 	#undef jnl
 #endif
 
-	// set default encoding of VNNI
-	// EvexEncoding : AVX512_VNNI, VexEncoding : AVX-VNNI
+	// set default encoding of VNNI, IFMA
+	// EvexEncoding : AVX512_VNNI, AVX512_IFMA, VexEncoding : AVX-VNNI, AVX-IFMA
 	void setDefaultEncoding(PreferredEncoding enc = EvexEncoding)
 	{
 		if (enc != VexEncoding && enc != EvexEncoding) XBYAK_THROW(ERR_BAD_ENCODING_MODE)

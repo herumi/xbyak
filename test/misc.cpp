@@ -142,6 +142,29 @@ CYBOZU_TEST_AUTO(scalar_xmm_only)
 	} code;
 }
 
+CYBOZU_TEST_AUTO(ifma)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			vpmadd52huq(xm0, xm1, xm2); // EVEX (AVX512-IFMA)
+			vpmadd52huq(xm0, xm1, xm2, VexEncoding); // VEX (AVX-IFMA)
+			setDefaultEncoding(VexEncoding);
+			vpmadd52huq(xm0, xm1, xm2); // VEX
+			vpmadd52huq(xm0, xm1, xm2, EvexEncoding); // EVEX
+		}
+	} c;
+	const uint8_t tbl[] = {
+		0x62, 0xF2, 0xF5, 0x08, 0xB5, 0xC2,
+		0xC4, 0xE2, 0xF1, 0xB5, 0xC2,
+		0xC4, 0xE2, 0xF1, 0xB5, 0xC2,
+		0x62, 0xF2, 0xF5, 0x08, 0xB5, 0xC2,
+	};
+	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
+
 CYBOZU_TEST_AUTO(compOperand)
 {
 	using namespace Xbyak::util;
