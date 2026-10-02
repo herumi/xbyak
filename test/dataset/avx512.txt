@@ -792,8 +792,31 @@ vsm3rnds2(xmm5, xmm7, ptr [rcx], 0x34);
 
 vsm4key4(xmm1, xmm2, xmm3);
 vsm4key4(xmm1, xmm2, ptr [rdx]);
+
+vsm4key4(ymm1, ymm2, ymm3);
+vsm4key4(ymm1, ymm2, ptr [rdx]);
+vsm4key4(ymm1, ymm18, ptr [rdx+128]);
+
+vsm4key4(xmm17, xmm2, xmm3);
+vsm4key4(ymm17, ymm2, ymm3);
+
+vsm4key4(xmm1, xmm18, ptr [rdx+128]);
+vsm4key4(zmm1, zmm2, zmm3);
+vsm4key4(zmm1, zmm2, ptr [rdx+128]);
+
 vsm4rnds4(xmm1, xmm2, xmm3);
 vsm4rnds4(xmm5, xmm6, ptr [rcx+rax*4]);
+
+vsm4rnds4(ymm1, ymm2, ymm3);
+vsm4rnds4(ymm5, ymm6, ptr [rcx+rax*4]);
+vsm4rnds4(ymm1, ymm18, ptr [rdx+128]);
+
+vsm4rnds4(xmm17, xmm2, xmm3);
+vsm4rnds4(ymm17, ymm2, ymm3);
+
+vsm4rnds4(xmm1, xmm18, ptr [rdx+128]);
+vsm4rnds4(zmm1, zmm2, zmm3);
+vsm4rnds4(zmm1, zmm2, ptr [rdx+128]);
 
 // AVX-VNNI-INT8/INT16
 vpdpbssd(xmm1, xmm2, xmm3);
