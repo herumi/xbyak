@@ -1760,10 +1760,10 @@ void put()
 	}
 	// cvt
 	{
-		puts("void vcvtss2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W0 | T_EVEX | T_NO_MASK | T_ER_X | T_N8, 0x2D); }");
-		puts("void vcvttss2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W0 | T_EVEX | T_NO_MASK | T_SAE_X | T_N8, 0x2C); }");
-		puts("void vcvtsd2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W0 | T_EVEX | T_NO_MASK | T_N4 | T_ER_X, 0x2D); }");
-		puts("void vcvttsd2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W0 | T_EVEX | T_NO_MASK | T_N4 | T_SAE_X, 0x2C); }");
+		puts("void vcvtss2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W0 | T_EVEX | T_NO_MASK | T_ER_X | T_N4, 0x2D); }");
+		puts("void vcvttss2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W0 | T_EVEX | T_NO_MASK | T_SAE_X | T_N4, 0x2C); }");
+		puts("void vcvtsd2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W0 | T_EVEX | T_NO_MASK | T_N8 | T_ER_X, 0x2D); }");
+		puts("void vcvttsd2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W0 | T_EVEX | T_NO_MASK | T_N8 | T_SAE_X, 0x2C); }");
 
 		// keep the checkTypeMergeable() args in sync with the type args in the puts() below
 		checkTypeMergeable(T_0F | T_F3 | T_EVEX | T_NO_MASK | T_ER_R, T_W1 | T_EW1 | T_N8, "vcvtsi2ss");
@@ -1967,10 +1967,10 @@ void put64()
 	puts("void pinsrq(const Xmm& xmm, const Operand& op, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opSSE(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x22, 0, imm); }");
 	puts("void senduipi(const Reg64& r) { opRR(Reg32(6), r.cvt32(), T_F3 | T_0F, 0xC7); }");
 
-	puts("void vcvtss2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W1 | T_EVEX | T_NO_MASK | T_EW1 | T_ER_X | T_N8, 0x2D); }");
-	puts("void vcvttss2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W1 | T_EVEX | T_NO_MASK | T_EW1 | T_SAE_X | T_N8, 0x2C); }");
-	puts("void vcvtsd2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W1 | T_EVEX | T_NO_MASK | T_EW1 | T_N4 | T_ER_X, 0x2D); }");
-	puts("void vcvttsd2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W1 | T_EVEX | T_NO_MASK | T_EW1 | T_N4 | T_SAE_X, 0x2C); }");
+	puts("void vcvtss2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W1 | T_EVEX | T_NO_MASK | T_EW1 | T_ER_X | T_N4, 0x2D); }");
+	puts("void vcvttss2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W1 | T_EVEX | T_NO_MASK | T_EW1 | T_SAE_X | T_N4, 0x2C); }");
+	puts("void vcvtsd2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W1 | T_EVEX | T_NO_MASK | T_EW1 | T_N8 | T_ER_X, 0x2D); }");
+	puts("void vcvttsd2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W1 | T_EVEX | T_NO_MASK | T_EW1 | T_N8 | T_SAE_X, 0x2C); }");
 
 	puts("void vmovq(const Xmm& x, const Reg64& r) { opAVX_X_X_XM(x, xm0, r, T_66 | T_0F | T_W1 | T_EVEX | T_NO_MASK | T_EW1, 0x6E); }");
 	puts("void vmovq(const Reg64& r, const Xmm& x) { opAVX_X_X_XM(x, xm0, r, T_66 | T_0F | T_W1 | T_EVEX | T_NO_MASK | T_EW1, 0x7E); }");
