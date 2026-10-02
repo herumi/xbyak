@@ -3201,6 +3201,7 @@ private:
 	void opAVX_K_X_XM(const Opmask& k, const Xmm& x2, const Operand& op3, uint64_t type, int code, int imm8 = NONE)
 	{
 		if (!op3.isMEM() && (x2.getKind() != op3.getKind())) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (!(type & T_YMM) && !x2.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opVex(k, &x2, op3, type, code, imm8);
 	}
 	void opCvt(const Xmm& x, const Operand& op, uint64_t type, int code)

@@ -138,6 +138,10 @@ CYBOZU_TEST_AUTO(scalar_xmm_only)
 			CYBOZU_TEST_EXCEPTION(vrsqrt14sd(ymm1, ymm2, ymm3), Error);
 			CYBOZU_TEST_EXCEPTION(vrsqrt14ss(zmm1, zmm2, zmm3), Error);
 			CYBOZU_TEST_NO_EXCEPTION(vrsqrt14sd(xmm1, xmm2, xmm3));
+			CYBOZU_TEST_EXCEPTION(vcmpsd(k1, ymm2, ymm3, 1), Error);
+			CYBOZU_TEST_EXCEPTION(vcmpss(k1, zmm2, ptr[eax], 1), Error);
+			CYBOZU_TEST_NO_EXCEPTION(vcmpsd(k1, xmm2, xmm3, 1));
+			CYBOZU_TEST_NO_EXCEPTION(vcmpps(k1, zmm2, zmm3, 1));
 		}
 	} code;
 }
