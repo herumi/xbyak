@@ -76,6 +76,32 @@ CYBOZU_TEST_AUTO(badSSE)
 }
 #endif
 
+CYBOZU_TEST_AUTO(vmovhl_mem)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			// the source of vmov{h,l}{pd,ps} must be memory
+			CYBOZU_TEST_EXCEPTION(vmovhpd(xmm1, xmm2), Error);
+			CYBOZU_TEST_EXCEPTION(vmovhps(xmm1, xmm2), Error);
+			CYBOZU_TEST_EXCEPTION(vmovlpd(xmm1, xmm2), Error);
+			CYBOZU_TEST_EXCEPTION(vmovlps(xmm1, xmm2), Error);
+			CYBOZU_TEST_EXCEPTION(vmovhpd(xmm1, xmm2, xmm3), Error);
+			CYBOZU_TEST_EXCEPTION(vmovhps(xmm1, xmm2, xmm3), Error);
+			CYBOZU_TEST_EXCEPTION(vmovlpd(xmm1, xmm2, xmm3), Error);
+			CYBOZU_TEST_EXCEPTION(vmovlps(xmm1, xmm2, xmm3), Error);
+			CYBOZU_TEST_NO_EXCEPTION(vmovhpd(xmm1, ptr[eax]));
+			CYBOZU_TEST_NO_EXCEPTION(vmovhps(xmm1, ptr[eax]));
+			CYBOZU_TEST_NO_EXCEPTION(vmovlpd(xmm1, ptr[eax]));
+			CYBOZU_TEST_NO_EXCEPTION(vmovlps(xmm1, ptr[eax]));
+			CYBOZU_TEST_NO_EXCEPTION(vmovhpd(xmm1, xmm2, ptr[eax]));
+			CYBOZU_TEST_NO_EXCEPTION(vmovhps(xmm1, xmm2, ptr[eax]));
+			CYBOZU_TEST_NO_EXCEPTION(vmovlpd(xmm1, xmm2, ptr[eax]));
+			CYBOZU_TEST_NO_EXCEPTION(vmovlps(xmm1, xmm2, ptr[eax]));
+		}
+	} code;
+}
+
 CYBOZU_TEST_AUTO(compOperand)
 {
 	using namespace Xbyak::util;
