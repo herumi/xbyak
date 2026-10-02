@@ -1045,6 +1045,8 @@ void putFP16_FMA2()
 	} tbl[] = {
 		{ 0x56, "maddc", true },
 		{ 0xD6, "mulc", true },
+		{ 0x57, "maddc", false },
+		{ 0xD7, "mulc", false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		for (int j = 0; j < 2; j++) {
@@ -1059,7 +1061,7 @@ void putFP16_FMA2()
 				type |= T_ER_Z | T_YMM | T_B32;
 				suf = "ph";
 			} else {
-				type |= T_ER_X | T_N2;
+				type |= T_ER_X | T_N4; // m32 (a pair of fp16)
 				suf = "sh";
 			}
 			std::string s = type2String(type);

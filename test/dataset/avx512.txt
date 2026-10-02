@@ -351,6 +351,16 @@ vfmulcph(xmm1, xmm2, ptr [rax+0x40]);
 vfmulcph(ymm1|k1|T_z, ymm2, ptr_b [rax+0x40]);
 vfmulcph(zmm1, zmm2, ptr_b [rax+0x40]);
 
+vfmaddcsh(xmm1, xmm2, xmm3);
+vfmaddcsh(xmm1|k1|T_z, xmm2, ptr [rax+0x40]);
+vfmaddcsh(xmm1, xmm2, xmm3|T_rn_sae);
+vfcmaddcsh(xmm17, xmm2, ptr [rax+0x40]);
+vfcmaddcsh(xmm1|k1, xmm2, xmm3|T_rd_sae);
+vfmulcsh(xmm1|k1, xmm2, xmm3|T_rz_sae);
+vfmulcsh(xmm1, xmm2, ptr [rax+0x40]);
+vfcmulcsh(xmm1, xmm2, dword [rax+0x40]);
+vfcmulcsh(xmm1|k1|T_z, xmm2, xmm3|T_ru_sae);
+
 vrcpph(xmm1, ptr [rax+0x40]);
 vrcpph(xmm1, ptr_b [rax+0x40]);
 vrcpph(ymm1, ptr [rax+0x40]);
