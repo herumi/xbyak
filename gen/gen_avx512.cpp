@@ -415,24 +415,24 @@ void putX_X_XM_IMM()
 		{ 0x57, "vreducess", T_66 | T_0F3A | T_MUST_EVEX | T_W0 | T_SAE_X | T_N4, true },
 		{ 0x57, "vreducesh", T_0F3A | T_MUST_EVEX | T_W0 | T_SAE_X | T_N2, true },
 
-		{ 0x70, "vpshldw", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z, true },
-		{ 0x71, "vpshldd", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_W0 | T_SAE_Z | T_B32, true },
-		{ 0x71, "vpshldq", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_B64, true },
+		{ 0x70, "vpshldw", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1, true },
+		{ 0x71, "vpshldd", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_W0 | T_B32, true },
+		{ 0x71, "vpshldq", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, true },
 
-		{ 0x70, "vpshldvw", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z, false },
-		{ 0x71, "vpshldvd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_W0 | T_SAE_Z | T_B32, false },
-		{ 0x71, "vpshldvq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_B64, false },
+		{ 0x70, "vpshldvw", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, false },
+		{ 0x71, "vpshldvd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_W0 | T_B32, false },
+		{ 0x71, "vpshldvq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
 
-		{ 0x72, "vpshrdw", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z, true },
-		{ 0x73, "vpshrdd", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_W0 | T_SAE_Z | T_B32, true },
-		{ 0x73, "vpshrdq", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_B64, true },
+		{ 0x72, "vpshrdw", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1, true },
+		{ 0x73, "vpshrdd", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_W0 | T_B32, true },
+		{ 0x73, "vpshrdq", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, true },
 
-		{ 0x72, "vpshrdvw", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z, false },
-		{ 0x73, "vpshrdvd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_W0 | T_SAE_Z | T_B32, false },
-		{ 0x73, "vpshrdvq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_B64, false },
+		{ 0x72, "vpshrdvw", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, false },
+		{ 0x73, "vpshrdvd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_W0 | T_B32, false },
+		{ 0x73, "vpshrdvq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
 
-		{ 0x72, "vcvtne2ps2bf16", T_F2 | T_0F38 | T_YMM | T_MUST_EVEX | T_W0 | T_SAE_Z | T_B32, false },
-		{ 0x52, "vdpbf16ps", T_F3 | T_0F38 | T_YMM | T_MUST_EVEX | T_W0 | T_SAE_Z | T_B32, false },
+		{ 0x72, "vcvtne2ps2bf16", T_F2 | T_0F38 | T_YMM | T_MUST_EVEX | T_W0 | T_B32, false },
+		{ 0x52, "vdpbf16ps", T_F3 | T_0F38 | T_YMM | T_MUST_EVEX | T_W0 | T_B32, false },
 
 		{ 0x5A, "vcvtsd2sh", T_F2 | T_MAP5 | T_MUST_EVEX | T_EW1 | T_ER_X | T_N8, false },
 		{ 0x5A, "vcvtsh2sd", T_F3 | T_MAP5 | T_MUST_EVEX | T_W0 | T_SAE_X | T_N2, false },
@@ -469,7 +469,7 @@ void putX_X_XM_IMM()
 		{ 0x18, "vcvt2ph2hf8", T_MUST_EVEX | T_F2 | T_MAP5 | T_W0 | T_YMM | T_B16 | T_N16 | T_N_VL, false },
 		{ 0x1B, "vcvt2ph2hf8s", T_MUST_EVEX | T_F2 | T_MAP5 | T_W0 | T_YMM | T_B16 | T_N16 | T_N_VL, false },
 
-		{ 0x52, "vdpphps", T_MUST_EVEX | T_0F38 | T_W0 | T_YMM | T_SAE_Z | T_B32, false },
+		{ 0x52, "vdpphps", T_MUST_EVEX | T_0F38 | T_W0 | T_YMM | T_B32, false },
 		{ 0x52, "vminmaxbf16", T_MUST_EVEX | T_F2 | T_0F3A | T_W0 | T_YMM | T_B16, true },
 		{ 0x52, "vminmaxpd", T_MUST_EVEX | T_66 | T_0F3A | T_EW1 | T_YMM | T_B64 | T_SAE_Z, true },
 		{ 0x52, "vminmaxph", T_MUST_EVEX | T_0F3A | T_W0 | T_YMM | T_B16 | T_SAE_Z, true },
@@ -896,13 +896,13 @@ void putX_XM_IMM()
 		{ 0x56, "vreduceps", T_66 | T_0F3A | T_YMM | T_MUST_EVEX | T_W0 | T_B32 | T_SAE_Z, true },
 		{ 0x56, "vreduceph", T_0F3A | T_YMM | T_MUST_EVEX | T_W0 | T_B16 | T_SAE_Z, true },
 
-		{ 0x54, "vpopcntb", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_W0 | T_SAE_Z, false },
-		{ 0x54, "vpopcntw", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z, false },
-		{ 0x55, "vpopcntd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_W0 | T_SAE_Z | T_B32, false },
-		{ 0x55, "vpopcntq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_B64, false },
+		{ 0x54, "vpopcntb", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_W0, false },
+		{ 0x54, "vpopcntw", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1, false },
+		{ 0x55, "vpopcntd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_W0 | T_B32, false },
+		{ 0x55, "vpopcntq", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_B64, false },
 
-		{ 0x62, "vpexpandb", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_W0 | T_SAE_Z | T_N1, false },
-		{ 0x62, "vpexpandw", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_SAE_Z | T_N2, false },
+		{ 0x62, "vpexpandb", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_W0 | T_N1, false },
+		{ 0x62, "vpexpandw", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N2, false },
 
 		{ 0x2F, "vcomisbf16", T_MUST_EVEX | T_NO_MASK | T_66 | T_MAP5 | T_W0 | T_N2, false },
 		{ 0x42, "vgetexpbf16", T_MUST_EVEX | T_MAP6 | T_W0 | T_YMM | T_B16, false },

@@ -117,6 +117,19 @@ CYBOZU_TEST_AUTO(no_mask)
 	} code;
 }
 
+CYBOZU_TEST_AUTO(no_sae)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			// sae is not supported
+			CYBOZU_TEST_EXCEPTION(vpopcntd(zmm1, zmm2|T_sae), Error);
+			CYBOZU_TEST_EXCEPTION(vgf2p8mulb(zmm1, zmm2, zmm3|T_sae), Error);
+			CYBOZU_TEST_NO_EXCEPTION(vpopcntd(zmm1, zmm2));
+		}
+	} code;
+}
+
 CYBOZU_TEST_AUTO(compOperand)
 {
 	using namespace Xbyak::util;

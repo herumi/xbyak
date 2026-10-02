@@ -205,9 +205,9 @@ void putX_X_XM(bool omitOnly)
 			{ 0x14, "unpcklpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true, 2 },
 			{ 0x14, "unpcklps", T_0F | T_YMM | T_EVEX | T_W0 | T_B32, false, true, 2 },
 
-			{ 0xCF, "gf2p8affineinvqb", T_66 | T_0F3A | T_W1 | T_EVEX | T_YMM | T_EW1 | T_SAE_Z | T_B64, true, false, 3 },
-			{ 0xCE, "gf2p8affineqb", T_66 | T_0F3A | T_W1 | T_EVEX | T_YMM | T_EW1 | T_SAE_Z | T_B64, true, false, 3 },
-			{ 0xCF, "gf2p8mulb", T_66 | T_0F38 | T_W0 | T_EVEX | T_YMM | T_W0 | T_SAE_Z, false, false, 3 },
+			{ 0xCF, "gf2p8affineinvqb", T_66 | T_0F3A | T_W1 | T_EVEX | T_YMM | T_EW1 | T_B64, true, false, 3 },
+			{ 0xCE, "gf2p8affineqb", T_66 | T_0F3A | T_W1 | T_EVEX | T_YMM | T_EW1 | T_B64, true, false, 3 },
+			{ 0xCF, "gf2p8mulb", T_66 | T_0F38 | T_W0 | T_EVEX | T_YMM | T_W0, false, false, 3 },
 			{ 0xDA, "sm3msg1", T_0F38 | T_W0, false, false, 2 },
 			{ 0xDA, "sm3msg2", T_66 | T_0F38 | T_W0, false, false, 2 },
 			{ 0xDE, "sm3rnds2", T_66 | T_0F3A | T_W0, true, false, 2 },
@@ -1803,7 +1803,7 @@ void put()
 			const Tbl& p = tbl[i];
 			printf("void %s(const Xmm& x, const Address& addr) { opVex(x, 0, addr, %s, 0x%02X); }\n", p.name, type2String(p.type).c_str(), p.code);
 		}
-		const uint64_t type = T_F3 | T_0F38 | T_W0 | T_YMM | T_SAE_Z | T_B32;
+		const uint64_t type = T_F3 | T_0F38 | T_W0 | T_YMM | T_B32;
 		checkTypeMergeable(type, T_MUST_EVEX, "vcvtneps2bf16");
 		printf("void vcvtneps2bf16(const Xmm& x, const Operand& op, PreferredEncoding encoding = DefaultEncoding) { opCvt_xx_yx_zy(x, op, %s|orEvexIf(encoding, 0, T_MUST_EVEX, 0), 0x72); }\n", type2String(type).c_str());
 	}
@@ -1892,10 +1892,10 @@ void put()
 			const char *name;
 			uint64_t type;
 		} tbl[] = {
-			{ 0x50, "vpdpbusd", T_66 | T_0F38 | T_YMM | T_W0 | T_SAE_Z | T_B32},
-			{ 0x51, "vpdpbusds", T_66 | T_0F38 | T_YMM | T_W0 | T_SAE_Z | T_B32},
-			{ 0x52, "vpdpwssd", T_66 | T_0F38 | T_YMM | T_W0 | T_SAE_Z | T_B32},
-			{ 0x53, "vpdpwssds", T_66 | T_0F38 | T_YMM | T_W0 | T_SAE_Z | T_B32},
+			{ 0x50, "vpdpbusd", T_66 | T_0F38 | T_YMM | T_W0 | T_B32},
+			{ 0x51, "vpdpbusds", T_66 | T_0F38 | T_YMM | T_W0 | T_B32},
+			{ 0x52, "vpdpwssd", T_66 | T_0F38 | T_YMM | T_W0 | T_B32},
+			{ 0x53, "vpdpwssds", T_66 | T_0F38 | T_YMM | T_W0 | T_B32},
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
