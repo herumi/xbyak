@@ -102,6 +102,20 @@ CYBOZU_TEST_AUTO(vmovhl_mem)
 	} code;
 }
 
+CYBOZU_TEST_AUTO(no_mask)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			// T_NO_MASK : opmask is not supported
+			CYBOZU_TEST_EXCEPTION(vmovhpd(xmm1|k1, xmm2, ptr[eax]), Error);
+			CYBOZU_TEST_EXCEPTION(vaesenc(zmm1|k1, zmm2, zmm3), Error);
+			CYBOZU_TEST_NO_EXCEPTION(vaesenc(zmm1, zmm2, zmm3));
+			CYBOZU_TEST_NO_EXCEPTION(vaddps(zmm1|k1, zmm2, zmm3));
+		}
+	} code;
+}
+
 CYBOZU_TEST_AUTO(compOperand)
 {
 	using namespace Xbyak::util;

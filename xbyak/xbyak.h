@@ -776,6 +776,7 @@ typedef uint8_t uint8;
 	f(ERR_CANT_USE_ABCDH, "can't use [abcd]h with rex") \
 	f(ERR_CANT_INIT_CPUTOPOLOGY, "can't init CpuTopology") \
 	f(ERR_INVALID_CPUMASK_INDEX, "invalid cpumask index") \
+	f(ERR_INVALID_OPMASK, "invalid opmask") \
 	f(ERR_INTERNAL, "internal error") /* Put it at last. */
 
 enum {
@@ -2502,6 +2503,7 @@ private:
 	static const uint64_t T_ZU = 1ull << 28; // ND=ZU
 	static const uint64_t T_ALLOW_DIFF_SIZE = 1ull << 29; // allow difference reg size
 	static const uint64_t T_ALLOW_ABCDH = 1ull << 30; // allow [abcd]h reg
+	static const uint64_t T_NO_MASK = 1ull << 31; // opmask is not supported
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
 	// @@@end of avx_type_def.h
@@ -2600,6 +2602,7 @@ private:
 		bool V4 = (v && v->isExtIdx2()) || (x && x->isSIMD() && x->isExtIdx2());
 		bool z = reg.hasZero() || base.hasZero() || (v ? v->hasZero() : false);
 		if (aaa == 0) aaa = verifyDuplicate(base.getOpmaskIdx(), reg.getOpmaskIdx(), (v ? v->getOpmaskIdx() : 0), ERR_OPMASK_IS_ALREADY_SET);
+		if (aaa && (type & T_NO_MASK)) XBYAK_THROW_RET(ERR_INVALID_OPMASK, 0)
 		if (aaa == 0) z = 0; // clear T_z if mask is not set
 		db(0x62);
 		db((R ? 0 : 0x80) | (X3 ? 0 : 0x40) | (B ? 0 : 0x20) | (Rp ? 0 : 0x10) | B4 | mmm);
@@ -3802,8 +3805,8 @@ public:
 	void vmovd(const Operand& op1, const Operand& op2, PreferredEncoding enc = DefaultEncoding)
 	{
 		const uint64_t typeTbl[] = {
-			T_EVEX|T_66|T_0F|T_W0|T_N4, T_EVEX|T_66|T_0F|T_W0|T_N4, // legacy, avx, avx512
-			T_MUST_EVEX|T_66|T_0F|T_N4, T_MUST_EVEX|T_F3|T_0F|T_N4, // avx10.2
+			T_EVEX|T_66|T_0F|T_W0|T_N4|T_NO_MASK, T_EVEX|T_66|T_0F|T_W0|T_N4|T_NO_MASK, // legacy, avx, avx512
+			T_MUST_EVEX|T_66|T_0F|T_N4|T_NO_MASK, T_MUST_EVEX|T_F3|T_0F|T_N4|T_NO_MASK, // avx10.2
 		};
 		const int codeTbl[] = { 0x7E, 0x6E, 0xD6, 0x7E };
 		opAVX10ZeroExt(op1, op2, typeTbl, codeTbl, enc, 32);
@@ -3811,8 +3814,8 @@ public:
 	void vmovw(const Operand& op1, const Operand& op2, PreferredEncoding enc = DefaultEncoding)
 	{
 		const uint64_t typeTbl[] = {
-			T_MUST_EVEX|T_66|T_MAP5|T_N2, T_MUST_EVEX|T_66|T_MAP5|T_N2, // avx512-fp16
-			T_MUST_EVEX|T_F3|T_MAP5|T_N2, T_MUST_EVEX|T_F3|T_MAP5|T_N2, // avx10.2
+			T_MUST_EVEX|T_66|T_MAP5|T_N2|T_NO_MASK, T_MUST_EVEX|T_66|T_MAP5|T_N2|T_NO_MASK, // avx512-fp16
+			T_MUST_EVEX|T_F3|T_MAP5|T_N2|T_NO_MASK, T_MUST_EVEX|T_F3|T_MAP5|T_N2|T_NO_MASK, // avx10.2
 		};
 		const int codeTbl[] = { 0x7E, 0x6E, 0x7E, 0x6E };
 		opAVX10ZeroExt(op1, op2, typeTbl, codeTbl, enc, 16|32|64);

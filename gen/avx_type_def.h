@@ -53,6 +53,7 @@
 	static const uint64_t T_ZU = 1ull << 28; // ND=ZU
 	static const uint64_t T_ALLOW_DIFF_SIZE = 1ull << 29; // allow difference reg size
 	static const uint64_t T_ALLOW_ABCDH = 1ull << 30; // allow [abcd]h reg
+	static const uint64_t T_NO_MASK = 1ull << 31; // opmask is not supported
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
 	// @@@end of avx_type_def.h

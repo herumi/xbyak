@@ -62,7 +62,7 @@ void putX_X_XM(bool omitOnly)
 			{ 0x02, "pblendd", T_0F3A | T_66 | T_W0 | T_YMM, true, true, 2 },
 			{ 0x0B, "roundsd", T_0F3A | T_66 | T_W0, true, true, 3 },
 			{ 0x0A, "roundss", T_0F3A | T_66 | T_W0, true, true, 3 },
-			{ 0x44, "pclmulqdq", T_0F3A | T_66 | T_W0 | T_YMM | T_EVEX, true, true, 3 },
+			{ 0x44, "pclmulqdq", T_0F3A | T_66 | T_W0 | T_YMM | T_EVEX | T_NO_MASK, true, true, 3 },
 			{ 0x0C, "permilps", T_0F38 | T_66 | T_YMM | T_EVEX | T_W0 | T_B32, false, false, 2 },
 			{ 0x0D, "permilpd", T_0F38 | T_66 | T_W0 | T_YMM | T_EVEX | T_EW1 | T_B64, false, false, 2 },
 
@@ -78,7 +78,7 @@ void putX_X_XM(bool omitOnly)
 			{ 0xC2, "cmpss", T_0F | T_F3, true, true, 2 },
 			{ 0x5A, "cvtsd2ss", T_0F | T_F2 | T_EVEX | T_EW1 | T_N8 | T_ER_X, false, true, 2 },
 			{ 0x5A, "cvtss2sd", T_0F | T_F3 | T_EVEX | T_W0 | T_N4 | T_SAE_X, false, true, 2 },
-			{ 0x21, "insertps", T_0F3A | T_66 | T_W0 | T_EVEX | T_N4, true, true, 2 },
+			{ 0x21, "insertps", T_0F3A | T_66 | T_W0 | T_EVEX | T_NO_MASK | T_N4, true, true, 2 },
 			{ 0x63, "packsswb", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
 			{ 0x6B, "packssdw", T_0F | T_66 | T_YMM | T_EVEX | T_W0 | T_B32, false, true, 2 },
 			{ 0x67, "packuswb", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
@@ -149,7 +149,7 @@ void putX_X_XM(bool omitOnly)
 			{ 0x28, "pmuldq", T_0F38 | T_66 | T_YMM | T_EVEX | T_EW1 | T_B64, false, true, 3 },
 
 			{ 0xEB, "por", T_0F | T_66 | T_YMM, false, true, 2 },
-			{ 0xF6, "psadbw", T_0F | T_66 | T_YMM | T_EVEX, false, true, 2 },
+			{ 0xF6, "psadbw", T_0F | T_66 | T_YMM | T_EVEX | T_NO_MASK, false, true, 2 },
 
 			{ 0x00, "pshufb", T_0F38 | T_66 | T_YMM | T_EVEX, false, false, 2 },
 
@@ -211,8 +211,8 @@ void putX_X_XM(bool omitOnly)
 			{ 0xDA, "sm3msg1", T_0F38 | T_W0 | T_EVEX | T_W0, false, false, 2 },
 			{ 0xDA, "sm3msg2", T_66 | T_0F38 | T_W0 | T_EVEX | T_W0, false, false, 2 },
 			{ 0xDE, "sm3rnds2", T_66 | T_0F3A | T_W0 | T_EVEX | T_W0, true, false, 2 },
-			{ 0xDA, "sm4key4", T_F3 | T_0F38 | T_W0 | T_EVEX | T_W0, false, false, 2 },
-			{ 0xDA, "sm4rnds4", T_F2 | T_0F38 | T_W0 | T_EVEX | T_W0, false, false, 2 },
+			{ 0xDA, "sm4key4", T_F3 | T_0F38 | T_W0 | T_EVEX | T_NO_MASK | T_W0, false, false, 2 },
+			{ 0xDA, "sm4rnds4", T_F2 | T_0F38 | T_W0 | T_EVEX | T_NO_MASK | T_W0, false, false, 2 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -1362,8 +1362,8 @@ void put()
 			{ 0x62, "pcmpistrm", T_0F3A | T_66, true, 3 },
 			{ 0x0E, "testps", T_0F38 | T_66 | T_YMM, false, 2 },
 			{ 0x0F, "testpd", T_0F38 | T_66 | T_YMM, false, 2 },
-			{ 0x2F, "comisd", T_0F | T_66 | T_EVEX | T_EW1 | T_SAE_X | T_N8, false, 2 },
-			{ 0x2F, "comiss", T_0F | T_EVEX | T_W0 | T_SAE_X | T_N4, false, 2 },
+			{ 0x2F, "comisd", T_0F | T_66 | T_EVEX | T_NO_MASK | T_EW1 | T_SAE_X | T_N8, false, 2 },
+			{ 0x2F, "comiss", T_0F | T_EVEX | T_NO_MASK | T_W0 | T_SAE_X | T_N4, false, 2 },
 			{ 0x5B, "cvtdq2ps", T_0F | T_YMM | T_EVEX | T_W0 | T_B32 | T_ER_Z, false, 2 },
 			{ 0x5B, "cvtps2dq", T_0F | T_66 | T_YMM | T_EVEX | T_W0 | T_B32 | T_ER_Z, false, 2 },
 			{ 0x5B, "cvttps2dq", T_0F | T_F3 | T_YMM | T_EVEX | T_W0 | T_B32 | T_SAE_Z, false, 2 },
@@ -1407,8 +1407,8 @@ void put()
 			{ 0x51, "sqrtpd", T_0F | T_66 | T_YMM | T_EVEX | T_EW1 | T_ER_Z | T_B64, false, 2 },
 			{ 0x51, "sqrtps", T_0F | T_YMM | T_EVEX | T_W0 | T_ER_Z | T_B32, false, 2 },
 
-			{ 0x2E, "ucomisd", T_0F | T_66 | T_EVEX | T_EW1 | T_SAE_X | T_N8, false, 2 },
-			{ 0x2E, "ucomiss", T_0F | T_EVEX | T_W0 | T_SAE_X | T_N4, false, 2 },
+			{ 0x2E, "ucomisd", T_0F | T_66 | T_EVEX | T_NO_MASK | T_EW1 | T_SAE_X | T_N8, false, 2 },
+			{ 0x2E, "ucomiss", T_0F | T_EVEX | T_NO_MASK | T_W0 | T_SAE_X | T_N4, false, 2 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -1479,10 +1479,10 @@ void put()
 			{ 0x7D, "hsubpd", T_0F | T_66 | T_YMM, 3 },
 			{ 0x7D, "hsubps", T_0F | T_F2 | T_YMM, 3 },
 
-			{ 0xDC, "aesenc", T_0F38 | T_66 | T_YMM | T_EVEX, 3 },
-			{ 0xDD, "aesenclast", T_0F38 | T_66 | T_YMM | T_EVEX, 3 },
-			{ 0xDE, "aesdec", T_0F38 | T_66 | T_YMM | T_EVEX, 3 },
-			{ 0xDF, "aesdeclast", T_0F38 | T_66 | T_YMM | T_EVEX, 3 },
+			{ 0xDC, "aesenc", T_0F38 | T_66 | T_YMM | T_EVEX | T_NO_MASK, 3 },
+			{ 0xDD, "aesenclast", T_0F38 | T_66 | T_YMM | T_EVEX | T_NO_MASK, 3 },
+			{ 0xDE, "aesdec", T_0F38 | T_66 | T_YMM | T_EVEX | T_NO_MASK, 3 },
+			{ 0xDF, "aesdeclast", T_0F38 | T_66 | T_YMM | T_EVEX | T_NO_MASK, 3 },
 		};
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
@@ -1581,7 +1581,7 @@ void put()
 			const Tbl& p = tbl[i];
 			char c = p.isH ? 'h' : 'l';
 			const char *suf = p.isPd ? "pd" : "ps";
-			std::string s = type2String(p.isPd ? (T_0F | T_66 | T_EVEX | T_EW1 | T_N8) : (T_0F | T_EVEX | T_W0 | T_N8));
+			std::string s = type2String(p.isPd ? (T_0F | T_66 | T_EVEX | T_NO_MASK | T_EW1 | T_N8) : (T_0F | T_EVEX | T_NO_MASK | T_W0 | T_N8));
 			printf("void vmov%c%s(const Xmm& x, const Operand& op1, const Operand& op2 = Operand()) { if (!(op2.isNone() ? op1 : op2).isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_X_XM(x, op1, op2, %s, 0x%02X); }\n"
 				, c, suf, s.c_str(), p.code);
 			printf("void vmov%c%s(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, xm0, addr, %s, 0x%02X); }\n"
@@ -1666,7 +1666,7 @@ void put()
 
 		puts("void vextractf128(const Operand& op, const Ymm& y, uint8_t imm) { if (!(op.isXMEM() && y.isYMM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(y, 0, op, T_0F3A | T_66 | T_W0 | T_YMM, 0x19, imm); }");
 		puts("void vextracti128(const Operand& op, const Ymm& y, uint8_t imm) { if (!(op.isXMEM() && y.isYMM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(y, 0, op, T_0F3A | T_66 | T_W0 | T_YMM, 0x39, imm); }");
-		puts("void vextractps(const Operand& op, const Xmm& x, uint8_t imm) { if (!((op.isREG(32) || op.isMEM()) && x.isXMM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x, 0, op, T_0F3A | T_66 | T_W0 | T_EVEX | T_N4, 0x17, imm); }");
+		puts("void vextractps(const Operand& op, const Xmm& x, uint8_t imm) { if (!((op.isREG(32) || op.isMEM()) && x.isXMM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x, 0, op, T_0F3A | T_66 | T_W0 | T_EVEX | T_NO_MASK | T_N4, 0x17, imm); }");
 		puts("void vinsertf128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8_t imm) { if (!(y1.isYMM() && y2.isYMM() && op.isXMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(y1, &y2, op, T_0F3A | T_66 | T_W0 | T_YMM, 0x18, imm); }");
 		puts("void vinserti128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8_t imm) { if (!(y1.isYMM() && y2.isYMM() && op.isXMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(y1, &y2, op, T_0F3A | T_66 | T_W0 | T_YMM, 0x38, imm); }");
 		puts("void vperm2f128(const Ymm& y1, const Ymm& y2, const Operand& op, uint8_t imm) { if (!(y1.isYMM() && y2.isYMM() && op.isYMEM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(y1, &y2, op, T_0F3A | T_66 | T_W0 | T_YMM, 0x06, imm); }");
@@ -1677,15 +1677,15 @@ void put()
 		puts("void vstmxcsr(const Address& addr) { opAVX_X_X_XM(xm3, xm0, addr, T_0F, 0xAE); }");
 		puts("void vmaskmovdqu(const Xmm& x1, const Xmm& x2) { opAVX_X_X_XM(x1, xm0, x2, T_0F | T_66, 0xF7); }");
 
-		puts("void vpextrb(const Operand& op, const Xmm& x, uint8_t imm) { if (!((op.isREG(8|16|i32e) || op.isMEM()) && x.isXMM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x, 0, op, T_0F3A | T_66 | T_EVEX | T_N1, 0x14, imm); }");
-		puts("void vpextrw(const Operand& op, const Xmm& x, uint8_t imm) { if (!((op.isREG(16|i32e) || op.isMEM()) && x.isXMM())) XBYAK_THROW(ERR_BAD_COMBINATION) if (op.isREG() && x.getIdx() < 16 && op.getIdx() < 16) { opAVX_X_X_XM(Xmm(op.getIdx()), xm0, x, T_0F | T_66, 0xC5, imm); } else { opVex(x, 0, op, T_0F3A | T_66 | T_EVEX | T_N2, 0x15, imm); } }");
-		puts("void vpextrd(const Operand& op, const Xmm& x, uint8_t imm) { if (!((op.isREG(32) || op.isMEM()) && x.isXMM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x, 0, op, T_0F3A | T_66 | T_W0 | T_EVEX | T_N4, 0x16, imm); }");
-		puts("void vpextrq(const Operand& op, const Xmm& x, uint8_t imm) { if (!((op.isREG(64) || op.isMEM()) && x.isXMM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x, 0, op, T_0F3A | T_66 | T_W1 | T_EVEX | T_EW1 | T_N8, 0x16, imm); }");
+		puts("void vpextrb(const Operand& op, const Xmm& x, uint8_t imm) { if (!((op.isREG(8|16|i32e) || op.isMEM()) && x.isXMM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x, 0, op, T_0F3A | T_66 | T_EVEX | T_NO_MASK | T_N1, 0x14, imm); }");
+		puts("void vpextrw(const Operand& op, const Xmm& x, uint8_t imm) { if (!((op.isREG(16|i32e) || op.isMEM()) && x.isXMM())) XBYAK_THROW(ERR_BAD_COMBINATION) if (op.isREG() && x.getIdx() < 16 && op.getIdx() < 16) { opAVX_X_X_XM(Xmm(op.getIdx()), xm0, x, T_0F | T_66, 0xC5, imm); } else { opVex(x, 0, op, T_0F3A | T_66 | T_EVEX | T_NO_MASK | T_N2, 0x15, imm); } }");
+		puts("void vpextrd(const Operand& op, const Xmm& x, uint8_t imm) { if (!((op.isREG(32) || op.isMEM()) && x.isXMM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x, 0, op, T_0F3A | T_66 | T_W0 | T_EVEX | T_NO_MASK | T_N4, 0x16, imm); }");
+		puts("void vpextrq(const Operand& op, const Xmm& x, uint8_t imm) { if (!((op.isREG(64) || op.isMEM()) && x.isXMM())) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x, 0, op, T_0F3A | T_66 | T_W1 | T_EVEX | T_NO_MASK | T_EW1 | T_N8, 0x16, imm); }");
 
-		puts("void vpinsrb(const Xmm& x1, const Xmm& x2, const Operand& op, uint8_t imm) { if (!(x1.isXMM() && x2.isXMM() && (op.isREG(32) || op.isMEM()))) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x1, &x2, op, T_0F3A | T_66 | T_EVEX | T_N1, 0x20, imm); }");
-		puts("void vpinsrw(const Xmm& x1, const Xmm& x2, const Operand& op, uint8_t imm) { if (!(x1.isXMM() && x2.isXMM() && (op.isREG(32) || op.isMEM()))) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x1, &x2, op, T_0F | T_66 | T_EVEX | T_N2, 0xC4, imm); }");
-		puts("void vpinsrd(const Xmm& x1, const Xmm& x2, const Operand& op, uint8_t imm) { if (!(x1.isXMM() && x2.isXMM() && (op.isREG(32) || op.isMEM()))) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x1, &x2, op, T_0F3A | T_66 | T_W0 | T_EVEX | T_N4, 0x22, imm); }");
-		puts("void vpinsrq(const Xmm& x1, const Xmm& x2, const Operand& op, uint8_t imm) { if (!(x1.isXMM() && x2.isXMM() && (op.isREG(64) || op.isMEM()))) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x1, &x2, op, T_0F3A | T_66 | T_W1 | T_EVEX | T_EW1 | T_N8, 0x22, imm); }");
+		puts("void vpinsrb(const Xmm& x1, const Xmm& x2, const Operand& op, uint8_t imm) { if (!(x1.isXMM() && x2.isXMM() && (op.isREG(32) || op.isMEM()))) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x1, &x2, op, T_0F3A | T_66 | T_EVEX | T_NO_MASK | T_N1, 0x20, imm); }");
+		puts("void vpinsrw(const Xmm& x1, const Xmm& x2, const Operand& op, uint8_t imm) { if (!(x1.isXMM() && x2.isXMM() && (op.isREG(32) || op.isMEM()))) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x1, &x2, op, T_0F | T_66 | T_EVEX | T_NO_MASK | T_N2, 0xC4, imm); }");
+		puts("void vpinsrd(const Xmm& x1, const Xmm& x2, const Operand& op, uint8_t imm) { if (!(x1.isXMM() && x2.isXMM() && (op.isREG(32) || op.isMEM()))) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x1, &x2, op, T_0F3A | T_66 | T_W0 | T_EVEX | T_NO_MASK | T_N4, 0x22, imm); }");
+		puts("void vpinsrq(const Xmm& x1, const Xmm& x2, const Operand& op, uint8_t imm) { if (!(x1.isXMM() && x2.isXMM() && (op.isREG(64) || op.isMEM()))) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x1, &x2, op, T_0F3A | T_66 | T_W1 | T_EVEX | T_NO_MASK | T_EW1 | T_N8, 0x22, imm); }");
 
 		puts("void vpmovmskb(const Reg32e& r, const Xmm& x) { if (!x.is(Operand::XMM | Operand::YMM)) XBYAK_THROW(ERR_BAD_COMBINATION) opVex(x.isYMM() ? Ymm(r.getIdx()) : Xmm(r.getIdx()), 0, x, T_0F | T_66 | T_YMM, 0xD7); }");
 
@@ -1698,8 +1698,8 @@ void put()
 			int idx;
 			uint64_t type;
 		} tbl[] = {
-			{ "pslldq", 0x73, 7, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM },
-			{ "psrldq", 0x73, 3, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM },
+			{ "pslldq", 0x73, 7, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM | T_NO_MASK },
+			{ "psrldq", 0x73, 3, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM | T_NO_MASK },
 			{ "psllw", 0x71, 6, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM },
 			{ "pslld", 0x72, 6, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM | T_W0 | T_B32 },
 			{ "psllq", 0x73, 6, T_0F | T_66 | T_YMM | T_EVEX_IF_MEM | T_EW1 | T_B64 },
@@ -1732,20 +1732,20 @@ void put()
 	}
 	// mov
 	{
-		printf("void vmovq(const Xmm& x, const Address& addr) { uint64_t type; uint8_t code; if (x.getIdx() < 16) { type = T_0F | T_F3; code = 0x7E; } else { type = T_0F | T_66 | T_EVEX | T_EW1 | T_N8; code = 0x6E; } opAVX_X_X_XM(x, xm0, addr, type, code); }\n");
-		printf("void vmovq(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, xm0, addr, T_0F | T_66 | T_EVEX | T_EW1 | T_N8, x.getIdx() < 16 ? 0xD6 : 0x7E); }\n");
-		printf("void vmovq(const Xmm& x1, const Xmm& x2) { opAVX_X_X_XM(x1, xm0, x2, T_0F | T_F3 | T_EVEX | T_EW1 | T_N8, 0x7E); }\n");
+		printf("void vmovq(const Xmm& x, const Address& addr) { uint64_t type; uint8_t code; if (x.getIdx() < 16) { type = T_0F | T_F3; code = 0x7E; } else { type = T_0F | T_66 | T_EVEX | T_NO_MASK | T_EW1 | T_N8; code = 0x6E; } opAVX_X_X_XM(x, xm0, addr, type, code); }\n");
+		printf("void vmovq(const Address& addr, const Xmm& x) { opAVX_X_X_XM(x, xm0, addr, T_0F | T_66 | T_EVEX | T_NO_MASK | T_EW1 | T_N8, x.getIdx() < 16 ? 0xD6 : 0x7E); }\n");
+		printf("void vmovq(const Xmm& x1, const Xmm& x2) { opAVX_X_X_XM(x1, xm0, x2, T_0F | T_F3 | T_EVEX | T_NO_MASK | T_EW1 | T_N8, 0x7E); }\n");
 
-		printf("void vmovhlps(const Xmm& x1, const Xmm& x2, const Operand& op = Operand()) { if (!op.isNone() && !op.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_X_XM(x1, x2, op, T_0F | T_EVEX | T_W0, 0x12); }\n");
-		printf("void vmovlhps(const Xmm& x1, const Xmm& x2, const Operand& op = Operand()) { if (!op.isNone() && !op.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_X_XM(x1, x2, op, T_0F | T_EVEX | T_W0, 0x16); }\n");
+		printf("void vmovhlps(const Xmm& x1, const Xmm& x2, const Operand& op = Operand()) { if (!op.isNone() && !op.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_X_XM(x1, x2, op, T_0F | T_EVEX | T_NO_MASK | T_W0, 0x12); }\n");
+		printf("void vmovlhps(const Xmm& x1, const Xmm& x2, const Operand& op = Operand()) { if (!op.isNone() && !op.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_X_XM(x1, x2, op, T_0F | T_EVEX | T_NO_MASK | T_W0, 0x16); }\n");
 
 		printf("void vmovmskpd(const Reg& r, const Xmm& x) { if (!r.isBit(i32e)) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_X_XM(x.isXMM() ? Xmm(r.getIdx()) : Ymm(r.getIdx()), cvtIdx0(x), x, T_0F | T_66 | T_W0 | T_YMM, 0x50); }\n");
 		printf("void vmovmskps(const Reg& r, const Xmm& x) { if (!r.isBit(i32e)) XBYAK_THROW(ERR_BAD_COMBINATION) opAVX_X_X_XM(x.isXMM() ? Xmm(r.getIdx()) : Ymm(r.getIdx()), cvtIdx0(x), x, T_0F | T_W0 | T_YMM, 0x50); }\n");
 
-		puts("void vmovntdq(const Address& addr, const Xmm& x) { opVex(x, 0, addr, T_0F | T_66 | T_YMM | T_EVEX | T_W0, 0xE7); }");
-		puts("void vmovntpd(const Address& addr, const Xmm& x) { opVex(x, 0, addr, T_0F | T_66 | T_YMM | T_EVEX | T_EW1, 0x2B); }");
-		puts("void vmovntps(const Address& addr, const Xmm& x) { opVex(x, 0, addr, T_0F | T_YMM | T_EVEX | T_W0, 0x2B); }");
-		puts("void vmovntdqa(const Xmm& x, const Address& addr) { opVex(x, 0, addr, T_0F38 | T_66 | T_YMM | T_EVEX | T_W0, 0x2A); }");
+		puts("void vmovntdq(const Address& addr, const Xmm& x) { opVex(x, 0, addr, T_0F | T_66 | T_YMM | T_EVEX | T_NO_MASK | T_W0, 0xE7); }");
+		puts("void vmovntpd(const Address& addr, const Xmm& x) { opVex(x, 0, addr, T_0F | T_66 | T_YMM | T_EVEX | T_NO_MASK | T_EW1, 0x2B); }");
+		puts("void vmovntps(const Address& addr, const Xmm& x) { opVex(x, 0, addr, T_0F | T_YMM | T_EVEX | T_NO_MASK | T_W0, 0x2B); }");
+		puts("void vmovntdqa(const Xmm& x, const Address& addr) { opVex(x, 0, addr, T_0F38 | T_66 | T_YMM | T_EVEX | T_NO_MASK | T_W0, 0x2A); }");
 
 		// vmovsd, vmovss
 		for (int i = 0; i < 2; i++) {
@@ -1760,18 +1760,18 @@ void put()
 	}
 	// cvt
 	{
-		puts("void vcvtss2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W0 | T_EVEX | T_ER_X | T_N8, 0x2D); }");
-		puts("void vcvttss2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W0 | T_EVEX | T_SAE_X | T_N8, 0x2C); }");
-		puts("void vcvtsd2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W0 | T_EVEX | T_N4 | T_ER_X, 0x2D); }");
-		puts("void vcvttsd2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W0 | T_EVEX | T_N4 | T_SAE_X, 0x2C); }");
+		puts("void vcvtss2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W0 | T_EVEX | T_NO_MASK | T_ER_X | T_N8, 0x2D); }");
+		puts("void vcvttss2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W0 | T_EVEX | T_NO_MASK | T_SAE_X | T_N8, 0x2C); }");
+		puts("void vcvtsd2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W0 | T_EVEX | T_NO_MASK | T_N4 | T_ER_X, 0x2D); }");
+		puts("void vcvttsd2si(const Reg32& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W0 | T_EVEX | T_NO_MASK | T_N4 | T_SAE_X, 0x2C); }");
 
 		// keep the checkTypeMergeable() args in sync with the type args in the puts() below
-		checkTypeMergeable(T_0F | T_F3 | T_EVEX | T_ER_R, T_W1 | T_EW1 | T_N8, "vcvtsi2ss");
-		checkTypeMergeable(T_0F | T_F3 | T_EVEX | T_ER_R, T_W0 | T_N4, "vcvtsi2ss");
-		puts("void vcvtsi2ss(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvtSi2X(x1, x2, op, T_0F | T_F3 | T_EVEX | T_ER_R, T_W1 | T_EW1 | T_N8, T_W0 | T_N4, 0x2A); }");
-		checkTypeMergeable(T_0F | T_F2 | T_EVEX, T_W1 | T_EW1 | T_ER_R | T_N8, "vcvtsi2sd");
-		checkTypeMergeable(T_0F | T_F2 | T_EVEX, T_W0 | T_N4, "vcvtsi2sd");
-		puts("void vcvtsi2sd(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvtSi2X(x1, x2, op, T_0F | T_F2 | T_EVEX, T_W1 | T_EW1 | T_ER_R | T_N8, T_W0 | T_N4, 0x2A); }");
+		checkTypeMergeable(T_0F | T_F3 | T_EVEX | T_NO_MASK | T_ER_R, T_W1 | T_EW1 | T_N8, "vcvtsi2ss");
+		checkTypeMergeable(T_0F | T_F3 | T_EVEX | T_NO_MASK | T_ER_R, T_W0 | T_N4, "vcvtsi2ss");
+		puts("void vcvtsi2ss(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvtSi2X(x1, x2, op, T_0F | T_F3 | T_EVEX | T_NO_MASK | T_ER_R, T_W1 | T_EW1 | T_N8, T_W0 | T_N4, 0x2A); }");
+		checkTypeMergeable(T_0F | T_F2 | T_EVEX | T_NO_MASK, T_W1 | T_EW1 | T_ER_R | T_N8, "vcvtsi2sd");
+		checkTypeMergeable(T_0F | T_F2 | T_EVEX | T_NO_MASK, T_W0 | T_N4, "vcvtsi2sd");
+		puts("void vcvtsi2sd(const Xmm& x1, const Xmm& x2, const Operand& op) { opCvtSi2X(x1, x2, op, T_0F | T_F2 | T_EVEX | T_NO_MASK, T_W1 | T_EW1 | T_ER_R | T_N8, T_W0 | T_N4, 0x2A); }");
 
 
 		puts("void vcvtps2pd(const Xmm& x, const Operand& op) { opCvt_xx_xy_yz(x, op, T_0F | T_YMM | T_EVEX | T_W0 | T_B32 | T_N8 | T_N_VL | T_SAE_Y, 0x5A); }");
@@ -1967,13 +1967,13 @@ void put64()
 	puts("void pinsrq(const Xmm& xmm, const Operand& op, uint8_t imm) { if (!op.isREG(64) && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION) opSSE(Reg64(xmm.getIdx()), op, T_66 | T_0F3A, 0x22, 0, imm); }");
 	puts("void senduipi(const Reg64& r) { opRR(Reg32(6), r.cvt32(), T_F3 | T_0F, 0xC7); }");
 
-	puts("void vcvtss2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W1 | T_EVEX | T_EW1 | T_ER_X | T_N8, 0x2D); }");
-	puts("void vcvttss2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W1 | T_EVEX | T_EW1 | T_SAE_X | T_N8, 0x2C); }");
-	puts("void vcvtsd2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W1 | T_EVEX | T_EW1 | T_N4 | T_ER_X, 0x2D); }");
-	puts("void vcvttsd2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W1 | T_EVEX | T_EW1 | T_N4 | T_SAE_X, 0x2C); }");
+	puts("void vcvtss2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W1 | T_EVEX | T_NO_MASK | T_EW1 | T_ER_X | T_N8, 0x2D); }");
+	puts("void vcvttss2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F3 | T_W1 | T_EVEX | T_NO_MASK | T_EW1 | T_SAE_X | T_N8, 0x2C); }");
+	puts("void vcvtsd2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W1 | T_EVEX | T_NO_MASK | T_EW1 | T_N4 | T_ER_X, 0x2D); }");
+	puts("void vcvttsd2si(const Reg64& r, const Operand& op) { opAVX_X_X_XM(Xmm(r.getIdx()), xm0, op, T_0F | T_F2 | T_W1 | T_EVEX | T_NO_MASK | T_EW1 | T_N4 | T_SAE_X, 0x2C); }");
 
-	puts("void vmovq(const Xmm& x, const Reg64& r) { opAVX_X_X_XM(x, xm0, r, T_66 | T_0F | T_W1 | T_EVEX | T_EW1, 0x6E); }");
-	puts("void vmovq(const Reg64& r, const Xmm& x) { opAVX_X_X_XM(x, xm0, r, T_66 | T_0F | T_W1 | T_EVEX | T_EW1, 0x7E); }");
+	puts("void vmovq(const Xmm& x, const Reg64& r) { opAVX_X_X_XM(x, xm0, r, T_66 | T_0F | T_W1 | T_EVEX | T_NO_MASK | T_EW1, 0x6E); }");
+	puts("void vmovq(const Reg64& r, const Xmm& x) { opAVX_X_X_XM(x, xm0, r, T_66 | T_0F | T_W1 | T_EVEX | T_NO_MASK | T_EW1, 0x7E); }");
 	puts("void jmpabs(uint64_t addr) { db(0xD5); db(0x00); db(0xA1); dq(addr); }");
 	puts("void push2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_APX|T_ND1|T_W0, 0xFF); }");
 	puts("void push2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_APX|T_ND1|T_W1, 0xFF); }");
