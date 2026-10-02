@@ -513,7 +513,7 @@ void putX_X_XM_IMM_AVX10()
 		{ 0xD2, "vpdpwuud", T_0F38|T_YMM|T_W0, 0, T_B32, 1, false },
 		{ 0xD3, "vpdpwuuds", T_0F38|T_YMM|T_W0, 0, T_B32, 1, false },
 
-		{ 0x42, "vmpsadbw", T_0F3A|T_YMM, T_66|T_YMM, T_F3|T_0F3A|T_B32, 1, true },
+		{ 0x42, "vmpsadbw", T_0F3A|T_YMM, T_66|T_YMM, T_F3|T_0F3A, 1, true },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
