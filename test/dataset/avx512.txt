@@ -992,3 +992,9 @@ vpermq(ymm1, ymm2, ymm3);
 vpermq(ymm1, ymm2, ptr[rax+64]);
 vpermq(ymm1, ymm2, ptr_b[rax+64]);
 vpermq(zmm1, zmm2, zmm3);
+
+// scalar with {sae}
+vcmpsd(k1, xmm2, xmm3|T_sae, 1);
+vcmpss(k1|k2, xmm2, xmm3|T_sae, 1);
+vfixupimmsd(xmm1, xmm2, xmm3|T_sae, 1);
+vfixupimmss(xmm1|k1|T_z, xmm2, xmm3|T_sae, 1);
