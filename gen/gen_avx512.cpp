@@ -373,8 +373,8 @@ void putX_X_XM_IMM()
 
 		{ 0x4D, "vrcpsh", T_66 | T_MAP6 | T_MUST_EVEX | T_W0 | T_N2, false },
 
-		{ 0x4F, "vrsqrt14sd", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_EW1 | T_N8, false },
-		{ 0x4F, "vrsqrt14ss", T_66 | T_0F38 | T_YMM | T_MUST_EVEX | T_W0 | T_N4, false },
+		{ 0x4F, "vrsqrt14sd", T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_N8, false },
+		{ 0x4F, "vrsqrt14ss", T_66 | T_0F38 | T_MUST_EVEX | T_W0 | T_N4, false },
 
 		{ 0x4F, "vrsqrtsh", T_66 | T_MAP6 | T_MUST_EVEX | T_W0 | T_N2, false },
 		{ 0x51, "vsqrtsh", T_F3 | T_MAP5 | T_MUST_EVEX | T_W0 | T_ER_X | T_N2, false },

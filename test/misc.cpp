@@ -130,6 +130,18 @@ CYBOZU_TEST_AUTO(no_sae)
 	} code;
 }
 
+CYBOZU_TEST_AUTO(scalar_xmm_only)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			CYBOZU_TEST_EXCEPTION(vrsqrt14sd(ymm1, ymm2, ymm3), Error);
+			CYBOZU_TEST_EXCEPTION(vrsqrt14ss(zmm1, zmm2, zmm3), Error);
+			CYBOZU_TEST_NO_EXCEPTION(vrsqrt14sd(xmm1, xmm2, xmm3));
+		}
+	} code;
+}
+
 CYBOZU_TEST_AUTO(compOperand)
 {
 	using namespace Xbyak::util;
