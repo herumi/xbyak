@@ -351,6 +351,16 @@ vfmulcph(xmm1, xmm2, ptr [rax+0x40]);
 vfmulcph(ymm1|k1|T_z, ymm2, ptr_b [rax+0x40]);
 vfmulcph(zmm1, zmm2, ptr_b [rax+0x40]);
 
+vfmaddcsh(xmm1, xmm2, xmm3);
+vfmaddcsh(xmm1|k1|T_z, xmm2, ptr [rax+0x40]);
+vfmaddcsh(xmm1, xmm2, xmm3|T_rn_sae);
+vfcmaddcsh(xmm17, xmm2, ptr [rax+0x40]);
+vfcmaddcsh(xmm1|k1, xmm2, xmm3|T_rd_sae);
+vfmulcsh(xmm1|k1, xmm2, xmm3|T_rz_sae);
+vfmulcsh(xmm1, xmm2, ptr [rax+0x40]);
+vfcmulcsh(xmm1, xmm2, dword [rax+0x40]);
+vfcmulcsh(xmm1|k1|T_z, xmm2, xmm3|T_ru_sae);
+
 vrcpph(xmm1, ptr [rax+0x40]);
 vrcpph(xmm1, ptr_b [rax+0x40]);
 vrcpph(ymm1, ptr [rax+0x40]);
@@ -792,8 +802,31 @@ vsm3rnds2(xmm5, xmm7, ptr [rcx], 0x34);
 
 vsm4key4(xmm1, xmm2, xmm3);
 vsm4key4(xmm1, xmm2, ptr [rdx]);
+
+vsm4key4(ymm1, ymm2, ymm3);
+vsm4key4(ymm1, ymm2, ptr [rdx]);
+vsm4key4(ymm1, ymm18, ptr [rdx+128]);
+
+vsm4key4(xmm17, xmm2, xmm3);
+vsm4key4(ymm17, ymm2, ymm3);
+
+vsm4key4(xmm1, xmm18, ptr [rdx+128]);
+vsm4key4(zmm1, zmm2, zmm3);
+vsm4key4(zmm1, zmm2, ptr [rdx+128]);
+
 vsm4rnds4(xmm1, xmm2, xmm3);
 vsm4rnds4(xmm5, xmm6, ptr [rcx+rax*4]);
+
+vsm4rnds4(ymm1, ymm2, ymm3);
+vsm4rnds4(ymm5, ymm6, ptr [rcx+rax*4]);
+vsm4rnds4(ymm1, ymm18, ptr [rdx+128]);
+
+vsm4rnds4(xmm17, xmm2, xmm3);
+vsm4rnds4(ymm17, ymm2, ymm3);
+
+vsm4rnds4(xmm1, xmm18, ptr [rdx+128]);
+vsm4rnds4(zmm1, zmm2, zmm3);
+vsm4rnds4(zmm1, zmm2, ptr [rdx+128]);
 
 // AVX-VNNI-INT8/INT16
 vpdpbssd(xmm1, xmm2, xmm3);
@@ -951,3 +984,45 @@ vpdpwuuds(ym1, ym2, ptr_b[rax+64]);
 vpdpwuuds(zm1, zm2, zm3);
 vpdpwuuds(zm1, zm2, ptr[rax+64]);
 vpdpwuuds(zm1, zm2, ptr_b[rax+64]);
+
+vp2intersectd(k2, xmm1, xmm2);
+vp2intersectd(k2, xmm1, ptr[rax+128]);
+vp2intersectd(k4, ymm1, ymm2);
+vp2intersectd(k4, ymm17, ptr_b[rax+128]);
+vp2intersectd(k6, zmm1, zmm2);
+vp2intersectd(k6, zmm1, ptr[rax+128]);
+vp2intersectq(k2, xmm1, xmm2);
+vp2intersectq(k2, xmm1, ptr_b[rax+128]);
+vp2intersectq(k4, ymm1, ymm2);
+vp2intersectq(k4, ymm1, ptr[rax+128]);
+vp2intersectq(k6, zmm1, zmm20);
+vp2intersectq(k6, zmm1, ptr_b[rax+128]);
+
+vpermq(ymm1, ymm2, ymm3);
+vpermq(ymm1, ymm2, ptr[rax+64]);
+vpermq(ymm1, ymm2, ptr_b[rax+64]);
+vpermq(zmm1, zmm2, zmm3);
+
+// scalar with {sae}
+vcmpsd(k1, xmm2, xmm3|T_sae, 1);
+vcmpss(k1|k2, xmm2, xmm3|T_sae, 1);
+vfixupimmsd(xmm1, xmm2, xmm3|T_sae, 1);
+vfixupimmss(xmm1|k1|T_z, xmm2, xmm3|T_sae, 1);
+
+// broadcast
+valignd(xmm1, xmm2, ptr_b[rax+128], 1);
+valignd(ymm1|k1, ymm2, ptr_b[rax+128], 2);
+valignd(zmm1|k1|T_z, zmm2, ptr_b[rax+128], 3);
+valignq(xmm1, xmm2, ptr_b[rax+128], 1);
+valignq(ymm1|k1, ymm2, ptr_b[rax+128], 2);
+valignq(zmm1|k1|T_z, zmm2, ptr_b[rax+128], 3);
+valignd(zmm1, zmm2, ptr[rax+128], 3);
+valignq(zmm1, zmm2, zmm3, 3);
+
+// AVX-IFMA (VEX)
+vpmadd52luq(xmm1, xmm2, xmm3, VexEncoding);
+vpmadd52luq(ymm1, ymm2, ptr[rax+128], VexEncoding);
+vpmadd52huq(xmm1, xmm2, ptr[rax+128], VexEncoding);
+vpmadd52huq(ymm15, ymm2, ymm3, VexEncoding);
+vpmadd52luq(xmm1, xmm2, xmm3);
+vpmadd52huq(ymm1, ymm2, ptr[rax+128], EvexEncoding);

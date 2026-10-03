@@ -39,6 +39,7 @@ CYBOZU_TEST_AUTO(vmpsadbw)
 			setDefaultEncodingAVX10(AVX10v2Encoding);
 			vmpsadbw(ym1, ym3, ym15, 3); // evex(avx10.2)
 			vmpsadbw(ym1, ym3, ptr[rax+128], 3); // evex(avx10.2)
+			CYBOZU_TEST_EXCEPTION(vmpsadbw(ym1, ym3, ptr_b[rax+128], 3), Xbyak::Error); // broadcast is not supported
 		}
 	} c;
 	const uint8_t tbl[] = {

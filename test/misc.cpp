@@ -71,10 +71,103 @@ CYBOZU_TEST_AUTO(badSSE)
 			CYBOZU_TEST_EXCEPTION(pextrd(ptr[rax], xm16, 3), Error);
 			CYBOZU_TEST_EXCEPTION(pextrw(ptr[rax], xm16, 3), Error);
 			CYBOZU_TEST_EXCEPTION(pmovmskb(eax, xm16), Error);
+			CYBOZU_TEST_EXCEPTION(vsm3msg1(xm16, xm1, xm2), Error); // VEX only
 		}
 	} code;
 }
 #endif
+
+CYBOZU_TEST_AUTO(vmovhl_mem)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			// the source of vmov{h,l}{pd,ps} must be memory
+			CYBOZU_TEST_EXCEPTION(vmovhpd(xmm1, xmm2), Error);
+			CYBOZU_TEST_EXCEPTION(vmovhps(xmm1, xmm2), Error);
+			CYBOZU_TEST_EXCEPTION(vmovlpd(xmm1, xmm2), Error);
+			CYBOZU_TEST_EXCEPTION(vmovlps(xmm1, xmm2), Error);
+			CYBOZU_TEST_EXCEPTION(vmovhpd(xmm1, xmm2, xmm3), Error);
+			CYBOZU_TEST_EXCEPTION(vmovhps(xmm1, xmm2, xmm3), Error);
+			CYBOZU_TEST_EXCEPTION(vmovlpd(xmm1, xmm2, xmm3), Error);
+			CYBOZU_TEST_EXCEPTION(vmovlps(xmm1, xmm2, xmm3), Error);
+			CYBOZU_TEST_NO_EXCEPTION(vmovhpd(xmm1, ptr[eax]));
+			CYBOZU_TEST_NO_EXCEPTION(vmovhps(xmm1, ptr[eax]));
+			CYBOZU_TEST_NO_EXCEPTION(vmovlpd(xmm1, ptr[eax]));
+			CYBOZU_TEST_NO_EXCEPTION(vmovlps(xmm1, ptr[eax]));
+			CYBOZU_TEST_NO_EXCEPTION(vmovhpd(xmm1, xmm2, ptr[eax]));
+			CYBOZU_TEST_NO_EXCEPTION(vmovhps(xmm1, xmm2, ptr[eax]));
+			CYBOZU_TEST_NO_EXCEPTION(vmovlpd(xmm1, xmm2, ptr[eax]));
+			CYBOZU_TEST_NO_EXCEPTION(vmovlps(xmm1, xmm2, ptr[eax]));
+		}
+	} code;
+}
+
+CYBOZU_TEST_AUTO(no_mask)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			// T_NO_MASK : opmask is not supported
+			CYBOZU_TEST_EXCEPTION(vmovhpd(xmm1|k1, xmm2, ptr[eax]), Error);
+			CYBOZU_TEST_EXCEPTION(vaesenc(zmm1|k1, zmm2, zmm3), Error);
+			CYBOZU_TEST_NO_EXCEPTION(vaesenc(zmm1, zmm2, zmm3));
+			CYBOZU_TEST_NO_EXCEPTION(vaddps(zmm1|k1, zmm2, zmm3));
+		}
+	} code;
+}
+
+CYBOZU_TEST_AUTO(no_sae)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			// sae is not supported
+			CYBOZU_TEST_EXCEPTION(vpopcntd(zmm1, zmm2|T_sae), Error);
+			CYBOZU_TEST_EXCEPTION(vgf2p8mulb(zmm1, zmm2, zmm3|T_sae), Error);
+			CYBOZU_TEST_NO_EXCEPTION(vpopcntd(zmm1, zmm2));
+		}
+	} code;
+}
+
+CYBOZU_TEST_AUTO(scalar_xmm_only)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			CYBOZU_TEST_EXCEPTION(vrsqrt14sd(ymm1, ymm2, ymm3), Error);
+			CYBOZU_TEST_EXCEPTION(vrsqrt14ss(zmm1, zmm2, zmm3), Error);
+			CYBOZU_TEST_NO_EXCEPTION(vrsqrt14sd(xmm1, xmm2, xmm3));
+			CYBOZU_TEST_EXCEPTION(vcmpsd(k1, ymm2, ymm3, 1), Error);
+			CYBOZU_TEST_EXCEPTION(vcmpss(k1, zmm2, ptr[eax], 1), Error);
+			CYBOZU_TEST_NO_EXCEPTION(vcmpsd(k1, xmm2, xmm3, 1));
+			CYBOZU_TEST_NO_EXCEPTION(vcmpps(k1, zmm2, zmm3, 1));
+		}
+	} code;
+}
+
+CYBOZU_TEST_AUTO(ifma)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			vpmadd52huq(xm0, xm1, xm2); // EVEX (AVX512-IFMA)
+			vpmadd52huq(xm0, xm1, xm2, VexEncoding); // VEX (AVX-IFMA)
+			setDefaultEncoding(VexEncoding);
+			vpmadd52huq(xm0, xm1, xm2); // VEX
+			vpmadd52huq(xm0, xm1, xm2, EvexEncoding); // EVEX
+		}
+	} c;
+	const uint8_t tbl[] = {
+		0x62, 0xF2, 0xF5, 0x08, 0xB5, 0xC2,
+		0xC4, 0xE2, 0xF1, 0xB5, 0xC2,
+		0xC4, 0xE2, 0xF1, 0xB5, 0xC2,
+		0x62, 0xF2, 0xF5, 0x08, 0xB5, 0xC2,
+	};
+	const size_t n = sizeof(tbl) / sizeof(tbl[0]);
+	CYBOZU_TEST_EQUAL(c.getSize(), n);
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
+}
 
 CYBOZU_TEST_AUTO(compOperand)
 {

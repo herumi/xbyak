@@ -694,7 +694,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7420 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7430 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -776,6 +776,7 @@ typedef uint8_t uint8;
 	f(ERR_CANT_USE_ABCDH, "can't use [abcd]h with rex") \
 	f(ERR_CANT_INIT_CPUTOPOLOGY, "can't init CpuTopology") \
 	f(ERR_INVALID_CPUMASK_INDEX, "invalid cpumask index") \
+	f(ERR_INVALID_OPMASK, "invalid opmask") \
 	f(ERR_INTERNAL, "internal error") /* Put it at last. */
 
 enum {
@@ -2502,6 +2503,7 @@ private:
 	static const uint64_t T_ZU = 1ull << 28; // ND=ZU
 	static const uint64_t T_ALLOW_DIFF_SIZE = 1ull << 29; // allow difference reg size
 	static const uint64_t T_ALLOW_ABCDH = 1ull << 30; // allow [abcd]h reg
+	static const uint64_t T_NO_MASK = 1ull << 31; // opmask is not supported
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
 	// @@@end of avx_type_def.h
@@ -2600,6 +2602,7 @@ private:
 		bool V4 = (v && v->isExtIdx2()) || (x && x->isSIMD() && x->isExtIdx2());
 		bool z = reg.hasZero() || base.hasZero() || (v ? v->hasZero() : false);
 		if (aaa == 0) aaa = verifyDuplicate(base.getOpmaskIdx(), reg.getOpmaskIdx(), (v ? v->getOpmaskIdx() : 0), ERR_OPMASK_IS_ALREADY_SET);
+		if (aaa && (type & T_NO_MASK)) XBYAK_THROW_RET(ERR_INVALID_OPMASK, 0)
 		if (aaa == 0) z = 0; // clear T_z if mask is not set
 		db(0x62);
 		db((R ? 0 : 0x80) | (X3 ? 0 : 0x40) | (B ? 0 : 0x20) | (Rp ? 0 : 0x10) | B4 | mmm);
@@ -3198,6 +3201,7 @@ private:
 	void opAVX_K_X_XM(const Opmask& k, const Xmm& x2, const Operand& op3, uint64_t type, int code, int imm8 = NONE)
 	{
 		if (!op3.isMEM() && (x2.getKind() != op3.getKind())) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (!(type & T_YMM) && !x2.isXMM()) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opVex(k, &x2, op3, type, code, imm8);
 	}
 	void opCvt(const Xmm& x, const Operand& op, uint64_t type, int code)
@@ -3489,7 +3493,7 @@ public:
 	#undef XBYAK_DEFINE_REGISTER
 private:
 	bool isDefaultJmpNEAR_;
-	PreferredEncoding defaultEncoding_[2]; // 0:vnni, 1:vmpsadbw
+	PreferredEncoding defaultEncoding_[2]; // 0:vnni/ifma/vcvtneps2bf16, 1:vmpsadbw
 public:
 	void L(const std::string& label) { labelMgr_.defineSlabel(label); }
 	void L(Label& label) { labelMgr_.defineClabel(label); }
@@ -3773,8 +3777,8 @@ public:
 	#undef jnl
 #endif
 
-	// set default encoding of VNNI
-	// EvexEncoding : AVX512_VNNI, VexEncoding : AVX-VNNI
+	// set default encoding of VNNI, IFMA, vcvtneps2bf16
+	// EvexEncoding : AVX512_VNNI, AVX512_IFMA, AVX512_BF16, VexEncoding : AVX-VNNI, AVX-IFMA, AVX-NE-CONVERT
 	void setDefaultEncoding(PreferredEncoding enc = EvexEncoding)
 	{
 		if (enc != VexEncoding && enc != EvexEncoding) XBYAK_THROW(ERR_BAD_ENCODING_MODE)
@@ -3802,8 +3806,8 @@ public:
 	void vmovd(const Operand& op1, const Operand& op2, PreferredEncoding enc = DefaultEncoding)
 	{
 		const uint64_t typeTbl[] = {
-			T_EVEX|T_66|T_0F|T_W0|T_N4, T_EVEX|T_66|T_0F|T_W0|T_N4, // legacy, avx, avx512
-			T_MUST_EVEX|T_66|T_0F|T_N4, T_MUST_EVEX|T_F3|T_0F|T_N4, // avx10.2
+			T_EVEX|T_66|T_0F|T_W0|T_N4|T_NO_MASK, T_EVEX|T_66|T_0F|T_W0|T_N4|T_NO_MASK, // legacy, avx, avx512
+			T_MUST_EVEX|T_66|T_0F|T_N4|T_NO_MASK, T_MUST_EVEX|T_F3|T_0F|T_N4|T_NO_MASK, // avx10.2
 		};
 		const int codeTbl[] = { 0x7E, 0x6E, 0xD6, 0x7E };
 		opAVX10ZeroExt(op1, op2, typeTbl, codeTbl, enc, 32);
@@ -3811,8 +3815,8 @@ public:
 	void vmovw(const Operand& op1, const Operand& op2, PreferredEncoding enc = DefaultEncoding)
 	{
 		const uint64_t typeTbl[] = {
-			T_MUST_EVEX|T_66|T_MAP5|T_N2, T_MUST_EVEX|T_66|T_MAP5|T_N2, // avx512-fp16
-			T_MUST_EVEX|T_F3|T_MAP5|T_N2, T_MUST_EVEX|T_F3|T_MAP5|T_N2, // avx10.2
+			T_MUST_EVEX|T_66|T_MAP5|T_N2|T_NO_MASK, T_MUST_EVEX|T_66|T_MAP5|T_N2|T_NO_MASK, // avx512-fp16
+			T_MUST_EVEX|T_F3|T_MAP5|T_N2|T_NO_MASK, T_MUST_EVEX|T_F3|T_MAP5|T_N2|T_NO_MASK, // avx10.2
 		};
 		const int codeTbl[] = { 0x7E, 0x6E, 0x7E, 0x6E };
 		opAVX10ZeroExt(op1, op2, typeTbl, codeTbl, enc, 16|32|64);
