@@ -1,4 +1,5 @@
 # History
+* 2026/Oct/03 ver 7.43 add vfmaddcsh/vfcmaddcsh/vfmulcsh/vfcmulcsh. vpmadd52luq/vpmadd52huq support VEX encoding (AVX-IFMA) by VexEncoding/setDefaultEncoding. vsm4key4/vsm4rnds4 support ymm/zmm. valignd/valignq support broadcast. add T_NO_MASK: an opmask on instructions that do not support masking (vmovhpd, vaesenc, vpsadbw, etc.) is an error (ERR_INVALID_OPMASK). fix wrong encoding: vmov{h,l}{pd,ps}(xmm, xmm), vpermq(ymm, ymm, ymm/m256) and vp2intersect{d,q} with xmm/ymm emitted VEX, disp8N of vcvt(t)sd2si/vcvt(t)ss2si was swapped, vsm3* are VEX.128 only. remove unsupported {sae}/broadcast/ymm from vpopcnt*, vpshld*, vpshrd*, vpdpbusd*, vgf2p8*, vmpsadbw, vrsqrt14s{s,d}, etc. vcmps{s,d} and vfixupimms{s,d} accept {sae}. vcmps{s,d,h} accept only xmm.
 * 2026/Sep/17 ver 7.42 add XBYAK_ALLOW_K0_MASK=1 to treat k0 mask as an error
 * 2026/Aug/29 ver 7.41.1 fix assignL() after a forward reference and fix disp handling for [label+disp]
 * 2026/Aug/27 ver 7.41 use REX2 instead of EVEX for plain EGPR without NF/ZU (neg, not, mul, imul, div, idiv, shift/rotate, setcc) to shorten encoding
