@@ -189,6 +189,71 @@ CYBOZU_TEST_AUTO(mov_moffs)
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, n);
 }
 
+// read little-endian n bytes
+static size_t getSize_tAsLE(const uint8_t *p, size_t n)
+{
+	size_t v = 0;
+	for (size_t i = 0; i < n; i++) v |= size_t(p[i]) << (i * 8);
+	return v;
+}
+
+// mov eax|ax|al, [label] and mov [label], eax|ax|al (absolute address of label)
+CYBOZU_TEST_AUTO(mov_moffs_label)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Label L1, L2;
+		Code()
+		{
+			mov(eax, ptr[L1]); // forward ref
+			mov(ptr[L2+4], al); // forward ref with disp
+		L(L1);
+			dd(0);
+			mov(ax, ptr[L1]); // backward ref
+		L(L2);
+			dq(0);
+#ifdef XBYAK64
+			mov(ptr[L2], rax); // backward ref
+#else
+			mov(ptr[L2], eax); // backward ref
+#endif
+		}
+	} c;
+	const uint8_t *code = c.getCode();
+	// size of moffs (misc32 may be built with -DXBYAK32 on a 64-bit host, so don't use sizeof(void*))
+#ifdef XBYAK64
+	const size_t A = 8;
+	const size_t mask = size_t(-1);
+#else
+	const size_t A = 4;
+	const size_t mask = 0xffffffff; // the low 32 bits of the address are encoded
+#endif
+	const size_t L1 = size_t(c.L1.getAddress());
+	const size_t L2 = size_t(c.L2.getAddress());
+	size_t pos = 0;
+	CYBOZU_TEST_EQUAL(code[pos], 0xa1);
+	CYBOZU_TEST_EQUAL(getSize_tAsLE(code + pos + 1, A), L1 & mask);
+	pos += 1 + A;
+	CYBOZU_TEST_EQUAL(code[pos], 0xa2);
+	CYBOZU_TEST_EQUAL(getSize_tAsLE(code + pos + 1, A), (L2 + 4) & mask);
+	pos += 1 + A;
+	CYBOZU_TEST_EQUAL(size_t(code + pos), L1);
+	pos += 4;
+	CYBOZU_TEST_EQUAL(code[pos], 0x66);
+	CYBOZU_TEST_EQUAL(code[pos + 1], 0xa1);
+	CYBOZU_TEST_EQUAL(getSize_tAsLE(code + pos + 2, A), L1 & mask);
+	pos += 2 + A;
+	CYBOZU_TEST_EQUAL(size_t(code + pos), L2);
+	pos += 8;
+#ifdef XBYAK64
+	CYBOZU_TEST_EQUAL(code[pos], 0x48);
+	pos++;
+#endif
+	CYBOZU_TEST_EQUAL(code[pos], 0xa3);
+	CYBOZU_TEST_EQUAL(getSize_tAsLE(code + pos + 1, A), L2 & mask);
+	pos += 1 + A;
+	CYBOZU_TEST_EQUAL(c.getSize(), pos);
+}
+
 CYBOZU_TEST_AUTO(scalar_xmm_only)
 {
 	struct Code : Xbyak::CodeGenerator {
