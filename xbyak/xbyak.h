@@ -3596,32 +3596,16 @@ public:
 			addr= &op1.getAddress();
 			code = 0xA2;
 		}
-#ifdef XBYAK64
-		if (addr && addr->is64bitDisp()) {
-			if (code) {
-				rex(*reg);
-				db(op1.isREG(8) ? 0xA0 : op1.isREG() ? 0xA1 : op2.isREG(8) ? 0xA2 : 0xA3);
-				if (addr->getLabel()) {
-					putL_inner(*addr->getLabel(), inner::Labs, addr->getDisp(), 8);
-				} else {
-					db(addr->getDisp(), 8);
-				}
-			} else {
-				XBYAK_THROW(ERR_BAD_COMBINATION)
-			}
-		} else
-#else
-		if (code && addr->isOnlyDisp()) {
+		// mov eax|ax|al, [moffs] / mov [moffs], eax|ax|al (moffs size = address size)
+		if (code && (BIT == 64 ? addr->is64bitDisp() : addr->isOnlyDisp())) {
 			rex(*reg, *addr);
 			db(code | (reg->isBit(8) ? 0 : 1));
 			if (addr->getLabel()) {
-				putL_inner(*addr->getLabel(), inner::Labs, addr->getDisp(), 4);
+				putL_inner(*addr->getLabel(), inner::Labs, addr->getDisp(), BIT / 8);
 			} else {
-				dd(static_cast<uint32_t>(addr->getDisp()));
+				db(addr->getDisp(), BIT / 8);
 			}
-		} else
-#endif
-		{
+		} else {
 			opRO_MR(op1, op2, 0x88);
 		}
 	}
