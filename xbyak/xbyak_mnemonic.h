@@ -942,6 +942,7 @@ void sal(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 12); }
 void sal(const Operand& op, int imm) { opShift(op, imm, 12); }
 void sal(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 12, &d); }
 void sal(const Reg& d, const Operand& op, int imm) { opShift(op, imm, 12, &d); }
+void salc() { db(0xD6); }
 void sar(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 15); }
 void sar(const Operand& op, int imm) { opShift(op, imm, 15); }
 void sar(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 15, &d); }
