@@ -1149,3 +1149,25 @@ ctestnle(rax, rcx, 15);
 ccmpb(rax, rbx);
 ccmpz(r20w, 0x1234);
 ctestnle(qword [r30], 0x12345678);
+
+// urdmsr/uwrmsr (USER_MSR) : legacy/VEX forms and APX(EVEX MAP4/MAP7) forms
+urdmsr(rax, rcx);
+urdmsr(r8, r15);
+urdmsr(r16, r17);
+urdmsr(rax, r31);
+urdmsr(r31, rax);
+urdmsr(r20, r28);
+urdmsr(rax, 0x12345678);
+urdmsr(r9, 0x12345678);
+urdmsr(r16, 0x12345678);
+urdmsr(r31, 0x1234);
+uwrmsr(rcx, rax);
+uwrmsr(r15, r8);
+uwrmsr(r17, r16);
+uwrmsr(r31, rax);
+uwrmsr(rax, r31);
+uwrmsr(r28, r20);
+uwrmsr(0x12345678, rax);
+uwrmsr(0x12345678, r9);
+uwrmsr(0x12345678, r16);
+uwrmsr(0x1234, r31);

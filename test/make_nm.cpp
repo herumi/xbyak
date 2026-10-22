@@ -972,6 +972,8 @@ private:
 #ifdef XBYAK64
 		put("xchg", RAX, RAX);
 		put("cmpxchg16b", MEM);
+		put("urdmsr", REG64, REG64|IMM32);
+		put("uwrmsr", REG64|IMM32, REG64);
 		put("cmpxchg16b", "xword [rax]", "oword [rax]");
 		put("fxrstor64", MEM);
 		put("xbegin", "0x12345678");
