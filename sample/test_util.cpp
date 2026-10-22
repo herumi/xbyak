@@ -118,6 +118,7 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tACE, "ace" },
 		{ Cpu::tAVX10_V1_AUX, "avx10_v1_aux" },
 		{ Cpu::tAVX10_V2_AUX, "avx10_v2_aux" },
+		{ Cpu::tUSER_MSR, "user_msr" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);

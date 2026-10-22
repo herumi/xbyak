@@ -595,6 +595,7 @@ public:
 	XBYAK_DEFINE_TYPE(99, tACE);
 	XBYAK_DEFINE_TYPE(100, tAVX10_V1_AUX);
 	XBYAK_DEFINE_TYPE(101, tAVX10_V2_AUX);
+	XBYAK_DEFINE_TYPE(102, tUSER_MSR);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -753,6 +754,7 @@ public:
 				if (edx & (1U << 8)) type_ |= tAMX_COMPLEX;
 				if (edx & (1U << 10)) type_ |= tAVX_VNNI_INT16;
 				if (edx & (1U << 14)) type_ |= tPREFETCHITI;
+				if (edx & (1U << 15)) type_ |= tUSER_MSR;
 				if (edx & (1U << 19)) type_ |= tAVX10;
 				if (edx & (1U << 21)) type_ |= tAPX_F;
 				if (ecx & (1U << 11)) type_ |= tACE;
