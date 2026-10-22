@@ -708,6 +708,7 @@ void put()
 			{ "endbr64", 0xF3, 0x0F, 0x1E, 0xFA },
 			{ "hlt", 0xF4 },
 			{ "int3", 0xCC },
+			{ "salc", 0xD6 },
 			{ "scasb", 0xAE },
 			{ "scasw", 0x66, 0xAF },
 			{ "scasd", 0xAF },
@@ -1979,6 +1980,10 @@ void put64()
 	puts("void jmpabs(uint64_t addr) { db(0xD5); db(0x00); db(0xA1); dq(addr); }");
 	puts("void push2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_APX|T_ND1|T_W0, 0xFF); }");
 	puts("void push2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_APX|T_ND1|T_W1, 0xFF); }");
+	puts("void urdmsr(const Reg64& r, const Reg64& msr) { if (opROO(Reg(), r, msr, T_APX|T_F2|T_W0, 0xF8)) return; opRR(msr.cvt32(), r.cvt32(), T_F2|T_0F38, 0xF8); }");
+	puts("void urdmsr(const Reg64& r, uint32_t imm) { opMsrImm(r, imm, T_F2, 0xF8); }");
+	puts("void uwrmsr(const Reg64& msr, const Reg64& r) { if (opROO(Reg(), r, msr, T_APX|T_F3|T_W0, 0xF8)) return; opRR(msr.cvt32(), r.cvt32(), T_F3|T_0F38, 0xF8); }");
+	puts("void uwrmsr(uint32_t imm, const Reg64& r) { opMsrImm(r, imm, T_F3, 0xF8); }");
 	puts("void pop2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_APX|T_ND1|T_W0, 0x8F); }");
 	puts("void pop2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_APX|T_ND1|T_W1, 0x8F); }");
 	puts("void pushp(const Reg64& r) { opPushPopP(r, 0x50); }");

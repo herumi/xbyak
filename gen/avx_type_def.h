@@ -21,6 +21,7 @@
 	static const uint64_t T_0F3A = 3ull << 8;
 	static const uint64_t T_MAP5 = 5ull << 8;
 	static const uint64_t T_MAP6 = 6ull << 8;
+	static const uint64_t T_MAP7 = 7ull << 8; // urdmsr, uwrmsr
 	static const uint64_t T_MAP_MASK = 7ull << 8;
 	// er/sae field (bit11-13) : an insn has at most one of these
 	static const uint64_t T_ER_X = 1ull << 11; // xmm{er}

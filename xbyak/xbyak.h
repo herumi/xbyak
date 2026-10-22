@@ -694,7 +694,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7430 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7440 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -2471,6 +2471,7 @@ private:
 	static const uint64_t T_0F3A = 3ull << 8;
 	static const uint64_t T_MAP5 = 5ull << 8;
 	static const uint64_t T_MAP6 = 6ull << 8;
+	static const uint64_t T_MAP7 = 7ull << 8; // urdmsr, uwrmsr
 	static const uint64_t T_MAP_MASK = 7ull << 8;
 	// er/sae field (bit11-13) : an insn has at most one of these
 	static const uint64_t T_ER_X = 1ull << 11; // xmm{er}
@@ -3186,6 +3187,12 @@ private:
 			opVex(d, &r1, op2, type, code, imm8);
 		}
 	}
+	// (VEX|EVEX).128.pp.MAP7.W0 code 11:000:bbb imm32 (urdmsr, uwrmsr)
+	void opMsrImm(const Reg& r, uint32_t imm, uint64_t type, int code)
+	{
+		opVex(Reg(0, Operand::REG, 64), 0, r, type|T_MAP7|T_W0|T_EVEX|T_NO_MASK, code);
+		dd(imm);
+	}
 	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, uint64_t type, int code, int imm8 = NONE)
 	{
 		const Xmm *x2 = static_cast<const Xmm*>(&op1);
@@ -3596,32 +3603,16 @@ public:
 			addr= &op1.getAddress();
 			code = 0xA2;
 		}
-#ifdef XBYAK64
-		if (addr && addr->is64bitDisp()) {
-			if (code) {
-				rex(*reg);
-				db(op1.isREG(8) ? 0xA0 : op1.isREG() ? 0xA1 : op2.isREG(8) ? 0xA2 : 0xA3);
-				if (addr->getLabel()) {
-					putL_inner(*addr->getLabel(), inner::Labs, addr->getDisp(), 8);
-				} else {
-					db(addr->getDisp(), 8);
-				}
-			} else {
-				XBYAK_THROW(ERR_BAD_COMBINATION)
-			}
-		} else
-#else
-		if (code && addr->isOnlyDisp()) {
+		// mov eax|ax|al, [moffs] / mov [moffs], eax|ax|al (moffs size = address size)
+		if (code && (BIT == 64 ? addr->is64bitDisp() : addr->isOnlyDisp())) {
 			rex(*reg, *addr);
 			db(code | (reg->isBit(8) ? 0 : 1));
 			if (addr->getLabel()) {
-				putL_inner(*addr->getLabel(), inner::Labs, addr->getDisp(), 4);
+				putL_inner(*addr->getLabel(), inner::Labs, addr->getDisp(), BIT / 8);
 			} else {
-				dd(static_cast<uint32_t>(addr->getDisp()));
+				db(addr->getDisp(), BIT / 8);
 			}
-		} else
-#endif
-		{
+		} else {
 			opRO_MR(op1, op2, 0x88);
 		}
 	}

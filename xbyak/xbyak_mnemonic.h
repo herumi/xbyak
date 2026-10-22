@@ -1,4 +1,4 @@
-const char *getVersionString() const { return "7.43"; }
+const char *getVersionString() const { return "7.44"; }
 void aadd(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38, 0x0FC, T_APX); }
 void aand(const Address& addr, const Reg32e &reg) { opMR(addr, reg, T_0F38|T_66, 0x0FC, T_APX|T_66); }
 void adc(const Operand& op, uint32_t imm) { opOI(op, imm, 0x10, 2); }
@@ -942,6 +942,7 @@ void sal(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 12); }
 void sal(const Operand& op, int imm) { opShift(op, imm, 12); }
 void sal(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 12, &d); }
 void sal(const Reg& d, const Operand& op, int imm) { opShift(op, imm, 12, &d); }
+void salc() { db(0xD6); }
 void sar(const Operand& op, const Reg8& _cl) { opShift(op, _cl, 15); }
 void sar(const Operand& op, int imm) { opShift(op, imm, 15); }
 void sar(const Reg& d, const Operand& op, const Reg8& _cl) { opShift(op, _cl, 15, &d); }
@@ -1894,6 +1895,10 @@ void vmovq(const Reg64& r, const Xmm& x) { opAVX_X_X_XM(x, xm0, r, T_66 | T_0F |
 void jmpabs(uint64_t addr) { db(0xD5); db(0x00); db(0xA1); dq(addr); }
 void push2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_APX|T_ND1|T_W0, 0xFF); }
 void push2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_APX|T_ND1|T_W1, 0xFF); }
+void urdmsr(const Reg64& r, const Reg64& msr) { if (opROO(Reg(), r, msr, T_APX|T_F2|T_W0, 0xF8)) return; opRR(msr.cvt32(), r.cvt32(), T_F2|T_0F38, 0xF8); }
+void urdmsr(const Reg64& r, uint32_t imm) { opMsrImm(r, imm, T_F2, 0xF8); }
+void uwrmsr(const Reg64& msr, const Reg64& r) { if (opROO(Reg(), r, msr, T_APX|T_F3|T_W0, 0xF8)) return; opRR(msr.cvt32(), r.cvt32(), T_F3|T_0F38, 0xF8); }
+void uwrmsr(uint32_t imm, const Reg64& r) { opMsrImm(r, imm, T_F3, 0xF8); }
 void pop2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_APX|T_ND1|T_W0, 0x8F); }
 void pop2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_APX|T_ND1|T_W1, 0x8F); }
 void pushp(const Reg64& r) { opPushPopP(r, 0x50); }
