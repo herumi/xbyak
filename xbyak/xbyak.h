@@ -2471,6 +2471,7 @@ private:
 	static const uint64_t T_0F3A = 3ull << 8;
 	static const uint64_t T_MAP5 = 5ull << 8;
 	static const uint64_t T_MAP6 = 6ull << 8;
+	static const uint64_t T_MAP7 = 7ull << 8; // urdmsr, uwrmsr
 	static const uint64_t T_MAP_MASK = 7ull << 8;
 	// er/sae field (bit11-13) : an insn has at most one of these
 	static const uint64_t T_ER_X = 1ull << 11; // xmm{er}
@@ -3185,6 +3186,12 @@ private:
 		} else {
 			opVex(d, &r1, op2, type, code, imm8);
 		}
+	}
+	// (VEX|EVEX).128.pp.MAP7.W0 code 11:000:bbb imm32 (urdmsr, uwrmsr)
+	void opMsrImm(const Reg& r, uint32_t imm, uint64_t type, int code)
+	{
+		opVex(Reg(0, Operand::REG, 64), 0, r, type|T_MAP7|T_W0|T_EVEX|T_NO_MASK, code);
+		dd(imm);
 	}
 	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, uint64_t type, int code, int imm8 = NONE)
 	{
