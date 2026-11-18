@@ -3199,7 +3199,7 @@ private:
 		const unsigned int bit = d.getBit();
 		if (r1.getBit() != bit || (op2.isREG() && op2.getBit() != bit)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		type |= (bit == 64) ? T_W1 : T_W0;
-		if (d.hasRex2() || r1.hasRex2() || op2.hasRex2() || d.getNF()) {
+		if (d.hasRex2() || r1.hasRex2() || op2.hasRex2() || d.getNF() || r1.getNF() || op2.getNF()) {
 			opROO(r1, op2, d, type, code);
 			if (imm8 != NONE) db(imm8);
 		} else {

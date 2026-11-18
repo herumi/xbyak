@@ -1011,6 +1011,17 @@ bzhi(r29|T_nf, r30, r31);
 blsi(r30|T_nf, r31);
 blsmsk(r30|T_nf, r31);
 blsr(r30|T_nf, r31);
+// NF without EGPR
+andn(rax|T_nf, rcx, rdx);
+bextr(rax|T_nf, rcx, rdx);
+bzhi(rax|T_nf, rcx, rdx);
+blsi(rax|T_nf, rcx);
+blsi(eax|T_nf, ecx);
+blsi(rax|T_nf, ptr [rcx]);
+blsmsk(rax|T_nf, rcx);
+blsmsk(eax|T_nf, ptr [rcx]);
+blsr(rax|T_nf, rcx);
+blsr(eax|T_nf, ptr [rcx]);
 
 // inc_dec
 inc(r30w|T_nf, r31w);
