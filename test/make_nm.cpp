@@ -654,6 +654,12 @@ private:
 			const Tbl *p = &tbl[i];
 			put(p->name, p->op1, p->op2);
 		}
+		put("cvtsi2ss", XMM, MEM32);
+		put("cvtsi2sd", XMM, MEM32);
+#ifdef XBYAK64
+		put("cvtsi2ss", XMM, REG64|MEM64);
+		put("cvtsi2sd", XMM, REG64|MEM64);
+#endif
 	}
 	void putXMM4() const
 	{

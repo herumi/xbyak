@@ -529,13 +529,13 @@ void put()
 		} tbl[] = {
 			{ 0x2A, T_NONE , "cvtpi2ps",  "isXMM_MMXorMEM" },
 			{ 0x2D, T_NONE , "cvtps2pi",  "isMMX_XMMorMEM" },
-			{ 0x2A, T_F3, "cvtsi2ss",  "isXMM_REG32orMEM" },
+			{ 0x2A, T_F3, "cvtsi2ss",  0 }, // opCvtSi2X_SSE
 			{ 0x2D, T_F3, "cvtss2si",  "isREG32_XMMorMEM" },
 			{ 0x2C, T_NONE , "cvttps2pi", "isMMX_XMMorMEM" },
 			{ 0x2C, T_F3, "cvttss2si", "isREG32_XMMorMEM" },
 			{ 0x2A, T_66, "cvtpi2pd",  "isXMM_MMXorMEM" },
 			{ 0x2D, T_66, "cvtpd2pi",  "isMMX_XMMorMEM" },
-			{ 0x2A, T_F2, "cvtsi2sd",  "isXMM_REG32orMEM" },
+			{ 0x2A, T_F2, "cvtsi2sd",  0 }, // opCvtSi2X_SSE
 			{ 0x2D, T_F2, "cvtsd2si",  "isREG32_XMMorMEM" },
 			{ 0x2C, T_66, "cvttpd2pi", "isMMX_XMMorMEM" },
 			{ 0x2C, T_F2, "cvttsd2si", "isREG32_XMMorMEM" },
@@ -543,7 +543,11 @@ void put()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			std::string s = type2String(p->type | T_0F);
-			printf("void %s(const Reg& reg, const Operand& op) { opSSE(reg, op, %s, 0x%02X, %s); }\n", p->name, s.c_str(), p->code, p->cond);
+			if (p->cond) {
+				printf("void %s(const Reg& reg, const Operand& op) { opSSE(reg, op, %s, 0x%02X, %s); }\n", p->name, s.c_str(), p->code, p->cond);
+			} else {
+				printf("void %s(const Reg& reg, const Operand& op) { opCvtSi2X_SSE(reg, op, %s, 0x%02X); }\n", p->name, s.c_str(), p->code);
+			}
 		}
 	}
 	{

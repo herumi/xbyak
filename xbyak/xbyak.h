@@ -2851,6 +2851,25 @@ private:
 		opRO(r, op, type, code, true, (imm8 != NONE) ? 1 : 0);
 		if (imm8 != NONE) db(imm8);
 	}
+	// cvtsi2ss/cvtsi2sd (xmm, r/m32 | r/m64) : qword mem requires REX.W
+	void opCvtSi2X_SSE(const Reg& x, const Operand& op, uint64_t type, int code)
+	{
+		if (!isXMM_REG32orMEM(x, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
+		verifySSE(x, op);
+		if (op.isMEM()) {
+			const int bit = op.getBit();
+			if (bit != 0 && bit != 32 && bit != BIT) XBYAK_THROW(ERR_BAD_MEM_SIZE)
+#ifdef XBYAK64
+			if (bit == 64) {
+				opMR(op.getAddress(), x.cvt64(), type, code);
+				return;
+			}
+#endif
+			opMR(op.getAddress(), x, type, code);
+		} else {
+			opRR(x, op.getReg(), type, code);
+		}
+	}
 	void opMMX_IMM(const Mmx& mmx, int imm8, int code, int ext)
 	{
 		verifySSE(mmx);
