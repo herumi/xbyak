@@ -908,7 +908,6 @@ void putX_XM_IMM()
 		{ 0x56, "vreducebf16", T_MUST_EVEX | T_F2 | T_0F3A | T_W0 | T_YMM | T_B16, true },
 		{ 0x08, "vrndscalebf16", T_MUST_EVEX | T_F2 | T_0F3A | T_W0 | T_YMM | T_B16, true },
 		{ 0x4E, "vrsqrtbf16", T_MUST_EVEX | T_MAP6 | T_W0 | T_YMM | T_B16, false },
-		{ 0x2C, "vscalefbf16", T_MUST_EVEX | T_MAP6 | T_W0 | T_YMM | T_B16, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
