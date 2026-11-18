@@ -2605,6 +2605,7 @@ private:
 		if (aaa == 0) aaa = verifyDuplicate(base.getOpmaskIdx(), reg.getOpmaskIdx(), (v ? v->getOpmaskIdx() : 0), ERR_OPMASK_IS_ALREADY_SET);
 		if (aaa && (type & T_NO_MASK)) XBYAK_THROW_RET(ERR_INVALID_OPMASK, 0)
 		if (aaa == 0) z = 0; // clear T_z if mask is not set
+		if (z && reg.isOPMASK()) XBYAK_THROW_RET(ERR_INVALID_ZERO, 0) // zeroing-masking is invalid when the destination is a mask register
 		db(0x62);
 		db((R ? 0 : 0x80) | (X3 ? 0 : 0x40) | (B ? 0 : 0x20) | (Rp ? 0 : 0x10) | B4 | mmm);
 		db((w == 1 ? 0x80 : 0) | ((vvvv & 15) << 3) | U | (pp & 3));

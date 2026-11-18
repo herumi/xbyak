@@ -549,6 +549,36 @@ CYBOZU_TEST_AUTO(store_zero)
 	} c;
 }
 
+// {z} is invalid when the destination is a mask register. only {k} is allowed there.
+CYBOZU_TEST_AUTO(opmask_dst_zero)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			CYBOZU_TEST_NO_EXCEPTION(vcmpps(k1|k2, zmm1, zmm2, 0));
+			CYBOZU_TEST_EXCEPTION(vcmpps(k1|k2|T_z, zmm1, zmm2, 0), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcmpps(k1|k2|T_z, zmm1, ptr[eax], 0), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcmpps(k1|k2, zmm1|T_z, zmm2, 0), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcmpeqps(k1|k2|T_z, zmm1, zmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcmpsd(k1|k2|T_z, xmm1, xmm2, 0), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcmpph(k1|k2|T_z, zmm1, zmm2, 0), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcmpbf16(k1|k2|T_z, zmm1, zmm2, 0), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vpcmpeqd(k1|k2, zmm1, zmm2));
+			CYBOZU_TEST_EXCEPTION(vpcmpeqd(k1|k2|T_z, zmm1, zmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpcmpub(k1|k2|T_z, xmm1, xmm2, 1), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vptestmd(k1|k2, zmm1, zmm2));
+			CYBOZU_TEST_EXCEPTION(vptestmd(k1|k2|T_z, zmm1, zmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vptestnmq(k1|k2|T_z, zmm1, zmm2), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vfpclassps(k1|k2, zmm1, 0));
+			CYBOZU_TEST_EXCEPTION(vfpclassps(k1|k2|T_z, zmm1, 0), std::exception);
+			CYBOZU_TEST_EXCEPTION(vfpclasssd(k1|k2|T_z, xmm1, 0), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpshufbitqmb(k1|k2|T_z, zmm1, zmm2), std::exception);
+			// T_z without a mask is dropped as for the other instructions
+			CYBOZU_TEST_NO_EXCEPTION(vcmpps(k1|T_z, zmm1, zmm2, 0));
+		}
+	} c;
+}
+
 CYBOZU_TEST_AUTO(gather)
 {
 	struct Code : Xbyak::CodeGenerator {
