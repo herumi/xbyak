@@ -3081,6 +3081,13 @@ private:
 		rex2(0, 1, Reg(), r);
 		db(alt | (r.getIdx() & 7));
 	}
+	// PUSH2/POP2 : #UD if r1 or r2 is rsp, or if r1 == r2 for POP2
+	void opPush2Pop2(const Reg64& r1, const Reg64& r2, int ext, uint64_t type, int code, bool isPop)
+	{
+		if (r1.getIdx() == Operand::RSP || r2.getIdx() == Operand::RSP) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (isPop && r1.getIdx() == r2.getIdx()) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opROO(r1, r2, Reg64(ext), type, code);
+	}
 #endif
 	void verifyMemHasSize(const Operand& op) const
 	{

@@ -1893,14 +1893,14 @@ void vcvttsd2si(const Reg64& r, const Operand& op) { opVex(r, &xm0, op, T_0F | T
 void vmovq(const Xmm& x, const Reg64& r) { opAVX_X_X_XM(x, xm0, r, T_66 | T_0F | T_W1 | T_EVEX | T_NO_MASK | T_EW1, 0x6E); }
 void vmovq(const Reg64& r, const Xmm& x) { opAVX_X_X_XM(x, xm0, r, T_66 | T_0F | T_W1 | T_EVEX | T_NO_MASK | T_EW1, 0x7E); }
 void jmpabs(uint64_t addr) { db(0xD5); db(0x00); db(0xA1); dq(addr); }
-void push2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_APX|T_ND1|T_W0, 0xFF); }
-void push2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(6), T_APX|T_ND1|T_W1, 0xFF); }
+void push2(const Reg64& r1, const Reg64& r2) { opPush2Pop2(r1, r2, 6, T_APX|T_ND1|T_W0, 0xFF, false); }
+void push2p(const Reg64& r1, const Reg64& r2) { opPush2Pop2(r1, r2, 6, T_APX|T_ND1|T_W1, 0xFF, false); }
 void urdmsr(const Reg64& r, const Reg64& msr) { if (opROO(Reg(), r, msr, T_APX|T_F2|T_W0, 0xF8)) return; opRR(msr.cvt32(), r.cvt32(), T_F2|T_0F38, 0xF8); }
 void urdmsr(const Reg64& r, uint32_t imm) { opMsrImm(r, imm, T_F2, 0xF8); }
 void uwrmsr(const Reg64& msr, const Reg64& r) { if (opROO(Reg(), r, msr, T_APX|T_F3|T_W0, 0xF8)) return; opRR(msr.cvt32(), r.cvt32(), T_F3|T_0F38, 0xF8); }
 void uwrmsr(uint32_t imm, const Reg64& r) { opMsrImm(r, imm, T_F3, 0xF8); }
-void pop2(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_APX|T_ND1|T_W0, 0x8F); }
-void pop2p(const Reg64& r1, const Reg64& r2) { opROO(r1, r2, Reg64(0), T_APX|T_ND1|T_W1, 0x8F); }
+void pop2(const Reg64& r1, const Reg64& r2) { opPush2Pop2(r1, r2, 0, T_APX|T_ND1|T_W0, 0x8F, true); }
+void pop2p(const Reg64& r1, const Reg64& r2) { opPush2Pop2(r1, r2, 0, T_APX|T_ND1|T_W1, 0x8F, true); }
 void pushp(const Reg64& r) { opPushPopP(r, 0x50); }
 void popp(const Reg64& r) { opPushPopP(r, 0x58); }
 void cmpbexadd(const Address& addr, const Reg32e& r1, const Reg32e& r2) { opRRO(r1, r2, addr, T_APX|T_66|T_0F38, 0xE6); }

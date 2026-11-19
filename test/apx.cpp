@@ -32,6 +32,34 @@ CYBOZU_TEST_AUTO(push_pop_bad_combination)
 	} c;
 }
 
+// push2/pop2 cause #UD if one of the registers is rsp, or if the two
+// registers of pop2 are the same.
+CYBOZU_TEST_AUTO(push2_pop2_bad_combination)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			CYBOZU_TEST_NO_EXCEPTION(push2(rax, rcx));
+			CYBOZU_TEST_NO_EXCEPTION(push2(rax, rax));
+			CYBOZU_TEST_NO_EXCEPTION(push2p(r20, r20));
+			CYBOZU_TEST_NO_EXCEPTION(push2(r12, r20)); // r12 and r20 are not rsp
+			CYBOZU_TEST_NO_EXCEPTION(pop2(rax, rcx));
+			CYBOZU_TEST_NO_EXCEPTION(pop2p(r12, r20));
+			CYBOZU_TEST_EXCEPTION(push2(rsp, rax), std::exception);
+			CYBOZU_TEST_EXCEPTION(push2(rax, rsp), std::exception);
+			CYBOZU_TEST_EXCEPTION(push2p(rsp, rax), std::exception);
+			CYBOZU_TEST_EXCEPTION(push2p(r16, rsp), std::exception);
+			CYBOZU_TEST_EXCEPTION(pop2(rsp, rax), std::exception);
+			CYBOZU_TEST_EXCEPTION(pop2(rax, rsp), std::exception);
+			CYBOZU_TEST_EXCEPTION(pop2p(rsp, rax), std::exception);
+			CYBOZU_TEST_EXCEPTION(pop2p(rax, rsp), std::exception);
+			CYBOZU_TEST_EXCEPTION(pop2(rax, rax), std::exception);
+			CYBOZU_TEST_EXCEPTION(pop2(r20, r20), std::exception);
+			CYBOZU_TEST_EXCEPTION(pop2p(r8, r8), std::exception);
+		}
+	} c;
+}
+
 // ccmp(op, imm) is 80/81/83 /7 and does not use EVEX.R3/R4, so they must be
 // logical 0. test_by_xed.sh can't detect it because xed accepts both.
 CYBOZU_TEST_AUTO(ccmp_imm_canonical)
