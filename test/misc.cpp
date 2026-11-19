@@ -549,6 +549,66 @@ CYBOZU_TEST_AUTO(store_zero)
 	} c;
 }
 
+// the register form of r/m must have the size determined by the vector length
+CYBOZU_TEST_AUTO(mixed_vector_size)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			// full vector
+			CYBOZU_TEST_NO_EXCEPTION(vaddps(zmm1, zmm2, zmm3));
+			CYBOZU_TEST_NO_EXCEPTION(vaddps(zmm1, zmm2, zmm3|T_rn_sae));
+			CYBOZU_TEST_EXCEPTION(vaddps(zmm1, zmm2, xmm3), std::exception);
+			CYBOZU_TEST_EXCEPTION(vaddps(zmm1, zmm2, ymm3), std::exception);
+			CYBOZU_TEST_EXCEPTION(vaddps(ymm1, ymm2, xmm3), std::exception);
+			CYBOZU_TEST_EXCEPTION(vaddps(xmm1, xmm2, ymm3), std::exception);
+			CYBOZU_TEST_EXCEPTION(vaddps(xmm1, ymm3), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpaddd(ymm1, ymm2, zmm3), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vexp2pd(zmm1, zmm2));
+			CYBOZU_TEST_EXCEPTION(vexp2pd(zmm1, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vrcp28ps(zmm1, ymm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vrsqrt28pd(zmm1, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpermilps(ymm1, xmm2, 3), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vpslld(ymm1, ymm2, 3));
+			CYBOZU_TEST_EXCEPTION(vpslld(ymm1, xmm2, 3), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vmovddup(zmm1, zmm2));
+			CYBOZU_TEST_EXCEPTION(vmovddup(zmm1, xmm2), std::exception);
+			// xmm regardless of the vector length
+			CYBOZU_TEST_NO_EXCEPTION(vpslld(zmm1, zmm2, xmm3));
+			CYBOZU_TEST_EXCEPTION(vpslld(zmm1, zmm2, zmm3), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vbroadcastss(zmm1, xmm2));
+			CYBOZU_TEST_EXCEPTION(vbroadcastss(zmm1, ymm2), std::exception);
+			// scalar
+			CYBOZU_TEST_NO_EXCEPTION(vucomxss(xmm1, xmm2));
+			CYBOZU_TEST_EXCEPTION(vucomxss(xmm1, ymm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcomiss(xmm1, zmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vaddsd(xmm1, xmm2, ymm3), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vcvttsd2sis(ecx, xmm2));
+			CYBOZU_TEST_EXCEPTION(vcvttsd2sis(ecx, ymm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvtsd2si(ecx, ymm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvtss2usi(ecx, zmm2), std::exception);
+			// half, quarter and eighth vector
+			CYBOZU_TEST_NO_EXCEPTION(vpmovsxbw(xmm1, xmm2));
+			CYBOZU_TEST_NO_EXCEPTION(vpmovsxbw(ymm1, xmm2));
+			CYBOZU_TEST_NO_EXCEPTION(vpmovsxbw(zmm1, ymm2));
+			CYBOZU_TEST_EXCEPTION(vpmovsxbw(ymm1, ymm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpmovsxbw(zmm1, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpmovsxbw(zmm1, zmm2), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vpmovzxbd(zmm1, xmm2));
+			CYBOZU_TEST_EXCEPTION(vpmovzxbd(zmm1, ymm2), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vpmovzxbq(zmm1, xmm2));
+			CYBOZU_TEST_EXCEPTION(vpmovzxbq(ymm1, ymm2), std::exception);
+			// compress/expand use a full vector though disp8N is the element size
+			CYBOZU_TEST_NO_EXCEPTION(vcompresspd(zmm1|k1, zmm2));
+			CYBOZU_TEST_NO_EXCEPTION(vpexpandb(ymm1|k1|T_z, ymm2));
+			CYBOZU_TEST_EXCEPTION(vcompresspd(zmm1|k1, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcompresspd(xmm1|k1, zmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vexpandps(zmm1|k1, ymm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpexpandw(xmm1|k1, ymm2), std::exception);
+		}
+	} c;
+}
+
 // rounding/sae on the GPR side of vcvt*2si must not be ignored
 CYBOZU_TEST_AUTO(cvt2si_rounding_on_gpr)
 {

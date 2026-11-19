@@ -3220,6 +3220,16 @@ private:
 		opVex(Reg(0, Operand::REG, 64), 0, r, type|T_MAP7|T_W0|T_EVEX|T_NO_MASK, code);
 		dd(imm);
 	}
+	// the size of the register form of r/m, derived from the memory size (T_N*) for the vector length VL
+	// full vector : VL, fixed size such as scalar : 128, half/quarter vector (T_N*|T_N_VL) : max(128, N * VL / 128 * 8)
+	static inline uint32_t getRmBit(uint32_t VL, uint64_t type)
+	{
+		const int low = type & T_NX_MASK;
+		if (low == 0 || low == T_DUP) return VL;
+		const uint32_t bit = (1u << (low - 1)) * 8;
+		if (type & T_N_VL) bit *= VL / 128;
+		return bit < 128 ? 128 : bit;
+	}
 	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, uint64_t type, int code, int imm8 = NONE)
 	{
 		const Xmm *x2 = static_cast<const Xmm*>(&op1);
@@ -3230,6 +3240,7 @@ private:
 		}
 		// (x1, x2, op)
 		if (!((x1.isXMM() && x2->isXMM()) || ((type & T_YMM) && ((x1.isYMM() && x2->isYMM()) || (x1.isZMM() && x2->isZMM()))))) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (op->is(Operand::XMM | Operand::YMM | Operand::ZMM) && op->getBit() != getRmBit(x1.getBit(), type)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opVex(x1, x2, *op, type, code, imm8);
 	}
 	void opAVX_K_X_XM(const Opmask& k, const Xmm& x2, const Operand& op3, uint64_t type, int code, int imm8 = NONE)
@@ -3295,6 +3306,7 @@ private:
 	// (r32/r64, x/m) : vcvt*2(u)si (XMM to scalar int), EVEX.W is set if r is 64-bit
 	void opCvtX2Si(const Reg& r, const Operand& op, uint64_t type, int code)
 	{
+		if (!op.isXMM() && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
 		opVex(r, &xm0, op, type | (r.isREG(64) ? T_EW1 : T_W0), code);
 	}
 	const Xmm& cvtIdx0(const Operand& x) const
@@ -3305,6 +3317,12 @@ private:
 	void opAVX_X_XM_IMM(const Xmm& x, const Operand& op, uint64_t type, int code, int imm8 = NONE)
 	{
 		opAVX_X_X_XM(x, cvtIdx0(x), op, type, code, imm8);
+	}
+	// (x, x/m), (y, y/m), (z, z/m) : compress/expand, the register form is a full vector though disp8N is the element size
+	void opCompExp(const Xmm& x, const Operand& op, uint64_t type, int code)
+	{
+		if (!op.isMEM() && op.getKind() != x.getKind()) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opVex(x, &cvtIdx0(x), op, type, code);
 	}
 	void opCnt(const Reg& reg, const Operand& op, uint8_t code)
 	{
