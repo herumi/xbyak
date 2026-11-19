@@ -549,6 +549,37 @@ CYBOZU_TEST_AUTO(store_zero)
 	} c;
 }
 
+// rounding/sae on the GPR side of vcvt*2si must not be ignored
+CYBOZU_TEST_AUTO(cvt2si_rounding_on_gpr)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			// the same code as rounding on the xmm side
+			const uint8_t *p1 = getCurr();
+			vcvtsd2si(ecx, xmm2|T_rd_sae);
+			vcvtss2si(ecx, xmm2|T_ru_sae);
+			vcvttsd2si(ecx, xmm2|T_sae);
+			vcvttss2si(ecx, xmm2|T_sae);
+			const uint8_t *p2 = getCurr();
+			vcvtsd2si(ecx|T_rd_sae, xmm2);
+			vcvtss2si(ecx|T_ru_sae, xmm2);
+			vcvttsd2si(ecx|T_sae, xmm2);
+			vcvttss2si(ecx|T_sae, xmm2);
+			const uint8_t *end = getCurr();
+			CYBOZU_TEST_EQUAL(p2 - p1, end - p2);
+			CYBOZU_TEST_EQUAL_ARRAY(p1, p2, end - p2);
+			// invalid modifiers
+			CYBOZU_TEST_EXCEPTION(vcvtsd2si(ecx|T_sae, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvttsd2si(ecx|T_rd_sae, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvtsd2si(ecx|T_rd_sae, ptr[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvttss2si(ecx|T_sae, ptr[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvtsd2si(ecx|T_rd_sae, xmm2|T_ru_sae), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvtsd2si(ecx|k1, xmm2), std::exception);
+		}
+	} c;
+}
+
 // {z} is invalid when the destination is a mask register. only {k} is allowed there.
 CYBOZU_TEST_AUTO(opmask_dst_zero)
 {

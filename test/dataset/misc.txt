@@ -129,6 +129,10 @@ vmovrsw(zm1|k1|T_z, ptr[rax+64]);
 // moved for bug of nasm 3.x
 vcvtsd2si(esp, xmm4|T_rd_sae);
 vcvtsd2si(r8, xmm4|T_rd_sae);
+vcvtsd2si(esp|T_rd_sae, xmm4);
+vcvtsd2si(r8|T_ru_sae, xmm4);
+vcvtss2si(ecx|T_rz_sae, xmm4);
+vcvtss2si(r9|T_rn_sae, xmm20);
 vcvtsd2usi(ecx, xmm4|T_rd_sae);
 vcvtsd2usi(r14, xmm4|T_rd_sae);
 vcvtss2si(ecx, xmm4|T_rd_sae);
@@ -141,6 +145,10 @@ vcvttsd2usi(edx, xmm25|T_sae);
 vcvttsd2usi(rbp, xmm25|T_sae);
 vcvttss2si(esp, xmm25|T_sae);
 vcvttss2si(r11, xmm25|T_sae);
+vcvttss2si(esp|T_sae, xmm25);
+vcvttss2si(r11|T_sae, xmm4);
+vcvttsd2si(ecx|T_sae, xmm4);
+vcvttsd2si(r30|T_sae, xmm4);
 vcvttss2usi(edi, xmm25|T_sae);
 vcvttss2usi(r14, xmm25|T_sae);
 
