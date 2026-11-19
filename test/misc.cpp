@@ -549,6 +549,69 @@ CYBOZU_TEST_AUTO(store_zero)
 	} c;
 }
 
+// {k}, {z}, {er}/{sae} and broadcast must not be ignored by non AVX-512 instructions
+CYBOZU_TEST_AUTO(evex_modifier_on_legacy)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			// SSE
+			CYBOZU_TEST_NO_EXCEPTION(addps(xmm1, xmm2));
+			CYBOZU_TEST_EXCEPTION(addps(xmm1|k5, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(addps(xmm1|k5|T_z, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(addps(xmm1|T_z, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(addps(xmm1, xmm2|k5), std::exception);
+			CYBOZU_TEST_EXCEPTION(addps(xmm1, ptr_b[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(addps(xmm1|T_rn_sae, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(addps(xmm1, xmm2|T_sae), std::exception);
+			CYBOZU_TEST_EXCEPTION(paddd(xmm1|k1|T_z, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(movaps(xmm1|k1, ptr[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(movaps(ptr[eax]|k1, xmm1), std::exception);
+			CYBOZU_TEST_EXCEPTION(cmpunordss(xmm1|k5, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(pshufd(xmm1|k1, xmm2, 3), std::exception);
+			CYBOZU_TEST_EXCEPTION(movd(xmm1|k1, eax), std::exception);
+			CYBOZU_TEST_EXCEPTION(cvtsi2sd(xmm1|k1, eax), std::exception);
+			CYBOZU_TEST_EXCEPTION(paddb(mm1|k1, mm2), std::exception);
+			// GPR
+			CYBOZU_TEST_NO_EXCEPTION(add(ecx, edx));
+			CYBOZU_TEST_EXCEPTION(add(ecx|k1, edx), std::exception);
+			CYBOZU_TEST_EXCEPTION(add(ecx, edx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(add(ecx, ptr_b[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(add(ecx|k1, 3), std::exception);
+			CYBOZU_TEST_EXCEPTION(mov(ecx|T_z, edx), std::exception);
+			CYBOZU_TEST_EXCEPTION(mov(ecx|k1, 3), std::exception);
+			CYBOZU_TEST_EXCEPTION(mov(ptr[eax]|k1, ecx), std::exception);
+			CYBOZU_TEST_EXCEPTION(inc(ecx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(not_(ecx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(shl(ecx|k1, 3), std::exception);
+			CYBOZU_TEST_EXCEPTION(bswap(ecx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(setz(cl|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(xchg(ecx|k1, eax), std::exception);
+#ifdef XBYAK64
+			CYBOZU_TEST_EXCEPTION(push(rcx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pop(rcx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(jmp(rcx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(call(rcx|k1), std::exception);
+			// APX
+			CYBOZU_TEST_NO_EXCEPTION(add(rax|T_nf, r20, rdx));
+			CYBOZU_TEST_EXCEPTION(add(r20|k1, rdx), std::exception);
+			CYBOZU_TEST_EXCEPTION(add(rax|k1, r20, rdx), std::exception);
+			CYBOZU_TEST_EXCEPTION(add(rax, r20, rdx|k2), std::exception);
+			CYBOZU_TEST_EXCEPTION(add(rax|T_z, r20, rdx), std::exception);
+			CYBOZU_TEST_EXCEPTION(add(rax|T_nf, rdx, ptr_b[rcx]), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(ptr_b[rax], edx), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(eax|k1, edx), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(eax|k1, 3), std::exception);
+#else
+			CYBOZU_TEST_EXCEPTION(push(ecx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pop(ecx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(jmp(ecx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(call(ecx|k1), std::exception);
+#endif
+		}
+	} c;
+}
+
 // the register form of r/m must have the size determined by the vector length
 CYBOZU_TEST_AUTO(mixed_vector_size)
 {

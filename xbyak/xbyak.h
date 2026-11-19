@@ -2418,9 +2418,19 @@ private:
 		if (rex) db(rex);
 		return false;
 	}
+	// {k}, {z}, {er}/{sae} and broadcast are available only for AVX-512 instructions
+	void verifyNoEvexAttr(const Operand& op) const
+	{
+		if (op.getOpmaskIdx()) XBYAK_THROW(ERR_INVALID_OPMASK)
+		if (op.hasZero()) XBYAK_THROW(ERR_INVALID_ZERO)
+		if (op.getRounding()) XBYAK_THROW(op.getRounding() == EvexModifierRounding::T_SAE ? ERR_SAE_IS_INVALID : ERR_ER_IS_INVALID)
+		if (op.isMEM() && op.getAddress().isBroadcast()) XBYAK_THROW(ERR_INVALID_BROADCAST)
+	}
 	// return true if rex2 is selected
 	bool rex(const Operand& op1, const Operand& op2 = Operand(), uint64_t type = 0)
 	{
+		verifyNoEvexAttr(op1);
+		verifyNoEvexAttr(op2);
 		if (op1.getNF() | op2.getNF()) XBYAK_THROW_RET(ERR_INVALID_NF, false)
 		if (op1.getZU() | op2.getZU()) XBYAK_THROW_RET(ERR_INVALID_ZU, false)
 		const Operand *p1 = &op1, *p2 = &op2;
@@ -2917,6 +2927,7 @@ private:
 	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, uint64_t type, int code, int immSize = 0, int sc = NONE)
 	{
 		if ((type & T_EVEX_MASK) != T_MUST_EVEX && !d.isREG() && !(d.hasRex2NFZU() || op1.hasRex2NFZU() || op2.hasRex2NFZU())) return false;
+		verifyNoEvexAttr(d); verifyNoEvexAttr(op1); verifyNoEvexAttr(op2);
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code |= 2; }
 		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
@@ -2937,6 +2948,7 @@ private:
 	}
 	void opRext(const Operand& op, int bit, int ext, uint64_t type, int code, bool disableRex = false, int immSize = 0, const Reg *d = 0)
 	{
+		verifyNoEvexAttr(op); // changeBit() below drops the modifiers
 		int opBit = op.getBit();
 		if (disableRex && opBit == 64) opBit = 32;
 		const Reg r(ext, Operand::REG, opBit);
@@ -3063,6 +3075,7 @@ private:
 	{
 		int bit = op.getBit();
 		if (bit != 16 && bit != BIT) XBYAK_THROW(ERR_BAD_COMBINATION)
+		verifyNoEvexAttr(op);
 		if (bit == 16) db(0x66);
 		if (op.isREG()) {
 			setRex(0, Reg(), op.getReg(), Reg(), 0); // 0x41 or REX2 if necessary
@@ -3226,7 +3239,7 @@ private:
 	{
 		const int low = type & T_NX_MASK;
 		if (low == 0 || low == T_DUP) return VL;
-		const uint32_t bit = (1u << (low - 1)) * 8;
+		uint32_t bit = (1u << (low - 1)) * 8;
 		if (type & T_N_VL) bit *= VL / 128;
 		return bit < 128 ? 128 : bit;
 	}
@@ -3838,6 +3851,7 @@ public:
 
 	void bswap(const Reg32e& r)
 	{
+		verifyNoEvexAttr(r);
 		int idx = r.getIdx();
 		uint8_t rex = (r.isREG(64) ? 8 : 0) | ((idx & 8) ? 1 : 0);
 		if (idx >= 16) {
