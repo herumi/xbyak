@@ -552,6 +552,12 @@ Note that the error status is thread-local and shared by all instances of `CodeG
 * define **XBYAK_USE_MEMFD** on Linux then /proc/self/maps shows the area used by xbyak.
 * define **XBYAK_OLD_DISP_CHECK** if the old disp check is necessary (deprecated in the future).
 * define **XBYAK_ALLOW_K0_MASK=0** if you want to treat `zmm0|k0` as an error.
+* define **XBYAK_STRICT_CHECK_MEM_REG_SIZE=0** if you want to disable the following strict checks of operands (the default is 1).
+  - the size of a general-purpose register and an explicitly sized memory operand must match, e.g. `add(dword[eax], al)` (`ERR_BAD_MEM_SIZE`).
+  - the register form of r/m of AVX instructions must have the size determined by the vector length, e.g. `vpmovsxbd(zmm1, zmm2)` and `vaddps(zmm1, zmm2, xmm3)` (`ERR_BAD_COMBINATION`). If disabled, only the index of the register is used and the vector length is the maximum size of the operands.
+  - broadcast is not allowed on non AVX-512 instructions, e.g. `lea(rax, ptr_b[rax])` (`ERR_INVALID_BROADCAST`). If disabled, it is ignored.
+  - an explicitly sized memory operand of `pinsr{b,w,d}`/`pextr{b,w,d}`/`extractps`/`movd`/`movq` and their VEX/EVEX forms must have the size which the instruction accesses, e.g. `vpinsrb(xmm1, xmm2, zword[rax], 0)` (`ERR_BAD_MEM_SIZE`).
+  - `T_z` is not allowed on the address of a memory destination, e.g. `vmovups(ptr[rax]|k1|T_z, zmm1)` (`ERR_INVALID_ZERO`). If disabled, it is ignored. `T_z` on the register such as `vmovups(ptr[rax], zmm1|k1|T_z)` is always an error.
 
 ## StackFrame (64bit only)
 

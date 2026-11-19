@@ -178,6 +178,7 @@
 
 // Heuristically check general-purpose register and memory operand size matching such as add(dword[eax], al);
 // Not exact but useful to find mistakes. Define as 0 to disable.
+// It also controls some strict checks of operands. See the Macro section of doc/usage.md.
 // This macro may be removed in future versions.
 #ifndef XBYAK_STRICT_CHECK_MEM_REG_SIZE
 	#define XBYAK_STRICT_CHECK_MEM_REG_SIZE 1
@@ -2424,7 +2425,9 @@ private:
 		if (op.getOpmaskIdx()) XBYAK_THROW(ERR_INVALID_OPMASK)
 		if (op.hasZero()) XBYAK_THROW(ERR_INVALID_ZERO)
 		if (op.getRounding()) XBYAK_THROW(op.getRounding() == EvexModifierRounding::T_SAE ? ERR_SAE_IS_INVALID : ERR_ER_IS_INVALID)
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
 		if (op.isMEM() && op.getAddress().isBroadcast()) XBYAK_THROW(ERR_INVALID_BROADCAST)
+#endif
 	}
 	// return true if rex2 is selected
 	bool rex(const Operand& op1, const Operand& op2 = Operand(), uint64_t type = 0)
@@ -3188,7 +3191,12 @@ private:
 		const bool useEvex = (type & T_EVEX_MASK) == T_MUST_EVEX || r.hasEvex() || (p1 && p1->hasEvex());
 		if (op2.isMEM()) {
 			// zeroing-masking has no meaning when the destination is memory
-			if ((type & T_M_K) && (r.hasZero() || (p1 && p1->hasZero()) || op2.hasZero())) XBYAK_THROW(ERR_INVALID_ZERO)
+			// T_z on a register would generate EVEX.z=1 which causes #UD, so it is always an error
+			if ((type & T_M_K) && (r.hasZero() || (p1 && p1->hasZero()))) XBYAK_THROW(ERR_INVALID_ZERO)
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
+			// T_z on an address is ignored (EVEX.z=0) if the check is disabled
+			if ((type & T_M_K) && op2.hasZero()) XBYAK_THROW(ERR_INVALID_ZERO)
+#endif
 			Address addr = op2.getAddress();
 			const RegExp& regExp = addr.getRegExp();
 			const Reg& base = regExp.getBase();
@@ -3253,7 +3261,9 @@ private:
 		}
 		// (x1, x2, op)
 		if (!((x1.isXMM() && x2->isXMM()) || ((type & T_YMM) && ((x1.isYMM() && x2->isYMM()) || (x1.isZMM() && x2->isZMM()))))) XBYAK_THROW(ERR_BAD_COMBINATION)
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
 		if (op->is(Operand::XMM | Operand::YMM | Operand::ZMM) && op->getBit() != getRmBit(x1.getBit(), type)) XBYAK_THROW(ERR_BAD_COMBINATION)
+#endif
 		opVex(x1, x2, *op, type, code, imm8);
 	}
 	void opAVX_K_X_XM(const Opmask& k, const Xmm& x2, const Operand& op3, uint64_t type, int code, int imm8 = NONE)
@@ -3319,7 +3329,9 @@ private:
 	// (r32/r64, x/m) : vcvt*2(u)si (XMM to scalar int), EVEX.W is set if r is 64-bit
 	void opCvtX2Si(const Reg& r, const Operand& op, uint64_t type, int code)
 	{
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
 		if (!op.isXMM() && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
+#endif
 		opVex(r, &xm0, op, type | (r.isREG(64) ? T_EW1 : T_W0), code);
 	}
 	const Xmm& cvtIdx0(const Operand& x) const
@@ -3334,7 +3346,9 @@ private:
 	// (x, x/m), (y, y/m), (z, z/m) : compress/expand, the register form is a full vector though disp8N is the element size
 	void opCompExp(const Xmm& x, const Operand& op, uint64_t type, int code)
 	{
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
 		if (!op.isMEM() && op.getKind() != x.getKind()) XBYAK_THROW(ERR_BAD_COMBINATION)
+#endif
 		opVex(x, &cvtIdx0(x), op, type, code);
 	}
 	void opCnt(const Reg& reg, const Operand& op, uint8_t code)
@@ -3452,7 +3466,11 @@ private:
 	// an explicitly sized memory operand such as dword[...] must have the size which the instruction accesses
 	static inline void verifyMemSize(const Operand& op, uint32_t bit)
 	{
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
 		if (op.isMEM() && op.getBit() != 0 && op.getBit() != bit) XBYAK_THROW(ERR_BAD_MEM_SIZE)
+#else
+		(void)op; (void)bit;
+#endif
 	}
 	static inline void verifyRegOrMem(const Operand& op)
 	{
