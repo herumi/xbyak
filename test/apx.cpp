@@ -32,6 +32,37 @@ CYBOZU_TEST_AUTO(push_pop_bad_combination)
 	} c;
 }
 
+// ccmp(op, imm) is 80/81/83 /7 and does not use EVEX.R3/R4, so they must be
+// logical 0. test_by_xed.sh can't detect it because xed accepts both.
+CYBOZU_TEST_AUTO(ccmp_imm_canonical)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			const struct {
+				uint8_t code[12];
+				size_t n;
+			} tbl[] = {
+				{ { 0x62, 0xF4, 0x84, 0x02, 0x83, 0xF8, 0x05 }, 7 }, // ccmpb(rax, 5)
+				{ { 0x62, 0xF4, 0x04, 0x02, 0x80, 0x38, 0x05 }, 7 }, // ccmpb(byte [rax], 5)
+				{ { 0x62, 0xDC, 0x1C, 0x02, 0x81, 0xFF, 0x78, 0x56, 0x34, 0x12 }, 10 }, // ccmpb(r31d, 0x12345678, 3)
+				{ { 0x62, 0xF4, 0x7D, 0x0F, 0x83, 0x38, 0x05 }, 7 }, // ccmpg(word [rax], 5, 15)
+			};
+			const uint8_t *begin = getCurr();
+			ccmpb(rax, 5);
+			ccmpb(byte [rax], 5);
+			ccmpb(r31d, 0x12345678, 3);
+			ccmpg(word [rax], 5, 15);
+			const uint8_t *p = begin;
+			for (size_t i = 0; i < sizeof(tbl) / sizeof(tbl[0]); i++) {
+				CYBOZU_TEST_EQUAL_ARRAY(p, tbl[i].code, tbl[i].n);
+				p += tbl[i].n;
+			}
+			CYBOZU_TEST_EQUAL(p, getCurr());
+		}
+	} c;
+}
+
 // operands of ccmp/ctest must be GPR or mem with the same size
 CYBOZU_TEST_AUTO(ccmp_ctest_bad_combination)
 {

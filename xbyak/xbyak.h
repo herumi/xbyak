@@ -3428,7 +3428,7 @@ private:
 		verifyDfv(dfv);
 		verifyRegOrMem(op);
 		verifyMemHasSize(op);
-		opROI(Reg(15 - dfv, Operand::REG, op.getBit()), op, imm, T_APX|T_OP_W1, 15, sc);
+		opROI(Reg(15 - dfv, Operand::REG, op.getBit()), op, imm, T_APX|T_OP_W1, 7, sc);
 	}
 	void opTesti(const Operand& op, int imm, int dfv, int sc)
 	{
