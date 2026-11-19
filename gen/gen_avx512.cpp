@@ -237,7 +237,7 @@ void putX_XM()
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
 		std::string s = type2String(p->type);
-		printf("void %s(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, %s, 0x%02X); }\n", p->name, s.c_str(), p->code);
+		printf("void %s(const Xmm& x, const Operand& op) { %s(x, op, %s, 0x%02X); }\n", p->name, strstr(p->name, "expand") ? "opCompExp" : "opAVX_X_XM_IMM", s.c_str(), p->code);
 	}
 	puts("void vpabsq(const Xmm& x, const Operand& op) { opAVX_X_XM_IMM(x, op, T_66 | T_0F38 | T_MUST_EVEX | T_EW1 | T_B64 | T_YMM, 0x1F); }");
 
@@ -291,7 +291,7 @@ void putXM_X()
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
 		std::string s = type2String(p->type);
-		printf("void %s(const Operand& op, const Xmm& x) { opAVX_X_XM_IMM(x, op, %s, 0x%02X); }\n", p->name, s.c_str(), p->code);
+		printf("void %s(const Operand& op, const Xmm& x) { opCompExp(x, op, %s, 0x%02X); }\n", p->name, s.c_str(), p->code);
 	}
 }
 
@@ -908,13 +908,12 @@ void putX_XM_IMM()
 		{ 0x56, "vreducebf16", T_MUST_EVEX | T_F2 | T_0F3A | T_W0 | T_YMM | T_B16, true },
 		{ 0x08, "vrndscalebf16", T_MUST_EVEX | T_F2 | T_0F3A | T_W0 | T_YMM | T_B16, true },
 		{ 0x4E, "vrsqrtbf16", T_MUST_EVEX | T_MAP6 | T_W0 | T_YMM | T_B16, false },
-		{ 0x2C, "vscalefbf16", T_MUST_EVEX | T_MAP6 | T_W0 | T_YMM | T_B16, false },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
 		std::string s = type2String(p->type);
-		printf("void %s(const Xmm& x, const Operand& op%s) { opAVX_X_XM_IMM(x, op, %s, 0x%02X%s); }\n"
-			, p->name, p->hasIMM ? ", uint8_t imm" : "", s.c_str(), p->code, p->hasIMM ? ", imm" : "");
+		printf("void %s(const Xmm& x, const Operand& op%s) { %s(x, op, %s, 0x%02X%s); }\n"
+			, p->name, p->hasIMM ? ", uint8_t imm" : "", strstr(p->name, "expand") ? "opCompExp" : "opAVX_X_XM_IMM", s.c_str(), p->code, p->hasIMM ? ", imm" : "");
 	}
 }
 

@@ -1,4 +1,18 @@
 # History
+* 2026/Nov/19 ver 7.45
+  - fix wrong encoding:
+    - cvtsi2ss/cvtsi2sd(xmm, qword[mem])
+    - T_nf of blsi/blsmsk/blsr/andn/bextr/bzhi was ignored
+    - T_rd_sae etc. on the GPR side of vcvt{,t}s{s,d}2si was ignored, e.g. vcvtsd2si(ecx|T_rd_sae, xmm2)
+  - the following invalid usages are now errors:
+    1. T_z on instructions whose destination is a mask register (ERR_INVALID_ZERO)
+    2. non GPR/mem operands or different sizes for ccmp/ctest
+    3. push2/pop2 with rsp and pop2 with the same registers
+    4. EVEX modifiers (k, z and er/sae) on non AVX-512 instructions such as addps(xmm1|k1, xmm2) and add(ecx|k1, edx)
+    5. broadcast on non AVX-512 instructions such as lea(rax, ptr_b[rax])
+    6. mixed vector sizes such as vaddps(zmm1, zmm2, xmm3)
+    7. an explicitly sized memory operand of a different size for pinsr{b,w,d}/pextr{b,w,d}/extractps/movd/movq and their VEX/EVEX forms such as pinsrd(xmm1, qword[rax], 1)
+  - 5, 6 and 7 are ignored if XBYAK_STRICT_CHECK_MEM_REG_SIZE=0. T_z on the address of a memory destination such as vmovups(ptr[rax]|k1|T_z, zmm1) is also ignored then
 * 2026/Oct/22 ver 7.44 add salc/urdmsr/uwrmsr. add cpuid detection of USER_MSR
 * 2026/Oct/03 ver 7.43 add vfmaddcsh/vfcmaddcsh/vfmulcsh/vfcmulcsh. vpmadd52luq/vpmadd52huq support VEX encoding (AVX-IFMA) by VexEncoding/setDefaultEncoding. vsm4key4/vsm4rnds4 support ymm/zmm. valignd/valignq support broadcast. add T_NO_MASK: an opmask on instructions that do not support masking (vmovhpd, vaesenc, vpsadbw, etc.) is an error (ERR_INVALID_OPMASK). fix wrong encoding: vmov{h,l}{pd,ps}(xmm, xmm), vpermq(ymm, ymm, ymm/m256) and vp2intersect{d,q} with xmm/ymm emitted VEX, disp8N of vcvt(t)sd2si/vcvt(t)ss2si was swapped, vsm3* are VEX.128 only. remove unsupported {sae}/broadcast/ymm from vpopcnt*, vpshld*, vpshrd*, vpdpbusd*, vgf2p8*, vmpsadbw, vrsqrt14s{s,d}, etc. vcmps{s,d} and vfixupimms{s,d} accept {sae}. vcmps{s,d,h} accept only xmm.
 * 2026/Sep/17 ver 7.42 add XBYAK_ALLOW_K0_MASK=1 to treat k0 mask as an error

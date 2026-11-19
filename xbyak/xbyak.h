@@ -178,6 +178,7 @@
 
 // Heuristically check general-purpose register and memory operand size matching such as add(dword[eax], al);
 // Not exact but useful to find mistakes. Define as 0 to disable.
+// It also controls some strict checks of operands. See the Macro section of doc/usage.md.
 // This macro may be removed in future versions.
 #ifndef XBYAK_STRICT_CHECK_MEM_REG_SIZE
 	#define XBYAK_STRICT_CHECK_MEM_REG_SIZE 1
@@ -694,7 +695,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7440 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7450 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -2418,9 +2419,21 @@ private:
 		if (rex) db(rex);
 		return false;
 	}
+	// {k}, {z}, {er}/{sae} and broadcast are available only for AVX-512 instructions
+	void verifyNoEvexAttr(const Operand& op) const
+	{
+		if (op.getOpmaskIdx()) XBYAK_THROW(ERR_INVALID_OPMASK)
+		if (op.hasZero()) XBYAK_THROW(ERR_INVALID_ZERO)
+		if (op.getRounding()) XBYAK_THROW(op.getRounding() == EvexModifierRounding::T_SAE ? ERR_SAE_IS_INVALID : ERR_ER_IS_INVALID)
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
+		if (op.isMEM() && op.getAddress().isBroadcast()) XBYAK_THROW(ERR_INVALID_BROADCAST)
+#endif
+	}
 	// return true if rex2 is selected
 	bool rex(const Operand& op1, const Operand& op2 = Operand(), uint64_t type = 0)
 	{
+		verifyNoEvexAttr(op1);
+		verifyNoEvexAttr(op2);
 		if (op1.getNF() | op2.getNF()) XBYAK_THROW_RET(ERR_INVALID_NF, false)
 		if (op1.getZU() | op2.getZU()) XBYAK_THROW_RET(ERR_INVALID_ZU, false)
 		const Operand *p1 = &op1, *p2 = &op2;
@@ -2605,6 +2618,7 @@ private:
 		if (aaa == 0) aaa = verifyDuplicate(base.getOpmaskIdx(), reg.getOpmaskIdx(), (v ? v->getOpmaskIdx() : 0), ERR_OPMASK_IS_ALREADY_SET);
 		if (aaa && (type & T_NO_MASK)) XBYAK_THROW_RET(ERR_INVALID_OPMASK, 0)
 		if (aaa == 0) z = 0; // clear T_z if mask is not set
+		if (z && reg.isOPMASK()) XBYAK_THROW_RET(ERR_INVALID_ZERO, 0) // zeroing-masking is invalid when the destination is a mask register
 		db(0x62);
 		db((R ? 0 : 0x80) | (X3 ? 0 : 0x40) | (B ? 0 : 0x20) | (Rp ? 0 : 0x10) | B4 | mmm);
 		db((w == 1 ? 0x80 : 0) | ((vvvv & 15) << 3) | U | (pp & 3));
@@ -2851,6 +2865,25 @@ private:
 		opRO(r, op, type, code, true, (imm8 != NONE) ? 1 : 0);
 		if (imm8 != NONE) db(imm8);
 	}
+	// cvtsi2ss/cvtsi2sd (xmm, r/m32 | r/m64) : qword mem requires REX.W
+	void opCvtSi2X_SSE(const Reg& x, const Operand& op, uint64_t type, int code)
+	{
+		if (!isXMM_REG32orMEM(x, op)) XBYAK_THROW(ERR_BAD_COMBINATION)
+		verifySSE(x, op);
+		if (op.isMEM()) {
+			const int bit = op.getBit();
+			if (bit != 0 && bit != 32 && bit != BIT) XBYAK_THROW(ERR_BAD_MEM_SIZE)
+#ifdef XBYAK64
+			if (bit == 64) {
+				opMR(op.getAddress(), x.cvt64(), type, code);
+				return;
+			}
+#endif
+			opMR(op.getAddress(), x, type, code);
+		} else {
+			opRR(x, op.getReg(), type, code);
+		}
+	}
 	void opMMX_IMM(const Mmx& mmx, int imm8, int code, int ext)
 	{
 		verifySSE(mmx);
@@ -2897,6 +2930,7 @@ private:
 	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, uint64_t type, int code, int immSize = 0, int sc = NONE)
 	{
 		if ((type & T_EVEX_MASK) != T_MUST_EVEX && !d.isREG() && !(d.hasRex2NFZU() || op1.hasRex2NFZU() || op2.hasRex2NFZU())) return false;
+		verifyNoEvexAttr(d); verifyNoEvexAttr(op1); verifyNoEvexAttr(op2);
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code |= 2; }
 		if (p1->isMEM()) XBYAK_THROW_RET(ERR_BAD_COMBINATION, false)
@@ -2917,6 +2951,7 @@ private:
 	}
 	void opRext(const Operand& op, int bit, int ext, uint64_t type, int code, bool disableRex = false, int immSize = 0, const Reg *d = 0)
 	{
+		verifyNoEvexAttr(op); // changeBit() below drops the modifiers
 		int opBit = op.getBit();
 		if (disableRex && opBit == 64) opBit = 32;
 		const Reg r(ext, Operand::REG, opBit);
@@ -3043,6 +3078,7 @@ private:
 	{
 		int bit = op.getBit();
 		if (bit != 16 && bit != BIT) XBYAK_THROW(ERR_BAD_COMBINATION)
+		verifyNoEvexAttr(op);
 		if (bit == 16) db(0x66);
 		if (op.isREG()) {
 			setRex(0, Reg(), op.getReg(), Reg(), 0); // 0x41 or REX2 if necessary
@@ -3060,6 +3096,13 @@ private:
 	{
 		rex2(0, 1, Reg(), r);
 		db(alt | (r.getIdx() & 7));
+	}
+	// PUSH2/POP2 : #UD if r1 or r2 is rsp, or if r1 == r2 for POP2
+	void opPush2Pop2(const Reg64& r1, const Reg64& r2, int ext, uint64_t type, int code, bool isPop)
+	{
+		if (r1.getIdx() == Operand::RSP || r2.getIdx() == Operand::RSP) XBYAK_THROW(ERR_BAD_COMBINATION)
+		if (isPop && r1.getIdx() == r2.getIdx()) XBYAK_THROW(ERR_BAD_COMBINATION)
+		opROO(r1, r2, Reg64(ext), type, code);
 	}
 #endif
 	void verifyMemHasSize(const Operand& op) const
@@ -3148,7 +3191,12 @@ private:
 		const bool useEvex = (type & T_EVEX_MASK) == T_MUST_EVEX || r.hasEvex() || (p1 && p1->hasEvex());
 		if (op2.isMEM()) {
 			// zeroing-masking has no meaning when the destination is memory
-			if ((type & T_M_K) && (r.hasZero() || (p1 && p1->hasZero()) || op2.hasZero())) XBYAK_THROW(ERR_INVALID_ZERO)
+			// T_z on a register would generate EVEX.z=1 which causes #UD, so it is always an error
+			if ((type & T_M_K) && (r.hasZero() || (p1 && p1->hasZero()))) XBYAK_THROW(ERR_INVALID_ZERO)
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
+			// T_z on an address is ignored (EVEX.z=0) if the check is disabled
+			if ((type & T_M_K) && op2.hasZero()) XBYAK_THROW(ERR_INVALID_ZERO)
+#endif
 			Address addr = op2.getAddress();
 			const RegExp& regExp = addr.getRegExp();
 			const Reg& base = regExp.getBase();
@@ -3180,7 +3228,7 @@ private:
 		const unsigned int bit = d.getBit();
 		if (r1.getBit() != bit || (op2.isREG() && op2.getBit() != bit)) XBYAK_THROW(ERR_BAD_COMBINATION)
 		type |= (bit == 64) ? T_W1 : T_W0;
-		if (d.hasRex2() || r1.hasRex2() || op2.hasRex2() || d.getNF()) {
+		if (d.hasRex2() || r1.hasRex2() || op2.hasRex2() || d.getNF() || r1.getNF() || op2.getNF()) {
 			opROO(r1, op2, d, type, code);
 			if (imm8 != NONE) db(imm8);
 		} else {
@@ -3193,6 +3241,16 @@ private:
 		opVex(Reg(0, Operand::REG, 64), 0, r, type|T_MAP7|T_W0|T_EVEX|T_NO_MASK, code);
 		dd(imm);
 	}
+	// the size of the register form of r/m, derived from the memory size (T_N*) for the vector length VL
+	// full vector : VL, fixed size such as scalar : 128, half/quarter vector (T_N*|T_N_VL) : max(128, N * VL / 128 * 8)
+	static inline uint32_t getRmBit(uint32_t VL, uint64_t type)
+	{
+		const int low = type & T_NX_MASK;
+		if (low == 0 || low == T_DUP) return VL;
+		uint32_t bit = (1u << (low - 1)) * 8;
+		if (type & T_N_VL) bit *= VL / 128;
+		return bit < 128 ? 128 : bit;
+	}
 	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, uint64_t type, int code, int imm8 = NONE)
 	{
 		const Xmm *x2 = static_cast<const Xmm*>(&op1);
@@ -3203,6 +3261,9 @@ private:
 		}
 		// (x1, x2, op)
 		if (!((x1.isXMM() && x2->isXMM()) || ((type & T_YMM) && ((x1.isYMM() && x2->isYMM()) || (x1.isZMM() && x2->isZMM()))))) XBYAK_THROW(ERR_BAD_COMBINATION)
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
+		if (op->is(Operand::XMM | Operand::YMM | Operand::ZMM) && op->getBit() != getRmBit(x1.getBit(), type)) XBYAK_THROW(ERR_BAD_COMBINATION)
+#endif
 		opVex(x1, x2, *op, type, code, imm8);
 	}
 	void opAVX_K_X_XM(const Opmask& k, const Xmm& x2, const Operand& op3, uint64_t type, int code, int imm8 = NONE)
@@ -3268,6 +3329,9 @@ private:
 	// (r32/r64, x/m) : vcvt*2(u)si (XMM to scalar int), EVEX.W is set if r is 64-bit
 	void opCvtX2Si(const Reg& r, const Operand& op, uint64_t type, int code)
 	{
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
+		if (!op.isXMM() && !op.isMEM()) XBYAK_THROW(ERR_BAD_COMBINATION)
+#endif
 		opVex(r, &xm0, op, type | (r.isREG(64) ? T_EW1 : T_W0), code);
 	}
 	const Xmm& cvtIdx0(const Operand& x) const
@@ -3278,6 +3342,14 @@ private:
 	void opAVX_X_XM_IMM(const Xmm& x, const Operand& op, uint64_t type, int code, int imm8 = NONE)
 	{
 		opAVX_X_X_XM(x, cvtIdx0(x), op, type, code, imm8);
+	}
+	// (x, x/m), (y, y/m), (z, z/m) : compress/expand, the register form is a full vector though disp8N is the element size
+	void opCompExp(const Xmm& x, const Operand& op, uint64_t type, int code)
+	{
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
+		if (!op.isMEM() && op.getKind() != x.getKind()) XBYAK_THROW(ERR_BAD_COMBINATION)
+#endif
+		opVex(x, &cvtIdx0(x), op, type, code);
 	}
 	void opCnt(const Reg& reg, const Operand& op, uint8_t code)
 	{
@@ -3391,20 +3463,38 @@ private:
 	{
 		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
 	}
+	// an explicitly sized memory operand such as dword[...] must have the size which the instruction accesses
+	static inline void verifyMemSize(const Operand& op, uint32_t bit)
+	{
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
+		if (op.isMEM() && op.getBit() != 0 && op.getBit() != bit) XBYAK_THROW(ERR_BAD_MEM_SIZE)
+#else
+		(void)op; (void)bit;
+#endif
+	}
+	static inline void verifyRegOrMem(const Operand& op)
+	{
+		if (!(op.isREG() || op.isMEM())) XBYAK_THROW(ERR_BAD_COMBINATION)
+	}
 	void opCcmp(const Operand& op1, const Operand& op2, int dfv, int code, int sc) // cmp = 0x38, test = 0x84
 	{
 		verifyDfv(dfv);
-		opROO(Reg(15 - dfv, Operand::REG, (op1.getBit() | op2.getBit())), op1, op2, T_APX|T_OP_W1, code, 0, sc);
+		verifyRegOrMem(op1); verifyRegOrMem(op2);
+		const int bit1 = op1.getBit(), bit2 = op2.getBit();
+		if (bit1 && bit2 && bit1 != bit2) XBYAK_THROW((op1.isMEM() || op2.isMEM()) ? ERR_BAD_MEM_SIZE : ERR_BAD_SIZE_OF_REGISTER)
+		opROO(Reg(15 - dfv, Operand::REG, bit1 | bit2), op1, op2, T_APX|T_OP_W1, code, 0, sc);
 	}
 	void opCcmpi(const Operand& op, int imm, int dfv, int sc)
 	{
 		verifyDfv(dfv);
+		verifyRegOrMem(op);
 		verifyMemHasSize(op);
-		opROI(Reg(15 - dfv, Operand::REG, op.getBit()), op, imm, T_APX|T_OP_W1, 15, sc);
+		opROI(Reg(15 - dfv, Operand::REG, op.getBit()), op, imm, T_APX|T_OP_W1, 7, sc);
 	}
 	void opTesti(const Operand& op, int imm, int dfv, int sc)
 	{
 		verifyDfv(dfv);
+		verifyRegOrMem(op);
 		uint32_t opBit = op.getBit();
 		if (opBit == 0) XBYAK_THROW(ERR_MEM_SIZE_IS_NOT_SPECIFIED);
 		int immBit = (std::min)(opBit, 32U);
@@ -3784,6 +3874,7 @@ public:
 
 	void bswap(const Reg32e& r)
 	{
+		verifyNoEvexAttr(r);
 		int idx = r.getIdx();
 		uint8_t rex = (r.isREG(64) ? 8 : 0) | ((idx & 8) ? 1 : 0);
 		if (idx >= 16) {
@@ -3796,6 +3887,8 @@ public:
 	}
 	void vmovd(const Operand& op1, const Operand& op2, PreferredEncoding enc = DefaultEncoding)
 	{
+		verifyMemSize(op1, 32);
+		verifyMemSize(op2, 32);
 		const uint64_t typeTbl[] = {
 			T_EVEX|T_66|T_0F|T_W0|T_N4|T_NO_MASK, T_EVEX|T_66|T_0F|T_W0|T_N4|T_NO_MASK, // legacy, avx, avx512
 			T_MUST_EVEX|T_66|T_0F|T_N4|T_NO_MASK, T_MUST_EVEX|T_F3|T_0F|T_N4|T_NO_MASK, // avx10.2
@@ -3805,6 +3898,8 @@ public:
 	}
 	void vmovw(const Operand& op1, const Operand& op2, PreferredEncoding enc = DefaultEncoding)
 	{
+		verifyMemSize(op1, 16);
+		verifyMemSize(op2, 16);
 		const uint64_t typeTbl[] = {
 			T_MUST_EVEX|T_66|T_MAP5|T_N2|T_NO_MASK, T_MUST_EVEX|T_66|T_MAP5|T_N2|T_NO_MASK, // avx512-fp16
 			T_MUST_EVEX|T_F3|T_MAP5|T_N2|T_NO_MASK, T_MUST_EVEX|T_F3|T_MAP5|T_N2|T_NO_MASK, // avx10.2

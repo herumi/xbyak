@@ -549,6 +549,265 @@ CYBOZU_TEST_AUTO(store_zero)
 	} c;
 }
 
+// an explicitly sized memory operand must match the size which the instruction accesses
+CYBOZU_TEST_AUTO(insert_extract_mem_size)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			// the code does not depend on whether the size is specified or not
+			const uint8_t *p1 = getCurr();
+			pinsrb(xmm1, ptr[eax], 1); pinsrw(xmm1, ptr[eax], 1); pinsrd(xmm1, ptr[eax], 1);
+			pextrb(ptr[eax], xmm1, 1); pextrw(ptr[eax], xmm1, 1); pextrd(ptr[eax], xmm1, 1);
+			extractps(ptr[eax], xmm1, 1);
+			movd(xmm1, ptr[eax]); movd(ptr[eax], xmm1); movd(mm1, ptr[eax]);
+			movq(xmm1, ptr[eax]); movq(ptr[eax], xmm1); movq(mm1, ptr[eax]);
+			vpinsrb(xmm1, xmm2, ptr[eax], 1); vpinsrw(xmm1, xmm2, ptr[eax], 1); vpinsrd(xmm1, xmm2, ptr[eax], 1);
+			vpextrb(ptr[eax], xmm1, 1); vpextrw(ptr[eax], xmm1, 1); vpextrd(ptr[eax], xmm1, 1);
+			vextractps(ptr[eax], xmm1, 1);
+			vmovd(xmm1, ptr[eax]); vmovd(ptr[eax], xmm1);
+			vmovq(xmm1, ptr[eax]); vmovq(ptr[eax], xmm1);
+			vmovw(xmm1, ptr[eax]); vmovw(ptr[eax], xmm1);
+			const uint8_t *p2 = getCurr();
+			pinsrb(xmm1, byte[eax], 1); pinsrw(xmm1, word[eax], 1); pinsrd(xmm1, dword[eax], 1);
+			pextrb(byte[eax], xmm1, 1); pextrw(word[eax], xmm1, 1); pextrd(dword[eax], xmm1, 1);
+			extractps(dword[eax], xmm1, 1);
+			movd(xmm1, dword[eax]); movd(dword[eax], xmm1); movd(mm1, dword[eax]);
+			movq(xmm1, qword[eax]); movq(qword[eax], xmm1); movq(mm1, qword[eax]);
+			vpinsrb(xmm1, xmm2, byte[eax], 1); vpinsrw(xmm1, xmm2, word[eax], 1); vpinsrd(xmm1, xmm2, dword[eax], 1);
+			vpextrb(byte[eax], xmm1, 1); vpextrw(word[eax], xmm1, 1); vpextrd(dword[eax], xmm1, 1);
+			vextractps(dword[eax], xmm1, 1);
+			vmovd(xmm1, dword[eax]); vmovd(dword[eax], xmm1);
+			vmovq(xmm1, qword[eax]); vmovq(qword[eax], xmm1);
+			vmovw(xmm1, word[eax]); vmovw(word[eax], xmm1);
+			const uint8_t *end = getCurr();
+			CYBOZU_TEST_EQUAL(p2 - p1, end - p2);
+			CYBOZU_TEST_EQUAL_ARRAY(p1, p2, end - p2);
+			// bad size
+			CYBOZU_TEST_EXCEPTION(pinsrb(xmm1, dword[eax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pinsrw(xmm1, dword[eax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pinsrw(mm1, dword[eax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pinsrd(xmm1, qword[eax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pextrb(dword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pextrw(dword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pextrd(qword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(extractps(qword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(movd(xmm1, qword[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(movd(qword[eax], xmm1), std::exception);
+			CYBOZU_TEST_EXCEPTION(movd(mm1, qword[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(movq(xmm1, dword[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(movq(dword[eax], xmm1), std::exception);
+			CYBOZU_TEST_EXCEPTION(movq(mm1, dword[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpinsrb(xmm1, xmm2, dword[eax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpinsrw(xmm1, xmm2, dword[eax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpinsrd(xmm1, xmm2, qword[eax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpextrb(dword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpextrw(dword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpextrd(qword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vextractps(qword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vmovd(xmm1, qword[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(vmovd(qword[eax], xmm1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vmovq(xmm1, dword[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(vmovq(dword[eax], xmm1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vmovw(xmm1, dword[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(vmovw(dword[eax], xmm1), std::exception);
+#ifdef XBYAK64
+			CYBOZU_TEST_NO_EXCEPTION(pinsrq(xmm1, qword[rax], 1));
+			CYBOZU_TEST_NO_EXCEPTION(vpinsrq(xmm1, xmm2, qword[rax], 1));
+			CYBOZU_TEST_NO_EXCEPTION(vpextrq(qword[rax], xmm1, 1));
+			CYBOZU_TEST_EXCEPTION(pinsrq(xmm1, dword[rax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pextrq(dword[rax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpinsrq(xmm1, xmm2, dword[rax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpextrq(dword[rax], xmm1, 1), std::exception);
+#endif
+		}
+	} c;
+}
+
+// {k}, {z}, {er}/{sae} and broadcast must not be ignored by non AVX-512 instructions
+CYBOZU_TEST_AUTO(evex_modifier_on_legacy)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			// SSE
+			CYBOZU_TEST_NO_EXCEPTION(addps(xmm1, xmm2));
+			CYBOZU_TEST_EXCEPTION(addps(xmm1|k5, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(addps(xmm1|k5|T_z, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(addps(xmm1|T_z, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(addps(xmm1, xmm2|k5), std::exception);
+			CYBOZU_TEST_EXCEPTION(addps(xmm1, ptr_b[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(addps(xmm1|T_rn_sae, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(addps(xmm1, xmm2|T_sae), std::exception);
+			CYBOZU_TEST_EXCEPTION(paddd(xmm1|k1|T_z, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(movaps(xmm1|k1, ptr[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(movaps(ptr[eax]|k1, xmm1), std::exception);
+			CYBOZU_TEST_EXCEPTION(cmpunordss(xmm1|k5, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(pshufd(xmm1|k1, xmm2, 3), std::exception);
+			CYBOZU_TEST_EXCEPTION(movd(xmm1|k1, eax), std::exception);
+			CYBOZU_TEST_EXCEPTION(cvtsi2sd(xmm1|k1, eax), std::exception);
+			CYBOZU_TEST_EXCEPTION(paddb(mm1|k1, mm2), std::exception);
+			// GPR
+			CYBOZU_TEST_NO_EXCEPTION(add(ecx, edx));
+			CYBOZU_TEST_EXCEPTION(add(ecx|k1, edx), std::exception);
+			CYBOZU_TEST_EXCEPTION(add(ecx, edx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(add(ecx, ptr_b[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(add(ecx|k1, 3), std::exception);
+			CYBOZU_TEST_EXCEPTION(mov(ecx|T_z, edx), std::exception);
+			CYBOZU_TEST_EXCEPTION(mov(ecx|k1, 3), std::exception);
+			CYBOZU_TEST_EXCEPTION(mov(ptr[eax]|k1, ecx), std::exception);
+			CYBOZU_TEST_EXCEPTION(inc(ecx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(not_(ecx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(shl(ecx|k1, 3), std::exception);
+			CYBOZU_TEST_EXCEPTION(bswap(ecx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(setz(cl|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(xchg(ecx|k1, eax), std::exception);
+#ifdef XBYAK64
+			CYBOZU_TEST_EXCEPTION(push(rcx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pop(rcx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(jmp(rcx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(call(rcx|k1), std::exception);
+			// APX
+			CYBOZU_TEST_NO_EXCEPTION(add(rax|T_nf, r20, rdx));
+			CYBOZU_TEST_EXCEPTION(add(r20|k1, rdx), std::exception);
+			CYBOZU_TEST_EXCEPTION(add(rax|k1, r20, rdx), std::exception);
+			CYBOZU_TEST_EXCEPTION(add(rax, r20, rdx|k2), std::exception);
+			CYBOZU_TEST_EXCEPTION(add(rax|T_z, r20, rdx), std::exception);
+			CYBOZU_TEST_EXCEPTION(add(rax|T_nf, rdx, ptr_b[rcx]), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(ptr_b[rax], edx), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(eax|k1, edx), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(eax|k1, 3), std::exception);
+#else
+			CYBOZU_TEST_EXCEPTION(push(ecx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pop(ecx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(jmp(ecx|k1), std::exception);
+			CYBOZU_TEST_EXCEPTION(call(ecx|k1), std::exception);
+#endif
+		}
+	} c;
+}
+
+// the register form of r/m must have the size determined by the vector length
+CYBOZU_TEST_AUTO(mixed_vector_size)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			// full vector
+			CYBOZU_TEST_NO_EXCEPTION(vaddps(zmm1, zmm2, zmm3));
+			CYBOZU_TEST_NO_EXCEPTION(vaddps(zmm1, zmm2, zmm3|T_rn_sae));
+			CYBOZU_TEST_EXCEPTION(vaddps(zmm1, zmm2, xmm3), std::exception);
+			CYBOZU_TEST_EXCEPTION(vaddps(zmm1, zmm2, ymm3), std::exception);
+			CYBOZU_TEST_EXCEPTION(vaddps(ymm1, ymm2, xmm3), std::exception);
+			CYBOZU_TEST_EXCEPTION(vaddps(xmm1, xmm2, ymm3), std::exception);
+			CYBOZU_TEST_EXCEPTION(vaddps(xmm1, ymm3), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpaddd(ymm1, ymm2, zmm3), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vexp2pd(zmm1, zmm2));
+			CYBOZU_TEST_EXCEPTION(vexp2pd(zmm1, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vrcp28ps(zmm1, ymm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vrsqrt28pd(zmm1, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpermilps(ymm1, xmm2, 3), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vpslld(ymm1, ymm2, 3));
+			CYBOZU_TEST_EXCEPTION(vpslld(ymm1, xmm2, 3), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vmovddup(zmm1, zmm2));
+			CYBOZU_TEST_EXCEPTION(vmovddup(zmm1, xmm2), std::exception);
+			// xmm regardless of the vector length
+			CYBOZU_TEST_NO_EXCEPTION(vpslld(zmm1, zmm2, xmm3));
+			CYBOZU_TEST_EXCEPTION(vpslld(zmm1, zmm2, zmm3), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vbroadcastss(zmm1, xmm2));
+			CYBOZU_TEST_EXCEPTION(vbroadcastss(zmm1, ymm2), std::exception);
+			// scalar
+			CYBOZU_TEST_NO_EXCEPTION(vucomxss(xmm1, xmm2));
+			CYBOZU_TEST_EXCEPTION(vucomxss(xmm1, ymm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcomiss(xmm1, zmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vaddsd(xmm1, xmm2, ymm3), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vcvttsd2sis(ecx, xmm2));
+			CYBOZU_TEST_EXCEPTION(vcvttsd2sis(ecx, ymm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvtsd2si(ecx, ymm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvtss2usi(ecx, zmm2), std::exception);
+			// half, quarter and eighth vector
+			CYBOZU_TEST_NO_EXCEPTION(vpmovsxbw(xmm1, xmm2));
+			CYBOZU_TEST_NO_EXCEPTION(vpmovsxbw(ymm1, xmm2));
+			CYBOZU_TEST_NO_EXCEPTION(vpmovsxbw(zmm1, ymm2));
+			CYBOZU_TEST_EXCEPTION(vpmovsxbw(ymm1, ymm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpmovsxbw(zmm1, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpmovsxbw(zmm1, zmm2), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vpmovzxbd(zmm1, xmm2));
+			CYBOZU_TEST_EXCEPTION(vpmovzxbd(zmm1, ymm2), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vpmovzxbq(zmm1, xmm2));
+			CYBOZU_TEST_EXCEPTION(vpmovzxbq(ymm1, ymm2), std::exception);
+			// compress/expand use a full vector though disp8N is the element size
+			CYBOZU_TEST_NO_EXCEPTION(vcompresspd(zmm1|k1, zmm2));
+			CYBOZU_TEST_NO_EXCEPTION(vpexpandb(ymm1|k1|T_z, ymm2));
+			CYBOZU_TEST_EXCEPTION(vcompresspd(zmm1|k1, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcompresspd(xmm1|k1, zmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vexpandps(zmm1|k1, ymm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpexpandw(xmm1|k1, ymm2), std::exception);
+		}
+	} c;
+}
+
+// rounding/sae on the GPR side of vcvt*2si must not be ignored
+CYBOZU_TEST_AUTO(cvt2si_rounding_on_gpr)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			// the same code as rounding on the xmm side
+			const uint8_t *p1 = getCurr();
+			vcvtsd2si(ecx, xmm2|T_rd_sae);
+			vcvtss2si(ecx, xmm2|T_ru_sae);
+			vcvttsd2si(ecx, xmm2|T_sae);
+			vcvttss2si(ecx, xmm2|T_sae);
+			const uint8_t *p2 = getCurr();
+			vcvtsd2si(ecx|T_rd_sae, xmm2);
+			vcvtss2si(ecx|T_ru_sae, xmm2);
+			vcvttsd2si(ecx|T_sae, xmm2);
+			vcvttss2si(ecx|T_sae, xmm2);
+			const uint8_t *end = getCurr();
+			CYBOZU_TEST_EQUAL(p2 - p1, end - p2);
+			CYBOZU_TEST_EQUAL_ARRAY(p1, p2, end - p2);
+			// invalid modifiers
+			CYBOZU_TEST_EXCEPTION(vcvtsd2si(ecx|T_sae, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvttsd2si(ecx|T_rd_sae, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvtsd2si(ecx|T_rd_sae, ptr[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvttss2si(ecx|T_sae, ptr[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvtsd2si(ecx|T_rd_sae, xmm2|T_ru_sae), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcvtsd2si(ecx|k1, xmm2), std::exception);
+		}
+	} c;
+}
+
+// {z} is invalid when the destination is a mask register. only {k} is allowed there.
+CYBOZU_TEST_AUTO(opmask_dst_zero)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			CYBOZU_TEST_NO_EXCEPTION(vcmpps(k1|k2, zmm1, zmm2, 0));
+			CYBOZU_TEST_EXCEPTION(vcmpps(k1|k2|T_z, zmm1, zmm2, 0), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcmpps(k1|k2|T_z, zmm1, ptr[eax], 0), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcmpps(k1|k2, zmm1|T_z, zmm2, 0), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcmpeqps(k1|k2|T_z, zmm1, zmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcmpsd(k1|k2|T_z, xmm1, xmm2, 0), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcmpph(k1|k2|T_z, zmm1, zmm2, 0), std::exception);
+			CYBOZU_TEST_EXCEPTION(vcmpbf16(k1|k2|T_z, zmm1, zmm2, 0), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vpcmpeqd(k1|k2, zmm1, zmm2));
+			CYBOZU_TEST_EXCEPTION(vpcmpeqd(k1|k2|T_z, zmm1, zmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpcmpub(k1|k2|T_z, xmm1, xmm2, 1), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vptestmd(k1|k2, zmm1, zmm2));
+			CYBOZU_TEST_EXCEPTION(vptestmd(k1|k2|T_z, zmm1, zmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(vptestnmq(k1|k2|T_z, zmm1, zmm2), std::exception);
+			CYBOZU_TEST_NO_EXCEPTION(vfpclassps(k1|k2, zmm1, 0));
+			CYBOZU_TEST_EXCEPTION(vfpclassps(k1|k2|T_z, zmm1, 0), std::exception);
+			CYBOZU_TEST_EXCEPTION(vfpclasssd(k1|k2|T_z, xmm1, 0), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpshufbitqmb(k1|k2|T_z, zmm1, zmm2), std::exception);
+			// T_z without a mask is dropped as for the other instructions
+			CYBOZU_TEST_NO_EXCEPTION(vcmpps(k1|T_z, zmm1, zmm2, 0));
+		}
+	} c;
+}
+
 CYBOZU_TEST_AUTO(gather)
 {
 	struct Code : Xbyak::CodeGenerator {
