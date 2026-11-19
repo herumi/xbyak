@@ -1,5 +1,5 @@
 
-    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.44
+    C++用x86(IA-32), x64(AMD64, x86-64) JITアセンブラ Xbyak 7.45
 
 -----------------------------------------------------------------------------
 ◎概要
@@ -407,6 +407,7 @@ sample/{echo,hello}.bfは http://www.kmonos.net/alang/etc/brainfuck.php から
 -----------------------------------------------------------------------------
 ◎履歴
 
+2026/11/19 ver 7.45 qwordでのcvtsi2ss/cvtsi2sd, T_zつきblsi/blsmsk/blsr/andn/bextr/bzhi, vcvt{,t}s{s,d}2siがT_rd_saeなどを無視するバグの修正. サイズミスマッチなどの不整合のエラーチェックの厳密化. XBYAK_STRICT_CHECK_MEM_REG_SIZE=0の対象を広げた
 2026/10/22 ver 7.44 salc/urdmsr/uwrmsrの追加. USER_MSRのcpuid判定追加
 2026/10/03 ver 7.43 vfmaddcsh/vfcmaddcsh/vfmulcsh/vfcmulcsh追加. vpmadd52{l,h}uqのVEXエンコーディングサポート. 様々なエラーチェック厳格化
 2026/09/17 ver 7.42 k0マスクをエラーにするマクロXBYAK_ALLOW_K0_MASK=1を追加
