@@ -549,6 +549,81 @@ CYBOZU_TEST_AUTO(store_zero)
 	} c;
 }
 
+// an explicitly sized memory operand must match the size which the instruction accesses
+CYBOZU_TEST_AUTO(insert_extract_mem_size)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			// the code does not depend on whether the size is specified or not
+			const uint8_t *p1 = getCurr();
+			pinsrb(xmm1, ptr[eax], 1); pinsrw(xmm1, ptr[eax], 1); pinsrd(xmm1, ptr[eax], 1);
+			pextrb(ptr[eax], xmm1, 1); pextrw(ptr[eax], xmm1, 1); pextrd(ptr[eax], xmm1, 1);
+			extractps(ptr[eax], xmm1, 1);
+			movd(xmm1, ptr[eax]); movd(ptr[eax], xmm1); movd(mm1, ptr[eax]);
+			movq(xmm1, ptr[eax]); movq(ptr[eax], xmm1); movq(mm1, ptr[eax]);
+			vpinsrb(xmm1, xmm2, ptr[eax], 1); vpinsrw(xmm1, xmm2, ptr[eax], 1); vpinsrd(xmm1, xmm2, ptr[eax], 1);
+			vpextrb(ptr[eax], xmm1, 1); vpextrw(ptr[eax], xmm1, 1); vpextrd(ptr[eax], xmm1, 1);
+			vextractps(ptr[eax], xmm1, 1);
+			vmovd(xmm1, ptr[eax]); vmovd(ptr[eax], xmm1);
+			vmovq(xmm1, ptr[eax]); vmovq(ptr[eax], xmm1);
+			vmovw(xmm1, ptr[eax]); vmovw(ptr[eax], xmm1);
+			const uint8_t *p2 = getCurr();
+			pinsrb(xmm1, byte[eax], 1); pinsrw(xmm1, word[eax], 1); pinsrd(xmm1, dword[eax], 1);
+			pextrb(byte[eax], xmm1, 1); pextrw(word[eax], xmm1, 1); pextrd(dword[eax], xmm1, 1);
+			extractps(dword[eax], xmm1, 1);
+			movd(xmm1, dword[eax]); movd(dword[eax], xmm1); movd(mm1, dword[eax]);
+			movq(xmm1, qword[eax]); movq(qword[eax], xmm1); movq(mm1, qword[eax]);
+			vpinsrb(xmm1, xmm2, byte[eax], 1); vpinsrw(xmm1, xmm2, word[eax], 1); vpinsrd(xmm1, xmm2, dword[eax], 1);
+			vpextrb(byte[eax], xmm1, 1); vpextrw(word[eax], xmm1, 1); vpextrd(dword[eax], xmm1, 1);
+			vextractps(dword[eax], xmm1, 1);
+			vmovd(xmm1, dword[eax]); vmovd(dword[eax], xmm1);
+			vmovq(xmm1, qword[eax]); vmovq(qword[eax], xmm1);
+			vmovw(xmm1, word[eax]); vmovw(word[eax], xmm1);
+			const uint8_t *end = getCurr();
+			CYBOZU_TEST_EQUAL(p2 - p1, end - p2);
+			CYBOZU_TEST_EQUAL_ARRAY(p1, p2, end - p2);
+			// bad size
+			CYBOZU_TEST_EXCEPTION(pinsrb(xmm1, dword[eax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pinsrw(xmm1, dword[eax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pinsrw(mm1, dword[eax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pinsrd(xmm1, qword[eax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pextrb(dword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pextrw(dword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pextrd(qword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(extractps(qword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(movd(xmm1, qword[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(movd(qword[eax], xmm1), std::exception);
+			CYBOZU_TEST_EXCEPTION(movd(mm1, qword[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(movq(xmm1, dword[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(movq(dword[eax], xmm1), std::exception);
+			CYBOZU_TEST_EXCEPTION(movq(mm1, dword[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpinsrb(xmm1, xmm2, dword[eax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpinsrw(xmm1, xmm2, dword[eax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpinsrd(xmm1, xmm2, qword[eax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpextrb(dword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpextrw(dword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpextrd(qword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vextractps(qword[eax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vmovd(xmm1, qword[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(vmovd(qword[eax], xmm1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vmovq(xmm1, dword[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(vmovq(dword[eax], xmm1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vmovw(xmm1, dword[eax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(vmovw(dword[eax], xmm1), std::exception);
+#ifdef XBYAK64
+			CYBOZU_TEST_NO_EXCEPTION(pinsrq(xmm1, qword[rax], 1));
+			CYBOZU_TEST_NO_EXCEPTION(vpinsrq(xmm1, xmm2, qword[rax], 1));
+			CYBOZU_TEST_NO_EXCEPTION(vpextrq(qword[rax], xmm1, 1));
+			CYBOZU_TEST_EXCEPTION(pinsrq(xmm1, dword[rax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(pextrq(dword[rax], xmm1, 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpinsrq(xmm1, xmm2, dword[rax], 1), std::exception);
+			CYBOZU_TEST_EXCEPTION(vpextrq(dword[rax], xmm1, 1), std::exception);
+#endif
+		}
+	} c;
+}
+
 // {k}, {z}, {er}/{sae} and broadcast must not be ignored by non AVX-512 instructions
 CYBOZU_TEST_AUTO(evex_modifier_on_legacy)
 {

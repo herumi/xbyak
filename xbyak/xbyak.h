@@ -3449,6 +3449,11 @@ private:
 	{
 		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
 	}
+	// an explicitly sized memory operand such as dword[...] must have the size which the instruction accesses
+	static inline void verifyMemSize(const Operand& op, uint32_t bit)
+	{
+		if (op.isMEM() && op.getBit() != 0 && op.getBit() != bit) XBYAK_THROW(ERR_BAD_MEM_SIZE)
+	}
 	static inline void verifyRegOrMem(const Operand& op)
 	{
 		if (!(op.isREG() || op.isMEM())) XBYAK_THROW(ERR_BAD_COMBINATION)
@@ -3864,6 +3869,8 @@ public:
 	}
 	void vmovd(const Operand& op1, const Operand& op2, PreferredEncoding enc = DefaultEncoding)
 	{
+		verifyMemSize(op1, 32);
+		verifyMemSize(op2, 32);
 		const uint64_t typeTbl[] = {
 			T_EVEX|T_66|T_0F|T_W0|T_N4|T_NO_MASK, T_EVEX|T_66|T_0F|T_W0|T_N4|T_NO_MASK, // legacy, avx, avx512
 			T_MUST_EVEX|T_66|T_0F|T_N4|T_NO_MASK, T_MUST_EVEX|T_F3|T_0F|T_N4|T_NO_MASK, // avx10.2
@@ -3873,6 +3880,8 @@ public:
 	}
 	void vmovw(const Operand& op1, const Operand& op2, PreferredEncoding enc = DefaultEncoding)
 	{
+		verifyMemSize(op1, 16);
+		verifyMemSize(op2, 16);
 		const uint64_t typeTbl[] = {
 			T_MUST_EVEX|T_66|T_MAP5|T_N2|T_NO_MASK, T_MUST_EVEX|T_66|T_MAP5|T_N2|T_NO_MASK, // avx512-fp16
 			T_MUST_EVEX|T_F3|T_MAP5|T_N2|T_NO_MASK, T_MUST_EVEX|T_F3|T_MAP5|T_N2|T_NO_MASK, // avx10.2
