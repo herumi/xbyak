@@ -3411,20 +3411,29 @@ private:
 	{
 		if (dfv < 0 || 15 < dfv) XBYAK_THROW(ERR_INVALID_DFV)
 	}
+	static inline void verifyRegOrMem(const Operand& op)
+	{
+		if (!(op.isREG() || op.isMEM())) XBYAK_THROW(ERR_BAD_COMBINATION)
+	}
 	void opCcmp(const Operand& op1, const Operand& op2, int dfv, int code, int sc) // cmp = 0x38, test = 0x84
 	{
 		verifyDfv(dfv);
-		opROO(Reg(15 - dfv, Operand::REG, (op1.getBit() | op2.getBit())), op1, op2, T_APX|T_OP_W1, code, 0, sc);
+		verifyRegOrMem(op1); verifyRegOrMem(op2);
+		const int bit1 = op1.getBit(), bit2 = op2.getBit();
+		if (bit1 && bit2 && bit1 != bit2) XBYAK_THROW((op1.isMEM() || op2.isMEM()) ? ERR_BAD_MEM_SIZE : ERR_BAD_SIZE_OF_REGISTER)
+		opROO(Reg(15 - dfv, Operand::REG, bit1 | bit2), op1, op2, T_APX|T_OP_W1, code, 0, sc);
 	}
 	void opCcmpi(const Operand& op, int imm, int dfv, int sc)
 	{
 		verifyDfv(dfv);
+		verifyRegOrMem(op);
 		verifyMemHasSize(op);
 		opROI(Reg(15 - dfv, Operand::REG, op.getBit()), op, imm, T_APX|T_OP_W1, 15, sc);
 	}
 	void opTesti(const Operand& op, int imm, int dfv, int sc)
 	{
 		verifyDfv(dfv);
+		verifyRegOrMem(op);
 		uint32_t opBit = op.getBit();
 		if (opBit == 0) XBYAK_THROW(ERR_MEM_SIZE_IS_NOT_SPECIFIED);
 		int immBit = (std::min)(opBit, 32U);

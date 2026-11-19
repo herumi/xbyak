@@ -32,6 +32,50 @@ CYBOZU_TEST_AUTO(push_pop_bad_combination)
 	} c;
 }
 
+// operands of ccmp/ctest must be GPR or mem with the same size
+CYBOZU_TEST_AUTO(ccmp_ctest_bad_combination)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code()
+		{
+			CYBOZU_TEST_NO_EXCEPTION(ccmpb(rax, rcx, 3));
+			CYBOZU_TEST_NO_EXCEPTION(ccmpb(eax, ptr[rcx], 3));
+			CYBOZU_TEST_NO_EXCEPTION(ccmpb(ptr[rcx], ax, 3));
+			CYBOZU_TEST_NO_EXCEPTION(ccmpb(dword[rcx], eax, 3));
+			CYBOZU_TEST_NO_EXCEPTION(ccmpb(rax, 5));
+			CYBOZU_TEST_NO_EXCEPTION(ccmpb(byte[rax], 5));
+			CYBOZU_TEST_NO_EXCEPTION(ctestb(rax, rcx));
+			CYBOZU_TEST_NO_EXCEPTION(ctestb(ptr[rax], ecx));
+			CYBOZU_TEST_NO_EXCEPTION(ctestb(rax, 5));
+			CYBOZU_TEST_NO_EXCEPTION(ctestb(word[rax], 5));
+			// not GPR
+			CYBOZU_TEST_EXCEPTION(ccmpb(xmm1, 0x12), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(zmm1, 0x12), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(mm1, 0x12), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(k1, 0x12), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(xmm1, xmm2), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(xmm1, eax), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(eax, xmm1), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(xmm1, ptr[rax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(ptr[rax], xmm1), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(k1, k2), std::exception);
+			CYBOZU_TEST_EXCEPTION(ctestb(xmm1, 3), std::exception);
+			CYBOZU_TEST_EXCEPTION(ctestb(zmm1, 3), std::exception);
+			CYBOZU_TEST_EXCEPTION(ctestb(k1, 3), std::exception);
+			CYBOZU_TEST_EXCEPTION(ctestb(xmm1, edx), std::exception);
+			CYBOZU_TEST_EXCEPTION(ctestb(rax, xmm1), std::exception);
+			CYBOZU_TEST_EXCEPTION(ctestb(ptr[rax], xmm1), std::exception);
+			// size mismatch
+			CYBOZU_TEST_EXCEPTION(ccmpb(eax, cx), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(rax, ecx), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(dword[rax], rcx), std::exception);
+			CYBOZU_TEST_EXCEPTION(ccmpb(rcx, dword[rax]), std::exception);
+			CYBOZU_TEST_EXCEPTION(ctestb(eax, rcx), std::exception);
+			CYBOZU_TEST_EXCEPTION(ctestb(dword[rax], rcx), std::exception);
+		}
+	} c;
+}
+
 CYBOZU_TEST_AUTO(aeskl)
 {
 	struct Code : Xbyak::CodeGenerator {
