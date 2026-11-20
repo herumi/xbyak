@@ -596,6 +596,7 @@ public:
 	XBYAK_DEFINE_TYPE(100, tAVX10_V1_AUX);
 	XBYAK_DEFINE_TYPE(101, tAVX10_V2_AUX);
 	XBYAK_DEFINE_TYPE(102, tUSER_MSR);
+	XBYAK_DEFINE_TYPE(103, tAVX10_VPMLDSABFLYDQ);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -786,6 +787,7 @@ public:
 				getCpuidEx(0x24, 1, data);
 				if (ecx & (1U << 2)) type_ |= tAVX10_V1_AUX;
 				if (ecx & (1U << 3)) type_ |= tAVX10_V2_AUX;
+				if (ecx & (1U << 7)) type_ |= tAVX10_VPMLDSABFLYDQ;
 			}
 		}
 		if (has(tAMX_TILE) && maxNum >= 0x1d) {
