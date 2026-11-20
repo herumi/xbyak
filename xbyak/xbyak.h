@@ -2656,7 +2656,7 @@ private:
 		int NF = r.getNF() | b.getNF() | x.getNF() | v.getNF();
 		int L = 0;
 		if ((type & T_NF) == 0 && NF) XBYAK_THROW(ERR_INVALID_NF)
-		if ((type & T_ZU) == 0 && r.getZU()) XBYAK_THROW(ERR_INVALID_ZU)
+		if ((type & T_ZU) == 0 && (r.getZU() || b.getZU() || x.getZU() || v.getZU())) XBYAK_THROW(ERR_INVALID_ZU)
 		db(0x62);
 		db((R3<<7) | (X3<<6) | B3 | R4 | B4 | M);
 		db((w<<7) | V | X4 | pp);

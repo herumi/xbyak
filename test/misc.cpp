@@ -1358,6 +1358,52 @@ CYBOZU_TEST_AUTO(egpr_rex2_2op)
 	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, sizeof(tbl));
 }
 
+// T_zu is accepted only by imul(reg, op, imm) and setcc
+CYBOZU_TEST_AUTO(invalid_zu)
+{
+	struct Code : Xbyak::CodeGenerator {
+		void ok()
+		{
+			imul(rax|T_zu, rcx, 3);
+			setb(al|T_zu);
+		}
+		void bad(int i)
+		{
+			switch (i) {
+			case 0: shld(rax|T_zu, rcx, 3); break;
+			case 1: shld(rax, rcx|T_zu, 3); break;
+			case 2: shrd(rax|T_zu, rcx, cl); break;
+			case 3: shld(rdx|T_zu, rax, rcx, 3); break;
+			case 4: shld(rdx, rax|T_zu, rcx, 3); break;
+			case 5: add(rdx|T_zu, rax, rcx); break;
+			case 6: add(rdx, rax|T_zu, rcx); break;
+			case 7: add(rdx, rax, rcx|T_zu); break;
+			case 8: add(rax|T_zu, rcx); break;
+			case 9: neg(rax|T_zu); break;
+			case 10: shl(rax|T_zu, 1); break;
+			case 11: lzcnt(rax|T_zu, rcx); break;
+			case 12: lzcnt(rax, rcx|T_zu); break;
+			case 13: imul(rax, rcx|T_zu); break;
+			case 14: cmovb(rdx|T_zu, rax, rcx); break;
+			case 15: adcx(rax, rcx|T_zu); break;
+			case 16: add(r16|T_zu, r17, r18); break;
+			}
+		}
+		static int badNum() { return 17; }
+	} c;
+	const uint8_t tbl[] = {
+		0x62, 0xf4, 0xfc, 0x18, 0x6b, 0xc1, 0x03,
+		0x62, 0xf4, 0x7f, 0x18, 0x42, 0xc0,
+	};
+	c.ok();
+	CYBOZU_TEST_EQUAL(c.getSize(), sizeof(tbl));
+	CYBOZU_TEST_EQUAL_ARRAY(c.getCode(), tbl, sizeof(tbl));
+	for (int i = 0; i < Code::badNum(); i++) {
+		CYBOZU_TEST_EXCEPTION(c.bad(i), std::exception);
+	}
+	CYBOZU_TEST_EQUAL(c.getSize(), sizeof(tbl));
+}
+
 #endif
 
 // https://sourceware.org/pipermail/binutils/2026-November/152707.html
