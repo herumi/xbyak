@@ -1,6 +1,6 @@
 #!/bin/bash
 
- "${SDE:=sde}"
+: "${SDE:=sde}"
 
 UPDATE=0
 if [ $# -eq 1 ]; then
