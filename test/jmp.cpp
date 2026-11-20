@@ -1893,6 +1893,44 @@ CYBOZU_TEST_AUTO(release_label_after_code)
 	}
 }
 
+// Label::clear() must unlink the label from LabelManager
+CYBOZU_TEST_AUTO(clear_label)
+{
+	// a cleared label can be reused
+	{
+		Xbyak::CodeGenerator code;
+		Label L1;
+		code.L(L1);
+		const uint8_t *p1 = L1.getAddress();
+		Label L2 = L1;
+		L1.clear();
+		CYBOZU_TEST_EQUAL(L1.getId(), 0);
+		CYBOZU_TEST_ASSERT(!L1.isDefined());
+		CYBOZU_TEST_ASSERT(L1.getAddress() == 0);
+		CYBOZU_TEST_ASSERT(L2.getAddress() == p1); // the copy is not affected
+		code.nop();
+		code.L(L1);
+		CYBOZU_TEST_ASSERT(L1.getAddress() == p1 + 1);
+		CYBOZU_TEST_ASSERT(L1.getId() != L2.getId());
+	}
+	// LabelManager does not touch a label destroyed after clear()
+	{
+		void *buf[sizeof(Label) / sizeof(void*) + 1];
+		{
+			Xbyak::CodeGenerator code;
+			Label *p = new(buf) Label();
+			code.L(*p);
+			p->clear();
+			p->~Label();
+			memset(buf, 0xff, sizeof(buf));
+		}
+		const uint8_t *q = (const uint8_t*)buf;
+		for (size_t i = 0; i < sizeof(buf); i++) {
+			CYBOZU_TEST_EQUAL(q[i], 0xff);
+		}
+	}
+}
+
 struct JmpTypeCode : Xbyak::CodeGenerator {
 	void nops()
 	{

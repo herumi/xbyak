@@ -2030,7 +2030,7 @@ public:
 	Label(const Label& rhs);
 	Label& operator=(const Label& rhs);
 	~Label();
-	void clear() { mgr = 0; id = 0; }
+	void clear();
 	int getId() const { return id; }
 	bool isDefined() const;
 	const uint8_t *getAddress() const;
@@ -2184,7 +2184,8 @@ class LabelManager {
 	void resetLabelPtrList()
 	{
 		for (LabelPtrList::iterator i = labelPtrList_.begin(), ie = labelPtrList_.end(); i != ie; ++i) {
-			(*i)->clear();
+			(*i)->mgr = 0;
+			(*i)->id = 0;
 		}
 		labelPtrList_.clear();
 	}
@@ -2317,6 +2318,12 @@ inline Label& Label::operator=(const Label& rhs)
 inline Label::~Label()
 {
 	if (id && mgr) mgr->decRefCount(id, this);
+}
+inline void Label::clear()
+{
+	if (id && mgr) mgr->decRefCount(id, this);
+	mgr = 0;
+	id = 0;
 }
 inline const uint8_t* Label::getAddress() const
 {
