@@ -2846,7 +2846,12 @@ private:
 		} else {
 			// 16-bit near jmp/call is not supported in 64-bit mode
 			if (BIT == 64 && op.isBit(16)) XBYAK_THROW(op.isMEM() ? ERR_BAD_MEM_SIZE : ERR_BAD_SIZE_OF_REGISTER)
-			opRext(op, bit, ext, 0, 0xFF, true);
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
+			// the operand size of near jmp/call is 16 or BIT
+			if ((op.isMEM() || op.isREG(bit)) && op.getBit() != 0 && op.getBit() != 16 && op.getBit() != BIT) XBYAK_THROW(op.isMEM() ? ERR_BAD_MEM_SIZE : ERR_BAD_SIZE_OF_REGISTER)
+#endif
+			// T_ALLOW_DIFF_SIZE : opRext treats qword[mem] as 32-bit to disable REX.W
+			opRext(op, bit, ext, T_ALLOW_DIFF_SIZE, 0xFF, true);
 		}
 	}
 	// reg is reg field of ModRM

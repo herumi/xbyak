@@ -2084,6 +2084,74 @@ CYBOZU_TEST_AUTO(jmp16)
 	CYBOZU_TEST_EQUAL_ARRAY(code.getCode(), tbl, sizeof(tbl));
 }
 
+// the operand size of near jmp/call is BIT (or 16 in 32-bit mode)
+CYBOZU_TEST_AUTO(jmpOperandSize)
+{
+	struct Code : Xbyak::CodeGenerator {
+#ifdef XBYAK64
+		void okM()
+		{
+			jmp(qword[rax]);
+			call(qword[rax]);
+			jmp(ptr[rax]);
+			jmp(qword[r9]);
+			jmp(rcx);
+		}
+		void bad(int i)
+		{
+			switch (i) {
+			case 0: jmp(dword[rax]); break;
+			case 1: call(dword[rax]); break;
+			case 2: jmp(byte[rax]); break;
+			case 3: jmp(xword[rax]); break;
+			case 4: jmp(ecx); break;
+			case 5: call(ecx); break;
+			case 6: jmp(r9d); break;
+			}
+		}
+		static int badNum() { return 7; }
+#else
+		void okM()
+		{
+			jmp(dword[eax]);
+			call(dword[eax]);
+			jmp(ptr[eax]);
+			jmp(word[eax]);
+			jmp(ecx);
+		}
+		void bad(int i)
+		{
+			switch (i) {
+			case 0: jmp(qword[eax]); break;
+			case 1: call(qword[eax]); break;
+			case 2: jmp(byte[eax]); break;
+			case 3: jmp(xword[eax]); break;
+			}
+		}
+		static int badNum() { return 4; }
+#endif
+	} code;
+#ifdef XBYAK64
+	const uint8_t tbl[] = { 0xff, 0x20, 0xff, 0x10, 0xff, 0x20, 0x41, 0xff, 0x21, 0xff, 0xe1 };
+#else
+	const uint8_t tbl[] = { 0xff, 0x20, 0xff, 0x10, 0xff, 0x20, 0x66, 0xff, 0x20, 0xff, 0xe1 };
+#endif
+	code.okM();
+	CYBOZU_TEST_EQUAL(code.getSize(), sizeof(tbl));
+	CYBOZU_TEST_EQUAL_ARRAY(code.getCode(), tbl, sizeof(tbl));
+	for (int i = 0; i < Code::badNum(); i++) {
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
+		CYBOZU_TEST_EXCEPTION(code.bad(i), std::exception);
+#else
+		// the size is ignored
+		const size_t pos = code.getSize();
+		code.bad(i);
+		CYBOZU_TEST_EQUAL(code.getSize(), pos + (i == 6 ? 3 : 2));
+		CYBOZU_TEST_EQUAL(code.getCode()[code.getSize() - 2], 0xff);
+#endif
+	}
+}
+
 CYBOZU_TEST_AUTO(resetAfterReadyRE_AutoGrow)
 {
 	struct Code : Xbyak::CodeGenerator {
