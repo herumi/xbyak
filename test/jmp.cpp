@@ -2038,6 +2038,52 @@ CYBOZU_TEST_AUTO(ambiguousFarJmp)
 	CYBOZU_TEST_EXCEPTION(code.genCall(), std::exception);
 }
 
+// 16-bit near jmp/call is valid only in 32-bit mode
+CYBOZU_TEST_AUTO(jmp16)
+{
+	struct Code : Xbyak::CodeGenerator {
+		void jmpR() { jmp(cx); }
+		void callR() { call(cx); }
+#ifdef XBYAK64
+		void jmpR2() { jmp(r9w); }
+		void jmpM() { jmp(word[rax]); }
+		void callM() { call(word[rax]); }
+		void jmpF() { jmp(word[rax], T_FAR); }
+		void callF() { call(word[rax], T_FAR); }
+#else
+		void jmpM() { jmp(word[eax]); }
+		void callM() { call(word[eax]); }
+		void jmpF() { jmp(word[eax], T_FAR); }
+		void callF() { call(word[eax], T_FAR); }
+#endif
+	} code;
+#ifdef XBYAK64
+	CYBOZU_TEST_EXCEPTION(code.jmpR(), std::exception);
+	CYBOZU_TEST_EXCEPTION(code.callR(), std::exception);
+	CYBOZU_TEST_EXCEPTION(code.jmpR2(), std::exception);
+	CYBOZU_TEST_EXCEPTION(code.jmpM(), std::exception);
+	CYBOZU_TEST_EXCEPTION(code.callM(), std::exception);
+	CYBOZU_TEST_EQUAL(code.getSize(), 0u);
+	const uint8_t tbl[] = { 0x66, 0xff, 0x28, 0x66, 0xff, 0x18 };
+	code.jmpF();
+	code.callF();
+#else
+	const uint8_t tbl[] = {
+		0x66, 0xff, 0xe1, 0x66, 0xff, 0xd1,
+		0x66, 0xff, 0x20, 0x66, 0xff, 0x10,
+		0x66, 0xff, 0x28, 0x66, 0xff, 0x18,
+	};
+	code.jmpR();
+	code.callR();
+	code.jmpM();
+	code.callM();
+	code.jmpF();
+	code.callF();
+#endif
+	CYBOZU_TEST_EQUAL(code.getSize(), sizeof(tbl));
+	CYBOZU_TEST_EQUAL_ARRAY(code.getCode(), tbl, sizeof(tbl));
+}
+
 CYBOZU_TEST_AUTO(resetAfterReadyRE_AutoGrow)
 {
 	struct Code : Xbyak::CodeGenerator {

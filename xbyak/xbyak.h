@@ -2844,6 +2844,8 @@ private:
 			if (!op.isMEM(bit)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 			opRext(op, bit, ext + 1, 0, 0xFF, false);
 		} else {
+			// 16-bit near jmp/call is not supported in 64-bit mode
+			if (BIT == 64 && op.isBit(16)) XBYAK_THROW(op.isMEM() ? ERR_BAD_MEM_SIZE : ERR_BAD_SIZE_OF_REGISTER)
 			opRext(op, bit, ext, 0, 0xFF, true);
 		}
 	}
