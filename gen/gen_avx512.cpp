@@ -474,6 +474,9 @@ void putX_X_XM_IMM()
 		{ 0x53, "vminmaxsd", T_MUST_EVEX | T_66 | T_0F3A | T_EW1 | T_SAE_X | T_N8, true },
 		{ 0x53, "vminmaxsh", T_MUST_EVEX | T_0F3A | T_W0 | T_SAE_X | T_N2, true },
 		{ 0x53, "vminmaxss", T_MUST_EVEX | T_66 | T_0F3A | T_W0 | T_SAE_X | T_N4, true },
+
+		// AVX10_VPMLDSABFLYDQ
+		{ 0xDC, "vpmldsabflydq", T_MUST_EVEX | T_NO_MASK | T_66 | T_0F3A | T_EW1 | T_YMM, true },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		const Tbl *p = &tbl[i];
