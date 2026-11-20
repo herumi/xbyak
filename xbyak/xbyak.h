@@ -2529,6 +2529,7 @@ private:
 	static const uint64_t T_ALLOW_DIFF_SIZE = 1ull << 29; // allow difference reg size
 	static const uint64_t T_ALLOW_ABCDH = 1ull << 30; // allow [abcd]h reg
 	static const uint64_t T_NO_MASK = 1ull << 31; // opmask is not supported
+	static const uint64_t T_REX2 = 1ull << 32; // for opROO : the legacy form is encodable with REX2, so EVEX is used only for ND/NF/ZU
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
 	// @@@end of avx_type_def.h
@@ -2947,7 +2948,12 @@ private:
 	// (r, r, m) or (r, m, r)
 	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, uint64_t type, int code, int immSize = 0, int sc = NONE)
 	{
-		if ((type & T_EVEX_MASK) != T_MUST_EVEX && !d.isREG() && !(d.hasRex2NFZU() || op1.hasRex2NFZU() || op2.hasRex2NFZU())) return false;
+		if ((type & T_EVEX_MASK) != T_MUST_EVEX && !d.isREG()) {
+			const bool nfzu = d.getNF() || op1.getNF() || op2.getNF() || d.getZU() || op1.getZU() || op2.getZU();
+			// a plain EGPR requires EVEX unless the legacy form is encodable with the shorter REX2
+			const bool egpr = !(type & T_REX2) && (d.hasRex2() || op1.hasRex2() || op2.hasRex2());
+			if (!nfzu && !egpr) return false;
+		}
 		verifyNoEvexAttr(d); verifyNoEvexAttr(op1); verifyNoEvexAttr(op2);
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code |= 2; }
@@ -2985,8 +2991,8 @@ private:
 	}
 	void opSetCC(const Operand& op, int ext)
 	{
-		// EVEX (opcode 0x40|ext) is required only for ZU; a plain EGPR is encodable with the shorter REX2
-		if (op.getZU() && opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | ext)) return;
+		// EVEX (opcode 0x40|ext) is required only for ZU
+		if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2|T_REX2, 0x40 | ext)) return;
 		opRext(op, 8, 0, T_0F, 0x90 | ext);
 	}
 	void opShiftCore(const Operand& op, int ext, const Reg *d, int code, int immSize)
@@ -3023,7 +3029,7 @@ private:
 		if (!reg.isREG(16|i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
 		int immSize = _cl ? 0 : 1;
 		if (_cl) code |= 1;
-		uint64_t type = T_APX | T_NF;
+		uint64_t type = T_APX | T_NF | T_REX2;
 		if (d.isREG()) type |= T_ND1;
 		if (!opROO(d, op, reg, type, _cl ? code : code2, immSize)) {
 			opRO(reg, op, T_0F, code, true, immSize);
@@ -3670,7 +3676,7 @@ public:
 		int s = inner::IsInDisp8(imm) ? 1 : 0;
 		int immSize = s ? 1 : reg.isREG(16) ? 2 : 4;
 		uint8_t code = uint8_t(0x69 | (s << 1));
-		if (!opROO(Reg(), op, reg, T_APX|T_NF|T_ZU, code, immSize)) {
+		if (!opROO(Reg(), op, reg, T_APX|T_NF|T_ZU|T_REX2, code, immSize)) {
 			opRO(reg, op, 0, code, reg.getKind() == op.getKind(), immSize);
 		}
 		db(imm, immSize);

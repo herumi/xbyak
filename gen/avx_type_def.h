@@ -55,6 +55,7 @@
 	static const uint64_t T_ALLOW_DIFF_SIZE = 1ull << 29; // allow difference reg size
 	static const uint64_t T_ALLOW_ABCDH = 1ull << 30; // allow [abcd]h reg
 	static const uint64_t T_NO_MASK = 1ull << 31; // opmask is not supported
+	static const uint64_t T_REX2 = 1ull << 32; // for opROO : the legacy form is encodable with REX2, so EVEX is used only for ND/NF/ZU
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
 	// @@@end of avx_type_def.h

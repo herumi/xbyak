@@ -60,6 +60,7 @@ std::string type2String(uint64_t type)
 	if (type & T_ND1) str += "|T_ND1";
 	if (type & T_ZU) str += "|T_ZU";
 	if (type & T_NO_MASK) str += "|T_NO_MASK";
+	if (type & T_REX2) str += "|T_REX2";
 
 	if (str[0] == '|') str = str.substr(1);
 	return str;

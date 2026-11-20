@@ -517,7 +517,7 @@ void hsubps(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_F2|T_0F|T_YMM,
 void idiv(const Operand& op) { opRext(op, 0, 7, T_APX|T_NF|T_OP_W1, 0xF6); }
 void imul(const Operand& op) { opRext(op, 0, 5, T_APX|T_NF|T_OP_W1, 0xF6); }
 void imul(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1|T_NF, 0xAF); }
-void imul(const Reg& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF, 0xAF)) return; opRO(reg, op, T_0F, 0xAF, reg.getKind() == op.getKind()); }
+void imul(const Reg& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF|T_REX2, 0xAF)) return; opRO(reg, op, T_0F, 0xAF, reg.getKind() == op.getKind()); }
 void in_(const Reg& a, const Reg& d) { opInOut(a, d, 0xEC); }
 void in_(const Reg& a, uint8_t v) { opInOut(a, 0xE4, v); }
 void inc(const Operand& op) { opIncDec(Reg(), op, 0); }
@@ -667,7 +667,7 @@ void loopne(const Label& label) { opJmp(label, T_SHORT, 0xE0, 0, 0); }
 void loopne(const char *label) { loopne(std::string(label)); }
 void loopne(std::string label) { opJmp(label, T_SHORT, 0xE0, 0, 0); }
 void lss(const Reg& reg, const Address& addr) { opLoadSeg(addr, reg, T_0F|T_ALLOW_DIFF_SIZE, 0xB2); }
-void lzcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF, 0xF5)) return; opCnt(reg, op, 0xBD); }
+void lzcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF|T_REX2, 0xF5)) return; opCnt(reg, op, 0xBD); }
 void maskmovdqu(const Xmm& reg1, const Xmm& reg2) { opSSE(reg1, reg2, T_66|T_0F, 0xF7); }
 void maskmovq(const Mmx& reg1, const Mmx& reg2) { opSSE(reg1, reg2, T_0F, 0xF7); }
 void maxpd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_66, 0x5F, isXMM_XMMorMEM); }
@@ -842,7 +842,7 @@ void pmulhw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xE5); }
 void pmulld(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66 | T_0F38, 0x40, isXMM_XMMorMEM); }
 void pmullw(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xD5); }
 void pmuludq(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xF4); }
-void popcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF, 0x88)) return; opCnt(reg, op, 0xB8); }
+void popcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF|T_REX2, 0x88)) return; opCnt(reg, op, 0xB8); }
 void popf() { db(0x9D); }
 void por(const Mmx& mmx, const Operand& op) { opMMX(mmx, op, 0xEB); }
 void prefetchit0(const Address& addr) { opMR(addr, Reg32(7), T_0F|T_ALLOW_DIFF_SIZE, 0x18); }
@@ -1037,7 +1037,7 @@ void subss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F | T_F3, 0x5C
 void sysenter() { db(0x0F); db(0x34); }
 void sysexit() { db(0x0F); db(0x35); }
 void tpause(const Reg32& r) { opRR(esi, r, T_66 | T_0F, 0xAE); }
-void tzcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF, 0xF4)) return; opCnt(reg, op, 0xBC); }
+void tzcnt(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF|T_REX2, 0xF4)) return; opCnt(reg, op, 0xBC); }
 void ucomisd(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_66|T_0F, 0x2E, isXMM_XMMorMEM); }
 void ucomiss(const Xmm& xmm, const Operand& op) { opSSE(xmm, op, T_0F, 0x2E, isXMM_XMMorMEM); }
 void ud2() { db(0x0F); db(0x0B); }
