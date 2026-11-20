@@ -1,4 +1,18 @@
 # History
+* 2026/Nov/20 ver 7.46
+  - add vpmldsabflydq and cpuid detection of AVX10_VPMLDSABFLYDQ
+  - use REX2 instead of EVEX without NF/ZU/ND (imul, lzcnt, tzcnt, popcnt, shld, shrd)
+  - fix:
+    - jmp/call(qword[mem]) was an error (ERR_BAD_MEM_SIZE) in 64-bit mode since v7.24
+    - Label::clear() left a dangling pointer in the CodeGenerator
+  - the following invalid usages are now errors:
+    1. reject appending code that needs ready() after ready() in AutoGrow
+    2. reject a label defined by another CodeGenerator
+    3. wrong size jmp/call in 64-bit mode such as jmp(cx), jump(word[rax])
+    4. jmp(dword[rax]), jmp(byte[rax]) and jmp(ecx) in 64-bit mode
+    5. T_zu on instructions other than imul and setcc
+  - 4 is ignored if XBYAK_STRICT_CHECK_MEM_REG_SIZE=0
+  - remove Cpu::tAMX_TF32 flag
 * 2026/Nov/19 ver 7.45
   - fix wrong encoding:
     - cvtsi2ss/cvtsi2sd(xmm, qword[mem])
