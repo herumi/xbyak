@@ -585,7 +585,7 @@ public:
 	XBYAK_DEFINE_TYPE(89, tCLWB);
 	XBYAK_DEFINE_TYPE(90, tTSXLDTRK);
 //	XBYAK_DEFINE_TYPE(91, tAMX_TRANSPOSE);
-	XBYAK_DEFINE_TYPE(92, tAMX_TF32);
+//	XBYAK_DEFINE_TYPE(92, tAMX_TF32);
 	XBYAK_DEFINE_TYPE(93, tAMX_AVX512);
 	XBYAK_DEFINE_TYPE(94, tAMX_MOVRS);
 	XBYAK_DEFINE_TYPE(95, tAMX_FP8);
@@ -596,6 +596,7 @@ public:
 	XBYAK_DEFINE_TYPE(100, tAVX10_V1_AUX);
 	XBYAK_DEFINE_TYPE(101, tAVX10_V2_AUX);
 	XBYAK_DEFINE_TYPE(102, tUSER_MSR);
+	XBYAK_DEFINE_TYPE(103, tAVX10_VPMLDSABFLYDQ);
 
 #undef XBYAK_SPLIT_ID
 #undef XBYAK_DEFINE_TYPE
@@ -766,7 +767,7 @@ public:
 					// eax bits 0-3 (AMX-INT8/BF16/COMPLEX/FP16) mirror the leaf 7 bits, so use leaf 7
 					if (eax & (1U << 4)) type_ |= tAMX_FP8;
 //					if (eax & (1U << 5)) type_ |= tAMX_TRANSPOSE; // removed at 319433-059
-					if (eax & (1U << 6)) type_ |= tAMX_TF32;
+//					if (eax & (1U << 6)) type_ |= tAMX_TF32; // removed at 319433-062
 					if (eax & (1U << 7)) type_ |= tAMX_AVX512;
 					if (eax & (1U << 8)) type_ |= tAMX_MOVRS;
 				}
@@ -786,6 +787,7 @@ public:
 				getCpuidEx(0x24, 1, data);
 				if (ecx & (1U << 2)) type_ |= tAVX10_V1_AUX;
 				if (ecx & (1U << 3)) type_ |= tAVX10_V2_AUX;
+				if (ecx & (1U << 7)) type_ |= tAVX10_VPMLDSABFLYDQ;
 			}
 		}
 		if (has(tAMX_TILE) && maxNum >= 0x1d) {

@@ -938,7 +938,7 @@ void put()
 				printf("void %s(const Reg& d, const Operand& op) { opROO(d, op, Reg(%d, Operand::REG, d.getBit()), %s, 0xF6); }\n", p->name, p->ext, s.c_str());
 			}
 		}
-		printf("void imul(const Reg& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF, 0xAF)) return; opRO(reg, op, T_0F, 0xAF, reg.getKind() == op.getKind()); }\n");
+		printf("void imul(const Reg& reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF|T_REX2, 0xAF)) return; opRO(reg, op, T_0F, 0xAF, reg.getKind() == op.getKind()); }\n");
 		printf("void imul(const Reg& d, const Reg& reg, const Operand& op) { opROO(d, op, reg, T_APX|T_ND1|T_NF, 0xAF); }\n");
 	}
 	{
@@ -1007,7 +1007,7 @@ void put()
 		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 			const Tbl *p = &tbl[i];
 			if (p->code2) {
-				printf("void %s(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF, 0x%02X)) return; opCnt(reg, op, 0x%02X); }\n", p->name, p->code2, p->code);
+				printf("void %s(const Reg&reg, const Operand& op) { if (opROO(Reg(), op, reg, T_APX|T_NF|T_REX2, 0x%02X)) return; opCnt(reg, op, 0x%02X); }\n", p->name, p->code2, p->code);
 			} else {
 				printf("void %s(const Reg&reg, const Operand& op) { opCnt(reg, op, 0x%02X); }\n", p->name, p->code);
 			}

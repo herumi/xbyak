@@ -695,7 +695,7 @@ namespace Xbyak {
 
 enum {
 	DEFAULT_MAX_CODE_SIZE = 4096,
-	VERSION = 0x7450 /* 0xABCD = A.BC(.D) */
+	VERSION = 0x7460 /* 0xABCD = A.BC(.D) */
 };
 
 #ifndef MIE_INTEGER_TYPE_DEFINED
@@ -778,6 +778,7 @@ typedef uint8_t uint8;
 	f(ERR_CANT_INIT_CPUTOPOLOGY, "can't init CpuTopology") \
 	f(ERR_INVALID_CPUMASK_INDEX, "invalid cpumask index") \
 	f(ERR_INVALID_OPMASK, "invalid opmask") \
+	f(ERR_CODE_IS_FIXED_BY_READY, "code is already fixed by ready()") \
 	f(ERR_INTERNAL, "internal error") /* Put it at last. */
 
 enum {
@@ -1842,6 +1843,7 @@ public:
 	}
 	void save(size_t offset, size_t val, int size, inner::LabelMode mode)
 	{
+		if (isCalledCalcJmpAddress_) XBYAK_THROW(ERR_CODE_IS_FIXED_BY_READY)
 		addrInfoList_.push_back(AddrInfo(offset, val, size, mode));
 	}
 	bool isAutoGrow() const { return type_ == AUTO_GROW; }
@@ -2030,7 +2032,7 @@ public:
 	Label(const Label& rhs);
 	Label& operator=(const Label& rhs);
 	~Label();
-	void clear() { mgr = 0; id = 0; }
+	void clear();
 	int getId() const { return id; }
 	bool isDefined() const;
 	const uint8_t *getAddress() const;
@@ -2100,6 +2102,7 @@ class LabelManager {
 	// assign a new id at the first use of label (forward reference), so Label::id is mutable
 	int getOrAssignId(const Label& label) const
 	{
+		if (label.mgr && label.mgr != this) XBYAK_THROW_RET(ERR_BAD_PARAMETER, 0)
 		if (label.id == 0) label.id = labelId_++;
 		return label.id;
 	}
@@ -2184,7 +2187,8 @@ class LabelManager {
 	void resetLabelPtrList()
 	{
 		for (LabelPtrList::iterator i = labelPtrList_.begin(), ie = labelPtrList_.end(); i != ie; ++i) {
-			(*i)->clear();
+			(*i)->mgr = 0;
+			(*i)->id = 0;
 		}
 		labelPtrList_.clear();
 	}
@@ -2247,6 +2251,7 @@ public:
 	}
 	void assign(Label& dst, const Label& src)
 	{
+		if (src.mgr && src.mgr != this) XBYAK_THROW(ERR_BAD_PARAMETER)
 		ClabelDefList::const_iterator i = clabelDefList_.find(src.id);
 		if (i == clabelDefList_.end()) XBYAK_THROW(ERR_LABEL_ISNOT_SET_BY_L)
 		define_inner(clabelDefList_, clabelUndefList_, getOrAssignId(dst), i->second.offset);
@@ -2317,6 +2322,12 @@ inline Label& Label::operator=(const Label& rhs)
 inline Label::~Label()
 {
 	if (id && mgr) mgr->decRefCount(id, this);
+}
+inline void Label::clear()
+{
+	if (id && mgr) mgr->decRefCount(id, this);
+	mgr = 0;
+	id = 0;
 }
 inline const uint8_t* Label::getAddress() const
 {
@@ -2518,6 +2529,7 @@ private:
 	static const uint64_t T_ALLOW_DIFF_SIZE = 1ull << 29; // allow difference reg size
 	static const uint64_t T_ALLOW_ABCDH = 1ull << 30; // allow [abcd]h reg
 	static const uint64_t T_NO_MASK = 1ull << 31; // opmask is not supported
+	static const uint64_t T_REX2 = 1ull << 32; // for opROO : the legacy form is encodable with REX2, so EVEX is used only for ND/NF/ZU
 	// T_66 = 1, T_F3 = 2, T_F2 = 3
 	static inline uint32_t getPP(uint64_t type) { return (type & T_66) ? 1 : (type & T_F3) ? 2 : (type & T_F2) ? 3 : 0; }
 	// @@@end of avx_type_def.h
@@ -2644,7 +2656,7 @@ private:
 		int NF = r.getNF() | b.getNF() | x.getNF() | v.getNF();
 		int L = 0;
 		if ((type & T_NF) == 0 && NF) XBYAK_THROW(ERR_INVALID_NF)
-		if ((type & T_ZU) == 0 && r.getZU()) XBYAK_THROW(ERR_INVALID_ZU)
+		if ((type & T_ZU) == 0 && (r.getZU() || b.getZU() || x.getZU() || v.getZU())) XBYAK_THROW(ERR_INVALID_ZU)
 		db(0x62);
 		db((R3<<7) | (X3<<6) | B3 | R4 | B4 | M);
 		db((w<<7) | V | X4 | pp);
@@ -2833,7 +2845,14 @@ private:
 			if (!op.isMEM(bit)) XBYAK_THROW(ERR_NOT_SUPPORTED)
 			opRext(op, bit, ext + 1, 0, 0xFF, false);
 		} else {
-			opRext(op, bit, ext, 0, 0xFF, true);
+			// 16-bit near jmp/call is not supported in 64-bit mode
+			if (BIT == 64 && op.isBit(16)) XBYAK_THROW(op.isMEM() ? ERR_BAD_MEM_SIZE : ERR_BAD_SIZE_OF_REGISTER)
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
+			// the operand size of near jmp/call is 16 or BIT
+			if ((op.isMEM() || op.isREG(bit)) && op.getBit() != 0 && op.getBit() != 16 && op.getBit() != BIT) XBYAK_THROW(op.isMEM() ? ERR_BAD_MEM_SIZE : ERR_BAD_SIZE_OF_REGISTER)
+#endif
+			// T_ALLOW_DIFF_SIZE : opRext treats qword[mem] as 32-bit to disable REX.W
+			opRext(op, bit, ext, T_ALLOW_DIFF_SIZE, 0xFF, true);
 		}
 	}
 	// reg is reg field of ModRM
@@ -2929,7 +2948,12 @@ private:
 	// (r, r, m) or (r, m, r)
 	bool opROO(const Reg& d, const Operand& op1, const Operand& op2, uint64_t type, int code, int immSize = 0, int sc = NONE)
 	{
-		if ((type & T_EVEX_MASK) != T_MUST_EVEX && !d.isREG() && !(d.hasRex2NFZU() || op1.hasRex2NFZU() || op2.hasRex2NFZU())) return false;
+		if ((type & T_EVEX_MASK) != T_MUST_EVEX && !d.isREG()) {
+			const bool nfzu = d.getNF() || op1.getNF() || op2.getNF() || d.getZU() || op1.getZU() || op2.getZU();
+			// a plain EGPR requires EVEX unless the legacy form is encodable with the shorter REX2
+			const bool egpr = !(type & T_REX2) && (d.hasRex2() || op1.hasRex2() || op2.hasRex2());
+			if (!nfzu && !egpr) return false;
+		}
 		verifyNoEvexAttr(d); verifyNoEvexAttr(op1); verifyNoEvexAttr(op2);
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) { std::swap(p1, p2); } else { if (p2->isMEM()) code |= 2; }
@@ -2967,8 +2991,8 @@ private:
 	}
 	void opSetCC(const Operand& op, int ext)
 	{
-		// EVEX (opcode 0x40|ext) is required only for ZU; a plain EGPR is encodable with the shorter REX2
-		if (op.getZU() && opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2, 0x40 | ext)) return;
+		// EVEX (opcode 0x40|ext) is required only for ZU
+		if (opROO(Reg(), op, Reg(), T_APX|T_ZU|T_F2|T_REX2, 0x40 | ext)) return;
 		opRext(op, 8, 0, T_0F, 0x90 | ext);
 	}
 	void opShiftCore(const Operand& op, int ext, const Reg *d, int code, int immSize)
@@ -3005,7 +3029,7 @@ private:
 		if (!reg.isREG(16|i32e)) XBYAK_THROW(ERR_BAD_SIZE_OF_REGISTER)
 		int immSize = _cl ? 0 : 1;
 		if (_cl) code |= 1;
-		uint64_t type = T_APX | T_NF;
+		uint64_t type = T_APX | T_NF | T_REX2;
 		if (d.isREG()) type |= T_ND1;
 		if (!opROO(d, op, reg, type, _cl ? code : code2, immSize)) {
 			opRO(reg, op, T_0F, code, true, immSize);
@@ -3652,7 +3676,7 @@ public:
 		int s = inner::IsInDisp8(imm) ? 1 : 0;
 		int immSize = s ? 1 : reg.isREG(16) ? 2 : 4;
 		uint8_t code = uint8_t(0x69 | (s << 1));
-		if (!opROO(Reg(), op, reg, T_APX|T_NF|T_ZU, code, immSize)) {
+		if (!opROO(Reg(), op, reg, T_APX|T_NF|T_ZU|T_REX2, code, immSize)) {
 			opRO(reg, op, 0, code, reg.getKind() == op.getKind(), immSize);
 		}
 		db(imm, immSize);

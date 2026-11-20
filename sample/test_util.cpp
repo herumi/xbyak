@@ -109,7 +109,7 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tTSXLDTRK, "tsxldtrk" },
 		{ Cpu::tAMX_FP8, "amx_fp8" },
 //		{ Cpu::tAMX_TRANSPOSE, "amx_transpose" },
-		{ Cpu::tAMX_TF32, "amx_tf32" },
+//		{ Cpu::tAMX_TF32, "amx_tf32" },
 		{ Cpu::tAMX_AVX512, "amx_avx512" },
 		{ Cpu::tAMX_MOVRS, "amx_movrs" },
 		{ Cpu::tMOVRS, "movrs" },
@@ -119,6 +119,7 @@ void putCPUinfo(bool onlyCpuidFeature)
 		{ Cpu::tAVX10_V1_AUX, "avx10_v1_aux" },
 		{ Cpu::tAVX10_V2_AUX, "avx10_v2_aux" },
 		{ Cpu::tUSER_MSR, "user_msr" },
+		{ Cpu::tAVX10_VPMLDSABFLYDQ, "avx10_vpmldsabflydq" },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
 		if (cpu.has(tbl[i].type)) printf(" %s", tbl[i].str);

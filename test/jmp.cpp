@@ -1893,6 +1893,44 @@ CYBOZU_TEST_AUTO(release_label_after_code)
 	}
 }
 
+// Label::clear() must unlink the label from LabelManager
+CYBOZU_TEST_AUTO(clear_label)
+{
+	// a cleared label can be reused
+	{
+		Xbyak::CodeGenerator code;
+		Label L1;
+		code.L(L1);
+		const uint8_t *p1 = L1.getAddress();
+		Label L2 = L1;
+		L1.clear();
+		CYBOZU_TEST_EQUAL(L1.getId(), 0);
+		CYBOZU_TEST_ASSERT(!L1.isDefined());
+		CYBOZU_TEST_ASSERT(L1.getAddress() == 0);
+		CYBOZU_TEST_ASSERT(L2.getAddress() == p1); // the copy is not affected
+		code.nop();
+		code.L(L1);
+		CYBOZU_TEST_ASSERT(L1.getAddress() == p1 + 1);
+		CYBOZU_TEST_ASSERT(L1.getId() != L2.getId());
+	}
+	// LabelManager does not touch a label destroyed after clear()
+	{
+		void *buf[sizeof(Label) / sizeof(void*) + 1];
+		{
+			Xbyak::CodeGenerator code;
+			Label *p = new(buf) Label();
+			code.L(*p);
+			p->clear();
+			p->~Label();
+			memset(buf, 0xff, sizeof(buf));
+		}
+		const uint8_t *q = (const uint8_t*)buf;
+		for (size_t i = 0; i < sizeof(buf); i++) {
+			CYBOZU_TEST_EQUAL(q[i], 0xff);
+		}
+	}
+}
+
 struct JmpTypeCode : Xbyak::CodeGenerator {
 	void nops()
 	{
@@ -2000,6 +2038,120 @@ CYBOZU_TEST_AUTO(ambiguousFarJmp)
 	CYBOZU_TEST_EXCEPTION(code.genCall(), std::exception);
 }
 
+// 16-bit near jmp/call is valid only in 32-bit mode
+CYBOZU_TEST_AUTO(jmp16)
+{
+	struct Code : Xbyak::CodeGenerator {
+		void jmpR() { jmp(cx); }
+		void callR() { call(cx); }
+#ifdef XBYAK64
+		void jmpR2() { jmp(r9w); }
+		void jmpM() { jmp(word[rax]); }
+		void callM() { call(word[rax]); }
+		void jmpF() { jmp(word[rax], T_FAR); }
+		void callF() { call(word[rax], T_FAR); }
+#else
+		void jmpM() { jmp(word[eax]); }
+		void callM() { call(word[eax]); }
+		void jmpF() { jmp(word[eax], T_FAR); }
+		void callF() { call(word[eax], T_FAR); }
+#endif
+	} code;
+#ifdef XBYAK64
+	CYBOZU_TEST_EXCEPTION(code.jmpR(), std::exception);
+	CYBOZU_TEST_EXCEPTION(code.callR(), std::exception);
+	CYBOZU_TEST_EXCEPTION(code.jmpR2(), std::exception);
+	CYBOZU_TEST_EXCEPTION(code.jmpM(), std::exception);
+	CYBOZU_TEST_EXCEPTION(code.callM(), std::exception);
+	CYBOZU_TEST_EQUAL(code.getSize(), 0u);
+	const uint8_t tbl[] = { 0x66, 0xff, 0x28, 0x66, 0xff, 0x18 };
+	code.jmpF();
+	code.callF();
+#else
+	const uint8_t tbl[] = {
+		0x66, 0xff, 0xe1, 0x66, 0xff, 0xd1,
+		0x66, 0xff, 0x20, 0x66, 0xff, 0x10,
+		0x66, 0xff, 0x28, 0x66, 0xff, 0x18,
+	};
+	code.jmpR();
+	code.callR();
+	code.jmpM();
+	code.callM();
+	code.jmpF();
+	code.callF();
+#endif
+	CYBOZU_TEST_EQUAL(code.getSize(), sizeof(tbl));
+	CYBOZU_TEST_EQUAL_ARRAY(code.getCode(), tbl, sizeof(tbl));
+}
+
+// the operand size of near jmp/call is BIT (or 16 in 32-bit mode)
+CYBOZU_TEST_AUTO(jmpOperandSize)
+{
+	struct Code : Xbyak::CodeGenerator {
+#ifdef XBYAK64
+		void okM()
+		{
+			jmp(qword[rax]);
+			call(qword[rax]);
+			jmp(ptr[rax]);
+			jmp(qword[r9]);
+			jmp(rcx);
+		}
+		void bad(int i)
+		{
+			switch (i) {
+			case 0: jmp(dword[rax]); break;
+			case 1: call(dword[rax]); break;
+			case 2: jmp(byte[rax]); break;
+			case 3: jmp(xword[rax]); break;
+			case 4: jmp(ecx); break;
+			case 5: call(ecx); break;
+			case 6: jmp(r9d); break;
+			}
+		}
+		static int badNum() { return 7; }
+#else
+		void okM()
+		{
+			jmp(dword[eax]);
+			call(dword[eax]);
+			jmp(ptr[eax]);
+			jmp(word[eax]);
+			jmp(ecx);
+		}
+		void bad(int i)
+		{
+			switch (i) {
+			case 0: jmp(qword[eax]); break;
+			case 1: call(qword[eax]); break;
+			case 2: jmp(byte[eax]); break;
+			case 3: jmp(xword[eax]); break;
+			}
+		}
+		static int badNum() { return 4; }
+#endif
+	} code;
+#ifdef XBYAK64
+	const uint8_t tbl[] = { 0xff, 0x20, 0xff, 0x10, 0xff, 0x20, 0x41, 0xff, 0x21, 0xff, 0xe1 };
+#else
+	const uint8_t tbl[] = { 0xff, 0x20, 0xff, 0x10, 0xff, 0x20, 0x66, 0xff, 0x20, 0xff, 0xe1 };
+#endif
+	code.okM();
+	CYBOZU_TEST_EQUAL(code.getSize(), sizeof(tbl));
+	CYBOZU_TEST_EQUAL_ARRAY(code.getCode(), tbl, sizeof(tbl));
+	for (int i = 0; i < Code::badNum(); i++) {
+#if XBYAK_STRICT_CHECK_MEM_REG_SIZE == 1
+		CYBOZU_TEST_EXCEPTION(code.bad(i), std::exception);
+#else
+		// the size is ignored
+		const size_t pos = code.getSize();
+		code.bad(i);
+		CYBOZU_TEST_EQUAL(code.getSize(), pos + (i == 6 ? 3 : 2));
+		CYBOZU_TEST_EQUAL(code.getCode()[code.getSize() - 2], 0xff);
+#endif
+	}
+}
+
 CYBOZU_TEST_AUTO(resetAfterReadyRE_AutoGrow)
 {
 	struct Code : Xbyak::CodeGenerator {
@@ -2085,4 +2237,109 @@ CYBOZU_TEST_AUTO(resetAfterProtectRE_DontSetProtectRWE)
 	code.setProtectModeRE();
 	int (*f2)() = code.getCode<int (*)()>();
 	CYBOZU_TEST_EQUAL(f2(), 2);
+}
+
+// a label defined by another CodeGenerator is rejected
+CYBOZU_TEST_AUTO(label_of_another_generator)
+{
+	struct Code : Xbyak::CodeGenerator {
+	};
+	Label La, Lb, Lc;
+	{
+		Code a, b;
+		a.nop();
+		a.nop();
+		a.L(La);
+		a.nop();
+		b.nop();
+		b.L(Lb);
+		b.nop();
+		CYBOZU_TEST_EQUAL(La.getId(), Lb.getId());
+		CYBOZU_TEST_EXCEPTION(b.jmp(La), std::exception);
+		CYBOZU_TEST_EXCEPTION(b.putL(La), std::exception);
+		CYBOZU_TEST_EXCEPTION(b.L(La), std::exception);
+		CYBOZU_TEST_EXCEPTION(b.assignL(La, Lb), std::exception);
+		{
+			Label dst;
+			CYBOZU_TEST_EXCEPTION(b.assignL(dst, La), std::exception);
+			CYBOZU_TEST_EQUAL(dst.getId(), 0);
+		}
+		// La is not changed
+		CYBOZU_TEST_ASSERT(La.getAddress() == a.getCode() + 2);
+		a.jmp(La);
+		// ptr[label] of a defined label is treated as the absolute address, so it is accepted
+		b.mov(b.eax, b.ptr[La]);
+		// a label of a reset generator can be used by another one
+		a.reset();
+		CYBOZU_TEST_EQUAL(La.getId(), 0);
+		const uint8_t *cur = b.getCurr();
+		b.L(La);
+		CYBOZU_TEST_ASSERT(La.getAddress() == cur);
+		Lc = La;
+	}
+	// a label of a destroyed generator can be used by another one
+	CYBOZU_TEST_EQUAL(Lc.getId(), 0);
+	Code c;
+	c.L(Lc);
+	c.jmp(Lc);
+	CYBOZU_TEST_ASSERT(Lc.getAddress() == c.getCode());
+}
+
+// appending code that needs fixing an address after ready() is an error in AutoGrow mode
+CYBOZU_TEST_AUTO(appendAfterReady_AutoGrow)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code() : Xbyak::CodeGenerator(4096, Xbyak::AutoGrow) {}
+		void gen(Label& label)
+		{
+			jmp(label, T_NEAR);
+			nop();
+			L(label);
+			putL(label);
+		}
+	};
+	Code code;
+	{
+		Label L1, L2;
+		code.gen(L1);
+		code.ready();
+		CYBOZU_TEST_ASSERT(L1.getAddress() == code.getCode() + 6);
+		// code that does not need ready() is not checked
+		code.nop();
+		code.jmp(L1, Code::T_NEAR); // backward jmp is written directly
+		CYBOZU_TEST_EXCEPTION(code.putL(L1), std::exception);
+#ifdef XBYAK64
+		CYBOZU_TEST_EXCEPTION(code.mov(code.rax, L1), std::exception);
+#else
+		CYBOZU_TEST_EXCEPTION(code.mov(code.eax, L1), std::exception);
+#endif
+		// forward jmp is detected when the label is defined
+		code.jmp(L2, Code::T_NEAR);
+		CYBOZU_TEST_EXCEPTION(code.L(L2), std::exception);
+	}
+	// reset() makes it possible to generate code again
+	code.reset();
+	Label L3;
+	code.gen(L3);
+	code.ready();
+	CYBOZU_TEST_ASSERT(L3.getAddress() == code.getCode() + 6);
+}
+
+// the second readyRE() without appending code does not write to the buffer
+CYBOZU_TEST_AUTO(readyRETwice_AutoGrow)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code() : Xbyak::CodeGenerator(4096, Xbyak::AutoGrow)
+		{
+			Label label;
+			mov(eax, 5);
+			ret();
+			L(label);
+			putL(label);
+		}
+	};
+	Code code;
+	code.readyRE();
+	code.readyRE();
+	CYBOZU_TEST_EQUAL(code.getCode<int (*)()>()(), 5);
 }

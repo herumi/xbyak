@@ -506,6 +506,7 @@ c.ready(); // mode = Read/Write/Exec
 
 **Note**:
 * Don't use the address returned by `getCurr()` before calling `ready()` because it may be invalid address.
+* Don't append code after calling `ready()`. Code whose address is fixed by `ready()` (e.g. `putL(label)`, `mov(reg, label)` and a forward jump) causes `ERR_CODE_IS_FIXED_BY_READY`. Call `reset()` to generate code again.
 
 ### Read/Exec mode
 Xbyak set Read/Write/Exec mode to memory to run jit code.
@@ -557,6 +558,7 @@ Note that the error status is thread-local and shared by all instances of `CodeG
   - the register form of r/m of AVX instructions must have the size determined by the vector length, e.g. `vpmovsxbd(zmm1, zmm2)` and `vaddps(zmm1, zmm2, xmm3)` (`ERR_BAD_COMBINATION`). If disabled, only the index of the register is used and the vector length is the maximum size of the operands.
   - broadcast is not allowed on non AVX-512 instructions, e.g. `lea(rax, ptr_b[rax])` (`ERR_INVALID_BROADCAST`). If disabled, it is ignored.
   - an explicitly sized memory operand of `pinsr{b,w,d}`/`pextr{b,w,d}`/`extractps`/`movd`/`movq` and their VEX/EVEX forms must have the size which the instruction accesses, e.g. `vpinsrb(xmm1, xmm2, zword[rax], 0)` (`ERR_BAD_MEM_SIZE`).
+  - the operand of near `jmp`/`call` must have the size of the mode (or 16-bit in 32-bit mode), e.g. `jmp(dword[rax])` and `jmp(ecx)` in 64-bit mode (`ERR_BAD_MEM_SIZE`/`ERR_BAD_SIZE_OF_REGISTER`). If disabled, the size is ignored.
   - `T_z` is not allowed on the address of a memory destination, e.g. `vmovups(ptr[rax]|k1|T_z, zmm1)` (`ERR_INVALID_ZERO`). If disabled, it is ignored. `T_z` on the register such as `vmovups(ptr[rax], zmm1|k1|T_z)` is always an error.
 
 ## StackFrame (64bit only)
