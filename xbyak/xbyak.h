@@ -2102,6 +2102,7 @@ class LabelManager {
 	// assign a new id at the first use of label (forward reference), so Label::id is mutable
 	int getOrAssignId(const Label& label) const
 	{
+		if (label.mgr && label.mgr != this) XBYAK_THROW_RET(ERR_BAD_PARAMETER, 0)
 		if (label.id == 0) label.id = labelId_++;
 		return label.id;
 	}
@@ -2250,6 +2251,7 @@ public:
 	}
 	void assign(Label& dst, const Label& src)
 	{
+		if (src.mgr && src.mgr != this) XBYAK_THROW(ERR_BAD_PARAMETER)
 		ClabelDefList::const_iterator i = clabelDefList_.find(src.id);
 		if (i == clabelDefList_.end()) XBYAK_THROW(ERR_LABEL_ISNOT_SET_BY_L)
 		define_inner(clabelDefList_, clabelUndefList_, getOrAssignId(dst), i->second.offset);

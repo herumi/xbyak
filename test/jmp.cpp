@@ -2125,6 +2125,52 @@ CYBOZU_TEST_AUTO(resetAfterProtectRE_DontSetProtectRWE)
 	CYBOZU_TEST_EQUAL(f2(), 2);
 }
 
+// a label defined by another CodeGenerator is rejected
+CYBOZU_TEST_AUTO(label_of_another_generator)
+{
+	struct Code : Xbyak::CodeGenerator {
+	};
+	Label La, Lb, Lc;
+	{
+		Code a, b;
+		a.nop();
+		a.nop();
+		a.L(La);
+		a.nop();
+		b.nop();
+		b.L(Lb);
+		b.nop();
+		CYBOZU_TEST_EQUAL(La.getId(), Lb.getId());
+		CYBOZU_TEST_EXCEPTION(b.jmp(La), std::exception);
+		CYBOZU_TEST_EXCEPTION(b.putL(La), std::exception);
+		CYBOZU_TEST_EXCEPTION(b.L(La), std::exception);
+		CYBOZU_TEST_EXCEPTION(b.assignL(La, Lb), std::exception);
+		{
+			Label dst;
+			CYBOZU_TEST_EXCEPTION(b.assignL(dst, La), std::exception);
+			CYBOZU_TEST_EQUAL(dst.getId(), 0);
+		}
+		// La is not changed
+		CYBOZU_TEST_ASSERT(La.getAddress() == a.getCode() + 2);
+		a.jmp(La);
+		// ptr[label] of a defined label is treated as the absolute address, so it is accepted
+		b.mov(b.eax, b.ptr[La]);
+		// a label of a reset generator can be used by another one
+		a.reset();
+		CYBOZU_TEST_EQUAL(La.getId(), 0);
+		const uint8_t *cur = b.getCurr();
+		b.L(La);
+		CYBOZU_TEST_ASSERT(La.getAddress() == cur);
+		Lc = La;
+	}
+	// a label of a destroyed generator can be used by another one
+	CYBOZU_TEST_EQUAL(Lc.getId(), 0);
+	Code c;
+	c.L(Lc);
+	c.jmp(Lc);
+	CYBOZU_TEST_ASSERT(Lc.getAddress() == c.getCode());
+}
+
 // appending code that needs fixing an address after ready() is an error in AutoGrow mode
 CYBOZU_TEST_AUTO(appendAfterReady_AutoGrow)
 {
