@@ -778,6 +778,7 @@ typedef uint8_t uint8;
 	f(ERR_CANT_INIT_CPUTOPOLOGY, "can't init CpuTopology") \
 	f(ERR_INVALID_CPUMASK_INDEX, "invalid cpumask index") \
 	f(ERR_INVALID_OPMASK, "invalid opmask") \
+	f(ERR_CODE_IS_FIXED_BY_READY, "code is already fixed by ready()") \
 	f(ERR_INTERNAL, "internal error") /* Put it at last. */
 
 enum {
@@ -1842,6 +1843,7 @@ public:
 	}
 	void save(size_t offset, size_t val, int size, inner::LabelMode mode)
 	{
+		if (isCalledCalcJmpAddress_) XBYAK_THROW(ERR_CODE_IS_FIXED_BY_READY)
 		addrInfoList_.push_back(AddrInfo(offset, val, size, mode));
 	}
 	bool isAutoGrow() const { return type_ == AUTO_GROW; }

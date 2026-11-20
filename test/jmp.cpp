@@ -2124,3 +2124,62 @@ CYBOZU_TEST_AUTO(resetAfterProtectRE_DontSetProtectRWE)
 	int (*f2)() = code.getCode<int (*)()>();
 	CYBOZU_TEST_EQUAL(f2(), 2);
 }
+
+// appending code that needs fixing an address after ready() is an error in AutoGrow mode
+CYBOZU_TEST_AUTO(appendAfterReady_AutoGrow)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code() : Xbyak::CodeGenerator(4096, Xbyak::AutoGrow) {}
+		void gen(Label& label)
+		{
+			jmp(label, T_NEAR);
+			nop();
+			L(label);
+			putL(label);
+		}
+	};
+	Code code;
+	{
+		Label L1, L2;
+		code.gen(L1);
+		code.ready();
+		CYBOZU_TEST_ASSERT(L1.getAddress() == code.getCode() + 6);
+		// code that does not need ready() is not checked
+		code.nop();
+		code.jmp(L1, Code::T_NEAR); // backward jmp is written directly
+		CYBOZU_TEST_EXCEPTION(code.putL(L1), std::exception);
+#ifdef XBYAK64
+		CYBOZU_TEST_EXCEPTION(code.mov(code.rax, L1), std::exception);
+#else
+		CYBOZU_TEST_EXCEPTION(code.mov(code.eax, L1), std::exception);
+#endif
+		// forward jmp is detected when the label is defined
+		code.jmp(L2, Code::T_NEAR);
+		CYBOZU_TEST_EXCEPTION(code.L(L2), std::exception);
+	}
+	// reset() makes it possible to generate code again
+	code.reset();
+	Label L3;
+	code.gen(L3);
+	code.ready();
+	CYBOZU_TEST_ASSERT(L3.getAddress() == code.getCode() + 6);
+}
+
+// the second readyRE() without appending code does not write to the buffer
+CYBOZU_TEST_AUTO(readyRETwice_AutoGrow)
+{
+	struct Code : Xbyak::CodeGenerator {
+		Code() : Xbyak::CodeGenerator(4096, Xbyak::AutoGrow)
+		{
+			Label label;
+			mov(eax, 5);
+			ret();
+			L(label);
+			putL(label);
+		}
+	};
+	Code code;
+	code.readyRE();
+	code.readyRE();
+	CYBOZU_TEST_EQUAL(code.getCode<int (*)()>()(), 5);
+}

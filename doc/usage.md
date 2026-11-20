@@ -506,6 +506,7 @@ c.ready(); // mode = Read/Write/Exec
 
 **Note**:
 * Don't use the address returned by `getCurr()` before calling `ready()` because it may be invalid address.
+* Don't append code after calling `ready()`. Code whose address is fixed by `ready()` (e.g. `putL(label)`, `mov(reg, label)` and a forward jump) causes `ERR_CODE_IS_FIXED_BY_READY`. Call `reset()` to generate code again.
 
 ### Read/Exec mode
 Xbyak set Read/Write/Exec mode to memory to run jit code.
